@@ -5,8 +5,16 @@ import i18n from './i18n'
 import router from './router';
 import store from './store';
 import './registerServiceWorker';
+import Ads from 'vue-google-adsense';
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = false
+
+/* アドセンスの使用宣言 */
+Vue.use(require('vue-script2'))
+Vue.use(Ads.Adsense)
+Vue.use(Ads.InArticleAdsense)
+Vue.use(Ads.InFeedAdsense)
+
 
 new Vue({
   router,

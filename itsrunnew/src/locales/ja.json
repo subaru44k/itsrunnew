@@ -1,3 +1,16 @@
 {
-  "message": "こんにちは i18n !!"
+  "message": "こんにちは i18n !!",
+  "title": "いつラン",
+  "menu": {
+    "tokyo": "東京都の競技場",
+    "oda": "織田フィールド",
+    "yume": "夢の島陸上競技場",
+    "kanagawa": "神奈川県の競技場",
+    "todoroki": "等々力陸上競技場",
+    "nissan": "日産スタジアム",
+    "laptime": "ラップタイム",
+    "marathon": "マラソン",
+    "changelang": "View English Site"
+  }
+
 }

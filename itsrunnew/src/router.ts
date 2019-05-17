@@ -32,7 +32,7 @@ const router = new Router({
       path: '/:lang/',
       component: Home,
       meta: {
-        title: 'いつラン',
+        title: 'ItsRun',
       },
     },
     {

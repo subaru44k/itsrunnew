@@ -1,3 +1,15 @@
 {
-  "message": "hello i18n !!"
+  "message": "hello i18n !!",
+  "title": "ItsRun",
+  "menu": {
+    "tokyo": "Tokyo",
+    "oda": "Yoyogi Park Athletic Track",
+    "yume": "Yumenoshima",
+    "kanagawa": "Kanagawa",
+    "todoroki": "Todoroki Athletic Track",
+    "nissan": "Nissan Stadium",
+    "laptime": "Lap Time",
+    "marathon": "Marathon",
+    "changelang": "日本語ページへ"
+  }
 }

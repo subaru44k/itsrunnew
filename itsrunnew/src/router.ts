@@ -15,6 +15,7 @@ const router = new Router({
       component: Home,
       meta: {
         title: 'いつラン',
+        description: 'いつラン home',
       },
     },
     {
@@ -22,6 +23,7 @@ const router = new Router({
       name: 'about',
       meta: {
         title: 'Home',
+        description: 'いつラン about',
       },
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
@@ -33,12 +35,14 @@ const router = new Router({
       component: Home,
       meta: {
         title: 'ItsRun',
+        description: 'いつラン eng home',
       },
     },
     {
       path: '/:lang/about',
       meta: {
         title: 'Home',
+        description: 'いつラン eng about',
       },
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
@@ -50,6 +54,10 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
+  let desc = document.head.querySelector('meta[name=description]');
+  if (desc !== null) {
+    desc.setAttribute('content', to.meta.description);
+  }
   if (to.params.lang !== undefined) {
     i18n.locale = to.params.lang;
   } else {

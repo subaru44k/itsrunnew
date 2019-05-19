@@ -1,6 +1,9 @@
 {
   "message": "hello i18n !!",
   "title": "ItsRun",
+  "footer_1": "Please tweet to ",
+  "footer_2": "@itsrun_page",
+  "footer_3": " if you have any requests.",
   "menu": {
     "tokyo": "Tokyo",
     "oda": "Yoyogi Park Athletic Track",
@@ -11,5 +14,23 @@
     "laptime": "Lap Time",
     "marathon": "Marathon",
     "changelang": "日本語ページへ"
+  },
+  "oda": {
+    "open_title": "Yoyogi Park Athletic Track's Availability",
+    "available": "The folloing is the Yoyogi Park Athletic Track's open schedule.",
+    "info_title": "About Yoyogi Park Athletic Track",
+    "official_name": "Yoyogi Park Atheletic Stadium (Oda Field)",
+    "access_title": "Access",
+    "access_1": "From the Yoyogi Park station on Chiyoda Line, 6 minutes walk.",
+    "access_2": "From the Harajuku station on Yamanote Line, 15 minutes walk.",
+    "contact": "Contact",
+    "contact_1": "Yoyogi Park Service Center",
+    "tel": "（TEL:03-3469-6081）",
+    "opinion_title": "Opinion",
+    "opinion_1": "Due to its convenient location, price (Free!) and availability, Yoyogi Park Athletic Track is the most very popular stadium in Tokyo. Moreover, runners can also use dressing rooms, shower rooms, and lockers for free.",
+    "opinion_2": "Despite there being so much runners, their manners are at least not so bad. However, if you want to avoid a crowded stadium, I recommend to go to the Yumenoshima Athletic stadium.",
+    "opinion_3": "After the workouts, you can hang out with your frends to Shibuya and Harajuku and have some delicious dinner in the urban city to socialize each other.",
+    "opinion_4": ""
   }
+
 }

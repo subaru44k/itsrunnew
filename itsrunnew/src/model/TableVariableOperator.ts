@@ -3,8 +3,6 @@ import moment from 'moment';
 import { FirebaseControl } from '../firebase/FirebaseControl';
 import { StadiumInfo } from './stadiuminfo';
 
-moment.locale('ja')
-
 export class TableVariableOperator {
   firebaseControl: FirebaseControl;
   constructor(firebase: any) {
@@ -29,8 +27,8 @@ export class TableVariableOperator {
     this.initializeStatus(statusArray);
   }
   
-  updateTableContent(stadiumId: string, weekIndex: number, timeRange: string[], dateList: string[], statusArray: number[][]) {
-    this.updateDateList(weekIndex, dateList);
+  updateTableContent(stadiumId: string, weekIndex: number, timeRange: string[], dateList: string[], statusArray: number[][], locale: string) {
+    this.updateDateList(weekIndex, dateList, locale);
     if (stadiumId === '0') {
       this.firebaseControl.getDefaultPageId().then((id) => {
         this.updateTimeRange(id, timeRange);
@@ -104,7 +102,12 @@ export class TableVariableOperator {
     });
   }
   
-  updateDateList(weekIndex: number, dateList: string[]) {
+  updateDateList(weekIndex: number, dateList: string[], locale: string) {
+    if (locale === 'ja') {
+      moment.locale('ja')
+    } else {
+      moment.locale('en')
+    }
     return this.getDateMomentList(weekIndex).forEach((date, index) => {
       dateList.splice(index, 1, date.format('MM/DD(ddd)'));
     })

@@ -41,17 +41,17 @@ export default new Vuex.Store({
       state.control.initializeTableData(
         state.weekIndex, state.timeRange, state.dateList, state.statusArray);
       state.control.updateTableContent(
-        stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray);
+        stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray, i18n.locale);
     },
     previousWeekEvent({commit, state}) {
       state.weekIndex = state.weekIndex - 1;
       state.control.updateStatusToInitialValue(state.statusArray);
-      state.control.updateTableContent(state.stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray);
+      state.control.updateTableContent(state.stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray, i18n.locale);
     },
     nextWeekEvent({commit, state}) {
       state.weekIndex = state.weekIndex + 1;
       state.control.updateStatusToInitialValue(state.statusArray);
-      state.control.updateTableContent(state.stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray);
+      state.control.updateTableContent(state.stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray, i18n.locale);
     },
   },
 });

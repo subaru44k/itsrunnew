@@ -6,6 +6,7 @@
         <p class="headline">{{ $t("oda.available") }}</p>
         <Adsense data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191">
         </Adsense>
+        <v-card class="mb-3">
         <Pagination></Pagination>
         <v-layout>
           <v-flex hidden-sm-and-up>
@@ -15,6 +16,9 @@
             <PcScheduleTable></PcScheduleTable>
           </v-flex>
         </v-layout>
+        </v-card>
+        <v-card>
+          <v-container>
         <p class="display-1">{{ $t("oda.info_title") }}</p>
         <p class="title">{{ $t("oda.official_name") }}</p>
         <v-layout justify-center row>
@@ -35,15 +39,14 @@
         <div class="subheading">
           {{ $t("oda.opinion_1")}}
           <br>
-          <br>
           {{ $t("oda.opinion_2")}}
-          <br>
           <br>
           {{ $t("oda.opinion_3")}}
           <br>
-          <br>
           {{ $t("oda.opinion_4")}}
         </div>
+          </v-container>
+        </v-card>
       </v-flex>
     </v-layout>
   </v-container>

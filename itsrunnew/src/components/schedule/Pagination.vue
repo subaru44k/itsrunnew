@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container pb-0>
     <v-layout justify-center row wrap>
       <v-flex shrink>
         <div>

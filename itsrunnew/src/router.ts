@@ -12,11 +12,11 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'oda',
       component: OdaField,
       meta: {
-        title: 'いつラン',
-        description: 'いつラン home',
+        title: 'いつラン - 織田フィールドを個人利用する人のための利用時間確認ページ',
+        description: '織田フィールド(代々木公園陸上競技場)等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
       },
     },
     {
@@ -35,8 +35,8 @@ const router = new Router({
       path: '/:lang/',
       component: OdaField,
       meta: {
-        title: 'ItsRun',
-        description: 'いつラン eng home',
+        title: 'ItsRun - For runners using Yoyogi Park Athletic Track to check stadium\'s availability',
+        description: 'The available dates and times at Yoyogi Park Athletic Stadium (Oda Field) can be checked in this web page.',
       },
     },
     {

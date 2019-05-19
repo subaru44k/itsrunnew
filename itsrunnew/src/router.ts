@@ -33,7 +33,7 @@ const router = new Router({
     },
     {
       path: '/:lang/',
-      component: Home,
+      component: OdaField,
       meta: {
         title: 'ItsRun',
         description: 'いつラン eng home',

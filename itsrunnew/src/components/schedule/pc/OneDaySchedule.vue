@@ -1,6 +1,6 @@
 <template>
   <tr>
-    <td class="headline">{{ date }}</td>
+    <td class="title">{{ date }}</td>
     <ConditionalStatus v-bind:condstatus="onedaystatus[0]"/>
     <ConditionalStatus v-bind:condstatus="onedaystatus[1]"/>
     <ConditionalStatus v-bind:condstatus="onedaystatus[2]"/>

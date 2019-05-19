@@ -1,6 +1,6 @@
 <template>
   <tr>
-    <td rowspan="3" class="align-middle headline">{{ date }}</td>
+    <td rowspan="3" class="align-middle title">{{ date }}</td>
     <td class="title">{{ timeSlot }}</td>
     <ConditionalStatus v-bind:condstatus="status"/>
   </tr>

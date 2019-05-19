@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
 import OdaField from './views/OdaField.vue';
 import i18n from './i18n';
 

@@ -1,6 +1,9 @@
 {
   "message": "こんにちは i18n !!",
   "title": "いつラン",
+  "footer_1": "ウェブサイトの要望は、",
+  "footer_2": "@itsrun_page",
+  "footer_3": "までどうぞ",
   "menu": {
     "tokyo": "東京都の競技場",
     "oda": "織田フィールド",

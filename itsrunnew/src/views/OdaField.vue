@@ -6,7 +6,15 @@
         <p class="headline">織田フィールドの個人利用可能時間は以下の通りです。</p>
         <Adsense data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191">
         </Adsense>
-        <HelloWorld></HelloWorld>
+        <Pagination></Pagination>
+        <v-layout>
+          <v-flex hidden-sm-and-up>
+            <SpScheduleTable></SpScheduleTable>
+          </v-flex>
+          <v-flex hidden-xs-only>
+            <PcScheduleTable></PcScheduleTable>
+          </v-flex>
+        </v-layout>
       </v-flex>
     </v-layout>
   </v-container>
@@ -14,12 +22,16 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import PcScheduleTable from '@/components/schedule/pc/PcScheduleTable.vue'; // @ is an alias to /src
+import SpScheduleTable from '@/components/schedule/sp/SpScheduleTable.vue'; // @ is an alias to /src
+import Pagination from '@/components/schedule/Pagination.vue';
 import Ads from 'vue-google-adsense';
 
 @Component({
   components: {
-    HelloWorld,
+    SpScheduleTable,
+    PcScheduleTable,
+    Pagination,
     Ads,
   },
 })

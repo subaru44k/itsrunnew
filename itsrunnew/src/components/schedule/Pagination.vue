@@ -23,10 +23,10 @@ import Component from 'vue-class-component'
 })
 export default class Pagination extends Vue {
     previous() {
-        this.$emit('previous-week-event');
+        this.$store.dispatch('previousWeekEvent');
     }
     next() {
-        this.$emit('next-week-event');
+        this.$store.dispatch('nextWeekEvent');
     }
 }
 </script>

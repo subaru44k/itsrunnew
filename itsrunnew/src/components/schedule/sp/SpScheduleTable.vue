@@ -34,28 +34,15 @@ import OneDayScheduleThird from '@/components/schedule/sp/OneDayScheduleThird.vu
 })
 export default class SpScheduleTable extends Vue {
   get timeSlots() {
-    return [
-    '9:00-12:00',
-    '13:00-17:00',
-    '18:00-21:00',
-    ]
+    return this.$store.state.timeRange;
   }
 
-
   get dates() {
-    return ['5/16', '5/17', '5/18', '5/19', '5/20', '5/21', '5/16']
+    return this.$store.state.dateList;
   }
 
   get statuses() {
-    return [
-      [0, 1, 2],
-      [0, 1, 2],
-      [0, 1, 2],
-      [0, 1, 2],
-      [0, 1, 2],
-      [0, 1, 2],
-      [0, 1, 2],
-    ]
+    return this.$store.state.statusArray;
   }
 }
 </script>

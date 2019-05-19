@@ -35,5 +35,9 @@ import Ads from 'vue-google-adsense';
     Ads,
   },
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  mounted() {
+    this.$store.dispatch('retrieveScheduleData', 'nVfuSmsj9cULg3712chv');
+  }
+}
 </script>

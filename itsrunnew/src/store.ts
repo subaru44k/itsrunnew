@@ -18,7 +18,6 @@ interface StoreType {
     dateList: string[];
     timeRange: string[];
     statusArray: number[][];
-    timeCandidate: string[];
     targetTimeIndex: number;
     targetTimes: TimeContainer[];
 }
@@ -30,7 +29,6 @@ export default new Vuex.Store({
     dateList: [],
     timeRange: [],
     statusArray: [[]],
-    timeCandidate: ['2時間〜3時間半', '3時間半〜5時間', '5時間〜6時間半'],
     targetTimeIndex: 0,
     targetTimes: containerFactory.getTimeContainerSet(0),
   } as StoreType,

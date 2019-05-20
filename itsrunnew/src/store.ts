@@ -5,6 +5,7 @@ import router from './router';
 import { TableVariableOperator } from './model/TableVariableOperator';
 import TimeContainer from './model/TimeContainer';
 import TimeContainerFactory from './model/TimeContainerFactory';
+import { StadiumInfo } from './model/stadiuminfo';
 declare const firebase: any;
 
 Vue.use(Vuex);
@@ -14,6 +15,7 @@ const containerFactory = new TimeContainerFactory();
 interface StoreType {
     control: TableVariableOperator;
     stadiumId: string;
+    stadiumInfoArray: StadiumInfo[],
     weekIndex: number;
     dateList: string[];
     timeRange: string[];
@@ -25,6 +27,7 @@ export default new Vuex.Store({
   state: {
     control: operator,
     stadiumId: 'nVfuSmsj9cULg3712chv',
+    stadiumInfoArray: [],
     weekIndex: 0,
     dateList: [],
     timeRange: [],
@@ -53,6 +56,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    retrieveStadiumInfo({commit, state}) {
+      state.control.updateStadiumInfo(state.stadiumInfoArray);
+    },
     retrieveScheduleData({commit, state}, stadiumId) {
       state.control.initializeTableData(
         state.weekIndex, state.timeRange, state.dateList, state.statusArray);

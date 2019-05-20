@@ -49,6 +49,18 @@ const router = new Router({
       },
     },
     {
+      path: '/manage',
+      name: 'manage',
+      meta: {
+        title: 'いつラン - 管理画面',
+        description: '管理画面',
+      },
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ './views/Manage.vue'),
+    },
+    {
       path: '/pace/marathon',
       name: 'marathon',
       meta: {

@@ -19,16 +19,16 @@ const router = new Router({
       },
     },
     {
-      path: '/about',
-      name: 'about',
+      path: '/pace/marathon',
+      name: 'marathon',
       meta: {
-        title: 'Home',
-        description: 'いつラン about',
+        title: 'いつラン - マラソンのペース表。5kmごとのラップタイム表記。',
+        description: 'マラソンの5kmごとのラップタイムがひと目で分かります。サブスリー、サブフォー、サブファイブ、2時間の世界記録まで。スマートフォン対応。',
       },
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      component: () => import(/* webpackChunkName: "about" */ './views/LapTime.vue'),
     },
     {
       path: '/:lang/',

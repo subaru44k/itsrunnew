@@ -41,6 +41,15 @@ export default new Vuex.Store({
     rootPage(state) {
       changeUrl('/', '/en/');
     },
+    yumenoshimaPage(state) {
+      changeUrl('/yumenoshima', '/en/yumenoshima');
+    },
+    komazawaPage(state) {
+      changeUrl('/komazawa', '/en/komazawa');
+    },
+    todorokiPage(state) {
+      changeUrl('/todoroki', '/en/todoroki');
+    },
     lapTimePage(state) {
       changeUrl('/pace/marathon', '/en/pace/marathon');
     }

@@ -210,14 +210,14 @@ export default class App extends Vue {
   get tokyoMenuItems() {
     return [
       { title: this.$t('menu.oda'), icon: 'dashboard', route: this.goToRootPage, },
-      { title: this.$t('menu.yume'), icon: 'question_answer', route: this.goToLapTimePage, },
+      { title: this.$t('menu.yume'), icon: 'question_answer', route: this.goToYumenoshimaPage, },
+      { title: this.$t('menu.komazawa'), icon: 'question_answer', route: this.goToKomazawaPage, },
     ];
   }
 
   get kanagawaMenuItems() {
     return [
-      { title: this.$t('menu.todoroki'), icon: 'dashboard', route: this.goToRootPage, },
-      { title: this.$t('menu.nissan'), icon: 'question_answer', route: this.goToLapTimePage, },
+      { title: this.$t('menu.todoroki'), icon: 'dashboard', route: this.goToTodorokiPage, },
     ];
   }
 
@@ -233,6 +233,18 @@ export default class App extends Vue {
 
   private goToRootPage() {
     this.$store.commit('rootPage');
+  }
+
+  private goToYumenoshimaPage() {
+    this.$store.commit('yumenoshimaPage');
+  }
+
+  private goToKomazawaPage() {
+    this.$store.commit('komazawaPage');
+  }
+
+  private goToTodorokiPage() {
+    this.$store.commit('todorokiPage');
   }
 
   private goToLapTimePage() {

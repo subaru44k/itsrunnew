@@ -32,6 +32,43 @@
     "opinion_3": "After the workouts, you can hang out with your frends to Shibuya and Harajuku and have some delicious dinner in the urban city to socialize each other.",
     "opinion_4": ""
   },
+  "yume": {
+    "open_title": "Yumenoshima Athletics Stadium's Availability",
+    "available": "The folloing is the Yumenoshima Athletics Stadium's open schedule.",
+    "info_title": "About Yumenoshima Athletics Stadium",
+    "official_name": "Yumenoshima Athletics Stadium",
+    "access_title": "Access",
+    "access_1": "From the Shinkiba station on Rinkai Line, 7 minutes walk.",
+    "contact": "Contact",
+    "contact_1": "The outdoor sports facility office in Yumenoshima Athletics Stadium.",
+    "tel": "（TEL:03-3522-0846）",
+    "opinion_title": "Introduction",
+    "opinion_1": "A stadium close to the Shinkiba station, open at night, good to run after the work.",
+    "opinion_2": "It is easy to access from the center of Tokyo and has 1.5 km running course good for the warm up, dressing rooms, and shower rooms. Compared to Yoyogi Park Athletic Track, there are much fewer runners and almost of them have enough experience on the use of tracks, so the manner itself is pretty good. If you are a dedicated runner and need concentration on running, I recommend using here.",
+    "opinion_3": "The only shortage is there are only a few restaurants, so it is not good to socialize each other."
+  },
+  "komazawa": {
+    "open_title": "Komazawa Olympic Park Athletic Stadium's Availability",
+    "available": "The folloing is the Komazawa Olympic Park Athletic Stadium's open schedule.",
+    "info_title": "About Komazawa Olympic Stadium Athletic Stadium",
+    "official_name": "Komazawa Olympic Stadium Athletic Stadium",
+    "access_title": "Access",
+    "access_1": "From the Komazawa University station on Hanzomon Line, 15 minutes walk.",
+    "contact": "Contact",
+    "contact_1": "Service department at Komazawa Olympic Park Athletic Stadium",
+    "tel": "（TEL:03-3421-6199）"
+  },
+  "todoroki": {
+    "open_title": "Todoroki Stadium's Availability",
+    "available": "The folloing is the Todoroki Stadium's open schedule.",
+    "info_title": "About Todoroki Stadium",
+    "official_name": "Kawasaki Todoroki Stadium",
+    "access_title": "Access",
+    "access_1": "From the Musashi-nakahara station on Nanbu Line, 15 minutes walk.",
+    "opinion_title": "Introduction",
+    "opinion_1": "A stadium one takes 15 minutes from the Nakahara station by foot. The main stadium is one of the most marvelous stadiums in Japan and can hold IAAF Athletics Chanpionships. A sub track also have 8 tracks.",
+    "opinion_2": "It is famous as a home stadium of Kawasaki Frontale (one of major football teams). So, you had better check the availablility before use. The sub track is next to a park and a baseball ground, and sometimes balls fall on the tracks. Also, in windy days, small sandstorm hit the stadium."
+  },
   "pacetable": {
     "marathon_title": "Lap Time for the Marathon",
     "personal_goal": "Personal Goal",

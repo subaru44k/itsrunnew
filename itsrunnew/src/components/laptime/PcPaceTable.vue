@@ -3,18 +3,18 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th scope="col">目標タイム</th>
+                <th scope="col">{{ $t('pacetable.personal_goal') }}</th>
                 <th scope="col">1km</th>
                 <th scope="col">5km</th>
                 <th scope="col">10km</th>
                 <th scope="col">15km</th>
                 <th scope="col">20km</th>
-                <th scope="col">ハーフ</th>
+                <th scope="col">Half</th>
                 <th scope="col">25km</th>
                 <th scope="col">30km</th>
                 <th scope="col">35km</th>
                 <th scope="col">40km</th>
-                <th scope="col">フル</th>
+                <th scope="col">Full</th>
             </tr>
         </thead>
         <tbody>

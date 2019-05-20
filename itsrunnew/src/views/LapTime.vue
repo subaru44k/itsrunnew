@@ -4,12 +4,12 @@
       <v-flex>
         <v-card class="mb-3">
           <v-container>
-            <p class="display-1">マラソンのラップタイム</p>
+            <p class="display-1">{{ $t('pacetable.marathon_title') }}</p>
             <v-layout justify-center>
               <v-flex>
                 <v-select
                 :items="items"
-                label="目標タイム"
+                :label="$t('pacetable.personal_goal')"
                 v-model="targetTime"
                 ></v-select>
               </v-flex>
@@ -42,7 +42,7 @@ import PcPaceTable from '@/components/laptime/PcPaceTable.vue';
 })
 export default class OdaField extends Vue {
   get items(): string[] {
-    return ['2時間〜3時間半', '3時間半〜5時間', '5時間〜6時間半']
+    return [this.$t('pacetable.from_2hours').toString(), this.$t('pacetable.from_3hourshalf').toString(), this.$t('pacetable.from_5hours').toString()]
   }
 
   get targetTime() {

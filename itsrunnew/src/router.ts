@@ -34,20 +34,20 @@ const router = new Router({
       path: '/:lang/',
       component: OdaField,
       meta: {
-        title: 'ItsRun - For runners using Yoyogi Park Athletic Track to check stadium\'s availability',
+        title: 'It\'s Run - For runners using Yoyogi Park Athletic Track to check stadium\'s availability',
         description: 'The available dates and times at Yoyogi Park Athletic Stadium (Oda Field) can be checked in this web page.',
       },
     },
     {
-      path: '/:lang/about',
+      path: '/:lang/pace/marathon',
       meta: {
-        title: 'Home',
-        description: 'いつラン eng about',
+        title: 'It\'s Run - The pace list for the marathon. The lap times are described in each 5km.',
+        description: 'The lap times for the marathon. Support variety of paces from 2 hours(World record) to 6.5 hours.',
       },
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      component: () => import(/* webpackChunkName: "about" */ './views/LapTime.vue'),
     },
   ],
 });

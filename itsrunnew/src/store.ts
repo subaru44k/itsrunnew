@@ -41,8 +41,8 @@ export default new Vuex.Store({
     rootPage(state) {
       changeUrl('/', '/en/');
     },
-    aboutPage(state) {
-      changeUrl('/about', '/en/about');
+    lapTimePage(state) {
+      changeUrl('/pace/marathon', '/en/pace/marathon');
     }
   },
   actions: {

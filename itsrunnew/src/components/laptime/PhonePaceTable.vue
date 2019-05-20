@@ -3,7 +3,7 @@
     <table class="table table-bordered table-phone">
         <thead>
             <tr>
-                <th scope="col">目標タイム</th>
+                <th scope="col">{{ $t('pacetable.personal_goal') }}</th>
                 <th scope="col">{{ lapTimeList[0][0] }}</th>
                 <th scope="col">{{ lapTimeList[1][0] }}</th>
                 <th scope="col">{{ lapTimeList[2][0] }}</th>

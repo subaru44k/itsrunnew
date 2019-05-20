@@ -89,7 +89,7 @@
       class="hidden-sm-and-up"
       >
       </v-toolbar-side-icon>
-      <v-toolbar-title><a class="white--text" href="/">{{ $t("title") }}</a></v-toolbar-title>
+      <v-toolbar-title><a class="white--text" @click="goToRootPage">{{ $t("title") }}</a></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
         <v-menu offset-y>
@@ -210,20 +210,20 @@ export default class App extends Vue {
   get tokyoMenuItems() {
     return [
       { title: this.$t('menu.oda'), icon: 'dashboard', route: this.goToRootPage, },
-      { title: this.$t('menu.yume'), icon: 'question_answer', route: this.goToAboutPage, },
+      { title: this.$t('menu.yume'), icon: 'question_answer', route: this.goToLapTimePage, },
     ];
   }
 
   get kanagawaMenuItems() {
     return [
       { title: this.$t('menu.todoroki'), icon: 'dashboard', route: this.goToRootPage, },
-      { title: this.$t('menu.nissan'), icon: 'question_answer', route: this.goToAboutPage, },
+      { title: this.$t('menu.nissan'), icon: 'question_answer', route: this.goToLapTimePage, },
     ];
   }
 
   get lapTimeItems() {
     return [
-      { title: this.$t('menu.marathon'), icon: 'dashboard', route: this.goToRootPage },
+      { title: this.$t('menu.marathon'), icon: 'dashboard', route: this.goToLapTimePage },
     ]
   }
 
@@ -235,8 +235,8 @@ export default class App extends Vue {
     this.$store.commit('rootPage');
   }
 
-  private goToAboutPage() {
-    this.$store.commit('aboutPage');
+  private goToLapTimePage() {
+    this.$store.commit('lapTimePage');
   }
 }
 </script>

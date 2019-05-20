@@ -31,6 +31,13 @@
     "opinion_2": "Despite there being so much runners, their manners are at least not so bad. However, if you want to avoid a crowded stadium, I recommend to go to the Yumenoshima Athletic stadium.",
     "opinion_3": "After the workouts, you can hang out with your frends to Shibuya and Harajuku and have some delicious dinner in the urban city to socialize each other.",
     "opinion_4": ""
+  },
+  "pacetable": {
+    "marathon_title": "Lap Time for the Marathon",
+    "personal_goal": "Personal Goal",
+    "from_2hours": "2 hours - 3 hours and a half",
+    "from_3hourshalf": "3 hours and a half - 5 hours",
+    "from_5hours": "5 hours - 6 hours and a half"
   }
 
 }

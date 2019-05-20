@@ -1,5 +1,5 @@
 <template>
-<div class="table-responsive">
+  <div class="table-responsive">
     <table class="table table-bordered table-phone">
         <thead>
             <tr>
@@ -270,7 +270,7 @@
             </tr>
         </tbody>
     </table>
-</div>
+  </div>
 </template>
 
 <style scoped>

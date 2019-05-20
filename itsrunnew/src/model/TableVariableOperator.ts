@@ -41,12 +41,17 @@ export class TableVariableOperator {
   }
   
   initializeTimeRange(timeRange: string[]) {
+    timeRange.splice(0, timeRange.length)
     timeRange.push('00:00');
     timeRange.push('00:00');
     timeRange.push('00:00');
   }
   
   initializeStatus(statusArray: number[][]) {
+    statusArray.splice(0, statusArray.length)
+    if (statusArray.length !== 0) {
+      return;
+    }
     statusArray.push([-1, -1, -1]);
     statusArray.push([-1, -1, -1]);
     statusArray.push([-1, -1, -1]);
@@ -97,6 +102,7 @@ export class TableVariableOperator {
   }
   
   initializeDateList(weekIndex: number, dateList: string[]) {
+    dateList.splice(0, dateList.length)
     return this.getDateMomentList(weekIndex).forEach((date) => {
       dateList.push(date.format('MM/DD(ddd)'));
     });

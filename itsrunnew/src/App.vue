@@ -8,7 +8,10 @@
       <v-list class="pt-3 pa-0">
         <v-list-tile avatar>
           <v-list-tile-avatar color="teal">
-            <span class="white--text headline">{{ initial }}</span>
+            <img
+              src="/img/icon.png"
+              alt="Logo"
+            >
           </v-list-tile-avatar>
           <v-list-tile-content>
             <v-list-tile-title>{{ $t('title') }}</v-list-tile-title>
@@ -33,9 +36,6 @@
             @click="item.route(); drawer = false;"
           >
             <v-list-tile-title v-text="item.title"></v-list-tile-title>
-            <v-list-tile-action>
-              <v-icon v-text="item.icon"></v-icon>
-            </v-list-tile-action>
           </v-list-tile>
         </v-list-group>
 
@@ -55,9 +55,6 @@
             @click="item.route(); drawer = false;"
           >
             <v-list-tile-title v-text="item.title"></v-list-tile-title>
-            <v-list-tile-action>
-              <v-icon v-text="item.icon"></v-icon>
-            </v-list-tile-action>
           </v-list-tile>
         </v-list-group>
 
@@ -77,9 +74,6 @@
             @click="item.route(); drawer = false;"
           >
             <v-list-tile-title v-text="item.title"></v-list-tile-title>
-            <v-list-tile-action>
-              <v-icon v-text="item.icon"></v-icon>
-            </v-list-tile-action>
           </v-list-tile>
         </v-list-group>
       </v-list>

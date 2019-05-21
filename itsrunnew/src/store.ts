@@ -6,12 +6,14 @@ import { TableVariableOperator } from './model/TableVariableOperator';
 import TimeContainer from './model/TimeContainer';
 import TimeContainerFactory from './model/TimeContainerFactory';
 import { StadiumInfo } from './model/stadiuminfo';
+import firebaseNative from 'firebase'
 declare const firebase: any;
 
 Vue.use(Vuex);
 
 const operator = new TableVariableOperator(firebase);
 const containerFactory = new TimeContainerFactory();
+const provider: firebaseNative.auth.GoogleAuthProvider = new firebase.auth.GoogleAuthProvider();
 interface StoreType {
     control: TableVariableOperator;
     stadiumId: string;
@@ -22,6 +24,7 @@ interface StoreType {
     statusArray: number[][];
     targetTimeIndex: number;
     targetTimes: TimeContainer[];
+    statusMessage: string;
 }
 export default new Vuex.Store({
   state: {
@@ -34,6 +37,7 @@ export default new Vuex.Store({
     statusArray: [[]],
     targetTimeIndex: 0,
     targetTimes: containerFactory.getTimeContainerSet(0),
+    statusMessage: '',
   } as StoreType,
   mutations: {
     changelang(state) {
@@ -53,9 +57,42 @@ export default new Vuex.Store({
     },
     lapTimePage(state) {
       changeUrl('/pace/marathon', '/en/pace/marathon');
+    },
+    changeStadiumId(state, id: string) {
+      state.stadiumId = id;
+    },
+    handleScheduleChanged(state, payload: {dateIndex: number, timeIndex: number, value: number}) {
+      console.log('value[' + payload.dateIndex + '][' + payload.timeIndex  + ']=' + payload.value);
+      operator.updateStatusArray(payload.dateIndex, payload.timeIndex, payload.value, state.statusArray);
+    },
+    handleSubmit(state) {
+      operator.putStatusToDb(state.stadiumId, state.weekIndex, state.statusArray,
+        () => {
+          state.statusMessage = 'Success to update data.';
+        },
+        () => {
+          state.statusMessage = 'Error on updating data. Maybe insufficient permission.';
+        }
+      );
     }
   },
   actions: {
+    checkAuthStatus({commit, state}, payload: {onLoggedIn: Function, onLoggedOut: Function}) {
+      firebase.auth().onAuthStateChanged((user: firebase.User) => {
+        if (user) {
+          console.log(user.displayName);
+          payload.onLoggedIn();
+          return;
+        }
+        payload.onLoggedOut();
+     }) 
+    },
+    redirectToLogin({commit, state}) {
+      firebase.auth().signInWithRedirect(provider).then((result: any) => {
+      }).catch((err: any) => {
+        console.log(err);
+      });
+    },
     retrieveStadiumInfo({commit, state}) {
       state.control.updateStadiumInfo(state.stadiumInfoArray);
     },

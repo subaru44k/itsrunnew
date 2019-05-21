@@ -50,12 +50,19 @@ export default class OdaField extends Vue {
   }
 
   get statusMessage() {
-    return "test message"
+    return this.$store.state.statusMessage; 
   }
 
   mounted() {
-    this.$store.dispatch('retrieveScheduleData', 'nVfuSmsj9cULg3712chv');
-    this.$store.dispatch('retrieveStadiumInfo');
+    this.$store.dispatch('checkAuthStatus', {
+      onLoggedIn: () => {
+        this.$store.dispatch('retrieveScheduleData', 'nVfuSmsj9cULg3712chv');
+        this.$store.dispatch('retrieveStadiumInfo');
+      },
+      onLoggedOut: () => {
+        this.$store.dispatch('redirectToLogin');
+      }
+    })
   }
 
   previous() {
@@ -67,15 +74,16 @@ export default class OdaField extends Vue {
   }
 
   handleStadiumSelected(stadiumId: string) {
+    this.$store.commit('changeStadiumId', stadiumId);
     this.$store.dispatch('retrieveScheduleData', stadiumId);
   }
 
-  handleScheduleChanged() {
-
+  handleScheduleChanged(dateIndex: number, timeIndex: number, item: number) {
+    this.$store.commit('handleScheduleChanged', {dateIndex: dateIndex, timeIndex: timeIndex, value: item});
   }
 
   handleSubmit() {
-
+    this.$store.commit('handleSubmit');
   }
 }
 </script>

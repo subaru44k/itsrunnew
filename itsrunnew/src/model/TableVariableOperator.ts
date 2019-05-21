@@ -9,6 +9,7 @@ export class TableVariableOperator {
     this.firebaseControl = new FirebaseControl(firebase);
   }
   updateStadiumInfo(stadiumInfoArray: StadiumInfo[]) {
+    stadiumInfoArray.splice(0, stadiumInfoArray.length);
     this.firebaseControl.getStadiumInfo().then(stadiumArray => {
       stadiumArray.forEach(stadium => {
         stadiumInfoArray.push(stadium);

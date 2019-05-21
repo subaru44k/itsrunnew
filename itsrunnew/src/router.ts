@@ -22,6 +22,10 @@ const router = new Router({
       },
     },
     {
+      path: '/index.html',
+      redirect: '/',
+    },
+    {
       path: '/yumenoshima',
       name: 'yumenoshima',
       component: Yumenoshima,

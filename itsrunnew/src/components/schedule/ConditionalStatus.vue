@@ -11,7 +11,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import i18n from '../../i18n';
-  
+
 @Component({
   props: {
     condstatus: Number

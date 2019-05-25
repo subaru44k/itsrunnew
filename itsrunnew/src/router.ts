@@ -44,6 +44,10 @@ const router = new Router({
       },
     },
     {
+      path: '/komazawa_olympic',
+      redirect: '/komazawa',
+    },
+    {
       path: '/todoroki',
       name: 'todoroki',
       component: Todoroki,

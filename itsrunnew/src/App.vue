@@ -187,6 +187,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+declare const document: any;
 
 @Component({
   components: {
@@ -196,6 +197,11 @@ export default class App extends Vue {
   private drawer: any = null;
   private fab: boolean = false;
   private tabs: any = null;
+
+  mounted() {
+    const nodeToHide = document.getElementById('beforeload');
+    nodeToHide.parentNode.removeChild(nodeToHide);
+  }
 
   get initial() {
     return this.$t('title').toString().charAt(0).toUpperCase();

@@ -66,7 +66,7 @@ const router = new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/Manage.vue'),
+      component: () => import(/* webpackChunkName: "manage" */ './views/Manage.vue'),
     },
     {
       path: '/pace/marathon',
@@ -78,7 +78,7 @@ const router = new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/LapTime.vue'),
+      component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
     },
     {
       path: '/:lang/',
@@ -121,7 +121,7 @@ const router = new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/LapTime.vue'),
+      component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
     },
   ],
 });

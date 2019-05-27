@@ -7,7 +7,19 @@ import TimeContainer from './model/TimeContainer';
 import TimeContainerFactory from './model/TimeContainerFactory';
 import { StadiumInfo } from './model/stadiuminfo';
 import firebaseNative from 'firebase'
-declare const firebase: any;
+const firebase = require("firebase/app");
+require("firebase/auth");
+require("firebase/firestore");
+
+const config = {
+  apiKey: "AIzaSyCSsO3dn7qPHhGDt4MfXSeiPrk-pF51m-g",
+  authDomain: "itsrun-aaf42.firebaseapp.com",
+  databaseURL: "https://itsrun-aaf42.firebaseio.com",
+  projectId: "itsrun-aaf42",
+  storageBucket: "itsrun-aaf42.appspot.com",
+  messagingSenderId: "337135752630"
+}
+firebase.initializeApp(config);
 
 Vue.use(Vuex);
 

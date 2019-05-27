@@ -6,28 +6,18 @@ import { TableVariableOperator } from './model/TableVariableOperator';
 import TimeContainer from './model/TimeContainer';
 import TimeContainerFactory from './model/TimeContainerFactory';
 import { StadiumInfo } from './model/stadiuminfo';
-import firebaseNative from 'firebase'
-import * as firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
-
-const config = {
-  apiKey: "AIzaSyCSsO3dn7qPHhGDt4MfXSeiPrk-pF51m-g",
-  authDomain: "itsrun-aaf42.firebaseapp.com",
-  databaseURL: "https://itsrun-aaf42.firebaseio.com",
-  projectId: "itsrun-aaf42",
-  storageBucket: "itsrun-aaf42.appspot.com",
-  messagingSenderId: "337135752630"
-}
-firebase.initializeApp(config);
+import { AuthModule } from './model/AuthModule';
+import { FirebaseContainer } from './model/FirebaseContainer';
 
 Vue.use(Vuex);
 
-const operator = new TableVariableOperator(firebase);
+const container = new FirebaseContainer();
+const operator = new TableVariableOperator(container);
 const containerFactory = new TimeContainerFactory();
-const provider: firebaseNative.auth.GoogleAuthProvider = new firebase.auth.GoogleAuthProvider();
+const authContainer = new AuthModule(container);
 interface StoreType {
     control: TableVariableOperator;
+    authContainer: AuthModule;
     stadiumId: string;
     stadiumInfoArray: StadiumInfo[],
     weekIndex: number;
@@ -41,6 +31,7 @@ interface StoreType {
 export default new Vuex.Store({
   state: {
     control: operator,
+    authContainer: authContainer,
     stadiumId: 'nVfuSmsj9cULg3712chv',
     stadiumInfoArray: [],
     weekIndex: 0,
@@ -90,21 +81,31 @@ export default new Vuex.Store({
   },
   actions: {
     checkAuthStatus({commit, state}, payload: {onLoggedIn: Function, onLoggedOut: Function}) {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          console.log(user.displayName);
-          payload.onLoggedIn();
+      state.authContainer.getAuth().then(auth => {
+        if (auth) {
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            console.log(user.displayName);
+            payload.onLoggedIn();
+            return;
+          }
+          payload.onLoggedOut();
           return;
+        }) 
+ 
         }
-        payload.onLoggedOut();
-        return;
-     }) 
+     });
     },
     redirectToLogin({commit, state}) {
-      firebase.auth().signInWithRedirect(provider).then((result: any) => {
-      }).catch((err: any) => {
-        console.log(err);
-      });
+      state.authContainer.getAuth().then(async auth => {
+        const provider = await state.authContainer.getProvider();
+        if (auth && provider) {
+        auth.signInWithRedirect(provider).then((result: any) => {
+          }).catch((err: any) => {
+            console.log(err);
+          });
+        }
+     });
     },
     retrieveStadiumInfo({commit, state}) {
       state.control.updateStadiumInfo(state.stadiumInfoArray);

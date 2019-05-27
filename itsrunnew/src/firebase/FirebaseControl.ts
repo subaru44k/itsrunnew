@@ -1,4 +1,3 @@
-import * as firebase from 'firebase/app';
 import { StadiumInfo } from '../model/stadiuminfo';
 
 export class FirebaseControl {
@@ -7,7 +6,7 @@ export class FirebaseControl {
     private stadiumCollectionName: string = 'stadium_info';
     private availabilityCollectionName: string = 'availability';
     private dateCollectionName: string = 'date';
-    constructor(firebase: any) {
+    constructor(firebase: firebase.app.App) {
         this.db = firebase.firestore()
     }
 

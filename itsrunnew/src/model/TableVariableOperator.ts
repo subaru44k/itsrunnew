@@ -2,17 +2,33 @@ import Vue from 'vue'
 import moment from 'moment';
 import { FirebaseControl } from '../firebase/FirebaseControl';
 import { StadiumInfo } from './stadiuminfo';
+import { FirebaseContainer } from './FirebaseContainer';
 
 export class TableVariableOperator {
-  firebaseControl: FirebaseControl;
-  constructor(firebase: any) {
-    this.firebaseControl = new FirebaseControl(firebase);
+  private container: FirebaseContainer;
+  private firebaseControl: FirebaseControl | undefined;
+
+  constructor(container: FirebaseContainer) {
+    this.container = container;
+    this.firebaseControl = undefined;
   }
+
+  async getControl() {
+    if (this.firebaseControl !== undefined) {
+      return this.firebaseControl;
+    }
+    const firebase = await this.container.getFirebase();
+    this.firebaseControl = new FirebaseControl(firebase);
+    return this.firebaseControl;
+  }
+
   updateStadiumInfo(stadiumInfoArray: StadiumInfo[]) {
-    stadiumInfoArray.splice(0, stadiumInfoArray.length);
-    this.firebaseControl.getStadiumInfo().then(stadiumArray => {
-      stadiumArray.forEach(stadium => {
-        stadiumInfoArray.push(stadium);
+    this.getControl().then((control) => {
+      stadiumInfoArray.splice(0, stadiumInfoArray.length);
+      control.getStadiumInfo().then(stadiumArray => {
+        stadiumArray.forEach(stadium => {
+          stadiumInfoArray.push(stadium);
+        })
       })
     })
   }
@@ -29,16 +45,18 @@ export class TableVariableOperator {
   }
   
   updateTableContent(stadiumId: string, weekIndex: number, timeRange: string[], dateList: string[], statusArray: number[][], locale: string) {
-    this.updateDateList(weekIndex, dateList, locale);
-    if (stadiumId === '0') {
-      this.firebaseControl.getDefaultPageId().then((id) => {
-        this.updateTimeRange(id, timeRange);
-        this.updateStatus(id, weekIndex, statusArray);
-      })
-    } else {
-      this.updateTimeRange(stadiumId, timeRange);
-      this.updateStatus(stadiumId, weekIndex, statusArray);
-    }
+    this.getControl().then((control) => {
+      this.updateDateList(weekIndex, dateList, locale);
+      if (stadiumId === '0') {
+        control.getDefaultPageId().then((id) => {
+          this.updateTimeRange(id, timeRange);
+          this.updateStatus(id, weekIndex, statusArray);
+        })
+      } else {
+        this.updateTimeRange(stadiumId, timeRange);
+        this.updateStatus(stadiumId, weekIndex, statusArray);
+      }
+    });
   }
   
   initializeTimeRange(timeRange: string[]) {
@@ -69,16 +87,20 @@ export class TableVariableOperator {
   }
   
   updateTimeRange(id: string, timeRange: string[]) {
-    this.firebaseControl.getTimeRange(id).then((ranges) => {
-        ranges.forEach((range, index) => {
-            timeRange.splice(index, 1, range);
-        })
+    this.getControl().then((control) => {
+      control.getTimeRange(id).then((ranges) => {
+          ranges.forEach((range, index) => {
+              timeRange.splice(index, 1, range);
+          })
+      });
     });
   }
   
   updateStatus(id: string, weekIndex: number, statusArray: number[][]) {
     Promise.all(this.getDateListForFirebaseId(weekIndex).map(dateId => {
-      return this.firebaseControl.getStatus(id, dateId);
+      return this.getControl().then((control) => {
+        return control.getStatus(id, dateId);
+      });
     })).then((statuses) => {
       statusArray.forEach((statusInADay, index) => {
         statusArray.splice(index, 1, statuses[index]);
@@ -90,7 +112,9 @@ export class TableVariableOperator {
     let dateMomentList = this.getDateMomentList(weekIndex);
     return Promise.all(
       statusArray.map((statudInADay, index) => {
-        return this.firebaseControl.putStatus(id, dateMomentList[index].format('YYYYMMDD'), statudInADay);
+        return this.getControl().then((control) => {
+          return control.putStatus(id, dateMomentList[index].format('YYYYMMDD'), statudInADay);
+        });
       })
     ).then(() => {
       console.log('update completed')

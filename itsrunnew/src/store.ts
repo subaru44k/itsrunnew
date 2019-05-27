@@ -7,9 +7,9 @@ import TimeContainer from './model/TimeContainer';
 import TimeContainerFactory from './model/TimeContainerFactory';
 import { StadiumInfo } from './model/stadiuminfo';
 import firebaseNative from 'firebase'
-const firebase = require("firebase/app");
-require("firebase/auth");
-require("firebase/firestore");
+import * as firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
 
 const config = {
   apiKey: "AIzaSyCSsO3dn7qPHhGDt4MfXSeiPrk-pF51m-g",
@@ -90,13 +90,14 @@ export default new Vuex.Store({
   },
   actions: {
     checkAuthStatus({commit, state}, payload: {onLoggedIn: Function, onLoggedOut: Function}) {
-      firebase.auth().onAuthStateChanged((user: firebase.User) => {
+      firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           console.log(user.displayName);
           payload.onLoggedIn();
           return;
         }
         payload.onLoggedOut();
+        return;
      }) 
     },
     redirectToLogin({commit, state}) {

@@ -84,7 +84,7 @@ const router = new Router({
       path: '/:lang/',
       component: OdaField,
       meta: {
-        title: 'It\'s Run - For runners using Yoyogi Park Athletic Track to check stadium\'s availability',
+        title: 'It\'s Run - Check the availability of the Yoyogi Park Athletic Track. The site for runners to check stadium\'s availability',
         description: 'The available dates and times at Yoyogi Park Athletic Stadium (Oda Field) can be checked in this web page.',
       },
     },
@@ -92,7 +92,7 @@ const router = new Router({
       path: '/:lang/yumenoshima',
       component: Yumenoshima,
       meta: {
-        title: 'It\'s Run - For runners using Yumenoshima Athletics Stadium to check stadium\'s availability',
+        title: 'It\'s Run - Check the availability of Yumenoshima Athletics Stadium. The site for runners to check stadium\'s availability',
         description: 'The available dates and times at Yumenoshima Athletics Stadium can be checked in this web page.',
       },
     },
@@ -100,7 +100,7 @@ const router = new Router({
       path: '/:lang/komazawa',
       component: Komazawa,
       meta: {
-        title: 'It\'s Run - For runners using Komazawa Olympic Park Athletic Stadium to check stadium\'s availability',
+        title: 'It\'s Run - Check the availability of Komazawa Olympic Park Athletic Stadium. The site for runners to check stadium\'s availability',
         description: 'The available dates and times at Komazawa Olympic Park Athletic Stadium can be checked in this web page.',
       },
     },
@@ -108,7 +108,7 @@ const router = new Router({
       path: '/:lang/todoroki',
       component: Todoroki,
       meta: {
-        title: 'It\'s Run - For runners using Kawasaki Todoroki Stadium to check stadium\'s availability',
+        title: 'It\'s Run - Check the availability of Kawasaki Todoroki Stadium. The site for runners to check stadium\'s availability',
         description: 'The available dates and times at Kawasaki Todoroki Stadium can be checked in this web page.',
       },
     },

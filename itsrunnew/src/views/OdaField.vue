@@ -4,7 +4,7 @@
       <v-flex>
         <p class="display-1">{{ $t("oda.open_title") }}</p>
         <p class="headline">{{ $t("oda.available") }}</p>
-        <Adsense data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191">
+        <Adsense data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
         </Adsense>
         <v-card class="mb-3">
           <Pagination></Pagination>

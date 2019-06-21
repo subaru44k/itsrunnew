@@ -6,7 +6,7 @@
         <p class="headline">{{ $t("komazawa.available") }}</p>
         <Adsense data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
         </Adsense>
-        <v-card class="mb-3">
+        <v-card class="mt-3 mb-3">
           <Pagination></Pagination>
           <v-layout>
             <v-flex hidden-sm-and-up>

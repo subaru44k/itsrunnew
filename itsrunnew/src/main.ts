@@ -12,9 +12,6 @@ Vue.config.productionTip = false
 /* アドセンスの使用宣言 */
 Vue.use(require('vue-script2'))
 Vue.use(Ads.Adsense)
-Vue.use(Ads.InArticleAdsense)
-Vue.use(Ads.InFeedAdsense)
-
 
 new Vue({
   router,

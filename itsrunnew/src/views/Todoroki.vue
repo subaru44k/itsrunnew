@@ -17,7 +17,7 @@
             </v-flex>
           </v-layout>
         </v-card>
-        <v-card>
+        <v-card class="mb-3">
           <v-container>
             <p class="display-1">{{ $t("todoroki.info_title") }}</p>
             <p class="headline">{{ $t("todoroki.official_name") }}</p>
@@ -39,6 +39,8 @@
             </div>
           </v-container>
         </v-card>
+        <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6031307376" data-ad-format="auto" data-full-width-responsive="true">
+        </Adsense>
       </v-flex>
     </v-layout>
   </v-container>
@@ -49,14 +51,12 @@ import { Component, Vue } from 'vue-property-decorator';
 import PcScheduleTable from '@/components/schedule/pc/PcScheduleTable.vue'; // @ is an alias to /src
 import SpScheduleTable from '@/components/schedule/sp/SpScheduleTable.vue'; // @ is an alias to /src
 import Pagination from '@/components/schedule/Pagination.vue';
-import Ads from 'vue-google-adsense';
 
 @Component({
   components: {
     SpScheduleTable,
     PcScheduleTable,
     Pagination,
-    Ads,
   },
 })
 export default class OdaField extends Vue {

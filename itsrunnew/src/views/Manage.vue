@@ -56,7 +56,6 @@ export default class OdaField extends Vue {
   mounted() {
     this.$store.dispatch('checkAuthStatus', {
       onLoggedIn: () => {
-        this.$store.dispatch('retrieveScheduleData', 'nVfuSmsj9cULg3712chv');
         this.$store.dispatch('retrieveStadiumInfo');
       },
       onLoggedOut: () => {
@@ -75,7 +74,7 @@ export default class OdaField extends Vue {
 
   handleStadiumSelected(stadiumId: string) {
     this.$store.commit('changeStadiumId', stadiumId);
-    this.$store.dispatch('retrieveScheduleData', stadiumId);
+    this.$store.dispatch('retrieveScheduleData');
   }
 
   handleScheduleChanged(dateIndex: number, timeIndex: number, item: number) {

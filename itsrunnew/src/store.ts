@@ -110,11 +110,12 @@ export default new Vuex.Store({
     retrieveStadiumInfo({commit, state}) {
       state.control.updateStadiumInfo(state.stadiumInfoArray);
     },
-    retrieveScheduleData({commit, state}, stadiumId) {
+    async retrieveScheduleData({commit, state}) {
       state.control.initializeTableData(
         state.weekIndex, state.timeRange, state.dateList, state.statusArray);
-      state.control.updateTableContent(
-        stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray, i18n.locale);
+      await state.control.updateTableContent(
+        state.stadiumId, state.weekIndex, state.timeRange, state.dateList, state.statusArray, i18n.locale);
+      return;
     },
     previousWeekEvent({commit, state}) {
       state.weekIndex = state.weekIndex - 1;

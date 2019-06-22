@@ -4,7 +4,7 @@
       <v-flex>
         <p class="display-1">{{ $t("oda.open_title") }}</p>
         <p class="headline">{{ $t("oda.available") }}</p>
-        <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
+        <Adsense v-if="rendered" style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
         </Adsense>
         <v-card class="mt-3 mb-3">
           <Pagination></Pagination>
@@ -21,7 +21,7 @@
           <v-container>
             <p class="display-1">{{ $t("oda.info_title") }}</p>
             <p class="headline">{{ $t("oda.official_name") }}</p>
-            <v-layout justify-center row>
+            <v-layout v-if="rendered" justify-center row>
               <v-flex hidden-sm-and-up shrink>
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3241.4061911644067!2d139.69173161501527!3d35.66699913836023!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188cad8ba1d227%3A0x8b5756b02932d0b1!2z5Luj44CF5pyo5YWs5ZySIOmZuOS4iuertuaKgOWgtA!5e0!3m2!1sja!2sjp!4v1526609293873" width="330" height="300" frameborder="0" style="border:0" allowfullscreen=""></iframe>
               </v-flex>
@@ -47,7 +47,7 @@
             </div>
           </v-container>
         </v-card>
-        <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6031307376" data-ad-format="auto" data-full-width-responsive="true">
+        <Adsense v-if="rendered" style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6031307376" data-ad-format="auto" data-full-width-responsive="true">
         </Adsense>
       </v-flex>
     </v-layout>
@@ -68,8 +68,12 @@ import Pagination from '@/components/schedule/Pagination.vue';
   },
 })
 export default class OdaField extends Vue {
+  private rendered: boolean = false;
   mounted() {
-    this.$store.dispatch('retrieveScheduleData', 'nVfuSmsj9cULg3712chv');
+    this.$store.commit('changeStadiumId', 'nVfuSmsj9cULg3712chv');
+    this.$store.dispatch('retrieveScheduleData').then(() => {
+      this.rendered = true;
+    });
   }
 }
 </script>

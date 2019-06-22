@@ -45,17 +45,29 @@ export class TableVariableOperator {
   }
   
   updateTableContent(stadiumId: string, weekIndex: number, timeRange: string[], dateList: string[], statusArray: number[][], locale: string) {
-    this.getControl().then((control) => {
-      this.updateDateList(weekIndex, dateList, locale);
-      if (stadiumId === '0') {
-        control.getDefaultPageId().then((id) => {
-          this.updateTimeRange(id, timeRange);
-          this.updateStatus(id, weekIndex, statusArray);
-        })
-      } else {
-        this.updateTimeRange(stadiumId, timeRange);
-        this.updateStatus(stadiumId, weekIndex, statusArray);
-      }
+    return new Promise((resolve, reject) => {
+      this.getControl().then((control) => {
+        this.updateDateList(weekIndex, dateList, locale);
+        if (stadiumId === '0') {
+          control.getDefaultPageId().then((id) => {
+            Promise.all([
+              this.updateTimeRange(id, timeRange),
+              this.updateStatus(id, weekIndex, statusArray),
+            ]).then(() => {
+              resolve();
+            });
+            return;
+          })
+        } else {
+          Promise.all([
+            this.updateTimeRange(stadiumId, timeRange),
+            this.updateStatus(stadiumId, weekIndex, statusArray),
+          ]).then(() => {
+            resolve();
+          })
+          return;
+        }
+      });
     });
   }
   
@@ -65,7 +77,7 @@ export class TableVariableOperator {
     timeRange.push('00:00');
     timeRange.push('00:00');
   }
-  
+ 
   initializeStatus(statusArray: number[][]) {
     statusArray.splice(0, statusArray.length)
     if (statusArray.length !== 0) {
@@ -85,26 +97,32 @@ export class TableVariableOperator {
       statusArray.splice(index, 1, [-1, -1, -1]);
     });
   }
-  
+ 
   updateTimeRange(id: string, timeRange: string[]) {
-    this.getControl().then((control) => {
-      control.getTimeRange(id).then((ranges) => {
-          ranges.forEach((range, index) => {
-              timeRange.splice(index, 1, range);
-          })
+    return new Promise((resolve, reject) => {
+      this.getControl().then((control) => {
+        control.getTimeRange(id).then((ranges) => {
+            ranges.forEach((range, index) => {
+                timeRange.splice(index, 1, range);
+            });
+            resolve();
+        });
       });
-    });
+    })
   }
-  
-  updateStatus(id: string, weekIndex: number, statusArray: number[][]) {
-    Promise.all(this.getDateListForFirebaseId(weekIndex).map(dateId => {
-      return this.getControl().then((control) => {
-        return control.getStatus(id, dateId);
-      });
+ 
+  updateStatus(id: string, weekIndex: number, statusArray: number[][]): Promise<void> {
+    return Promise.all(
+      this.getDateListForFirebaseId(weekIndex).map(dateId => {
+        return this.getControl().then((control) => {
+          return control.getStatus(id, dateId);
+        }
+      );
     })).then((statuses) => {
       statusArray.forEach((statusInADay, index) => {
         statusArray.splice(index, 1, statuses[index]);
       });
+      return;
     });
   }
 

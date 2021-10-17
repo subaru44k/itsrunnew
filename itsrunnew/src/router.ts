@@ -132,6 +132,15 @@ const router = new Router({
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
     },
+    {
+      path: '/:lang/nozomiantena/index',
+      name: 'nozomiantena',
+      meta: {
+        title: 'Race result of Nozomi Tanaka',
+        description: 'Race results of a Japanese runner Nozomi Tanaka',
+      },
+      component: () => import(/* webpackChunkName: "laptime" */ './views/NozomiAntena.vue'),
+    },
   ],
 });
 

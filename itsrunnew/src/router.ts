@@ -81,6 +81,15 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
     },
     {
+      path: '/nozomiantena/index',
+      name: 'nozomiantena',
+      meta: {
+        title: '田中希実選手の大会結果まとめ',
+        description: '豊田自動織機TCに所属する陸上選手、田中希実の出場大会の記録、記事、動画などをまとめたページ',
+      },
+      component: () => import(/* webpackChunkName: "laptime" */ './views/NozomiAntena.vue'),
+    },
+    {
       path: '/:lang/',
       component: OdaField,
       meta: {

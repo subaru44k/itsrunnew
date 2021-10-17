@@ -13,7 +13,9 @@
     "todoroki": "Todoroki Athletic Track",
     "laptime": "Lap Time",
     "marathon": "Marathon",
-    "changelang": "日本語ページへ"
+    "changelang": "日本語ページへ",
+    "records": "Records",
+    "tanaka": "Nozomi Tanaka"
   },
   "oda": {
     "open_title": "Yoyogi Park Athletic Track's Availability",
@@ -76,5 +78,4 @@
     "from_3hourshalf": "3 hours and a half - 5 hours",
     "from_5hours": "5 hours - 6 hours and a half"
   }
-
 }

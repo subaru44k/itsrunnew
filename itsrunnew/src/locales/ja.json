@@ -13,7 +13,9 @@
     "todoroki": "等々力陸上競技場",
     "laptime": "ラップタイム",
     "marathon": "マラソン",
-    "changelang": "View English Site"
+    "changelang": "View English Site",
+    "records": "記録集",
+    "tanaka": "田中希実"
   },
   "oda": {
     "open_title": "織田フィールド 開放日",
@@ -76,4 +78,5 @@
     "from_3hourshalf": "3時間半〜5時間",
     "from_5hours": "5時間〜6時間半"
   }
+
 }

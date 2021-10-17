@@ -61,6 +61,9 @@ export default new Vuex.Store({
     lapTimePage(state) {
       changeUrl('/pace/marathon', '/en/pace/marathon');
     },
+    nozomiPage(store) {
+      changeUrl('/nozomiantena/index', '/en/nozomiantena/index');
+    },
     changeStadiumId(state, id: string) {
       state.stadiumId = id;
     },

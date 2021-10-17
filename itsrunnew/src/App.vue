@@ -76,6 +76,25 @@
             <v-list-tile-title v-text="item.title"></v-list-tile-title>
           </v-list-tile>
         </v-list-group>
+        <v-list-group
+          no-action
+          sub-group
+        >
+          <template v-slot:activator>
+            <v-list-tile>
+              <v-list-tile-title>{{ $t('menu.records') }}</v-list-tile-title>
+            </v-list-tile>
+          </template>
+
+          <v-list-tile
+            v-for="item in recordItems"
+            :key="item.title"
+            @click="item.route(); drawer = false;"
+          >
+            <v-list-tile-title v-text="item.title"></v-list-tile-title>
+          </v-list-tile>
+        </v-list-group>
+
       </v-list>
     </v-navigation-drawer>
     <v-toolbar color="indigo" dark="dark" dense>
@@ -154,6 +173,29 @@
             </v-list-tile>
           </v-list>
         </v-menu>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              flat
+              v-on="on"
+            >
+             {{ $t("menu.records") }} 
+            <v-icon>
+              arrow_drop_down
+            </v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-tile
+              v-for="item in recordItems"
+              :key="item.title"
+              @click="item.route()"
+            >
+              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+
       </v-toolbar-items>
       <v-btn color="success" @click="changelang()">
         {{ $t("menu.changelang") }}
@@ -227,6 +269,12 @@ export default class App extends Vue {
     ]
   }
 
+  get recordItems() {
+    return [
+      { title: this.$t('menu.tanaka'), icon: 'dashboard', route: this.goToTanakaPage },
+    ]
+  }
+
   private changelang() {
     this.$store.commit('changelang');
   }
@@ -249,6 +297,10 @@ export default class App extends Vue {
 
   private goToLapTimePage() {
     this.$store.commit('lapTimePage');
+  }
+
+  private goToTanakaPage() {
+    this.$store.commit('nozomiPage')
   }
 }
 </script>

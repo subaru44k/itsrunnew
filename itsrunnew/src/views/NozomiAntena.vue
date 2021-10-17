@@ -6,7 +6,7 @@
           <p class="display-1">田中希実アンテナ</p>
           <p class="title">豊田自動織機TC所属の陸上競技選手、田中希実選手の試合の記録を追いかけるページ</p>
           <p class="body-2">第一線で活躍する陸上選手としては非常に珍しい頻度で大会に参加するので、いつどの大会に出てどんな結果だったか簡単にまとめました。2020年のホクレンディスタンスくらいからのパフォーマンスが凄まじいので、それくらいまでは記載したいと思います。</p>
-          <Adsense v-if="rendered" style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
+          <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
           </Adsense>
           <p class="headline">各年度へのリンク</p>
           <div><a href="#2021">2021年</a></div>
@@ -253,7 +253,7 @@
 
           </div>
         </v-card>
-        <Adsense v-if="rendered" style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6031307376" data-ad-format="auto" data-full-width-responsive="true">
+        <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6031307376" data-ad-format="auto" data-full-width-responsive="true">
         </Adsense>
       </v-flex>
     </v-layout>
@@ -262,24 +262,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import PcScheduleTable from '@/components/schedule/pc/PcScheduleTable.vue'; // @ is an alias to /src
-import SpScheduleTable from '@/components/schedule/sp/SpScheduleTable.vue'; // @ is an alias to /src
-import Pagination from '@/components/schedule/Pagination.vue';
 
 @Component({
-  components: {
-    SpScheduleTable,
-    PcScheduleTable,
-    Pagination,
-  },
 })
-export default class OdaField extends Vue {
-  private rendered: boolean = false;
-  mounted() {
-    this.$store.commit('changeStadiumId', 'nVfuSmsj9cULg3712chv');
-    this.$store.dispatch('retrieveScheduleData').then(() => {
-      this.rendered = true;
-    });
-  }
+export default class NozomiAntena extends Vue {
 }
 </script>

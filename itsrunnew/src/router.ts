@@ -81,6 +81,15 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
     },
     {
+      path: '/nozomiantena/index',
+      name: 'nozomiantena',
+      meta: {
+        title: '田中希実選手の大会結果まとめ',
+        description: '豊田自動織機TCに所属する陸上選手、田中希実の出場大会の記録、記事、動画などをまとめたページ',
+      },
+      component: () => import(/* webpackChunkName: "nozomiantena" */ './views/NozomiAntena.vue'),
+    },
+    {
       path: '/:lang/',
       component: OdaField,
       meta: {
@@ -122,6 +131,15 @@ const router = new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
+    },
+    {
+      path: '/:lang/nozomiantena/index',
+      name: 'nozomiantena',
+      meta: {
+        title: 'Race result of Nozomi Tanaka',
+        description: 'Race results of a Japanese runner Nozomi Tanaka',
+      },
+      component: () => import(/* webpackChunkName: "nozomiantena" */ './views/NozomiAntena.vue'),
     },
   ],
 });

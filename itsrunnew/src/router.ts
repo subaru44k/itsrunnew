@@ -87,7 +87,7 @@ const router = new Router({
         title: '田中希実選手の大会結果まとめ',
         description: '豊田自動織機TCに所属する陸上選手、田中希実の出場大会の記録、記事、動画などをまとめたページ',
       },
-      component: () => import(/* webpackChunkName: "laptime" */ './views/NozomiAntena.vue'),
+      component: () => import(/* webpackChunkName: "nozomiantena" */ './views/NozomiAntena.vue'),
     },
     {
       path: '/:lang/',
@@ -139,7 +139,7 @@ const router = new Router({
         title: 'Race result of Nozomi Tanaka',
         description: 'Race results of a Japanese runner Nozomi Tanaka',
       },
-      component: () => import(/* webpackChunkName: "laptime" */ './views/NozomiAntena.vue'),
+      component: () => import(/* webpackChunkName: "nozomiantena" */ './views/NozomiAntena.vue'),
     },
   ],
 });

@@ -5,19 +5,19 @@
         <v-card class="mt-3 mb-3 p-3">
           <p class="display-1">田中希実アンテナ</p>
           <p class="title">豊田自動織機TC所属の陸上競技選手、田中希実選手の試合の記録を追いかけるページ</p>
-          <p class="body-2">第一線で活躍する陸上選手としては非常に珍しい頻度で大会に参加するので、いつどの大会に出てどんな結果だったか簡単にまとめました。2020年のホクレンディスタンスくらいからのパフォーマンスが凄まじいので、それくらいまでは記載したいと思います。</p>
+          <p class="body-2">第一線で活躍する陸上選手としては非常に珍しい頻度で大会に参加するので、いつどの大会に出てどんな結果だったか簡単にまとめました。2020年のホクレンディスタンスくらいからのパフォーマンスが凄まじいので、そこから記載したいと思います。</p>
           <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
           </Adsense>
           <p class="headline">各年度へのリンク</p>
-          <div><a href="#2021">2021年</a></div>
-          <div><a href="#2020">2020年</a></div>
+          <div><a href="#2021">2021年の記録</a></div>
+          <div><a href="#2020">2020年の記録</a></div>
           <v-layout>
             <v-flex hidden-sm-and-up>
             </v-flex>
             <v-flex hidden-xs-only>
             </v-flex>
           </v-layout>
-          <p class="headline mt-4"><a name="2021">2021</a></p>
+          <p class="headline mt-4"><a name="2021">2021年の大会結果</a></p>
           <div class="table-responsive">
             <table class="table table-bordered table-striped">
               <thead>
@@ -231,7 +231,7 @@
                 </tr>
               </tbody>
             </table>
-          <p class="headline mt-4"><a name="2020">2020</a></p>
+          <p class="headline mt-4"><a name="2020">2020年の大会結果</a></p>
             <table class="table table-bordered table-striped">
               <thead>
                 <tr>
@@ -243,10 +243,113 @@
               </thead>
               <tbody>
                 <tr>
-                  <td rowspan="3">12/27(日)</td>
-                  <td rowspan="3">川内杯栗橋関所マラソン</td>
+                  <td>12/27(日)</td>
+                  <td>川内杯栗橋関所マラソン</td>
                   <td>10km</td>
                   <td>32'07"</td>
+                </tr>
+                <tr>
+                  <td>12/12(土)</td>
+                  <td>神戸市長距離記録会</td>
+                  <td>3000m</td>
+                  <td>9'25"38</td>
+                </tr>
+                <tr>
+                  <td>12/4(金)</td>
+                  <td>日本選手権</td>
+                  <td>5000m</td>
+                  <td>15'05"65</td>
+                </tr>
+                <tr>
+                  <td rowspan="2">11/15(日)</td>
+                  <td rowspan="2">静岡県長距離強化記録会</td>
+                  <td>3000m</td>
+                  <td>9'09"65</td>
+                </tr>
+                <tr>
+                  <td>3000m</td>
+                  <td>9'00"84</td>
+                </tr>
+                <tr>
+                  <td>11/3(火)</td>
+                  <td>Denka Athletics Challenge Cup 2020</td>
+                  <td>5000m</td>
+                  <td>15'22"39</td>
+                </tr>
+                <tr>
+                  <td>10/27(火)</td>
+                  <td>ミドルディスタンス・チャレンジ</td>
+                  <td>1500m</td>
+                  <td>4'10"41</td>
+                </tr>
+                <tr>
+                  <td>10/24(土)</td>
+                  <td>木南道孝記念陸上競技大会</td>
+                  <td>800m</td>
+                  <td>2'06"72</td>
+                </tr>
+                <tr>
+                  <td>10/11(日)</td>
+                  <td>ナイタートライアルin屋島</td>
+                  <td>5000m</td>
+                  <td>15'15"76</td>
+                </tr>
+                <tr>
+                  <td>10/3(土)</td>
+                  <td rowspan="2">日本陸上競技選手権大会</td>
+                  <td>800m</td>
+                  <td>2'04"76</td>
+                </tr>
+                <tr>
+                  <td>10/2(金)</td>
+                  <td>1500m</td>
+                  <td>4'10"21</td>
+                </tr>
+                <tr>
+                  <td rowspan="2">9/15(火)</td>
+                  <td rowspan="2">神戸市長距離記録会</td>
+                  <td>1500m</td>
+                  <td>4'12"81</td>
+                </tr>
+                <tr>
+                  <td>3000m</td>
+                  <td>8'56"18</td>
+                </tr>
+                <tr>
+                  <td>8/23(日)</td>
+                  <td>セイコーゴールデングランプリ陸上2020東京</td>
+                  <td>1500m</td>
+                  <td>4'05"27</td>
+                </tr>
+                <tr>
+                  <td>7/18(土)</td>
+                  <td>ホクレンディスタンスチャレンジ千歳大会</td>
+                  <td>3000m</td>
+                  <td>8'51"49</td>
+                </tr>
+                <tr>
+                  <td>7/15(水)</td>
+                  <td>ホクレンディスタンスチャレンジ網走</td>
+                  <td>5000m</td>
+                  <td>15'02"62</td>
+                </tr>
+                <tr>
+                  <td>7/12(日)</td>
+                  <td>兵庫選手権</td>
+                  <td>800m</td>
+                  <td>2'04"66</td>
+                </tr>
+                <tr>
+                  <td>7/8(水)</td>
+                  <td>ホクレンディスタンスチャレンジ深川</td>
+                  <td>3000m</td>
+                  <td>8'41"35</td>
+                </tr>
+                <tr>
+                  <td>7/4(土)</td>
+                  <td>ホクレンディスタンスチャレンジ士別</td>
+                  <td>1500m</td>
+                  <td>4'08"68</td>
                 </tr>
               </tbody>
             </table>

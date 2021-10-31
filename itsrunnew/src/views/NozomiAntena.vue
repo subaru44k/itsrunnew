@@ -30,6 +30,12 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>10/31(日)</td>
+                  <td>TWOLAPS ミドルディスタンスサーキット</td>
+                  <td>1000m</td>
+                  <td>2'39"59</td>
+                </tr>
+                <tr>
                   <td>10/17(日)</td>
                   <td>北九州カーニバル</td>
                   <td>800m</td>
@@ -57,7 +63,7 @@
                 </tr>
                 <tr>
                   <td>9/23(木)</td>
-                  <td>TWOLAPS MIDDLE DISTANCE CIRCUIT</td>
+                  <td>TWOLAPS ミドルディスタンスサーキット</td>
                   <td>800m</td>
                   <td>2'06"76</td>
                 </tr>
@@ -69,7 +75,7 @@
                 </tr>
                 <tr>
                   <td>8/20(金)</td>
-                  <td>TWOLAPS MIDDLE DISTANCE CIRCUIT</td>
+                  <td>TWOLAPS ミドルディスタンスサーキット</td>
                   <td>1000m</td>
                   <td>2'37"72</td>
                 </tr>

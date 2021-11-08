@@ -84,8 +84,8 @@ const router = new Router({
       path: '/nozomiantena/index',
       name: 'nozomiantena',
       meta: {
-        title: '田中希実選手の大会結果まとめ',
-        description: '豊田自動織機TCに所属する陸上選手、田中希実の出場大会の記録、記事、動画などをまとめたページ',
+        title: '陸上選手 田中希実選手の記録集 - 出場大会結果まとめ',
+        description: '豊田自動織機TCに所属する陸上選手、田中希実さんの出場大会の結果をまとめた記録集。日付、出場種目、タイムを一覧で。',
       },
       component: () => import(/* webpackChunkName: "nozomiantena" */ './views/NozomiAntena.vue'),
     },

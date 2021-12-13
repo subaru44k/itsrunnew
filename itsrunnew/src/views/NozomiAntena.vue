@@ -30,6 +30,22 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>12/10(金)</td>
+                  <td>エディオンディスタンスチャレンジ in 京都2021</td>
+                  <td>5000m</td>
+                  <td>15'04"10</td>
+                </tr>
+                <tr>
+                  <td rowspan="2">11/20(土)</td>
+                  <td rowspan="2">第5回 静岡県長距離強化記録会</td>
+                  <td>3000m</td>
+                  <td>9'18"29</td>
+                </tr>
+                <tr>
+                  <td>3000m</td>
+                  <td>8'51"77</td>
+                </tr>
+                <tr>
                   <td>10/31(日)</td>
                   <td>TWOLAPS ミドルディスタンスサーキット</td>
                   <td>1000m</td>

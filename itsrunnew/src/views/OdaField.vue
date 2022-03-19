@@ -2,6 +2,9 @@
   <v-container>
     <v-layout justify-center row wrap>
       <v-flex>
+        <p class="h3"><a href="https://newyearscardlottery.link/">お年玉付き年賀はがきの当選確認サイト</a>を作りました！</p>
+        <p class="h5">スマホで年賀状の写真を撮るだけで、年賀状が当選しているか複数枚同時に確認できます。登録不要で写真をとるだけなので、是非試してみてください。</p>
+        <p class="h5 mb-4">ちなみに、2022年の引き換え期限は7/19(火)なので、当たってたらまだまだ交換可能です。</p>
         <p class="display-1">{{ $t("oda.open_title") }}</p>
         <p class="headline">{{ $t("oda.available") }}</p>
         <Adsense v-if="rendered" style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">

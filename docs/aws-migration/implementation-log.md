@@ -62,17 +62,17 @@ Operating system: macOS
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against
 the committed pre-change definition, then `v2` was made default with only
 `ssm:GetParameters` added to the same exact bootstrap-version parameter ARN.
-The hosting stack deployment completed; R07 data upload and public validation
-are still pending.
+The hosting stack deployment and R07 data upload completed. Phase 3 raw-browser
+review found the corrections recorded in `phase3-review.md`.
 
 ## Phase 3 Sol review
 
 ```text
-Reviewed commit:
-Date:
-Result:
-Required changes:
-Approved decisions:
+Reviewed commit: 22d7fd5
+Date: 2026-07-31
+Result: Changes required before T10
+Required changes: docs/aws-migration/phase3-review.md P3R01-P3R05
+Approved decisions: Retain D001-D011; exact IAM permission reduction and one targeted mutable-web-key invalidation approved
 ```
 
 ## Pre-T09 Sol unblock review
@@ -109,7 +109,7 @@ Safe work that can continue:
 ```
 
 OPEN:
-Task: Phase 3 Sol review
-Decision needed: Review the completed read-only CloudFront vertical slice before T10.
-Evidence: `ItsRunPreviewHosting` is `CREATE_COMPLETE`; all R07 checks are recorded above; no production DNS, Firebase, Cognito, API, or pre-existing bucket writes were performed.
-Safe work that can continue: Sol architecture/IAM/cache/data-contract review only. Luna must not begin T10 or Phase 4.
+Task: Phase 3 corrective pass
+Decision needed: None for P3R01-P3R05; stop on the retained conditions in `phase3-review.md`.
+Evidence: Raw browser fetch fails with an illegal receiver; mutable Nuxt payloads have long-lived cache metadata; locale/SEO attributes are incomplete; helper and IAM reductions remain.
+Safe work that can continue: Luna may execute only P3R01-P3R05, then must return to Sol. T10 and Phase 4 remain blocked.

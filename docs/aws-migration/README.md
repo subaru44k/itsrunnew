@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 2 remediation planned; T09 preview deployment not yet complete
+Status: Phase 3 review complete; corrective work required before T10
 
 Planning baseline: `d6de55e` on `master`
 
@@ -103,3 +103,6 @@ Before implementation:
 
 When resuming the currently blocked T09 work, Luna must also read and execute
 [t09-unblock-plan.md](./t09-unblock-plan.md) in order.
+
+After T09, the authoritative Phase 3 findings and Luna correction order are in
+[phase3-review.md](./phase3-review.md).

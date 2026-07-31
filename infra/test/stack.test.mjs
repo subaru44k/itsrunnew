@@ -52,23 +52,38 @@ test('data bucket policy is limited to data prefix', () => {
 test('T11 auth is parameterized, code-only, and has no identity pool', () => {
   const result = template()
   const templateJson = result.toJSON()
+  const pools = Object.entries(result.findResources('AWS::Cognito::UserPool'))
+  assert.equal(pools.length, 1)
+  const [poolLogicalId, pool] = pools[0]
+  const clients = Object.entries(result.findResources('AWS::Cognito::UserPoolClient')).filter(([, resource]) => resource.Properties.UserPoolId.Ref === poolLogicalId)
+  assert.equal(clients.length, 1)
+  const [clientLogicalId, client] = clients[0]
+  const groups = Object.values(result.findResources('AWS::Cognito::UserPoolGroup')).filter((resource) => resource.Properties.UserPoolId.Ref === poolLogicalId)
+  assert.equal(groups.length, 1)
+  const providers = Object.values(result.findResources('AWS::Cognito::UserPoolIdentityProvider')).filter((resource) => resource.Properties.UserPoolId.Ref === poolLogicalId)
+  assert.equal(providers.length, 1)
   assert.equal(templateJson.Parameters.GoogleClientId.Type, 'String')
   assert.equal(templateJson.Parameters.GoogleClientSecretReference.Default, 'itsrun/preview/google-oauth-client-secret')
   assert.equal(templateJson.Parameters.CognitoDomainPrefix.Default, 'itsrun-preview-470447451992')
   assert.equal(templateJson.Parameters.CallbackUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage/callback')
   assert.equal(templateJson.Parameters.LogoutUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage')
   assert.equal(templateJson.Parameters.LocalDevelopmentOrigin.Default, 'http://localhost:3000')
-  assert.equal(templateJson.Resources.AdminUserPoolD0AF18CF.Properties.AdminCreateUserConfig.AllowAdminCreateUserOnly, true)
-  assert.equal(templateJson.Resources.AdminUserPoolD0AF18CF.Properties.DeletionProtection, 'ACTIVE')
-  assert.equal(templateJson.Resources.AdminUserPoolD0AF18CF.DeletionPolicy, 'Retain')
-  assert.equal(templateJson.Resources.AdminAppClientE1A03F22.Properties.GenerateSecret, false)
-  assert.deepEqual(templateJson.Resources.AdminAppClientE1A03F22.Properties.AllowedOAuthFlows, ['code'])
-  assert.deepEqual(templateJson.Resources.AdminAppClientE1A03F22.Properties.SupportedIdentityProviders, ['Google'])
-  assert.equal(templateJson.Resources.AdminsGroup06B46644.Properties.GroupName, 'admins')
+  assert.equal(pool.Properties.AdminCreateUserConfig.AllowAdminCreateUserOnly, true)
+  assert.equal(pool.Properties.DeletionProtection, 'ACTIVE')
+  assert.equal(pool.DeletionPolicy, 'Retain')
+  assert.equal(client.Properties.GenerateSecret, false)
+  assert.deepEqual(client.Properties.AllowedOAuthFlows, ['code'])
+  assert.deepEqual(client.Properties.SupportedIdentityProviders, ['Google'])
+  assert.equal(groups[0].Properties.GroupName, 'admins')
   assert.equal(Object.keys(result.findResources('AWS::Cognito::IdentityPool')).length, 0)
-  const providerJson = JSON.stringify(templateJson.Resources.GoogleIdentityProvider5AA1A9DD)
+  assert.deepEqual(client.Properties.CallbackURLs, { Ref: 'CallbackUrls' })
+  assert.deepEqual(client.Properties.LogoutURLs, { Ref: 'LogoutUrls' })
+  assert.deepEqual(client.Properties.UserPoolId, { Ref: poolLogicalId })
+  const providerJson = JSON.stringify(providers[0])
   assert.match(providerJson, /resolve:secretsmanager/)
   assert.doesNotMatch(providerJson, /client-secret-value|dummy|placeholder/i)
+  assert.equal(client.Properties.UserPoolId.Ref, poolLogicalId)
+  assert.ok(clientLogicalId)
 })
 
 test('T11R03 limits API CORS to the configured local Nuxt origin', () => {
@@ -86,10 +101,11 @@ test('T11R03 limits API CORS to the configured local Nuxt origin', () => {
 test('T11R04 exposes Cognito endpoints and permits only the token origin in CSP', () => {
   const result = template()
   const templateJson = result.toJSON()
+  const poolLogicalId = Object.keys(result.findResources('AWS::Cognito::UserPool'))[0]
   assert.deepEqual(templateJson.Outputs.CognitoAuthBaseUrl.Value, {
     'Fn::Join': ['', ['https://', { Ref: 'CognitoDomainPrefix' }, '.auth.', { Ref: 'AWS::Region' }, '.amazoncognito.com']],
   })
-  assert.deepEqual(templateJson.Outputs.UserPoolIssuer.Value, { 'Fn::GetAtt': ['AdminUserPoolD0AF18CF', 'ProviderURL'] })
+  assert.deepEqual(templateJson.Outputs.UserPoolIssuer.Value, { 'Fn::GetAtt': [poolLogicalId, 'ProviderURL'] })
   const headersPolicy = Object.values(result.findResources('AWS::CloudFront::ResponseHeadersPolicy'))[0]
   const csp = JSON.stringify(headersPolicy.Properties.ResponseHeadersPolicyConfig.SecurityHeadersConfig.ContentSecurityPolicy)
   assert.match(csp, /CognitoDomainPrefix/)
@@ -99,12 +115,14 @@ test('T11R04 exposes Cognito endpoints and permits only the token origin in CSP'
 
 test('T11 protects API routes with Cognito JWT and disables API caching', () => {
   const result = template()
-  const templateJson = result.toJSON()
-  const authorizer = templateJson.Resources.AdminApiJwtAuthorizer
+  const authorizer = Object.values(result.findResources('AWS::ApiGatewayV2::Authorizer')).find((resource) => resource.Properties.AuthorizerType === 'JWT')
+  assert.ok(authorizer)
   assert.equal(authorizer.Properties.AuthorizerType, 'JWT')
   assert.deepEqual(authorizer.Properties.IdentitySource, ['$request.header.Authorization'])
-  assert.ok(authorizer.Properties.JwtConfiguration.Audience)
-  assert.ok(authorizer.Properties.JwtConfiguration.Issuer)
+  const clientLogicalId = Object.keys(result.findResources('AWS::Cognito::UserPoolClient'))[0]
+  const poolLogicalId = Object.keys(result.findResources('AWS::Cognito::UserPool'))[0]
+  assert.deepEqual(authorizer.Properties.JwtConfiguration.Audience, [{ Ref: clientLogicalId }])
+  assert.deepEqual(authorizer.Properties.JwtConfiguration.Issuer, { 'Fn::GetAtt': [poolLogicalId, 'ProviderURL'] })
   const routes = Object.values(result.findResources('AWS::ApiGatewayV2::Route'))
   assert.equal(routes.length, 2)
   for (const route of routes) {

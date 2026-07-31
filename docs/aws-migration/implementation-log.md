@@ -75,7 +75,7 @@ Operating system: macOS
 | --- | --- | --- | --- | --- |
 | C01 | complete | `c391c86` | `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (64 passed) | Removed browser fetch instrumentation, fixture prewarm, conditional Retry, and retries; added desktop/mobile × ja-JP/en-US projects and first-navigation assertions. |
 | C02 | complete | `19ce8eb` | `npm run lint --workspace web`; `npm run test:unit --workspace web`; `npm run typecheck --workspace web` | Repository injection enables state tests; retained weeks keep dates/months coherent across failed week changes; request IDs reject stale responses; retry, invalid, unavailable, and unpublished states are covered. |
-| C03 | complete | pending | `npm run build --workspace web` (generated SEO verifier passed) | Uses installed `useLocaleHead` with browser detection disabled; generated canonical, lang, and ja/en/x-default links are checked for every normal locale page, with compatibility redirects excluded and covered by raw E2E. |
+| C03 | complete | `e0d6920` | `npm run build --workspace web` (generated SEO verifier passed) | Uses installed `useLocaleHead` with browser detection disabled; generated canonical, lang, and ja/en/x-default links are checked for every normal locale page, with compatibility redirects excluded and covered by raw E2E. |
 | C04 | pending | | | |
 | C05 | pending | | | |
 

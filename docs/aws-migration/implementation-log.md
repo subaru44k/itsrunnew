@@ -51,8 +51,8 @@ Operating system: macOS
 
 | Remediation | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
-| R01 | complete | pending | `npm run typecheck --workspace @itsrun/core`; `npm run typecheck --workspace @itsrun/web`; `npm run lint --workspace @itsrun/web` | Node 24.18.1 is installed via nvm. Real Nuxt ESLint and strict TypeScript gates are wired; no AWS access used. |
-| R02 | pending | | | |
+| R01 | complete | `aece2bd` | `npm run typecheck --workspace @itsrun/core`; `npm run typecheck --workspace @itsrun/web`; `npm run lint --workspace @itsrun/web` | Node 24.18.1 is installed via nvm. Real Nuxt ESLint and strict TypeScript gates are wired; no AWS access used. |
+| R02 | complete | pending | `npm run test:unit --workspace @itsrun/core`; `npm run typecheck --workspace @itsrun/core` | Correct legacy status meanings, strict ISO/sparse tuple validation, and legacy time parsing; added boundary tests. |
 | R03 | pending | | | |
 | R04 | pending | | | |
 | R05 | pending | | | |

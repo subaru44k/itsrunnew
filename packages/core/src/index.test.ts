@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, japanToday, marathonPace, parseScheduleMonth, schedulePaths } from './index'
+import { addDays, japanToday, marathonPace, parseScheduleMonth, parseTime, schedulePaths } from './index'
 
 describe('core schedule contract', () => {
   it('validates a month and rejects unknown fields', () => {
@@ -7,6 +7,9 @@ describe('core schedule contract', () => {
     expect(parseScheduleMonth(value).days['2024-02-29']).toEqual([0, 1, 2])
     expect(() => parseScheduleMonth({ ...value, extra: true })).toThrow()
     expect(() => parseScheduleMonth({ ...value, days: { '2024-02-30': [0, 1, 2] } })).toThrow()
+    expect(() => parseScheduleMonth({ ...value, days: { '2024-02-29': [0, , 2] } })).toThrow()
+    expect(() => parseScheduleMonth({ ...value, updatedAt: '2024-02-01' })).toThrow()
+    expect(() => parseScheduleMonth({ ...value, days: { '2024-02-29': [0, 1, 3] } })).toThrow()
   })
 
   it('handles Japan date and month boundaries', () => {
@@ -17,5 +20,12 @@ describe('core schedule contract', () => {
 
   it('preserves legacy marathon lap rounding', () => {
     expect(marathonPace(3 * 3600)).toEqual(["3'00'00\"", "4'15\"", "21'19\"", "42'39\"", "1'03'59\"", "1'25'19\"", "1'30'00\"", "1'46'38\"", "2'07'58\"", "2'29'18\"", "2'50'38\"", "3'00'00\""])
+  })
+
+  it('parses legacy goal-time formats without changing units', () => {
+    expect(parseTime(`3'00'00"`)).toBe(10800)
+    expect(parseTime(`4'15"`)).toBe(255)
+    expect(parseTime(`45"`)).toBe(45)
+    expect(() => parseTime(`4:15`)).toThrow()
   })
 })

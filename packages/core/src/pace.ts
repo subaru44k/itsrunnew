@@ -11,13 +11,14 @@ function timeString(seconds: number): string {
 }
 
 export function parseTime(value: string): number {
-  const match = /^(?:(\d+)'\s*)?(?:(\d{1,2})'\s*)?(\d{1,2})"$/.exec(value.trim())
-  if (!match) throw new Error('Invalid time')
-  const hours = Number(match[1] ?? 0)
-  const minutes = Number(match[2] ?? (match[1] ? 0 : 0))
-  const seconds = Number(match[3])
-  if (minutes > 59 || seconds > 59) throw new Error('Invalid time')
-  return hours * 3600 + minutes * 60 + seconds
+  const normalized = value.trim()
+  const hours = /^(\d+)'(\d{2})'(\d{2})"$/.exec(normalized)
+  if (hours) return Number(hours[1]) * 3600 + Number(hours[2]) * 60 + Number(hours[3])
+  const minutes = /^(\d+)'(\d{2})"$/.exec(normalized)
+  if (minutes) return Number(minutes[1]) * 60 + Number(minutes[2])
+  const seconds = /^(\d+)"$/.exec(normalized)
+  if (seconds) return Number(seconds[1])
+  throw new Error('Invalid time')
 }
 
 export function marathonPace(goalSeconds: number): string[] {

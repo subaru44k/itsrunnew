@@ -5,10 +5,11 @@ commits rather than pasting command output.
 
 ## Phase 1
 
-- Planner: Sol
+- Planner: Sol; implementer: Luna
 - Planning baseline: `d6de55e`
 - Branch: `migration/aws-s3-cloudfront`
-- Result: planning artifacts created; implementation not started
+- Plan commit: `bee1ec5`
+- Result: Phase 2 implementation in progress
 
 ## Environment
 
@@ -27,7 +28,7 @@ Operating system:
 
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
-| T00 | pending | | | |
+| T00 | complete | pending | `npm run check` | Root workspaces, Node/npm policy, env example and structure check |
 | T01 | pending | | | |
 | T02 | pending | | | |
 | T03 | pending | | | |

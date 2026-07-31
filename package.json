@@ -1,0 +1,25 @@
+{
+  "name": "itsrunnew-migration",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "npm@11.4.2",
+  "engines": {
+    "node": ">=22.12.0 <25"
+  },
+  "workspaces": [
+    "web",
+    "packages/core",
+    "services/schedule-api",
+    "infra"
+  ],
+  "scripts": {
+    "check:structure": "node scripts/check-workspaces.mjs",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:unit": "npm run test:unit --workspaces --if-present",
+    "test:infra": "npm run test:infra --workspaces --if-present",
+    "test:e2e": "npm run test:e2e --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "check": "npm run check:structure && npm run lint && npm run typecheck && npm run test:unit && npm run test:infra && npm run build"
+  }
+}

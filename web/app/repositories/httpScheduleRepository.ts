@@ -4,7 +4,8 @@ import type { IsoDate, ScheduleMonth, StadiumSlug } from '@itsrun/core'
 export type WeekSchedule = { dates: IsoDate[]; months: ScheduleMonth[] }
 
 export class ScheduleRepositoryError extends Error {
-  constructor(message: string, public readonly cause?: unknown) { super(message) }
+  override readonly cause?: unknown
+  constructor(message: string, cause?: unknown) { super(message); this.cause = cause }
 }
 
 export class HttpScheduleRepository {

@@ -1,8 +1,8 @@
 import type { AvailabilityStatus } from './types'
 
 export const STATUS_LABELS = {
-  0: { ja: '空き', en: 'Available' },
-  1: { ja: '混雑', en: 'Busy' },
+  0: { ja: '未公開', en: 'Unknown' },
+  1: { ja: '利用可能', en: 'Available' },
   2: { ja: '不可', en: 'Unavailable' },
 } as const satisfies Record<AvailabilityStatus, { ja: string; en: string }>
 

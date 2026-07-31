@@ -47,6 +47,18 @@ Operating system: macOS
 | T16 | blocked by Phase 3 | | | |
 | T17 | blocked by Phase 3 | | | |
 
+## Sol remediation log
+
+| Remediation | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| R01 | complete | pending | `npm run typecheck --workspace @itsrun/core`; `npm run typecheck --workspace @itsrun/web`; `npm run lint --workspace @itsrun/web` | Node 24.18.1 is installed via nvm. Real Nuxt ESLint and strict TypeScript gates are wired; no AWS access used. |
+| R02 | pending | | | |
+| R03 | pending | | | |
+| R04 | pending | | | |
+| R05 | pending | | | |
+| R06 | pending | | | |
+| R07 | pending | | | |
+
 ## Phase 3 Sol review
 
 ```text

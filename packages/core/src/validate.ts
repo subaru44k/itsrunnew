@@ -17,5 +17,5 @@ export function parseScheduleMonth(value: unknown, expected?: { stadium?: Stadiu
     if (!isValidIsoDate(date) || date.slice(0, 7) !== value.yearMonth || !Array.isArray(statuses) || statuses.length !== 3 || statuses.some((status) => !isAvailabilityStatus(status))) throw new Error(`Invalid day: ${date}`)
   }
   if (new TextEncoder().encode(JSON.stringify(value)).byteLength > 32 * 1024) throw new Error('Schedule exceeds 32 KiB')
-  return value as ScheduleMonth
+  return value as unknown as ScheduleMonth
 }

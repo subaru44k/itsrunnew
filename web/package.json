@@ -5,7 +5,9 @@
   "scripts": {
     "build": "nuxt generate",
     "dev": "nuxt dev",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "lint": "nuxt prepare && eslint .",
+    "typecheck": "nuxt prepare && nuxt typecheck"
   },
   "dependencies": {
     "@nuxtjs/i18n": "^10.6.0",

@@ -24,8 +24,12 @@
     "check": "npm run check:structure && npm run lint && npm run typecheck && npm run test:unit && npm run test:infra && npm run build"
   },
   "devDependencies": {
+    "@nuxt/eslint": "^1.16.0",
     "@playwright/test": "^1.62.1",
     "aws-cdk": "^2.1134.0",
-    "vitest": "^4.1.10"
+    "eslint": "^10.8.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.3.8"
   }
 }

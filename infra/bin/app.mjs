@@ -170,6 +170,7 @@ export class HostingStack extends Stack {
       timeoutInMillis: 10000,
     })
     const apiScope = ['itsrun/schedule.write']
+    const apiRoutes = []
     for (const [idSuffix, routeKey] of [
       ['GetSchedule', 'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}'],
       ['PutSchedule', 'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}'],
@@ -182,11 +183,11 @@ export class HostingStack extends Stack {
         authorizationScopes: apiScope,
         target: Fn.join('', ['integrations/', apiIntegration.ref]),
       })
-      route.addDependency(apiIntegration)
-      route.addDependency(jwtAuthorizer)
+      route.addResourceDependency(apiIntegration)
+      route.addResourceDependency(jwtAuthorizer)
+      apiRoutes.push(route)
     }
-    apiIntegration.addDependency(apiStage)
-    jwtAuthorizer.addDependency(apiStage)
+    for (const route of apiRoutes) apiStage.addResourceDependency(route)
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
     const cognitoAuthBaseUrl = Fn.join('', ['https://', cognitoDomainPrefix.valueAsString, '.auth.', Aws.REGION, '.amazoncognito.com'])
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {

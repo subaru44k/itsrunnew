@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@nuxtjs/i18n": "^10.6.0",
-    "nuxt": "^4.4.8"
+    "nuxt": "^4.4.8",
+    "@itsrun/core": "file:../packages/core"
   }
 }

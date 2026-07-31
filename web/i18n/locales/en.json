@@ -3,5 +3,5 @@
   "nav": { "home": "Home", "yumenoshima": "Yumenoshima", "komazawa": "Komazawa", "todoroki": "Todoroki", "pace": "Pace" },
   "homeTitle": "Find a place to run",
   "homeDescription": "Check track availability and marathon pace tables.",
-  "footer": "It's Run"
+  "footer": "It's Run", "stadium": { "oda": "Oda Field", "yumenoshima": "Yumenoshima Stadium", "komazawa": "Komazawa Stadium", "todoroki": "Todoroki Stadium" }, "scheduleTitle": "Availability", "scheduleComingSoon": "Schedule data is being prepared.", "nozomiTitle": "Race result of Nozomi Tanaka", "nozomiDescription": "Review selected race records.", "event": "Event", "result": "Result"
 }

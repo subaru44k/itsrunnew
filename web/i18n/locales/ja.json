@@ -3,5 +3,5 @@
   "nav": { "home": "ホーム", "yumenoshima": "夢の島", "komazawa": "駒沢", "todoroki": "等々力", "pace": "ペース" },
   "homeTitle": "いつでも走れる場所を探そう",
   "homeDescription": "競技場の利用状況とマラソンペースを確認できます。",
-  "footer": "It's Run"
+  "footer": "It's Run", "stadium": { "oda": "織田フィールド", "yumenoshima": "夢の島競技場", "komazawa": "駒沢競技場", "todoroki": "等々力競技場" }, "scheduleTitle": "利用状況", "scheduleComingSoon": "スケジュールを準備中です。", "nozomiTitle": "田中希実の記録", "nozomiDescription": "大会記録を確認できます。", "event": "種目", "result": "記録"
 }

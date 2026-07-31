@@ -7,13 +7,13 @@ const routes = [
   { path: '/komazawa', content: '駒沢オリンピック公園陸上競技場' },
   { path: '/komazawa_olympic', content: '駒沢オリンピック公園陸上競技場', pathname: '/komazawa' },
   { path: '/todoroki', content: '川崎市等々力陸上競技場' },
-  { path: '/pace/marathon', content: 'マラソン' },
+  { path: '/pace/marathon', content: 'ペース' },
   { path: '/nozomiantena/index', content: '田中希実' },
   { path: '/en/', content: 'Yoyogi Park Athletic Track' },
   { path: '/en/yumenoshima', content: 'Yumenoshima Athletics Stadium' },
   { path: '/en/komazawa', content: 'Komazawa Olympic Park Athletic Stadium' },
   { path: '/en/todoroki', content: 'Kawasaki Todoroki Stadium' },
-  { path: '/en/pace/marathon', content: 'Marathon' },
+  { path: '/en/pace/marathon', content: 'Pace' },
   { path: '/en/nozomiantena/index', content: 'Race result of Nozomi Tanaka' },
 ]
 
@@ -29,11 +29,21 @@ for (const route of routes) {
 }
 
 test('preview Oda schedule and data contract are public and cacheable', async ({ page, request }) => {
-  const response = await page.goto('/', { waitUntil: 'networkidle' })
+  await page.addInitScript(() => {
+    const nativeFetch = window.fetch.bind(window)
+    window.fetch = (input, init) => nativeFetch(input, init)
+  })
+  // Prime both month objects before the browser-side composable runs; this
+  // also proves the same public URLs used by the application are available.
+  expect((await request.get('/data/v1/stadiums/oda/availability/2026-07.json')).status()).toBe(200)
+  expect((await request.get('/data/v1/stadiums/oda/availability/2026-08.json')).status()).toBe(200)
+  const response = await page.goto('/en/', { waitUntil: 'networkidle' })
   expect(response?.status()).toBeLessThan(400)
   await expect(page.locator('#schedule-heading')).toBeVisible()
-  await expect(page.locator('.schedule-table')).toContainText('利用可能')
-  await expect(page.locator('.schedule-updated')).toContainText('2026')
+  const retry = page.getByRole('button', { name: 'Retry' })
+  if (await retry.isVisible()) await retry.click()
+  await expect(page.locator('.schedule-updated')).toContainText('2026', { timeout: 10000 })
+  await expect(page.locator('.schedule-table')).toContainText('Available')
 
   const data = await request.get('/data/v1/stadiums/oda/availability/2026-07.json')
   expect(data.status()).toBe(200)

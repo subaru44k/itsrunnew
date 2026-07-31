@@ -37,7 +37,7 @@ Operating system: macOS
 | T06 | complete | `1b9c581` | `npm run build --workspace web`; `npm run check` | Responsive semantic 7-day × 3-slot table with text status labels, unknown/error/retry states, and previous/next week controls. Stale requests are ignored by request ID. |
 | T07 | complete | `6661240` + `a0d4e2b` | `npm run build --workspace infra`; `npm run test:infra`; `npm run check` | CDK preview hosting stack: private retained web/data buckets, data versioning, OAC origins, HTTPS CloudFront, extensionless route function and 60-second data cache. No production DNS or write IAM. |
 | T08 | complete | `9cd06d0` | `node scripts/migration/create-preview-seed.mjs`; `node scripts/migration/verify-preview-seed.mjs`; `npm run check` | Generated clearly labeled non-production Oda JSON under ignored preview artifacts with deterministic SHA-256 manifest and 60-second cache metadata. No AWS upload or production overwrite. |
-| T09 | in progress | `pending` | R01-R06 local work and scoped bootstrap completed; R07 preview verification remains. | The first deploy attempt stopped on a missing SSM batch-read action; Sol approved the exact scoped fix. |
+| T09 | complete | `pending` | R01-R07 complete; T10/Phase 4 intentionally not started. | Preview CloudFront vertical slice is deployed and verified below. Handing back to Sol for Phase 3 review. |
 | T10 | blocked by Phase 3 | | | |
 | T11 | blocked by Phase 3 | | | |
 | T12 | blocked by Phase 3 | | | |
@@ -57,7 +57,7 @@ Operating system: macOS
 | R04 | complete | `218ad97` | `npm run test:infra --workspace @itsrun/infra`; `npm run build --workspace infra` | Private named buckets, TLS enforcement, data-prefix OAC policy, HTML/data cache policies, security headers/CSP, route rewrite and structural CDK tests added. |
 | R05 | complete | `b3afd17` | `node scripts/migration/create-preview-seed.mjs --start 2026-07-31`; `node scripts/migration/verify-preview-seed.mjs`; `npm run test:unit --workspace @itsrun/core`; `node --check scripts/migration/deploy-preview.mjs`; `npm run check` | Deterministic July/August Oda fixture, manifest/parser validation, cache-aware upload helper, account/profile fail-closed check and S3 hash verification added. No AWS operation performed before R06. |
 | R06 | complete | `pending` | AWS v1 comparison; managed policy v2 creation; `AWS_PROFILE=codex-prod AWS_REGION=ap-northeast-1 ... cdk deploy ItsRunPreviewHosting --require-approval never`; CloudFormation stack verification | Created v2 with only the Sol-approved `ssm:GetParameters` addition on the exact bootstrap parameter ARN. No bootstrap rerun. `ItsRunPreviewHosting` deployed in account `470447451992`/`ap-northeast-1`; R07 verification remains. |
-| R07 | pending | | | |
+| R07 | complete | `pending` | `npm ci --ignore-scripts --no-audit --no-fund`; `npm run check`; `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview`; direct unauthenticated S3 check; CloudFront headers/data hash checks; `git diff --check` | Stack `ItsRunPreviewHosting` is `CREATE_COMPLETE`; distribution `E22K5S8F2NUP6K` (`d2via50thoheqm.cloudfront.net`); web bucket `itsrun-preview-web-470447451992-ap-northeast-1`; data bucket `itsrun-preview-data-470447451992-ap-northeast-1`; fixture manifest SHA-256 `aa514407409b2650815fae7a8d4d3d84735c80e131e029266f8c54460564a95b`. Preview E2E: 32 passed (desktop/mobile, 14 routes plus data/404 checks). |
 
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against
 the committed pre-change definition, then `v2` was made default with only
@@ -109,7 +109,7 @@ Safe work that can continue:
 ```
 
 OPEN:
-Task: T09 preview deployment
-Decision needed: None for the observed R06 denial; the exact scoped read fix is Sol-approved.
-Evidence: `cdk deploy` was denied only for `ssm:GetParameters` on `arn:aws:ssm:ap-northeast-1:470447451992:parameter/cdk-bootstrap/hnb659fds/version`; policy default version is `v1` and the hosting stack does not exist.
-Safe work that can continue: Luna may create the reviewed policy `v2`, verify the exact diff, resume R06, and continue to R07 only if no further Stop condition occurs.
+Task: Phase 3 Sol review
+Decision needed: Review the completed read-only CloudFront vertical slice before T10.
+Evidence: `ItsRunPreviewHosting` is `CREATE_COMPLETE`; all R07 checks are recorded above; no production DNS, Firebase, Cognito, API, or pre-existing bucket writes were performed.
+Safe work that can continue: Sol architecture/IAM/cache/data-contract review only. Luna must not begin T10 or Phase 4.

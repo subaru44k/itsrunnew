@@ -57,6 +57,17 @@ Required changes:
 Approved decisions:
 ```
 
+## Pre-T09 Sol unblock review
+
+```text
+Reviewed commit: 85f49c0
+Date: 2026-07-31
+Result: Changes required before bootstrap/deploy; T09 remains incomplete
+Required changes: docs/aws-migration/t09-unblock-plan.md R01-R07
+Approved decisions: D011 scoped standard CDK bootstrap
+Owner approval: Continue with scoped bootstrap and preview-only AWS deployment
+```
+
 ## Phase 5 Sol review
 
 ```text
@@ -81,6 +92,6 @@ Safe work that can continue:
 
 OPEN:
 Task: T09 preview deployment
-Decision needed: Sol/owner approval for CDK bootstrap and its IAM role creation, or an already bootstrapped deployment path.
+Decision needed: Implement R01-R05, then use the approved scoped bootstrap in R06.
 Evidence: `cdk deploy` failed because `/cdk-bootstrap/hnb659fds/version` is absent in account 470447451992/ap-northeast-1; CloudFormation stack does not exist.
-Safe work that can continue: Sol review of commits through `9cd06d0`; no AWS mutation is pending.
+Safe work that can continue: Luna remediation R01-R05; AWS mutation begins only at R06 after local checks pass.

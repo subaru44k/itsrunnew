@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: approved direction, implementation not started
+Status: Phase 2 remediation planned; T09 preview deployment not yet complete
 
 Planning baseline: `d6de55e` on `master`
 
@@ -100,3 +100,6 @@ Before implementation:
 4. Add the current commit and tool versions to `implementation-log.md`.
 5. Execute tasks in dependency order.
 6. Stop after T09 and hand the branch back to Sol for Phase 3.
+
+When resuming the currently blocked T09 work, Luna must also read and execute
+[t09-unblock-plan.md](./t09-unblock-plan.md) in order.

@@ -85,6 +85,46 @@ To reduce cost, create one AWS stack and validate it through the CloudFront
 distribution domain. Attach production DNS after final approval instead of
 maintaining duplicate long-lived staging infrastructure.
 
+## D011: Scoped standard CDK bootstrap
+
+Status: accepted
+
+Problem:
+
+The target account is not bootstrapped. The standard bootstrap defaults the
+CloudFormation execution role to `AdministratorAccess`, which is broader than
+the preview hosting stack needs.
+
+Decision:
+
+Use the standard modern CDK bootstrap in account `470447451992`, region
+`ap-northeast-1`, with no cross-account trust and with a project-specific
+managed CloudFormation execution policy. The policy permits only the named
+preview S3 buckets, the CloudFront operations required by the hosting stack,
+bootstrap-version SSM reads, and conditional creation of the CloudFront
+service-linked role. Unsupported resource-level CloudFront operations may use
+`Resource: "*"` but never `Action: "*"`.
+
+Alternatives:
+
+- Default `AdministratorAccess`: rejected as unnecessarily broad.
+- `PowerUserAccess`: rejected because it grants unrelated services.
+- A bootstrapless synthesizer using the current IAM user directly: rejected
+  because it removes the distinct deployment role and creates a nonstandard
+  long-term operational path.
+
+Cost and maintenance effect:
+
+Standard bootstrap adds an empty staging bucket and ECR repository plus CDK
+roles. Empty resources have negligible ongoing cost; the managed execution
+policy must be reviewed when the stack gains a new AWS service.
+
+Rollback/removal:
+
+Before production use, the `ItsRunPreviewHosting` and `CDKToolkit` stacks and
+the project execution policy can be removed after confirming no other CDK
+application uses the default qualifier in this account/region.
+
 ## Decision template
 
 Copy for new decisions:

@@ -39,6 +39,16 @@ interface ScheduleMonth {
 }
 ```
 
+Status values preserve the legacy public contract:
+
+| Value | Meaning |
+| --- | --- |
+| `0` | Unknown / not published |
+| `1` | Available |
+| `2` | Unavailable |
+
+There is no persisted `busy` status. Loading is UI state and `-1` is invalid.
+
 Example:
 
 ```json

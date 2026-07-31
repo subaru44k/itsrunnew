@@ -125,6 +125,16 @@ Go/no-go:
 Required changes:
 ```
 
+## Phase 4 T11 Sol review
+
+```text
+Reviewed commit: 5f1d593
+Date: 2026-07-31
+Result: Local corrections required before IAM policy v4 or AWS deployment
+Required changes: docs/aws-migration/phase4-t11-review.md T11R01-T11R06
+AWS authority: None; local implementation, tests, documentation, and synth only
+```
+
 ## Open items
 
 Use:

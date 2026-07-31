@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     defaultLocale: 'ja',
     strategy: 'prefix_except_default',
     langDir: 'locales',
+    detectBrowserLanguage: false,
   },
   app: {
     head: {

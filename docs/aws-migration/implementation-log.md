@@ -63,9 +63,9 @@ Operating system: macOS
 
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
-| P3R01 | complete | pending | `npm run test:unit --workspace web`; `npm run typecheck --workspace web` | Native/injected fetch is invoked as a receiver-free function; regression test reproduces the browser receiver requirement. |
-| P3R02 | pending | | | |
-| P3R03 | pending | | | |
+| P3R01 | complete | `65fd84d` | `npm run test:unit --workspace web`; `npm run typecheck --workspace web` | Native/injected fetch is invoked as a receiver-free function; regression test reproduces the browser receiver requirement. |
+| P3R02 | complete | `e59bbd1` | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` | HTML, all payloads and latest build manifest are no-cache; hashed Nuxt assets/build metadata are immutable; other assets retain the short cache. |
+| P3R03 | complete | pending | `npm run typecheck --workspace web`; `npm run build --workspace web` | Browser locale detection is disabled; generated Japanese/English HTML contains lang, relative canonical, and ja/en hreflang links. |
 | P3R04 | pending | | | |
 | P3R05 | pending | | | |
 

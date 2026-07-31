@@ -65,8 +65,8 @@ Operating system: macOS
 | --- | --- | --- | --- | --- |
 | P3R01 | complete | `65fd84d` | `npm run test:unit --workspace web`; `npm run typecheck --workspace web` | Native/injected fetch is invoked as a receiver-free function; regression test reproduces the browser receiver requirement. |
 | P3R02 | complete | `e59bbd1` | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` | HTML, all payloads and latest build manifest are no-cache; hashed Nuxt assets/build metadata are immutable; other assets retain the short cache. |
-| P3R03 | complete | pending | `npm run typecheck --workspace web`; `npm run build --workspace web` | Browser locale detection is disabled; generated Japanese/English HTML contains lang, relative canonical, and ja/en hreflang links. |
-| P3R04 | pending | | | |
+| P3R03 | complete | `67eb101` | `npm run typecheck --workspace web`; `npm run build --workspace web` | Browser locale detection is disabled; generated Japanese/English HTML contains lang, relative canonical, and ja/en hreflang links. |
+| P3R04 | complete | `41342d9` | `npx vitest run scripts/migration/deploy-preview.test.mjs`; `npm run test:unit --workspace web` | Deployment helper verifies each fixture through CloudFront with bounded retry, status/content type/cache metadata, and SHA-256; schedule states are localized without raw technical errors. |
 | P3R05 | pending | | | |
 
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against

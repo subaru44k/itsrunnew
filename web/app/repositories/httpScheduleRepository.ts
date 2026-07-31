@@ -14,7 +14,11 @@ export class HttpScheduleRepository {
   async getMonth(stadium: StadiumSlug, yearMonth: string, signal?: AbortSignal): Promise<ScheduleMonth | null> {
     const path = `${this.basePath}/stadiums/${encodeURIComponent(stadium)}/availability/${yearMonth}.json`
     let response: Response
-    try { response = await this.request(path, { signal }) } catch (error) {
+    // Keep the injected/native fetch function receiver-free. Browsers require
+    // `window.fetch` to be called with Window as its internal receiver, while
+    // the repository deliberately stores it as a callable dependency.
+    const request = this.request
+    try { response = await request(path, { signal }) } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') throw error
       throw new ScheduleRepositoryError('Unable to load schedule', error)
     }

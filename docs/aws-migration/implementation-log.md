@@ -59,6 +59,16 @@ Operating system: macOS
 | R06 | complete | `01284a6` | AWS v1 comparison; managed policy v2 creation; `AWS_PROFILE=codex-prod AWS_REGION=ap-northeast-1 ... cdk deploy ItsRunPreviewHosting --require-approval never`; CloudFormation stack verification | Created v2 with only the Sol-approved `ssm:GetParameters` addition on the exact bootstrap parameter ARN. No bootstrap rerun. `ItsRunPreviewHosting` deployed in account `470447451992`/`ap-northeast-1`; R07 verification remains. |
 | R07 | complete | `5bbae68` | `npm ci --ignore-scripts --no-audit --no-fund`; `npm run check`; `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview`; direct unauthenticated S3 check; CloudFront headers/data hash checks; `git diff --check` | Stack `ItsRunPreviewHosting` is `CREATE_COMPLETE`; distribution `E22K5S8F2NUP6K` (`d2via50thoheqm.cloudfront.net`); web bucket `itsrun-preview-web-470447451992-ap-northeast-1`; data bucket `itsrun-preview-data-470447451992-ap-northeast-1`; fixture manifest SHA-256 `aa514407409b2650815fae7a8d4d3d84735c80e131e029266f8c54460564a95b`. Preview E2E: 32 passed (desktop/mobile, 14 routes plus data/404 checks). |
 
+### Phase 3 Luna corrective pass
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| P3R01 | complete | pending | `npm run test:unit --workspace web`; `npm run typecheck --workspace web` | Native/injected fetch is invoked as a receiver-free function; regression test reproduces the browser receiver requirement. |
+| P3R02 | pending | | | |
+| P3R03 | pending | | | |
+| P3R04 | pending | | | |
+| P3R05 | pending | | | |
+
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against
 the committed pre-change definition, then `v2` was made default with only
 `ssm:GetParameters` added to the same exact bootstrap-version parameter ARN.

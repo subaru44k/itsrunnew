@@ -13,6 +13,15 @@ describe('HttpScheduleRepository', () => {
     expect(result.months.map((item) => item.yearMonth)).toEqual(['2026-07', '2026-08'])
   })
 
+  it('invokes a receiver-sensitive fetch dependency without the repository receiver', async () => {
+    const request = function (this: unknown, url: string) {
+      expect(this).toBeUndefined()
+      return Promise.resolve(new Response(JSON.stringify(month(url.includes('2026-08') ? '2026-08' : '2026-07')), { status: 200 }))
+    }
+    const repository = new HttpScheduleRepository('/data/v1', request as typeof fetch)
+    await expect(repository.getMonth('oda', '2026-07')).resolves.toMatchObject({ yearMonth: '2026-07' })
+  })
+
   it('returns missing months as empty data and surfaces invalid data', async () => {
     const missing = new HttpScheduleRepository('/data/v1', vi.fn(async () => new Response('', { status: 404 })) as typeof fetch)
     expect((await missing.getMonth('oda', '2026-07'))).toBeNull()

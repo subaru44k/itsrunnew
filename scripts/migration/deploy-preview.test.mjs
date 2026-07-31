@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { cacheControlForWebObject } from './deploy-preview.mjs'
+import { describe, expect, it, vi } from 'vitest'
+import { cacheControlForWebObject, readCloudFrontObject } from './deploy-preview.mjs'
 
 describe('preview web cache classification', () => {
   it.each([
@@ -18,5 +18,13 @@ describe('preview web cache classification', () => {
 
   it('keeps un-hashed assets on the short public cache', () => {
     expect(cacheControlForWebObject('robots.txt')).toBe('public, max-age=86400')
+  })
+
+  it('verifies CloudFront status, metadata, and SHA-256', async () => {
+    const body = '{"ok":true}'
+    const hash = (await import('node:crypto')).createHash('sha256').update(body).digest('hex')
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(body, { status: 200, headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=0, s-maxage=60' } })))
+    await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', hash, 'max-age=0')).resolves.toBeUndefined()
+    vi.unstubAllGlobals()
   })
 })

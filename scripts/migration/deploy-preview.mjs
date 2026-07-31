@@ -31,7 +31,7 @@ async function files(root, prefix = '') {
   }
   return result
 }
-async function readCloudFront(domain, key, expectedHash, expectedCacheControl) {
+export async function readCloudFrontObject(domain, key, expectedHash, expectedCacheControl) {
   const url = `https://${domain}/${key}`
   const deadline = Date.now() + 120_000
   let lastError
@@ -83,7 +83,7 @@ async function main() {
     const downloaded = aws(['s3', 'cp', `s3://${dataBucket}/${object.key}`, '-'], profile, region)
     const hash = createHash('sha256').update(downloaded).digest('hex')
     if (hash !== object.sha256) throw new Error(`Uploaded hash mismatch: ${object.key}`)
-    await readCloudFront(stack.DistributionDomainName, object.key, object.sha256, 'max-age=0')
+    await readCloudFrontObject(stack.DistributionDomainName, object.key, object.sha256, 'max-age=0')
   }
   console.log(`Uploaded ${webKeys.length} web objects to ${webBucket} and ${manifest.objects.length} fixture objects to ${dataBucket}; CloudFront verification passed`)
 }

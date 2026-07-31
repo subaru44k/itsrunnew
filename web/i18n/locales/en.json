@@ -6,6 +6,8 @@
   "footer": "It's Run",
   "scheduleTitle": "Availability",
   "scheduleComingSoon": "Schedule data is being prepared.",
+  "scheduleLoading": "Loading schedule…", "scheduleCaption": "Weekly track availability", "scheduleRetained": "Showing the last successful schedule.",
+  "scheduleError": { "network": "The schedule could not be reached.", "unavailable": "The schedule is currently unavailable.", "invalid": "The schedule data is temporarily unavailable." },
   "scheduleUpdatedAt": "Updated: {date}",
   "scheduleUnknown": "Unknown",
   "scheduleRetry": "Retry",

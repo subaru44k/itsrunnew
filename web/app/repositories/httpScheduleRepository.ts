@@ -2,10 +2,11 @@ import { parseScheduleMonth, schedulePaths, weekDates } from '@itsrun/core'
 import type { IsoDate, ScheduleMonth, StadiumSlug } from '@itsrun/core'
 
 export type WeekSchedule = { dates: IsoDate[]; months: ScheduleMonth[] }
+export type ScheduleErrorKind = 'network' | 'unavailable' | 'invalid'
 
 export class ScheduleRepositoryError extends Error {
   override readonly cause?: unknown
-  constructor(message: string, cause?: unknown) { super(message); this.cause = cause }
+  constructor(message: string, cause?: unknown, readonly kind: ScheduleErrorKind = 'unavailable') { super(message); this.cause = cause }
 }
 
 export class HttpScheduleRepository {
@@ -20,11 +21,11 @@ export class HttpScheduleRepository {
     const request = this.request
     try { response = await request(path, { signal }) } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') throw error
-      throw new ScheduleRepositoryError('Unable to load schedule', error)
+      throw new ScheduleRepositoryError('Unable to load schedule', error, 'network')
     }
     if (response.status === 404) return null
-    if (!response.ok) throw new ScheduleRepositoryError(`Schedule request failed (${response.status})`)
-    try { return parseScheduleMonth(await response.json(), { stadium, yearMonth }) } catch (error) { throw new ScheduleRepositoryError('Schedule data is invalid', error) }
+    if (!response.ok) throw new ScheduleRepositoryError('Schedule request failed', undefined, 'unavailable')
+    try { return parseScheduleMonth(await response.json(), { stadium, yearMonth }) } catch (error) { throw new ScheduleRepositoryError('Schedule data is invalid', error, 'invalid') }
   }
 
   async getWeek(stadium: StadiumSlug, start: IsoDate, signal?: AbortSignal): Promise<WeekSchedule> {

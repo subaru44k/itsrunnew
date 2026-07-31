@@ -6,6 +6,8 @@
   "footer": "It's Run",
   "scheduleTitle": "利用状況",
   "scheduleComingSoon": "スケジュールを準備中です。",
+  "scheduleLoading": "スケジュールを読み込み中です…", "scheduleCaption": "週間の利用状況", "scheduleRetained": "最後に取得できたスケジュールを表示しています。",
+  "scheduleError": { "network": "スケジュールに接続できませんでした。", "unavailable": "スケジュールを現在利用できません。", "invalid": "スケジュールデータを利用できません。" },
   "scheduleUpdatedAt": "更新: {date}",
   "scheduleUnknown": "未公開",
   "scheduleRetry": "再試行",

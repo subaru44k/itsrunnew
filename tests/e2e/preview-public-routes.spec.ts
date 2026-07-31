@@ -28,25 +28,21 @@ for (const route of routes) {
   })
 }
 
-test('preview Oda schedule and data contract are public and cacheable', async ({ page, request }) => {
-  await page.addInitScript(() => {
-    const nativeFetch = window.fetch.bind(window)
-    window.fetch = (input, init) => nativeFetch(input, init)
-  })
-  // Prime both month objects before the browser-side composable runs; this
-  // also proves the same public URLs used by the application are available.
-  expect((await request.get('/data/v1/stadiums/oda/availability/2026-07.json')).status()).toBe(200)
-  expect((await request.get('/data/v1/stadiums/oda/availability/2026-08.json')).status()).toBe(200)
-  const response = await page.goto('/en/', { waitUntil: 'networkidle' })
+test('preview Oda schedule renders on the first raw navigation', async ({ page, request }) => {
+  const response = await page.goto('/', { waitUntil: 'networkidle' })
   expect(response?.status()).toBeLessThan(400)
+  expect(new URL(page.url()).pathname).toBe('/')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ja-JP')
+  await expect(page.locator('h1')).toContainText('織田フィールド')
   await expect(page.locator('#schedule-heading')).toBeVisible()
-  const retry = page.getByRole('button', { name: 'Retry' })
-  if (await retry.isVisible()) await retry.click()
-  await expect(page.locator('.schedule-updated')).toContainText('2026', { timeout: 10000 })
-  await expect(page.locator('.schedule-table')).toContainText('Available')
+  await expect(page.locator('[role=alert]')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /再試行|Retry/ })).toHaveCount(0)
+  await expect(page.locator('.schedule-updated')).toHaveText('更新: 2026-01-01T00:00:00.000Z')
+  await expect(page.locator('.schedule-table')).toContainText('利用可能')
 
   const data = await request.get('/data/v1/stadiums/oda/availability/2026-07.json')
   expect(data.status()).toBe(200)
+  expect(data.headers()['cache-control']).toContain('max-age=0')
   expect(data.headers()['cache-control']).toContain('s-maxage=60')
   expect(data.headers()['strict-transport-security']).toBeTruthy()
   expect(data.headers()['x-content-type-options']).toBe('nosniff')

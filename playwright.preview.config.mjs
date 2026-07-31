@@ -6,7 +6,6 @@ if (!baseURL) throw new Error('PREVIEW_BASE_URL is required for preview E2E test
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: /preview-public-routes\.spec\.ts/,
-  retries: 2,
   outputDir: '.artifacts/playwright-preview',
   reporter: [['list'], ['html', { outputFolder: '.artifacts/playwright-preview-report', open: 'never' }]],
   use: {
@@ -17,7 +16,9 @@ export default defineConfig({
     video: 'off',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'chromium-ja', use: { ...devices['Desktop Chrome'], locale: 'ja-JP' } },
+    { name: 'chromium-en', use: { ...devices['Desktop Chrome'], locale: 'en-US' } },
+    { name: 'mobile-ja', use: { ...devices['Desktop Chrome'], locale: 'ja-JP', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'mobile-en', use: { ...devices['Desktop Chrome'], locale: 'en-US', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
   ],
 })

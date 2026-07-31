@@ -69,6 +69,16 @@ Operating system: macOS
 | P3R04 | complete | `41342d9` | `npx vitest run scripts/migration/deploy-preview.test.mjs`; `npm run test:unit --workspace web` | Deployment helper verifies each fixture through CloudFront with bounded retry, status/content type/cache metadata, and SHA-256; schedule states are localized without raw technical errors. |
 | P3R05 | complete | `ad44b5f` | AWS account/profile/region verification; v2 policy comparison; v3 policy creation; Node 24 build/fixture generation; helper deployment twice; targeted CloudFront invalidations; raw Playwright locale/routes/state checks; S3/CloudFront cache/security/hash checks | AWS v2 matched commit `22d7fd5`; v3 removes only `PreviewBucketObjects` and retains v1/v2. Distribution `E22K5S8F2NUP6K`; corrected invalidation paths were explicit payload keys plus `/_nuxt/builds/latest.json` (no `/*`). Helper CloudFront fixture verification passed on both deployments. Raw en-US `/` remained Japanese; all 14 routes, Oda updatedAt/availability, cache headers, private S3, unknown route/asset checks completed. Stop here for Sol Phase 3 re-review. |
 
+### Phase 3 re-review corrective pass
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| C01 | complete | pending | `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (64 passed) | Removed browser fetch instrumentation, fixture prewarm, conditional Retry, and retries; added desktop/mobile × ja-JP/en-US projects and first-navigation assertions. |
+| C02 | pending | | | |
+| C03 | pending | | | |
+| C04 | pending | | | |
+| C05 | pending | | | |
+
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against
 the committed pre-change definition, then `v2` was made default with only
 `ssm:GetParameters` added to the same exact bootstrap-version parameter ARN.

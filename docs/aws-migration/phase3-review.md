@@ -289,3 +289,97 @@ Stop and return to Sol if:
 - Correcting the cache requires a distribution-wide invalidation.
 - The current deployment principal cannot create the targeted invalidation;
   do not add IAM permission without another Sol review.
+
+## Phase 3 final re-review
+
+Reviewed commit: `f270add`
+
+Review date: 2026-07-31
+
+Result: small corrective pass required before T10
+
+The public preview, schedule-state exclusivity, generated SEO contract,
+cache metadata, private S3 origins, and managed-policy `v3` are otherwise
+accepted. Independent Sol checks passed:
+
+- `npm run check`
+- `npx vitest run scripts/migration/deploy-preview.test.mjs` (17 passed)
+- raw and isolated-state preview Playwright suites (84 passed)
+- account `470447451992`, region `ap-northeast-1`, managed-policy default `v3`
+  with `v1`/`v2` retained
+- unauthenticated access to both preview S3 buckets returned `403`
+
+T10 remains blocked by the following finite corrections.
+
+### FF01: CloudFront verification timeout does not bound a hung fetch
+
+Severity: release safety
+
+`readCloudFrontObject` checks `timeoutMs` only before and after an awaited
+`fetch`. If one request never settles, the function never reaches the deadline
+check. A Sol reproduction using a never-resolving injected fetch remained
+pending after 100 ms despite `timeoutMs: 10`.
+
+Required:
+
+- Bound the complete CloudFront read attempt, including response-body reading,
+  by the remaining overall deadline.
+- Abort or otherwise settle the outstanding attempt when the deadline expires.
+- Clear timers and avoid unhandled rejections.
+- Add a no-network test with a never-resolving fetch proving the function
+  rejects within the configured deadline.
+- Retain the deterministic max-attempt and fake-clock coverage.
+
+### FF02: Unavailable localized browser state is not exercised
+
+Severity: test-contract gap
+
+The state-machine unit test classifies `unavailable`, and both locale messages
+exist, but the separated browser suite exercises only network, invalid, and
+unpublished initial responses. RR01 required the mutually exclusive
+`unavailable` state to be proven in localized display.
+
+Required:
+
+- Add a simulated non-404 HTTP failure such as `503` to the separated schedule
+  state suite.
+- For Japanese and English desktop/mobile projects, assert the localized
+  unavailable message, Retry button, no unpublished message, and no raw
+  technical error.
+- Do not change or instrument the raw preview suite.
+
+### FF03: Implementation log mixes C05 and RR03 history
+
+Severity: audit accuracy
+
+The C05 row now reports the later 84-case RR03 run. C05 completed at `9a05a5d`
+with the earlier 64-case raw suite; RR03 is the separate 84-case result. The
+RR01 row also says only `follow-up` rather than recording `4ee66e8`, and the
+first RR03 E2E run that exposed the negative-assertion test defect is omitted.
+
+Required:
+
+- Restore the C05 check count and wording to its state at `9a05a5d`.
+- Keep the corrected C05 commit value `9a05a5d`.
+- Record RR03's 84-case final pass separately.
+- Replace `follow-up` with exact commit `4ee66e8`.
+- Truthfully note the first post-deploy run's eight assertion-only failures and
+  the subsequent 84-case pass; do not imply a second AWS deployment.
+
+## Final corrective order
+
+1. Fix FF01 and its no-network tests.
+2. Fix FF02 in the separated state suite.
+3. Fix FF03 and run:
+
+```bash
+npm run check
+npx vitest run scripts/migration/deploy-preview.test.mjs
+PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview
+git diff --check
+git status --short
+```
+
+No AWS write is required or approved for this pass. Do not deploy, invalidate,
+change IAM/CloudFormation, create policy `v4`, or modify production, DNS, or
+Firebase. After these corrections, stop for Sol approval before T10.

@@ -36,8 +36,8 @@ Operating system: macOS
 | T05 | complete | `b5fc31d` | `npm run test:unit --workspace web`; `npm run check` | Read-only HTTP repository validates monthly JSON, handles 404/malformed/network errors, and fetches/merges two months for a seven-day week with cancellation signal support. |
 | T06 | complete | `1b9c581` | `npm run build --workspace web`; `npm run check` | Responsive semantic 7-day × 3-slot table with text status labels, unknown/error/retry states, and previous/next week controls. Stale requests are ignored by request ID. |
 | T07 | complete | `6661240` | `npm run build --workspace infra`; `npm run test:infra`; `npm run check` | CDK preview hosting stack: private retained web/data buckets, data versioning, OAC origins, HTTPS CloudFront, extensionless route function and 60-second data cache. No production DNS or write IAM. |
-| T08 | complete | pending | `node scripts/migration/create-preview-seed.mjs`; `node scripts/migration/verify-preview-seed.mjs`; `npm run check` | Generated clearly labeled non-production Oda JSON under ignored preview artifacts with deterministic SHA-256 manifest and 60-second cache metadata. No AWS upload or production overwrite. |
-| T09 | pending | | | Phase 3 stop |
+| T08 | complete | `9cd06d0` | `node scripts/migration/create-preview-seed.mjs`; `node scripts/migration/verify-preview-seed.mjs`; `npm run check` | Generated clearly labeled non-production Oda JSON under ignored preview artifacts with deterministic SHA-256 manifest and 60-second cache metadata. No AWS upload or production overwrite. |
+| T09 | blocked by Stop condition | pending | `AWS_PROFILE=codex-prod npx cdk deploy ItsRunPreviewHosting --require-approval never` (blocked); `AWS_PROFILE=codex-prod aws cloudformation describe-stacks` (not found) | Target account lacks `/cdk-bootstrap/hnb659fds/version`. `cdk bootstrap` would create IAM roles and expand permissions, so it was not run. No CloudFormation resources, bucket uploads, DNS, Firebase or production writes occurred. Phase 3 Sol review requested. |
 | T10 | blocked by Phase 3 | | | |
 | T11 | blocked by Phase 3 | | | |
 | T12 | blocked by Phase 3 | | | |
@@ -78,3 +78,9 @@ Decision needed:
 Evidence:
 Safe work that can continue:
 ```
+
+OPEN:
+Task: T09 preview deployment
+Decision needed: Sol/owner approval for CDK bootstrap and its IAM role creation, or an already bootstrapped deployment path.
+Evidence: `cdk deploy` failed because `/cdk-bootstrap/hnb659fds/version` is absent in account 470447451992/ap-northeast-1; CloudFormation stack does not exist.
+Safe work that can continue: Sol review of commits through `9cd06d0`; no AWS mutation is pending.

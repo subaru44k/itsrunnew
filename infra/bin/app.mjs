@@ -21,6 +21,16 @@ const routeFunctionCode = `function handler(event) {
   return request;
 }`
 
+const apiMethodFilterCode = `function handler(event) {
+  var request = event.request;
+  if (request.method === 'GET' || request.method === 'PUT' || request.method === 'OPTIONS') return request;
+  return {
+    statusCode: 405,
+    statusDescription: 'Method Not Allowed',
+    headers: { allow: { value: 'GET, PUT, OPTIONS' } }
+  };
+}`
+
 export class HostingStack extends Stack {
   constructor(scope, id, props) {
     super(scope, id, props)
@@ -187,6 +197,7 @@ export class HostingStack extends Stack {
       queryStringBehavior: cloudfront.CacheQueryStringBehavior.none(),
     })
     const rewrite = new cloudfront.Function(this, 'RouteRewrite', { code: cloudfront.FunctionCode.fromInline(routeFunctionCode) })
+    const apiMethodFilter = new cloudfront.Function(this, 'ApiMethodFilter', { code: cloudfront.FunctionCode.fromInline(apiMethodFilterCode) })
     const htmlCache = new cloudfront.CachePolicy(this, 'HtmlCache', { defaultTtl: Duration.seconds(0), minTtl: Duration.seconds(0), maxTtl: Duration.days(1) })
     const dataCache = new cloudfront.CachePolicy(this, 'DataCache', { defaultTtl: Duration.seconds(60), minTtl: Duration.seconds(0), maxTtl: Duration.seconds(60) })
     const responseHeaders = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeaders', {
@@ -204,7 +215,7 @@ export class HostingStack extends Stack {
       defaultBehavior: { origin: origins.S3BucketOrigin.withOriginAccessControl(webBucket), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: htmlCache, responseHeadersPolicy: responseHeaders, functionAssociations: [{ function: rewrite, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }] },
       additionalBehaviors: {
         'data/*': { origin: origins.S3BucketOrigin.withOriginAccessControl(dataBucket), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: dataCache, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD },
-        'api/*': { origin: new origins.HttpOrigin(apiDomainName), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: apiCache, originRequestPolicy: apiOriginRequestPolicy, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL },
+        'api/*': { origin: new origins.HttpOrigin(apiDomainName), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: apiCache, originRequestPolicy: apiOriginRequestPolicy, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL, functionAssociations: [{ function: apiMethodFilter, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }] },
       },
     })
     const dataPolicy = dataBucket.node.tryFindChild('Policy')?.node.defaultChild

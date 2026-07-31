@@ -22,7 +22,7 @@ test('cloudfront has route rewrite, secure headers, and bounded data cache', () 
   const result = template()
   result.resourceCountIs('AWS::CloudFront::ResponseHeadersPolicy', 1)
   const functions = result.findResources('AWS::CloudFront::Function')
-  const code = Object.values(functions)[0].Properties.FunctionCode
+  const code = Object.values(functions).map((resource) => resource.Properties.FunctionCode).find((value) => value.includes('komazawa_olympic'))
   assert.match(code, /data\//)
   assert.match(code, /komazawa_olympic/)
   const distributions = result.findResources('AWS::CloudFront::Distribution')
@@ -116,4 +116,27 @@ test('T11R01 forwards only the documented API headers', () => {
   assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.HeadersConfig.Headers, ['Authorization'])
   assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.CookiesConfig, { CookieBehavior: 'none' })
   assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.QueryStringsConfig, { QueryStringBehavior: 'none' })
+})
+
+test('T11R02 filters API methods at the viewer request edge', () => {
+  const result = template()
+  const functions = result.findResources('AWS::CloudFront::Function')
+  const filterEntry = Object.entries(functions).find(([, resource]) => resource.Properties.FunctionCode.includes('Method Not Allowed'))
+  assert.ok(filterEntry)
+  const [filterLogicalId, filter] = filterEntry
+  assert.doesNotMatch(filter.Properties.FunctionCode, /Authorization|console\./)
+  const handler = new Function(`${filter.Properties.FunctionCode}; return handler`)()
+  const accepted = ['GET', 'PUT', 'OPTIONS']
+  const allMethods = ['GET', 'HEAD', 'OPTIONS', 'PUT', 'PATCH', 'POST', 'DELETE']
+  for (const method of allMethods) {
+    const response = handler({ request: { method, uri: '/api/v1/example' } })
+    if (accepted.includes(method)) assert.equal(response.method, method)
+    else {
+      assert.equal(response.statusCode, 405)
+      assert.equal(response.headers.allow.value, 'GET, PUT, OPTIONS')
+    }
+  }
+  const distribution = Object.values(result.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig
+  const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
+  assert.ok(apiBehavior.FunctionAssociations.some(({ FunctionARN }) => FunctionARN['Fn::GetAtt']?.[0] === filterLogicalId))
 })

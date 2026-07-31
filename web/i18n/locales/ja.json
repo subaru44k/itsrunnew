@@ -3,5 +3,24 @@
   "nav": { "home": "ホーム", "yumenoshima": "夢の島", "komazawa": "駒沢", "todoroki": "等々力", "pace": "ペース" },
   "homeTitle": "いつでも走れる場所を探そう",
   "homeDescription": "競技場の利用状況とマラソンペースを確認できます。",
-  "footer": "It's Run", "stadium": { "oda": "織田フィールド", "yumenoshima": "夢の島競技場", "komazawa": "駒沢競技場", "todoroki": "等々力競技場" }, "scheduleTitle": "利用状況", "scheduleComingSoon": "スケジュールを準備中です。", "nozomiTitle": "田中希実の記録", "nozomiDescription": "大会記録を確認できます。", "event": "種目", "result": "記録"
+  "footer": "It's Run",
+  "scheduleTitle": "利用状況",
+  "scheduleComingSoon": "スケジュールを準備中です。",
+  "scheduleUpdatedAt": "更新: {date}",
+  "scheduleUnknown": "未公開",
+  "scheduleRetry": "再試行",
+  "schedulePrevious": "前の週",
+  "scheduleNext": "次の週",
+  "scheduleDate": "日付",
+  "scheduleSlot": "時間帯 {slot}",
+  "stadium": { "oda": "織田フィールド", "yumenoshima": "夢の島競技場", "komazawa": "駒沢競技場", "todoroki": "等々力競技場" },
+  "stadiumSections": { "access": "アクセス", "contact": "連絡先", "introduction": "施設紹介", "map": "地図", "hours": "個人利用時間" },
+  "stadiumContent": {
+    "oda": { "official": "代々木公園陸上競技場(織田フィールド)", "access": ["千代田線代々木公園駅徒歩6分", "山手線原宿駅徒歩15分"], "contact": "代々木公園サービスセンター（TEL:03-3469-6081）", "paragraphs": ["原宿駅から徒歩圏内にある競技場。立地がよく、無料で利用できます。", "利用者が多い一方、最低限のマナーは守られています。集中して走りたい場合は夢の島競技場もおすすめです。", "更衣室、無料ロッカー、シャワールームがあります。"] },
+    "yumenoshima": { "official": "夢の島陸上競技場", "access": ["りんかい線新木場駅徒歩7分"], "contact": "夢の島競技場内 屋外スポーツ施設事務所（TEL:03-3522-0846）", "paragraphs": ["新木場駅から歩いていける距離にあり、夜まで利用できます。", "周囲にランニングコースがあり、更衣室とシャワールームもあります。"] },
+    "komazawa": { "official": "駒沢オリンピック公園陸上競技場", "access": ["東京メトロ半蔵門線 駒沢大学駅徒歩15分"], "contact": "駒沢オリンピック公園総合運動場 サービス担当（TEL:03-3421-6199）", "paragraphs": ["駒沢オリンピック公園内の陸上競技場です。"] },
+    "todoroki": { "official": "川崎市等々力陸上競技場", "access": ["南武線武蔵中原駅徒歩15分"], "contact": "等々力陸上競技場", "paragraphs": ["メインスタジアムは世界大会も開催される競技場です。", "サッカーの開催状況で利用可能日が変わるため、事前に確認してください。"] }
+  },
+  "nozomiTitle": "田中希実の記録", "nozomiDescription": "大会記録を確認できます。", "event": "種目", "result": "記録",
+  "pace": { "distance": "距離", "time": "通過タイム", "goal": "目標", "half": "ハーフ" }
 }

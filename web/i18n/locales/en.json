@@ -3,5 +3,24 @@
   "nav": { "home": "Home", "yumenoshima": "Yumenoshima", "komazawa": "Komazawa", "todoroki": "Todoroki", "pace": "Pace" },
   "homeTitle": "Find a place to run",
   "homeDescription": "Check track availability and marathon pace tables.",
-  "footer": "It's Run", "stadium": { "oda": "Oda Field", "yumenoshima": "Yumenoshima Stadium", "komazawa": "Komazawa Stadium", "todoroki": "Todoroki Stadium" }, "scheduleTitle": "Availability", "scheduleComingSoon": "Schedule data is being prepared.", "nozomiTitle": "Race result of Nozomi Tanaka", "nozomiDescription": "Review selected race records.", "event": "Event", "result": "Result"
+  "footer": "It's Run",
+  "scheduleTitle": "Availability",
+  "scheduleComingSoon": "Schedule data is being prepared.",
+  "scheduleUpdatedAt": "Updated: {date}",
+  "scheduleUnknown": "Unknown",
+  "scheduleRetry": "Retry",
+  "schedulePrevious": "Previous week",
+  "scheduleNext": "Next week",
+  "scheduleDate": "Date",
+  "scheduleSlot": "Slot {slot}",
+  "stadium": { "oda": "Yoyogi Park Athletic Track", "yumenoshima": "Yumenoshima Athletics Stadium", "komazawa": "Komazawa Olympic Park Athletic Stadium", "todoroki": "Todoroki Athletic Track" },
+  "stadiumSections": { "access": "Access", "contact": "Contact", "introduction": "Introduction", "map": "Map", "hours": "Personal use hours" },
+  "stadiumContent": {
+    "oda": { "official": "Yoyogi Park Athletic Track (Oda Field)", "access": ["6 minutes from Yoyogi Park station on the Chiyoda Line", "15 minutes from Harajuku station on the Yamanote Line"], "contact": "Yoyogi Park Service Center (TEL: 03-3469-6081)", "paragraphs": ["A convenient track within walking distance of Harajuku. It is free to use.", "It is popular, but runners generally observe good manners. Yumenoshima is a quieter alternative.", "Changing rooms, free lockers and showers are available."] },
+    "yumenoshima": { "official": "Yumenoshima Athletics Stadium", "access": ["7 minutes from Shinkiba station on the Rinkai Line"], "contact": "Outdoor sports facility office (TEL: 03-3522-0846)", "paragraphs": ["The stadium is within walking distance of Shinkiba and open into the evening.", "A nearby running course, changing rooms and showers make it convenient for training."] },
+    "komazawa": { "official": "Komazawa Olympic Park Athletic Stadium", "access": ["15 minutes from Komazawa-Daigaku station on the Hanzomon Line"], "contact": "Komazawa Olympic Park service desk (TEL: 03-3421-6199)", "paragraphs": ["An athletic stadium in Komazawa Olympic Park."] },
+    "todoroki": { "official": "Kawasaki Todoroki Stadium", "access": ["15 minutes from Musashi-Nakahara station on the Nambu Line"], "contact": "Todoroki Athletic Stadium", "paragraphs": ["The main stadium has hosted international athletics competitions.", "Availability changes with football events, so check the schedule before visiting."] }
+  },
+  "nozomiTitle": "Race result of Nozomi Tanaka", "nozomiDescription": "Review selected race records.", "event": "Event", "result": "Result",
+  "pace": { "distance": "Distance", "time": "Split time", "goal": "Goal", "half": "Half" }
 }

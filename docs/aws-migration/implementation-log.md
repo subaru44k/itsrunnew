@@ -13,23 +13,23 @@ commits rather than pasting command output.
 
 ## Environment
 
-To be completed by Luna:
+Captured at the start of Phase 2 implementation:
 
 ```text
-Start commit:
-Node:
-npm:
-AWS CLI:
-CDK:
-Operating system:
+Start commit: `eaba60c` (T00)
+Node: v22.16.0 (current; `.nvmrc` targets 24)
+npm: 11.4.2
+AWS CLI: 2.34.3
+CDK: not installed (T07 scope)
+Operating system: macOS
 ```
 
 ## Task log
 
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
-| T00 | complete | pending | `npm run check` | Root workspaces, Node/npm policy, env example and structure check |
-| T01 | pending | | | |
+| T00 | complete | `eaba60c` | `npm run check` | Root workspaces, Node/npm policy, env example and structure check |
+| T01 | complete | pending | `npm run test:e2e`; `node scripts/migration/capture-public-baseline.mjs`; `npm run check` | 14 public routes passed against the current site. Read-only Firestore export interface added; export is intentionally blocked until temporary migration tooling credentials/dependency are supplied. |
 | T02 | pending | | | |
 | T03 | pending | | | |
 | T04 | pending | | | |

@@ -48,3 +48,45 @@ test('data bucket policy is limited to data prefix', () => {
   assert.equal(allow.Principal.Service, 'cloudfront.amazonaws.com')
   assert.match(JSON.stringify(allow.Resource), /data\\*|data\\\//)
 })
+
+test('T11 auth is parameterized, code-only, and has no identity pool', () => {
+  const result = template()
+  const templateJson = result.toJSON()
+  assert.equal(templateJson.Parameters.GoogleClientId.Type, 'String')
+  assert.equal(templateJson.Parameters.GoogleClientSecretReference.Default, 'itsrun/preview/google-oauth-client-secret')
+  assert.equal(templateJson.Parameters.CognitoDomainPrefix.Default, 'itsrun-preview-470447451992')
+  assert.equal(templateJson.Parameters.CallbackUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage/callback')
+  assert.equal(templateJson.Parameters.LogoutUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage')
+  assert.equal(templateJson.Resources.AdminUserPoolD0AF18CF.Properties.AdminCreateUserConfig.AllowAdminCreateUserOnly, true)
+  assert.equal(templateJson.Resources.AdminAppClientE1A03F22.Properties.GenerateSecret, false)
+  assert.deepEqual(templateJson.Resources.AdminAppClientE1A03F22.Properties.AllowedOAuthFlows, ['code'])
+  assert.deepEqual(templateJson.Resources.AdminAppClientE1A03F22.Properties.SupportedIdentityProviders, ['Google'])
+  assert.equal(templateJson.Resources.AdminsGroup06B46644.Properties.GroupName, 'admins')
+  assert.equal(Object.keys(result.findResources('AWS::Cognito::IdentityPool')).length, 0)
+  const providerJson = JSON.stringify(templateJson.Resources.GoogleIdentityProvider5AA1A9DD)
+  assert.match(providerJson, /resolve:secretsmanager/)
+  assert.doesNotMatch(providerJson, /client-secret-value|dummy|placeholder/i)
+})
+
+test('T11 protects API routes with Cognito JWT and disables API caching', () => {
+  const result = template()
+  const templateJson = result.toJSON()
+  const authorizer = templateJson.Resources.AdminApiJwtAuthorizer
+  assert.equal(authorizer.Properties.AuthorizerType, 'JWT')
+  assert.deepEqual(authorizer.Properties.IdentitySource, ['$request.header.Authorization'])
+  assert.ok(authorizer.Properties.JwtConfiguration.Audience)
+  assert.ok(authorizer.Properties.JwtConfiguration.Issuer)
+  const routes = Object.values(result.findResources('AWS::ApiGatewayV2::Route'))
+  assert.equal(routes.length, 2)
+  for (const route of routes) {
+    assert.equal(route.Properties.AuthorizationType, 'JWT')
+    assert.deepEqual(route.Properties.AuthorizationScopes, ['itsrun/schedule.write'])
+    assert.ok(route.Properties.AuthorizerId)
+  }
+  const distribution = Object.values(result.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig
+  const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
+  assert.ok(apiBehavior)
+  assert.equal(apiBehavior.CachePolicyId, '4135ea2d-6df8-44a3-9df3-4b5a84be39ad')
+  assert.equal(apiBehavior.ViewerProtocolPolicy, 'redirect-to-https')
+  assert.ok(apiBehavior.OriginRequestPolicyId)
+})

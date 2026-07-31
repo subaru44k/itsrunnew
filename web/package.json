@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "nuxt generate",
+    "postbuild": "node ../scripts/migration/verify-generated-seo.mjs --web-dir .output/public",
     "dev": "nuxt dev",
     "test:unit": "vitest run",
     "lint": "nuxt prepare && eslint .",

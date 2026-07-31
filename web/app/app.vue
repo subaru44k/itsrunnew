@@ -1,23 +1,10 @@
 <script setup lang="ts">
-const route = useRoute()
-const { locale } = useI18n()
-
-const seoPaths = computed(() => {
-  const pathname = route.path.startsWith('/en/') ? route.path.slice(3) : route.path === '/en' ? '/' : route.path
-  return {
-    ja: pathname || '/',
-    en: pathname === '/' ? '/en/' : `/en${pathname}`,
-  }
-})
+const i18nHead = useLocaleHead({ lang: true, dir: false, seo: true })
 
 useHead(() => ({
-  htmlAttrs: { lang: locale.value === 'ja' ? 'ja-JP' : 'en-US' },
-  link: [
-    { rel: 'canonical', href: locale.value === 'ja' ? seoPaths.value.ja : seoPaths.value.en },
-    { rel: 'alternate', hreflang: 'ja', href: seoPaths.value.ja },
-    { rel: 'alternate', hreflang: 'en', href: seoPaths.value.en },
-    { rel: 'alternate', hreflang: 'x-default', href: seoPaths.value.ja },
-  ],
+  htmlAttrs: i18nHead.value.htmlAttrs,
+  link: i18nHead.value.link,
+  meta: i18nHead.value.meta,
 }))
 </script>
 

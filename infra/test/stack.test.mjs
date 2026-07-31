@@ -57,7 +57,10 @@ test('T11 auth is parameterized, code-only, and has no identity pool', () => {
   assert.equal(templateJson.Parameters.CognitoDomainPrefix.Default, 'itsrun-preview-470447451992')
   assert.equal(templateJson.Parameters.CallbackUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage/callback')
   assert.equal(templateJson.Parameters.LogoutUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage')
+  assert.equal(templateJson.Parameters.LocalDevelopmentOrigin.Default, 'http://localhost:3000')
   assert.equal(templateJson.Resources.AdminUserPoolD0AF18CF.Properties.AdminCreateUserConfig.AllowAdminCreateUserOnly, true)
+  assert.equal(templateJson.Resources.AdminUserPoolD0AF18CF.Properties.DeletionProtection, 'ACTIVE')
+  assert.equal(templateJson.Resources.AdminUserPoolD0AF18CF.DeletionPolicy, 'Retain')
   assert.equal(templateJson.Resources.AdminAppClientE1A03F22.Properties.GenerateSecret, false)
   assert.deepEqual(templateJson.Resources.AdminAppClientE1A03F22.Properties.AllowedOAuthFlows, ['code'])
   assert.deepEqual(templateJson.Resources.AdminAppClientE1A03F22.Properties.SupportedIdentityProviders, ['Google'])
@@ -66,6 +69,18 @@ test('T11 auth is parameterized, code-only, and has no identity pool', () => {
   const providerJson = JSON.stringify(templateJson.Resources.GoogleIdentityProvider5AA1A9DD)
   assert.match(providerJson, /resolve:secretsmanager/)
   assert.doesNotMatch(providerJson, /client-secret-value|dummy|placeholder/i)
+})
+
+test('T11R03 limits API CORS to the configured local Nuxt origin', () => {
+  const result = template()
+  const apis = Object.values(result.findResources('AWS::ApiGatewayV2::Api'))
+  assert.equal(apis.length, 1)
+  const cors = apis[0].Properties.CorsConfiguration
+  assert.equal(cors.AllowCredentials, false)
+  assert.deepEqual(cors.AllowHeaders, ['Authorization', 'Content-Type', 'If-Match', 'If-None-Match'])
+  assert.deepEqual(cors.AllowMethods, ['GET', 'PUT', 'OPTIONS'])
+  assert.deepEqual(cors.AllowOrigins, [{ Ref: 'LocalDevelopmentOrigin' }])
+  assert.doesNotMatch(JSON.stringify(cors), /\*/)
 })
 
 test('T11 protects API routes with Cognito JWT and disables API caching', () => {

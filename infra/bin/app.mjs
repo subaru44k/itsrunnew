@@ -56,6 +56,11 @@ export class HostingStack extends Stack {
       type: 'CommaDelimitedList',
       default: 'https://d2via50thoheqm.cloudfront.net/manage',
     })
+    const localDevelopmentOrigin = new CfnParameter(this, 'LocalDevelopmentOrigin', {
+      type: 'String',
+      default: 'http://localhost:3000',
+      description: 'The single local Nuxt origin allowed by the API CORS policy.',
+    })
     // T12 supplies the Lambda integration URI. Keeping this as a parameter lets
     // T11 synthesize and assert the protected routes without inventing a
     // placeholder Lambda or granting the bootstrap role Lambda permissions.
@@ -84,6 +89,7 @@ export class HostingStack extends Stack {
       userPoolName: 'itsrun-preview-admins',
       selfSignUpEnabled: false,
       signInAliases: { email: true },
+      deletionProtection: true,
       removalPolicy: RemovalPolicy.RETAIN,
     })
     const googleSecretValue = SecretValue.unsafePlainText(Fn.sub(
@@ -133,6 +139,12 @@ export class HostingStack extends Stack {
       name: 'itsrun-preview-admin-api',
       protocolType: 'HTTP',
       description: 'Authenticated schedule administration API.',
+      corsConfiguration: {
+        allowCredentials: false,
+        allowHeaders: ['Authorization', 'Content-Type', 'If-Match', 'If-None-Match'],
+        allowMethods: ['GET', 'PUT', 'OPTIONS'],
+        allowOrigins: [localDevelopmentOrigin.valueAsString],
+      },
     })
     const apiStage = new apigwv2.CfnStage(this, 'AdminApiDefaultStage', {
       apiId: api.ref,

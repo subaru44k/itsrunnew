@@ -73,7 +73,7 @@ Operating system: macOS
 
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
-| C01 | complete | pending | `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (64 passed) | Removed browser fetch instrumentation, fixture prewarm, conditional Retry, and retries; added desktop/mobile × ja-JP/en-US projects and first-navigation assertions. |
+| C01 | complete | `c391c86` | `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (64 passed) | Removed browser fetch instrumentation, fixture prewarm, conditional Retry, and retries; added desktop/mobile × ja-JP/en-US projects and first-navigation assertions. |
 | C02 | pending | | | |
 | C03 | pending | | | |
 | C04 | pending | | | |

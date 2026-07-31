@@ -139,6 +139,22 @@ Required changes: docs/aws-migration/phase4-t11-review.md T11R01-T11R06
 AWS authority: None; local implementation, tests, documentation, and synth only
 ```
 
+### Phase 4 T11 corrective pass
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| T11R01 | complete; awaiting Sol IAM review | `4bccdd6` | infra tests (6 passed) | Replaced the managed all-viewer origin policy with a stack-owned origin request policy. Cookies and query strings are not forwarded; the zero-TTL API cache policy carries Authorization as required by CloudFront's header-forwarding constraint. |
+| T11R02 | complete; awaiting Sol IAM review | `1f4dd3a` | infra tests (7 passed) | Added an API-only viewer-request function that permits GET/PUT/OPTIONS and returns 405 with the exact Allow header for the other four methods. Public route rewrite behavior is unchanged. |
+| T11R03 | complete; awaiting Sol IAM review | `97af556` | infra tests (8 passed) | Added parameterized LocalDevelopmentOrigin CORS with the exact API headers/methods and enabled Cognito deletion protection while retaining the user pool. |
+| T11R04 | complete; awaiting Sol IAM review | `c63f159` | infra tests (9 passed) | Added parameterized Cognito auth-base/issuer outputs and the Cognito token origin to connect-src without adding Google endpoints or broad wildcards. |
+| T11R05 | complete; awaiting Sol IAM review | `0d6a390` | infra tests (9 passed) | Reworked assertions to locate resources by type and stable properties, and asserted JWT, route, OAuth, secret-reference, no-identity-pool, cache, and T11R01-T11R04 contracts. |
+| T11R06 | complete; awaiting Sol IAM review | `26e2528` | infra tests (9 passed); infra CDK synth; no deprecation warnings | Replaced deprecated addDependency calls with addResourceDependency and made the API stage depend on its final routes, removing the incorrect integration/authorizer-to-stage dependency direction. |
+
+The corresponding log updates were committed as `17f2b28`, `5ad3ea2`,
+`73b080b`, and `b07af4e` for T11R01-T11R04. T11 remains local-implementation
+complete and is not marked complete: Sol must review the minimum IAM actions
+and resources before any AWS write or policy v4.
+
 ## Open items
 
 Use:

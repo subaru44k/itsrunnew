@@ -7,10 +7,11 @@ const august = JSON.stringify({ schemaVersion: 1, stadium: 'oda', yearMonth: '20
 function pathFor(projectName: string) { return projectName.includes('-en') ? '/en/' : '/' }
 function isJapanese(projectName: string) { return !projectName.includes('-en') }
 
-async function routeSchedule(page: Page, mode: 'success' | 'network' | 'invalid' | 'unpublished') {
-  await page.route('**/data/v1/stadiums/oda/availability/*.json', async (route) => {
+async function routeSchedule(page: Page, mode: 'success' | 'network' | 'invalid' | 'unavailable' | 'unpublished') {
+    await page.route('**/data/v1/stadiums/oda/availability/*.json', async (route) => {
     if (mode === 'network') return route.abort('failed')
     if (mode === 'invalid') return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
+    if (mode === 'unavailable') return route.fulfill({ status: 503, contentType: 'application/json', body: '{}' })
     if (mode === 'unpublished') return route.fulfill({ status: 404, body: '' })
     const body = route.request().url().includes('2026-08') ? august : july
     return route.fulfill({ status: 200, contentType: 'application/json', body })
@@ -27,13 +28,13 @@ test('loading is localized before the first response', async ({ page }, testInfo
   await navigation
 })
 
-for (const mode of ['network', 'invalid', 'unpublished'] as const) {
+for (const mode of ['network', 'invalid', 'unavailable', 'unpublished'] as const) {
   test(`${mode} state is localized and exclusive`, async ({ page }, testInfo) => {
     await routeSchedule(page, mode)
     await page.goto(pathFor(testInfo.project.name), { waitUntil: 'networkidle' })
     const expected = isJapanese(testInfo.project.name)
-      ? { network: '接続できません', invalid: 'データを利用できません', unpublished: '準備中です' }[mode]
-      : { network: 'could not be reached', invalid: 'data is temporarily unavailable', unpublished: 'being prepared' }[mode]
+      ? { network: '接続できません', invalid: 'データを利用できません', unavailable: '現在利用できません', unpublished: '準備中です' }[mode]
+      : { network: 'could not be reached', invalid: 'data is temporarily unavailable', unavailable: 'currently unavailable', unpublished: 'being prepared' }[mode]
     if (mode === 'unpublished') {
       await expect(page.getByRole('status')).toContainText(expected)
       await expect(page.getByRole('alert')).toHaveCount(0)

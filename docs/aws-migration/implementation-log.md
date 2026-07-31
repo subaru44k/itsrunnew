@@ -38,14 +38,14 @@ Operating system: macOS
 | T07 | complete | `6661240` + `a0d4e2b` | `npm run build --workspace infra`; `npm run test:infra`; `npm run check` | CDK preview hosting stack: private retained web/data buckets, data versioning, OAC origins, HTTPS CloudFront, extensionless route function and 60-second data cache. No production DNS or write IAM. |
 | T08 | complete | `9cd06d0` | `node scripts/migration/create-preview-seed.mjs`; `node scripts/migration/verify-preview-seed.mjs`; `npm run check` | Generated clearly labeled non-production Oda JSON under ignored preview artifacts with deterministic SHA-256 manifest and 60-second cache metadata. No AWS upload or production overwrite. |
 | T09 | complete | `5bbae68` | R01-R07 complete; T10/Phase 4 intentionally not started. | Preview CloudFront vertical slice is deployed and verified below. Handing back to Sol for Phase 3 review. |
-| T10 | blocked by Phase 3 | | | |
-| T11 | blocked by Phase 3 | | | |
-| T12 | blocked by Phase 3 | | | |
-| T13 | blocked by Phase 3 | | | |
-| T14 | blocked by Phase 3 | | | |
-| T15 | blocked by Phase 3 | | | |
-| T16 | blocked by Phase 3 | | | |
-| T17 | blocked by Phase 3 | | | |
+| T10 | ready | | Phase 3 approved at `ecd0186`; Luna must rerun the Phase 2 checks and close the consolidated findings. | Phase 4 may begin. |
+| T11 | blocked by T10 | | | |
+| T12 | blocked by T10/T11 | | | |
+| T13 | blocked by T10-T12 | | | |
+| T14 | blocked by T10-T12 and migration credentials | | | |
+| T15 | blocked by T10-T14 | | | |
+| T16 | blocked by T11-T15 | | | |
+| T17 | blocked by T16 | | | |
 
 ## Sol remediation log
 
@@ -137,10 +137,10 @@ Safe work that can continue:
 ```
 
 OPEN:
-Task: Phase 3 re-review
-Decision needed: Sol final approval after FF01-FF03.
-Evidence: FF01-FF03 are complete in commits `f11d47a`, `ba90aad`, and `c0bb6b6`; required final checks passed, including helper 20 tests and preview E2E 88 tests. No AWS write was performed during FF01-FF03. T10 remains blocked pending Sol approval.
-Safe work that can continue: No further migration work is approved. T10, Phase 4, Cognito, API, production migration, DNS, and Firebase remain blocked.
+Task: Phase 4 T10
+Decision needed: None for documented Phase 4 work; follow dependency order and stop before work that needs external configuration or broader authority.
+Evidence: Sol approved Phase 3 at `ecd0186` after independently passing root checks, helper 20 tests, preview E2E 88 tests, and confirming managed-policy v3 with v1/v2 retained.
+Safe work that can continue: T10, then T11-T17 in documented dependency order as each prerequisite completes. Production DNS and Firebase mutation remain forbidden before Phase 5; all stop conditions remain active.
 
 ### Phase 3 final corrective pass
 

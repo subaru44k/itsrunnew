@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 3 final re-review complete; small corrective pass required before T10
+Status: Phase 3 approved; Phase 4 may begin at T10
 
 Planning baseline: `d6de55e` on `master`
 

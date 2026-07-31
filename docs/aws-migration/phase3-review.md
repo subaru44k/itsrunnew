@@ -383,3 +383,30 @@ git status --short
 No AWS write is required or approved for this pass. Do not deploy, invalidate,
 change IAM/CloudFormation, create policy `v4`, or modify production, DNS, or
 Firebase. After these corrections, stop for Sol approval before T10.
+
+## Phase 3 approval
+
+Reviewed commit: `ecd0186`
+
+Review date: 2026-07-31
+
+Result: approved; T10 may begin
+
+Sol independently reran the final gates:
+
+- `npm run check`
+- `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed)
+- `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview`
+  (88 passed: raw 64 plus isolated schedule-state 24)
+- `git diff --check`
+
+Read-only AWS verification confirmed account `470447451992`, region
+`ap-northeast-1`, managed-policy default `v3`, and retained versions `v1` and
+`v2`. FF01 bounds never-settling fetch/body work, FF02 covers localized
+unavailable display, and FF03 accurately separates C05 and RR03 history.
+
+No further Phase 3 correction is required. Luna may begin T10 in
+`implementation-tasks.md`. T11-T17 remain subject to their dependency order and
+the documented stop conditions. This approval does not authorize production
+DNS changes, Firebase mutation/deletion, broader IAM, a production hostname
+choice, or undocumented dependencies.

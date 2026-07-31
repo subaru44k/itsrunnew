@@ -49,3 +49,16 @@ by `ssm:GetParameters` on
 `arn:aws:ssm:ap-northeast-1:470447451992:parameter/cdk-bootstrap/hnb659fds/version`.
 Do not delete `v1` during R06. Resume the existing R06 deploy command; do not
 run bootstrap again.
+
+## Phase 3 v3 reduction
+
+After verifying AWS default `v2` against commit `22d7fd5`, create v3 from the
+current policy file. The entire `PreviewBucketObjects` statement is removed;
+no replacement object permission is allowed. Keep `v1` and `v2`.
+
+```bash
+AWS_PROFILE=codex-prod AWS_REGION=ap-northeast-1 aws iam create-policy-version \
+  --policy-arn arn:aws:iam::470447451992:policy/ItsRunPreviewCloudFormationExecutionPolicy \
+  --policy-document file://infra/bootstrap/cloudformation-execution-policy.json \
+  --set-as-default
+```

@@ -19,6 +19,7 @@
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:infra": "npm run test:infra --workspaces --if-present",
     "test:e2e": "playwright test",
+    "test:e2e:preview": "playwright test --config=playwright.preview.config.mjs",
     "baseline:browser": "node scripts/migration/capture-browser-baseline.mjs",
     "build": "npm run build --workspaces --if-present",
     "check": "npm run check:structure && npm run lint && npm run typecheck && npm run test:unit && npm run test:infra && npm run build"

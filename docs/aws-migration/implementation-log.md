@@ -79,6 +79,14 @@ Operating system: macOS
 | C04 | complete | `13e22e6` | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (16 passed); `npm run lint --workspace web`; `npm run typecheck --workspace web` | Stack output requires both distribution identifiers; fixture reads compare exact cache directives and hash with bounded retry; deterministic upload ordering/commands and non-200/content/cache/hash/timeout failures are covered without AWS. |
 | C05 | complete | pending | `npm ci`; `npm run check`; `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (64 passed); `git diff --check`; `git status --short`; AWS STS/policy read-only checks; one preview deployment with CloudFront fixture verification | Account `470447451992`, profile `codex-prod`, region `ap-northeast-1`; managed policy default remains v3 with v1/v2 retained; no IAM or invalidation changes in C05. One corrected deployment completed without additional invalidation. Prior invalidations are recorded exactly: `ID72SE9RE75FE0D86XOJCH19NB` (13 double-slash paths), `I73POXV3CR8XF9SIZGLQERDNEZ` (13 correct paths), `I7HKKK851F4E7KDHV32C1493CS` (second 13 correct paths). |
 
+### Phase 3 re-review corrective pass (RR)
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| RR01 | complete | pending | `npm run lint --workspace web`; `npm run typecheck --workspace web`; `npm run test:unit --workspace web`; separated schedule-state Playwright suite | `scheduleComingSoon` is now limited to successful empty-months (unpublished) state; network/invalid errors are exclusive; localized loading/error/retained/retry browser assertions are isolated from the raw preview suite. |
+| RR02 | complete | pending | `npm run build --workspace web`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (17 passed) | Generated SEO verification asserts an explicit complete normal-route set; raw compatibility-route E2E checks final canonical/hreflang; timeout and max-attempt retry bounds are tested with deterministic counters/fake time. |
+| RR03 | pending |  |  | AWS read-only policy verification, one preview deployment, final raw and separated schedule-state verification remain. |
+
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against
 the committed pre-change definition, then `v2` was made default with only
 `ssm:GetParameters` added to the same exact bootstrap-version parameter ARN.

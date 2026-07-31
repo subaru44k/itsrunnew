@@ -2,7 +2,7 @@
 import type { IsoDate, ScheduleMonth, AvailabilityStatus } from '@itsrun/core'
 import { statusLabel } from '@itsrun/core'
 
-const props = defineProps<{ dates: IsoDate[]; months: ScheduleMonth[]; loading?: boolean; timeRanges?: readonly string[]; updatedAt?: string }>()
+const props = defineProps<{ dates: IsoDate[]; months: ScheduleMonth[]; loading?: boolean; unpublished?: boolean; timeRanges?: readonly string[]; updatedAt?: string }>()
 const { locale, t: $t } = useI18n()
 function statusFor(date: IsoDate, slot: number): AvailabilityStatus | null {
   return props.months.find((month) => month.days[date])?.days[date]?.[slot] ?? null
@@ -12,7 +12,7 @@ function statusFor(date: IsoDate, slot: number): AvailabilityStatus | null {
 <template>
   <div class="schedule-wrap" :aria-busy="loading ? 'true' : 'false'">
     <p v-if="loading" role="status">{{ $t('scheduleLoading') }}</p>
-    <p v-if="!loading && months.length === 0" role="status">{{ $t('scheduleComingSoon') }}</p>
+    <p v-if="unpublished" role="status">{{ $t('scheduleComingSoon') }}</p>
     <p v-if="updatedAt" class="schedule-updated">{{ $t('scheduleUpdatedAt', { date: updatedAt }) }}</p>
     <table class="schedule-table">
       <caption class="sr-only">{{ $t('scheduleCaption') }}</caption>

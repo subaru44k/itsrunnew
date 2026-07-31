@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
+    "aws-cdk": "^2.1134.0",
     "vitest": "^4.1.10"
   }
 }

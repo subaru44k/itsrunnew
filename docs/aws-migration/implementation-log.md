@@ -77,7 +77,7 @@ Operating system: macOS
 | C02 | complete | `19ce8eb` | `npm run lint --workspace web`; `npm run test:unit --workspace web`; `npm run typecheck --workspace web` | Repository injection enables state tests; retained weeks keep dates/months coherent across failed week changes; request IDs reject stale responses; retry, invalid, unavailable, and unpublished states are covered. |
 | C03 | complete | `e0d6920` | `npm run build --workspace web` (generated SEO verifier passed) | Uses installed `useLocaleHead` with browser detection disabled; generated canonical, lang, and ja/en/x-default links are checked for every normal locale page, with compatibility redirects excluded and covered by raw E2E. |
 | C04 | complete | `13e22e6` | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (16 passed); `npm run lint --workspace web`; `npm run typecheck --workspace web` | Stack output requires both distribution identifiers; fixture reads compare exact cache directives and hash with bounded retry; deterministic upload ordering/commands and non-200/content/cache/hash/timeout failures are covered without AWS. |
-| C05 | pending | | | |
+| C05 | complete | pending | `npm ci`; `npm run check`; `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (64 passed); `git diff --check`; `git status --short`; AWS STS/policy read-only checks; one preview deployment with CloudFront fixture verification | Account `470447451992`, profile `codex-prod`, region `ap-northeast-1`; managed policy default remains v3 with v1/v2 retained; no IAM or invalidation changes in C05. One corrected deployment completed without additional invalidation. Prior invalidations are recorded exactly: `ID72SE9RE75FE0D86XOJCH19NB` (13 double-slash paths), `I73POXV3CR8XF9SIZGLQERDNEZ` (13 correct paths), `I7HKKK851F4E7KDHV32C1493CS` (second 13 correct paths). |
 
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against
 the committed pre-change definition, then `v2` was made default with only
@@ -129,7 +129,7 @@ Safe work that can continue:
 ```
 
 OPEN:
-Task: Phase 3 corrective pass
-Decision needed: None for P3R01-P3R05; stop on the retained conditions in `phase3-review.md`.
-Evidence: Raw browser fetch fails with an illegal receiver; mutable Nuxt payloads have long-lived cache metadata; locale/SEO attributes are incomplete; helper and IAM reductions remain.
-Safe work that can continue: Luna may execute only P3R01-P3R05, then must return to Sol. T10 and Phase 4 remain blocked.
+Task: Phase 3 re-review
+Decision needed: Sol review of C01-C05 completion.
+Evidence: C01-C05 are complete; local check and raw 64-case desktop/mobile × ja-JP/en-US preview E2E passed; v3 remains default; no additional invalidation was performed during C05.
+Safe work that can continue: No further migration work is approved. T10, Phase 4, Cognito, API, production migration, DNS, and Firebase remain blocked.

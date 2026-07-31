@@ -139,6 +139,15 @@ Required changes: docs/aws-migration/phase4-t11-review.md T11R01-T11R06
 AWS authority: None; local implementation, tests, documentation, and synth only
 ```
 
+```text
+Second review target: f4f0267
+Date: 2026-07-31
+Result: T11R01-R04 and T11R06 accepted; T11R05 assertion coverage incomplete
+Required local correction: phase4-t11-review.md T11RR01
+AWS evidence: codex-prod/account 470447451992/ap-northeast-1; managed policy default v3; configured Google secret name not found
+AWS authority: None; test/documentation-only correction is authorized
+```
+
 ### Phase 4 T11 corrective pass
 
 | Task | Status | Commit | Checks | Notes |

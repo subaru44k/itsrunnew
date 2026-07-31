@@ -208,3 +208,101 @@ only. Stop without making the change if any of the following is needed:
 - Cognito, API Gateway, CloudFront, CloudFormation, or preview deployment;
 - T12 Lambda implementation or administrator UI work;
 - production hostname/DNS, Firebase, or non-preview resource changes.
+
+## T11 second Sol review
+
+Reviewed commit: `f4f0267`
+
+Review date: 2026-07-31
+
+Result: one local assertion correction and external secret metadata are
+required before IAM policy v4 or AWS deployment.
+
+### Independently verified
+
+- T11R01 through T11R04 match the accepted resource contracts in the
+  synthesized template. Authorization is carried by the custom zero-TTL cache
+  policy because CloudFront does not permit it in the custom origin request
+  policy; the remaining three headers are in the origin request policy, and
+  cookies/query strings are disabled in both.
+- T11R02's viewer-request function passes GET, PUT, and OPTIONS and returns
+  405 with the exact Allow header for HEAD, PATCH, POST, and DELETE. It neither
+  reads nor logs Authorization.
+- T11R03's CORS and User Pool lifecycle protections are exact.
+- T11R04's CSP adds only the parameterized Cognito origin to connect-src, and
+  the four authentication outputs are unambiguous.
+- T11R06 uses `addResourceDependency`; stage depends on the final routes, and
+  focused tests/synth produce no `CfnResource#addDependency` warning.
+- Node 24.18.1 independently passed the 9 infrastructure tests, infrastructure
+  synth, root `npm run check`, and `git diff --check` with a clean worktree.
+- Read-only AWS checks used `codex-prod`, account `470447451992`, region
+  `ap-northeast-1`. The project execution policy remains default `v3`.
+  No AWS write or secret-value read was performed.
+
+### T11RR01: finish the semantic assertion contract
+
+The implementation is correct, but T11R05's tests do not yet prove all of the
+contract they claim to cover. Make test-only changes, without changing the
+synthesized template, to assert all of the following by resource type and
+stable properties:
+
+- the route-key set is exactly:
+  `GET /api/v1/stadiums/{stadium}/availability/{yearMonth}` and
+  `PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}`;
+- both routes reference the exact JWT authorizer and exact integration;
+- both routes have exactly `JWT` and `itsrun/schedule.write`;
+- the `/api/*` behavior references the exact stack-owned
+  `ItsRunPreviewApiNoCache` cache policy and exact stack-owned origin request
+  policy;
+- the Google `client_secret` is exactly the `Fn::Sub` Secrets Manager dynamic
+  reference whose `SecretReference` is the
+  `GoogleClientSecretReference` parameter;
+- the app client contains only the code grant, has `GenerateSecret: false`,
+  supports only Google, and its callback/logout values are the exact parameter
+  references.
+
+Do not weaken or duplicate the existing R01-R04 tests. Run the focused infra
+tests, infra synth, root check, and diff check, update the implementation log,
+commit, and stop for Sol review. No source/resource change or AWS operation is
+authorized by T11RR01.
+
+### External stop condition: Google secret does not exist
+
+Read-only `secretsmanager:DescribeSecret` returned
+`ResourceNotFoundException` for
+`itsrun/preview/google-oauth-client-secret`. Therefore its exact ARN cannot be
+recorded and the required resource-scoped `secretsmanager:GetSecretValue`
+statement cannot be approved. The owner must create the secret directly in
+Secrets Manager in account `470447451992`, region `ap-northeast-1`, without
+putting its value in Git, chat, logs, fixtures, or CDK output. Only the ARN and
+name may be handed back for review.
+
+The Google OAuth client ID is also required as a non-secret deployment
+parameter. Its value must be provided out-of-band or as an explicit deployment
+parameter; it must not be guessed or hard-coded.
+
+### IAM v4 status
+
+Policy v4 remains unapproved and must not be created. After T11RR01 passes and
+the exact secret ARN is available, Sol will produce the final document. The
+candidate delta from v3 is limited to:
+
+- CloudFront origin-request-policy create/read/list/update/delete operations;
+- Cognito User Pool, app client, domain, Google IdP, resource server, and group
+  lifecycle operations for the synthesized preview resources;
+- API Gateway Management V2 create/read/update/delete operations for the
+  synthesized HTTP API graph;
+- `secretsmanager:GetSecretValue` on the one exact preview secret ARN.
+
+Create operations that AWS does not support resource-scoping may use
+`Resource: "*"` only when the final policy documents that service limitation.
+No Lambda, IAM role, `iam:PassRole`, administrator membership, production,
+DNS, Firebase, or secret-management permission belongs in the T11 delta.
+
+### Authority after this review
+
+Authorized: T11RR01 test/documentation-only correction.
+
+Not authorized: policy v4, IAM changes, secret creation through this workflow,
+secret-value reads, CDK deploy, CloudFormation changes, preview deployment,
+invalidation, T12, production resources, DNS, or Firebase changes.

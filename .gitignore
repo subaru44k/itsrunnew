@@ -1,7 +1,11 @@
 .DS_Store
 node_modules/
 dist/
+**/dist
 .output/
+**/.output/
+.nuxt/
+**/.nuxt/
 cdk.out/
 .aws-sam/
 .artifacts/

@@ -146,6 +146,6 @@ Safe work that can continue: Only FF01-FF03 local/test/log corrections. No AWS w
 
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
-| FF01 | complete | pending | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed) | CloudFront fixture verification now bounds fetch and body reads with an AbortController-backed deadline, clears timers, preserves max-attempt/fake-clock behavior, and tests never-settling fetch/body failures without AWS. |
+| FF01 | complete | `f11d47a` | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed) | CloudFront fixture verification now bounds fetch and body reads with an AbortController-backed deadline, clears timers, preserves max-attempt/fake-clock behavior, and tests never-settling fetch/body failures without AWS. |
 | FF02 | pending |  |  |  |
 | FF03 | pending |  |  |  |

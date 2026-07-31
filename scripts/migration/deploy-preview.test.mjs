@@ -48,8 +48,29 @@ describe('preview web cache classification', () => {
     await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', fixtureHash, 'public, max-age=0, s-maxage=60', { fetchImpl: async () => fetchImpl(), timeoutMs: 0, maxAttempts: 1 })).rejects.toThrow(message)
   })
 
-  it('bounds retry attempts and reports timeout', async () => {
-    const fetchImpl = async () => { throw new Error('connection refused') }
-    await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', fixtureHash, 'public, max-age=0, s-maxage=60', { fetchImpl, timeoutMs: 0, maxAttempts: 2, sleep: async () => {} })).rejects.toThrow('timed out')
+  it('bounds retries by timeout', async () => {
+    let attempts = 0
+    let clock = 0
+    const fetchImpl = async () => { attempts += 1; throw new Error('connection refused') }
+    await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', fixtureHash, 'public, max-age=0, s-maxage=60', {
+      fetchImpl,
+      timeoutMs: 6500,
+      maxAttempts: 20,
+      now: () => clock,
+      sleep: async (ms) => { clock += ms },
+    })).rejects.toThrow('timed out')
+    expect(attempts).toBe(3)
+  })
+
+  it('bounds retries by maxAttempts', async () => {
+    let attempts = 0
+    const fetchImpl = async () => { attempts += 1; throw new Error('connection refused') }
+    await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', fixtureHash, 'public, max-age=0, s-maxage=60', {
+      fetchImpl,
+      timeoutMs: 100000,
+      maxAttempts: 3,
+      sleep: async () => {},
+    })).rejects.toThrow('timed out')
+    expect(attempts).toBe(3)
   })
 })

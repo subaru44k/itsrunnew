@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 const routes = [
   { path: '/', content: '代々木公園陸上競技場' },
@@ -17,6 +18,20 @@ const routes = [
   { path: '/en/nozomiantena/index', content: 'Race result of Nozomi Tanaka' },
 ]
 
+function normalized(path: string) {
+  return path === '/' ? '/' : path.replace(/\/$/, '')
+}
+
+async function expectSeo(page: Page, canonical: string) {
+  const current = normalized(new URL(page.url()).pathname)
+  const base = canonical.startsWith('/en') ? canonical.slice(3) || '/' : canonical
+  await expect(page.locator('html')).toHaveAttribute('lang', current.startsWith('/en') ? 'en-US' : 'ja-JP')
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', normalized(canonical))
+  await expect(page.locator('link[rel="alternate"][hreflang="ja"]')).toHaveAttribute('href', normalized(base))
+  await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute('href', normalized(base === '/' ? '/en' : `/en${base}`))
+  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute('href', normalized(base))
+}
+
 for (const route of routes) {
   test(`preview route renders: ${route.path}`, async ({ page }) => {
     const response = await page.goto(route.path, { waitUntil: 'domcontentloaded' })
@@ -25,6 +40,8 @@ for (const route of routes) {
     await expect(page.locator('#main-content')).toBeVisible()
     await expect(page.locator('body')).toContainText(route.content)
     if (route.pathname) expect(new URL(page.url()).pathname).toBe(route.pathname)
+    const canonical = route.pathname || (route.path.endsWith('/index') ? route.path.slice(0, -6) : route.path)
+    await expectSeo(page, canonical)
   })
 }
 

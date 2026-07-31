@@ -166,6 +166,26 @@ export class HostingStack extends Stack {
     apiIntegration.addDependency(apiStage)
     jwtAuthorizer.addDependency(apiStage)
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
+    const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
+      originRequestPolicyName: 'ItsRunPreviewApiOriginRequest',
+      comment: 'Only authenticated API headers; no viewer cookies or query strings.',
+      // CloudFront requires Authorization to be part of a cache policy before
+      // it can forward that header. The zero-TTL API cache policy below keeps
+      // the API uncached while this policy forwards the remaining API headers.
+      headerBehavior: cloudfront.OriginRequestHeaderBehavior.allowList('Content-Type', 'If-Match', 'If-None-Match'),
+      cookieBehavior: cloudfront.OriginRequestCookieBehavior.none(),
+      queryStringBehavior: cloudfront.OriginRequestQueryStringBehavior.none(),
+    })
+    const apiCache = new cloudfront.CachePolicy(this, 'ApiCache', {
+      cachePolicyName: 'ItsRunPreviewApiNoCache',
+      comment: 'Zero TTL; Authorization is forwarded and included only to satisfy CloudFront header rules.',
+      minTtl: Duration.seconds(0),
+      defaultTtl: Duration.seconds(0),
+      maxTtl: Duration.seconds(0),
+      headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization'),
+      cookieBehavior: cloudfront.CacheCookieBehavior.none(),
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.none(),
+    })
     const rewrite = new cloudfront.Function(this, 'RouteRewrite', { code: cloudfront.FunctionCode.fromInline(routeFunctionCode) })
     const htmlCache = new cloudfront.CachePolicy(this, 'HtmlCache', { defaultTtl: Duration.seconds(0), minTtl: Duration.seconds(0), maxTtl: Duration.days(1) })
     const dataCache = new cloudfront.CachePolicy(this, 'DataCache', { defaultTtl: Duration.seconds(60), minTtl: Duration.seconds(0), maxTtl: Duration.seconds(60) })
@@ -184,7 +204,7 @@ export class HostingStack extends Stack {
       defaultBehavior: { origin: origins.S3BucketOrigin.withOriginAccessControl(webBucket), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: htmlCache, responseHeadersPolicy: responseHeaders, functionAssociations: [{ function: rewrite, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }] },
       additionalBehaviors: {
         'data/*': { origin: origins.S3BucketOrigin.withOriginAccessControl(dataBucket), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: dataCache, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD },
-        'api/*': { origin: new origins.HttpOrigin(apiDomainName), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED, originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL },
+        'api/*': { origin: new origins.HttpOrigin(apiDomainName), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: apiCache, originRequestPolicy: apiOriginRequestPolicy, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL },
       },
     })
     const dataPolicy = dataBucket.node.tryFindChild('Policy')?.node.defaultChild

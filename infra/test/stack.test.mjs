@@ -86,7 +86,34 @@ test('T11 protects API routes with Cognito JWT and disables API caching', () => 
   const distribution = Object.values(result.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig
   const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
   assert.ok(apiBehavior)
-  assert.equal(apiBehavior.CachePolicyId, '4135ea2d-6df8-44a3-9df3-4b5a84be39ad')
+  assert.ok(apiBehavior.CachePolicyId.Ref)
   assert.equal(apiBehavior.ViewerProtocolPolicy, 'redirect-to-https')
   assert.ok(apiBehavior.OriginRequestPolicyId)
+})
+
+test('T11R01 forwards only the documented API headers', () => {
+  const result = template()
+  const policies = Object.values(result.findResources('AWS::CloudFront::OriginRequestPolicy'))
+  assert.equal(policies.length, 1)
+  const config = policies[0].Properties.OriginRequestPolicyConfig
+  assert.equal(config.HeadersConfig.HeaderBehavior, 'whitelist')
+  assert.deepEqual(config.HeadersConfig.Headers, [
+    'Content-Type', 'If-Match', 'If-None-Match',
+  ])
+  assert.deepEqual(config.CookiesConfig, { CookieBehavior: 'none' })
+  assert.deepEqual(config.QueryStringsConfig, { QueryStringBehavior: 'none' })
+  const distribution = Object.values(result.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig
+  const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
+  assert.equal(apiBehavior.OriginRequestPolicyId.Ref, Object.keys(result.findResources('AWS::CloudFront::OriginRequestPolicy'))[0])
+  const cachePolicies = Object.values(result.findResources('AWS::CloudFront::CachePolicy'))
+  const apiCache = cachePolicies.find((policy) => policy.Properties.CachePolicyConfig.Name === 'ItsRunPreviewApiNoCache')
+  assert.ok(apiCache)
+  const cacheConfig = apiCache.Properties.CachePolicyConfig
+  assert.equal(cacheConfig.MinTTL, 0)
+  assert.equal(cacheConfig.DefaultTTL, 0)
+  assert.equal(cacheConfig.MaxTTL, 0)
+  assert.equal(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.HeadersConfig.HeaderBehavior, 'whitelist')
+  assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.HeadersConfig.Headers, ['Authorization'])
+  assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.CookiesConfig, { CookieBehavior: 'none' })
+  assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.QueryStringsConfig, { QueryStringBehavior: 'none' })
 })

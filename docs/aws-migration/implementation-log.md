@@ -74,7 +74,7 @@ Operating system: macOS
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
 | C01 | complete | `c391c86` | `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (64 passed) | Removed browser fetch instrumentation, fixture prewarm, conditional Retry, and retries; added desktop/mobile × ja-JP/en-US projects and first-navigation assertions. |
-| C02 | pending | | | |
+| C02 | complete | pending | `npm run lint --workspace web`; `npm run test:unit --workspace web`; `npm run typecheck --workspace web` | Repository injection enables state tests; retained weeks keep dates/months coherent across failed week changes; request IDs reject stale responses; retry, invalid, unavailable, and unpublished states are covered. |
 | C03 | pending | | | |
 | C04 | pending | | | |
 | C05 | pending | | | |

@@ -147,5 +147,5 @@ Safe work that can continue: Only FF01-FF03 local/test/log corrections. No AWS w
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
 | FF01 | complete | `f11d47a` | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed) | CloudFront fixture verification now bounds fetch and body reads with an AbortController-backed deadline, clears timers, preserves max-attempt/fake-clock behavior, and tests never-settling fetch/body failures without AWS. |
-| FF02 | complete | pending | `npm run lint --workspace web`; `npm run typecheck --workspace web`; separated schedule-state Playwright suite (24 passed) | Added a simulated 503 unavailable response and verified localized unavailable/Retry, no unpublished message, and no raw technical error across desktop/mobile Japanese and English projects. The raw preview suite remains uninstrumented. |
+| FF02 | complete | `ba90aad` | `npm run lint --workspace web`; `npm run typecheck --workspace web`; separated schedule-state Playwright suite (24 passed) | Added a simulated 503 unavailable response and verified localized unavailable/Retry, no unpublished message, and no raw technical error across desktop/mobile Japanese and English projects. The raw preview suite remains uninstrumented. |
 | FF03 | pending |  |  |  |

@@ -83,8 +83,8 @@ Operating system: macOS
 
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
-| RR01 | complete | `452b319` | `npm run lint --workspace web`; `npm run typecheck --workspace web`; `npm run test:unit --workspace web`; separated schedule-state Playwright suite | `scheduleComingSoon` is now limited to successful empty-months (unpublished) state; network/invalid errors are exclusive; localized loading/error/retained/retry browser assertions are isolated from the raw preview suite. |
-| RR02 | complete | pending | `npm run build --workspace web`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (17 passed) | Generated SEO verification asserts an explicit complete normal-route set; raw compatibility-route E2E checks final canonical/hreflang; timeout and max-attempt retry bounds are tested with deterministic counters/fake time. |
+| RR01 | complete | `452b319` + follow-up | `npm run lint --workspace web`; `npm run typecheck --workspace web`; `npm run test:unit --workspace web`; separated schedule-state Playwright suite (after assertion correction) | `scheduleComingSoon` is now limited to successful empty-months (unpublished) state; network/invalid errors are exclusive; localized loading/error/retained/retry browser assertions are isolated from the raw preview suite. Error assertions correctly require no status element rather than waiting on a missing element. |
+| RR02 | complete | `0011747` | `npm run build --workspace web`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (17 passed) | Generated SEO verification asserts an explicit complete normal-route set; raw compatibility-route E2E checks final canonical/hreflang; timeout and max-attempt retry bounds are tested with deterministic counters/fake time. |
 | RR03 | pending |  |  | AWS read-only policy verification, one preview deployment, final raw and separated schedule-state verification remain. |
 
 Sol reviewed the R06 denial at `dc22db1`. AWS policy `v1` was verified against

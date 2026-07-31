@@ -40,7 +40,7 @@ for (const mode of ['network', 'invalid', 'unpublished'] as const) {
     } else {
       await expect(page.getByRole('alert')).toContainText(expected)
       await expect(page.getByRole('button', { name: /再試行|Retry/ })).toBeVisible()
-      await expect(page.getByRole('status')).not.toContainText(/準備中|being prepared/)
+      await expect(page.getByRole('status')).toHaveCount(0)
       await expect(page.getByRole('alert')).not.toContainText(/Failed|TypeError|fetch|request/i)
     }
   })

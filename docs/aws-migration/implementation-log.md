@@ -141,3 +141,11 @@ Task: Phase 3 re-review
 Decision needed: Luna correction of FF01-FF03 in phase3-review.md, followed by Sol approval.
 Evidence: Sol independently passed local checks and the 84-case preview suite, and confirmed v3/private S3 read-only state. A never-resolving fetch bypasses the helper deadline; unavailable browser display is not exercised; C05/RR03 history is mixed.
 Safe work that can continue: Only FF01-FF03 local/test/log corrections. No AWS write is approved. T10, Phase 4, Cognito, API, production migration, DNS, and Firebase remain blocked.
+
+### Phase 3 final corrective pass
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| FF01 | complete | pending | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed) | CloudFront fixture verification now bounds fetch and body reads with an AbortController-backed deadline, clears timers, preserves max-attempt/fake-clock behavior, and tests never-settling fetch/body failures without AWS. |
+| FF02 | pending |  |  |  |
+| FF03 | pending |  |  |  |

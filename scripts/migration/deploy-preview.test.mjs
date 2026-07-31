@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { cacheControlForWebObject, readCloudFrontObject, webObjectUploadCommands } from './deploy-preview.mjs'
 
 const fixtureBody = '{"ok":true}'
@@ -72,5 +72,37 @@ describe('preview web cache classification', () => {
       sleep: async () => {},
     })).rejects.toThrow('timed out')
     expect(attempts).toBe(3)
+  })
+
+  it('times out a fetch that never settles', async () => {
+    await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', fixtureHash, 'public, max-age=0, s-maxage=60', {
+      fetchImpl: () => new Promise(() => {}),
+      timeoutMs: 20,
+      maxAttempts: 3,
+    })).rejects.toThrow('timed out')
+  })
+
+  it('times out a response body that never settles', async () => {
+    const fetchImpl = async () => ({
+      status: 200,
+      headers: new Headers({ 'content-type': 'application/json', 'cache-control': 'public, max-age=0, s-maxage=60' }),
+      arrayBuffer: () => new Promise(() => {}),
+    })
+    await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', fixtureHash, 'public, max-age=0, s-maxage=60', {
+      fetchImpl,
+      timeoutMs: 20,
+      maxAttempts: 3,
+    })).rejects.toThrow('timed out')
+  })
+
+  it('clears the timeout after a successful read', async () => {
+    vi.useFakeTimers()
+    try {
+      const response = () => new Response(fixtureBody, { status: 200, headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=0, s-maxage=60' } })
+      await expect(readCloudFrontObject('preview.example', 'data/v1/test.json', fixtureHash, 'public, max-age=0, s-maxage=60', { fetchImpl: async () => response(), timeoutMs: 1000, maxAttempts: 1 })).resolves.toBeUndefined()
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

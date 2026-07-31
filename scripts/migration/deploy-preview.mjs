@@ -50,21 +50,43 @@ export async function readCloudFrontObject(domain, key, expectedHash, expectedCa
   let attempts = 0
   while (attempts < maxAttempts && (attempts === 0 || now() < deadline)) {
     attempts += 1
+    const controller = new AbortController()
+    let timeoutHandle
+    let attemptTimedOut = false
     try {
-      const response = await fetchImpl(url)
-      const body = Buffer.from(await response.arrayBuffer())
-      const hash = createHash('sha256').update(body).digest('hex')
-      const contentType = response.headers.get('content-type') || ''
-      const cacheControl = response.headers.get('cache-control') || ''
-      if (response.status !== 200) throw new Error(`${key}: expected 200, got ${response.status}`)
-      if (!contentType.includes('application/json')) throw new Error(`${key}: unexpected content-type ${contentType}`)
-      const normalizeCache = (value) => value.split(',').map((part) => part.trim()).filter(Boolean).sort().join(',')
-      if (normalizeCache(cacheControl) !== normalizeCache(expectedCacheControl)) throw new Error(`${key}: unexpected cache-control ${cacheControl}`)
-      if (hash !== expectedHash) throw new Error(`${key}: CloudFront hash mismatch`)
+      const operation = (async () => {
+        const response = await fetchImpl(url, { signal: controller.signal })
+        const body = Buffer.from(await response.arrayBuffer())
+        const hash = createHash('sha256').update(body).digest('hex')
+        const contentType = response.headers.get('content-type') || ''
+        const cacheControl = response.headers.get('cache-control') || ''
+        if (response.status !== 200) throw new Error(`${key}: expected 200, got ${response.status}`)
+        if (!contentType.includes('application/json')) throw new Error(`${key}: unexpected content-type ${contentType}`)
+        const normalizeCache = (value) => value.split(',').map((part) => part.trim()).filter(Boolean).sort().join(',')
+        if (normalizeCache(cacheControl) !== normalizeCache(expectedCacheControl)) throw new Error(`${key}: unexpected cache-control ${cacheControl}`)
+        if (hash !== expectedHash) throw new Error(`${key}: CloudFront hash mismatch`)
+      })()
+      const remaining = Math.max(0, deadline - now())
+      const timed = timeoutMs > 0
+        ? new Promise((_, reject) => {
+            timeoutHandle = setTimeout(() => {
+              attemptTimedOut = true
+              controller.abort()
+              const error = new Error(`${key}: CloudFront read timed out`)
+              error.name = 'CloudFrontTimeoutError'
+              reject(error)
+            }, remaining)
+          })
+        : null
+      await (timed ? Promise.race([operation, timed]) : operation)
       return
     } catch (error) {
       lastError = error
-      if (attempts < maxAttempts && now() < deadline) await sleep(3000)
+      if (attemptTimedOut || error?.name === 'CloudFrontTimeoutError') break
+      if (attempts < maxAttempts && now() < deadline) await sleep(Math.min(3000, Math.max(0, deadline - now())))
+    } finally {
+      if (timeoutHandle) clearTimeout(timeoutHandle)
+      controller.abort()
     }
   }
   throw new Error(`CloudFront verification timed out: ${lastError instanceof Error ? lastError.message : lastError}`)

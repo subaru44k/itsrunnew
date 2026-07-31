@@ -83,6 +83,20 @@ test('T11R03 limits API CORS to the configured local Nuxt origin', () => {
   assert.doesNotMatch(JSON.stringify(cors), /\*/)
 })
 
+test('T11R04 exposes Cognito endpoints and permits only the token origin in CSP', () => {
+  const result = template()
+  const templateJson = result.toJSON()
+  assert.deepEqual(templateJson.Outputs.CognitoAuthBaseUrl.Value, {
+    'Fn::Join': ['', ['https://', { Ref: 'CognitoDomainPrefix' }, '.auth.', { Ref: 'AWS::Region' }, '.amazoncognito.com']],
+  })
+  assert.deepEqual(templateJson.Outputs.UserPoolIssuer.Value, { 'Fn::GetAtt': ['AdminUserPoolD0AF18CF', 'ProviderURL'] })
+  const headersPolicy = Object.values(result.findResources('AWS::CloudFront::ResponseHeadersPolicy'))[0]
+  const csp = JSON.stringify(headersPolicy.Properties.ResponseHeadersPolicyConfig.SecurityHeadersConfig.ContentSecurityPolicy)
+  assert.match(csp, /CognitoDomainPrefix/)
+  assert.match(csp, /amazoncognito\.com/)
+  assert.doesNotMatch(csp, /accounts\.google|\*\.google|unsafe-eval/)
+})
+
 test('T11 protects API routes with Cognito JWT and disables API caching', () => {
   const result = template()
   const templateJson = result.toJSON()

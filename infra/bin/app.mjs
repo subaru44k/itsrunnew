@@ -188,6 +188,7 @@ export class HostingStack extends Stack {
     apiIntegration.addDependency(apiStage)
     jwtAuthorizer.addDependency(apiStage)
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
+    const cognitoAuthBaseUrl = Fn.join('', ['https://', cognitoDomainPrefix.valueAsString, '.auth.', Aws.REGION, '.amazoncognito.com'])
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
       originRequestPolicyName: 'ItsRunPreviewApiOriginRequest',
       comment: 'Only authenticated API headers; no viewer cookies or query strings.',
@@ -218,7 +219,7 @@ export class HostingStack extends Stack {
         contentTypeOptions: { override: true },
         frameOptions: { frameOption: cloudfront.HeadersFrameOption.DENY, override: true },
         referrerPolicy: { referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override: true },
-        contentSecurityPolicy: { contentSecurityPolicy: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src https://www.google.com https://maps.google.com; form-action 'self';", override: true },
+        contentSecurityPolicy: { contentSecurityPolicy: Fn.join('', ["default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ", cognitoAuthBaseUrl, "; frame-src https://www.google.com https://maps.google.com; form-action 'self';"]), override: true },
       },
       customHeadersBehavior: { customHeaders: [{ header: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()', override: true }] },
     })
@@ -239,6 +240,8 @@ export class HostingStack extends Stack {
     new CfnOutput(this, 'UserPoolId', { value: userPool.userPoolId })
     new CfnOutput(this, 'UserPoolClientId', { value: userPoolClient.userPoolClientId })
     new CfnOutput(this, 'UserPoolDomain', { value: domain.domainName })
+    new CfnOutput(this, 'CognitoAuthBaseUrl', { value: cognitoAuthBaseUrl })
+    new CfnOutput(this, 'UserPoolIssuer', { value: userPool.userPoolProviderUrl })
     new CfnOutput(this, 'AdminApiId', { value: api.ref })
     new CfnOutput(this, 'AdminApiEndpoint', { value: Fn.join('', ['https://', apiDomainName]) })
     new CfnOutput(this, 'AdminsGroupName', { value: adminsGroup.groupName })

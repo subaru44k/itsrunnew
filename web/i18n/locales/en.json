@@ -1,0 +1,7 @@
+{
+  "siteName": "It's Run",
+  "nav": { "home": "Home", "yumenoshima": "Yumenoshima", "komazawa": "Komazawa", "todoroki": "Todoroki", "pace": "Pace" },
+  "homeTitle": "Find a place to run",
+  "homeDescription": "Check track availability and marathon pace tables.",
+  "footer": "It's Run"
+}

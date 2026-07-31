@@ -1,0 +1,7 @@
+{
+  "siteName": "いつラン",
+  "nav": { "home": "ホーム", "yumenoshima": "夢の島", "komazawa": "駒沢", "todoroki": "等々力", "pace": "ペース" },
+  "homeTitle": "いつでも走れる場所を探そう",
+  "homeDescription": "競技場の利用状況とマラソンペースを確認できます。",
+  "footer": "It's Run"
+}

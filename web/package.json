@@ -1,5 +1,13 @@
 {
   "name": "@itsrun/web",
   "private": true,
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "scripts": {
+    "build": "nuxt generate",
+    "dev": "nuxt dev"
+  },
+  "dependencies": {
+    "@nuxtjs/i18n": "^10.6.0",
+    "nuxt": "^4.4.8"
+  }
 }

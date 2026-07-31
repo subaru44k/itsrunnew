@@ -2,5 +2,10 @@
   "name": "@itsrun/infra",
   "private": true,
   "version": "0.0.0",
-  "type": "module"
+  "type": "module",
+  "scripts": { "build": "cdk synth", "test:infra": "node --test test/stack.test.mjs" },
+  "dependencies": {
+    "aws-cdk-lib": "^2.262.2",
+    "constructs": "^10.8.0"
+  }
 }

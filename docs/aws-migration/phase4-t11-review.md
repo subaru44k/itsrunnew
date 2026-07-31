@@ -306,3 +306,36 @@ Authorized: T11RR01 test/documentation-only correction.
 Not authorized: policy v4, IAM changes, secret creation through this workflow,
 secret-value reads, CDK deploy, CloudFormation changes, preview deployment,
 invalidation, T12, production resources, DNS, or Firebase changes.
+
+## T11 final local Sol review
+
+Reviewed commit: `8cd8709`
+
+Review date: 2026-07-31
+
+Result: local T11 implementation and assertion contract approved; external
+configuration and minimum-IAM review remain blocked.
+
+T11RR01 is accepted. Independent review confirmed that the test suite now
+asserts the exact two route keys, exact authorizer and integration references,
+exact JWT scope, exact stack-owned cache/origin-policy references, the exact
+Secrets Manager dynamic-reference structure, and the exact public app-client
+OAuth contract. `infra/bin/app.mjs` and the synthesized resource graph are
+unchanged from `b859b76`. Node 24.18.1 independently passed all 9 focused
+infrastructure tests.
+
+No additional local correction is required. T11 is not complete and T12 is
+not authorized because the exact Google OAuth secret ARN and Google OAuth
+client ID have not been supplied for deployment review. This review did not
+perform any AWS operation or secret-value read and did not create policy v4.
+
+Next owner action:
+
+1. Create `itsrun/preview/google-oauth-client-secret` directly in Secrets
+   Manager in account `470447451992`, region `ap-northeast-1`.
+2. Provide only its exact ARN and the non-secret Google OAuth client ID.
+3. Return to Sol to finalize the resource-scoped policy v4 and deployment
+   contract.
+
+Do not send Luna a T12 or deployment prompt before those two values have been
+reviewed and Sol has explicitly approved policy v4 and the T11 deploy.

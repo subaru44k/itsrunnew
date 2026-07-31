@@ -148,6 +148,15 @@ AWS evidence: codex-prod/account 470447451992/ap-northeast-1; managed policy def
 AWS authority: None; test/documentation-only correction is authorized
 ```
 
+```text
+Final local review target: 8cd8709
+Date: 2026-07-31
+Result: T11RR01 accepted; local T11 source and assertion contract approved
+Independent check: Node 24.18.1; infrastructure tests 9 passed; infra source/resource graph unchanged
+Blocker: exact Google OAuth secret ARN and non-secret Google OAuth client ID have not been supplied
+AWS authority: None; no AWS operation, secret read, policy v4, deploy, or T12 authorization
+```
+
 ### Phase 4 T11 corrective pass
 
 | Task | Status | Commit | Checks | Notes |

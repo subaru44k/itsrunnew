@@ -269,6 +269,30 @@ speculatively.
 
 Commit after verification: `T09 record scoped CDK bootstrap`
 
+#### R06 resumed after Sol review
+
+The first deployment attempt stopped at changeset creation because the
+CloudFormation execution role lacked `ssm:GetParameters` for the already
+approved exact bootstrap-version parameter. Sol reviewed this concrete denial.
+Adding only `ssm:GetParameters` beside `ssm:GetParameter` on
+`arn:aws:ssm:ap-northeast-1:470447451992:parameter/cdk-bootstrap/hnb659fds/version`
+is approved. It is an additional read operation on the same service and exact
+resource, not approval for any wildcard action or broader resource scope.
+
+Luna must:
+
+1. Confirm the managed policy still has default version `v1` and that its
+   document matches the committed pre-change definition.
+2. Create a new managed-policy version from
+   `infra/bootstrap/cloudformation-execution-policy.json` with
+   `--set-as-default`; do not edit the policy inline and do not delete `v1`.
+3. Read back the new default version and prove the only permission difference
+   is the approved `ssm:GetParameters` action.
+4. Reconfirm account `470447451992`, region `ap-northeast-1`, and profile
+   `codex-prod`, then resume the R06 deploy. Do not rerun bootstrap.
+5. If another denial occurs, record the exact action/resource and return to
+   Sol again without modifying the policy.
+
 ### R07: Deploy, verify, and stop for Phase 3
 
 1. Reconfirm STS account/region and a clean worktree.
@@ -318,4 +342,3 @@ Stop and return to Sol if any of these occurs:
 - Route compatibility requires a product-visible URL or SEO change.
 - Any command would write to Firebase, production DNS, or a pre-existing data
   bucket.
-

@@ -101,7 +101,8 @@ Use the standard modern CDK bootstrap in account `470447451992`, region
 `ap-northeast-1`, with no cross-account trust and with a project-specific
 managed CloudFormation execution policy. The policy permits only the named
 preview S3 buckets, the CloudFront operations required by the hosting stack,
-bootstrap-version SSM reads, and conditional creation of the CloudFront
+bootstrap-version SSM reads (`GetParameter` and the CDK changeset's
+`GetParameters` call), and conditional creation of the CloudFront
 service-linked role. Unsupported resource-level CloudFront operations may use
 `Resource: "*"` but never `Action: "*"`.
 

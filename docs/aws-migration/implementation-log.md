@@ -59,6 +59,13 @@ Operating system: macOS
 | R06 | blocked by Stop condition | `eeba655` | Scoped bootstrap succeeded; `AWS_PROFILE=codex-prod ... cdk deploy ItsRunPreviewHosting --require-approval never` | Bootstrap completed with the project-scoped policy, but deploy changeset creation was denied for `ssm:GetParameters` on the bootstrap version parameter. Policy was not broadened. |
 | R07 | pending | | | |
 
+Sol reviewed the R06 denial at `dc22db1`. The existing AWS policy is default
+version `v1`, attached once, and grants only `ssm:GetParameter` in its
+`ReadBootstrapVersion` statement. A `v2` addition of
+`ssm:GetParameters` to the same exact bootstrap-version parameter ARN is
+approved. Luna must verify the version diff, resume deployment without
+rerunning bootstrap, and stop again on any further denial.
+
 ## Phase 3 Sol review
 
 ```text
@@ -104,6 +111,6 @@ Safe work that can continue:
 
 OPEN:
 Task: T09 preview deployment
-Decision needed: Implement R01-R05, then use the approved scoped bootstrap in R06.
-Evidence: `cdk deploy` failed because `/cdk-bootstrap/hnb659fds/version` is absent in account 470447451992/ap-northeast-1; CloudFormation stack does not exist.
-Safe work that can continue: Luna remediation R01-R05; AWS mutation begins only at R06 after local checks pass.
+Decision needed: None for the observed R06 denial; the exact scoped read fix is Sol-approved.
+Evidence: `cdk deploy` was denied only for `ssm:GetParameters` on `arn:aws:ssm:ap-northeast-1:470447451992:parameter/cdk-bootstrap/hnb659fds/version`; policy default version is `v1` and the hosting stack does not exist.
+Safe work that can continue: Luna may create the reviewed policy `v2`, verify the exact diff, resume R06, and continue to R07 only if no further Stop condition occurs.

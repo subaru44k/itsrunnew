@@ -44,19 +44,23 @@ The `/api/*` behavior currently uses managed
 headers needed by the administrator API and says query strings are forwarded
 only if later specified.
 
-Replace the managed policy with a stack-owned origin request policy that:
+Replace the managed policy with a stack-owned origin request policy plus a
+stack-owned zero-TTL cache policy that together:
 
-- forwards only `Authorization`, `Content-Type`, `If-Match`, and
+- forward only `Authorization`, `Content-Type`, `If-Match`, and
   `If-None-Match` from the viewer;
 - forwards no cookies;
 - forwards no query strings;
-- does not include any of those values in a cache key because API caching is
-  disabled;
+- include `Authorization` in the zero-TTL cache policy because CloudFront
+  requires that header to be listed in a cache policy before it can forward it;
+  `MinTTL`, `DefaultTTL`, and `MaxTTL` must all be zero, so the API remains
+  uncached;
 - retains the origin `Host` generated for the API Gateway domain rather than
   forwarding the CloudFront viewer host.
 
-Add exact CDK assertions for header, cookie, and query behavior. Do not accept
-an assertion that only checks that an origin-request-policy ID exists.
+Add exact CDK assertions for both policies' header, cookie, query, and TTL
+behavior. Do not accept an assertion that only checks that an origin-request-
+policy ID exists.
 
 ### T11R02: Enforce the documented API method set at CloudFront
 

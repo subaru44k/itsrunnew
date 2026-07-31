@@ -139,7 +139,7 @@ Safe work that can continue:
 OPEN:
 Task: Phase 3 re-review
 Decision needed: Sol final approval after FF01-FF03.
-Evidence: FF01 and FF02 are complete; FF03 history correction is staged with the required final checks below. No AWS write was performed during FF01-FF03. T10 remains blocked pending Sol approval.
+Evidence: FF01-FF03 are complete in commits `f11d47a`, `ba90aad`, and `c0bb6b6`; required final checks passed, including helper 20 tests and preview E2E 88 tests. No AWS write was performed during FF01-FF03. T10 remains blocked pending Sol approval.
 Safe work that can continue: No further migration work is approved. T10, Phase 4, Cognito, API, production migration, DNS, and Firebase remain blocked.
 
 ### Phase 3 final corrective pass

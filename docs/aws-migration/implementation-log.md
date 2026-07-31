@@ -164,6 +164,8 @@ The corresponding log updates were committed as `17f2b28`, `5ad3ea2`,
 complete and is not marked complete: Sol must review the minimum IAM actions
 and resources before any AWS write or policy v4.
 
+| T11RR01 | complete; awaiting final Sol IAM review | pending | `npm run test:infra --workspace @itsrun/infra` (9 passed) | Strengthened only infrastructure assertions: exact route-key set, route authorizer/integration references, stack-owned API cache/origin policy references, exact Secrets Manager dynamic reference, and parameterized OAuth client URLs. `infra/bin/app.mjs` and the synthesized resource contract were unchanged; no AWS operation was performed. |
+
 ## Open items
 
 Use:

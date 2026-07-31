@@ -79,9 +79,13 @@ test('T11 auth is parameterized, code-only, and has no identity pool', () => {
   assert.deepEqual(client.Properties.CallbackURLs, { Ref: 'CallbackUrls' })
   assert.deepEqual(client.Properties.LogoutURLs, { Ref: 'LogoutUrls' })
   assert.deepEqual(client.Properties.UserPoolId, { Ref: poolLogicalId })
-  const providerJson = JSON.stringify(providers[0])
-  assert.match(providerJson, /resolve:secretsmanager/)
-  assert.doesNotMatch(providerJson, /client-secret-value|dummy|placeholder/i)
+  assert.deepEqual(providers[0].Properties.ProviderDetails.client_secret, {
+    'Fn::Sub': [
+      '{{resolve:secretsmanager:${SecretReference}:SecretString}}',
+      { SecretReference: { Ref: 'GoogleClientSecretReference' } },
+    ],
+  })
+  assert.doesNotMatch(JSON.stringify(providers[0]), /client-secret-value|dummy|placeholder/i)
   assert.equal(client.Properties.UserPoolId.Ref, poolLogicalId)
   assert.ok(clientLogicalId)
 })
@@ -117,6 +121,12 @@ test('T11 protects API routes with Cognito JWT and disables API caching', () => 
   const result = template()
   const authorizer = Object.values(result.findResources('AWS::ApiGatewayV2::Authorizer')).find((resource) => resource.Properties.AuthorizerType === 'JWT')
   assert.ok(authorizer)
+  const authorizerEntries = Object.entries(result.findResources('AWS::ApiGatewayV2::Authorizer')).filter(([, resource]) => resource.Properties.AuthorizerType === 'JWT')
+  assert.equal(authorizerEntries.length, 1)
+  const [authorizerLogicalId] = authorizerEntries[0]
+  const integrationEntries = Object.entries(result.findResources('AWS::ApiGatewayV2::Integration')).filter(([, resource]) => resource.Properties.IntegrationType === 'AWS_PROXY')
+  assert.equal(integrationEntries.length, 1)
+  const [integrationLogicalId] = integrationEntries[0]
   assert.equal(authorizer.Properties.AuthorizerType, 'JWT')
   assert.deepEqual(authorizer.Properties.IdentitySource, ['$request.header.Authorization'])
   const clientLogicalId = Object.keys(result.findResources('AWS::Cognito::UserPoolClient'))[0]
@@ -125,17 +135,28 @@ test('T11 protects API routes with Cognito JWT and disables API caching', () => 
   assert.deepEqual(authorizer.Properties.JwtConfiguration.Issuer, { 'Fn::GetAtt': [poolLogicalId, 'ProviderURL'] })
   const routes = Object.values(result.findResources('AWS::ApiGatewayV2::Route'))
   assert.equal(routes.length, 2)
+  assert.deepEqual(routes.map((route) => route.Properties.RouteKey).sort(), [
+    'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}',
+    'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}',
+  ])
   for (const route of routes) {
     assert.equal(route.Properties.AuthorizationType, 'JWT')
     assert.deepEqual(route.Properties.AuthorizationScopes, ['itsrun/schedule.write'])
-    assert.ok(route.Properties.AuthorizerId)
+    assert.deepEqual(route.Properties.AuthorizerId, { Ref: authorizerLogicalId })
+    assert.deepEqual(route.Properties.Target, { 'Fn::Join': ['', ['integrations/', { Ref: integrationLogicalId }]] })
   }
   const distribution = Object.values(result.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig
   const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
   assert.ok(apiBehavior)
-  assert.ok(apiBehavior.CachePolicyId.Ref)
+  const apiCacheEntries = Object.entries(result.findResources('AWS::CloudFront::CachePolicy')).filter(([, resource]) => resource.Properties.CachePolicyConfig.Name === 'ItsRunPreviewApiNoCache')
+  assert.equal(apiCacheEntries.length, 1)
+  const [apiCacheLogicalId] = apiCacheEntries[0]
+  const apiOriginEntries = Object.entries(result.findResources('AWS::CloudFront::OriginRequestPolicy')).filter(([, resource]) => resource.Properties.OriginRequestPolicyConfig.Name === 'ItsRunPreviewApiOriginRequest')
+  assert.equal(apiOriginEntries.length, 1)
+  const [apiOriginLogicalId] = apiOriginEntries[0]
+  assert.deepEqual(apiBehavior.CachePolicyId, { Ref: apiCacheLogicalId })
+  assert.deepEqual(apiBehavior.OriginRequestPolicyId, { Ref: apiOriginLogicalId })
   assert.equal(apiBehavior.ViewerProtocolPolicy, 'redirect-to-https')
-  assert.ok(apiBehavior.OriginRequestPolicyId)
 })
 
 test('T11R01 forwards only the documented API headers', () => {

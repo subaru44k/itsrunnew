@@ -290,7 +290,13 @@ AWS authority: None; no policy v4, IAM change, deploy, preview mutation, T13, DN
 | T12F01 | complete; awaiting Sol minimum-IAM review | `96f45df` | schedule-api unit (21 passed) | Proved oversized ContentLength rejects before body iteration. Handler tests cover missing and failed S3 bodies as sanitized 500 responses with no technical stream, bucket, key, or stack leakage. |
 | T12F02 | complete; awaiting Sol minimum-IAM review | `3c90bf0` | schedule-api unit (21 passed) | Added focused sparse/null/overlong/wrong-identity/route-disagreement validation and exact 400/409 response, header, and audit-key assertions while retaining conflict and state coverage. |
 | T12F03 | complete; awaiting Sol minimum-IAM review | `7c68bb7` | infra tests (10 passed) | Asserted exactly one S3 and one logging statement, complete detected-bucket/log-group Fn::Join resources, two inline policies without managed policies, and exact detected route dependency sets. |
-| T12F04 | complete; awaiting Sol minimum-IAM review | pending | Node 24.18.1: `npm ci`; core unit (7 passed); schedule-api unit (21 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean status | Corrected the T12RR03 core count from 8 to 7 and completed the full prescribed local verification. No AWS call, policy v4/IAM change, deploy, preview mutation/invalidation, dependency addition, T13, Cognito user change, production/DNS, or Firebase work occurred. |
+| T12F04 | complete; awaiting Sol minimum-IAM review | `b04cc4d` | Node 24.18.1: `npm ci`; core unit (7 passed); schedule-api unit (21 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean status | Corrected the T12RR03 core count from 8 to 7 and completed the full prescribed local verification. No AWS call, policy v4/IAM change, deploy, preview mutation/invalidation, dependency addition, T13, Cognito user change, production/DNS, or Firebase work occurred. |
+
+### T12 follow-up exact handler proofs
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| T12F follow-up | complete; awaiting Sol minimum-IAM review | `a3355ce` | schedule-api unit (25 passed); schedule-api typecheck | Replaced partial error assertions with exact ApiResponse equality for 403/404/409/415/500, added exact GET/PUT success bodies and headers without requestId, and independently covered successful PUT audit records and unexpected PUT-store failure. |
 
 ## Open items
 

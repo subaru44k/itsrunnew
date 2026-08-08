@@ -345,9 +345,20 @@ AWS authority: None for recovery work; no pool mutation/deletion, second deploy,
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
 | RC01 | complete; local only | `a03e314` | Node 24.18.1 infra synth | Removed the custom `ItsRunPreviewApiNoCache` resource. `/api/*` now uses managed `CachingDisabled` ID `4135ea2d-6df8-44a3-9df3-4b5a84be39ad`; the stack-owned L1 `AWS::CloudFront::OriginRequestPolicy` forwards exactly `Authorization`, `Content-Type`, `If-Match`, and `If-None-Match`, with no cookies or query strings. The source comment records the CDK L2 validation gap and current AWS authorization-forwarding documentation. No AWS call occurred. |
-| RC02 | complete; awaiting Sol RC03 review | pending | Node 24.18.1: infra tests (13 passed); infra build/synth; root `npm run check`; `git diff --check`; clean status | Semantic assertions prove exactly one API origin policy, exact four-header/none-cookie/none-query contract, no custom API cache policy, exact managed cache ID and detected origin-policy Ref, no ForwardedValues/all-viewer/extra API forwarding, and retained T11/T12 contracts. Fresh synth retains Lambda asset key `ed27108982d0ef94b6b9baa33135d04d2135dfaa4a365fc28fd6f4ca6cdda087.zip` and emits corrected template key/hash `a1a88a39d271bfff65603452b3f176a93931c48cad8fa7192252efa926472744.json`. No AWS call/write, pool cleanup, deploy, policy v5, IAM change, upload, invalidation, or T13+ work occurred. |
+| RC02 | complete; awaiting Sol RC03 review | `8c06d20` | Node 24.18.1: infra tests (13 passed); infra build/synth; root `npm run check`; `git diff --check`; clean status | Semantic assertions prove exactly one API origin policy, exact four-header/none-cookie/none-query contract, no custom API cache policy, exact managed cache ID and detected origin-policy Ref, no ForwardedValues/all-viewer/extra API forwarding, and retained T11/T12 contracts. Fresh synth retains Lambda asset key `ed27108982d0ef94b6b9baa33135d04d2135dfaa4a365fc28fd6f4ca6cdda087.zip` and emits corrected template key/hash `a1a88a39d271bfff65603452b3f176a93931c48cad8fa7192252efa926472744.json`. No AWS call/write, pool cleanup, deploy, policy v5, IAM change, upload, invalidation, or T13+ work occurred. |
 
 Recovery stop: return to Sol for RC03 review before any retained-pool cleanup or corrected deployment.
+
+```text
+Sol RC03 review target: 8c06d20
+Date: 2026-08-09
+Result: RC01-RC02 accepted; one explicit recovery authorization is required for RC04-RC06
+Independent checks: Node 24.18.1; infra tests 13 passed; root check passed (web 6, core 7, schedule-api 25, infra 13); infra synth/build; git diff --check; clean worktree
+Template proof: failed template had 31 resources and corrected template has 30; only custom ApiCache removal, API managed cache ID, exact four-header OriginRequestPolicy/logical reference, and CDK metadata changed; canonical SHA of every unrelated parameter/resource/output/condition is a5b002ab60af11c32af075faadba3cf429ffa71a6c6a5deaaeae799a94178cde for both
+Assets: Lambda ZIP remains ed27108982d0ef94b6b9baa33135d04d2135dfaa4a365fc28fd6f4ca6cdda087.zip; corrected template is a1a88a39d271bfff65603452b3f176a93931c48cad8fa7192252efa926472744.json
+IAM: committed/default policy v4 still exactly covers the corrected graph; no policy v5 or permission expansion is needed
+Next protected bundle: RC04 exact empty retained-pool cleanup, one RC05 corrected stack deploy, and RC06 read-only verification; no other AWS or application mutation
+```
 
 ### Phase 4 T13 advance planning
 

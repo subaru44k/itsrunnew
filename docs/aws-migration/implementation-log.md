@@ -166,6 +166,35 @@ Removed blocker: Google OAuth client ID and Google client secret are no longer r
 AWS authority: None; local source/test/documentation/synth correction only
 ```
 
+### Phase 4 T11 local-user transition
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| T11L01 | complete | `9218d84` | infra tests (9 passed) | Removed the undeployed Google parameters, Google User Pool IdP, Secrets Manager dynamic reference, and provider dependency. The public app client now uses Cognito local users only. No AWS operation occurred. |
+| T11L02 | complete | `9218d84` | infra tests (9 passed) | Updated semantic assertions for zero external IdPs, zero Identity Pools, no Google/Secrets Manager template content, COGNITO-only provider, and preserved T11R/T11RR contracts. |
+| T11L03 | complete; awaiting Sol IAM review | pending | infra synth | Corrected synth has no Google IdP or secret parameter. Candidate execution permissions are reduced to local Cognito lifecycle plus the existing API Gateway/CloudFront/S3/SSM scope; no policy file was changed. |
+| T11L04 | complete; awaiting Sol IAM review | pending | Node 24; infra tests (9 passed); infra synth | Local source, tests, documentation, and synth are complete. No dummy ApiIntegrationUri, AWS write, deploy, invalidation, or T12 implementation was performed. |
+
+Corrected synthesized resource types are: two S3 buckets and bucket policies;
+CloudFront distribution, three cache policies, OriginRequestPolicy, two
+CloudFront Functions, two OACs, and response headers policy; Cognito UserPool,
+UserPoolClient, UserPoolDomain, UserPoolGroup, and UserPoolResourceServer; and
+API Gateway V2 API, stage, JWT authorizer, integration, and two routes. The
+template parameters are now only `ApiIntegrationUri`, `BootstrapVersion`,
+`CallbackUrls`, `CognitoDomainPrefix`, `LocalDevelopmentOrigin`, and
+`LogoutUrls`.
+
+The remaining candidate CloudFormation execution permissions are limited to
+the local Cognito resource lifecycle (`cognito-idp` UserPool, app client,
+domain, resource server, and group operations), the already reviewed
+CloudFront/S3/SSM operations, and API Gateway V2 API/stage/authorizer/
+integration/route operations. Resource ARNs must be narrowed to the preview
+User Pool and API graph wherever AWS supports it; create/list operations that
+cannot be resource-scoped require an explicit service limitation in Sol's
+policy review. No `cognito-idp` identity-provider actions,
+`secretsmanager:GetSecretValue`, Lambda, IAM role, or `iam:PassRole` action is
+included in this candidate set.
+
 ### Phase 4 T11 corrective pass
 
 | Task | Status | Commit | Checks | Notes |

@@ -21,4 +21,10 @@ describe('S3 schedule adapter', () => {
     await expect(readBodyBounded(body(chunks))).rejects.toThrow('stored_data_too_large')
     await expect(readBodyBounded(body(['日本語']))).resolves.toBe('日本語')
   })
+  it('rejects oversized metadata before reading and bounds a body with no metadata', async () => {
+    const oversized = new S3ScheduleStore({ async send() { return { ContentLength: 32 * 1024 + 1 } } } as never, 'bucket')
+    await expect(oversized.get('data/v1/stadiums/oda/availability/2026-01.json')).rejects.toThrow('stored_data_too_large')
+    const streamed = new S3ScheduleStore({ async send() { return { Body: body([new Uint8Array(31 * 1024), new Uint8Array(2 * 1024)]) } } } as never, 'bucket')
+    await expect(streamed.get('data/v1/stadiums/oda/availability/2026-01.json')).rejects.toThrow('stored_data_too_large')
+  })
 })

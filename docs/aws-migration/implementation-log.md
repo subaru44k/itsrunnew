@@ -250,6 +250,18 @@ and resources before any AWS write or policy v4.
 | T12RR04 | local corrective pass complete; awaiting Sol minimum-IAM re-review | `ab589f1` | Node 24.18.1: core unit (7 passed); schedule-api unit (18 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean worktree | Added semantic assertions for the complete Lambda, LogGroup, role, inline policy, integration, invoke permission, exact `$default` ARNs, PascalCase PUT-only RouteSettings, and retained T11 contracts. AWS deployment and policy v4 remain prohibited. |
 
 ```text
+Third Sol T12 review target: 02588ca
+Date: 2026-08-09
+Result: synthesized infrastructure corrections accepted; focused test-contract corrections remain before minimum-IAM policy v4 review
+Independent checks: Node 24.18.1; core unit 7 passed; schedule-api unit 18 passed; schedule-api typecheck; infra tests 10 passed; git diff --check
+Accepted: PascalCase PUT-only RouteSettings, exact $default GET/PUT invoke ARNs, bounded-reader destroy receiver/count behavior, resolved S3 maxAttempts 1
+Incomplete proof: metadata-before-iteration and missing/failed body sanitization; remaining handler validation/exact response/audit matrix; exact S3 IAM Fn::Join and route dependency assertions
+Log correction required: T12RR03 reports 8 core tests, but the actual suite has 7
+Required work: docs/aws-migration/phase4-t12-review.md T12F01-T12F04
+AWS authority: None; no policy v4, IAM change, deploy, preview mutation, invalidation, T13, Cognito-user, DNS, Firebase, or production operation
+```
+
+```text
 Second Sol T12 review target: 0da39a9
 Date: 2026-08-09
 Result: final local corrections required before minimum-IAM policy v4 review

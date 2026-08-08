@@ -275,3 +275,101 @@ Run the full T12R06 command list under Node 24. Do not perform any AWS call,
 policy v4/IAM change, deploy, preview mutation, invalidation, T13 work,
 production operation, DNS change, Firebase change, or dependency addition.
 Stop for Sol minimum-IAM review after T12RR04.
+
+## T12 third Sol review
+
+Review target: `02588ca`
+
+Review date: 2026-08-09
+
+Result: the synthesized RouteSettings, `$default` invoke ARNs, bounded-reader
+receiver fix, and production S3 retry configuration are accepted. Policy v4
+review remains blocked because several explicitly required AWS-free proofs are
+still absent or weaker than the required exact contract.
+
+Independent checks passed under Node `v24.18.1`: core unit tests 7 passed,
+schedule API unit tests 18 passed, schedule API typecheck, infrastructure tests
+10 passed, and `git diff --check`. The implementation log's T12RR03 count of
+8 core tests is inaccurate; the suite contains 7 tests because the stadium-key
+change expanded an existing test instead of adding a test case.
+
+### T12F01: complete bounded-reader failure proofs
+
+Keep the accepted `destroy` receiver fix and `maxAttempts: 1` factory. Add
+focused AWS-free tests that prove:
+
+- a `ContentLength` above 32 KiB rejects before the response body iterator is
+  entered;
+- a missing response body rejects with a sanitized `500 internal_error`
+  through the handler;
+- an async body iterator failure is sanitized as `500 internal_error` through
+  the handler;
+- technical stream errors do not appear in the response or audit record;
+- the existing exact-limit, one-byte overflow, chunk-boundary, receiver,
+  destroy-count, UTF-8, and resolved max-attempt tests continue to pass.
+
+Do not change production behavior unless a failing focused test demonstrates
+that a correction is required.
+
+### T12F02: finish exact handler contracts
+
+Strengthen the handler tests without combining unrelated invalid inputs. At a
+minimum, cover the remaining explicit matrix:
+
+- sparse tuple, `null` status, more than 31 day entries, wrong body stadium,
+  wrong body yearMonth, and route/method disagreement;
+- missing conditional header independently from both/malformed headers;
+- unexpected PUT-store failure independently from missing write metadata;
+- exact sanitized error object, status, message, requestId, content type, and
+  no-store header for 400, 403, 404, 409, 415, and 500;
+- exact GET and PUT success bodies and headers, with no success requestId;
+- exactly one audit record with the exact allowlisted key set for an error and
+  PUT success; `s3VersionId` must exist only on successful PUT;
+- forbidden token, raw claims, email, raw sub, body, document, bucket, key,
+  AWS error, and stack trace values must not appear in serialized logs.
+
+Replace `arrayContaining` and partial response matching where the contract
+requires exact equality. Keep the existing 409/412 one-attempt and unchanged
+state coverage.
+
+### T12F03: finish exact synthesized-IAM assertions
+
+Keep semantic resource discovery and do not hard-code generated logical IDs.
+Strengthen the infrastructure test to prove:
+
+- exactly one S3 statement and exactly one logs statement;
+- the complete S3 resource `Fn::Join`, including the detected data bucket ARN
+  and `/data/v1/stadiums/*/availability/*.json` suffix;
+- the complete logs resource `Fn::Join` remains exact;
+- the Lambda-trusted role has exactly two inline policies and no managed
+  policies;
+- the stage dependency set contains exactly the detected GET and PUT routes,
+  and each route retains dependencies on the detected integration and JWT
+  authorizer;
+- the existing exact Lambda, LogGroup, environment, integration, permission,
+  RouteSettings, Cognito/JWT/CORS, and CloudFront contracts remain intact.
+
+### T12F04: truthful log and final local verification
+
+Correct the T12RR03 core test count from 8 to 7 without rewriting other
+history. Add T12F01-T12F04 rows with actual commit IDs and test counts.
+
+Run the full T12F command list under Node 24:
+
+```bash
+npm ci
+npm run test:unit --workspace @itsrun/core
+npm run test:unit --workspace @itsrun/schedule-api
+npm run typecheck --workspace @itsrun/schedule-api
+npm run build --workspace @itsrun/schedule-api
+npm run test:infra --workspace @itsrun/infra
+npm run build --workspace @itsrun/infra
+npm run check
+git diff --check
+git status --short
+```
+
+No AWS call, policy v4, IAM change, deploy, preview mutation, invalidation,
+dependency addition, T13 work, Cognito user change, production operation, DNS,
+or Firebase change is authorized. Stop again for Sol minimum-IAM review after
+T12F04.

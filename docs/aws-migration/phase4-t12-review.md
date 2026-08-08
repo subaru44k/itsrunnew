@@ -373,3 +373,30 @@ No AWS call, policy v4, IAM change, deploy, preview mutation, invalidation,
 dependency addition, T13 work, Cognito user change, production operation, DNS,
 or Firebase change is authorized. Stop again for Sol minimum-IAM review after
 T12F04.
+
+## T12 local implementation approval
+
+Review target: `742b4d1`
+
+Review date: 2026-08-09
+
+Result: approved for the first T11/T12 preview deployment, subject to the
+separate policy-v4 and deployment sequence in
+`phase4-t12-deploy-plan.md`.
+
+Sol independently reviewed commits `96f45df`, `3c90bf0`, `7c68bb7`,
+`b04cc4d`, `a3355ce`, and `742b4d1`. Under Node `v24.18.1`, core unit tests
+passed 7 cases, schedule API unit tests passed 25 cases, schedule API typecheck
+passed, infrastructure tests passed 10 cases, `git diff --check` passed, and
+the worktree was clean.
+
+Accepted contracts include bounded S3 reads, exact conditional writes with a
+single SDK attempt, sanitized API responses and audit records, the local
+Cognito public-client flow, exact JWT routes and scope, PUT-only throttling,
+API no-cache behavior, the dedicated Lambda role, exact S3/log resources, and
+the `$default` GET/PUT invoke permissions.
+
+This approval does not itself authorize an AWS write. It authorizes Sol to
+prepare the exact policy-v4 artifact and deployment plan. Creating policy v4,
+deploying the stack, publishing the Lambda asset, or changing an AWS resource
+still requires the explicit bundled approval described in that plan.

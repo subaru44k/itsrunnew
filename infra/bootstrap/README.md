@@ -62,3 +62,11 @@ AWS_PROFILE=codex-prod AWS_REGION=ap-northeast-1 aws iam create-policy-version \
   --policy-document file://infra/bootstrap/cloudformation-execution-policy.json \
   --set-as-default
 ```
+
+## Phase 4 candidate v4
+
+The first Cognito/API/Lambda deployment must follow
+`docs/aws-migration/phase4-t12-deploy-plan.md`. The policy file contains the
+Sol-reviewed v4 candidate, but its presence in Git does not authorize an AWS
+write. Create v4 only after the plan's local policy test, immutable-v3 check,
+and explicit bundled approval. Keep v1-v3 and stop on any unreviewed denial.

@@ -298,6 +298,16 @@ AWS authority: None; no policy v4, IAM change, deploy, preview mutation, T13, DN
 | --- | --- | --- | --- | --- |
 | T12F follow-up | complete; awaiting Sol minimum-IAM review | `a3355ce` | schedule-api unit (25 passed); schedule-api typecheck | Replaced partial error assertions with exact ApiResponse equality for 403/404/409/415/500, added exact GET/PUT success bodies and headers without requestId, and independently covered successful PUT audit records and unexpected PUT-store failure. |
 
+```text
+Sol T12 local approval target: 742b4d1
+Date: 2026-08-09
+Result: local T11/T12 implementation approved; proceed only through docs/aws-migration/phase4-t12-deploy-plan.md
+Independent checks: Node 24.18.1; core unit 7 passed; schedule-api unit 25 passed; schedule-api typecheck; infra tests 10 passed; git diff --check; clean worktree
+Read-only AWS checks: account 470447451992; region ap-northeast-1; ItsRunPreviewHosting CREATE_COMPLETE; execution policy default v3; AWS v3 exactly matched committed local v3 before drafting v4
+AWS writes: none during this review
+Next authority required: one bundled approval for managed-policy v4 plus the first T11/T12 preview deployment
+```
+
 ## Open items
 
 Use:

@@ -233,6 +233,15 @@ and resources before any AWS write or policy v4.
 | T12E | complete; awaiting Sol review | `c0efdc6` | infra tests (10 passed); infra synth | Replaced the URI parameter with a bundled Node.js 24 Lambda, explicit retained LogGroup, dedicated role, exact data-object S3 permissions, API invoke permission, and bounded stage throttling. No AWS write occurred. |
 | T12F | local implementation complete; awaiting Sol minimum-IAM review | `ac48e17` | Node 24: `npm ci`; core unit (6 passed); schedule-api unit (6 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean status | Final local source, tests, documentation, and CDK synth completed. AWS deployment, policy v4, preview mutation, and integration verification remain intentionally blocked. |
 
+### Phase 4 T12 Sol corrective pass
+
+| T12R01 | complete; awaiting remaining Sol review items | `d99f56f` | Node 24; core unit (7 passed); schedule-api unit (8 passed); schedule-api typecheck | Replaced lower-camel conditional fields with a discriminated write condition mapped to exact SDK `IfMatch`/`IfNoneMatch` inputs, rejected malformed ETags, set S3 client maxAttempts to 1, and added AWS-free adapter/body-boundary tests. No AWS operation occurred. |
+| T12R02 | complete; awaiting remaining Sol review items | `70e1a84` | schedule-api unit (9 passed) | Corrected the API error envelope and documented error codes, removed requestId from success payloads, validated payload 2.0 routes and plain-object bodies, and mapped client validation failures to `invalid_request`. |
+| T12R03 | complete; awaiting remaining Sol review items | `224f6ff` | schedule-api unit (10 passed); schedule-api typecheck | Added no-metadata and oversized-stream adapter coverage for the 32 KiB read boundary. Audit fields remain allowlisted and sanitized. |
+| T12R04 | complete; awaiting remaining Sol review items | `2a36b05` | schedule-api unit (12 passed) | Expanded AWS-free coverage for authorization variants, unexpected failures, hostile paths, malformed conditionals, invalid schedule tuples, and oversized requests. |
+| T12R05 | complete; awaiting remaining Sol review items | `618fc9b` | infra tests (10 passed) | Applied PUT-only bounded stage throttling, split Lambda invoke permissions by exact GET/PUT API execution paths, and strengthened role/logging/resource assertions. No AWS operation occurred. |
+| T12R06 | local corrective pass complete; awaiting Sol minimum-IAM re-review | `618fc9b` | Node 24.18.1: `npm ci`; core unit (7 passed); schedule-api unit (12 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean worktree before this log commit | Final local verification passed. AWS deployment, policy v4, IAM changes, preview mutation, and integration verification remain prohibited. |
+
 ```text
 Sol T12 review target: 98a03f4
 Date: 2026-08-08

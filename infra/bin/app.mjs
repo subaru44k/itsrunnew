@@ -169,16 +169,24 @@ export class HostingStack extends Stack {
       payloadFormatVersion: '2.0',
       timeoutInMillis: 10000,
     })
-    scheduleFunction.addPermission('ApiInvoke', {
+    const routePath = '/api/v1/stadiums/*/availability/*'
+    scheduleFunction.addPermission('ApiInvokeGet', {
       principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       action: 'lambda:InvokeFunction',
-      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/*/*']),
+      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/*/GET', routePath]),
+    })
+    scheduleFunction.addPermission('ApiInvokePut', {
+      principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+      action: 'lambda:InvokeFunction',
+      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/*/PUT', routePath]),
     })
     const apiScope = ['itsrun/schedule.write']
+    const getRouteKey = 'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}'
+    const putRouteKey = 'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}'
     const apiRoutes = []
     for (const [idSuffix, routeKey] of [
-      ['GetSchedule', 'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}'],
-      ['PutSchedule', 'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}'],
+      ['GetSchedule', getRouteKey],
+      ['PutSchedule', putRouteKey],
     ]) {
       const route = new apigwv2.CfnRoute(this, `AdminApi${idSuffix}Route`, {
         apiId: api.ref,
@@ -193,7 +201,7 @@ export class HostingStack extends Stack {
       apiRoutes.push(route)
     }
     for (const route of apiRoutes) apiStage.addResourceDependency(route)
-    apiStage.defaultRouteSettings = { throttlingBurstLimit: 10, throttlingRateLimit: 5 }
+    apiStage.routeSettings = { [putRouteKey]: { throttlingBurstLimit: 10, throttlingRateLimit: 5 } }
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
     const cognitoAuthBaseUrl = Fn.join('', ['https://', cognitoDomainPrefix.valueAsString, '.auth.', Aws.REGION, '.amazoncognito.com'])
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {

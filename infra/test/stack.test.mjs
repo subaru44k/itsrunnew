@@ -176,20 +176,33 @@ test('T12 Lambda integration is bounded and data access is least privilege', () 
   assert.equal(logGroups.length, 1)
   assert.equal(logGroups[0].Properties.RetentionInDays, 30)
   const stage = Object.values(result.findResources('AWS::ApiGatewayV2::Stage'))[0]
-  assert.deepEqual(stage.Properties.DefaultRouteSettings, { ThrottlingBurstLimit: 10, ThrottlingRateLimit: 5 })
+  assert.deepEqual(stage.Properties.RouteSettings, {
+    'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}': { throttlingBurstLimit: 10, throttlingRateLimit: 5 },
+  })
   const integration = Object.values(result.findResources('AWS::ApiGatewayV2::Integration'))[0]
   assert.match(JSON.stringify(integration.Properties.IntegrationUri), /lambda:path\/2015-03-31\/functions/)
   assert.equal(integration.Properties.PayloadFormatVersion, '2.0')
-  const permission = Object.values(result.findResources('AWS::Lambda::Permission'))[0]
-  assert.equal(permission.Properties.Principal, 'apigateway.amazonaws.com')
-  assert.equal(permission.Properties.Action, 'lambda:InvokeFunction')
-  assert.match(JSON.stringify(permission.Properties.SourceArn), /execute-api/)
+  const permissions = Object.values(result.findResources('AWS::Lambda::Permission'))
+  assert.equal(permissions.length, 2)
+  const sourceArns = permissions.map((permission) => JSON.stringify(permission.Properties.SourceArn)).sort()
+  assert.match(sourceArns[0], /execute-api.*GET\/api\/v1\/stadiums\/\*\/availability\/\*/) 
+  assert.match(sourceArns[1], /execute-api.*PUT\/api\/v1\/stadiums\/\*\/availability\/\*/) 
+  for (const permission of permissions) {
+    assert.equal(permission.Properties.Principal, 'apigateway.amazonaws.com')
+    assert.equal(permission.Properties.Action, 'lambda:InvokeFunction')
+    assert.match(JSON.stringify(permission.Properties.FunctionName), /ScheduleApiFunction/)
+  }
   const roles = Object.values(result.findResources('AWS::IAM::Role')).filter((role) => JSON.stringify(role.Properties.AssumeRolePolicyDocument).includes('lambda.amazonaws.com'))
   assert.equal(roles.length, 1)
+  assert.equal(roles[0].Properties.ManagedPolicyArns, undefined)
+  assert.deepEqual(roles[0].Properties.AssumeRolePolicyDocument.Statement[0].Principal, { Service: 'lambda.amazonaws.com' })
   const statements = roles[0].Properties.Policies.flatMap(({ PolicyDocument }) => PolicyDocument.Statement)
   const dataStatements = statements.filter((statement) => JSON.stringify(statement.Action).includes('s3:'))
   assert.deepEqual(dataStatements[0].Action, ['s3:GetObject', 's3:PutObject'])
   assert.match(JSON.stringify(dataStatements[0].Resource), /data\/v1\/stadiums\/\*\/availability\/\*\.json/)
+  const logStatements = statements.filter((statement) => JSON.stringify(statement.Action).includes('logs:'))
+  assert.deepEqual(logStatements[0].Action, ['logs:CreateLogStream', 'logs:PutLogEvents'])
+  assert.match(JSON.stringify(logStatements[0].Resource), /ScheduleApiLogGroup.*:\*/)
   assert.doesNotMatch(JSON.stringify(dataStatements), /DeleteObject|ListBucket|s3:\*/)
   assert.doesNotMatch(JSON.stringify(dataStatements), /itsrun-preview-web/)
 })

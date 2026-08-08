@@ -4,6 +4,11 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
 import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2'
+import * as iam from 'aws-cdk-lib/aws-iam'
+import * as lambda from 'aws-cdk-lib/aws-lambda'
+import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs'
+import * as logs from 'aws-cdk-lib/aws-logs'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const routeFunctionCode = `function handler(event) {
@@ -50,13 +55,6 @@ export class HostingStack extends Stack {
       type: 'String',
       default: 'http://localhost:3000',
       description: 'The single local Nuxt origin allowed by the API CORS policy.',
-    })
-    // T12 supplies the Lambda integration URI. Keeping this as a parameter lets
-    // T11 synthesize and assert the protected routes without inventing a
-    // placeholder Lambda or granting the bootstrap role Lambda permissions.
-    const apiIntegrationUri = new CfnParameter(this, 'ApiIntegrationUri', {
-      type: 'String',
-      description: 'T12 Lambda proxy integration URI for the administrator API.',
     })
     const webBucket = new s3.Bucket(this, 'WebBucket', {
       bucketName: `itsrun-preview-web-${Aws.ACCOUNT_ID}-${Aws.REGION}`,
@@ -120,6 +118,34 @@ export class HostingStack extends Stack {
         allowOrigins: [localDevelopmentOrigin.valueAsString],
       },
     })
+    const scheduleLogGroup = new logs.LogGroup(this, 'ScheduleApiLogGroup', {
+      logGroupName: '/aws/lambda/itsrun-preview-schedule-api',
+      retention: logs.RetentionDays.ONE_MONTH,
+      removalPolicy: RemovalPolicy.RETAIN,
+    })
+    const scheduleRole = new iam.Role(this, 'ScheduleApiRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      inlinePolicies: {
+        ScheduleApiDataAccess: new iam.PolicyDocument({ statements: [new iam.PolicyStatement({
+          actions: ['s3:GetObject', 's3:PutObject'],
+          resources: [Fn.join('', [dataBucket.bucketArn, '/data/v1/stadiums/*/availability/*.json'])],
+        })] }),
+        ScheduleApiLogging: new iam.PolicyDocument({ statements: [new iam.PolicyStatement({
+          actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
+          resources: [Fn.join('', [scheduleLogGroup.logGroupArn, ':*'])],
+        })] }),
+      },
+    })
+    const scheduleFunction = new lambdaNodejs.NodejsFunction(this, 'ScheduleApiFunction', {
+      entry: path.join(path.dirname(fileURLToPath(import.meta.url)), '../../services/schedule-api/src/index.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_24_X,
+      timeout: Duration.seconds(10),
+      memorySize: 256,
+      role: scheduleRole,
+      logGroup: scheduleLogGroup,
+      environment: { DATA_BUCKET_NAME: dataBucket.bucketName },
+    })
     const apiStage = new apigwv2.CfnStage(this, 'AdminApiDefaultStage', {
       apiId: api.ref,
       stageName: '$default',
@@ -138,10 +164,15 @@ export class HostingStack extends Stack {
     const apiIntegration = new apigwv2.CfnIntegration(this, 'AdminApiIntegration', {
       apiId: api.ref,
       integrationType: 'AWS_PROXY',
-      integrationUri: apiIntegrationUri.valueAsString,
+      integrationUri: Fn.join('', ['arn:', Aws.PARTITION, ':apigateway:', Aws.REGION, ':lambda:path/2015-03-31/functions/', scheduleFunction.functionArn, '/invocations']),
       integrationMethod: 'POST',
       payloadFormatVersion: '2.0',
       timeoutInMillis: 10000,
+    })
+    scheduleFunction.addPermission('ApiInvoke', {
+      principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+      action: 'lambda:InvokeFunction',
+      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/*/*']),
     })
     const apiScope = ['itsrun/schedule.write']
     const apiRoutes = []
@@ -162,6 +193,7 @@ export class HostingStack extends Stack {
       apiRoutes.push(route)
     }
     for (const route of apiRoutes) apiStage.addResourceDependency(route)
+    apiStage.defaultRouteSettings = { throttlingBurstLimit: 10, throttlingRateLimit: 5 }
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
     const cognitoAuthBaseUrl = Fn.join('', ['https://', cognitoDomainPrefix.valueAsString, '.auth.', Aws.REGION, '.amazoncognito.com'])
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {

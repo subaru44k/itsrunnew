@@ -163,6 +163,37 @@ test('T11 protects API routes with Cognito JWT and disables API caching', () => 
   assert.equal(apiBehavior.ViewerProtocolPolicy, 'redirect-to-https')
 })
 
+test('T12 Lambda integration is bounded and data access is least privilege', () => {
+  const result = template()
+  const templateJson = result.toJSON()
+  assert.equal(templateJson.Parameters.ApiIntegrationUri, undefined)
+  const functions = Object.values(result.findResources('AWS::Lambda::Function'))
+  assert.equal(functions.length, 1)
+  assert.equal(functions[0].Properties.Runtime, 'nodejs24.x')
+  assert.equal(functions[0].Properties.Timeout, 10)
+  assert.equal(functions[0].Properties.MemorySize, 256)
+  const logGroups = Object.values(result.findResources('AWS::Logs::LogGroup'))
+  assert.equal(logGroups.length, 1)
+  assert.equal(logGroups[0].Properties.RetentionInDays, 30)
+  const stage = Object.values(result.findResources('AWS::ApiGatewayV2::Stage'))[0]
+  assert.deepEqual(stage.Properties.DefaultRouteSettings, { ThrottlingBurstLimit: 10, ThrottlingRateLimit: 5 })
+  const integration = Object.values(result.findResources('AWS::ApiGatewayV2::Integration'))[0]
+  assert.match(JSON.stringify(integration.Properties.IntegrationUri), /lambda:path\/2015-03-31\/functions/)
+  assert.equal(integration.Properties.PayloadFormatVersion, '2.0')
+  const permission = Object.values(result.findResources('AWS::Lambda::Permission'))[0]
+  assert.equal(permission.Properties.Principal, 'apigateway.amazonaws.com')
+  assert.equal(permission.Properties.Action, 'lambda:InvokeFunction')
+  assert.match(JSON.stringify(permission.Properties.SourceArn), /execute-api/)
+  const roles = Object.values(result.findResources('AWS::IAM::Role')).filter((role) => JSON.stringify(role.Properties.AssumeRolePolicyDocument).includes('lambda.amazonaws.com'))
+  assert.equal(roles.length, 1)
+  const statements = roles[0].Properties.Policies.flatMap(({ PolicyDocument }) => PolicyDocument.Statement)
+  const dataStatements = statements.filter((statement) => JSON.stringify(statement.Action).includes('s3:'))
+  assert.deepEqual(dataStatements[0].Action, ['s3:GetObject', 's3:PutObject'])
+  assert.match(JSON.stringify(dataStatements[0].Resource), /data\/v1\/stadiums\/\*\/availability\/\*\.json/)
+  assert.doesNotMatch(JSON.stringify(dataStatements), /DeleteObject|ListBucket|s3:\*/)
+  assert.doesNotMatch(JSON.stringify(dataStatements), /itsrun-preview-web/)
+})
+
 test('T11R01 forwards only the documented API headers', () => {
   const result = template()
   const policies = Object.values(result.findResources('AWS::CloudFront::OriginRequestPolicy'))

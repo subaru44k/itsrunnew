@@ -173,12 +173,12 @@ export class HostingStack extends Stack {
     scheduleFunction.addPermission('ApiInvokeGet', {
       principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       action: 'lambda:InvokeFunction',
-      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/*/GET', routePath]),
+      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/$default/GET', routePath]),
     })
     scheduleFunction.addPermission('ApiInvokePut', {
       principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       action: 'lambda:InvokeFunction',
-      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/*/PUT', routePath]),
+      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/$default/PUT', routePath]),
     })
     const apiScope = ['itsrun/schedule.write']
     const getRouteKey = 'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}'
@@ -201,7 +201,9 @@ export class HostingStack extends Stack {
       apiRoutes.push(route)
     }
     for (const route of apiRoutes) apiStage.addResourceDependency(route)
-    apiStage.routeSettings = { [putRouteKey]: { throttlingBurstLimit: 10, throttlingRateLimit: 5 } }
+    apiStage.addPropertyOverride('RouteSettings', {
+      [putRouteKey]: { ThrottlingBurstLimit: 10, ThrottlingRateLimit: 5 },
+    })
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
     const cognitoAuthBaseUrl = Fn.join('', ['https://', cognitoDomainPrefix.valueAsString, '.auth.', Aws.REGION, '.amazoncognito.com'])
     const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {

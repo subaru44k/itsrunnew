@@ -177,7 +177,7 @@ test('T12 Lambda integration is bounded and data access is least privilege', () 
   assert.equal(logGroups[0].Properties.RetentionInDays, 30)
   const stage = Object.values(result.findResources('AWS::ApiGatewayV2::Stage'))[0]
   assert.deepEqual(stage.Properties.RouteSettings, {
-    'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}': { throttlingBurstLimit: 10, throttlingRateLimit: 5 },
+    'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}': { ThrottlingBurstLimit: 10, ThrottlingRateLimit: 5 },
   })
   const integration = Object.values(result.findResources('AWS::ApiGatewayV2::Integration'))[0]
   assert.match(JSON.stringify(integration.Properties.IntegrationUri), /lambda:path\/2015-03-31\/functions/)
@@ -185,8 +185,8 @@ test('T12 Lambda integration is bounded and data access is least privilege', () 
   const permissions = Object.values(result.findResources('AWS::Lambda::Permission'))
   assert.equal(permissions.length, 2)
   const sourceArns = permissions.map((permission) => JSON.stringify(permission.Properties.SourceArn)).sort()
-  assert.match(sourceArns[0], /execute-api.*GET\/api\/v1\/stadiums\/\*\/availability\/\*/) 
-  assert.match(sourceArns[1], /execute-api.*PUT\/api\/v1\/stadiums\/\*\/availability\/\*/) 
+  assert.match(sourceArns[0], /execute-api.*\/$default\/GET\/api\/v1\/stadiums\/\*\/availability\/\*/) 
+  assert.match(sourceArns[1], /execute-api.*\/$default\/PUT\/api\/v1\/stadiums\/\*\/availability\/\*/) 
   for (const permission of permissions) {
     assert.equal(permission.Properties.Principal, 'apigateway.amazonaws.com')
     assert.equal(permission.Properties.Action, 'lambda:InvokeFunction')

@@ -1,8 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
-import { readBodyBounded, S3ScheduleStore } from '../src/s3-store'
+import { createS3Client, readBodyBounded, S3ScheduleStore } from '../src/s3-store'
 
 const body = async function* (chunks: Array<string | Uint8Array>) { for (const chunk of chunks) yield chunk }
+
+function fakeStream(chunks: Array<string | Uint8Array>) {
+  const stream = {
+    destroyed: 0,
+    receiverCorrect: true,
+    async *[Symbol.asyncIterator]() { for (const chunk of chunks) yield chunk },
+    destroy(this: unknown) {
+      if (this !== stream) stream.receiverCorrect = false
+      stream.destroyed += 1
+    },
+  }
+  return stream
+}
 
 describe('S3 schedule adapter', () => {
   it('maps discriminated conditions to exact SDK input names', async () => {
@@ -17,9 +30,18 @@ describe('S3 schedule adapter', () => {
     expect(inputs[1]).not.toHaveProperty('ifNoneMatch')
   })
   it('bounds streamed bodies even without ContentLength', async () => {
-    const chunks = [new Uint8Array(20 * 1024), new Uint8Array(13 * 1024)]
-    await expect(readBodyBounded(body(chunks))).rejects.toThrow('stored_data_too_large')
+    const exact = fakeStream([new Uint8Array(32 * 1024)])
+    await expect(readBodyBounded(exact)).resolves.toHaveLength(32 * 1024)
+    expect(exact.destroyed).toBe(0)
+    const chunks = fakeStream([new Uint8Array(20 * 1024), new Uint8Array(12 * 1024 + 1)])
+    await expect(readBodyBounded(chunks)).rejects.toThrow('stored_data_too_large')
+    expect(chunks.destroyed).toBe(1)
+    expect(chunks.receiverCorrect).toBe(true)
     await expect(readBodyBounded(body(['日本語']))).resolves.toBe('日本語')
+  })
+  it('resolves the production client retry budget to one attempt', async () => {
+    const client = createS3Client()
+    await expect(client.config.maxAttempts()).resolves.toBe(1)
   })
   it('rejects oversized metadata before reading and bounds a body with no metadata', async () => {
     const oversized = new S3ScheduleStore({ async send() { return { ContentLength: 32 * 1024 + 1 } } } as never, 'bucket')

@@ -5,24 +5,23 @@ import type { ScheduleStore, WriteCondition } from './types.js'
 const MAX_BYTES = 32 * 1024
 const bucket = () => process.env.DATA_BUCKET_NAME ?? ''
 
+export function createS3Client(): S3Client {
+  return new S3Client({ maxAttempts: 1 })
+}
+
 export async function readBodyBounded(body: unknown, maxBytes = MAX_BYTES): Promise<string> {
   if (!body || typeof (body as AsyncIterable<unknown>)[Symbol.asyncIterator] !== 'function') throw new Error('missing_body')
   const chunks: Uint8Array[] = []
   let size = 0
-  try {
-    for await (const chunk of body as AsyncIterable<Uint8Array | string>) {
-      const bytes = typeof chunk === 'string' ? new TextEncoder().encode(chunk) : new Uint8Array(chunk)
-      size += bytes.byteLength
-      if (size > maxBytes) {
-        const destroy = (body as { destroy?: () => void }).destroy
-        destroy?.()
-        throw new Error('stored_data_too_large')
-      }
-      chunks.push(bytes)
+  for await (const chunk of body as AsyncIterable<Uint8Array | string>) {
+    const bytes = typeof chunk === 'string' ? new TextEncoder().encode(chunk) : new Uint8Array(chunk)
+    size += bytes.byteLength
+    if (size > maxBytes) {
+      const stream = body as { destroy?: () => void }
+      stream.destroy?.call(stream)
+      throw new Error('stored_data_too_large')
     }
-  } finally {
-    const destroy = (body as { destroy?: () => void }).destroy
-    if (size > maxBytes) destroy?.()
+    chunks.push(bytes)
   }
   const result = new Uint8Array(size)
   let offset = 0
@@ -31,7 +30,7 @@ export async function readBodyBounded(body: unknown, maxBytes = MAX_BYTES): Prom
 }
 
 export class S3ScheduleStore implements ScheduleStore {
-  constructor(private readonly client = new S3Client({ maxAttempts: 1 }), private readonly bucketName = bucket()) {}
+  constructor(private readonly client = createS3Client(), private readonly bucketName = bucket()) {}
   async get(key: SchedulePath) {
     const output = await this.client.send(new GetObjectCommand({ Bucket: this.bucketName, Key: key }))
     if (output.ContentLength !== undefined && output.ContentLength > MAX_BYTES) throw new Error('stored_data_too_large')

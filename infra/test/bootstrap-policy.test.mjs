@@ -12,7 +12,12 @@ const region = 'ap-northeast-1'
 
 const statement = (Sid, Action, Resource, Condition) => ({ Sid, Effect: 'Allow', Action, Resource, ...(Condition ? { Condition } : {}) })
 
-const immutableV3Statements = {
+const reviewedOriginRequestPolicyActions = [
+  'cloudfront:CreateOriginRequestPolicy', 'cloudfront:UpdateOriginRequestPolicy',
+  'cloudfront:DeleteOriginRequestPolicy', 'cloudfront:GetOriginRequestPolicy', 'cloudfront:ListOriginRequestPolicies',
+]
+
+const committedV3Statements = {
   PreviewBuckets: statement('PreviewBuckets', [
     's3:CreateBucket', 's3:DeleteBucket', 's3:GetBucketLocation', 's3:GetBucketPolicy', 's3:PutBucketPolicy',
     's3:DeleteBucketPolicy', 's3:GetBucketPublicAccessBlock', 's3:PutBucketPublicAccessBlock',
@@ -32,8 +37,6 @@ const immutableV3Statements = {
     'cloudfront:GetFunction', 'cloudfront:CreateCachePolicy', 'cloudfront:UpdateCachePolicy', 'cloudfront:DeleteCachePolicy',
     'cloudfront:GetCachePolicy', 'cloudfront:CreateResponseHeadersPolicy', 'cloudfront:UpdateResponseHeadersPolicy',
     'cloudfront:DeleteResponseHeadersPolicy', 'cloudfront:GetResponseHeadersPolicy',
-    'cloudfront:CreateOriginRequestPolicy', 'cloudfront:UpdateOriginRequestPolicy',
-    'cloudfront:DeleteOriginRequestPolicy', 'cloudfront:GetOriginRequestPolicy', 'cloudfront:ListOriginRequestPolicies',
     'cloudfront:TagResource', 'cloudfront:UntagResource', 'cloudfront:ListTagsForResource',
   ], '*'),
   ReadBootstrapVersion: statement('ReadBootstrapVersion', ['ssm:GetParameter', 'ssm:GetParameters'],
@@ -88,26 +91,40 @@ const reviewedV4Statements = {
     `arn:aws:s3:::cdk-hnb659fds-assets-${account}-${region}/*`),
 }
 
+const candidateV4Statements = {
+  ...committedV3Statements,
+  ...reviewedV4Statements,
+  PreviewCloudFront: statement('PreviewCloudFront', [
+    ...committedV3Statements.PreviewCloudFront.Action.slice(0, committedV3Statements.PreviewCloudFront.Action.indexOf('cloudfront:TagResource')),
+    ...reviewedOriginRequestPolicyActions,
+    ...committedV3Statements.PreviewCloudFront.Action.slice(committedV3Statements.PreviewCloudFront.Action.indexOf('cloudfront:TagResource')),
+  ], committedV3Statements.PreviewCloudFront.Resource),
+}
+
 test('candidate v4 has the exact reviewed statement contract', () => {
   assert.equal(policy.Version, '2012-10-17')
   assert.deepEqual(Object.keys(statements).sort(), [
-    ...Object.keys(immutableV3Statements), ...Object.keys(reviewedV4Statements),
+    ...Object.keys(candidateV4Statements),
   ].sort())
-  for (const [sid, expected] of Object.entries({ ...immutableV3Statements, ...reviewedV4Statements })) {
+  for (const [sid, expected] of Object.entries(candidateV4Statements)) {
     assert.deepEqual(statements[sid], expected, sid)
   }
 })
 
 test('candidate v4 differs from the committed v3 contract only by reviewed additions', () => {
-  const baseline = Object.fromEntries(Object.entries(immutableV3Statements).map(([sid, expected]) => [sid, expected]))
-  const additions = Object.keys(statements).filter((sid) => !Object.hasOwn(baseline, sid))
-  assert.deepEqual(additions.sort(), Object.keys(reviewedV4Statements).sort())
-  assert.deepEqual(Object.fromEntries(Object.entries(statements).filter(([sid]) => Object.hasOwn(baseline, sid))), baseline)
-  assert.deepEqual(statements.PreviewCloudFront.Action.filter((action) => action.includes('OriginRequestPolicy')), [
-    'cloudfront:CreateOriginRequestPolicy', 'cloudfront:UpdateOriginRequestPolicy',
-    'cloudfront:DeleteOriginRequestPolicy', 'cloudfront:GetOriginRequestPolicy',
-  ])
-  assert.equal(statements.PreviewCloudFront.Action.includes('cloudfront:ListOriginRequestPolicies'), true)
+  const addedStatementIds = Object.keys(statements).filter((sid) => !Object.hasOwn(committedV3Statements, sid))
+  assert.deepEqual(addedStatementIds.sort(), Object.keys(reviewedV4Statements).sort())
+  for (const [sid, expected] of Object.entries(committedV3Statements)) {
+    if (sid === 'PreviewCloudFront') continue
+    assert.deepEqual(statements[sid], expected, sid)
+  }
+  const candidateCloudFrontActions = statements.PreviewCloudFront.Action
+  assert.deepEqual(candidateCloudFrontActions.filter((action) => !reviewedOriginRequestPolicyActions.includes(action)),
+    committedV3Statements.PreviewCloudFront.Action)
+  const originStart = candidateCloudFrontActions.indexOf(reviewedOriginRequestPolicyActions[0])
+  assert.deepEqual(candidateCloudFrontActions.slice(originStart, originStart + reviewedOriginRequestPolicyActions.length),
+    reviewedOriginRequestPolicyActions)
+  assert.deepEqual(statements.PreviewCloudFront.Resource, committedV3Statements.PreviewCloudFront.Resource)
 })
 
 test('candidate v4 has no wildcard action or forbidden privilege surface', () => {
@@ -116,11 +133,17 @@ test('candidate v4 has no wildcard action or forbidden privilege surface', () =>
   assert.equal(actions.some((action) => action.endsWith(':*')), false)
   const serialized = JSON.stringify(policy)
   for (const forbidden of [
-    'kms:', 'ec2:', 'vpc:', 'efs:', 'secretsmanager:', 'dynamodb:', 'sqs:', 'sns:', 'cognito-identity:',
+    'kms:', 'ec2:', 'vpc:', 'efs:', 'elasticfilesystem:', 'firehose:', 's3files:', 'secretsmanager:', 'dynamodb:', 'sqs:', 'sns:', 'cognito-identity:',
     'cognito-idp:CreateIdentityPool', 'cognito-idp:DeleteIdentityPool', 'cognito-idp:CreateIdentityProvider',
     'cognito-idp:DeleteIdentityProvider', 's3:DeleteObject', 's3:PutObject', 's3:PutObjectAcl',
+    'iam:AttachRolePolicy', 'iam:DetachRolePolicy', 'iam:PutRolePermissionsBoundary', 'iam:DeleteRolePermissionsBoundary',
     'AdministratorAccess', 'PowerUserAccess', 'arn:aws:iam::123456789012:', 'itsrun-prod',
   ]) assert.equal(serialized.includes(forbidden), false, forbidden)
+  const wildcardResourceSids = policy.Statement.filter(({ Resource }) => Resource === '*').map(({ Sid }) => Sid).sort()
+  assert.deepEqual(wildcardResourceSids, [
+    'CloudFrontServiceLinkedRoleOnly', 'PreviewCognitoGlobalCreationAndLookup', 'PreviewCloudFront',
+    'PreviewScheduleLambdaList', 'PreviewScheduleLogGroupLookup',
+  ].sort())
   assert.equal(serialized.includes(`arn:aws:s3:::itsrun-preview-web-${account}-${region}/*`), false)
   assert.equal(serialized.includes(`arn:aws:s3:::itsrun-preview-data-${account}-${region}/*`), false)
   for (const resource of policy.Statement.flatMap(({ Resource }) => Array.isArray(Resource) ? Resource : [Resource])) {

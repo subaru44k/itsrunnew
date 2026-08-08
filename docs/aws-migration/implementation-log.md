@@ -246,7 +246,7 @@ and resources before any AWS write or policy v4.
 
 | T12RR01 | complete; awaiting remaining Sol review items | `cbfa3da` | infra tests (10 passed) | Corrected API Gateway default-stage invoke permission ARNs to `/$default/`, emitted PascalCase CloudFormation RouteSettings, and asserted the PUT-only throttle contract. No AWS operation occurred. |
 | T12RR02 | complete; awaiting remaining Sol review items | `e1b02ea` | schedule-api unit (13 passed); schedule-api typecheck | Made bounded stream overflow call destroy with the stream receiver exactly once, covered the exact 32 KiB boundary, UTF-8, and resolved production S3 maxAttempts to one through an exported factory. No AWS operation occurred. |
-| T12RR03 | complete; awaiting remaining Sol review items | `6857f97` | core unit (8 passed); schedule-api unit (18 passed) | Expanded AWS-free API tests for both conflict statuses, immutable conflict state, missing metadata, parser/path/media/conditional failures, exact sanitized envelopes, audit records, Cognito group representations, and every typed stadium key. |
+| T12RR03 | complete; awaiting remaining Sol review items | `6857f97` | core unit (7 passed); schedule-api unit (18 passed) | Expanded AWS-free API tests for both conflict statuses, immutable conflict state, missing metadata, parser/path/media/conditional failures, exact sanitized envelopes, audit records, Cognito group representations, and every typed stadium key. |
 | T12RR04 | local corrective pass complete; awaiting Sol minimum-IAM re-review | `ab589f1` | Node 24.18.1: core unit (7 passed); schedule-api unit (18 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean worktree | Added semantic assertions for the complete Lambda, LogGroup, role, inline policy, integration, invoke permission, exact `$default` ARNs, PascalCase PUT-only RouteSettings, and retained T11 contracts. AWS deployment and policy v4 remain prohibited. |
 
 ```text
@@ -282,6 +282,15 @@ Additional corrections: exact API error envelope/codes, client-validation 400 ma
 Required work: docs/aws-migration/phase4-t12-review.md T12R01-T12R06
 AWS authority: None; no policy v4, IAM change, deploy, preview mutation, T13, DNS, Firebase, or production operation
 ```
+
+### Phase 4 T12 third Sol corrective pass
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| T12F01 | complete; awaiting Sol minimum-IAM review | `96f45df` | schedule-api unit (21 passed) | Proved oversized ContentLength rejects before body iteration. Handler tests cover missing and failed S3 bodies as sanitized 500 responses with no technical stream, bucket, key, or stack leakage. |
+| T12F02 | complete; awaiting Sol minimum-IAM review | `3c90bf0` | schedule-api unit (21 passed) | Added focused sparse/null/overlong/wrong-identity/route-disagreement validation and exact 400/409 response, header, and audit-key assertions while retaining conflict and state coverage. |
+| T12F03 | complete; awaiting Sol minimum-IAM review | `7c68bb7` | infra tests (10 passed) | Asserted exactly one S3 and one logging statement, complete detected-bucket/log-group Fn::Join resources, two inline policies without managed policies, and exact detected route dependency sets. |
+| T12F04 | complete; awaiting Sol minimum-IAM review | pending | Node 24.18.1: `npm ci`; core unit (7 passed); schedule-api unit (21 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean status | Corrected the T12RR03 core count from 8 to 7 and completed the full prescribed local verification. No AWS call, policy v4/IAM change, deploy, preview mutation/invalidation, dependency addition, T13, Cognito user change, production/DNS, or Firebase work occurred. |
 
 ## Open items
 

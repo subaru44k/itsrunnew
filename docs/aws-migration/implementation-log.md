@@ -242,6 +242,13 @@ and resources before any AWS write or policy v4.
 | T12R05 | complete; awaiting remaining Sol review items | `618fc9b` | infra tests (10 passed) | Applied PUT-only bounded stage throttling, split Lambda invoke permissions by exact GET/PUT API execution paths, and strengthened role/logging/resource assertions. No AWS operation occurred. |
 | T12R06 | local corrective pass complete; awaiting Sol minimum-IAM re-review | `618fc9b` | Node 24.18.1: `npm ci`; core unit (7 passed); schedule-api unit (12 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean worktree before this log commit | Final local verification passed. AWS deployment, policy v4, IAM changes, preview mutation, and integration verification remain prohibited. |
 
+### Phase 4 T12 second Sol review corrective pass
+
+| T12RR01 | complete; awaiting remaining Sol review items | `cbfa3da` | infra tests (10 passed) | Corrected API Gateway default-stage invoke permission ARNs to `/$default/`, emitted PascalCase CloudFormation RouteSettings, and asserted the PUT-only throttle contract. No AWS operation occurred. |
+| T12RR02 | complete; awaiting remaining Sol review items | `e1b02ea` | schedule-api unit (13 passed); schedule-api typecheck | Made bounded stream overflow call destroy with the stream receiver exactly once, covered the exact 32 KiB boundary, UTF-8, and resolved production S3 maxAttempts to one through an exported factory. No AWS operation occurred. |
+| T12RR03 | complete; awaiting remaining Sol review items | `6857f97` | core unit (8 passed); schedule-api unit (18 passed) | Expanded AWS-free API tests for both conflict statuses, immutable conflict state, missing metadata, parser/path/media/conditional failures, exact sanitized envelopes, audit records, Cognito group representations, and every typed stadium key. |
+| T12RR04 | local corrective pass complete; awaiting Sol minimum-IAM re-review | pending | infra tests (10 passed) | Added semantic assertions for the complete Lambda, LogGroup, role, inline policy, integration, invoke permission, exact `$default` ARNs, PascalCase PUT-only RouteSettings, and retained T11 contracts. AWS deployment and policy v4 remain prohibited. |
+
 ```text
 Second Sol T12 review target: 0da39a9
 Date: 2026-08-09

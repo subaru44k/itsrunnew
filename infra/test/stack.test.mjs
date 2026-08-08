@@ -175,34 +175,51 @@ test('T12 Lambda integration is bounded and data access is least privilege', () 
   const logGroups = Object.values(result.findResources('AWS::Logs::LogGroup'))
   assert.equal(logGroups.length, 1)
   assert.equal(logGroups[0].Properties.RetentionInDays, 30)
+  assert.equal(logGroups[0].Properties.LogGroupName, '/aws/lambda/itsrun-preview-schedule-api')
+  assert.equal(logGroups[0].DeletionPolicy, 'Retain')
+  assert.equal(logGroups[0].UpdateReplacePolicy, 'Retain')
+  const [logGroupLogicalId] = Object.keys(result.findResources('AWS::Logs::LogGroup'))
+  const [functionLogicalId, lambda] = Object.entries(result.findResources('AWS::Lambda::Function'))[0]
+  const [roleLogicalId, role] = Object.entries(result.findResources('AWS::IAM::Role')).filter(([, resource]) => JSON.stringify(resource.Properties.AssumeRolePolicyDocument).includes('lambda.amazonaws.com'))[0]
+  const [dataBucketLogicalId] = Object.keys(result.findResources('AWS::S3::Bucket')).filter((id) => id.includes('DataBucket'))
+  assert.deepEqual(lambda.Properties.Role, { 'Fn::GetAtt': [roleLogicalId, 'Arn'] })
+  assert.deepEqual(lambda.Properties.LoggingConfig, { LogGroup: { Ref: logGroupLogicalId } })
+  assert.deepEqual(lambda.Properties.Environment, { Variables: { DATA_BUCKET_NAME: { Ref: dataBucketLogicalId } } })
   const stage = Object.values(result.findResources('AWS::ApiGatewayV2::Stage'))[0]
   assert.deepEqual(stage.Properties.RouteSettings, {
     'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}': { ThrottlingBurstLimit: 10, ThrottlingRateLimit: 5 },
   })
   const integration = Object.values(result.findResources('AWS::ApiGatewayV2::Integration'))[0]
-  assert.match(JSON.stringify(integration.Properties.IntegrationUri), /lambda:path\/2015-03-31\/functions/)
+  assert.deepEqual(integration.Properties.IntegrationUri, {
+    'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':apigateway:', { Ref: 'AWS::Region' }, ':lambda:path/2015-03-31/functions/', { 'Fn::GetAtt': [functionLogicalId, 'Arn'] }, '/invocations']],
+  })
   assert.equal(integration.Properties.PayloadFormatVersion, '2.0')
   const permissions = Object.values(result.findResources('AWS::Lambda::Permission'))
   assert.equal(permissions.length, 2)
-  const sourceArns = permissions.map((permission) => JSON.stringify(permission.Properties.SourceArn)).sort()
-  assert.match(sourceArns[0], /execute-api.*\/$default\/GET\/api\/v1\/stadiums\/\*\/availability\/\*/) 
-  assert.match(sourceArns[1], /execute-api.*\/$default\/PUT\/api\/v1\/stadiums\/\*\/availability\/\*/) 
+  const apiLogicalId = Object.entries(result.findResources('AWS::ApiGatewayV2::Api')).find(([, resource]) => resource.Properties.ProtocolType === 'HTTP')[0]
+  const expectedSources = new Set([
+    JSON.stringify({ 'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':execute-api:', { Ref: 'AWS::Region' }, ':', { Ref: apiLogicalId }, '/$default/GET/api/v1/stadiums/*/availability/*']] }),
+    JSON.stringify({ 'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':execute-api:', { Ref: 'AWS::Region' }, ':', { Ref: apiLogicalId }, '/$default/PUT/api/v1/stadiums/*/availability/*']] }),
+  ])
+  assert.deepEqual(new Set(permissions.map((permission) => JSON.stringify(permission.Properties.SourceArn))), expectedSources)
   for (const permission of permissions) {
     assert.equal(permission.Properties.Principal, 'apigateway.amazonaws.com')
     assert.equal(permission.Properties.Action, 'lambda:InvokeFunction')
-    assert.match(JSON.stringify(permission.Properties.FunctionName), /ScheduleApiFunction/)
+    assert.deepEqual(permission.Properties.FunctionName, { 'Fn::GetAtt': [functionLogicalId, 'Arn'] })
   }
   const roles = Object.values(result.findResources('AWS::IAM::Role')).filter((role) => JSON.stringify(role.Properties.AssumeRolePolicyDocument).includes('lambda.amazonaws.com'))
   assert.equal(roles.length, 1)
   assert.equal(roles[0].Properties.ManagedPolicyArns, undefined)
   assert.deepEqual(roles[0].Properties.AssumeRolePolicyDocument.Statement[0].Principal, { Service: 'lambda.amazonaws.com' })
   const statements = roles[0].Properties.Policies.flatMap(({ PolicyDocument }) => PolicyDocument.Statement)
+  assert.equal(roles[0].Properties.Policies.length, 2)
+  assert.equal(roles[0].Properties.ManagedPolicyArns, undefined)
   const dataStatements = statements.filter((statement) => JSON.stringify(statement.Action).includes('s3:'))
   assert.deepEqual(dataStatements[0].Action, ['s3:GetObject', 's3:PutObject'])
   assert.match(JSON.stringify(dataStatements[0].Resource), /data\/v1\/stadiums\/\*\/availability\/\*\.json/)
   const logStatements = statements.filter((statement) => JSON.stringify(statement.Action).includes('logs:'))
   assert.deepEqual(logStatements[0].Action, ['logs:CreateLogStream', 'logs:PutLogEvents'])
-  assert.match(JSON.stringify(logStatements[0].Resource), /ScheduleApiLogGroup.*:\*/)
+  assert.deepEqual(logStatements[0].Resource, { 'Fn::Join': ['', [{ 'Fn::GetAtt': [logGroupLogicalId, 'Arn'] }, ':*']] })
   assert.doesNotMatch(JSON.stringify(dataStatements), /DeleteObject|ListBucket|s3:\*/)
   assert.doesNotMatch(JSON.stringify(dataStatements), /itsrun-preview-web/)
 })

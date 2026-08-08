@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createHandler } from '../src/handler'
+import { S3ScheduleStore } from '../src/s3-store'
 import type { ApiEvent, ScheduleStore } from '../src/types'
 
 const good = {
@@ -47,6 +48,18 @@ describe('schedule API handler', () => {
     expect(invalid.statusCode).toBe(500); expect(JSON.parse(invalid.body).error.code).toBe('internal_error'); expect(invalid.body).not.toContain('invalid_stored_data')
     const unexpected = await handlerWith({ async get() { throw new Error('raw aws detail') }, async put() { throw new Error('unused') } })(event('GET'))
     expect(unexpected.statusCode).toBe(500); expect(unexpected.body).not.toContain('raw aws detail')
+  })
+  it('sanitizes missing and failed S3 response bodies through the handler', async () => {
+    for (const Body of [undefined, { async *[Symbol.asyncIterator]() { throw new Error('technical stream failure') } }]) {
+      const logs: Record<string, unknown>[] = []
+      const s = new S3ScheduleStore({ async send() { return { Body } } } as never, 'sensitive-bucket')
+      const result = await createHandler({ store: s, log: (entry) => logs.push(entry) })(event('GET'))
+      expect(result.statusCode).toBe(500)
+      expect(JSON.parse(result.body)).toEqual({ error: { code: 'internal_error', message: 'An internal error occurred.', requestId: 'req-1' } })
+      expect(result.headers).toEqual({ 'content-type': 'application/json', 'cache-control': 'no-store' })
+      expect(logs).toHaveLength(1)
+      expect(JSON.stringify(logs)).not.toMatch(/technical stream failure|sensitive-bucket|data\/v1|stack/i)
+    }
   })
   it('creates with If-None-Match and updates with If-Match', async () => {
     const first = store(); const create = await handlerWith(first)(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
@@ -138,6 +151,17 @@ describe('schedule API handler', () => {
     expect((await h(event('PUT', { headers: { 'content-type': 'application/json; charset=utf-8', 'if-none-match': '*' } }))).statusCode).toBe(200)
     expect((await h(event('PUT', { version: '1.0', headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
     expect((await h(event('PUT', { pathParameters: undefined, headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
+    for (const body of [
+      { ...good, days: { '2026-01-01': [, 0, 2] } },
+      { ...good, days: { '2026-01-01': [1, null, 2] } },
+      { ...good, days: Object.fromEntries(Array.from({ length: 32 }, (_, index) => [`2026-01-${String(index + 1).padStart(2, '0')}`, [1, 0, 2]])) },
+      { ...good, stadium: 'komazawa' },
+      { ...good, yearMonth: '2026-02' },
+    ]) {
+      expect((await h(event('PUT', { body: JSON.stringify(body), headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
+    }
+    expect((await h(event('PUT', { routeKey: 'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}', headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
+    expect((await h(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '' } }))).statusCode).toBe(400)
   })
   it('returns exact sanitized envelopes and one allowlisted audit record', async () => {
     const cases: Array<[number, string, ApiEvent, ScheduleStore]> = [
@@ -156,6 +180,17 @@ describe('schedule API handler', () => {
       expect(Object.keys(logs[0] ?? {}).sort()).toEqual(expect.arrayContaining(['requestId', 'route', 'method', 'status', 'durationMs']))
       expect(JSON.stringify(logs)).not.toContain('secret aws')
     }
+  })
+  it('returns exact 400 and 409 contracts and exact audit keys', async () => {
+    const logs: Record<string, unknown>[] = []
+    const h = createHandler({ store: store(), log: (entry) => logs.push(entry) })
+    const invalid = await h(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': 'nope' } }))
+    expect(invalid).toEqual({ statusCode: 400, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify({ error: { code: 'invalid_request', message: 'The request is invalid.', requestId: 'req-1' } }) })
+    expect(Object.keys(logs[0] ?? {}).sort()).toEqual(['actorSubHash', 'durationMs', 'method', 'requestId', 'route', 'stadium', 'status', 'yearMonth'])
+    const conflictStore: ScheduleStore = { async get() { return { body: '' } }, async put() { throw Object.assign(new Error('raw conflict'), { $metadata: { httpStatusCode: 409 } }) } }
+    const conflict = await createHandler({ store: conflictStore, log: (entry) => logs.push(entry) })(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
+    expect(JSON.parse(conflict.body)).toEqual({ error: { code: 'schedule_conflict', message: 'The schedule was changed by another user.', requestId: 'req-1' } })
+    expect(Object.keys(logs[1] ?? {}).sort()).toEqual(['actorSubHash', 'durationMs', 'method', 'requestId', 'route', 'stadium', 'status', 'yearMonth'])
   })
   it('accepts serialized Cognito admin groups but rejects near matches', async () => {
     for (const groups of ['[admins]', ['admins']]) {

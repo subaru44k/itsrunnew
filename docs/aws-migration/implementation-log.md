@@ -308,6 +308,12 @@ AWS writes: none during this review
 Next authority required: one bundled approval for managed-policy v4 plus the first T11/T12 preview deployment
 ```
 
+### Phase 4 P4D01: local policy contract and immutable baseline
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| P4D01 | complete; stop before P4D02 | `a9dab1b` | Node 24.18.1: focused policy contract tests (3 passed); infra tests/synth; root check; JSON parse; `git diff --check` | Added deterministic AWS-free assertions for the exact candidate-v4 statements, fixed account/region/preview resources, Lambda-only PassRole condition, forbidden services/actions/resources, and no wildcard actions. The test proves the candidate's unchanged v3 statements and reviewed OriginRequestPolicy/v4 additions from a committed contract; no mutable Git state or AWS call is used. No policy version, IAM, deployment, invalidation, Cognito-user, schedule-data, DNS, Firebase, or T13 operation occurred. |
+
 ## Open items
 
 Use:

@@ -153,14 +153,15 @@ test('T11 protects API routes with Cognito JWT and disables API caching', () => 
   const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
   assert.ok(apiBehavior)
   const apiCacheEntries = Object.entries(result.findResources('AWS::CloudFront::CachePolicy')).filter(([, resource]) => resource.Properties.CachePolicyConfig.Name === 'ItsRunPreviewApiNoCache')
-  assert.equal(apiCacheEntries.length, 1)
-  const [apiCacheLogicalId] = apiCacheEntries[0]
+  assert.equal(apiCacheEntries.length, 0)
   const apiOriginEntries = Object.entries(result.findResources('AWS::CloudFront::OriginRequestPolicy')).filter(([, resource]) => resource.Properties.OriginRequestPolicyConfig.Name === 'ItsRunPreviewApiOriginRequest')
   assert.equal(apiOriginEntries.length, 1)
   const [apiOriginLogicalId] = apiOriginEntries[0]
-  assert.deepEqual(apiBehavior.CachePolicyId, { Ref: apiCacheLogicalId })
+  assert.equal(apiBehavior.CachePolicyId, '4135ea2d-6df8-44a3-9df3-4b5a84be39ad')
   assert.deepEqual(apiBehavior.OriginRequestPolicyId, { Ref: apiOriginLogicalId })
   assert.equal(apiBehavior.ViewerProtocolPolicy, 'redirect-to-https')
+  assert.equal(apiBehavior.ForwardedValues, undefined)
+  assert.doesNotMatch(JSON.stringify(apiBehavior), /allViewer|AllViewer|ForwardedValues/)
 })
 
 test('T12 Lambda integration is bounded and data access is least privilege', () => {
@@ -241,7 +242,7 @@ test('T11R01 forwards only the documented API headers', () => {
   const config = policies[0].Properties.OriginRequestPolicyConfig
   assert.equal(config.HeadersConfig.HeaderBehavior, 'whitelist')
   assert.deepEqual(config.HeadersConfig.Headers, [
-    'Content-Type', 'If-Match', 'If-None-Match',
+    'Authorization', 'Content-Type', 'If-Match', 'If-None-Match',
   ])
   assert.deepEqual(config.CookiesConfig, { CookieBehavior: 'none' })
   assert.deepEqual(config.QueryStringsConfig, { QueryStringBehavior: 'none' })
@@ -249,16 +250,9 @@ test('T11R01 forwards only the documented API headers', () => {
   const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
   assert.equal(apiBehavior.OriginRequestPolicyId.Ref, Object.keys(result.findResources('AWS::CloudFront::OriginRequestPolicy'))[0])
   const cachePolicies = Object.values(result.findResources('AWS::CloudFront::CachePolicy'))
-  const apiCache = cachePolicies.find((policy) => policy.Properties.CachePolicyConfig.Name === 'ItsRunPreviewApiNoCache')
-  assert.ok(apiCache)
-  const cacheConfig = apiCache.Properties.CachePolicyConfig
-  assert.equal(cacheConfig.MinTTL, 0)
-  assert.equal(cacheConfig.DefaultTTL, 0)
-  assert.equal(cacheConfig.MaxTTL, 0)
-  assert.equal(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.HeadersConfig.HeaderBehavior, 'whitelist')
-  assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.HeadersConfig.Headers, ['Authorization'])
-  assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.CookiesConfig, { CookieBehavior: 'none' })
-  assert.deepEqual(cacheConfig.ParametersInCacheKeyAndForwardedToOrigin.QueryStringsConfig, { QueryStringBehavior: 'none' })
+  assert.equal(cachePolicies.some((policy) => policy.Properties.CachePolicyConfig.Name === 'ItsRunPreviewApiNoCache'), false)
+  assert.equal(apiBehavior.CachePolicyId, '4135ea2d-6df8-44a3-9df3-4b5a84be39ad')
+  assert.doesNotMatch(JSON.stringify(apiBehavior), /allViewer|AllViewer|ForwardedValues/)
 })
 
 test('T11R02 filters API methods at the viewer request edge', () => {

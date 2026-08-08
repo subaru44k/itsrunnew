@@ -340,6 +340,15 @@ Local next step: RC01-RC02 only; no AWS write until Sol re-review and a bundled 
 AWS authority: None for recovery work; no pool mutation/deletion, second deploy, policy v5, IAM, Cognito user/group, schedule data, invalidation, production/DNS, or Firebase operation authorized by this review
 ```
 
+### Phase 4 failed-deployment recovery: RC01-RC02
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| RC01 | complete; local only | `a03e314` | Node 24.18.1 infra synth | Removed the custom `ItsRunPreviewApiNoCache` resource. `/api/*` now uses managed `CachingDisabled` ID `4135ea2d-6df8-44a3-9df3-4b5a84be39ad`; the stack-owned L1 `AWS::CloudFront::OriginRequestPolicy` forwards exactly `Authorization`, `Content-Type`, `If-Match`, and `If-None-Match`, with no cookies or query strings. The source comment records the CDK L2 validation gap and current AWS authorization-forwarding documentation. No AWS call occurred. |
+| RC02 | complete; awaiting Sol RC03 review | pending | Node 24.18.1: infra tests (13 passed); infra build/synth; root `npm run check`; `git diff --check`; clean status | Semantic assertions prove exactly one API origin policy, exact four-header/none-cookie/none-query contract, no custom API cache policy, exact managed cache ID and detected origin-policy Ref, no ForwardedValues/all-viewer/extra API forwarding, and retained T11/T12 contracts. Fresh synth retains Lambda asset key `ed27108982d0ef94b6b9baa33135d04d2135dfaa4a365fc28fd6f4ca6cdda087.zip` and emits corrected template key/hash `a1a88a39d271bfff65603452b3f176a93931c48cad8fa7192252efa926472744.json`. No AWS call/write, pool cleanup, deploy, policy v5, IAM change, upload, invalidation, or T13+ work occurred. |
+
+Recovery stop: return to Sol for RC03 review before any retained-pool cleanup or corrected deployment.
+
 ### Phase 4 T13 advance planning
 
 ```text

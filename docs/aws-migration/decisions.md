@@ -176,6 +176,76 @@ requirement appears. It must not be enabled by an undocumented console-only
 change. Before production retirement, retain or export the required operator
 account inventory; user passwords cannot be exported.
 
+## D013: CloudFront API authorization forwarding with managed caching disabled
+
+Status: accepted
+
+Problem:
+
+The first T11/T12 deployment proved that CloudFront rejects a custom cache
+policy whose minimum, default, and maximum TTL are all zero while its
+`HeaderBehavior` whitelists `Authorization`. CloudFormation returned
+`The parameter HeaderBehavior is invalid for policy with caching disabled` for
+`ApiCacheA0112D40`. The CDK L2 origin-request-policy helper also rejects
+`Authorization`, although the current CloudFront service documentation permits
+forwarding it individually in an origin request policy when caching is fully
+disabled.
+
+The failed stack update rolled back safely, but the User Pool's intentional
+deletion protection and `RETAIN` policy left one empty, stack-tagged User Pool
+outside the rolled-back stack resource graph.
+
+Decision:
+
+Use the AWS-managed `CachingDisabled` cache policy for `/api/*`. Create the
+stack-owned API origin request policy through the CloudFormation L1 resource so
+its exact whitelist is `Authorization`, `Content-Type`, `If-Match`, and
+`If-None-Match`. Forward no cookies or query strings and never forward the
+viewer `Host` header. Keep the existing GET/PUT/OPTIONS viewer method filter.
+
+The L1 resource is a narrow escape hatch for a current CloudFront capability
+that the installed CDK L2 validation does not expose. Semantic assertions must
+pin the managed cache-policy ID and the complete custom origin-policy config.
+Do not replace it with all-viewer forwarding or a positive cache TTL.
+
+Before the corrected retry, and only after explicit authorization, remove the
+empty retained pool created by the failed update. Reconfirm its exact ID,
+CloudFormation tags, deletion protection, creation time, and zero users,
+clients, groups, resource servers, external providers, and domain immediately
+before disabling deletion protection and deleting it. Never apply this cleanup
+procedure to a populated or differently tagged pool.
+
+Alternatives:
+
+- Keep the custom zero-TTL cache policy: rejected by the CloudFront service.
+- Forward all viewer headers except `Host`: rejected because it forwards more
+  untrusted viewer state than the documented four-header contract.
+- Use a positive TTL so `Authorization` can be in the cache key: rejected
+  because administrator API responses must never be cached.
+- Use deprecated `ForwardedValues`: technically supports exact headers and
+  zero TTL, but rejected while the current individual origin-policy service
+  capability is available.
+- Rename or abandon the retained User Pool: rejected because it would leave an
+  unmanaged resource and weaken cleanup/accountability.
+- Import the pool with a temporary CloudFormation template: rejected as a more
+  complex multi-template recovery for an empty, never-used failed-deploy
+  resource.
+
+Cost and maintenance effect:
+
+The managed cache policy creates no stack resource and the custom origin
+policy was already included in reviewed policy v4, so no policy v5 or new
+service is required. The L1 assertion is intentionally strict to detect a
+future CDK/service contract change. The empty-pool cleanup and corrected stack
+retry are separate protected AWS writes recorded in the implementation log.
+
+Rollback/removal:
+
+CloudFront behavior can return to another reviewed no-cache mechanism only
+through a new decision. The deployed User Pool remains deletion-protected and
+retained; the empty-pool cleanup exception applies only to the exact orphan
+created by the failed 2026-08-09 preview update.
+
 ## Decision template
 
 Copy for new decisions:

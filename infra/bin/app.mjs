@@ -206,26 +206,23 @@ export class HostingStack extends Stack {
     })
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
     const cognitoAuthBaseUrl = Fn.join('', ['https://', cognitoDomainPrefix.valueAsString, '.auth.', Aws.REGION, '.amazoncognito.com'])
-    const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
-      originRequestPolicyName: 'ItsRunPreviewApiOriginRequest',
-      comment: 'Only authenticated API headers; no viewer cookies or query strings.',
-      // CloudFront requires Authorization to be part of a cache policy before
-      // it can forward that header. The zero-TTL API cache policy below keeps
-      // the API uncached while this policy forwards the remaining API headers.
-      headerBehavior: cloudfront.OriginRequestHeaderBehavior.allowList('Content-Type', 'If-Match', 'If-None-Match'),
-      cookieBehavior: cloudfront.OriginRequestCookieBehavior.none(),
-      queryStringBehavior: cloudfront.OriginRequestQueryStringBehavior.none(),
+    // The CDK L2 rejects Authorization in an OriginRequestPolicy even though
+    // CloudFront permits it when caching is disabled. Use the L1 resource to
+    // express the reviewed four-header contract; see the current authorization
+    // forwarding guidance: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/add-origin-custom-headers.html
+    const apiOriginRequestPolicy = new cloudfront.CfnOriginRequestPolicy(this, 'ApiOriginRequestPolicy', {
+      originRequestPolicyConfig: {
+        name: 'ItsRunPreviewApiOriginRequest',
+        comment: 'Only authenticated API headers; no viewer cookies or query strings.',
+        headersConfig: {
+          headerBehavior: 'whitelist',
+          headers: ['Authorization', 'Content-Type', 'If-Match', 'If-None-Match'],
+        },
+        cookiesConfig: { cookieBehavior: 'none' },
+        queryStringsConfig: { queryStringBehavior: 'none' },
+      },
     })
-    const apiCache = new cloudfront.CachePolicy(this, 'ApiCache', {
-      cachePolicyName: 'ItsRunPreviewApiNoCache',
-      comment: 'Zero TTL; Authorization is forwarded and included only to satisfy CloudFront header rules.',
-      minTtl: Duration.seconds(0),
-      defaultTtl: Duration.seconds(0),
-      maxTtl: Duration.seconds(0),
-      headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization'),
-      cookieBehavior: cloudfront.CacheCookieBehavior.none(),
-      queryStringBehavior: cloudfront.CacheQueryStringBehavior.none(),
-    })
+    const apiCache = cloudfront.CachePolicy.fromCachePolicyId(this, 'ApiCache', '4135ea2d-6df8-44a3-9df3-4b5a84be39ad')
     const rewrite = new cloudfront.Function(this, 'RouteRewrite', { code: cloudfront.FunctionCode.fromInline(routeFunctionCode) })
     const apiMethodFilter = new cloudfront.Function(this, 'ApiMethodFilter', { code: cloudfront.FunctionCode.fromInline(apiMethodFilterCode) })
     const htmlCache = new cloudfront.CachePolicy(this, 'HtmlCache', { defaultTtl: Duration.seconds(0), minTtl: Duration.seconds(0), maxTtl: Duration.days(1) })

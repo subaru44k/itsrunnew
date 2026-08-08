@@ -17,9 +17,10 @@ export interface ApiEvent {
 }
 
 export interface ApiResponse { statusCode: number; headers: Record<string, string>; body: string }
+export type WriteCondition = { kind: 'match'; etag: string } | { kind: 'create' }
 export interface ScheduleStore {
   get(key: SchedulePath): Promise<{ body: string; etag?: string }>
-  put(key: SchedulePath, body: string, condition: { ifMatch?: string; ifNoneMatch?: '*' }): Promise<{ etag?: string; versionId?: string }>
+  put(key: SchedulePath, body: string, condition: WriteCondition): Promise<{ etag?: string; versionId?: string }>
 }
 export interface HandlerDependencies { store: ScheduleStore; now?: () => Date; log?: (entry: Record<string, unknown>) => void }
 export type ScheduleDocument = ScheduleMonth

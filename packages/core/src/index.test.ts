@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, japanToday, marathonPace, parseScheduleMonth, parseTime, schedulePaths } from './index'
+import { addDays, japanToday, marathonPace, parseScheduleMonth, parseTime, scheduleMonthPath, schedulePaths } from './index'
 
 describe('core schedule contract', () => {
   it('validates a month and rejects unknown fields', () => {
@@ -16,6 +16,11 @@ describe('core schedule contract', () => {
     expect(japanToday(new Date('2024-01-31T15:00:00.000Z'))).toBe('2024-02-01')
     expect(addDays('2024-02-28', 2)).toBe('2024-03-01')
     expect(schedulePaths('oda', ['2024-01-31', '2024-02-01'])).toEqual(['data/v1/stadiums/oda/availability/2024-01.json', 'data/v1/stadiums/oda/availability/2024-02.json'])
+  })
+
+  it('constructs typed monthly keys only from validated values', () => {
+    expect(scheduleMonthPath('oda', '2026-01')).toBe('data/v1/stadiums/oda/availability/2026-01.json')
+    expect(scheduleMonthPath('todoroki', '2026-12')).toBe('data/v1/stadiums/todoroki/availability/2026-12.json')
   })
 
   it('preserves legacy marathon lap rounding', () => {

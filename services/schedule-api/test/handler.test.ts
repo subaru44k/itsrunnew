@@ -7,6 +7,7 @@ const good = {
   days: { '2026-01-01': [1, 0, 2] },
 }
 const event = (method: string, overrides: Partial<ApiEvent> = {}): ApiEvent => ({
+  version: '2.0',
   routeKey: `${method} /api/v1/stadiums/{stadium}/availability/{yearMonth}`,
   pathParameters: { stadium: 'oda', yearMonth: '2026-01' },
   headers: { 'content-type': 'application/json' }, body: method === 'PUT' ? JSON.stringify(good) : undefined,
@@ -23,7 +24,7 @@ describe('schedule API handler', () => {
   it('requires an access token, scope, and admins group without exposing claims', async () => {
     const logs: unknown[] = []; const handler = createHandler({ store: store(), log: (entry) => logs.push(entry) })
     const result = await handler(event('GET', { requestContext: { requestId: 'r', http: { method: 'GET' }, authorizer: { jwt: { claims: { token_use: 'id', sub: 'raw-secret' } } } } }))
-    expect(result.statusCode).toBe(403); expect(result.body).not.toContain('raw-secret'); expect(JSON.stringify(logs)).not.toContain('raw-secret')
+    expect(result.statusCode).toBe(403); expect(JSON.parse(result.body)).toEqual({ error: { code: 'forbidden', message: 'The user is not authorized for this operation.', requestId: 'r' } }); expect(result.body).not.toContain('raw-secret'); expect(JSON.stringify(logs)).not.toContain('raw-secret')
   })
   it('gets a validated document and returns no-store plus etag', async () => {
     const s = store(JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })); const result = await handlerWith(s)(event('GET'))
@@ -35,9 +36,9 @@ describe('schedule API handler', () => {
   })
   it('creates with If-None-Match and updates with If-Match', async () => {
     const first = store(); const create = await handlerWith(first)(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
-    expect(create.statusCode).toBe(200); expect(first.calls[0]?.condition).toEqual({ ifNoneMatch: '*' })
+    expect(create.statusCode).toBe(200); expect(first.calls[0]?.condition).toEqual({ kind: 'create' })
     const second = store(); const update = await handlerWith(second)(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '"old"' } }))
-    expect(update.statusCode).toBe(200); expect(second.calls[0]?.condition).toEqual({ ifMatch: '"old"' }); expect(update.body).toContain('2026-01-01T00:00:00.000Z')
+    expect(update.statusCode).toBe(200); expect(second.calls[0]?.condition).toEqual({ kind: 'match', etag: '"old"' }); expect(update.body).toContain('2026-01-01T00:00:00.000Z'); expect(JSON.parse(update.body).requestId).toBeUndefined()
   })
   it('maps S3 precondition conflicts without retrying or exposing SDK errors', async () => {
     const original = JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })
@@ -52,5 +53,17 @@ describe('schedule API handler', () => {
     expect((await h(event('PUT', { body: JSON.stringify({ ...good, updatedAt: 'client' }), headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
     expect((await h(event('PUT', { headers: { 'content-type': 'application/json' } }))).statusCode).toBe(400)
     expect((await h(event('PUT', { headers: { 'content-type': 'text/plain', 'if-none-match': '*' } }))).statusCode).toBe(415)
+    for (const value of [null, [], 'text', 1]) {
+      const result = await h(event('PUT', { body: JSON.stringify(value), headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
+      expect(result.statusCode).toBe(400); expect(JSON.parse(result.body).error.code).toBe('invalid_request')
+    }
+    for (const value of ['W/"weak"', '*', '"a", "b"', '']) {
+      const result = await h(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': value } }))
+      expect(result.statusCode).toBe(400)
+    }
+    const both = await h(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '', 'if-none-match': '*' } }))
+    expect(both.statusCode).toBe(400)
+    const invalidSchedule = await h(event('PUT', { body: JSON.stringify({ ...good, days: { '2026-01-01': [-1, 0, 1] } }), headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
+    expect(invalidSchedule.statusCode).toBe(400)
   })
 })

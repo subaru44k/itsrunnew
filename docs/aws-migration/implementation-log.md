@@ -321,6 +321,18 @@ Next authority required: one bundled approval for managed-policy v4 plus the fir
 | --- | --- | --- | --- | --- |
 | P4D02 | complete; stop before P4D03 | `31f2aec` | Read-only AWS identity, IAM policy, and CloudFormation checks | Verified on branch `migration/aws-s3-cloudfront` at start commit `67aa9e3b744d0d29b4f14969a9c2f2a3004e9c52` with a clean worktree. Repository `.nvmrc` requires Node 24; this read-only check used the existing Node `v22.16.0` and did not run Node-dependent implementation checks. `AWS_PROFILE=codex-prod` and `AWS_REGION=ap-northeast-1` were used for every AWS call; `aws configure get region --profile codex-prod` returned `ap-northeast-1`; `aws sts get-caller-identity` returned account `470447451992` (principal `arn:aws:iam::470447451992:user/amplify-UfEp0`). `aws iam get-policy` reported `ItsRunPreviewCloudFormationExecutionPolicy` default `v3`; `list-policy-versions` showed retained `v1`, `v2`, and `v3` only, with v3 default. `get-policy-version --version-id v3` was URL-decoded and compared with `git show ad44b5f:infra/bootstrap/cloudformation-execution-policy.json`; canonical sorted JSON matched exactly (SHA-256 `cee49354b0cf438cd449004ae0ce00312e79c3c2c6933ca09549ab44fed7c107` for both). `aws cloudformation describe-stacks --stack-name ItsRunPreviewHosting` returned `CREATE_COMPLETE` and unchanged documented outputs: DataBucketName `itsrun-preview-data-470447451992-ap-northeast-1`, WebBucketName `itsrun-preview-web-470447451992-ap-northeast-1`, DistributionId `E22K5S8F2NUP6K`, DistributionDomainName `d2via50thoheqm.cloudfront.net`. No AWS write, policy v4, deployment, invalidation, user mutation, schedule write, production/DNS, Firebase, or P4D03 operation occurred. |
 
+### Phase 4 T13 advance planning
+
+```text
+Sol planning baseline: 2b86639
+Date: 2026-08-09
+Result: detailed T13 plan prepared; implementation remains gated on P4D03-P4D06 and Sol deployment acceptance
+Dependency contract: exact-pinned oidc-client-ts@3.5.0 only; already allowed by architecture.md
+Security contract: tokens and OIDC User remain memory-only; sessionStorage is limited to transient authorization/PKCE transaction state; no automatic conflict write
+Plan: docs/aws-migration/phase4-t13-plan.md T13A-T13F
+AWS authority: None; no policy v4, deployment, Cognito-user/group, schedule write, invalidation, production/DNS, or Firebase operation occurred
+```
+
 ## Open items
 
 Use:

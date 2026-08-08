@@ -333,6 +333,19 @@ Plan: docs/aws-migration/phase4-t13-plan.md T13A-T13F
 AWS authority: None; no policy v4, deployment, Cognito-user/group, schedule write, invalidation, production/DNS, or Firebase operation occurred
 ```
 
+### Phase 4 T14 advance planning
+
+```text
+Sol planning baseline: e4e13e6
+Date: 2026-08-09
+Result: T14A-T14D local migration-tool plan prepared; real Firestore export and schedule upload remain protected gates
+Dependency contract: no dependency for local transformer/comparator/uploader tests; existing firebase-admin exporter remains blocked and uninstalled
+Data contract: strict four-stadium legacy normalization, deterministic monthly JSON/manifest, exhaustive cell comparison, If-None-Match-only first upload, exact-version readback
+Plan: docs/aws-migration/phase4-t14-plan.md T14A-T14F
+External inputs still required: approved read-only Firestore mechanism/credential for T14E; explicit destination/write authority for T14F
+Protected operations: no Firebase read, AWS write, production data access, overwrite/delete/dual-write, invalidation, DNS, or Firebase-state change occurred
+```
+
 ## Open items
 
 Use:

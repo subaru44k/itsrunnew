@@ -346,6 +346,20 @@ External inputs still required: approved read-only Firestore mechanism/credentia
 Protected operations: no Firebase read, AWS write, production data access, overwrite/delete/dual-write, invalidation, DNS, or Firebase-state change occurred
 ```
 
+### Phase 4 T15 advance planning and read-only baseline
+
+```text
+Sol planning baseline: f025be9
+Date: 2026-08-09
+Result: T15 local CI/web-only deployment/OIDC plan prepared; external writes remain gated
+GitHub read-only evidence: repo subaru44k/itsrunnew; default master; migration branch migration/aws-s3-cloudfront; Actions enabled/all actions; SHA pinning not enforced; master unprotected; zero environments/variables
+AWS read-only evidence: account 470447451992; zero IAM OIDC providers; no itsrun GitHub role
+Trust candidate: aud sts.amazonaws.com and exact sub repo:subaru44k/itsrunnew:ref:refs/heads/migration/aws-s3-cloudfront
+Deployment scope candidate: exact preview web bucket only; no schedule-data, delete, invalidation, CDK, CloudFormation mutation, Cognito, production, DNS, or Firebase access
+Plan: docs/aws-migration/phase4-t15-plan.md T15A-T15F
+Protected operations: no GitHub settings/workflow push, AWS/OIDC/IAM write, deployment, invalidation, production/DNS, or Firebase operation occurred
+```
+
 ## Open items
 
 Use:

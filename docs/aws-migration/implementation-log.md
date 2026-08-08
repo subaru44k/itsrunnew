@@ -313,6 +313,7 @@ Next authority required: one bundled approval for managed-policy v4 plus the fir
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
 | P4D01 | complete; stop before P4D02 | `3e99bb1` | Node 24.18.1: focused policy contract tests (3 passed); infra tests/synth; root check; JSON parse; `git diff --check` | Added deterministic AWS-free assertions for the exact candidate-v4 statements, fixed account/region/preview resources, Lambda-only PassRole condition, forbidden services/actions/resources, and no wildcard actions. The test proves the candidate's unchanged v3 statements and reviewed OriginRequestPolicy/v4 additions from a committed contract; no mutable Git state or AWS call is used. No policy version, IAM, deployment, invalidation, Cognito-user, schedule-data, DNS, Firebase, or T13 operation occurred. |
+| P4D01 follow-up | complete; stop before P4D02 | `4da7f9c` | Node 24.18.1: focused policy contract tests (3 passed); infra tests (13 passed) | Split the committed v3 CloudFront baseline from the five reviewed OriginRequestPolicy actions, proved all other v3 statements byte-equivalent to the hardcoded contract, constrained wildcard resources to the reviewed Sid allowlist, and expanded forbidden service/IAM-action checks. |
 
 ## Open items
 

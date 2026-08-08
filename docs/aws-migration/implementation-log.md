@@ -175,6 +175,16 @@ AWS authority: None; local source/test/documentation/synth correction only
 | T11L03 | complete; awaiting Sol IAM review | `23f1905` | infra synth | Corrected synth has no Google IdP or secret parameter. Candidate execution permissions are reduced to local Cognito lifecycle plus the existing API Gateway/CloudFront/S3/SSM scope; no policy file was changed. |
 | T11L04 | complete; awaiting Sol IAM review | `23f1905` | Node 24; infra tests (9 passed); infra synth | Local source, tests, documentation, and synth are complete. No dummy ApiIntegrationUri, AWS write, deploy, invalidation, or T12 implementation was performed. |
 
+```text
+Sol D012 implementation review target: 49d4301
+Date: 2026-08-08
+Result: local-user resource transition accepted; T11L05 assertion correction required
+Independent checks: Node 24.18.1; infra tests 9 passed; infra synth; npm run check; git diff --check; clean worktree
+Deployment decision: implement T12 locally and review one combined T11/T12 graph before first auth/API deployment
+Authorized next work: docs/aws-migration/phase4-t12-plan.md T11L05 then T12A-T12F
+AWS authority: None; no policy v4, IAM change, deploy, preview mutation, T13, DNS, or Firebase work
+```
+
 Corrected synthesized resource types are: two S3 buckets and bucket policies;
 CloudFront distribution, three cache policies, OriginRequestPolicy, two
 CloudFront Functions, two OACs, and response headers policy; Cognito UserPool,

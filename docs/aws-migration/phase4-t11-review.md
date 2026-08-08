@@ -357,3 +357,26 @@ Authorization Code + PKCE, and the complete `admins` authorization boundary.
 
 No AWS operation, policy v4, deploy, or T12 implementation is authorized by
 this override. Luna must complete T11L01-T11L04 and return to Sol.
+
+## D012 implementation approval and T12 sequencing
+
+Reviewed commit: `49d4301`
+
+Review date: 2026-08-08
+
+Result: D012 implementation accepted. The synthesized graph contains Cognito
+local users only, no external IdP, no Identity Pool, no Google credential
+parameter, and no Secrets Manager dynamic reference. Node 24.18.1
+independently passed all 9 infrastructure tests, infra synth, root
+`npm run check`, and `git diff --check` with a clean worktree.
+
+One assertion correction remains: prove that the app client is actually
+allowed to request the exact `itsrun/schedule.write` resource-server scope and
+that OAuth is enabled for the User Pool client. This is T11L05 in
+`phase4-t12-plan.md` and does not require a source/resource change.
+
+Sol selects combined T11/T12 first deployment. A standalone T11 deploy is not
+approved because the current graph has no real Lambda integration and must not
+receive a dummy `ApiIntegrationUri`. After T11L05 passes, Luna may implement
+T12 locally according to `phase4-t12-plan.md` without another Sol switch, then
+must stop before AWS or policy v4.

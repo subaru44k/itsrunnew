@@ -87,11 +87,9 @@ For creation:
 If-None-Match: *
 ```
 
-Request body is `ScheduleMonth`, except the server ignores/replaces:
-
-- `updatedAt` with the server timestamp.
-
-Prefer a request DTO that omits this field:
+The request uses a DTO that omits `updatedAt`; the server creates that field
+from its own clock. Client-supplied `updatedAt` and other unknown fields are
+invalid rather than silently trusted or persisted:
 
 ```ts
 interface UpdateScheduleMonthRequest {

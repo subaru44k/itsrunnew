@@ -41,6 +41,12 @@ describe('schedule API handler', () => {
     const s = store(JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })); const result = await handlerWith(s)(event('GET'))
     expect(result.statusCode).toBe(200); expect(result.headers['cache-control']).toBe('no-store'); expect(result.body).toContain('"etag":"\\"old\\""')
   })
+  it('returns the exact GET success response without a requestId', async () => {
+    const document = { ...good, updatedAt: '2026-01-01T00:00:00.000Z' }
+    const result = await handlerWith(store(JSON.stringify(document)))(event('GET'))
+    expect(result).toEqual({ statusCode: 200, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify({ document, etag: '"old"' }) })
+    expect(JSON.parse(result.body).requestId).toBeUndefined()
+  })
   it('maps missing and invalid stored data safely', async () => {
     const missing = await handlerWith(store())(event('GET'))
     expect(missing.statusCode).toBe(404); expect(JSON.parse(missing.body)).toEqual({ error: { code: 'schedule_not_found', message: 'Schedule month does not exist.', requestId: 'req-1' } })
@@ -66,6 +72,12 @@ describe('schedule API handler', () => {
     expect(create.statusCode).toBe(200); expect(first.calls[0]?.condition).toEqual({ kind: 'create' })
     const second = store(); const update = await handlerWith(second)(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '"old"' } }))
     expect(update.statusCode).toBe(200); expect(second.calls[0]?.condition).toEqual({ kind: 'match', etag: '"old"' }); expect(update.body).toContain('2026-01-01T00:00:00.000Z'); expect(JSON.parse(update.body).requestId).toBeUndefined()
+  })
+  it('returns the exact PUT success response without a requestId', async () => {
+    const document = { ...good, updatedAt: '2026-01-01T00:00:00.000Z' }
+    const result = await handlerWith(store())(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
+    expect(result).toEqual({ statusCode: 200, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify({ document, etag: '"new"', versionId: 'v1' }) })
+    expect(JSON.parse(result.body).requestId).toBeUndefined()
   })
   it('maps S3 precondition conflicts without retrying or exposing SDK errors', async () => {
     const original = JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })
@@ -97,6 +109,12 @@ describe('schedule API handler', () => {
     const noPutEtag: ScheduleStore = { async get() { return { body: '' } }, async put() { return { versionId: 'v1' } } }
     const noPutVersion: ScheduleStore = { async get() { return { body: '' } }, async put() { return { etag: '"e"' } } }
     for (const s of [noPutEtag, noPutVersion]) expect((await handlerWith(s)(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(500)
+  })
+  it('sanitizes an unexpected PUT store failure independently', async () => {
+    const logs: Record<string, unknown>[] = []
+    const result = await createHandler({ store: { async get() { return { body: '' } }, async put() { throw new Error('raw unexpected put failure') } }, log: (entry) => logs.push(entry) })(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
+    expect(result).toEqual({ statusCode: 500, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify({ error: { code: 'internal_error', message: 'An internal error occurred.', requestId: 'req-1' } }) })
+    expect(JSON.stringify(logs)).not.toContain('raw unexpected put failure')
   })
   it('emits one bounded audit record with only the allowlisted fields', async () => {
     const logs: Record<string, unknown>[] = []; const s = store(JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' }))
@@ -163,21 +181,22 @@ describe('schedule API handler', () => {
     expect((await h(event('PUT', { routeKey: 'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}', headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
     expect((await h(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '' } }))).statusCode).toBe(400)
   })
-  it('returns exact sanitized envelopes and one allowlisted audit record', async () => {
+  it('returns exact sanitized envelopes and one exact error audit record', async () => {
     const cases: Array<[number, string, ApiEvent, ScheduleStore]> = [
       [403, 'forbidden', event('GET', { requestContext: { requestId: 'r', http: { method: 'GET' }, authorizer: { jwt: { claims: { token_use: 'id' } } } } }), store()],
       [404, 'schedule_not_found', event('GET'), store()],
       [500, 'internal_error', event('GET'), { async get() { throw new Error('secret aws') }, async put() { throw new Error('unused') } }],
       [415, 'unsupported_media_type', event('PUT', { headers: { 'content-type': 'text/plain', 'if-none-match': '*' } }), store()],
     ]
+    const messages = { forbidden: 'The user is not authorized for this operation.', schedule_not_found: 'Schedule month does not exist.', internal_error: 'An internal error occurred.', unsupported_media_type: 'Content-Type must be application/json.' }
     for (const [status, code, ev, s] of cases) {
       const logs: Record<string, unknown>[] = []
       const result = await createHandler({ store: s, log: (entry) => logs.push(entry) })(ev)
-      expect(result.statusCode).toBe(status)
-      expect(result.headers).toEqual({ 'content-type': 'application/json', 'cache-control': 'no-store' })
-      expect(JSON.parse(result.body).error).toMatchObject({ code, requestId: ev.requestContext?.requestId ?? 'unknown' })
+      expect(result).toEqual({ statusCode: status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify({ error: { code, message: messages[code as keyof typeof messages], requestId: ev.requestContext?.requestId ?? 'unknown' } }) })
       expect(logs).toHaveLength(1)
-      expect(Object.keys(logs[0] ?? {}).sort()).toEqual(expect.arrayContaining(['requestId', 'route', 'method', 'status', 'durationMs']))
+      const expectedErrorKeys = status === 403 ? ['durationMs', 'method', 'requestId', 'route', 'status'] : ['actorSubHash', 'durationMs', 'method', 'requestId', 'route', 'stadium', 'status', 'yearMonth']
+      expect(Object.keys(logs[0] ?? {}).sort()).toEqual(expectedErrorKeys)
+      expect(logs[0]).not.toHaveProperty('s3VersionId')
       expect(JSON.stringify(logs)).not.toContain('secret aws')
     }
   })
@@ -189,8 +208,17 @@ describe('schedule API handler', () => {
     expect(Object.keys(logs[0] ?? {}).sort()).toEqual(['actorSubHash', 'durationMs', 'method', 'requestId', 'route', 'stadium', 'status', 'yearMonth'])
     const conflictStore: ScheduleStore = { async get() { return { body: '' } }, async put() { throw Object.assign(new Error('raw conflict'), { $metadata: { httpStatusCode: 409 } }) } }
     const conflict = await createHandler({ store: conflictStore, log: (entry) => logs.push(entry) })(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
-    expect(JSON.parse(conflict.body)).toEqual({ error: { code: 'schedule_conflict', message: 'The schedule was changed by another user.', requestId: 'req-1' } })
+    expect(conflict).toEqual({ statusCode: 409, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify({ error: { code: 'schedule_conflict', message: 'The schedule was changed by another user.', requestId: 'req-1' } }) })
     expect(Object.keys(logs[1] ?? {}).sort()).toEqual(['actorSubHash', 'durationMs', 'method', 'requestId', 'route', 'stadium', 'status', 'yearMonth'])
+  })
+  it('emits one successful PUT audit record with only allowlisted fields', async () => {
+    const logs: Record<string, unknown>[] = []
+    const result = await createHandler({ store: store(), now: () => new Date('2026-01-01T00:00:00.000Z'), log: (entry) => logs.push(entry) })(event('PUT', { headers: { authorization: 'Bearer token-secret', 'content-type': 'application/json', 'if-none-match': '*' } }))
+    expect(result.statusCode).toBe(200)
+    expect(logs).toHaveLength(1)
+    expect(Object.keys(logs[0] ?? {}).sort()).toEqual(['actorSubHash', 'durationMs', 'method', 'requestId', 'route', 's3VersionId', 'stadium', 'status', 'yearMonth'])
+    expect(logs[0]?.s3VersionId).toBe('v1')
+    expect(JSON.stringify(logs)).not.toMatch(/token-secret|secret-sub|email|body|document|bucket|data\/v1|raw aws|stack/i)
   })
   it('accepts serialized Cognito admin groups but rejects near matches', async () => {
     for (const groups of ['[admins]', ['admins']]) {

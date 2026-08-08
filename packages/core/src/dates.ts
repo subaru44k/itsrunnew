@@ -1,4 +1,4 @@
-import type { IsoDate, YearMonth } from './types'
+import type { IsoDate, SchedulePath, StadiumSlug, YearMonth } from './types'
 
 const JAPAN = 'Asia/Tokyo'
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -19,6 +19,11 @@ export function isValidIsoDate(value: string): value is IsoDate {
 
 export function isValidYearMonth(value: string): value is YearMonth {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(value)
+}
+
+/** Builds the only S3 key shape used by the schedule API. */
+export function scheduleMonthPath(stadium: StadiumSlug, yearMonth: YearMonth): SchedulePath {
+  return `data/v1/stadiums/${stadium}/availability/${yearMonth}.json`
 }
 
 export function addDays(date: IsoDate, amount: number): IsoDate {

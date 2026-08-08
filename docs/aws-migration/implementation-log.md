@@ -226,6 +226,10 @@ and resources before any AWS write or policy v4.
 ### Phase 4 T12 local implementation
 
 | T11L05 | complete; awaiting Sol IAM review | pending | infra tests (9 passed); infra synth; git diff --check | Added semantic assertions for the single `itsrun` resource server, its sole `schedule.write` scope, the detected resource-server Ref in app-client scopes, and code-only public-client settings. No AWS operation occurred. |
+| T12A | complete; awaiting Sol review | pending | core unit tests (6 passed); schedule-api unit tests (5 passed); typecheck; build | Added dependency-injected TypeScript handler/store boundaries, typed schedule key construction, exact-pinned S3 SDK and esbuild dependencies, and no public-web AWS SDK. |
+| T12B | complete; awaiting Sol review | pending | schedule-api unit tests (5 passed) | Implemented payload 2.0 event handling for authenticated GET/PUT, schema/path/body/header validation, conditional S3 mapping, server timestamps, ETag/version responses, no-store responses, and sanitized errors. |
+| T12C | complete; awaiting Sol review | pending | schedule-api unit tests (5 passed) | Restricted authorization checks to access tokens with `itsrun/schedule.write` and the `admins` group; logs use only the documented allowlist with hashed actor subject. |
+| T12D | complete; awaiting Sol review | pending | schedule-api unit tests (5 passed) | Added AWS-free tests for auth, validation, missing/invalid data, conditional create/update, no-store output, and forbidden raw claim exposure. |
 
 ## Open items
 

@@ -232,12 +232,12 @@ Depends on: Phase 3 approval
 
 Depends on: T10
 
-- Add Cognito User Pool, app client, domain and Google IdP wiring.
+- Add Cognito User Pool, public app client, domain and local-user wiring.
 - Authorization Code + PKCE only.
 - Add `admins` group and write scope.
 - Add API Gateway HTTP API and JWT authorizer.
 - Route `/api/*` through CloudFront with cache disabled.
-- Parameterize secret references and callback/logout URLs.
+- Parameterize callback/logout URLs; no external IdP secret is required.
 
 Acceptance:
 
@@ -320,7 +320,7 @@ Acceptance:
 Depends on: T11-T15
 
 - Execute all manual checks from `test-plan.md`.
-- Test admin and non-admin Google accounts.
+- Test approved admin and authenticated non-admin Cognito local accounts.
 - Rehearse an S3 version restore.
 - Verify CloudWatch logs and required alarm.
 - Complete the cutover and rollback runbook with actual resource identifiers

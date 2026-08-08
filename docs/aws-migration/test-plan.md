@@ -67,7 +67,8 @@ CDK assertions verify:
 - API behavior has caching disabled and forwards required headers.
 - Default behavior uses the URL rewrite function.
 - HTTPS redirect and response-header policy.
-- Cognito authorization-code flow and Google IdP wiring.
+- Cognito authorization-code flow with local users as the only provider.
+- No external Cognito identity provider or Identity Pool.
 - JWT authorizer on all API routes.
 - Lambda least-privilege S3 actions and key prefix.
 - No Lambda delete permission.
@@ -116,7 +117,7 @@ required test administrator and object prefix are explicitly configured.
 - Visual comparison at 375 px and 1280 px.
 - Keyboard-only navigation.
 - Screen-reader labels for schedule status.
-- Google sign-in with an admin and a non-admin account.
+- Cognito local-user sign-in with an admin and a non-admin account.
 - CloudFront maximum 60-second schedule staleness.
 - Direct S3 URL denied.
 - API response never cached.

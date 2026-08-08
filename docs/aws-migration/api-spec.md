@@ -155,5 +155,5 @@ durationMs
 s3VersionId on success
 ```
 
-Do not log the bearer token, raw claims, Google identity data, or full request
-body.
+Do not log the bearer token, raw claims, raw identity attributes, or full
+request body.

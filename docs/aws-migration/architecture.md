@@ -18,7 +18,7 @@ Public browser -----------------> | CloudFront           |
                                | web + data  |  | JWT auth    |
                                +-------------+  +------+------+
                                                        |
-Admin browser -> Cognito Hosted UI -> Google -> JWT    v
+Admin browser -> Cognito Hosted UI -> JWT              v
                                                 +-------------+
                                                 | Lambda      |
                                                 | validation  |
@@ -99,8 +99,8 @@ date library and avoids viewer-local date drift.
 - One stack during migration. Use its CloudFront distribution domain for
   preview; attach production DNS only after Phase 5 approval.
 - Resources have removal protection where data loss matters.
-- CDK context or parameters provide domain, certificate, Google IdP secret
-  reference, and administrator configuration. Never hard-code secrets.
+- CDK context or parameters provide domain, certificate, callback/logout URLs,
+  and administrator configuration. Never hard-code credentials.
 
 ## AWS resources
 
@@ -158,9 +158,10 @@ update.
 
 - User Pool only; no Identity Pool.
 - Self-service local sign-up disabled.
-- Google configured as external IdP.
+- Local Cognito users are the only app-client identity provider.
 - Hosted UI uses Authorization Code + PKCE.
 - `admins` group grants schedule write permission.
+- Operators create users explicitly; the `admins` group starts empty.
 - API Gateway validates issuer, audience and required scope.
 - Lambda independently checks the `cognito:groups` claim.
 

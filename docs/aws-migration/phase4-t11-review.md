@@ -339,3 +339,21 @@ Next owner action:
 
 Do not send Luna a T12 or deployment prompt before those two values have been
 reviewed and Sol has explicitly approved policy v4 and the T11 deploy.
+
+## D012 local-user design override
+
+Owner approval date: 2026-08-08
+
+D012 supersedes D005 before the first Cognito deployment. The Google OAuth
+client ID and secret are no longer required, so the external-secret blocker
+and the instruction immediately above to wait for those values are superseded.
+Historical findings remain accurate for the commits they reviewed.
+
+The authorized local correction is defined in
+`phase4-t11-local-auth-plan.md`. It removes the Google identity provider,
+credential parameters, Secrets Manager dynamic reference, and corresponding
+IAM candidates while retaining the Cognito Hosted UI with local users,
+Authorization Code + PKCE, and the complete `admins` authorization boundary.
+
+No AWS operation, policy v4, deploy, or T12 implementation is authorized by
+this override. Luna must complete T11L01-T11L04 and return to Sol.

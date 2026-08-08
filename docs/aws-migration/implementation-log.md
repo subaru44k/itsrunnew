@@ -157,6 +157,15 @@ Blocker: exact Google OAuth secret ARN and non-secret Google OAuth client ID hav
 AWS authority: None; no AWS operation, secret read, policy v4, deploy, or T12 authorization
 ```
 
+```text
+D012 owner approval: 2026-08-08
+Planning base: 1cd7c42
+Decision: replace un-deployed Google federation with Cognito local users
+Plan: docs/aws-migration/phase4-t11-local-auth-plan.md T11L01-T11L04
+Removed blocker: Google OAuth client ID and Google client secret are no longer required
+AWS authority: None; local source/test/documentation/synth correction only
+```
+
 ### Phase 4 T11 corrective pass
 
 | Task | Status | Commit | Checks | Notes |

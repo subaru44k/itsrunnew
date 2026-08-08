@@ -13,6 +13,20 @@ This is a draft until Phase 5 Sol approval.
 - DNS TTL is known and lowered in advance when a custom domain is available.
 - A named operator and rollback operator are available.
 
+## Administrator account operations
+
+- Self-service sign-up remains disabled.
+- Create one named local Cognito user for each approved operator; never share
+  an account.
+- Keep the `admins` group empty until the named owner approves membership.
+- Add only approved operators to `admins`; create a separate authenticated
+  local user without that membership for the required denial test.
+- Record user creation, disablement, recovery, and group changes outside Git
+  without recording passwords or tokens.
+- Disable a departed or compromised operator immediately and remove their
+  `admins` membership. Do not delete the user until audit and rollback needs
+  are resolved.
+
 ## Data migration
 
 1. Export Firestore read-only.

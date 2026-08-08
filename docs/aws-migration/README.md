@@ -11,7 +11,7 @@ Working branch: `migration/aws-s3-cloudfront`
 Replace the Vue 2 and Firebase application with a maintainable Nuxt 4
 application hosted by CloudFront and private S3 buckets. Replace Firestore with
 versioned JSON objects in S3, and replace Firebase Authentication with Cognito
-User Pools federated to Google for the administrator workflow.
+User Pool local users for the administrator workflow.
 
 The public application must not import an AWS SDK. It reads versioned HTTP/JSON
 contracts so that the storage and identity providers remain replaceable.

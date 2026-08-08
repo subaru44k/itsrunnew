@@ -39,11 +39,14 @@ content.
 
 ## D005: Cognito User Pool with Google federation
 
-Status: accepted
+Status: superseded by D012
 
 Preserve Google sign-in through standard OIDC. Use API Gateway JWT validation
 and a Lambda `admins` group check. Do not use Cognito Identity Pools or expose
 AWS credentials to the browser.
+
+Superseded before the first Cognito deployment. No Google IdP or Google OAuth
+secret was created by this migration.
 
 ## D006: Minimal dependencies
 
@@ -125,6 +128,53 @@ Rollback/removal:
 Before production use, the `ItsRunPreviewHosting` and `CDKToolkit` stacks and
 the project execution policy can be removed after confirming no other CDK
 application uses the default qualifier in this account/region.
+
+## D012: Cognito local users for administrator authentication
+
+Status: accepted
+
+Problem:
+
+Google federation requires a Google Cloud OAuth application, a client secret,
+Secrets Manager storage, identity-provider lifecycle permissions, and ongoing
+coordination with an external provider. The administrator population is small
+and no requirement for Google Workspace SSO has been demonstrated.
+
+Decision:
+
+Use Cognito User Pool local users as the only app-client identity provider.
+Keep the Cognito Hosted UI, Authorization Code + PKCE, the public app client,
+self-service sign-up disabled, no Identity Pool, the custom write scope, API
+Gateway JWT validation, and the independent Lambda `admins` group check.
+
+Operators create users explicitly. The `admins` group starts empty; an
+operator adds only approved users. A local authenticated user who is not in
+`admins` is the required non-admin authorization test subject. Do not add
+automatic domain/email-based administrator assignment.
+
+Alternatives:
+
+- Google federation: rejected for the first release because it adds an
+  external credential and IAM surface without a current SSO requirement.
+- A custom login form using Cognito APIs: rejected because the Hosted UI keeps
+  the browser on the reviewed OIDC Authorization Code + PKCE path.
+- Cognito Identity Pool: rejected because the browser must never receive AWS
+  credentials.
+
+Cost and maintenance effect:
+
+Remove the Google identity-provider resource, Google OAuth parameters,
+Secrets Manager reference, and their deployment permissions. Cognito becomes
+the password, recovery, and optional MFA operator, so administrator account
+creation, disablement, recovery, and group membership must be documented and
+tested.
+
+Rollback/removal:
+
+Google federation can be reconsidered in a later decision if an explicit SSO
+requirement appears. It must not be enabled by an undocumented console-only
+change. Before production retirement, retain or export the required operator
+account inventory; user passwords cannot be exported.
 
 ## Decision template
 

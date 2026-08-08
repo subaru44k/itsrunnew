@@ -41,8 +41,10 @@ Trusted only after validation:
   review before adding it.
 - Disable unauthenticated identities and Cognito Identity Pools.
 - Disable local public sign-up.
-- Google authentication alone is not authorization.
+- Create local Cognito users only through an approved operator workflow.
+- Authentication alone is not authorization.
 - Require the Cognito `admins` group in Lambda.
+- Never infer administrator membership from an email address or domain.
 - Reject ID tokens when an access token and scope are required.
 - Validate route values before constructing an S3 key.
 - Construct keys only from parsed enum/date values, never raw path text.
@@ -65,7 +67,7 @@ CSP must explicitly account for only the providers actually retained:
 - Google Maps iframe.
 - Google AdSense script/frame endpoints if advertising remains enabled.
 - GA4 endpoints only if a GA4 ID is supplied.
-- Cognito Hosted UI and Google identity endpoints for `/manage`.
+- Cognito Hosted UI for `/manage`.
 
 Do not weaken CSP globally to solve a single third-party integration. If
 AdSense makes a meaningful CSP impossible, document the tradeoff for Sol.
@@ -76,8 +78,8 @@ All external links opened in a new tab use `rel="noopener noreferrer"`.
 
 - No AWS access keys in GitHub secrets or source.
 - GitHub Actions assumes a deployment role through GitHub OIDC.
-- Store the Google client secret in AWS Secrets Manager or SSM SecureString,
-  referenced by CDK deployment.
+- Do not add a Google OAuth client, external IdP secret, or Secrets Manager
+  dependency for administrator authentication under D012.
 - `.env.example` contains names only, never values.
 - Never commit Firebase service-account credentials or exported user records.
 - Scrub generated artifacts and logs before committing.

@@ -26,6 +26,16 @@ describe('schedule API handler', () => {
     const result = await handler(event('GET', { requestContext: { requestId: 'r', http: { method: 'GET' }, authorizer: { jwt: { claims: { token_use: 'id', sub: 'raw-secret' } } } } }))
     expect(result.statusCode).toBe(403); expect(JSON.parse(result.body)).toEqual({ error: { code: 'forbidden', message: 'The user is not authorized for this operation.', requestId: 'r' } }); expect(result.body).not.toContain('raw-secret'); expect(JSON.stringify(logs)).not.toContain('raw-secret')
   })
+  it('rejects missing scope, near-match scope, and non-admin groups', async () => {
+    for (const claims of [
+      { token_use: 'access', sub: 'sub', scope: 'openid', 'cognito:groups': ['admins'] },
+      { token_use: 'access', sub: 'sub', scope: 'itsrun/schedule.write-extra', 'cognito:groups': ['admins'] },
+      { token_use: 'access', sub: 'sub', scope: 'itsrun/schedule.write', 'cognito:groups': ['operators'] },
+    ]) {
+      const result = await handlerWith(store())(event('GET', { requestContext: { requestId: 'r', http: { method: 'GET' }, authorizer: { jwt: { claims } } } }))
+      expect(result.statusCode).toBe(403)
+    }
+  })
   it('gets a validated document and returns no-store plus etag', async () => {
     const s = store(JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })); const result = await handlerWith(s)(event('GET'))
     expect(result.statusCode).toBe(200); expect(result.headers['cache-control']).toBe('no-store'); expect(result.body).toContain('"etag":"\\"old\\""')
@@ -35,6 +45,8 @@ describe('schedule API handler', () => {
     expect(missing.statusCode).toBe(404); expect(JSON.parse(missing.body)).toEqual({ error: { code: 'schedule_not_found', message: 'Schedule month does not exist.', requestId: 'req-1' } })
     const invalid = await handlerWith(store(JSON.stringify({ nope: true })))(event('GET'))
     expect(invalid.statusCode).toBe(500); expect(JSON.parse(invalid.body).error.code).toBe('internal_error'); expect(invalid.body).not.toContain('invalid_stored_data')
+    const unexpected = await handlerWith({ async get() { throw new Error('raw aws detail') }, async put() { throw new Error('unused') } })(event('GET'))
+    expect(unexpected.statusCode).toBe(500); expect(unexpected.body).not.toContain('raw aws detail')
   })
   it('creates with If-None-Match and updates with If-Match', async () => {
     const first = store(); const create = await handlerWith(first)(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
@@ -78,5 +90,11 @@ describe('schedule API handler', () => {
     expect(routeMismatch.statusCode).toBe(400)
     const tooLarge = await h(event('PUT', { body: JSON.stringify({ ...good, days: { '2026-01-01': [1, 0, 2], extra: 'x'.repeat(33 * 1024) } }), headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
     expect(tooLarge.statusCode).toBe(400)
+  })
+  it('keeps typed keys isolated from hostile path values', async () => {
+    let reads = 0
+    const isolated: ScheduleStore = { async get() { reads += 1; return { body: JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' }), etag: '"e"' } }, async put() { throw new Error('unused') } }
+    const result = await handlerWith(isolated)(event('GET', { pathParameters: { stadium: '../web', yearMonth: '2026-01' } }))
+    expect(result.statusCode).toBe(400); expect(reads).toBe(0)
   })
 })

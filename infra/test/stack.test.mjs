@@ -49,7 +49,7 @@ test('data bucket policy is limited to data prefix', () => {
   assert.match(JSON.stringify(allow.Resource), /data\\*|data\\\//)
 })
 
-test('T11 auth is parameterized, code-only, and has no identity pool', () => {
+test('T11 auth uses local Cognito users, code-only, and has no identity pool', () => {
   const result = template()
   const templateJson = result.toJSON()
   const pools = Object.entries(result.findResources('AWS::Cognito::UserPool'))
@@ -61,9 +61,9 @@ test('T11 auth is parameterized, code-only, and has no identity pool', () => {
   const groups = Object.values(result.findResources('AWS::Cognito::UserPoolGroup')).filter((resource) => resource.Properties.UserPoolId.Ref === poolLogicalId)
   assert.equal(groups.length, 1)
   const providers = Object.values(result.findResources('AWS::Cognito::UserPoolIdentityProvider')).filter((resource) => resource.Properties.UserPoolId.Ref === poolLogicalId)
-  assert.equal(providers.length, 1)
-  assert.equal(templateJson.Parameters.GoogleClientId.Type, 'String')
-  assert.equal(templateJson.Parameters.GoogleClientSecretReference.Default, 'itsrun/preview/google-oauth-client-secret')
+  assert.equal(providers.length, 0)
+  assert.equal(templateJson.Parameters.GoogleClientId, undefined)
+  assert.equal(templateJson.Parameters.GoogleClientSecretReference, undefined)
   assert.equal(templateJson.Parameters.CognitoDomainPrefix.Default, 'itsrun-preview-470447451992')
   assert.equal(templateJson.Parameters.CallbackUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage/callback')
   assert.equal(templateJson.Parameters.LogoutUrls.Default, 'https://d2via50thoheqm.cloudfront.net/manage')
@@ -73,19 +73,13 @@ test('T11 auth is parameterized, code-only, and has no identity pool', () => {
   assert.equal(pool.DeletionPolicy, 'Retain')
   assert.equal(client.Properties.GenerateSecret, false)
   assert.deepEqual(client.Properties.AllowedOAuthFlows, ['code'])
-  assert.deepEqual(client.Properties.SupportedIdentityProviders, ['Google'])
+  assert.deepEqual(client.Properties.SupportedIdentityProviders, ['COGNITO'])
   assert.equal(groups[0].Properties.GroupName, 'admins')
   assert.equal(Object.keys(result.findResources('AWS::Cognito::IdentityPool')).length, 0)
   assert.deepEqual(client.Properties.CallbackURLs, { Ref: 'CallbackUrls' })
   assert.deepEqual(client.Properties.LogoutURLs, { Ref: 'LogoutUrls' })
   assert.deepEqual(client.Properties.UserPoolId, { Ref: poolLogicalId })
-  assert.deepEqual(providers[0].Properties.ProviderDetails.client_secret, {
-    'Fn::Sub': [
-      '{{resolve:secretsmanager:${SecretReference}:SecretString}}',
-      { SecretReference: { Ref: 'GoogleClientSecretReference' } },
-    ],
-  })
-  assert.doesNotMatch(JSON.stringify(providers[0]), /client-secret-value|dummy|placeholder/i)
+  assert.doesNotMatch(JSON.stringify(templateJson), /resolve:secretsmanager/i)
   assert.equal(client.Properties.UserPoolId.Ref, poolLogicalId)
   assert.ok(clientLogicalId)
 })

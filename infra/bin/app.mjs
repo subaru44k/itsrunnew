@@ -1,4 +1,4 @@
-import { App, Aws, CfnOutput, CfnParameter, Duration, Fn, RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
+import { App, Aws, CfnOutput, CfnParameter, Duration, Fn, RemovalPolicy, Stack } from 'aws-cdk-lib'
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
@@ -34,16 +34,6 @@ const apiMethodFilterCode = `function handler(event) {
 export class HostingStack extends Stack {
   constructor(scope, id, props) {
     super(scope, id, props)
-    const googleClientId = new CfnParameter(this, 'GoogleClientId', {
-      type: 'String',
-      description: 'Google OAuth web client ID; never store the client secret here.',
-    })
-    const googleSecretReference = new CfnParameter(this, 'GoogleClientSecretReference', {
-      type: 'String',
-      default: 'itsrun/preview/google-oauth-client-secret',
-      description: 'Secrets Manager name or ARN containing the Google OAuth client secret.',
-      noEcho: true,
-    })
     const cognitoDomainPrefix = new CfnParameter(this, 'CognitoDomainPrefix', {
       type: 'String',
       default: 'itsrun-preview-470447451992',
@@ -92,21 +82,6 @@ export class HostingStack extends Stack {
       deletionProtection: true,
       removalPolicy: RemovalPolicy.RETAIN,
     })
-    const googleSecretValue = SecretValue.unsafePlainText(Fn.sub(
-      '{{resolve:secretsmanager:${SecretReference}:SecretString}}',
-      { SecretReference: googleSecretReference.valueAsString },
-    ))
-    const googleProvider = new cognito.UserPoolIdentityProviderGoogle(this, 'GoogleIdentityProvider', {
-      userPool,
-      clientId: googleClientId.valueAsString,
-      clientSecretValue: googleSecretValue,
-      scopes: ['openid', 'profile', 'email'],
-      attributeMapping: {
-        email: cognito.ProviderAttribute.GOOGLE_EMAIL,
-        givenName: cognito.ProviderAttribute.GOOGLE_GIVEN_NAME,
-        familyName: cognito.ProviderAttribute.GOOGLE_FAMILY_NAME,
-      },
-    })
     const domain = new cognito.UserPoolDomain(this, 'AdminUserPoolDomain', {
       userPool,
       cognitoDomain: { domainPrefix: cognitoDomainPrefix.valueAsString },
@@ -120,7 +95,7 @@ export class HostingStack extends Stack {
     const userPoolClient = new cognito.UserPoolClient(this, 'AdminAppClient', {
       userPool,
       generateSecret: false,
-      supportedIdentityProviders: [cognito.UserPoolClientIdentityProvider.GOOGLE],
+      supportedIdentityProviders: [cognito.UserPoolClientIdentityProvider.COGNITO],
       oAuth: {
         flows: { authorizationCodeGrant: true, implicitCodeGrant: false, clientCredentials: false },
         callbackUrls: callbackUrls.valueAsList,
@@ -129,7 +104,6 @@ export class HostingStack extends Stack {
         scopes: [cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE, cognito.OAuthScope.resourceServer(resourceServer, scheduleScope)],
       },
     })
-    userPoolClient.node.addDependency(googleProvider)
     const adminsGroup = new cognito.UserPoolGroup(this, 'AdminsGroup', {
       userPool,
       groupName: 'admins',

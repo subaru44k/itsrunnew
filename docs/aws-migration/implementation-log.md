@@ -354,6 +354,7 @@ Sol RC03 review target: 8c06d20
 Date: 2026-08-09
 Result: RC01-RC02 accepted; one explicit recovery authorization is required for RC04-RC06
 Independent checks: Node 24.18.1; infra tests 13 passed; root check passed (web 6, core 7, schedule-api 25, infra 13); infra synth/build; git diff --check; clean worktree
+AWS read-only validation: CloudFormation ValidateTemplate accepted the corrected template and reported only expected CAPABILITY_IAM; policy remains default v4; stack remains UPDATE_ROLLBACK_COMPLETE; the retained pool still exactly matches its recorded tags/time/protection and has zero users/clients/groups/resource servers/providers/domain; current deployment principal simulation allows only the planned UpdateUserPool/DeleteUserPool calls on that exact pool ARN
 Template proof: failed template had 31 resources and corrected template has 30; only custom ApiCache removal, API managed cache ID, exact four-header OriginRequestPolicy/logical reference, and CDK metadata changed; canonical SHA of every unrelated parameter/resource/output/condition is a5b002ab60af11c32af075faadba3cf429ffa71a6c6a5deaaeae799a94178cde for both
 Assets: Lambda ZIP remains ed27108982d0ef94b6b9baa33135d04d2135dfaa4a365fc28fd6f4ca6cdda087.zip; corrected template is a1a88a39d271bfff65603452b3f176a93931c48cad8fa7192252efa926472744.json
 IAM: committed/default policy v4 still exactly covers the corrected graph; no policy v5 or permission expansion is needed

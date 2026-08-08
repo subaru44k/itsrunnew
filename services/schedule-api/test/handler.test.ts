@@ -37,7 +37,14 @@ describe('schedule API handler', () => {
     const first = store(); const create = await handlerWith(first)(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
     expect(create.statusCode).toBe(200); expect(first.calls[0]?.condition).toEqual({ ifNoneMatch: '*' })
     const second = store(); const update = await handlerWith(second)(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '"old"' } }))
-    expect(update.statusCode).toBe(200); expect(second.calls[0]?.condition).toEqual({ ifMatch: '"old"' })
+    expect(update.statusCode).toBe(200); expect(second.calls[0]?.condition).toEqual({ ifMatch: '"old"' }); expect(update.body).toContain('2026-01-01T00:00:00.000Z')
+  })
+  it('maps S3 precondition conflicts without retrying or exposing SDK errors', async () => {
+    const original = JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })
+    const s: ScheduleStore = { async get() { return { body: original } }, async put() { throw Object.assign(new Error('sensitive aws detail'), { $metadata: { httpStatusCode: 412 } }) } }
+    const logs: unknown[] = []; const h = createHandler({ store: s, log: (entry) => logs.push(entry) })
+    const result = await h(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '"old"' } }))
+    expect(result.statusCode).toBe(409); expect(result.body).not.toContain('sensitive aws detail'); expect(JSON.stringify(logs)).not.toContain('sensitive aws detail')
   })
   it('rejects malformed, unknown, stale, unconditional, and oversized input', async () => {
     const h = handlerWith(store())

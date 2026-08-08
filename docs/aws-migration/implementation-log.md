@@ -360,6 +360,19 @@ Plan: docs/aws-migration/phase4-t15-plan.md T15A-T15F
 Protected operations: no GitHub settings/workflow push, AWS/OIDC/IAM write, deployment, invalidation, production/DNS, or Firebase operation occurred
 ```
 
+### Phase 4 T16/T17 advance planning
+
+```text
+Sol planning baseline: 6bab082
+Date: 2026-08-09
+Result: T16 operational/auth/rollback and T17 migration-branch legacy-removal plan prepared; no implementation or protected operation started
+T16 external inputs: named admin/non-admin operators, designated schedule object and original ETag/VersionId/hash/bytes, maintenance window, rollback operator, and alarm deployment authority
+T16 invariants: real PKCE local-user tests, non-admin denial, one conditional update, stale-ETag no-write proof, exact original-byte restore as a new version, no token/body leakage
+T17 baseline: 77 tracked files under itsrunnew; removal-list dependencies confirmed in legacy package; ignored local env/node_modules/dist are not deletion targets
+Plan: docs/aws-migration/phase4-t16-t17-plan.md
+Protected operations: no Cognito user/group, schedule write/restore, alarm/IAM/stack change, tag push, tracked legacy removal, production/DNS, or Firebase operation occurred
+```
+
 ## Open items
 
 Use:

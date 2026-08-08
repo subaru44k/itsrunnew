@@ -58,6 +58,11 @@ test('T11 auth uses local Cognito users, code-only, and has no identity pool', (
   const clients = Object.entries(result.findResources('AWS::Cognito::UserPoolClient')).filter(([, resource]) => resource.Properties.UserPoolId.Ref === poolLogicalId)
   assert.equal(clients.length, 1)
   const [clientLogicalId, client] = clients[0]
+  const resourceServers = Object.entries(result.findResources('AWS::Cognito::UserPoolResourceServer')).filter(([, resource]) => resource.Properties.UserPoolId.Ref === poolLogicalId)
+  assert.equal(resourceServers.length, 1)
+  const [resourceServerLogicalId, resourceServer] = resourceServers[0]
+  assert.equal(resourceServer.Properties.Identifier, 'itsrun')
+  assert.deepEqual(resourceServer.Properties.Scopes, [{ ScopeDescription: 'Update schedule months', ScopeName: 'schedule.write' }])
   const groups = Object.values(result.findResources('AWS::Cognito::UserPoolGroup')).filter((resource) => resource.Properties.UserPoolId.Ref === poolLogicalId)
   assert.equal(groups.length, 1)
   const providers = Object.values(result.findResources('AWS::Cognito::UserPoolIdentityProvider')).filter((resource) => resource.Properties.UserPoolId.Ref === poolLogicalId)
@@ -73,6 +78,11 @@ test('T11 auth uses local Cognito users, code-only, and has no identity pool', (
   assert.equal(pool.DeletionPolicy, 'Retain')
   assert.equal(client.Properties.GenerateSecret, false)
   assert.deepEqual(client.Properties.AllowedOAuthFlows, ['code'])
+  assert.equal(client.Properties.AllowedOAuthFlowsUserPoolClient, true)
+  assert.deepEqual(client.Properties.AllowedOAuthScopes, [
+    'openid', 'email', 'profile',
+    { 'Fn::Join': ['', [{ Ref: resourceServerLogicalId }, '/schedule.write']] },
+  ])
   assert.deepEqual(client.Properties.SupportedIdentityProviders, ['COGNITO'])
   assert.equal(groups[0].Properties.GroupName, 'admins')
   assert.equal(Object.keys(result.findResources('AWS::Cognito::IdentityPool')).length, 0)

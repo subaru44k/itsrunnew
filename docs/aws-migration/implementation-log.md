@@ -223,6 +223,10 @@ and resources before any AWS write or policy v4.
 
 | T11RR01 | complete; awaiting final Sol IAM review | `7780bae` | `npm run test:infra --workspace @itsrun/infra` (9 passed) | Strengthened only infrastructure assertions: exact route-key set, route authorizer/integration references, stack-owned API cache/origin policy references, exact Secrets Manager dynamic reference, and parameterized OAuth client URLs. `infra/bin/app.mjs` and the synthesized resource contract were unchanged; no AWS operation was performed. |
 
+### Phase 4 T12 local implementation
+
+| T11L05 | complete; awaiting Sol IAM review | pending | infra tests (9 passed); infra synth; git diff --check | Added semantic assertions for the single `itsrun` resource server, its sole `schedule.write` scope, the detected resource-server Ref in app-client scopes, and code-only public-client settings. No AWS operation occurred. |
+
 ## Open items
 
 Use:

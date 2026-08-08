@@ -61,6 +61,30 @@ describe('schedule API handler', () => {
     const result = await h(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '"old"' } }))
     expect(result.statusCode).toBe(409); expect(result.body).not.toContain('sensitive aws detail'); expect(JSON.stringify(logs)).not.toContain('sensitive aws detail')
   })
+  it('maps both S3 conflict statuses once and keeps the fake state unchanged', async () => {
+    for (const httpStatusCode of [409, 412]) {
+      let attempts = 0
+      const original = JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })
+      let saved = original
+      const s: ScheduleStore = {
+        async get() { return { body: saved, etag: '"old"' } },
+        async put() { attempts += 1; throw Object.assign(new Error('conflict'), { $metadata: { httpStatusCode } }) },
+      }
+      const result = await handlerWith(s)(event('PUT', { headers: { 'content-type': 'application/json', 'if-match': '"old"' } }))
+      expect(result.statusCode).toBe(409)
+      expect(attempts).toBe(1)
+      expect(saved).toBe(original)
+      expect(JSON.parse(result.body)).toEqual({ error: { code: 'schedule_conflict', message: 'The schedule was changed by another user.', requestId: 'req-1' } })
+    }
+  })
+  it('sanitizes missing write metadata and missing GET etags', async () => {
+    const missingGet: ScheduleStore = { async get() { return { body: JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' }) } }, async put() { throw new Error('unused') } }
+    const getResult = await handlerWith(missingGet)(event('GET'))
+    expect(getResult.statusCode).toBe(500)
+    const noPutEtag: ScheduleStore = { async get() { return { body: '' } }, async put() { return { versionId: 'v1' } } }
+    const noPutVersion: ScheduleStore = { async get() { return { body: '' } }, async put() { return { etag: '"e"' } } }
+    for (const s of [noPutEtag, noPutVersion]) expect((await handlerWith(s)(event('PUT', { headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(500)
+  })
   it('emits one bounded audit record with only the allowlisted fields', async () => {
     const logs: Record<string, unknown>[] = []; const s = store(JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' }))
     const result = await createHandler({ store: s, now: () => new Date('2026-01-01T00:00:00.000Z'), log: (entry) => logs.push(entry) })(event('GET', { headers: { authorization: 'Bearer very-secret-token', 'content-type': 'application/json' } }))
@@ -90,6 +114,56 @@ describe('schedule API handler', () => {
     expect(routeMismatch.statusCode).toBe(400)
     const tooLarge = await h(event('PUT', { body: JSON.stringify({ ...good, days: { '2026-01-01': [1, 0, 2], extra: 'x'.repeat(33 * 1024) } }), headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
     expect(tooLarge.statusCode).toBe(400)
+  })
+  it('covers parser, route, media, conditional, and encoded-body client failures', async () => {
+    const h = handlerWith(store())
+    const invalidBodies: unknown[] = [
+      { ...good, days: { '2026-01-01': [1] } },
+      { ...good, days: { '2026-01-01': [1, 0, 2, 3] } },
+      { ...good, days: { '2026-01-01': [1, '0', 2] } },
+      { ...good, days: { '2026-01-01': [1, 0, 2], '2026-02-01': [1, 0, 2] } },
+      { ...good, days: { '2026-01-32': [1, 0, 2] } },
+    ]
+    for (const body of invalidBodies) {
+      const result = await h(event('PUT', { body: JSON.stringify(body), headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))
+      expect(result.statusCode).toBe(400)
+    }
+    for (const headers of [
+      { 'content-type': 'application/json', 'if-match': 'W/"weak"' },
+      { 'content-type': 'application/json', 'if-match': '"a", "b"' },
+      { 'content-type': 'application/json', 'if-match': '"ok"', 'if-none-match': '*' },
+      { 'content-type': 'application/json', 'if-none-match': 'yes' },
+    ]) expect((await h(event('PUT', { headers }))).statusCode).toBe(400)
+    expect((await h(event('PUT', { isBase64Encoded: true, headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
+    expect((await h(event('PUT', { headers: { 'content-type': 'application/json; charset=utf-8', 'if-none-match': '*' } }))).statusCode).toBe(200)
+    expect((await h(event('PUT', { version: '1.0', headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
+    expect((await h(event('PUT', { pathParameters: undefined, headers: { 'content-type': 'application/json', 'if-none-match': '*' } }))).statusCode).toBe(400)
+  })
+  it('returns exact sanitized envelopes and one allowlisted audit record', async () => {
+    const cases: Array<[number, string, ApiEvent, ScheduleStore]> = [
+      [403, 'forbidden', event('GET', { requestContext: { requestId: 'r', http: { method: 'GET' }, authorizer: { jwt: { claims: { token_use: 'id' } } } } }), store()],
+      [404, 'schedule_not_found', event('GET'), store()],
+      [500, 'internal_error', event('GET'), { async get() { throw new Error('secret aws') }, async put() { throw new Error('unused') } }],
+      [415, 'unsupported_media_type', event('PUT', { headers: { 'content-type': 'text/plain', 'if-none-match': '*' } }), store()],
+    ]
+    for (const [status, code, ev, s] of cases) {
+      const logs: Record<string, unknown>[] = []
+      const result = await createHandler({ store: s, log: (entry) => logs.push(entry) })(ev)
+      expect(result.statusCode).toBe(status)
+      expect(result.headers).toEqual({ 'content-type': 'application/json', 'cache-control': 'no-store' })
+      expect(JSON.parse(result.body).error).toMatchObject({ code, requestId: ev.requestContext?.requestId ?? 'unknown' })
+      expect(logs).toHaveLength(1)
+      expect(Object.keys(logs[0] ?? {}).sort()).toEqual(expect.arrayContaining(['requestId', 'route', 'method', 'status', 'durationMs']))
+      expect(JSON.stringify(logs)).not.toContain('secret aws')
+    }
+  })
+  it('accepts serialized Cognito admin groups but rejects near matches', async () => {
+    for (const groups of ['[admins]', ['admins']]) {
+      const result = await handlerWith(store(JSON.stringify({ ...good, updatedAt: '2026-01-01T00:00:00.000Z' })))(event('GET', { requestContext: { requestId: 'req-1', http: { method: 'GET' }, authorizer: { jwt: { claims: { token_use: 'access', sub: 'sub', scope: 'itsrun/schedule.write', 'cognito:groups': groups } } } } }))
+      expect(result.statusCode).toBe(200)
+    }
+    const result = await handlerWith(store())(event('GET', { requestContext: { requestId: 'req-1', http: { method: 'GET' }, authorizer: { jwt: { claims: { token_use: 'access', sub: 'sub', scope: 'itsrun/schedule.write', 'cognito:groups': ['admins-extra'] } } } } }))
+    expect(result.statusCode).toBe(403)
   })
   it('keeps typed keys isolated from hostile path values', async () => {
     let reads = 0

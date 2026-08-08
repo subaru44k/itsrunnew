@@ -172,8 +172,8 @@ AWS authority: None; local source/test/documentation/synth correction only
 | --- | --- | --- | --- | --- |
 | T11L01 | complete | `9218d84` | infra tests (9 passed) | Removed the undeployed Google parameters, Google User Pool IdP, Secrets Manager dynamic reference, and provider dependency. The public app client now uses Cognito local users only. No AWS operation occurred. |
 | T11L02 | complete | `9218d84` | infra tests (9 passed) | Updated semantic assertions for zero external IdPs, zero Identity Pools, no Google/Secrets Manager template content, COGNITO-only provider, and preserved T11R/T11RR contracts. |
-| T11L03 | complete; awaiting Sol IAM review | pending | infra synth | Corrected synth has no Google IdP or secret parameter. Candidate execution permissions are reduced to local Cognito lifecycle plus the existing API Gateway/CloudFront/S3/SSM scope; no policy file was changed. |
-| T11L04 | complete; awaiting Sol IAM review | pending | Node 24; infra tests (9 passed); infra synth | Local source, tests, documentation, and synth are complete. No dummy ApiIntegrationUri, AWS write, deploy, invalidation, or T12 implementation was performed. |
+| T11L03 | complete; awaiting Sol IAM review | `23f1905` | infra synth | Corrected synth has no Google IdP or secret parameter. Candidate execution permissions are reduced to local Cognito lifecycle plus the existing API Gateway/CloudFront/S3/SSM scope; no policy file was changed. |
+| T11L04 | complete; awaiting Sol IAM review | `23f1905` | Node 24; infra tests (9 passed); infra synth | Local source, tests, documentation, and synth are complete. No dummy ApiIntegrationUri, AWS write, deploy, invalidation, or T12 implementation was performed. |
 
 Corrected synthesized resource types are: two S3 buckets and bucket policies;
 CloudFront distribution, three cache policies, OriginRequestPolicy, two

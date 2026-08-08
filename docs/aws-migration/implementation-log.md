@@ -243,6 +243,17 @@ and resources before any AWS write or policy v4.
 | T12R06 | local corrective pass complete; awaiting Sol minimum-IAM re-review | `618fc9b` | Node 24.18.1: `npm ci`; core unit (7 passed); schedule-api unit (12 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean worktree before this log commit | Final local verification passed. AWS deployment, policy v4, IAM changes, preview mutation, and integration verification remain prohibited. |
 
 ```text
+Second Sol T12 review target: 0da39a9
+Date: 2026-08-09
+Result: final local corrections required before minimum-IAM policy v4 review
+Independent checks: Node 24.18.1; core unit 7 passed; schedule-api unit 12 passed; schedule-api typecheck; infra tests 10 passed; git diff --check
+Release blockers: synthesized RouteSettings uses lower-camel keys not the CloudFormation RouteSettings property contract; bounded reader invokes destroy without its receiver
+Incomplete proof: conditional 409/412 call/state behavior, missing write metadata, full parser-to-400 matrix, exact response/log contracts, exact Lambda/LogGroup/IAM/integration assertions
+Required work: docs/aws-migration/phase4-t12-review.md T12RR01-T12RR04
+AWS authority: None; no policy v4, IAM change, deploy, preview mutation, T13, DNS, Firebase, or production operation
+```
+
+```text
 Sol T12 review target: 98a03f4
 Date: 2026-08-08
 Result: local corrections required before minimum-IAM policy v4 or AWS deployment

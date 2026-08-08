@@ -172,3 +172,106 @@ Do not perform:
 Stop and return to Sol if a new dependency, API/data-schema change, broader
 runtime permission, wildcard invoke permission, policy change, or AWS access
 appears necessary.
+
+## T12 second Sol review
+
+Review target: `0da39a9`
+
+Review date: 2026-08-09
+
+Result: one final local corrective pass is required before policy v4 review.
+
+Independent checks passed under Node `v24.18.1`: core unit tests 7 passed,
+schedule API unit tests 12 passed, schedule API typecheck, infrastructure tests
+10 passed, and `git diff --check`. The conditional SDK field correction is
+accepted, but the following findings are release blockers or unproven required
+contracts.
+
+### T12RR01: valid CloudFormation route settings and exact stage ARN
+
+The synthesized `AWS::ApiGatewayV2::Stage.RouteSettings` currently contains
+lower-camel `throttlingBurstLimit` and `throttlingRateLimit`. CloudFormation's
+route-settings JSON contract requires `ThrottlingBurstLimit` and
+`ThrottlingRateLimit`. The test currently asserts the invalid synthesized
+shape.
+
+- Synthesize the exact PUT route map with the two PascalCase CloudFormation
+  property names. Because `RouteSettings` is typed as JSON, use an explicit
+  property override or an equally deterministic CDK mechanism; inspect the
+  final synthesized template, not only the source object.
+- Keep GET without a route-level throttle and retain the exact PUT limits.
+- Narrow both Lambda permission source ARNs from wildcard stage `/*/` to the
+  actual `/$default/` stage, preserving separate exact GET and PUT paths.
+- Assert the complete `Fn::Join` structures, including the detected API Ref,
+  `$default`, method, and path, without generated logical-ID hard-coding.
+
+### T12RR02: safely terminate bounded streams
+
+`readBodyBounded` extracts `body.destroy` and invokes it without its receiver.
+Node `Readable.destroy()` depends on `this`, so an oversized real S3 body can
+throw a receiver error instead of the intended bounded-read error. The current
+generator tests have no `destroy` method and do not detect this.
+
+- Invoke `destroy` with the body as its receiver and exactly once when the
+  limit is exceeded.
+- Do not call `destroy` twice through both the loop and `finally`.
+- Add a fake async iterable whose `destroy` checks its receiver and records the
+  call count.
+- Test exactly 32 KiB success, 32 KiB plus one byte failure, chunk-boundary
+  overflow, metadata overflow before iteration, missing body, UTF-8 data, and
+  stream error sanitization through the handler.
+- Prove the production S3 client resolves `maxAttempts` to exactly 1 using an
+  exported factory or another deterministic AWS-free test. Do not inspect
+  source text as the test.
+
+### T12RR03: finish the required handler matrix
+
+The 12 schedule API tests still do not cover several explicit T12R04 items.
+Add focused parameterized tests for:
+
+- both S3 conditional conflicts, 409 and 412, with exactly one put attempt and
+  unchanged fake state;
+- missing GET ETag, missing PUT ETag, and missing PUT VersionId as sanitized
+  `500 internal_error`;
+- all relevant shared parser failures through the handler: invalid real date,
+  cross-month date, sparse/short/long tuple, string/null/out-of-range status,
+  over 31 days, wrong stadium/month, and complete serialized size overflow;
+- payload version, route/method disagreement, missing path values, every
+  allowed stadium key, base64 input, JSON media-type parameters, both/missing/
+  malformed conditional headers, and unexpected store failures;
+- Cognito group claims in the actual accepted array and serialized-string
+  forms, plus near-match rejection;
+- exact success bodies and exact error envelope/code/message/requestId for
+  400/403/404/409/415/500;
+- exact `content-type` and `cache-control: no-store` on every response;
+- exactly one audit record and the exact allowlisted keys on error and PUT
+  success, including `s3VersionId` only after success.
+
+Avoid tests that combine unrelated invalid conditions in a way that does not
+prove which validator rejected the request.
+
+### T12RR04: complete infrastructure assertions and final log
+
+Strengthen the semantic infrastructure test to assert:
+
+- the Lambda's exact role `Fn::GetAtt`, LogGroup Ref, and environment key set
+  containing only the data-bucket Ref;
+- LogGroup name, retention, `DeletionPolicy: Retain`, and
+  `UpdateReplacePolicy: Retain`;
+- exactly one Lambda-trusted role, exactly two inline policies, no managed
+  policies, exactly one S3 statement and one logs statement, and each exact
+  `Fn::Join` resource structure;
+- integration URI contains the exact detected Lambda ARN and the Lambda
+  function is the target of both exact `$default` permissions;
+- the corrected PascalCase PUT-only route settings;
+- all T11/T11L05, JWT, CORS, CloudFront API no-cache/origin-request policy,
+  method filter, and dependency assertions remain unchanged.
+
+Update `implementation-log.md` without rewriting the prior correction history.
+Record the initial T12RR01 synthesis defect and the exact follow-up commits and
+test counts.
+
+Run the full T12R06 command list under Node 24. Do not perform any AWS call,
+policy v4/IAM change, deploy, preview mutation, invalidation, T13 work,
+production operation, DNS change, Firebase change, or dependency addition.
+Stop for Sol minimum-IAM review after T12RR04.

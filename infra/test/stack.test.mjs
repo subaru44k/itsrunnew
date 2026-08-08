@@ -185,8 +185,8 @@ test('T12 Lambda integration is bounded and data access is least privilege', () 
   assert.deepEqual(lambda.Properties.Role, { 'Fn::GetAtt': [roleLogicalId, 'Arn'] })
   assert.deepEqual(lambda.Properties.LoggingConfig, { LogGroup: { Ref: logGroupLogicalId } })
   assert.deepEqual(lambda.Properties.Environment, { Variables: { DATA_BUCKET_NAME: { Ref: dataBucketLogicalId } } })
-  const stage = Object.values(result.findResources('AWS::ApiGatewayV2::Stage'))[0]
-  assert.deepEqual(stage.Properties.RouteSettings, {
+  const throttleStage = Object.values(result.findResources('AWS::ApiGatewayV2::Stage'))[0]
+  assert.deepEqual(throttleStage.Properties.RouteSettings, {
     'PUT /api/v1/stadiums/{stadium}/availability/{yearMonth}': { ThrottlingBurstLimit: 10, ThrottlingRateLimit: 5 },
   })
   const integration = Object.values(result.findResources('AWS::ApiGatewayV2::Integration'))[0]
@@ -214,14 +214,24 @@ test('T12 Lambda integration is bounded and data access is least privilege', () 
   const statements = roles[0].Properties.Policies.flatMap(({ PolicyDocument }) => PolicyDocument.Statement)
   assert.equal(roles[0].Properties.Policies.length, 2)
   assert.equal(roles[0].Properties.ManagedPolicyArns, undefined)
+  assert.equal(statements.length, 2)
   const dataStatements = statements.filter((statement) => JSON.stringify(statement.Action).includes('s3:'))
   assert.deepEqual(dataStatements[0].Action, ['s3:GetObject', 's3:PutObject'])
-  assert.match(JSON.stringify(dataStatements[0].Resource), /data\/v1\/stadiums\/\*\/availability\/\*\.json/)
+  assert.deepEqual(dataStatements[0].Resource, { 'Fn::Join': ['', [{ 'Fn::GetAtt': [dataBucketLogicalId, 'Arn'] }, '/data/v1/stadiums/*/availability/*.json']] })
   const logStatements = statements.filter((statement) => JSON.stringify(statement.Action).includes('logs:'))
   assert.deepEqual(logStatements[0].Action, ['logs:CreateLogStream', 'logs:PutLogEvents'])
   assert.deepEqual(logStatements[0].Resource, { 'Fn::Join': ['', [{ 'Fn::GetAtt': [logGroupLogicalId, 'Arn'] }, ':*']] })
+  assert.equal(dataStatements.length, 1)
+  assert.equal(logStatements.length, 1)
   assert.doesNotMatch(JSON.stringify(dataStatements), /DeleteObject|ListBucket|s3:\*/)
   assert.doesNotMatch(JSON.stringify(dataStatements), /itsrun-preview-web/)
+
+  const routeEntries = Object.entries(result.findResources('AWS::ApiGatewayV2::Route'))
+  const stage = Object.values(result.findResources('AWS::ApiGatewayV2::Stage'))[0]
+  assert.deepEqual(new Set(stage.DependsOn), new Set(routeEntries.map(([logicalId]) => logicalId)))
+  const integrationLogicalId = Object.keys(result.findResources('AWS::ApiGatewayV2::Integration'))[0]
+  const authorizerLogicalId = Object.keys(result.findResources('AWS::ApiGatewayV2::Authorizer'))[0]
+  for (const [, route] of routeEntries) assert.deepEqual(new Set(route.DependsOn), new Set([integrationLogicalId, authorizerLogicalId]))
 })
 
 test('T11R01 forwards only the documented API headers', () => {

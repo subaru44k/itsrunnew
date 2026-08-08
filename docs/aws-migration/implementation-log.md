@@ -233,6 +233,17 @@ and resources before any AWS write or policy v4.
 | T12E | complete; awaiting Sol review | `c0efdc6` | infra tests (10 passed); infra synth | Replaced the URI parameter with a bundled Node.js 24 Lambda, explicit retained LogGroup, dedicated role, exact data-object S3 permissions, API invoke permission, and bounded stage throttling. No AWS write occurred. |
 | T12F | local implementation complete; awaiting Sol minimum-IAM review | `ac48e17` | Node 24: `npm ci`; core unit (6 passed); schedule-api unit (6 passed); schedule-api typecheck/build; infra tests (10 passed); infra build; `npm run check`; `git diff --check`; clean status | Final local source, tests, documentation, and CDK synth completed. AWS deployment, policy v4, preview mutation, and integration verification remain intentionally blocked. |
 
+```text
+Sol T12 review target: 98a03f4
+Date: 2026-08-08
+Result: local corrections required before minimum-IAM policy v4 or AWS deployment
+Independent checks: Node 24.18.1; schedule-api unit tests 6 passed; infra tests 10 passed; git diff --check
+Release blocker: lower-camel ifMatch/ifNoneMatch are spread into PutObjectCommand, but AWS SDK serializes only IfMatch/IfNoneMatch; the current deployed write could therefore be unconditional
+Additional corrections: exact API error envelope/codes, client-validation 400 mapping, bounded streaming S3 reads, full AWS-free test matrix, audit allowlist, exact PUT throttling and stronger IAM/invoke assertions
+Required work: docs/aws-migration/phase4-t12-review.md T12R01-T12R06
+AWS authority: None; no policy v4, IAM change, deploy, preview mutation, T13, DNS, Firebase, or production operation
+```
+
 ## Open items
 
 Use:

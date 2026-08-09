@@ -91,7 +91,7 @@ export class AdminApiRepository implements AdminApiPort {
   }
 }
 
-export type EditorState =
+type LegacyEditorState =
   | { kind: 'idle' | 'loading' }
   | { kind: 'missing'; draft: UpdateScheduleMonthRequest; base: null }
   | { kind: 'ready'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; dirty: boolean }
@@ -108,14 +108,16 @@ function emptyDraft(stadium: StadiumSlug, yearMonth: YearMonth): UpdateScheduleM
   return { schemaVersion: 1, stadium, yearMonth, days }
 }
 function cloneDraft(document: ScheduleMonth): UpdateScheduleMonthRequest { return { schemaVersion: 1, stadium: document.stadium, yearMonth: document.yearMonth, days: structuredClone(document.days) } }
-export function createEditor(api: AdminApiPort) {
-  let state: EditorState = { kind: 'idle' }; let saveInFlight = false
-  const listeners = new Set<(state: EditorState) => void>(); const emit = () => listeners.forEach((listener) => listener(state))
-  const set = (next: EditorState) => { state = next; emit() }
+export function createLegacyEditor(api: AdminApiPort) {
+  let state: LegacyEditorState = { kind: 'idle' }; let saveInFlight = false
+  const listeners = new Set<(state: LegacyEditorState) => void>(); const emit = () => listeners.forEach((listener) => listener(state))
+  const set = (next: LegacyEditorState) => { state = next; emit() }
   return {
-    get state() { return state }, subscribe(listener: (state: EditorState) => void) { listeners.add(listener); return () => listeners.delete(listener) },
+    get state() { return state }, subscribe(listener: (state: LegacyEditorState) => void) { listeners.add(listener); return () => listeners.delete(listener) },
     async load(stadium: StadiumSlug, yearMonth: YearMonth) { set({ kind: 'loading' }); try { const loaded = await api.get(stadium, yearMonth); if (!loaded) set({ kind: 'missing', draft: emptyDraft(stadium, yearMonth), base: null }); else set({ kind: 'ready', base: loaded, draft: cloneDraft(loaded.document), dirty: false }) } catch (error) { set({ kind: 'error', error: error instanceof AdminApiError ? error.kind : 'network' }) } },
-    updateDraft(draft: UpdateScheduleMonthRequest) { if (state.kind === 'ready' || state.kind === 'missing' || state.kind === 'conflict') { if (state.kind === 'missing') set({ ...state, draft }); else set({ ...state, draft, dirty: true } as EditorState) } },
+    updateDraft(draft: UpdateScheduleMonthRequest) { if (state.kind === 'ready' || state.kind === 'missing' || state.kind === 'conflict') { if (state.kind === 'missing') set({ ...state, draft }); else set({ ...state, draft, dirty: true } as LegacyEditorState) } },
     async save() { if (saveInFlight || (state.kind !== 'ready' && state.kind !== 'missing' && state.kind !== 'conflict')) return; saveInFlight = true; const before = state; const draft = before.draft; set({ kind: 'saving', base: before.kind === 'missing' ? null : before.base, draft }); try { const result = await api.put(draft.stadium, draft.yearMonth, draft, before.kind === 'missing' ? { create: true } : { etag: before.base.etag }); set({ kind: 'saved', base: result, draft: cloneDraft(result.document), dirty: false }) } catch (error) { if (error instanceof AdminApiError && error.kind === 'conflict' && before.kind !== 'missing') { try { const latest = await api.get(draft.stadium, draft.yearMonth); set({ kind: 'conflict', base: before.base, draft, latest }) } catch { set({ kind: 'comparisonError', base: before.base, draft }) } } else set({ kind: 'error', error: error instanceof AdminApiError ? error.kind : 'network' }) } finally { saveInFlight = false } },
   }
 }
+
+export { createEditor } from './adminEditor'

@@ -164,7 +164,7 @@ describe('editor conflict semantics', () => {
   it('preserves draft and base and fetches latest without retrying', async () => {
     const base = { document, etag: '"a"' }; const latest = { document: { ...document, updatedAt: '2026-01-02T00:00:00.000Z' }, etag: '"b"' }
     const api = { get: vi.fn().mockResolvedValueOnce(base).mockResolvedValueOnce(latest), put: vi.fn().mockRejectedValue(new AdminApiError('conflict')) }
-    const editor = createEditor(api); await editor.load('oda', '2026-08'); const draft = { ...document, days: { ...document.days, '2026-08-09': [2, 2, 2] as [2, 2, 2] } }; editor.updateDraft(draft); await editor.save()
+    const editor = createEditor(api); await editor.load('oda', '2026-08'); const draft = { schemaVersion: 1 as const, stadium: 'oda' as const, yearMonth: '2026-08' as const, days: { ...document.days, '2026-08-09': [2, 2, 2] as [2, 2, 2] } }; editor.updateDraft(draft); await editor.save()
     expect(editor.state.kind).toBe('conflict'); if (editor.state.kind === 'conflict') { expect(editor.state.draft.days['2026-08-09']).toEqual([2, 2, 2]); expect(editor.state.base).toEqual(base); expect(editor.state.latest).toEqual(latest) }; expect(api.put).toHaveBeenCalledTimes(1); expect(api.get).toHaveBeenCalledTimes(2)
   })
 })

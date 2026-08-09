@@ -1205,6 +1205,30 @@ Firebase/Google/AWS/network/auth/data operation occurred. T14E2+ remain
 pending Sol review.
 ```
 
+### Phase 4 T14E1R06 exact gcloud ADC schema correction
+
+```text
+Start: e43b2bd
+Source/test commit: f89af16
+Result: complete; local-only E1R06, stopped before T14E2.
+The synthetic validator and tests now match the exact reviewed gcloud ADC
+shape: top-level delegates (empty), impersonation URL, source_credentials,
+and impersonated_service_account type; source_credentials contains only
+account, client_id, client_secret, refresh_token, type, and universe_domain.
+The source type and universe domain are exact, account is only syntactically
+validated as bounded email-like metadata, and no account or secret value is
+returned/logged. Nonempty delegates, missing/extra fields, alternate domains,
+malformed account, alternate impersonation target/host/path, and oversized
+credentials remain rejected before loader invocation.
+
+Node 24.18.1; plain npm ci; exporter focused tests 13 passed; root npm run
+check passed (web 44, core 7, schedule-api 25, infra 15, all builds); actual
+CLI help/invalid passed; git diff --check passed and worktree is clean. No
+Firebase/Google/AWS/network/auth/data operation occurred. The prior protected
+attempt remains read count 0 with no output run. T14E2+ remain pending Sol
+review.
+```
+
 ### Phase 4 T14E1R01 artifact correction
 
 ```text

@@ -505,6 +505,19 @@ T13 local boundary: only direct dependency `oidc-client-ts@3.5.0` was added. No 
 T13R01-R06 correction handoff: generated admin routes are `/manage`, `/manage/callback`, `/en/manage`, and `/en/manage/callback`; browser storage uses injected session transaction storage plus in-memory User storage. No AWS/Cognito/real-token/data mutation occurred. Stop for Sol review before T14.
 
 ```text
+Sol T13 second review target: e854f98
+Date: 2026-08-09
+Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment
+Session blockers: callback still ignores User.state.returnPath, replaces browser history without routing to the editor, has no explicit transaction cleanup, and exposes the raw User computed value; no session lifecycle/concurrency/event/storage tests were added
+API blockers: outgoing If-Match is not validated; native fetch remains a method-valued default; the new bounded reader/status/envelope behavior has almost no focused tests
+Editor/UI blockers: save errors still discard base/draft, comparison actions and per-cell UI remain absent, raw status labels still define 0 as available and 1 as partly available, and signed-in/browser behavior lacks deterministic proof
+Browser blockers: the administrator suite only checks two unconfigured smoke pages in two projects; it has no fake OIDC/API injection and does not test login, callback, persistence, GET/edit/conditional PUT, non-admin, missing create, conflict, discard/reload, logout, or expiry
+Accepted partial corrections: legacy config selects only legacy tests; missing months generate real calendar dates; stream reader exists; raw preview files remain unchanged; no protected operation occurred
+Next authorized work: T13S01 only, local OIDC/session source, tests, log, and build; stop before T13S02
+AWS authority: none
+```
+
+```text
 Sol T13 first review target: 75804cb
 Date: 2026-08-09
 Result: not accepted; implement phase4-t13-review.md T13R01-T13R06 locally

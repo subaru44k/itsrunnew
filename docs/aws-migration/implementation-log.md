@@ -1604,3 +1604,30 @@ all builds); git diff --check passed. No AWS CLI, network, CloudFront fetch,
 upload, IAM, Firebase, dependency, or protected operation occurred. T14F02+
 remain pending Sol review.
 ```
+
+### Phase 4 T14F01R01 sealed/preflight correction
+
+```text
+Start: 15f229e
+Result: complete; local-only correction, stopped before T14F02.
+AWS CLI failures are now bounded and sanitized: only an exact service-code
+enum distinguishes a 254 exit with 404/NotFound/NoSuchKey from AccessDenied,
+403, or other failure. No stderr, principal, request text, or raw command
+error is retained. Sealed-run rereads now reject root/manifest/body symlinks,
+special files, traversal, extra files, and post-seal tampering, requiring the
+exact manifest plus 74 bodies on every runtime preflight.
+
+The fixed Node 24 CLI accepts only sealed-run/report names beneath the ignored
+migration root, fixed reviewed target constants, and no AWS credential/profile
+environment overrides. It invokes only generated allowlisted execFile argument
+arrays and returns nonzero for invalid/preflight/mismatch outcomes. The
+sealed orchestration performs one STS check, then all 74 exact-key absence
+checks before any conditional write; key 1, middle, key 74, present, denied,
+and malformed preflight cases produce zero puts. Reports remain atomic and
+sanitized.
+
+Node 24.18.1; focused Firestore A-D plus R01 tests 60 passed; core unit 7
+passed; actual CLI help/invalid boundaries passed; root npm run check passed;
+git diff --check passed. No AWS CLI/network/CloudFront/upload/IAM/Firebase or
+protected operation occurred. T14F02+ remain pending Sol review.
+```

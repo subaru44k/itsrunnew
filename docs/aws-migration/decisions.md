@@ -246,6 +246,64 @@ through a new decision. The deployed User Pool remains deletion-protected and
 retained; the empty-pool cleanup exception applies only to the exact orphan
 created by the failed 2026-08-09 preview update.
 
+## D014: Stable physical name for the preview schedule Lambda
+
+Status: accepted
+
+Problem:
+
+Policy v4 intentionally limits Lambda lifecycle operations to
+`arn:aws:lambda:ap-northeast-1:470447451992:function:itsrun-preview-schedule-api`.
+The second T11/T12 deployment synthesized no `FunctionName`, so CloudFormation
+generated `ItsRunPreviewHosting-ScheduleApiFunctionA177D4FE-SMCxODhObRRy` and
+was denied `lambda:CreateFunction`. Rollback also reported denied
+`lambda:DeleteFunction` for that generated ARN, although the function was not
+created. CloudFormation subsequently reached `UPDATE_ROLLBACK_COMPLETE`
+without intervention. The failed update retained a second empty User Pool and
+the explicit empty schedule LogGroup outside the restored stack graph.
+
+Decision:
+
+Set the schedule Lambda's physical name explicitly to
+`itsrun-preview-schedule-api` and assert the exact synthesized `FunctionName`.
+This makes the template match the already-reviewed least-privilege policy v4;
+no policy v5 or IAM expansion is permitted. Keep the existing exact LogGroup
+name, role, API integration, invoke permissions, runtime, environment, and
+runtime IAM contracts unchanged.
+
+Before another deployment, remove only the exact failed-deploy leftovers after
+fresh read-only gates and explicit authorization: User Pool
+`ap-northeast-1_CWmMgPepN`, and LogGroup
+`/aws/lambda/itsrun-preview-schedule-api`. The pool must retain its exact stack
+tags, creation time, deletion protection, and zero users, clients, groups,
+resource servers, identity providers, and domain. The LogGroup must retain its
+exact stack tags, creation time, 30-day retention, zero streams, and zero stored
+bytes. Any mismatch stops cleanup. No CloudFormation rollback recovery call is
+needed while the stack is `UPDATE_ROLLBACK_COMPLETE`.
+
+Alternatives:
+
+- Broaden policy v4 to the generated-name prefix: rejected because a stable,
+  environment-specific name is already documented and narrower.
+- Create policy v5 for only the failed generated ARN: rejected because the
+  function is absent and CloudFormation completed rollback without it.
+- Import or reuse the empty retained resources: rejected as more complex than
+  deleting unused failed-deploy leftovers before their first successful stack
+  ownership.
+
+Cost and maintenance effect:
+
+The stable name makes IAM review deterministic and adds no resource or runtime
+cost. Exact cleanup prevents unmanaged empty resources and a same-name
+LogGroup collision on the next deployment.
+
+Rollback/removal:
+
+Changing the physical Lambda name later requires a new decision and matching
+least-privilege IAM review. The failed-deploy cleanup exception applies only to
+the two exact resources recorded above and does not authorize deleting any
+deployed or populated resource.
+
 ## Decision template
 
 Copy for new decisions:

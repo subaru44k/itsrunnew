@@ -76,6 +76,12 @@ for Sol review before changing the Vue pages or locale files.
 
 ## T13S03B: accessible localized UI
 
+Sol accepted T13S03A through follow-up commits `d49746c` and `5a72fcc`.
+The independent review confirmed shared-schema draft validation, reversible dirty
+tracking, confirmation-gated reloads, explicit latest-ETag rebasing, and stale
+comparison suppression. Web unit tests passed 41/41 under Node 24.18.1. T13S03B
+may proceed; this approval does not authorize AWS writes or T13S04 work.
+
 After Sol accepts T13S03A, implement the complete T13R04 UI contract. Correct
 the locale meanings to `0` unpublished/unknown, `1` available, and `2`
 unavailable. Render every exclusive editor state, per-cell conflict values,

@@ -30,6 +30,7 @@
     "@types/node": "^26.1.2",
     "aws-cdk": "^2.1134.0",
     "eslint": "^10.8.0",
+    "firebase-admin": "14.2.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.8"

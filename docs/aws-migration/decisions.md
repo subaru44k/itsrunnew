@@ -572,6 +572,52 @@ after evidence retention is satisfied, and remove `firebase-admin` plus the
 export adapter in T17. No Firebase data is mutated, so no data rollback is
 required.
 
+## D019: Normalize exact legacy status strings during Firestore export
+
+Status: proposed
+
+Problem:
+
+The first two authorized production reads completed the six exact allowlisted
+Firestore calls but stopped before output. The reviewed diagnostic reports a
+`status` validation failure at the first availability document. The legacy
+client deliberately applied `Number(...)` to each of the three stored status
+slots, while the migration parser currently accepts only numeric `0`, `1`, and
+`2`. No source value was logged or committed.
+
+Decision:
+
+At the Firestore migration boundary only, accept each status slot when it is
+either numeric `0`, `1`, or `2`, or the exact one-character string `"0"`,
+`"1"`, or `"2"`. Normalize the exact string form to the corresponding number
+before T14B transformation. Continue to reject every other string, number,
+type, tuple length, sparse tuple, extra field, date, path, or collection
+identity. Keep the runtime API and target data schema numeric-only.
+
+After local implementation and tests, permit two additional bounded read-only
+captures using the existing exact temporary identity and read plan. Both
+normalized hashes, counts, and context hashes must match. No diagnostic third
+capture, broader read, Firestore write, or AWS operation is authorized.
+
+Alternatives:
+
+- Reject the source as malformed: safe but prevents migration of values the
+  deployed legacy client intentionally interpreted as valid statuses.
+- Accept arbitrary numeric strings or call `Number(...)`: rejected because it
+  would admit whitespace, alternate formatting, and values outside the schema.
+- Inspect or log raw source values: rejected because migration evidence does
+  not require production content disclosure.
+
+Cost and maintenance effect:
+
+The compatibility rule is isolated to the temporary Firestore snapshot parser
+and has no runtime dependency or infrastructure effect.
+
+Rollback/removal:
+
+Remove the temporary Firestore exporter and its compatibility rule with
+`firebase-admin` in T17 after migration evidence is accepted.
+
 ## Decision template
 
 Copy for new decisions:

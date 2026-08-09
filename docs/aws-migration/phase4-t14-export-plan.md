@@ -105,6 +105,21 @@ change, malformed record, unexpected collection identity, permission error, or
 limit breach stops the run. Do not coerce data or perform a third read without
 new Sol review of the evidence.
 
+### Sol live-data review after the first two reads
+
+Both originally authorized reads completed only the six allowlisted calls and
+stopped before producing an output run. The second attempt, after adding safe
+category/coordinate propagation, identified `status` at
+`collection[0].document[0]`; it did not expose a document ID, path, or value.
+The legacy client converted all three stored slots with `Number(...)`.
+
+D019 therefore proposes a narrower compatibility contract: only exact strings
+`"0"`, `"1"`, and `"2"` may be normalized to numeric `0`, `1`, and `2` at the
+temporary Firestore boundary. Local tests must reject all other coercions.
+After explicit user acceptance of D019 and the expanded read count, run exactly
+two new captures and apply the original equality gate. Any remaining validation
+failure or mismatch stops without a further read.
+
 ## T14E4: local transform and comparison
 
 Using the accepted T14B/T14C implementation:

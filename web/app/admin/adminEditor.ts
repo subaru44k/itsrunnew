@@ -17,9 +17,6 @@ export type EditorState =
   | ({ kind: 'forbidden'; error: 'forbidden'; message: string } & Common)
   | ({ kind: 'conflict'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; latest: LoadedSchedule | null; diffs: CellDiff[]; dirty: boolean } & Common)
   | ({ kind: 'comparisonFailure'; error: EditorError; message: string; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; latest: null; dirty: boolean } & Common)
-  | ({ kind: 'comparisonError'; error: EditorError } & Common)
-  // Kept as a type-only compatibility branch for the unchanged pre-S03 page.
-  | ({ kind: 'error'; error: EditorError } & Common)
 
 const statuses = new Set<AvailabilityStatus>([0, 1, 2])
 const isSelection = (stadium: string, yearMonth: string): stadium is StadiumSlug => ['oda', 'yumenoshima', 'komazawa', 'todoroki'].includes(stadium) && /^\d{4}-(0[1-9]|1[0-2])$/.test(yearMonth)

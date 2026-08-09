@@ -11,7 +11,6 @@ export function isSafeReturnPath(value: unknown): boolean {
 }
 
 export interface OidcPort {
-  readonly user?: User | null
   readonly events?: {
     addUserLoaded(handler: (user: User) => void): void
     addUserUnloaded(handler: () => void): void
@@ -22,6 +21,8 @@ export interface OidcPort {
   signinRedirect(args?: { state?: { returnPath: string } }): Promise<void>
   signinCallback(url?: string): Promise<User>
   signoutRedirect(args?: { post_logout_redirect_uri: string }): Promise<void>
+  clearTransactionState(): Promise<void>
+  readonly settings?: UserManager['settings']
 }
 
 export interface OidcConfig { authority: string; clientId: string; redirectUri: string; postLogoutRedirectUri: string }
@@ -42,7 +43,7 @@ export function oidcConfig(authority: string, clientId: string, origin: string):
 export function createOidcPort(config: OidcConfig, storage: Storage = window.sessionStorage): OidcPort {
   // The import and UserManager are browser-only: this module is only called by
   // the .client composable after Nuxt has entered a browser lifecycle.
-  return new UserManager({
+  const manager = new UserManager({
     authority: config.authority,
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
@@ -52,7 +53,27 @@ export function createOidcPort(config: OidcConfig, storage: Storage = window.ses
     automaticSilentRenew: false,
     stateStore: new WebStorageStateStore({ store: storage }),
     userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
-  }) as OidcPort
+  })
+  return {
+    events: manager.events,
+    settings: manager.settings,
+    getUser: () => manager.getUser(),
+    signinRedirect: (args) => manager.signinRedirect(args),
+    signinCallback: async (url) => {
+      const user = await manager.signinCallback(url)
+      if (!user) throw new Error('OIDC callback did not produce a user')
+      return user
+    },
+    signoutRedirect: (args) => manager.signoutRedirect(args),
+    clearTransactionState: async () => {
+      // oidc-client-ts stores authorization transaction/PKCE material under
+      // its dedicated `oidc.` state-store prefix; preserve unrelated entries.
+      for (let index = storage.length - 1; index >= 0; index -= 1) {
+        const key = storage.key(index)
+        if (key?.startsWith('oidc.')) storage.removeItem(key)
+      }
+    },
+  }
 }
 
 export function hasPersistentToken(value: unknown): boolean {

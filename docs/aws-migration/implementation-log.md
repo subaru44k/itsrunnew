@@ -798,3 +798,13 @@ The callback page fallback remains removed. useAdminSession captures the router 
 Focused unit tests continue to pass (43 web tests), but the six direct callback browser cases do not reach /manage with a single captured navigation in the isolated static admin build; all remain at /manage/callback with cleanup behavior not observable by the browser assertion. The prior page-level fallback made those cases pass but is explicitly forbidden for this correction. No test was weakened.
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred. Stop for Sol review.
 ```
+
+### Phase 4 T13 S04A exact router replacement follow-up
+
+```text
+Start: 899f52b
+Result: stopped after the required focused browser gate failed.
+Implementation is now exactly navigate: async (path) => { await router.replace(path) }, with router captured once during useAdminSession setup. No navigateTo, router.isReady, async useRouter call, or page fallback remains.
+Evidence: the six direct callback success/failure/hostile browser cases (Japanese desktop and English mobile) remained at /manage/callback and failed their /manage URL assertion. No additional tests were run after this binding stop condition; prior 43 web unit tests and normal checks remain recorded in the preceding entry.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```

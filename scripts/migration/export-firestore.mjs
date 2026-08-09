@@ -38,7 +38,7 @@ const canonicalBytes = (value, coordinate) => { const encoded = bytes(canonicali
 const isHash = (value) => typeof value === 'string' && /^[0-9a-f]{64}$/.test(value)
 const isCapturedAt = (value) => { if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value)) return false; try { return new Date(value).toISOString() === value } catch { return false } }
 const isSafeCredentialValue = (value) => typeof value === 'string' && value.length > 0 && value.length <= 4096
-const isAccount = (value) => typeof value === 'string' && value.length <= 320 && /^[^@\s]{1,128}@[^@\s]{1,255}$/.test(value)
+const isAccount = (value) => value === '' || (typeof value === 'string' && value.length <= 320 && /^[^@\s]{1,128}@[^@\s]{1,255}$/.test(value))
 const isImpersonationUrl = (value) => { if (typeof value !== 'string') return false; try { const url = new URL(value); if (url.protocol !== 'https:' || url.hostname !== 'iamcredentials.googleapis.com' || url.port || url.search || url.hash) return false; const match = /^\/v1\/projects\/-\/serviceAccounts\/(.+):generateAccessToken$/u.exec(url.pathname); if (!match) return false; const target = decodeURIComponent(match[1]); return target === IMPERSONATED_ACCOUNT && (match[1] === IMPERSONATED_ACCOUNT || match[1] === encodeURIComponent(IMPERSONATED_ACCOUNT)) } catch { return false } }
 
 export function validateImpersonatedAdc(value) {

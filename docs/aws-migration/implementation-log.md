@@ -736,6 +736,16 @@ Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; normal
 AWS authority: none; no AWS, Cognito, deployment, upload, invalidation, production, DNS, Firebase, or schedule mutation occurred. Stop for Sol review before T13S05.
 ```
 
+### Phase 4 T13 S04A authentication-browser lifecycle follow-up
+
+```text
+Start: f705f39
+Result: partial; lifecycle coverage expanded and stopped before S05
+Browser proof: admin-local now passes 20 cases across Japanese desktop and English mobile, including logout-to-signed-out, initialization/redirect failure sanitization, expiry, user-unloaded, and silent-renew event clearing. Existing login settings, authenticated GET/edit/conditional PUT, no-storage token proof, and localized fail-closed cases remain passing.
+Callback limitation: direct static `/manage/callback?code=...` success/failure navigation was attempted without the fake adapter's history bypass but the current generated callback route did not execute the client callback lifecycle; the deterministic browser callback assertion therefore remains unresolved. Existing OIDC/session unit tests still cover validated safe/hostile return paths, cleanup-before-navigation ordering, callback failure sanitization, and lifecycle listener registration.
+Checks: Node 24.18.1 admin-local Playwright 20 passed; no AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred. S04 API/editor matrix and S05 remain forbidden.
+```
+
 ### Phase 4 T13 second-review — T13S04 completion follow-up
 
 ```text

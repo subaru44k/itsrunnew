@@ -13,6 +13,7 @@ const REGION = 'ap-northeast-1'
 const MAX_ARTIFACT_FILES = 1024
 const MAX_ARTIFACT_DEPTH = 16
 const MAX_CLI_OUTPUT_BYTES = 64 * 1024
+const AWS_EXECUTABLE = '/usr/local/bin/aws'
 const SEALED_MANIFEST_SHA256 = '2d6000e0a56026abc1bdad91717d4627d942b6cef2d19e729239c5192000eb16'
 const SEALED_OBJECT_COUNT = 74
 const SEALED_PREFIX = 'data/v1/stadiums/'
@@ -175,10 +176,17 @@ function classifyAwsError(error, stderr, args) {
   if (error?.code === 254 && operation === 'put-object' && leading('409|412|PreconditionFailed')) return 'Collision'
   return 'Other'
 }
-export async function runAwsJson(execFileImpl = nodeExecFile, args, { maxOutputBytes = MAX_CLI_OUTPUT_BYTES } = {}) {
+const sanitizedAwsEnv = (env = process.env) => Object.fromEntries(Object.entries(env ?? {}).filter(([key]) => !key.startsWith('AWS_')))
+export async function preflightAwsExecutable(fs = { lstat, realpath }) {
+  try { const info = await fs.lstat(AWS_EXECUTABLE); if (!info.isFile() || info.isSymbolicLink() || !(info.mode & 0o111) || resolve(await fs.realpath(AWS_EXECUTABLE)) !== AWS_EXECUTABLE) fail('executable') } catch (error) { if (error instanceof UploadValidationError) throw error; fail('executable') }
+  return AWS_EXECUTABLE
+}
+export async function runAwsJson(execFileImpl = nodeExecFile, args, { maxOutputBytes = MAX_CLI_OUTPUT_BYTES, env = process.env, roots = null } = {}) {
   if (typeof execFileImpl !== 'function' || !Number.isInteger(maxOutputBytes) || maxOutputBytes < 1) fail('command'); validateAwsArgs(args)
+  const operation = args[7]; const command = args.slice(6); if (roots && (!plain(roots) || (operation === 'put-object' && (!isAbsolute(roots.sealedRoot) || !beneath(roots.sealedRoot, command[7]))) || (operation === 'get-object' && (!isAbsolute(roots.readbackRoot) || !beneath(roots.readbackRoot, command[8]))))) fail('path')
+  const executable = execFileImpl === nodeExecFile ? AWS_EXECUTABLE : 'aws'; const childEnv = sanitizedAwsEnv(env)
   return await new Promise((resolvePromise, reject) => {
-    execFileImpl('aws', args, { shell: false, windowsHide: true, encoding: 'utf8', maxBuffer: maxOutputBytes }, (error, stdout = '', stderr = '') => {
+    execFileImpl(executable, args, { shell: false, windowsHide: true, encoding: 'utf8', maxBuffer: maxOutputBytes, env: childEnv }, (error, stdout = '', stderr = '') => {
       if (Buffer.byteLength(stdout) > maxOutputBytes || Buffer.byteLength(stderr) > maxOutputBytes) return reject(new UploadValidationError('output'))
       if (error) { const safe = new UploadValidationError('command'); safe.code = error.code; safe.serviceCode = classifyAwsError(error, stderr, args); return reject(safe) }
       try { const value = JSON.parse(stdout); return resolvePromise(value) } catch { return reject(new UploadValidationError('json')) }

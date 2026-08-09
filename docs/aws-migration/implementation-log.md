@@ -1653,3 +1653,22 @@ Node 24.18.1; focused upload tests 24 passed; no AWS CLI, network, CloudFront,
 upload, IAM, Firebase, or protected operation occurred. T14F02+ remain
 pending Sol review.
 ```
+
+### Phase 4 T14F01R03 environment/executable hardening
+
+```text
+Start: 9c55593
+Result: complete; local-only correction, stopped before T14F02.
+The fixed CLI rejects every caller AWS_* environment override and passes an
+explicit child environment with AWS_* variables removed. Production execution
+uses only the fixed absolute executable boundary after regular-file,
+non-symlink, executable, and realpath preflight. Protected command validation
+also binds PutObject bodies and GetObject outputs to the sealed/readback roots.
+The end-to-end injected CLI test covers one STS, 74 heads, 74 conditional puts,
+74 exact-version reads, 74 CloudFront fetches, atomic match reporting, and a
+single-put collision stop. Root symlink escape is rejected before calls.
+
+Node 24.18.1; focused upload tests 26 passed; no AWS CLI, network, CloudFront,
+upload, IAM, Firebase, or protected operation occurred. T14F02+ remain
+pending Sol review.
+```

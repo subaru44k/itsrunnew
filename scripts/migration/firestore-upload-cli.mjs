@@ -1,6 +1,6 @@
 import { relative, resolve, sep, isAbsolute } from 'node:path'
 import { lstat, realpath } from 'node:fs/promises'
-import { runAwsJson, uploadSealedMigrationRun } from './firestore-upload.mjs'
+import { preflightAwsExecutable, runAwsJson, uploadSealedMigrationRun } from './firestore-upload.mjs'
 
 const PROFILE = 'codex-prod'
 const ACCOUNT = '470447451992'
@@ -10,17 +10,16 @@ const DOMAIN = 'd2via50thoheqm.cloudfront.net'
 const MANIFEST_SHA256 = '2d6000e0a56026abc1bdad91717d4627d942b6cef2d19e729239c5192000eb16'
 const PREFIX = 'data/v1/stadiums/'
 const OBJECT_COUNT = 74
-const ENV_KEYS = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN', 'AWS_WEB_IDENTITY_TOKEN_FILE', 'AWS_ROLE_ARN', 'AWS_PROFILE', 'AWS_DEFAULT_PROFILE']
 
 const beneath = (root, candidate) => { const rel = relative(resolve(root), resolve(candidate)); return rel !== '' && rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel) }
 const directChild = (root, candidate) => beneath(root, candidate) && !relative(resolve(root), resolve(candidate)).includes(sep)
 const validRunName = (value) => typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(value)
 const usage = () => 'Usage: node scripts/migration/firestore-upload-cli.mjs --run <sealed-run-name> --report <report-run-name>'
-async function validArtifactRoots(fs, cwd, artifactRoot, runDir, reportDir) {
+export async function validArtifactRoots(fs, cwd, artifactRoot, runDir, reportDir) {
   try {
     const workspaceInfo = await fs.lstat(cwd); const artifactInfo = await fs.lstat(artifactRoot)
     if (!workspaceInfo.isDirectory() || workspaceInfo.isSymbolicLink() || !artifactInfo.isDirectory() || artifactInfo.isSymbolicLink()) return false
-    const rootReal = await fs.realpath(artifactRoot); if (resolve(rootReal) !== resolve(artifactRoot)) return false
+    const workspaceReal = await fs.realpath(cwd); const rootReal = await fs.realpath(artifactRoot); if (!beneath(workspaceReal, rootReal)) return false
     const runInfo = await fs.lstat(runDir); if (!runInfo.isDirectory() || runInfo.isSymbolicLink() || !beneath(rootReal, await fs.realpath(runDir))) return false
     try { const reportInfo = await fs.lstat(reportDir); if (!reportInfo.isDirectory() || reportInfo.isSymbolicLink() || !beneath(rootReal, await fs.realpath(reportDir))) return false } catch (error) { if (error?.code !== 'ENOENT') return false }
     return true
@@ -37,13 +36,14 @@ export async function main(argv = process.argv.slice(2), env = process.env, { cw
   let args
   try { args = parseUploadCliArgs(argv) } catch { return 2 }
   if (args.help) { console.log(usage()); return 0 }
-  if (!env || ENV_KEYS.some((key) => env[key])) return 2
+  if (!env || Object.keys(env).some((key) => key.startsWith('AWS_'))) return 2
   const artifactRoot = resolve(cwd, '.artifacts/migration'); const runDir = resolve(artifactRoot, args.runName); const reportDir = resolve(artifactRoot, args.reportName)
   if (!directChild(artifactRoot, runDir) || !directChild(artifactRoot, reportDir) || runDir === reportDir) return 2
   const fs = { lstat, realpath, ...fsImpl }; if (!(await validArtifactRoots(fs, resolve(cwd), artifactRoot, runDir, reportDir))) return 2
   const config = { profile: PROFILE, account: ACCOUNT, region: REGION, bucket: BUCKET, distributionDomain: DOMAIN, manifestSha256: MANIFEST_SHA256, objectCount: OBJECT_COUNT, allowedPrefix: PREFIX, runDir, manifestPath: resolve(runDir, 'manifest.json'), env }
   const approvedTarget = Object.freeze({ bucket: BUCKET, distributionDomain: DOMAIN })
-  const aws = runAws ?? ((args) => runAwsJson(execFile, args)); const fetcher = fetch ?? globalThis.fetch
+  if (!runAws) { try { await preflightAwsExecutable(fs) } catch { return 2 } }
+  const aws = runAws ?? ((args) => runAwsJson(execFile, args, { roots: { sealedRoot: runDir, readbackRoot: runDir }, env })); const fetcher = fetch ?? globalThis.fetch
   if (typeof aws !== 'function' || typeof fetcher !== 'function') return 2
   try { const result = await uploadSealedMigrationRun(config, { runAws: aws, fetch: fetcher, approvedTarget, fsImpl, reportDir }); return result.report.status === 'match' ? 0 : 2 } catch { return 2 }
 }

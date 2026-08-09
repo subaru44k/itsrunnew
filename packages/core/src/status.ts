@@ -1,4 +1,4 @@
-import type { AvailabilityStatus } from './types'
+import type { AvailabilityStatus } from './types.ts'
 
 export const STATUS_LABELS = {
   0: { ja: '未公開', en: 'Unknown' },

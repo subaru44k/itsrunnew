@@ -1,7 +1,7 @@
-import { stadiumForSlug } from './stadiums'
-import { isAvailabilityStatus } from './status'
-import { isValidIsoDate, isValidYearMonth } from './dates'
-import type { ScheduleMonth, StadiumSlug } from './types'
+import { stadiumForSlug } from './stadiums.ts'
+import { isAvailabilityStatus } from './status.ts'
+import { isValidIsoDate, isValidYearMonth } from './dates.ts'
+import type { ScheduleMonth, StadiumSlug } from './types.ts'
 
 const topLevel = new Set(['schemaVersion', 'stadium', 'yearMonth', 'updatedAt', 'days'])
 const isRecord = (value: unknown): value is Record<string, unknown> => {

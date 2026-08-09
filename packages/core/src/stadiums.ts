@@ -1,4 +1,4 @@
-import type { StadiumSlug } from './types'
+import type { StadiumSlug } from './types.ts'
 
 export interface StadiumConfig {
   slug: StadiumSlug

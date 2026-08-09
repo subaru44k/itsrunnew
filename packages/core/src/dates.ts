@@ -1,4 +1,4 @@
-import type { IsoDate, SchedulePath, StadiumSlug, YearMonth } from './types'
+import type { IsoDate, SchedulePath, StadiumSlug, YearMonth } from './types.ts'
 
 const JAPAN = 'Asia/Tokyo'
 const pad = (value: number) => String(value).padStart(2, '0')

@@ -1,5 +1,5 @@
-import { STADIUMS } from './stadiums'
-import type { AvailabilityStatus, StadiumSlug } from './types'
+import { STADIUMS } from './stadiums.ts'
+import type { AvailabilityStatus, StadiumSlug } from './types.ts'
 
 export interface RawFirestoreDocument {
   path: string

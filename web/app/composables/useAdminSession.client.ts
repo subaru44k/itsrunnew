@@ -18,6 +18,12 @@ let browserSession: ReturnType<typeof createAdminSession> | undefined
 
 function safeReturnPath(value: unknown): string { return isSafeReturnPath(value) ? value as string : '/manage' }
 
+export function replaceClientPath(path: string): void {
+  if (typeof window === 'undefined') return
+  window.history.replaceState(window.history.state, '', path)
+  window.dispatchEvent(new PopStateEvent('popstate', { state: window.history.state }))
+}
+
 export function createAdminSession(options: SessionOptions) {
   const state = ref<AdminSessionState>(options.authority && options.clientId ? 'signedOut' : 'unconfigured')
   let currentUser: User | null = null
@@ -97,7 +103,6 @@ export function getBrowserAdminSession(options: SessionOptions) {
 export function useAdminSession() {
   const config = useRuntimeConfig().public
   if (import.meta.client && !browserSession) {
-    const nuxtApp = useNuxtApp()
     browserSession = createAdminSession({
       authority: config.cognitoAuthority,
       clientId: config.cognitoClientId,
@@ -107,7 +112,7 @@ export function useAdminSession() {
         : config.cognitoAuthority && config.cognitoClientId
         ? createOidcPort(oidcConfig(config.cognitoAuthority, config.cognitoClientId, window.location.origin))
         : undefined,
-      navigate: async (path) => { await nuxtApp.runWithContext(() => navigateTo(path, { replace: true })) },
+      navigate: async (path) => { replaceClientPath(path) },
     })
   }
   const session = browserSession ?? createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId, oidc: undefined })

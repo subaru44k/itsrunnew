@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { User } from 'oidc-client-ts'
-import { createAdminSession, getBrowserAdminSession, resetBrowserAdminSession } from './useAdminSession.client'
+import { createAdminSession, getBrowserAdminSession, replaceClientPath, resetBrowserAdminSession } from './useAdminSession.client'
 import type { OidcPort } from '../admin/oidc'
 
 function fakeUser(state?: unknown): User {
@@ -30,6 +30,18 @@ function fakePort(user: User | null = null) {
 }
 
 describe('browser admin session boundary', () => {
+  it('replaces one client path and dispatches one popstate without full reload', () => {
+    const replaceState = vi.fn(); const dispatchEvent = vi.fn()
+    vi.stubGlobal('window', { history: { state: { marker: 'state' }, replaceState }, dispatchEvent })
+    vi.stubGlobal('PopStateEvent', class { type: string; state: unknown; constructor(type: string, init: { state: unknown }) { this.type = type; this.state = init.state } })
+    replaceClientPath('/manage/schedule')
+    expect(replaceState).toHaveBeenCalledTimes(1)
+    expect(replaceState).toHaveBeenCalledWith({ marker: 'state' }, '', '/manage/schedule')
+    expect(dispatchEvent).toHaveBeenCalledTimes(1)
+    expect(dispatchEvent.mock.calls[0][0].type).toBe('popstate')
+    vi.unstubAllGlobals()
+  })
+
   it('covers unconfigured state and deduplicates initialization with retry', async () => {
     const unconfigured = createAdminSession({ authority: '', clientId: '' })
     expect(unconfigured.state.value).toBe('unconfigured')

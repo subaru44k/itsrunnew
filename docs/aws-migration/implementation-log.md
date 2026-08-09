@@ -789,6 +789,16 @@ The callback page now invokes session.callback(window.location.href) exactly onc
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
 
+### Phase 4 T13 S04A native replace navigator follow-up
+
+```text
+Start: b15381c
+Result: stopped after focused browser gate failure.
+Added exported replaceClientPath(path), performing exactly one history.replaceState(window.history.state, '', path) and one popstate dispatch, and injected it as the sole session navigation. No router/Nuxt context, navigateTo, page fallback, full reload, location, pushState, or double navigation remains. Added focused unit proof for one replaceState and one popstate.
+Evidence: web unit passed 44 tests, but all six direct callback browser cases remained at /manage/callback and failed exact /manage URL assertions in the isolated admin build. No test was weakened.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```
+
 ### Phase 4 T13 S04A Nuxt-context navigation follow-up
 
 ```text

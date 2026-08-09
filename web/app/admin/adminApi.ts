@@ -68,7 +68,7 @@ export class AdminApiRepository implements AdminApiPort {
   private readonly request: ApiFetch
   constructor(basePath = '/api/v1', private readonly token: () => Promise<string | null>, request: ApiFetch = fetch) {
     validateAdminBasePath(basePath)
-    this.request = (input, init) => request(input, init)
+    this.request = request === fetch ? request.bind(globalThis) : (input, init) => request(input, init)
   }
   private async call(path: string, init: RequestInit) {
     const accessToken = await this.token(); if (!accessToken) throw new AdminApiError('unauthorized')

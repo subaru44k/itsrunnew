@@ -956,6 +956,31 @@ credential/data operation or new dependency occurred. T14D+ remain pending Sol
 review.
 ```
 
+### Phase 4 T14E1R07 gcloud ADC empty-account correction
+
+```text
+Start: a7ea6b9
+Source/test commit: b0a1773
+Result: complete; local-only E1R07, stopped before T14E2.
+The third protected attempt stopped during local ADC validation because the
+actual gcloud 579 impersonated ADC uses an empty source_credentials.account.
+All other reviewed schema, target, host, and bounds checks remained intact;
+no Firestore entity/document/collection read occurred, no capture output was
+created, and no AWS write occurred.
+
+The validator now accepts account only as the empty gcloud form or a bounded
+email-like string, while rejecting malformed nonempty accounts and non-string
+types. Exact keys, empty delegates, authorized_user type, googleapis.com
+universe domain, impersonation target/path, and secret bounds remain enforced.
+The synthetic fixture and deterministic tests cover empty acceptance and
+malformed/nonempty rejection without exposing credential values.
+
+Node 24.18.1; exporter tests 13 passed; actual CLI --help passed; root npm run
+check passed (web 44, core 7, schedule-api 25, infra 15, all builds); git
+diff --check passed; worktree clean. No Firebase/Google/AWS/network/auth/data
+operation occurred. T14E2+ remain pending Sol review.
+```
+
 ### Phase 4 T14C trusted-options and report-integrity follow-up
 
 ```text

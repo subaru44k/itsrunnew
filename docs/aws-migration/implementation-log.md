@@ -705,3 +705,18 @@ Safe work that can continue: T10, then T11-T17 in documented dependency order as
 | FF01 | complete | `f11d47a` | `node --check scripts/migration/deploy-preview.mjs`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed) | CloudFront fixture verification now bounds fetch and body reads with an AbortController-backed deadline, clears timers, preserves max-attempt/fake-clock behavior, and tests never-settling fetch/body failures without AWS. |
 | FF02 | complete | `ba90aad` | `npm run lint --workspace web`; `npm run typecheck --workspace web`; separated schedule-state Playwright suite (24 passed) | Added a simulated 503 unavailable response and verified localized unavailable/Retry, no unpublished message, and no raw technical error across desktop/mobile Japanese and English projects. The raw preview suite remains uninstrumented. |
 | FF03 | complete | `c0bb6b6` | `npm run check`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed); `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (88 passed); `git diff --check`; `git status --short` | Restored C05's 64-case history, recorded exact RR01/FF commits, and separated RR03's initial 76/8 test-only failure from its final 84-case pass. No AWS deployment or invalidation was performed. |
+
+### Phase 4 T13 second-review follow-up — T13S03B
+
+```text
+Milestone: T13S03B follow-up
+Start: d70c496
+Date: 2026-08-09
+Result: complete; local-only manage UI correction, no S04 work
+UI contract: schedule table now iterates core time ranges with zero-based slot indices for labels, IDs, reads, and updates; saved state retains the submitted draft table while showing updatedAt, ETag, and VersionId metadata.
+Conflict contract: a conflict with no latest comparison exposes only GET-only comparison retry; diff/rebase/confirmed-replace controls render only after a latest document exists.
+Error contract: all EditorError kinds map to sanitized localized load/save/comparison messages; unauthorized offers reauthentication, forbidden has one alert, and no raw error is rendered.
+Locale/browser proof: core 0/1/2 labels remain ja 未公開/利用可能/利用不可 and en Unknown/Available/Unavailable. Focused helper tests cover every error kind, action, forbidden deduplication, and all three slot IDs. Admin-local Playwright explicitly checks localized title, noindex/fail-closed safe text, and localized routes for both ja/en projects (4 passed).
+Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; root npm run check passed (including infra tests/build); admin-local Playwright 4 passed; git diff --check passed.
+AWS authority: none; no AWS/preview/Cognito/deployment/invalidation operation occurred. Stop for Sol review before T13S04.
+```

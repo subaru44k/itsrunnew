@@ -61,6 +61,29 @@ describe('T14D injected local upload tooling', () => {
     const { runDir: countDir, config: countConfig } = await createRun(); await writeFile(join(countDir, 'extra-a.txt'), 'x'); const count = await uploadMigrationRun(countConfig, { runAws: async () => { calls.push('aws') }, fetch: successFetch(), approvedTarget }); expect(count.report.failure.stage).toBe('preflight'); expect(calls).toEqual([]); await rm(countDir, { recursive: true, force: true })
   })
 
+  it('accepts only the explicit upload report state-machine matrix', () => {
+    const tagged = result.objects.slice(0, 2).map((object) => ({ key: object.key, sha256: object.sha256, etag: '"abc123"', versionId: 'v1' })); const nullTagged = tagged.map((object) => ({ ...object, etag: null, versionId: null })); const valid = [
+      { schemaVersion: 1, status: 'mismatch', counts: { attempted: 0, uploaded: 0, readback: 0, cloudfront: 0 }, objects: [], failure: { stage: 'preflight', category: 'config', key: null } },
+      { schemaVersion: 1, status: 'mismatch', counts: { attempted: 0, uploaded: 0, readback: 0, cloudfront: 0 }, objects: [], failure: { stage: 'sts', category: 'sts', key: null } },
+      { schemaVersion: 1, status: 'mismatch', counts: { attempted: 2, uploaded: 1, readback: 0, cloudfront: 0 }, objects: [tagged[0], nullTagged[1]], failure: { stage: 'upload', category: 'collision', key: tagged[1].key } },
+      { schemaVersion: 1, status: 'mismatch', counts: { attempted: 2, uploaded: 2, readback: 1, cloudfront: 0 }, objects: tagged, failure: { stage: 'readback', category: 'readback', key: tagged[1].key } },
+      { schemaVersion: 1, status: 'mismatch', counts: { attempted: 2, uploaded: 2, readback: 2, cloudfront: 0 }, objects: tagged, failure: { stage: 'cleanup', category: 'readback', key: null } },
+      { schemaVersion: 1, status: 'mismatch', counts: { attempted: 2, uploaded: 2, readback: 2, cloudfront: 1 }, objects: tagged, failure: { stage: 'cloudfront', category: 'timeout', key: tagged[1].key } },
+      { schemaVersion: 1, status: 'match', counts: { attempted: 2, uploaded: 2, readback: 2, cloudfront: 2 }, objects: tagged, failure: null }
+    ]; for (const report of valid) expect(() => serializeUploadReport(report)).not.toThrow()
+    const invalid = [
+      { ...valid[0], failure: { stage: 'preflight', category: 'collision', key: null } },
+      { ...valid[1], counts: { attempted: 1, uploaded: 0, readback: 0, cloudfront: 0 } },
+      { ...valid[2], objects: [tagged[0], tagged[1]] },
+      { ...valid[2], counts: { attempted: 2, uploaded: 0, readback: 0, cloudfront: 0 } },
+      { ...valid[3], failure: { stage: 'readback', category: 'readback', key: tagged[0].key } },
+      { ...valid[4], counts: { attempted: 2, uploaded: 2, readback: 1, cloudfront: 0 } },
+      { ...valid[5], failure: { stage: 'cloudfront', category: 'config', key: tagged[1].key } },
+      { ...valid[5], objects: [{ ...tagged[0], etag: null }, tagged[1]] },
+      { ...valid[6], failure: { stage: 'cloudfront', category: 'cloudfront', key: tagged[1].key } }
+    ]; for (const report of invalid) expect(() => serializeUploadReport(report)).toThrow()
+  })
+
   it('preflights local artifacts, uploads/readbacks deterministically, then verifies CloudFront', async () => {
     const { runDir, manifestPath, config } = await createRun(); const calls = []; const runAws = async (args) => { calls.push(args); if (args.includes('get-caller-identity')) return { Account: '470447451992' }; if (args.includes('put-object')) return { ETag: '"abc123"', VersionId: `v${calls.length}` }; const output = args.at(-1); const key = args[args.indexOf('--key') + 1]; await writeFile(output, result.objects.find((object) => object.key === key).body); return {} }
     const uploaded = await uploadMigrationRun(config, { runAws, fetch: successFetch(), approvedTarget }); expect(uploaded.report).toMatchObject({ status: 'match', counts: { attempted: 4, uploaded: 4, readback: 4, cloudfront: 4 } }); expect(calls.filter((args) => args.includes('put-object'))).toHaveLength(4); expect(calls.filter((args) => args.includes('get-object'))).toHaveLength(4); expect(uploaded.human).toContain('Failure: none'); expect([...await readFile(manifestPath)]).toEqual([...result.manifestBytes]); await rm(runDir, { recursive: true, force: true })

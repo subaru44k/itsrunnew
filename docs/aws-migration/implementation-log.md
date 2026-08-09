@@ -1122,6 +1122,25 @@ AWS/Firebase/network/credential/data operation or new dependency occurred.
 T14E remains pending Sol review.
 ```
 
+### Phase 4 T14D4 report state-machine correction
+
+```text
+Start: b6a50ca
+Result: complete; local-only D4, stopped before T14E.
+Upload reports now enforce an explicit preflight/sts/upload/readback/cleanup/
+cloudfront/match matrix. Failed upload entries must retain null ETag and
+VersionId, uploaded/readback/cloudfront prefixes require complete tags, cleanup
+requires full readback counts and a null key, and stage/category/key/count
+combinations outside the actual state machine are rejected before serialization.
+Table-driven tests cover valid reports and illegal combinations, including
+partial prefixes, wrong keys, tags on failed entries, and illegal categories.
+
+Node 24.18.1 Firestore A-D focused: 52 tests expected after final run; root
+`npm run check` passed; git diff --check passed. No AWS/Firebase/network/
+credential/data operation or new dependency occurred. T14E remains pending Sol
+review.
+```
+
 ### Phase 4 T14D2 CloudFront verification correction
 
 ```text

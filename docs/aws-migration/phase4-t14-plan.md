@@ -120,6 +120,12 @@ ordering, and the zero-difference fixture.
 
 ## T14D: fail-closed conditional upload and readback tooling
 
+Sol accepted T14C through `a938957`, `3cc6f1f`, and `50dddae`. Explicit trusted
+transform options, independent source/target validation, exhaustive typed
+cell/object comparison, and machine/human report integrity passed 37 focused
+A+B+C tests. T14D may proceed with mocked process/fetch boundaries only; this
+does not authorize an AWS call or write.
+
 1. Build deterministic `aws s3api put-object` arguments using exact manifest
    keys, `application/json`, cache metadata, and `--if-none-match '*'`. Never
    use `aws s3 sync`, unconditional `s3 cp`, wildcard keys, delete, or an

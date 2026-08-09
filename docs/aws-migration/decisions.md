@@ -574,7 +574,7 @@ required.
 
 ## D019: Normalize exact legacy status strings during Firestore export
 
-Status: proposed
+Status: accepted
 
 Problem:
 

@@ -65,18 +65,26 @@ After Sol accepts T13S01, change only `adminApi` and its tests plus the log.
 
 Required focused and root checks, commit, and stop before T13S03.
 
-## T13S03: editor state and accessible UI
+## T13S03A: editor state and conflict safety
 
-After Sol accepts T13S02, implement the complete T13R03 and T13R04 contracts.
-Correct the locale meanings to `0` unpublished/unknown, `1` available, and `2`
-unavailable. Preserve base/draft/dirty state on every failure, implement
-per-cell latest conflict comparison and explicit confirmed replacement, and
-add deterministic editor tests plus browser-visible localized UI tests. Commit
-and stop before T13S04.
+After Sol accepts T13S02, implement the complete T13R03 state contract in a
+separate editor module with exhaustive deterministic tests. Preserve
+base/draft/dirty state on every failure, prevent stale async completion and
+double save, implement per-cell latest conflict comparison, comparison retry,
+explicit keep/rebase, and confirmed replacement operations. Commit and stop
+for Sol review before changing the Vue pages or locale files.
+
+## T13S03B: accessible localized UI
+
+After Sol accepts T13S03A, implement the complete T13R04 UI contract. Correct
+the locale meanings to `0` unpublished/unknown, `1` available, and `2`
+unavailable. Render every exclusive editor state, per-cell conflict values,
+manual rebase/confirmed replacement, retry, and accessible controls. Add
+browser-visible localized UI assertions, commit, and stop before T13S04.
 
 ## T13S04: honest administrator browser contract
 
-After Sol accepts T13S03, replace the current two fail-closed smoke assertions
+After Sol accepts T13S03B, replace the current two fail-closed smoke assertions
 with the complete T13R05 local-production fake-OIDC/API matrix. Test injection
 must be default-off and visibly absent from a normal preview build. The static
 server must reject traversal and serve deterministic cache/content types.

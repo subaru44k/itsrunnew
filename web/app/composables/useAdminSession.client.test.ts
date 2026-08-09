@@ -76,6 +76,19 @@ describe('browser admin session boundary', () => {
     expect(await session.getAccessToken()).toBeNull()
   })
 
+  it('swallows transaction cleanup failure without logging it or changing navigation', async () => {
+    const fake = fakePort()
+    fake.port.clearTransactionState = vi.fn(async () => { throw new Error('raw transaction token') })
+    const navigate = vi.fn()
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const session = createAdminSession({ authority: 'https://issuer', clientId: 'client', oidc: fake.port, navigate })
+    await session.callback()
+    expect(fake.port.clearTransactionState).toHaveBeenCalledTimes(1)
+    expect(navigate).toHaveBeenCalledWith('/manage/schedule')
+    expect(error).not.toHaveBeenCalled()
+    error.mockRestore()
+  })
+
   it('passes safe and hostile login paths without exposing redirect errors', async () => {
     const fake = fakePort()
     const session = createAdminSession({ authority: 'https://issuer', clientId: 'client', oidc: fake.port })

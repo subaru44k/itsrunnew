@@ -72,3 +72,24 @@ test('login redirect failure is sanitized without raw details', async ({ page })
   await expect(page.getByRole('alert')).toContainText('認証を完了できませんでした。')
   await expect(page.locator('body')).not.toContainText(/fake redirect failure|token|claims/i)
 })
+
+test('logout clears memory authentication and leaves signed-out UI', async ({ page }) => {
+  await page.goto('/manage', { waitUntil: 'domcontentloaded' })
+  await page.getByRole('button', { name: '管理者としてログイン' }).click()
+  await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
+  await page.getByRole('button', { name: 'ログアウト' }).click()
+  await expect(page.getByRole('button', { name: '管理者としてログイン' })).toBeVisible()
+  expect(await page.evaluate(() => Object.keys(localStorage).concat(Object.keys(sessionStorage)).some((key) => /token|user/i.test(key)))).toBe(false)
+  await expect(page.locator('body')).not.toContainText(/admin-e2e-memory-token|claims/i)
+})
+
+for (const lifecycle of ['expired', 'unloaded', 'silentRenew']) {
+  test(`${lifecycle} event clears memory authentication`, async ({ page }) => {
+    await setE2eMode(page, lifecycle)
+    await page.goto('/manage', { waitUntil: 'domcontentloaded' })
+    await page.getByRole('button', { name: '管理者としてログイン' }).click()
+    await expect(page.getByRole('button', { name: '管理者としてログイン' })).toBeVisible()
+    expect(await page.evaluate(() => Object.keys(localStorage).concat(Object.keys(sessionStorage)).some((key) => /token|user/i.test(key)))).toBe(false)
+    await expect(page.locator('body')).not.toContainText(/admin-e2e-memory-token|claims|raw/i)
+  })
+}

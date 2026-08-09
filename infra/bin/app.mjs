@@ -139,6 +139,7 @@ export class HostingStack extends Stack {
     const scheduleFunction = new lambdaNodejs.NodejsFunction(this, 'ScheduleApiFunction', {
       entry: path.join(path.dirname(fileURLToPath(import.meta.url)), '../../services/schedule-api/src/index.ts'),
       handler: 'handler',
+      functionName: 'itsrun-preview-schedule-api',
       runtime: lambda.Runtime.NODEJS_24_X,
       timeout: Duration.seconds(10),
       memorySize: 256,

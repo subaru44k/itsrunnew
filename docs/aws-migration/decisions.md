@@ -507,23 +507,27 @@ into a migration artifact. The repository intentionally does not contain
 
 Decision:
 
-Prefer short-lived Google Application Default Credentials belonging to a named
-operator who has only `roles/datastore.viewer` on `itsrun-aaf42`. Install exact
-`firebase-admin@14.2.0` as a root migration-only development dependency and
-change the exporter to use `applicationDefault()` with the exact project ID.
-The operator performs the interactive ADC login outside logs; no token or ADC
-file is copied into the repository or chat. The exporter remains restricted in
-code to `default/0`, `stadium_info`, and the four documented
+Prefer a temporary service account named `itsrun-fs-export-20260809` in
+`itsrun-aaf42`, with only `roles/datastore.viewer`, and short-lived impersonated
+Google Application Default Credentials. Grant the named operator
+`roles/iam.serviceAccountTokenCreator` on that exact service account only; do
+not create a service-account key. Install exact `firebase-admin@14.2.0` as a
+root migration-only development dependency and change the exporter to use
+`applicationDefault()` with the exact project ID. The operator performs the
+interactive gcloud login and creates impersonated ADC outside logs; no token
+or ADC file is copied into the repository or chat. The exporter remains
+restricted in code to `default/0`, `stadium_info`, and the four documented
 `availability/{legacyId}/date` collections. It performs two successive reads,
 normalizes both snapshots, and requires identical normalized-data hashes
 before transformation proceeds.
 
-The operator revokes ADC immediately after the second verified export and the
-temporary Firestore Viewer binding is removed after the migration evidence is
-accepted. Remove `firebase-admin` and the credential adapter in T17. A
-dedicated temporary service-account JSON key is a fallback only if ADC cannot
-be made available; it requires a separate explicit amendment because key
-creation and handling have a larger credential surface.
+The operator revokes ADC immediately after the second verified export. Remove
+the Token Creator and Viewer bindings and delete the temporary service account
+after the migration evidence is accepted. Remove `firebase-admin` and the
+credential adapter in T17. A temporary service-account JSON key is a fallback
+only if impersonated ADC cannot be made available; it requires a separate
+explicit amendment because key creation and handling have a larger credential
+surface.
 
 This decision authorizes neither installing `gcloud`, granting Google Cloud
 IAM, authenticating, reading Firestore, nor installing the repository
@@ -531,6 +535,8 @@ dependency until the user accepts D018 and selects an operator procedure.
 
 Alternatives:
 
+- Direct user ADC: rejected because an existing owner/operator account can
+  carry permissions broader than the export needs.
 - Temporary service-account JSON with `roles/datastore.viewer`: operationally
   simple but creates a long-lived private key and therefore is not the default.
 - Firestore REST calls with a copied access token: rejected because token
@@ -548,7 +554,8 @@ the migration artifacts.
 
 Rollback/removal:
 
-Revoke ADC, remove the temporary Viewer binding, delete ignored raw exports
+Revoke ADC, remove the service-account Token Creator and project Viewer
+bindings, delete the temporary service account, delete ignored raw exports
 after evidence retention is satisfied, and remove `firebase-admin` plus the
 export adapter in T17. No Firebase data is mutated, so no data rollback is
 required.

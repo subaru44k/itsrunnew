@@ -15,16 +15,24 @@ upload.
 Preferred mechanism:
 
 - project: `itsrun-aaf42` only;
-- named operator with temporary `roles/datastore.viewer` only;
-- short-lived Application Default Credentials acquired interactively;
+- temporary service account
+  `itsrun-fs-export-20260809@itsrun-aaf42.iam.gserviceaccount.com` with only
+  `roles/datastore.viewer`;
+- named operator receives `roles/iam.serviceAccountTokenCreator` on that exact
+  service account only;
+- short-lived impersonated Application Default Credentials acquired with
+  `gcloud auth application-default login --impersonate-service-account`;
 - exact-pinned migration-only `firebase-admin@14.2.0` development dependency;
 - no service-account JSON, copied access token, Firebase CI token, or secret in
   Git/chat/logs/artifacts;
 - ADC and the temporary IAM binding revoked after verified export.
 
-This workstation currently has no `gcloud` executable. Before implementation,
-the user must choose either to install/authenticate the Google Cloud CLI as an
-operator prerequisite or to approve a separately reviewed credential fallback.
+This workstation currently has no `gcloud` executable. Before protected
+execution, the user must approve installing the Google Cloud CLI, the exact
+temporary Google IAM/service-account mutations above, interactive login,
+impersonated ADC, two bounded reads, and subsequent revocation/deletion as one
+bundle. Local T14E1 implementation can remain a separate non-authenticated
+milestone.
 
 ## T14E1: local exporter hardening
 
@@ -60,17 +68,20 @@ interactive login or Firestore connection.
 Before the first real read, record only non-secret evidence:
 
 - named operator identity stored outside Git (do not place email in logs);
-- confirmation that `roles/datastore.viewer` is the only temporary project
-  role used for this operation;
+- exact temporary service account and confirmation that
+  `roles/datastore.viewer` is its only project role;
+- confirmation that the operator has Token Creator only on that exact service
+  account for this operation;
 - installed Google Cloud CLI version and ADC account/project configuration;
 - exact ignored run directory and free-space/permission checks;
 - clean branch and accepted immutable exporter commit;
 - proof no Firebase emulator variable or service-account key variable is set.
 
-The user must explicitly authorize the temporary Google IAM binding if it does
-not already exist, interactive ADC authentication, and two bounded Firestore
-reads. Do not automate the IAM grant unless the exact administrator principal
-and command have been separately reviewed.
+The user must explicitly authorize creation/deletion of the exact temporary
+service account, its Viewer binding, the exact operator's service-account-level
+Token Creator binding, interactive ADC authentication, and two bounded
+Firestore reads. Resolve the operator principal read-only after login without
+writing it to repository logs; stop if the principal or project differs.
 
 ## T14E3: two read-only captures
 
@@ -104,11 +115,12 @@ No AWS access occurs. Any mismatch stops before T14F.
 
 ## T14E5: credential retirement and handoff
 
-Revoke ADC and remove the temporary Viewer binding through the operator
-procedure. Verify the exporter can no longer authenticate. Record sanitized
-revocation confirmation without token, email, credential path, or raw IAM
-policy output. Keep `firebase-admin` only until T17 so the final pre-cutover
-read can be repeated if explicitly authorized.
+Revoke ADC, remove the exact Token Creator and Viewer bindings, and delete the
+temporary service account through the operator procedure. Verify the exporter
+can no longer authenticate. Record sanitized revocation confirmation without
+token, email, credential path, or raw IAM policy output. Keep `firebase-admin`
+only until T17 so the final pre-cutover read can be repeated if explicitly
+authorized with a newly reviewed short-lived identity.
 
 Return to Sol with exact commits, dependency lock diff, tests, SDK read plan,
 capture counts/hashes, zero-difference report hash, credential revocation

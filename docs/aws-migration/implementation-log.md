@@ -491,6 +491,18 @@ AWS authority: None; no policy v4, deployment, Cognito-user/group, schedule writ
 
 T13 local boundary: only direct dependency `oidc-client-ts@3.5.0` was added. No AWS call/read/write, Cognito administration, schedule mutation, token persistence, API/schema change, or production/DNS/Firebase operation occurred. Stop for Sol review before T14.
 
+```text
+Sol T13 first review target: 75804cb
+Date: 2026-08-09
+Result: not accepted; implement phase4-t13-review.md T13R01-T13R06 locally
+Release blockers: callback and manage create separate session/UserManager instances so the memory-only authenticated User does not survive route transition; callback does not consume its validated return state; callback cleanup uses history replacement without entering the editor
+API blockers: response.json is unbounded when Content-Length is absent/false/understated; ETag and success-envelope checks are incomplete; PUT response does not require VersionId; outgoing DTO validation is incomplete
+Editor/UI blockers: missing month has no editable dates; save errors can discard base/draft; conflict comparison/reload UI is absent; signed-in data load relies on a one-time mounted snapshot; status 0/1 labels conflict with the existing core contract
+Test blockers: no session-state tests, incomplete repository/editor matrix, no component/admin browser tests, no storage inspection, and required npm run test:e2e failed because the root config runs preview suites against the legacy host
+Accepted boundary: exact oidc-client-ts 3.5.0 dependency and no AWS/Cognito/preview mutation; existing raw preview files were unchanged
+AWS authority: none; corrections are local source/test/docs/static build only and must stop before T14 or deployment
+```
+
 ### Phase 4 T14 advance planning
 
 ```text

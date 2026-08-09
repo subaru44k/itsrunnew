@@ -1254,7 +1254,7 @@ Sol review.
 
 ```text
 Start: 94aa08e
-Source/test commit: 372bc67
+Source/test commits: 372bc67, dbf4220
 Result: complete; local-only E1R03, stopped before T14E2.
 Preflight handles are now module-authentic WeakSet members with frozen exact
 fields; writeExportRun revalidates output name, root/workspace containment,
@@ -1269,7 +1269,7 @@ without RangeError. SDK/applicationDefault/initialize/getFirestore/read/write
 and deleteApp failures are sanitized, with primary failures preserved over
 cleanup failures and no delete after initialization failure.
 
-Node 24.18.1; plain npm ci; exporter + Firestore A-D focused tests: 62 passed;
+Node 24.18.1; plain npm ci; exporter + Firestore A-D focused tests: 63 passed;
 core unit: 7 passed; root npm run check passed; npm ls shows firebase-admin is
 absent from web and schedule-api trees; generated web/Lambda output contains
 no firebase-admin/applicationDefault exporter code; git diff --check passed.

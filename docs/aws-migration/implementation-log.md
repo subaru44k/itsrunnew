@@ -920,3 +920,33 @@ Synthetic output: 4 objects with keys data/v1/stadiums/{komazawa,oda,todoroki,yu
 Atomic writer uses an exclusive temporary sibling, containment checks, exclusive files, atomic rename, exact-temp cleanup on failure, and refuses existing targets/relative traversal. Focused Firestore A+B tests: 24 passed; core unit: 7 passed; root npm run check passed (web 44, core 7, service 25, infra 15, build); git diff --check passed.
 No Firebase/AWS/network/credential/data operation or new dependency occurred. T14C+ remain pending Sol review.
 ```
+
+### Phase 4 T14B deterministic transform and atomic writer follow-up
+
+```text
+Start: b150629
+Result: complete; local-only T14B follow-up, stopped before T14C.
+Canonical timestamp validation now requires the exact millisecond-Z format and
+new Date(value).toISOString() byte-for-byte round-trip. The exported pure
+serializeSchedule boundary is exercised at exactly 32768 bytes (success) and
+32769 bytes (rejection); production transformation continues to use the fixed
+32 KiB limit. Out-of-order multi-day same-month records group deterministically,
+sort day keys, preserve source counts/ranges, and keep sourceIdentity in the
+manifest only. The synthetic manifest canonical SHA-256 is
+dce278828fcee3357a96c3f92a410c6591702a51b9430de04639021fbf617b47; the four
+object keys, byte counts, and object hashes remain those recorded above.
+
+The writer now fully preflights artifact schemas, typed key identity, exact
+manifest/object metadata and order, parser-valid canonical bodies, 32 KiB
+limits, byte counts, hashes, content/cache metadata, aggregate ranges/counts,
+and canonical manifest bytes before any stat/mkdir/mkdtemp/write operation.
+Tampered metadata/body/manifest/duplicates/traversal fail with sanitized
+MigrationWriteError and zero filesystem residue. Atomic success reads back the
+exact complete file set and bytes; mkdir/write/rename failures clean only the
+exact temporary path.
+
+Checks: Node 24.18.1; Firestore-focused A+B Vitest 29 passed (including T14A
+normalizer tests); core unit and root npm run check remain required next gate.
+git diff --check passed. No Firebase/AWS/network/credential/data operation or
+new dependency occurred. T14C+ remain pending Sol review.
+```

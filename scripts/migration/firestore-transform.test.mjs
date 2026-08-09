@@ -1,9 +1,10 @@
+import { createHash } from 'node:crypto'
 import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { normalizeFirestoreSnapshot } from '../../packages/core/src/firestoreSnapshot.ts'
-import { MigrationWriteError, transformFirestoreRecords, writeMigrationRun } from './firestore-transform.mjs'
+import { MigrationWriteError, serializeSchedule, transformFirestoreRecords, writeMigrationRun } from './firestore-transform.mjs'
 
 const raw = JSON.parse(await readFile(new URL('./fixtures/firestore-snapshot.synthetic.json', import.meta.url), 'utf8'))
 const records = normalizeFirestoreSnapshot(raw)
@@ -32,7 +33,7 @@ describe('deterministic Firestore monthly transform', () => {
       { bytes: 191, sha256: '133ef50a73e34f3e9bff3b46f3ab8c8e226637e2eb7455e6df266ce6f051626c' },
     ])
     expect(result.manifest).toEqual({ schemaVersion: 1, sourceIdentity: 'synthetic-fixture', migrationUpdatedAt: options.updatedAt, sourceCount: 4, dateRange: { from: '20231231', to: '20240301' }, objects: result.manifest.objects })
-    expect(Object.keys(result.manifest)).toEqual(['schemaVersion', 'sourceIdentity', 'migrationUpdatedAt', 'sourceCount', 'dateRange', 'objects'])
+    expect(Object.keys(result.manifest)).toEqual(['schemaVersion', 'sourceIdentity', 'migrationUpdatedAt', 'sourceCount', 'dateRange', 'objects']); expect(createHash('sha256').update(result.manifestBytes).digest('hex')).toBe('dce278828fcee3357a96c3f92a410c6591702a51b9430de04639021fbf617b47')
     expect(Object.keys(result.manifest.objects[0])).toEqual(['key', 'stadium', 'yearMonth', 'sourceCount', 'dateRange', 'bytes', 'sha256', 'contentType', 'cacheControl'])
     for (const object of result.objects) { const schedule = JSON.parse(new TextDecoder().decode(object.body)); expect(schedule.schemaVersion).toBe(1); expect(Object.keys(schedule)).toEqual(['schemaVersion', 'stadium', 'yearMonth', 'updatedAt', 'days']); expect(object.body.at(-1)).toBe(10) }
   })
@@ -46,7 +47,29 @@ describe('deterministic Firestore monthly transform', () => {
     expect(() => transformFirestoreRecords(records, { sourceIdentity: 'synthetic-fixture' })).toThrow(/updated-at/)
     expect(() => transformFirestoreRecords(records, { sourceIdentity: 'synthetic-fixture', updatedAt: 'now' })).toThrow(/updated-at/)
     expect(() => transformFirestoreRecords(records, { sourceIdentity: 'secret token', updatedAt: options.updatedAt })).toThrow(/source-identity/)
+    expect(() => transformFirestoreRecords(records, { ...options, updatedAt: '2026-02-29T00:00:00.000Z' })).toThrow(/updated-at/)
+    expect(() => transformFirestoreRecords(records, { ...options, updatedAt: '2026-08-09T00:00:00Z' })).toThrow(/updated-at/)
+    expect(() => transformFirestoreRecords(records, { ...options, updatedAt: '2026-08-09T00:00:00.001+00:00' })).toThrow(/updated-at/)
     const changed = transformFirestoreRecords(records, { ...options, updatedAt: '2026-08-10T00:00:00.000Z' }); expect(changed.objects[0].sha256).not.toBe(transformFirestoreRecords(records, options).objects[0].sha256)
+  })
+
+  it('groups out-of-order multi-day records and keeps source identity out of object bytes', () => {
+    const multi = [
+      { slug: 'oda', date: '20240803', status: [2, 1, 0] },
+      { slug: 'oda', date: '20240801', status: [0, 1, 2] },
+      { slug: 'oda', date: '20240802', status: [1, 2, 0] },
+    ]
+    const first = transformFirestoreRecords(multi, options); const second = transformFirestoreRecords([...multi].reverse(), { ...options, sourceIdentity: 'other-fixture' })
+    expect(first.objects[0].yearMonth).toBe('2024-08'); expect(first.objects[0].sourceCount).toBe(3); expect(first.objects[0].dateRange).toEqual({ from: '20240801', to: '20240803' })
+    expect(Object.keys(JSON.parse(new TextDecoder().decode(first.objects[0].body)).days)).toEqual(['2024-08-01', '2024-08-02', '2024-08-03'])
+    expect(first.objects[0].sha256).toBe(second.objects[0].sha256); expect(first.manifestBytes).not.toEqual(second.manifestBytes)
+  })
+
+  it('exposes a deterministic exact-byte serialization boundary', () => {
+    const base = { schemaVersion: 1, stadium: 'oda', yearMonth: '2024-08', updatedAt: options.updatedAt, days: { '2024-08-01': [0, 1, 2] } }
+    let low = 0; let high = 40000
+    while (low + 1 < high) { const middle = Math.floor((low + high) / 2); const candidate = { ...base, padding: 'x'.repeat(middle) }; if (serializeSchedule(candidate, { maxBytes: Number.MAX_SAFE_INTEGER }).byteLength <= 32768) low = middle; else high = middle }
+    const exact = { ...base, padding: 'x'.repeat(low) }; expect(serializeSchedule(exact, { maxBytes: Number.MAX_SAFE_INTEGER }).byteLength).toBe(32768); expect(serializeSchedule(exact, { maxBytes: 32768 })).toHaveLength(32768); expect(() => serializeSchedule(exact, { maxBytes: 32767 })).toThrow(/size/)
   })
 
   it('handles empty input with null aggregate date range', () => {
@@ -56,7 +79,7 @@ describe('deterministic Firestore monthly transform', () => {
   it('validates direct records, duplicates, and size before returning artifacts', () => {
     const invalidInputs = [null, {}, [{ slug: 'unknown', date: '20240101', status: [0, 1, 2] }], [{ slug: 'oda', date: '20240230', status: [0, 1, 2] }], [{ slug: 'oda', date: '20240101', status: [0, 1] }], [{ slug: 'oda', date: '20240101', status: [0, 1, 2], extra: 'secret' }], [...records, records[0]]]
     for (const invalid of invalidInputs) { expect(() => transformFirestoreRecords(invalid, options)).toThrow(/Invalid migration input/) }
-    const huge = [{ slug: 'oda', date: '20240101', status: [0, 1, 2] }]; expect(transformFirestoreRecords(huge, options).objects).toHaveLength(1)
+    expect(transformFirestoreRecords([{ slug: 'oda', date: '20240101', status: [0, 1, 2] }], options).objects).toHaveLength(1)
   })
 
   it('does not include source raw values, local paths, credentials, or actors', () => {
@@ -66,7 +89,9 @@ describe('deterministic Firestore monthly transform', () => {
 
 describe('atomic migration artifact writer', () => {
   it('writes nested objects and manifest through one atomic rename', async () => {
-    const parent = await mkdtemp(join(tmpdir(), 't14b-')); const target = join(parent, 'run-1'); const result = transformFirestoreRecords(records, options); await writeMigrationRun({ targetDir: target, ...result }); expect((await stat(join(target, 'manifest.json'))).isFile()).toBe(true); expect((await stat(join(target, result.objects[0].key))).isFile()).toBe(true); await rm(parent, { recursive: true, force: true })
+    const parent = await mkdtemp(join(tmpdir(), 't14b-')); const target = join(parent, 'run-1'); const result = transformFirestoreRecords(records, options); await writeMigrationRun({ targetDir: target, ...result }); const files = []
+    const walk = async (dir) => { for (const entry of await readdir(dir, { withFileTypes: true })) { const path = join(dir, entry.name); if (entry.isDirectory()) await walk(path); else files.push(path.slice(target.length + 1)) } }
+    await walk(target); expect(files.sort()).toEqual([...result.objects.map(({ key }) => key), 'manifest.json'].sort()); expect([...await readFile(join(target, 'manifest.json'))]).toEqual([...result.manifestBytes]); for (const object of result.objects) expect([...await readFile(join(target, object.key))]).toEqual([...object.body]); await rm(parent, { recursive: true, force: true })
   })
 
   it('refuses existing empty and non-empty targets', async () => {
@@ -77,7 +102,34 @@ describe('atomic migration artifact writer', () => {
     const parent = await mkdtemp(join(tmpdir(), 't14b-')); const target = join(parent, 'run-fail'); const result = transformFirestoreRecords(records, options); const failing = async () => { throw new Error('simulated') }; await expect(writeMigrationRun({ targetDir: target, ...result, fsImpl: { writeFile: failing } })).rejects.toBeInstanceOf(MigrationWriteError); expect(await readdir(parent)).toEqual([]); await rm(parent, { recursive: true, force: true })
   })
 
+  it('preflights every artifact before any filesystem mutation', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 't14b-')); const target = join(parent, 'preflight'); const result = transformFirestoreRecords(records, options); let calls = 0
+    const spy = { stat: async () => { calls += 1; throw Object.assign(new Error('should not run'), { code: 'ENOENT' }) }, mkdir: async () => { calls += 1 }, mkdtemp: async () => { calls += 1 }, writeFile: async () => { calls += 1 } }
+    const tampered = { ...result.objects[0], body: new Uint8Array(result.objects[0].body) }; tampered.body[0] ^= 1
+    await expect(writeMigrationRun({ targetDir: target, objects: [tampered, ...result.objects.slice(1)], manifest: result.manifest, fsImpl: spy })).rejects.toBeInstanceOf(MigrationWriteError); expect(calls).toBe(0); expect(await readdir(parent)).toEqual([]); await rm(parent, { recursive: true, force: true })
+  })
+
+  it('rejects metadata, manifest, and body tampering before creating a run', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 't14b-')); const result = transformFirestoreRecords(records, options)
+    for (const candidate of [
+      { objects: result.objects.map((object, index) => index ? object : { ...object, sha256: '0'.repeat(64) }), manifest: result.manifest },
+      { objects: result.objects, manifest: { ...result.manifest, sourceCount: 999 } },
+      { objects: [...result.objects, result.objects[0]], manifest: result.manifest },
+    ]) {
+      const target = join(parent, `invalid-${candidate.objects.length}-${candidate.manifest.sourceCount}`); const calls = []
+      await expect(writeMigrationRun({ targetDir: target, ...candidate, fsImpl: { stat: async () => { calls.push('stat'); throw Object.assign(new Error(), { code: 'ENOENT' }) }, mkdir: async () => calls.push('mkdir') } })).rejects.toBeInstanceOf(MigrationWriteError)
+      expect(calls).toEqual([]); await expect(stat(target)).rejects.toMatchObject({ code: 'ENOENT' })
+    }
+    await rm(parent, { recursive: true, force: true })
+  })
+
+  it('cleans exact temp state for mkdir and rename failures', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 't14b-')); const result = transformFirestoreRecords(records, options); const target = join(parent, 'failure')
+    await expect(writeMigrationRun({ targetDir: target, ...result, fsImpl: { mkdir: async () => { throw new Error('mkdir secret /outside/path') } } })).rejects.toBeInstanceOf(MigrationWriteError); expect(await readdir(parent)).toEqual([])
+    await expect(writeMigrationRun({ targetDir: target, ...result, fsImpl: { rename: async () => { throw new Error('rename secret /outside/path') } } })).rejects.toBeInstanceOf(MigrationWriteError); expect(await readdir(parent)).toEqual([]); await rm(parent, { recursive: true, force: true })
+  })
+
   it('rejects relative targets and traversal keys without creating output', async () => {
-    const result = transformFirestoreRecords(records, options); await expect(writeMigrationRun({ targetDir: 'relative-run', ...result })).rejects.toBeInstanceOf(MigrationWriteError); const parent = await mkdtemp(join(tmpdir(), 't14b-')); await expect(writeMigrationRun({ targetDir: join(parent, 'traversal'), objects: [{ ...result.objects[0], key: '../escape.json' }], manifest: result.manifest })).rejects.toBeInstanceOf(MigrationWriteError); expect(await readdir(parent)).toEqual([]); await rm(parent, { recursive: true, force: true })
+    const result = transformFirestoreRecords(records, options); await expect(writeMigrationRun({ targetDir: 'relative-run', ...result })).rejects.toBeInstanceOf(MigrationWriteError); const parent = await mkdtemp(join(tmpdir(), 't14b-')); const calls = []; await expect(writeMigrationRun({ targetDir: join(parent, 'traversal'), objects: [{ ...result.objects[0], key: '../escape.json' }], manifest: result.manifest, fsImpl: { stat: async () => { calls.push('stat'); throw Object.assign(new Error(), { code: 'ENOENT' }) }, mkdir: async () => calls.push('mkdir'), mkdtemp: async () => calls.push('mkdtemp') } })).rejects.toBeInstanceOf(MigrationWriteError); expect(calls).toEqual([]); expect(await readdir(parent)).toEqual([]); await rm(parent, { recursive: true, force: true })
   })
 })

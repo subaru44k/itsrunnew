@@ -241,3 +241,10 @@ The atomic writer refuses an existing run directory, writes all precomputed
 objects and `manifest.json` into an exclusive temporary sibling, validates
 containment, then renames the temporary directory into place. Failures remove
 only that exact temporary directory and never leave a partial successful run.
+Before creating a parent, temporary directory, or file, the writer validates the
+complete artifact set: manifest/object schemas and order, typed keys and
+metadata, canonical UTF-8 schedule bytes, parser identity, size, byte count,
+SHA-256, aggregate counts/ranges, and canonical manifest bytes. Any mismatch
+fails with a sanitized `MigrationWriteError` and performs no filesystem call.
+`updatedAt` and `migrationUpdatedAt` are exact millisecond UTC timestamps whose
+`Date.toISOString()` round-trip is byte-identical to the supplied value.

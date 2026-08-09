@@ -575,6 +575,16 @@ Stop for Sol review before T13S03B.
 ```
 
 ```text
+T13S03A follow-up: d49746c
+Date: 2026-08-09
+Result: complete; tightened pure editor validation and conflict boundaries.
+Validation: updateDraft now delegates full document validation to @itsrun/core parseScheduleMonth with a validation-only updatedAt; invalid real/cross-month dates, tuple shape/status, 31-day overflow, identity, unknown fields, and oversized payloads are rejected before state mutation.
+Dirty/reload: dirty is recomputed against immutable base (or zero-valued missing draft), so reverting edits clears dirty. Any dirty load/reload, including same selection, requires a confirmation callback; absent/false confirmation preserves state.
+Conflict/rebase: conflict and comparisonFailure save are no-ops until explicit rebaseOnLatest/keepEditing; the rebased save uses the latest ETag. replaceLatest remains confirmation-gated. Comparison retry generation prevents stale completion from replacing newer state.
+Tests/checks: Node 24.18.1 web unit 41 passed; root npm run check passed; git diff --check passed. No UI/locale/Playwright/AWS/preview/dependency operation occurred. Stop before T13S03B.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

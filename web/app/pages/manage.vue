@@ -2,13 +2,14 @@
 import { computed, ref, watch } from 'vue'
 import { japanToday, type StadiumSlug, type YearMonth } from '@itsrun/core'
 import { AdminApiRepository, createEditor, type UpdateScheduleMonthRequest } from '../admin/adminApi'
-import { EDITOR_DISPLAY_STATES, editorMessageKey, slotTimeRanges, statusLabels } from '../admin/adminUi'
+import { EDITOR_DISPLAY_STATES, editorAction, editorMessageKey, slotCellId, slotTimeRanges, statusLabels } from '../admin/adminUi'
 import { useAdminSession } from '../composables/useAdminSession.client'
 
 const { t, locale } = useI18n(); const session = useAdminSession(); const config = useRuntimeConfig().public
 const stadium = ref<StadiumSlug>('oda'); const month = ref<YearMonth>(japanToday().slice(0, 7) as YearMonth); const draft = ref<UpdateScheduleMonthRequest | null>(null)
 const editor = createEditor(new AdminApiRepository(config.apiBasePath, () => session.getAccessToken()))
 useHead({ meta: [{ name: 'robots', content: 'noindex, nofollow' }] })
+useSeoMeta({ title: () => t('admin.title') })
 const state = ref(editor.state)
 editor.subscribe((next) => { state.value = next; if ('draft' in next) draft.value = next.draft })
 const labels = computed(() => statusLabels(locale.value.startsWith('en') ? 'en' : 'ja'))
@@ -18,7 +19,9 @@ const saving = computed(() => state.value.kind === 'saving')
 const canEdit = computed(() => state.value.kind === 'ready' || state.value.kind === 'missing')
 const canSave = computed(() => canEdit.value && 'dirty' in state.value && state.value.dirty)
 const isKnownState = (kind: string): kind is typeof EDITOR_DISPLAY_STATES[number] => (EDITOR_DISPLAY_STATES as readonly string[]).includes(kind)
-const messageKey = computed(() => isKnownState(state.value.kind) ? editorMessageKey(state.value.kind) : null)
+const stateError = computed(() => 'error' in state.value ? state.value.error : undefined)
+const messageKey = computed(() => isKnownState(state.value.kind) ? editorMessageKey(state.value.kind, stateError.value) : null)
+const actionKey = computed(() => isKnownState(state.value.kind) ? editorAction(state.value.kind, stateError.value) : null)
 const currentSelection = () => ('stadium' in editor.state && editor.state.stadium && 'yearMonth' in editor.state && editor.state.yearMonth) ? { stadium: editor.state.stadium, yearMonth: editor.state.yearMonth } : null
 function safeMessage() { return messageKey.value ? t(`admin.${messageKey.value}`) : '' }
 async function load() {
@@ -59,17 +62,17 @@ watch(() => session.state.value, (next) => { if (next === 'signedIn' && !draft.v
       <p v-else-if="state.kind === 'missing'" role="status">{{ t('admin.missing') }}</p>
       <p v-else-if="state.kind === 'saved'" role="status" aria-live="polite">{{ t('admin.saved') }}</p>
       <p v-if="messageKey" role="alert" aria-live="assertive">{{ safeMessage() }}</p>
-      <div v-if="state.kind === 'loadFailure'" class="admin-actions"><button type="button" @click="retryLoad">{{ t('admin.retryLoad') }}</button></div>
-      <div v-if="state.kind === 'saveFailure'" class="admin-actions"><button type="button" @click="retrySave">{{ t('admin.retrySave') }}</button></div>
+      <div v-if="state.kind === 'loadFailure'" class="admin-actions"><button v-if="actionKey === 'login'" type="button" @click="session.login('/manage')">{{ t('admin.login') }}</button><button v-else type="button" @click="retryLoad">{{ t('admin.retryLoad') }}</button></div>
+      <div v-if="state.kind === 'saveFailure'" class="admin-actions"><button v-if="actionKey === 'login'" type="button" @click="session.login('/manage')">{{ t('admin.login') }}</button><button v-else type="button" @click="retrySave">{{ t('admin.retrySave') }}</button></div>
       <div v-if="state.kind === 'comparisonFailure'" class="admin-actions"><button type="button" @click="retryComparison">{{ t('admin.retryComparison') }}</button></div>
       <section v-if="state.kind === 'conflict' || state.kind === 'comparisonFailure'" aria-labelledby="conflict-title">
         <h2 id="conflict-title">{{ t('admin.conflict') }}</h2>
-        <p v-if="state.kind === 'conflict'">{{ t('admin.conflictInstruction') }}</p>
-        <table v-if="state.kind === 'conflict'" class="admin-table"><caption>{{ t('admin.latest') }}</caption><thead><tr><th scope="col">{{ t('admin.date') }}</th><th scope="col">{{ t('admin.slot') }}</th><th scope="col">{{ t('admin.base') }}</th><th scope="col">{{ t('admin.local') }}</th><th scope="col">{{ t('admin.latest') }}</th></tr></thead><tbody><tr v-for="diff in state.diffs" :key="`${diff.date}-${diff.slot}`"><th scope="row">{{ diff.date }}</th><td>{{ times[diff.slot] }}</td><td>{{ diff.base === null ? t('admin.none') : labels[diff.base] }}</td><td>{{ diff.local === null ? t('admin.none') : labels[diff.local] }}</td><td>{{ diff.latest === null ? t('admin.none') : labels[diff.latest] }}</td></tr></tbody></table>
-        <div v-if="state.kind === 'conflict'" class="admin-actions"><button type="button" :disabled="saving" @click="rebase">{{ t('admin.rebase') }}</button><button type="button" :disabled="saving" @click="replaceLatest">{{ t('admin.replaceLatest') }}</button></div>
+        <p v-if="state.kind === 'conflict' && state.latest">{{ t('admin.conflictInstruction') }}</p>
+        <table v-if="state.kind === 'conflict' && state.latest" class="admin-table"><caption>{{ t('admin.latest') }}</caption><thead><tr><th scope="col">{{ t('admin.date') }}</th><th scope="col">{{ t('admin.slot') }}</th><th scope="col">{{ t('admin.base') }}</th><th scope="col">{{ t('admin.local') }}</th><th scope="col">{{ t('admin.latest') }}</th></tr></thead><tbody><tr v-for="diff in state.diffs" :key="`${diff.date}-${diff.slot}`"><th scope="row">{{ diff.date }}</th><td>{{ times[diff.slot] }}</td><td>{{ diff.base === null ? t('admin.none') : labels[diff.base] }}</td><td>{{ diff.local === null ? t('admin.none') : labels[diff.local] }}</td><td>{{ diff.latest === null ? t('admin.none') : labels[diff.latest] }}</td></tr></tbody></table>
+        <div v-if="state.kind === 'conflict' && state.latest" class="admin-actions"><button type="button" :disabled="saving" @click="rebase">{{ t('admin.rebase') }}</button><button type="button" :disabled="saving" @click="replaceLatest">{{ t('admin.replaceLatest') }}</button></div>
+        <div v-else-if="state.kind === 'conflict'" class="admin-actions"><button type="button" @click="retryComparison">{{ t('admin.retryComparison') }}</button></div>
       </section>
-      <p v-if="state.kind === 'forbidden'" role="alert">{{ t('admin.forbidden') }}</p>
-      <table v-if="draft && (canEdit || state.kind === 'saving' || state.kind === 'saveFailure')" class="admin-table"><caption>{{ t('admin.title') }}</caption><thead><tr><th scope="col">{{ t('admin.date') }}</th><th v-for="(time, slot) in times" :key="time" scope="col">{{ time }}<span class="sr-only">{{ t('admin.slot') }} {{ slot + 1 }}</span></th></tr></thead><tbody><tr v-for="date in days" :key="date"><th scope="row">{{ date }}</th><td v-for="slot in 3" :key="slot"><label class="sr-only" :for="`${date}-${slot}`">{{ date }} {{ times[slot] }}</label><select :id="`${date}-${slot}`" :value="statusAt(date, slot)" :disabled="saving || !canEdit" @change="update(date, slot - 1, eventValue($event))"><option v-for="(label, value) in labels" :key="value" :value="value">{{ label }}</option></select></td></tr></tbody></table>
+      <table v-if="draft && (canEdit || state.kind === 'saving' || state.kind === 'saveFailure' || state.kind === 'saved')" class="admin-table"><caption>{{ t('admin.title') }}</caption><thead><tr><th scope="col">{{ t('admin.date') }}</th><th v-for="(time, slot) in times" :key="time" scope="col">{{ time }}<span class="sr-only">{{ t('admin.slot') }} {{ slot + 1 }}</span></th></tr></thead><tbody><tr v-for="date in days" :key="date"><th scope="row">{{ date }}</th><td v-for="(time, slot) in times" :key="time"><label class="sr-only" :for="slotCellId(date, slot)">{{ date }} {{ time }}</label><select :id="slotCellId(date, slot)" :value="statusAt(date, slot)" :disabled="saving || !canEdit" @change="update(date, slot, eventValue($event))"><option v-for="(label, value) in labels" :key="value" :value="value">{{ label }}</option></select></td></tr></tbody></table>
       <div v-if="draft && (canEdit || state.kind === 'saving' || state.kind === 'saveFailure')" class="admin-actions"><button type="button" :disabled="saving || !canSave" @click="editor.save">{{ saving ? t('admin.saving') : t('admin.save') }}</button><button type="button" :disabled="saving" @click="discard">{{ t('admin.discard') }}</button></div>
       <dl v-if="state.kind === 'saved'" class="admin-metadata"><dt>{{ t('admin.updatedAt') }}</dt><dd>{{ state.base.document.updatedAt }}</dd><dt>ETag</dt><dd>{{ state.base.etag }}</dd><dt>VersionId</dt><dd>{{ state.base.versionId }}</dd></dl>
     </template>

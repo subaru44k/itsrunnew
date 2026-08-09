@@ -86,7 +86,7 @@ export function serializeSchedule(schedule, { maxBytes = MAX_BYTES } = {}) {
 const beneath = (root, candidate) => { const rootPath = resolve(root); const candidatePath = resolve(candidate); const relativePath = relative(rootPath, candidatePath); return relativePath !== '' && relativePath !== '..' && !relativePath.startsWith(`..${sep}`) && !isAbsolute(relativePath) }
 
 function validateDateRange(value, coordinate) {
-  if (!plain(value) || !exact(value, ['from', 'to']) || (value.from !== null && !validDate(value.from)) || (value.to !== null && !validDate(value.to))) throw new MigrationWriteError('preflight')
+  if (!plain(value) || !exact(value, ['from', 'to']) || !ordered(value, ['from', 'to']) || (value.from !== null && !validDate(value.from)) || (value.to !== null && !validDate(value.to))) throw new MigrationWriteError('preflight')
   if ((value.from === null) !== (value.to === null) || (value.from !== null && value.from > value.to)) throw new MigrationWriteError('preflight')
 }
 
@@ -94,14 +94,18 @@ function validateArtifactSet({ objects, manifest, manifestBytes }) {
   if (!Array.isArray(objects) || !plain(manifest) || !exact(manifest, manifestKeys) || !ordered(manifest, manifestKeys) || manifest.schemaVersion !== 1 || typeof manifest.sourceIdentity !== 'string' || !identityPattern.test(manifest.sourceIdentity) || !canonicalTimestamp(manifest.migrationUpdatedAt) || !Number.isInteger(manifest.sourceCount) || manifest.sourceCount < 0 || !Array.isArray(manifest.objects)) throw new MigrationWriteError('preflight')
   validateDateRange(manifest.dateRange, 'manifest')
   if (objects.length !== manifest.objects.length) throw new MigrationWriteError('preflight')
-  const seen = new Set(); let sourceCount = 0; const ranges = []
+  const seen = new Set(); let sourceCount = 0; const ranges = []; let previousKey = ''
   objects.forEach((object, index) => {
     if (!plain(object) || !exact(object, artifactKeys) || !ordered(object, artifactKeys) || !plain(object.dateRange) || !object.body || !(object.body instanceof Uint8Array) || typeof object.key !== 'string' || typeof object.stadium !== 'string' || !STADIUMS[object.stadium] || !validYearMonth(object.yearMonth) || object.key !== `data/v1/stadiums/${object.stadium}/availability/${object.yearMonth}.json` || seen.has(object.key) || !Number.isInteger(object.sourceCount) || object.sourceCount < 1 || !Number.isInteger(object.bytes) || object.bytes < 0 || !/^[a-f0-9]{64}$/.test(object.sha256) || object.contentType !== CONTENT_TYPE || object.cacheControl !== CACHE_CONTROL) throw new MigrationWriteError('preflight')
-    seen.add(object.key); validateDateRange(object.dateRange, `object[${index}]`)
+    if (previousKey && object.key <= previousKey) throw new MigrationWriteError('preflight')
+    previousKey = object.key; seen.add(object.key); validateDateRange(object.dateRange, `object[${index}]`)
     let schedule; try { schedule = JSON.parse(new TextDecoder().decode(object.body)) } catch { throw new MigrationWriteError('preflight') }
+    if (!plain(schedule) || !ordered(schedule, ['schemaVersion', 'stadium', 'yearMonth', 'updatedAt', 'days']) || !plain(schedule.days)) throw new MigrationWriteError('preflight')
+    const dayKeys = Object.keys(schedule.days)
+    if (dayKeys.some((day, dayIndex) => !/^\d{4}-\d{2}-\d{2}$/.test(day) || (dayIndex > 0 && day <= dayKeys[dayIndex - 1]))) throw new MigrationWriteError('preflight')
     let canonical; try { parseScheduleMonth(schedule, { stadium: object.stadium, yearMonth: object.yearMonth }); canonical = serializeSchedule(schedule) } catch { throw new MigrationWriteError('preflight') }
-    if (!same([...canonical], [...object.body]) || object.bytes !== object.body.byteLength || object.sha256 !== sha256(object.body) || !plain(schedule.days)) throw new MigrationWriteError('preflight')
-    const dates = Object.keys(schedule.days).map((day) => day.replaceAll('-', '')).sort()
+    if (!same([...canonical], [...object.body]) || object.bytes !== object.body.byteLength || object.sha256 !== sha256(object.body)) throw new MigrationWriteError('preflight')
+    const dates = dayKeys.map((day) => day.replaceAll('-', ''))
     const expectedRange = dateRange(dates)
     if (object.sourceCount !== dates.length || !same(object.dateRange, expectedRange)) throw new MigrationWriteError('preflight')
     const metadata = manifest.objects[index]

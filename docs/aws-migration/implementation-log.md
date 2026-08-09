@@ -950,3 +950,23 @@ normalizer tests); core unit and root npm run check remain required next gate.
 git diff --check passed. No Firebase/AWS/network/credential/data operation or
 new dependency occurred. T14C+ remain pending Sol review.
 ```
+
+### Phase 4 T14B final canonical-order correction
+
+```text
+Start: 3788e60
+Result: complete; local-only T14B final gate, stopped before T14C.
+Preflight now rejects any non-ascending artifact key order, including a
+permutation where both objects and manifest metadata are permuted; requires
+schedule top-level property order schemaVersion/stadium/yearMonth/updatedAt/days,
+strictly ascending ISO day keys, and canonical dateRange from/to order. Focused
+tamper fixtures recompute body bytes, hashes, and manifest metadata so failures
+prove canonical-order guards rather than stale hashes.
+
+Correction to the preceding follow-up record: core unit 7 and the root
+`npm run check` had already passed successfully; they were not merely pending.
+Final checks: Firestore-focused A+B plus canonical-order tests 30 passed; core
+unit 7 passed; root `npm run check` passed (web 44, core 7, service 25, infra
+15, build); `git diff --check` passed. No Firebase/AWS/network/credential/data
+operation or new dependency occurred. T14C+ remain pending Sol review.
+```

@@ -10,6 +10,8 @@ const raw = JSON.parse(await readFile(new URL('./fixtures/firestore-snapshot.syn
 const records = normalizeFirestoreSnapshot(raw)
 const options = { sourceIdentity: 'synthetic-fixture', updatedAt: '2026-08-09T00:00:00.000Z' }
 const clone = (value) => structuredClone(value)
+const rebuilt = (result, objects) => ({ objects, manifest: { ...result.manifest, objects: objects.map(({ body, ...object }) => object) } })
+const objectWithSchedule = (object, schedule) => { const body = serializeSchedule(schedule); return { ...object, body, bytes: body.byteLength, sha256: createHash('sha256').update(body).digest('hex') } }
 
 describe('deterministic Firestore monthly transform', () => {
   it('creates exact synthetic keys, counts, ranges, metadata, and parser-valid JSON', () => {
@@ -107,6 +109,27 @@ describe('atomic migration artifact writer', () => {
     const spy = { stat: async () => { calls += 1; throw Object.assign(new Error('should not run'), { code: 'ENOENT' }) }, mkdir: async () => { calls += 1 }, mkdtemp: async () => { calls += 1 }, writeFile: async () => { calls += 1 } }
     const tampered = { ...result.objects[0], body: new Uint8Array(result.objects[0].body) }; tampered.body[0] ^= 1
     await expect(writeMigrationRun({ targetDir: target, objects: [tampered, ...result.objects.slice(1)], manifest: result.manifest, fsImpl: spy })).rejects.toBeInstanceOf(MigrationWriteError); expect(calls).toBe(0); expect(await readdir(parent)).toEqual([]); await rm(parent, { recursive: true, force: true })
+  })
+
+  it('rejects recomputed noncanonical property, day, and object ordering before filesystem access', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 't14b-')); const result = transformFirestoreRecords(records, options)
+    const dayResult = transformFirestoreRecords([
+      { slug: 'oda', date: '20240803', status: [2, 1, 0] },
+      { slug: 'oda', date: '20240801', status: [0, 1, 2] },
+      { slug: 'oda', date: '20240802', status: [1, 2, 0] },
+    ], options)
+    const original = dayResult.objects[0]; const schedule = JSON.parse(new TextDecoder().decode(original.body))
+    const reversedDays = Object.fromEntries(Object.entries(schedule.days).reverse()); const reversedSchedule = { schemaVersion: schedule.schemaVersion, stadium: schedule.stadium, yearMonth: schedule.yearMonth, updatedAt: schedule.updatedAt, days: reversedDays }
+    const reversedDayResult = rebuilt(dayResult, [objectWithSchedule(original, reversedSchedule)])
+    const reorderedSchedule = { stadium: schedule.stadium, schemaVersion: schedule.schemaVersion, yearMonth: schedule.yearMonth, updatedAt: schedule.updatedAt, days: schedule.days }
+    const reorderedResult = rebuilt(dayResult, [objectWithSchedule(original, reorderedSchedule)])
+    const reversedObjects = [...result.objects].reverse(); const reversedObjectResult = rebuilt(result, reversedObjects)
+    for (const candidate of [reversedDayResult, reorderedResult, reversedObjectResult]) {
+      const target = join(parent, `order-${candidate.objects.length}-${candidate.objects[0].key.includes('komazawa') ? 'a' : 'b'}`); const calls = []
+      await expect(writeMigrationRun({ targetDir: target, ...candidate, fsImpl: { stat: async () => { calls.push('stat'); throw Object.assign(new Error(), { code: 'ENOENT' }) }, mkdir: async () => calls.push('mkdir') } })).rejects.toBeInstanceOf(MigrationWriteError)
+      expect(calls).toEqual([]); await expect(stat(target)).rejects.toMatchObject({ code: 'ENOENT' })
+    }
+    await rm(parent, { recursive: true, force: true })
   })
 
   it('rejects metadata, manifest, and body tampering before creating a run', async () => {

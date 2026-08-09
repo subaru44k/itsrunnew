@@ -6,7 +6,7 @@ export default defineConfig({
   outputDir: '.artifacts/playwright-admin',
   use: { baseURL: 'http://localhost:3000', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   webServer: {
-    command: 'node ../scripts/migration/serve-web-output.mjs',
+    command: 'node ../scripts/migration/build-admin-e2e.mjs && WEB_OUTPUT_DIR=../.artifacts/admin-e2e-output/public node ../scripts/migration/serve-web-output.mjs',
     cwd: 'web',
     url: 'http://localhost:3000/manage',
     reuseExistingServer: false,

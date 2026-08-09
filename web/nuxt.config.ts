@@ -10,6 +10,7 @@ export default defineNuxtConfig({
       apiBasePath: '/api/v1',
     },
   },
+  ...(process.env.ADMIN_E2E_OUTPUT ? { nitro: { output: { dir: process.env.ADMIN_E2E_OUTPUT } } } : {}),
   i18n: {
     locales: [
       { code: 'ja', language: 'ja-JP', file: 'ja.json', name: '日本語' },

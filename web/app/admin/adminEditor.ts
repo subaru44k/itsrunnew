@@ -1,4 +1,4 @@
-import type { AvailabilityStatus, ScheduleMonth, StadiumSlug, YearMonth } from '@itsrun/core'
+import { parseScheduleMonth, type AvailabilityStatus, type ScheduleMonth, type StadiumSlug, type YearMonth } from '@itsrun/core'
 import type { AdminApiPort, LoadedSchedule, UpdateScheduleMonthRequest } from './adminApi'
 
 export type EditorError = 'unauthorized' | 'forbidden' | 'notFound' | 'conflict' | 'unsupported' | 'rateLimited' | 'server' | 'network' | 'invalid'
@@ -15,8 +15,8 @@ export type EditorState =
   | ({ kind: 'loadFailure'; error: EditorError; message: string } & Common)
   | ({ kind: 'saveFailure'; error: EditorError; message: string; base: LoadedSchedule | null; draft: UpdateScheduleMonthRequest; dirty: boolean; condition: { etag: string } | { create: true } } & Common)
   | ({ kind: 'forbidden'; error: 'forbidden'; message: string } & Common)
-  | ({ kind: 'conflict'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; latest: LoadedSchedule | null; diffs: CellDiff[]; dirty: true } & Common)
-  | ({ kind: 'comparisonFailure'; error: EditorError; message: string; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; latest: null; dirty: true } & Common)
+  | ({ kind: 'conflict'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; latest: LoadedSchedule | null; diffs: CellDiff[]; dirty: boolean } & Common)
+  | ({ kind: 'comparisonFailure'; error: EditorError; message: string; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; latest: null; dirty: boolean } & Common)
   | ({ kind: 'comparisonError'; error: EditorError } & Common)
   // Kept as a type-only compatibility branch for the unchanged pre-S03 page.
   | ({ kind: 'error'; error: EditorError } & Common)
@@ -38,10 +38,8 @@ function missingDraft(stadium: StadiumSlug, yearMonth: YearMonth): UpdateSchedul
 function draftFromDocument(document: ScheduleMonth): UpdateScheduleMonthRequest { return { schemaVersion: 1, stadium: document.stadium, yearMonth: document.yearMonth, days: clone(document.days) } }
 function validDraft(draft: UpdateScheduleMonthRequest, selection: EditorSelection): boolean {
   if (!draft || typeof draft !== 'object' || Array.isArray(draft) || Object.keys(draft).length !== 4 || draft.schemaVersion !== 1 || draft.stadium !== selection.stadium || draft.yearMonth !== selection.yearMonth || !draft.days || typeof draft.days !== 'object') return false
-  for (const [date, row] of Object.entries(draft.days)) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date.slice(0, 7) !== selection.yearMonth || !Array.isArray(row) || row.length !== 3 || row.some((status) => !statuses.has(status as AvailabilityStatus))) return false
-  }
-  return Object.keys(draft.days).length <= 31 && new TextEncoder().encode(JSON.stringify(draft)).byteLength <= 32 * 1024
+  try { parseScheduleMonth({ ...draft, updatedAt: '2026-01-01T00:00:00.000Z' }, selection) } catch { return false }
+  return true
 }
 function dirtyAgainst(base: LoadedSchedule | null, draft: UpdateScheduleMonthRequest): boolean { return base ? JSON.stringify(draft.days) !== JSON.stringify(base.document.days) : Object.values(draft.days).some((row) => row.some((status) => status !== 0)) }
 function cellDiffs(base: ScheduleMonth, local: UpdateScheduleMonthRequest, latest: LoadedSchedule | null): CellDiff[] {
@@ -53,6 +51,7 @@ export function createEditor(api: AdminApiPort) {
   let state: EditorState = { kind: 'idle' }
   let generation = 0
   let saveInFlight = false
+  let comparisonGeneration = 0
   const listeners = new Set<(state: EditorState) => void>()
   const emit = () => listeners.forEach((listener) => listener(state))
   const set = (next: EditorState) => { state = next; emit() }
@@ -64,7 +63,7 @@ export function createEditor(api: AdminApiPort) {
   const isDirty = () => 'dirty' in state && state.dirty
   async function load(stadium: StadiumSlug, yearMonth: YearMonth, confirmDiscard?: () => boolean) {
     if (!isSelection(stadium, yearMonth)) return
-    if (isDirty() && (current()?.stadium !== stadium || current()?.yearMonth !== yearMonth) && confirmDiscard && !confirmDiscard()) return
+    if (isDirty() && (!confirmDiscard || !confirmDiscard())) return
     const selected = selectionOf(stadium, yearMonth); const requestGeneration = ++generation
     set({ kind: 'loading', ...selected, generation: requestGeneration })
     try {
@@ -82,7 +81,7 @@ export function createEditor(api: AdminApiPort) {
   function updateDraft(draft: UpdateScheduleMonthRequest) {
     const selected = current(); if (!selected || !validDraft(draft, selected)) return
     if (state.kind === 'missing') set({ ...state, draft: clone(draft), dirty: dirtyAgainst(null, draft) })
-    else if (state.kind === 'ready' || state.kind === 'conflict' || state.kind === 'comparisonFailure') set({ ...state, draft: clone(draft), dirty: true } as EditorState)
+    else if (state.kind === 'ready' || state.kind === 'conflict' || state.kind === 'comparisonFailure') set({ ...state, draft: clone(draft), dirty: dirtyAgainst('base' in state ? state.base : null, draft) } as EditorState)
   }
   function updateCell(date: string, slot: number, status: number) {
     if (!Number.isInteger(slot) || slot < 0 || slot > 2 || !statuses.has(status as AvailabilityStatus) || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !('draft' in state)) return
@@ -90,7 +89,7 @@ export function createEditor(api: AdminApiPort) {
   }
   async function save() {
     if (saveInFlight || !('draft' in state) || !('dirty' in state) || !state.dirty || !('stadium' in state)) return
-    if (!(state.kind === 'ready' || state.kind === 'missing' || state.kind === 'conflict' || state.kind === 'comparisonFailure')) return
+    if (!(state.kind === 'ready' || state.kind === 'missing')) return
     saveInFlight = true; const before = state; const draft = clone(state.draft); const base = 'base' in before ? before.base : null; const condition = base ? { etag: base.etag } : { create: true as const }
     set({ kind: 'saving', stadium: before.stadium, yearMonth: before.yearMonth, generation: before.generation, base, draft, dirty: true, condition })
     try {
@@ -118,15 +117,16 @@ export function createEditor(api: AdminApiPort) {
   }
   async function retryComparison() {
     if (state.kind !== 'comparisonFailure' && !(state.kind === 'conflict' && state.latest === null)) return
-    const before = state
+    const before = state; const request = ++comparisonGeneration
     try {
       const latest = await api.get(before.stadium, before.yearMonth)
-      if (state === before && latest) set({ ...before, kind: 'conflict', latest: clone(latest), diffs: cellDiffs(before.base.document, before.draft, latest) })
+      if (request === comparisonGeneration && state === before && latest) set({ ...before, kind: 'conflict', latest: clone(latest), diffs: cellDiffs(before.base.document, before.draft, latest) })
     } catch { /* preserve sanitized comparison state */ }
   }
   function keepEditing() { if (state.kind !== 'conflict' || !state.latest) return; const latest = state.latest; set({ ...state, kind: 'ready', base: clone(latest), draft: clone(state.draft), dirty: dirtyAgainst(latest, state.draft) }) }
+  const rebaseOnLatest = keepEditing
   function replaceLatest(confirm: () => boolean) { if (state.kind !== 'conflict' || !state.latest || !confirm()) return; const latest = state.latest; set({ ...state, kind: 'ready', base: clone(latest), draft: draftFromDocument(latest.document), dirty: false }) }
   function discardLatest(confirm: () => boolean) { replaceLatest(confirm) }
   function subscribe(listener: (next: EditorState) => void) { listeners.add(listener); return () => { listeners.delete(listener) } }
-  return { get state() { return state }, subscribe, load, retryLoad, updateDraft, updateCell, save, retrySave, retryComparison, keepEditing, replaceLatest, discardLatest }
+  return { get state() { return state }, subscribe, load, retryLoad, updateDraft, updateCell, save, retrySave, retryComparison, keepEditing, rebaseOnLatest, replaceLatest, discardLatest }
 }

@@ -156,6 +156,14 @@ and no write after a preflight failure. They must not connect to AWS.
 
 ## T14E: protected Firestore export decision and execution gate
 
+Sol accepted T14A-T14D through `04abe8d`. The strict snapshot parser,
+deterministic transform, exhaustive comparator, fail-closed conditional upload
+helper, exact-version readback, single-deadline CloudFront verification, and
+sanitized report state machine passed 52 focused tests plus the complete root
+check under Node 24. No Firebase or AWS operation was performed. The protected
+T14E gate remains closed until D018 is accepted and its operator prerequisites
+are satisfied.
+
 Stop and return to Sol after T14A-T14D. Before production export, the user must
 approve one concrete read-only mechanism and provide its non-secret reference
 or operator procedure. The current candidate is a temporary exact-pinned

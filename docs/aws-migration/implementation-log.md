@@ -1158,3 +1158,25 @@ Node 24.18.1 root `npm run check` passed (web 44, core 7, service 25, infra
 AWS/Firebase/network/credential/data operation or new dependency occurred.
 T14E remains pending Sol review.
 ```
+
+### Sol acceptance of local T14A-T14D
+
+```text
+Accepted implementation through: 04abe8d
+Result: T14A-T14D accepted; protected T14E remains closed.
+Sol independently inspected the parser, transform, comparator, upload command
+builders, exact-version readback, bounded CloudFront verifier, cleanup paths,
+and report state machine. The final state rejects unapproved targets,
+unconditional writes, traversal, oversized artifacts, conditional collisions,
+incomplete upload metadata, stale or malformed readback, invalid cache
+metadata, unbounded/pending response bodies, and internally inconsistent audit
+reports. Restore command generation remains separate and is never executed by
+the upload flow.
+
+Independent Node 24 checks: Firestore A-D focused 52 passed; core unit 7
+passed; root npm run check passed (web 44, core 7, schedule-api 25, infra 15,
+all builds); git diff --check passed; worktree clean before this review record.
+No AWS/Firebase/network credential/data write, deployment, invalidation, IAM
+change, or dependency change occurred. D018/T14E requires a separately
+accepted read-only Firebase access mechanism.
+```

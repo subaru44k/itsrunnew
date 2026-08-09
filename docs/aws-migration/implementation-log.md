@@ -349,6 +349,16 @@ AWS authority: None for recovery work; no pool mutation/deletion, second deploy,
 
 Recovery stop: return to Sol for RC03 review before any retained-pool cleanup or corrected deployment.
 
+### Phase 4 failed-deployment recovery: RC04-RC06 execution
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| RC04 | complete; exact recorded orphan deleted | pending | Read-only exact-pool gate; post-update empty/tag recheck; ResourceNotFound verification | Using `AWS_PROFILE=codex-prod`, account `470447451992`, region `ap-northeast-1`, verified `ap-northeast-1_M39i3BFEu` name, creation time `2026-08-09T08:22:51.247+09:00`, ACTIVE deletion protection, exact stack/logical tags, and zero users/clients/groups/resource servers/providers/domain. Per authorization, wrote only `UpdateUserPool` deletion protection `INACTIVE`, rechecked invariants, then `DeleteUserPool` on that exact ID. Final read returned `ResourceNotFoundException`. |
+| RC05 | stopped by reviewed-policy resource mismatch | pending | One corrected `npx cdk deploy ItsRunPreviewHosting --require-approval never`; corrected template published; no second attempt | Change set `arn:aws:cloudformation:ap-northeast-1:470447451992:changeSet/cdk-deploy-change-set/6ab0b996-0f5a-4bec-ae8d-1a794fe8eb56` used execution principal `arn:aws:iam::470447451992:role/cdk-hnb659fds-cfn-exec-role-470447451992-ap-northeast-1`. `ScheduleApiFunctionA177D4FE` failed at `2026-08-09T00:05:17.975Z`: `lambda:CreateFunction` denied for `arn:aws:lambda:ap-northeast-1:470447451992:function:ItsRunPreviewHosting-ScheduleApiFunctionA177D4FE-SMCxODhObRRy` because v4 allows only the reviewed fixed function resource `itsrun-preview-schedule-api`. Rollback also recorded `lambda:DeleteFunction` denied for the generated ARN at `2026-08-09T00:06:33.673Z`; read-only `get-function` subsequently returned ResourceNotFound. No IAM expansion or retry occurred. |
+| RC06 | not run; blocked by RC05 stop condition | pending | Read-only rollback/event/output checks only | Stack remains `UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS`; baseline web/data bucket and distribution outputs remain unchanged. CloudFormation created a new empty deletion-protected User Pool `ap-northeast-1_CWmMgPepN` during this failed attempt; it is not the authorized RC04 pool and was not mutated. Full P4D05 resource/runtime/API/Cognito/public verification was not claimed. |
+
+Recovery stop: return to Sol. Resolve the generated Lambda physical-name versus fixed v4 resource boundary and separately authorize cleanup of the new exact empty retained pool before any further AWS operation.
+
 ```text
 Sol RC03 review target: 8c06d20
 Date: 2026-08-09

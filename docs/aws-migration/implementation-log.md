@@ -1519,3 +1519,43 @@ rerun, Firebase/Google/AWS/network/auth operation, ADC/IAM change, upload,
 dependency change, or protected operation occurred. T14F remains pending Sol
 review.
 ```
+
+### Phase 4 T14E3 replacement captures (protected facts recorded)
+
+```text
+Result: complete; two authorized replacement captures are recorded as
+read-only evidence. Capture times were 2026-08-09T20:45:22.282Z and
+2026-08-09T20:45:44.589Z. Both used the approved project and default database,
+with 4 collections, 1,854 documents, and 8 stadium-info documents. All stable
+fields matched across captures and the timestamps were the only differing
+volatile field.
+
+The normalized-data SHA-256 is
+e6686893ef5b7ecf6be4de0511decb145975bda04bb22267680c4eec10171a9f and the
+snapshot SHA-256 is
+f4738fbb21e10df442a25009d8da1384b0fa0f6c01588f2c8e749edcb5eabc7b. The
+default context is 36 bytes with SHA-256
+35f3923661d2e58662f74498c947a8fb8e90f33c601a6c45bb9691708b4d079f; the
+stadium-info context is 1,526 bytes with SHA-256
+2c5dea7765f6bf60017a431371ce3f8c0e984128318e0366c89da242b62b055a. Outputs
+remain ignored and no raw capture was committed. Firestore writes: 0. AWS
+operations: 0.
+```
+
+### Phase 4 T14E5 credential retirement (protected facts recorded)
+
+```text
+Result: complete; retirement and post-retirement checks are recorded as
+sanitized evidence. The precheck found exactly one temporary Viewer grant and
+one service-account-level Token Creator grant for the approved operation, no
+user-managed keys, and the Credentials API enabled only for this task.
+
+The exact temporary Token Creator and Viewer grants were removed, the
+temporary service account was deleted, and the API was restored to disabled.
+Postcheck found the service account absent, zero remaining project bindings
+for it, and zero enabled count for the Credentials API. The isolated ADC was
+revoked and absent; the isolated gcloud login was revoked with zero active
+accounts. A post-retirement exporter invocation stopped at ADC validation
+before network access and created no output. No operator email, credential
+path/content, token, IAM policy body, or raw data is recorded.
+```

@@ -1338,3 +1338,35 @@ all builds); actual `node scripts/migration/export-firestore.mjs --help`
 passed; git diff --check passed. No Firebase/Google/AWS/network/auth/data
 operation occurred. Protected export remains stopped for Sol review.
 ```
+
+### Phase 4 T14E1R05 isolated ADC correction
+
+```text
+Start: 7298c87
+Source/test commit: 957c9ba
+Result: complete; local-only E1R05, stopped before T14E2.
+The CLI now requires the fixed argument contract
+`--output <single-run-name> --impersonated-adc <absolute-path>`. Output and
+ADC preflight complete before the SDK loader. ADC is accepted only beneath the
+injected credential root (production default `.artifacts/gcloud-t14e`), at the
+exact application_default_credentials.json filename, as a bounded regular
+non-symlink file with the exact impersonated_service_account type, HTTPS
+iamcredentials.googleapis.com host, exact temporary account and
+generateAccessToken path, and exact authorized_user source shape. Credential
+values are never returned, serialized, or logged. Caller-provided
+GOOGLE_APPLICATION_CREDENTIALS remains rejected.
+
+Immediately around the injected SDK lifecycle, the internal credential path is
+set to the validated realpath and always restored, including primary SDK/read,
+write, deleteApp, and cleanup failures. Tests verify no loader for invalid
+argv/ADC/output/env, exact internal env visibility/restoration, exact SDK args,
+six read paths, schema/host/target/size rejection, and sanitized errors. The
+real Node CLI help/invalid subprocess coverage remains offline; no valid fake
+ADC was used to initialize the SDK or access a network.
+
+Node 24.18.1; plain npm ci; exporter focused tests 13 passed; core unit 7;
+root npm run check passed (web 44, core 7, schedule-api 25, infra 15, all
+builds); actual CLI --help passed; git diff --check passed. The prior second
+protected attempt remains read count 0 with no output run. No Firebase/Google/
+AWS/network/auth/data operation occurred. T14E2+ remain pending Sol review.
+```

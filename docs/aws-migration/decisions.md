@@ -496,7 +496,7 @@ production data.
 
 ## D018: Temporary read-only Firestore export authentication
 
-Status: proposed
+Status: accepted
 
 Problem:
 

@@ -1276,3 +1276,22 @@ no firebase-admin/applicationDefault exporter code; git diff --check passed.
 No Google/Firebase/AWS/network/auth/data operation occurred. T14E2+ remain
 pending Sol review.
 ```
+
+### Sol acceptance of T14E1 local exporter
+
+```text
+Accepted implementation through: b575397
+Decision: D018 accepted by the user as one T14E bundle.
+Sol independently verified under Node 24.18.1 that the exact Firebase read
+plan, canonical snapshot/capture split, output preflight handle, symlink and
+containment checks, atomic reread, capture state validation, SDK lifecycle,
+and sanitized failure paths match the protected export plan. Export plus
+Firestore A-D focused tests passed 63/63; core unit passed 7/7; firebase-admin
+is absent from the web and schedule-api dependency trees. No external
+operation occurred during this acceptance.
+
+The authorized next boundary is limited to the exact D018 temporary keyless
+service-account impersonation, two bounded read-only exports, local hash and
+comparison verification, and complete credential/IAM retirement. No Firebase
+write, AWS access/upload, production DNS, or other Google resource is included.
+```

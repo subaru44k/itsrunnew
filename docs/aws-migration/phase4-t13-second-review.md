@@ -118,6 +118,11 @@ in two non-overlapping increments:
   replacement, and dirty reload/selection confirmation. Assert no automatic
   PUT retry and retained base/draft/latest values.
 
+Sol accepted T13S04B1 through `98e7ba0` and `cd3f677`. Independent review
+confirmed exact one-request outcomes, strict request bodies and conditional
+headers, fail-closed 403/401 rendering, 31-day create defaults, returned
+metadata, and operator-triggered PKCE reauthentication. T13S04B2 may proceed.
+
 Each increment must keep the 26 accepted administrator tests, the normal-build
 marker exclusion, and the preview-spec hashes unchanged. Stop after each for
 Sol review. Neither increment authorizes AWS writes or T13S05.

@@ -563,6 +563,18 @@ Next scope: local editor module/tests/log only; no Vue/locale/Playwright/AWS/Cog
 ```
 
 ```text
+T13S03A implementation: 2277670
+Date: 2026-08-09
+Result: complete; pure editor state module separated from repository contract.
+States: idle/loading/missing/ready/saving/saved/loadFailure/saveFailure/forbidden/conflict/comparisonFailure with explicit selection, generation, base/draft/dirty, condition, latest, and deterministic cell diffs. A compatibility-only type branch preserves the unchanged pre-S03 page without introducing a runtime state.
+Safety: missing drafts generate every real calendar date for 28/29/30/31-day months with exact three-status tuples; loaded base and draft are cloned; validated cell updates never mutate base. Clean saves are skipped, double saves are suppressed, failures preserve base/draft/condition, and explicit retry is required.
+Conflict: one PUT then one latest GET, no automatic PUT retry; null/failing comparison is separate, comparison retry is GET-only, diffs are date/slot sorted, keep-editing rebases to latest while preserving local draft, and replacement requires confirmation.
+Concurrency/listeners: load generation prevents stale completion from overwriting a newer selection; subscribe/unsubscribe is deterministic. Raw errors are converted to sanitized state messages and are not logged.
+Tests/checks: Node 24.18.1 web unit 39 passed; web lint/typecheck/build and root npm run check passed; git diff --check passed. No Vue/UI/locale/Playwright/AWS/preview/dependency operation occurred.
+Stop for Sol review before T13S03B.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

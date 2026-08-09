@@ -547,6 +547,13 @@ Focused web unit suite is now 25 passed; mocked overflowing and stream-error rea
 ```
 
 ```text
+T13S02 matrix follow-up: fb4bb8c
+Date: 2026-08-09
+Focused web unit suite is now 30 passed. Added all four stadium exact GET/PUT paths and headers, token-before-request ordering, missing-token zero-fetch and network mapping, base/path/condition/ETag matrices, malformed DTO/core date/tuple/status/31-day/serialized overflow attempts, exact status/message and console non-leakage, content-type/envelope/response ETag matrices, UTF-8 split and Content-Length variants, native fetch receiver binding, and successful-reader cancel=0/release=1 evidence.
+The exact bounded JSON success case is JSON.stringify('x'.repeat(32766)): TextEncoder byte length 32768; 32767 characters produces exactly 32769 bytes and is rejected. No AWS/real API/preview operation occurred; stop before T13S03.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

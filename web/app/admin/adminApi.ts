@@ -14,55 +14,79 @@ export function parseAdminPath(stadium: string, yearMonth: string): { stadium: S
   if (!validStadium.has(stadium as StadiumSlug) || !validMonth.test(yearMonth)) throw new AdminApiError('invalid')
   return { stadium: stadium as StadiumSlug, yearMonth: yearMonth as YearMonth }
 }
-function endpoint(base: string, stadium: StadiumSlug, yearMonth: YearMonth) { return `${base.replace(/\/$/, '')}/stadiums/${stadium}/availability/${yearMonth}` }
-function apiKind(status: number): ApiErrorKind { return ({ 401: 'unauthorized', 403: 'forbidden', 404: 'notFound', 409: 'conflict', 415: 'unsupported', 429: 'rateLimited' } as Record<number, ApiErrorKind>)[status] ?? (status >= 500 ? 'server' : 'invalid') }
-async function readResponse(response: Response, expected: { stadium: StadiumSlug; yearMonth: YearMonth }, allowMissing = false): Promise<LoadedSchedule | null> {
+const MAX_RESPONSE_BYTES = 32 * 1024
+const endpoint = (stadium: StadiumSlug, yearMonth: YearMonth) => `/api/v1/stadiums/${stadium}/availability/${yearMonth}`
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+export function validateAdminBasePath(basePath: string): void {
+  if (basePath !== '/api/v1') throw new AdminApiError('invalid')
+}
+export function validateStrongEtag(etag: unknown): asserts etag is string {
+  if (typeof etag !== 'string' || !/^"[^"\r\n]+"$/.test(etag)) throw new AdminApiError('invalid')
+}
+function apiKind(status: number): ApiErrorKind { return ({ 400: 'invalid', 401: 'unauthorized', 403: 'forbidden', 404: 'notFound', 409: 'conflict', 415: 'unsupported', 429: 'rateLimited' } as Record<number, ApiErrorKind>)[status] ?? (status >= 500 ? 'server' : 'invalid') }
+export async function boundedJson(response: Response): Promise<unknown> {
+  if (!response.body) throw new Error('missing response body')
+  const reader = response.body.getReader(); const decoder = new TextDecoder('utf-8', { fatal: true }); let bytes = 0; let text = ''; let cancelled = false; let released = false
+  const cancelOnce = async () => { if (!cancelled) { cancelled = true; await reader.cancel() } }
+  const releaseOnce = () => { if (!released) { released = true; reader.releaseLock() } }
+  try {
+    while (true) {
+      const chunk = await reader.read(); if (chunk.done) break
+      bytes += chunk.value.byteLength
+      if (bytes > MAX_RESPONSE_BYTES) throw new Error('response too large')
+      text += decoder.decode(chunk.value, { stream: true })
+    }
+    text += decoder.decode(); return JSON.parse(text)
+  } catch (error) { await cancelOnce().catch(() => undefined); throw error }
+  finally { releaseOnce() }
+}
+async function readResponse(response: Response, expected: { stadium: StadiumSlug; yearMonth: YearMonth }, requireVersion: boolean, allowMissing: boolean): Promise<LoadedSchedule | null> {
   if (response.status === 404 && allowMissing) return null
   if (!response.ok) throw new AdminApiError(apiKind(response.status))
-  const length = Number(response.headers.get('content-length') ?? 0)
-  if (length > 32 * 1024) throw new AdminApiError('invalid')
   const contentType = response.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase()
   if (contentType !== 'application/json') throw new AdminApiError('invalid')
   let payload: unknown
   try { payload = await boundedJson(response) } catch { throw new AdminApiError('invalid') }
-  if (!payload || typeof payload !== 'object' || Array.isArray(payload) || !('document' in payload) || !('etag' in payload) || typeof payload.etag !== 'string' || !/^"[^"\r\n]+"$/.test(payload.etag) || Object.keys(payload).some((key) => !['document', 'etag', 'versionId'].includes(key))) throw new AdminApiError('invalid')
-  if ('versionId' in payload && (typeof payload.versionId !== 'string' || !payload.versionId)) throw new AdminApiError('invalid')
+  if (!isPlainObject(payload) || !('document' in payload) || !('etag' in payload)) throw new AdminApiError('invalid')
+  const expectedKeys = requireVersion ? ['document', 'etag', 'versionId'] : ['document', 'etag']
+  if (Object.keys(payload).length !== expectedKeys.length || Object.keys(payload).some((key) => !expectedKeys.includes(key))) throw new AdminApiError('invalid')
+  validateStrongEtag(payload.etag)
+  if (requireVersion && (typeof payload.versionId !== 'string' || !payload.versionId)) throw new AdminApiError('invalid')
   try { parseScheduleMonth(payload.document, expected) } catch { throw new AdminApiError('invalid') }
-  return { document: payload.document as ScheduleMonth, etag: payload.etag, versionId: 'versionId' in payload && typeof payload.versionId === 'string' ? payload.versionId : undefined }
+  return { document: payload.document as ScheduleMonth, etag: payload.etag, versionId: requireVersion ? payload.versionId as string : undefined }
 }
-async function boundedJson(response: Response): Promise<unknown> {
-  if (!response.body) return response.json()
-  const reader = response.body.getReader(); const decoder = new TextDecoder(); let bytes = 0; let text = ''
-  try {
-    while (true) {
-      const chunk = await reader.read(); if (chunk.done) break
-      bytes += chunk.value.byteLength; if (bytes > 32 * 1024) { await reader.cancel(); throw new Error('response too large') }
-      text += decoder.decode(chunk.value, { stream: true })
-    }
-    text += decoder.decode(); return JSON.parse(text)
-  } catch (error) { try { await reader.cancel() } catch { /* already closed */ } try { reader.releaseLock() } catch { /* already released */ }; throw error }
-  finally { try { reader.releaseLock() } catch { /* already released */ } }
+function validateBody(body: UpdateScheduleMonthRequest, expected: { stadium: StadiumSlug; yearMonth: YearMonth }): void {
+  if (!isPlainObject(body) || Object.keys(body).length !== 4 || Object.keys(body).some((key) => !['schemaVersion', 'stadium', 'yearMonth', 'days'].includes(key)) || body.stadium !== expected.stadium || body.yearMonth !== expected.yearMonth || 'updatedAt' in body) throw new AdminApiError('invalid')
+  try { parseScheduleMonth({ ...body, updatedAt: '2026-01-01T00:00:00.000Z' }, expected) } catch { throw new AdminApiError('invalid') }
+  if (new TextEncoder().encode(JSON.stringify(body)).byteLength > MAX_RESPONSE_BYTES) throw new AdminApiError('invalid')
 }
 export class AdminApiRepository implements AdminApiPort {
-  constructor(private readonly basePath = '/api/v1', private readonly token: () => Promise<string | null>, private readonly request: ApiFetch = fetch) {}
+  private readonly request: ApiFetch
+  constructor(basePath = '/api/v1', private readonly token: () => Promise<string | null>, request: ApiFetch = fetch) {
+    validateAdminBasePath(basePath)
+    this.request = (input, init) => request(input, init)
+  }
   private async call(path: string, init: RequestInit) {
     const accessToken = await this.token(); if (!accessToken) throw new AdminApiError('unauthorized')
     try { return await this.request(path, { ...init, headers: { Authorization: `Bearer ${accessToken}`, ...(init.headers ?? {}) } }) } catch { throw new AdminApiError('network') }
   }
   async get(stadium: StadiumSlug, yearMonth: YearMonth) {
     const safe = parseAdminPath(stadium, yearMonth)
-    return readResponse(await this.call(endpoint(this.basePath, safe.stadium, safe.yearMonth), { method: 'GET' }), safe, true)
+    return readResponse(await this.call(endpoint(safe.stadium, safe.yearMonth), { method: 'GET' }), safe, false, true)
   }
   async put(stadium: StadiumSlug, yearMonth: YearMonth, body: UpdateScheduleMonthRequest, condition: { etag: string } | { create: true }) {
     const safe = parseAdminPath(stadium, yearMonth)
-    if (!('etag' in condition) && !condition.create) throw new AdminApiError('invalid')
+    if (!isPlainObject(condition) || Object.keys(condition).length !== 1) throw new AdminApiError('invalid')
+    if ('etag' in condition) validateStrongEtag(condition.etag)
+    else if (!('create' in condition) || condition.create !== true) throw new AdminApiError('invalid')
+    validateBody(body, safe)
     const headers: Record<string, string> = { 'Content-Type': 'application/json', ...('etag' in condition ? { 'If-Match': condition.etag } : { 'If-None-Match': '*' }) }
-    const keys = Object.keys(body as object); if (keys.some((key) => !['schemaVersion', 'stadium', 'yearMonth', 'days'].includes(key)) || body.stadium !== safe.stadium || body.yearMonth !== safe.yearMonth || 'updatedAt' in (body as object)) throw new AdminApiError('invalid')
-    try { parseScheduleMonth({ ...body, updatedAt: '2026-01-01T00:00:00.000Z' }, safe) } catch { throw new AdminApiError('invalid') }
-    if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 32 * 1024) throw new AdminApiError('invalid')
-    const result = await readResponse(await this.call(endpoint(this.basePath, safe.stadium, safe.yearMonth), { method: 'PUT', headers, body: JSON.stringify(body) }), safe)
-    if (!result) throw new AdminApiError('invalid')
-    if (!result.versionId) throw new AdminApiError('invalid')
+    const result = await readResponse(await this.call(endpoint(safe.stadium, safe.yearMonth), { method: 'PUT', headers, body: JSON.stringify(body) }), safe, true, false)
+    if (!result?.versionId) throw new AdminApiError('invalid')
     return result
   }
 }

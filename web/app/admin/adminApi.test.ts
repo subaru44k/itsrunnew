@@ -5,7 +5,7 @@ const document = { schemaVersion: 1 as const, stadium: 'oda' as const, yearMonth
 const response = (status: number, body: unknown, headers: Record<string, string> = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'content-length': String(JSON.stringify(body).length), ...headers } })
 describe('AdminApiRepository', () => {
   it('uses exact same-origin paths and conditional headers', async () => {
-    const request = vi.fn().mockImplementation(() => response(200, { document, etag: '"a"', versionId: 'v' }))
+    const request = vi.fn().mockImplementation((_: string, init?: RequestInit) => response(200, init?.method === 'PUT' ? { document, etag: '"a"', versionId: 'v' } : { document, etag: '"a"' }))
     const repo = new AdminApiRepository('/api/v1', async () => 'token', request)
     await repo.get('oda', '2026-08'); expect(request).toHaveBeenCalledWith('/api/v1/stadiums/oda/availability/2026-08', expect.objectContaining({ method: 'GET', headers: { Authorization: 'Bearer token' } }))
     await repo.put('oda', '2026-08', { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }, { etag: '"a"' })
@@ -22,6 +22,52 @@ describe('AdminApiRepository', () => {
     const repo = new AdminApiRepository('/api/v1', async () => 'token', async () => new Response('{}', { status: 200, headers: { 'content-length': '40000' } }))
     await expect(repo.get('oda', '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
     await expect(repo.get('bad' as never, '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
+  })
+
+  it('rejects non-exact base paths and invalid path identity before fetch', async () => {
+    const request = vi.fn()
+    for (const base of ['/api/v1/', '/api/v1?x=1', 'https://preview.example/api/v1', '//preview/api/v1', '/api/v1/../v1']) {
+      expect(() => new AdminApiRepository(base, async () => 'token', request)).toThrowError(AdminApiError)
+    }
+    const repo = new AdminApiRepository('/api/v1', async () => 'token', request)
+    await expect(repo.get('unknown' as never, '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  it('validates strong ETags, exact condition unions, and does not invoke fetch as a method', async () => {
+    const request = vi.fn().mockResolvedValue(response(200, { document, etag: '"a"', versionId: 'v' }))
+    const repo = new AdminApiRepository('/api/v1', async () => 'token', request)
+    for (const etag of ['', '*', 'W/"a"', 'a', '"a", "b"', '"a\r\n"']) {
+      await expect(repo.put('oda', '2026-08', { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }, { etag })).rejects.toMatchObject({ kind: 'invalid' })
+    }
+    await expect(repo.put('oda', '2026-08', { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }, { etag: '"a"', extra: true } as never)).rejects.toMatchObject({ kind: 'invalid' })
+    await expect(repo.put('oda', '2026-08', { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }, { create: true, extra: true } as never)).rejects.toMatchObject({ kind: 'invalid' })
+    await repo.put('oda', '2026-08', { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }, { etag: '"a"' })
+    expect(request).toHaveBeenCalled()
+  })
+
+  it('maps statuses without leaking forbidden response text and requires exact content types/envelopes', async () => {
+    const kinds = new Map([[400, 'invalid'], [401, 'unauthorized'], [403, 'forbidden'], [404, 'notFound'], [409, 'conflict'], [415, 'unsupported'], [429, 'rateLimited'], [500, 'server']])
+    for (const status of [400, 401, 403, 404, 409, 415, 429, 500]) {
+      const request = vi.fn().mockResolvedValue(response(status, { secret: 'do-not-expose' }))
+      const repo = new AdminApiRepository('/api/v1', async () => 'token', request)
+      await expect(repo.put('oda', '2026-08', { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }, { create: true })).rejects.toMatchObject({ kind: kinds.get(status) })
+    }
+    const wrongType = vi.fn().mockResolvedValue(new Response(JSON.stringify({ document, etag: '"a"' }), { status: 200, headers: { 'content-type': 'text/plain' } }))
+    await expect(new AdminApiRepository('/api/v1', async () => 'token', wrongType).get('oda', '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
+    const unknown = vi.fn().mockResolvedValue(response(200, { document, etag: '"a"', extra: 'secret' }))
+    await expect(new AdminApiRepository('/api/v1', async () => 'token', unknown).get('oda', '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
+  })
+
+  it('hard-bounds stream bytes and releases/cancels on overflow, while accepting exact size', async () => {
+    const streamResponse = (bytes: number) => {
+      const chunk = new Uint8Array(bytes).fill(32)
+      return new Response(new ReadableStream({ start(controller) { controller.enqueue(chunk); controller.close() } }), { status: 200, headers: { 'content-type': 'application/json', 'content-length': '1' } })
+    }
+    const tooLarge = new AdminApiRepository('/api/v1', async () => 'token', async () => streamResponse(32 * 1024 + 1))
+    await expect(tooLarge.get('oda', '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
+    const exact = new AdminApiRepository('/api/v1', async () => 'token', async () => streamResponse(32 * 1024))
+    await expect(exact.get('oda', '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
   })
 })
 describe('editor conflict semantics', () => {

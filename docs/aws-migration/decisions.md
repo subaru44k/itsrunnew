@@ -304,6 +304,63 @@ least-privilege IAM review. The failed-deploy cleanup exception applies only to
 the two exact resources recorded above and does not authorize deleting any
 deployed or populated resource.
 
+## D015: Account-qualified API Gateway invoke permissions
+
+Status: accepted
+
+Problem:
+
+The third T11/T12 deployment reached Lambda permission creation but
+CloudFormation rejected both `AWS::Lambda::Permission.SourceArn` values with
+`failed validation constraint for keyword [pattern]`. The synthesized joins
+were missing the account-ID component and its following colon, producing the
+equivalent of `arn:aws:execute-api:ap-northeast-1:<api-id>/...` rather than the
+documented execute-api ARN form. Existing tests asserted the same malformed
+join and therefore did not detect it. The update rolled back to
+`UPDATE_ROLLBACK_COMPLETE`; the fixed-name Lambda is absent, and another empty
+User Pool and empty retained schedule LogGroup remain outside the restored
+stack graph.
+
+Decision:
+
+Insert the `AWS::AccountId` pseudo parameter and delimiter into both exact
+GET/PUT Lambda permission source ARNs. The required shape is
+`arn:<partition>:execute-api:<region>:<account-id>:<api-id>/$default/<method>/api/v1/stadiums/*/availability/*`.
+Retain the separate GET and PUT permissions, exact `$default` stage, exact
+methods and path, API Ref, Lambda ARN Ref, and API Gateway service principal.
+
+Semantic tests must assert the complete joins, including `AWS::AccountId`, and
+resolve them with deterministic example pseudo-parameter/API values to prove
+the resulting strings match the documented ARN contract. No wildcard stage or
+method, broader path, IAM policy change, or policy v5 is permitted.
+
+Before another deployment, and only after fresh explicit authorization, remove
+the exact empty failed-deploy User Pool `ap-northeast-1_U6JenEvrT` and exact
+empty retained LogGroup `/aws/lambda/itsrun-preview-schedule-api` using the same
+complete gates as D014. Then allow exactly one corrected deploy and read-only
+acceptance verification.
+
+Alternatives:
+
+- Use a stage/method wildcard or the whole API execution ARN: rejected because
+  the two exact routes are known and least privilege is required.
+- Change Lambda or CloudFormation IAM: rejected because the failure is template
+  schema validation, not an authorization denial.
+- Reuse the orphaned empty resources: rejected because they are no longer in
+  the rolled-back stack graph and would collide with explicit names.
+
+Cost and maintenance effect:
+
+The correction adds no resource, dependency, or runtime cost. Deterministic
+resolved-ARN tests prevent another syntactically incomplete permission from
+passing semantic assertions.
+
+Rollback/removal:
+
+Any future API stage, route, or account change requires matching permission and
+test updates. The cleanup exception applies only to the exact empty resources
+recorded above.
+
 ## Decision template
 
 Copy for new decisions:

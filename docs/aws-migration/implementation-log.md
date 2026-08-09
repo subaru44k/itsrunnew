@@ -1249,3 +1249,30 @@ firebase-admin is absent from web and schedule-api trees. No
 Google/Firebase/AWS/network/auth operation occurred. T14E2+ remain pending
 Sol review.
 ```
+
+### Phase 4 T14E1R03 exporter security correction
+
+```text
+Start: 94aa08e
+Source/test commit: 372bc67
+Result: complete; local-only E1R03, stopped before T14E2.
+Preflight handles are now module-authentic WeakSet members with frozen exact
+fields; writeExportRun revalidates output name, root/workspace containment,
+resolved target, root realpath, raced target nonexistence, and regular
+non-symlink artifact files before rename. Forged, cross-name, and cross-root
+handles cannot mutate or remove an outside sentinel. The exported capture
+validator enforces the exact nested schema, project/database, canonical time,
+four collection/document counts, context byte/hash contracts, lowercase
+SHA-256 fields, and recomputed normalized-data hash; serializeExport and
+reread use the same validator. Invalid calendar timestamps are sanitized
+without RangeError. SDK/applicationDefault/initialize/getFirestore/read/write
+and deleteApp failures are sanitized, with primary failures preserved over
+cleanup failures and no delete after initialization failure.
+
+Node 24.18.1; plain npm ci; exporter + Firestore A-D focused tests: 62 passed;
+core unit: 7 passed; root npm run check passed; npm ls shows firebase-admin is
+absent from web and schedule-api trees; generated web/Lambda output contains
+no firebase-admin/applicationDefault exporter code; git diff --check passed.
+No Google/Firebase/AWS/network/auth/data operation occurred. T14E2+ remain
+pending Sol review.
+```

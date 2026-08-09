@@ -421,6 +421,79 @@ is needed for ongoing deployments; remove it in a later least-privilege policy
 version if not. The failed-deploy cleanup exception applies only to the exact
 empty resources recorded in the recovery plan.
 
+## D017: Browser no-store enforcement and time-bounded preview fixture refresh
+
+Status: accepted
+
+Problem:
+
+The first successful T11/T12 deployment proved the complete infrastructure
+graph, but final acceptance exposed two independent gaps:
+
+1. `/api/*` uses the managed `CachingDisabled` policy, yet CloudFront responses
+   generated before Lambda (JWT 401 and method-filter 405) do not explicitly
+   send the architecture's browser contract `Cache-Control: no-store`.
+2. The honest raw preview suite and the isolated schedule-state suite were
+   written against the deterministic non-production fixture for
+   2026-07-31 through 2026-08-06. On 2026-08-09 they correctly render the new
+   week as unpublished, so eight availability assertions fail despite both
+   July and August fixture objects remaining present, valid, private, and
+   readable through CloudFront.
+
+Decision:
+
+Create a separate stack-owned API response-headers policy. It must reproduce
+the complete existing security-header and Permissions-Policy contract and add
+exactly `Cache-Control: no-store` with override enabled. Bind it only to
+`api/*`; keep the public HTML and data behaviors on the existing security
+policy so immutable/data cache metadata is not overwritten. Keep managed
+`CachingDisabled`, the exact origin request policy, and the method filter.
+
+For the mocked schedule-state suite only, use Playwright's standard clock API
+to pin the retained-data test to its documented fixture window. Do not add any
+clock, route, fetch, retry, or fixture interception to the raw public suite.
+
+For the raw end-to-end acceptance, generate the existing clearly labeled
+seven-day non-production fixture for 2026-08-09 through 2026-08-15. After
+explicit authorization, conditionally replace only
+`data/v1/stadiums/oda/availability/2026-08.json` in the versioned preview data
+bucket using its exact current strong ETag. Preserve the previous version, use
+the existing JSON/cache metadata, upload no web or other data object, perform
+no invalidation, and wait for the bounded 60-second CloudFront data cache to
+return the new exact hash.
+
+The direct HTTP API's authorizer-generated 401 is not customizable by the
+Lambda response code and is not the browser endpoint. Acceptance requires the
+CloudFront `/api/*` browser path to send explicit no-store; Lambda unit tests
+continue to require no-store on every application response.
+
+Alternatives:
+
+- Add no-store to the shared response policy: rejected because it would
+  override browser caching for public HTML, assets, and `/data/*`.
+- Add a viewer-response function: rejected because a response-headers policy
+  also covers viewer-request-generated 405 responses with less edge code.
+- Weaken or remove the availability assertions: rejected because preview must
+  prove real CloudFront/private-S3 data renders in the UI.
+- Mock time or fetch in the raw suite: rejected because it must remain an
+  unmodified browser/network acceptance test.
+- Invalidate CloudFront: rejected because `/data/*` has a bounded 60-second
+  cache and routine data writes must not require invalidation.
+
+Cost and maintenance effect:
+
+One response-headers policy has negligible cost. The fixture write creates one
+recoverable S3 object version only. Preview fixtures remain explicitly
+non-production and need a deliberate date-window refresh when raw acceptance
+is rerun outside their published range.
+
+Rollback/removal:
+
+Rebind `api/*` to the original security policy to remove the browser no-store
+override. Restore the recorded previous August object version if fixture
+rollback is required; never delete versions or apply this procedure to
+production data.
+
 ## Decision template
 
 Copy for new decisions:

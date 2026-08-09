@@ -18,8 +18,9 @@ let browserSession: ReturnType<typeof createAdminSession> | undefined
 
 function safeReturnPath(value: unknown): string { return isSafeReturnPath(value) ? value as string : '/manage' }
 
-export function replaceClientPath(path: string): void {
+export async function replaceClientPath(path: string): Promise<void> {
   if (typeof window === 'undefined') return
+  await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()))
   window.history.replaceState(window.history.state, '', path)
   window.dispatchEvent(new PopStateEvent('popstate', { state: window.history.state }))
 }
@@ -112,7 +113,7 @@ export function useAdminSession() {
         : config.cognitoAuthority && config.cognitoClientId
         ? createOidcPort(oidcConfig(config.cognitoAuthority, config.cognitoClientId, window.location.origin))
         : undefined,
-      navigate: async (path) => { replaceClientPath(path) },
+      navigate: replaceClientPath,
     })
   }
   const session = browserSession ?? createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId, oidc: undefined })

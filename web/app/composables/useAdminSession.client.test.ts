@@ -30,15 +30,18 @@ function fakePort(user: User | null = null) {
 }
 
 describe('browser admin session boundary', () => {
-  it('replaces one client path and dispatches one popstate without full reload', () => {
+  it('waits for one frame, then replaces one client path and dispatches one popstate', async () => {
     const replaceState = vi.fn(); const dispatchEvent = vi.fn()
-    vi.stubGlobal('window', { history: { state: { marker: 'state' }, replaceState }, dispatchEvent })
+    let frame: FrameRequestCallback | undefined
+    vi.stubGlobal('window', { history: { state: { marker: 'state' }, replaceState }, dispatchEvent, requestAnimationFrame: (callback: FrameRequestCallback) => { frame = callback; return 1 } })
     vi.stubGlobal('PopStateEvent', class { type: string; state: unknown; constructor(type: string, init: { state: unknown }) { this.type = type; this.state = init.state } })
-    replaceClientPath('/manage/schedule')
+    const pending = replaceClientPath('/manage/schedule')
+    expect(replaceState).not.toHaveBeenCalled(); expect(dispatchEvent).not.toHaveBeenCalled()
+    frame?.(0); await pending
     expect(replaceState).toHaveBeenCalledTimes(1)
     expect(replaceState).toHaveBeenCalledWith({ marker: 'state' }, '', '/manage/schedule')
     expect(dispatchEvent).toHaveBeenCalledTimes(1)
-    expect(dispatchEvent.mock.calls[0][0].type).toBe('popstate')
+    expect((dispatchEvent.mock.calls[0]?.[0] as { type: string }).type).toBe('popstate')
     vi.unstubAllGlobals()
   })
 

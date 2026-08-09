@@ -789,6 +789,17 @@ The callback page now invokes session.callback(window.location.href) exactly onc
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
 
+### Phase 4 T13 S04A navigation timing correction
+
+```text
+Start: 68b6fb9
+Result: complete; native callback navigation now waits exactly one requestAnimationFrame before one replaceState and one popstate.
+The exported async replaceClientPath navigator is injected directly. Unit coverage proves no replacement before the fake frame and exactly one replaceState/popstate afterward; cleanup-before-navigation ordering remains covered.
+Browser proof: focused callback success/failure/hostile cases 6 passed, and full admin-local suite 26 passed across Japanese desktop and English mobile. Query/fragment cleanup, same-origin safe navigation, signed-in and sanitized failure states passed.
+Checks: web unit 44 passed; web typecheck/build passed; normal output marker scan passed; root npm run check passed; git diff --check passed; clean worktree after commit.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```
+
 ### Phase 4 T13 S04A native replace navigator follow-up
 
 ```text

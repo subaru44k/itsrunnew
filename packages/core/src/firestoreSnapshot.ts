@@ -46,8 +46,11 @@ const exactKeys = (value: Record<string, unknown>, keys: readonly string[]) => {
   return actual.length === keys.length && actual.every((key, index) => key === [...keys].sort()[index])
 }
 
-const status = (value: unknown): value is AvailabilityStatus =>
-  typeof value === 'number' && Number.isInteger(value) && (value === 0 || value === 1 || value === 2)
+const status = (value: unknown, allowLegacyStrings: boolean): value is AvailabilityStatus =>
+  (typeof value === 'number' && Number.isInteger(value) && (value === 0 || value === 1 || value === 2)) ||
+  (allowLegacyStrings && typeof value === 'string' && /^[012]$/.test(value))
+
+const normalizedStatus = (value: unknown): AvailabilityStatus => typeof value === 'string' ? Number(value) as AvailabilityStatus : value as AvailabilityStatus
 
 const validDate = (value: string) => {
   if (!/^\d{8}$/.test(value)) return false
@@ -58,7 +61,8 @@ const validDate = (value: string) => {
 
 const fail = (category: string, coordinate: string): never => { throw new SnapshotValidationError(category, coordinate) }
 
-export function normalizeFirestoreSnapshot(input: unknown): NormalizedFirestoreRecord[] {
+export function normalizeFirestoreSnapshot(input: unknown, options: { allowLegacyStatusStrings?: boolean } = {}): NormalizedFirestoreRecord[] {
+  const allowLegacyStatusStrings = options.allowLegacyStatusStrings === true
   if (!isPlainObject(input)) fail('top-level', 'snapshot')
   const root = input as Record<string, unknown>
   if (!exactKeys(root, ['schemaVersion', 'collections']) || root.schemaVersion !== 1 || !Array.isArray(root.collections)) fail('top-level', 'snapshot')
@@ -92,12 +96,12 @@ export function normalizeFirestoreSnapshot(input: unknown): NormalizedFirestoreR
       if (legacyId !== resolvedConfig.legacyId) fail('path-identity', docCoordinate)
       if (!validDate(date)) fail('date', docCoordinate)
       const rawStatus = data.status
-      if (!Array.isArray(rawStatus) || rawStatus.length !== 3 || ![0, 1, 2].every((index) => Object.prototype.hasOwnProperty.call(rawStatus, index)) || !(rawStatus as unknown[]).every(status)) fail('status', docCoordinate)
+      if (!Array.isArray(rawStatus) || rawStatus.length !== 3 || ![0, 1, 2].every((index) => Object.prototype.hasOwnProperty.call(rawStatus, index)) || !(rawStatus as unknown[]).every((value) => status(value, allowLegacyStatusStrings))) fail('status', docCoordinate)
       const key = `${resolvedConfig.slug}/${date}`
       if (seenDates.has(key)) fail('duplicate-document', docCoordinate)
       seenDates.add(key)
       const tuple = rawStatus as unknown[]
-      normalized.push({ slug: resolvedConfig.slug, date: date as NormalizedFirestoreRecord['date'], status: [...tuple] as NormalizedFirestoreRecord['status'] })
+      normalized.push({ slug: resolvedConfig.slug, date: date as NormalizedFirestoreRecord['date'], status: tuple.map(normalizedStatus) as NormalizedFirestoreRecord['status'] })
     })
   })
   if (seenSlugs.size !== Object.keys(STADIUMS).length) fail('missing-descriptor', 'snapshot')

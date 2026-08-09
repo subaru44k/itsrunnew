@@ -91,6 +91,16 @@ describe('strict Firestore snapshot normalization', () => {
     }
   })
 
+  it('accepts only exact legacy status strings when the temporary boundary is enabled', () => {
+    const value = clone(fixture); value.collections[0].documents[0].data.status = ['0', 1, '2']
+    expect(normalizeFirestoreSnapshot(value, { allowLegacyStatusStrings: true }).find((record) => record.slug === 'oda')?.status).toEqual([0, 1, 2])
+    for (const bad of [' 0', '+1', '-1', '1.0', '01', '０', 'Available', '', true, null, 3, 1.5]) {
+      const invalid = clone(fixture); invalid.collections[0].documents[0].data.status = [0, bad, 2]
+      expectInvalid(invalid, 'status')
+      expect(() => normalizeFirestoreSnapshot(invalid, { allowLegacyStatusStrings: true })).toThrow(SnapshotValidationError)
+    }
+  })
+
   it('rejects duplicate dates even when status differs and rejects cross-identity documents', () => {
     const duplicate = clone(fixture); duplicate.collections[0].documents.push({ path: duplicate.collections[0].documents[0].path, data: { status: [2, 2, 2] } }); expectInvalid(duplicate, 'duplicate-document')
     const cross = clone(fixture); cross.collections[1].documents[0].path = cross.collections[0].documents[0].path; expectInvalid(cross, 'path-identity')

@@ -596,6 +596,11 @@ Stop before T13S04.
 ```
 
 ```text
+T13S03B type cleanup follow-up: 8c18a32
+Removed the obsolete comparisonError/error compatibility branches from the editor state union; the UI now depends only on the S03A exclusive states. Web unit (43) and typecheck remained passing.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

@@ -9,6 +9,7 @@ const child = spawn(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['nuxt', '
   env: {
     ...process.env,
     ADMIN_E2E_OUTPUT: output,
+    ADMIN_E2E: 'true',
     NUXT_PUBLIC_COGNITO_AUTHORITY: 'https://admin-e2e.invalid',
     NUXT_PUBLIC_COGNITO_CLIENT_ID: 'admin-e2e-client',
   },

@@ -1,6 +1,9 @@
 import type { User } from 'oidc-client-ts'
 import { computed, ref } from 'vue'
 import { createOidcPort, oidcConfig, isSafeReturnPath, type OidcPort } from '../admin/oidc'
+import { createAdminE2eOidcPort } from '../admin/adminE2eOidc'
+
+declare const __ADMIN_E2E__: boolean
 
 export type AdminSessionState = 'unconfigured' | 'signedOut' | 'redirecting' | 'processingCallback' | 'signedIn' | 'sanitizedError' | 'signingOut'
 export interface SessionOptions {
@@ -98,7 +101,9 @@ export function useAdminSession() {
       authority: config.cognitoAuthority,
       clientId: config.cognitoClientId,
       origin: window.location.origin,
-      oidc: config.cognitoAuthority && config.cognitoClientId
+      oidc: __ADMIN_E2E__
+        ? createAdminE2eOidcPort()
+        : config.cognitoAuthority && config.cognitoClientId
         ? createOidcPort(oidcConfig(config.cognitoAuthority, config.cognitoClientId, window.location.origin))
         : undefined,
       navigate: async (path) => { await navigateTo(path, { replace: true }) },

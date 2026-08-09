@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     },
   },
   ...(process.env.ADMIN_E2E_OUTPUT ? { nitro: { output: { dir: process.env.ADMIN_E2E_OUTPUT } } } : {}),
+  vite: { define: { __ADMIN_E2E__: JSON.stringify(process.env.ADMIN_E2E === 'true') } },
   i18n: {
     locales: [
       { code: 'ja', language: 'ja-JP', file: 'ja.json', name: '日本語' },

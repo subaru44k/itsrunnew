@@ -1672,3 +1672,19 @@ Node 24.18.1; focused upload tests 26 passed; no AWS CLI, network, CloudFront,
 upload, IAM, Firebase, or protected operation occurred. T14F02+ remain
 pending Sol review.
 ```
+
+### Phase 4 T14F01R04 executable-path correction
+
+```text
+Start: bfd7259
+Result: complete; local-only correction, stopped before T14F02.
+The fixed executable is now the verified non-symlink `/usr/local/aws-cli/aws`;
+the actual filesystem was checked only with lstat and realpath, without
+executing the binary. Existing environment, command, path, CLI orchestration,
+and report sanitization boundaries remain unchanged.
+
+Node 24.18.1; focused Firestore tests 64 passed; core unit 7 passed; root
+check, CLI help, and git diff --check passed. No AWS CLI/network/CloudFront,
+upload, IAM, Firebase, or protected operation occurred. T14F02+ remain
+pending Sol review.
+```

@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { lstat, mkdtemp, mkdir, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
@@ -195,7 +195,8 @@ describe('T14D injected local upload tooling', () => {
   })
 
   it('preflights the fixed executable without accepting symlinks or non-executables', async () => {
-    const base = { isFile: () => true, isSymbolicLink: () => false, mode: 0o755 }; await expect(preflightAwsExecutable({ lstat: async () => base, realpath: async () => '/usr/local/bin/aws' })).resolves.toBe('/usr/local/bin/aws'); await expect(preflightAwsExecutable({ lstat: async () => ({ ...base, isSymbolicLink: () => true }), realpath: async () => '/usr/local/bin/aws' })).rejects.toThrow(); await expect(preflightAwsExecutable({ lstat: async () => ({ ...base, mode: 0o644 }), realpath: async () => '/usr/local/bin/aws' })).rejects.toThrow(); await expect(preflightAwsExecutable({ lstat: async () => base, realpath: async () => '/outside/aws' })).rejects.toThrow()
+    const base = { isFile: () => true, isSymbolicLink: () => false, mode: 0o755 }; await expect(preflightAwsExecutable({ lstat: async () => base, realpath: async () => '/usr/local/aws-cli/aws' })).resolves.toBe('/usr/local/aws-cli/aws'); await expect(preflightAwsExecutable({ lstat: async () => ({ ...base, isSymbolicLink: () => true }), realpath: async () => '/usr/local/aws-cli/aws' })).rejects.toThrow(); await expect(preflightAwsExecutable({ lstat: async () => ({ ...base, mode: 0o644 }), realpath: async () => '/usr/local/aws-cli/aws' })).rejects.toThrow(); await expect(preflightAwsExecutable({ lstat: async () => base, realpath: async () => '/outside/aws' })).rejects.toThrow()
+    await expect(preflightAwsExecutable({ lstat, realpath })).resolves.toBe('/usr/local/aws-cli/aws')
   })
 
   it('classifies AWS CLI 254 service errors without exposing stderr', async () => {

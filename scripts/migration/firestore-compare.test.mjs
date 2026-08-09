@@ -91,9 +91,14 @@ describe('T14C deterministic Firestore comparator', () => {
       { ...changed, counts: { ...changed.counts, transformedDayCount: changed.counts.transformedDayCount + 1 } },
       { ...changed, mismatches: changed.mismatches.map((item) => ({ ...item, date: item.kind === 'cell' ? '2024-02-30' : item.date })) },
       { ...changed, mismatches: changed.mismatches.map((item) => item.kind === 'cell' ? { ...item, stadium: null } : item) },
+      { ...changed, mismatches: changed.mismatches.map((item) => item.kind === 'cell' ? { ...item, expected: 999 } : item) },
+      { ...changed, mismatches: changed.mismatches.map((item) => item.kind === 'cell' ? { ...item, actual: 'raw' } : item) },
+      { ...changed, mismatches: changed.mismatches.map((item) => item.kind === 'cell' ? { ...item, yearMonth: '2024-07' } : item) },
       { ...changed, mismatches: [...changed.mismatches].reverse() },
+      { ...result.report, counts: { ...result.report.counts, expectedObjectCount: 1 } },
     ]
     expect(changed.mismatches.length).toBeGreaterThan(1)
+    const human = humanComparisonReport(changed); const cell = changed.mismatches.find((item) => item.kind === 'cell'); expect(human).toContain(`- cell ${cell.stadium} ${cell.yearMonth} ${cell.date} ${cell.slot} status expected=${cell.expected} actual=${cell.actual}`)
     for (const [index, tampered] of tamperedReports.entries()) { expect(() => serializeComparisonReport(tampered), `tampered ${index}`).toThrow(); expect(() => humanComparisonReport(tampered), `tampered ${index}`).toThrow(); expect(() => comparisonExitCode(tampered), `tampered ${index}`).toThrow() }
   })
 })

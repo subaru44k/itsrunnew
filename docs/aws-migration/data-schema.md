@@ -286,7 +286,10 @@ type ComparisonReport = {
 ```
 
 Mismatches are sorted deterministically and contain only typed coordinates and
-safe scalar categories; raw documents, bodies, credentials, paths, buckets,
-tokens, and actors are never serialized. The human report is generated only
-from a schema-validated machine report. Machine JSON uses two-space indentation
-and one trailing newline; exit code is exactly zero only for `match`.
+safe scalar categories; a cell expected/actual is exactly `0`, `1`, `2`, or
+`null`, and non-null dates must match their year-month coordinate. Raw
+documents, bodies, credentials, paths, buckets, tokens, and actors are never
+serialized. The human report is generated only from a schema-validated machine
+report and includes deterministic `expected=`/`actual=` values. Machine JSON
+uses two-space indentation and one trailing newline; exit code is exactly zero
+only for `match`.

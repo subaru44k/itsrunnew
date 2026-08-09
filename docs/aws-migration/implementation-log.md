@@ -969,6 +969,25 @@ Firebase/AWS/network/credential/data operation or new dependency occurred.
 T14D+ remain pending Sol review.
 ```
 
+### Phase 4 T14C final report-schema follow-up
+
+```text
+Start: 3cc6f1f
+Result: complete; local-only T14C final gate, stopped before T14D.
+Report validation now requires cell expected/actual values to be exactly
+0/1/2/null, real date values whose year-month matches the coordinate, exact
+source/transformed-day/cell count invariants, and equal expected/actual object
+counts for match reports. Per-kind field/coordinate/value combinations are
+allowlisted. Human mismatch lines now deterministically include
+expected=<value> actual=<value>, with null rendered as `null`, and are generated
+only from the validated machine report.
+
+Checks: Firestore-focused A+B+C 37 passed; core unit 7 passed; root npm run
+check passed (web 44, core 7, service 25, infra 15, build); git diff --check
+passed. No Firebase/AWS/network/credential/data operation or new dependency
+occurred. T14D+ remain pending Sol review.
+```
+
 ### Phase 4 T14B deterministic transform and atomic writer follow-up
 
 ```text

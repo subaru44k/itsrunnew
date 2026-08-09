@@ -18,7 +18,6 @@ const SEALED_MANIFEST_SHA256 = '2d6000e0a56026abc1bdad91717d4627d942b6cef2d19e72
 const SEALED_OBJECT_COUNT = 74
 const SEALED_PREFIX = 'data/v1/stadiums/'
 const SEALED_ALLOWED_PREFIX = /^data\/v1\/stadiums\/$/
-const AWS_ENV_KEYS = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN', 'AWS_WEB_IDENTITY_TOKEN_FILE', 'AWS_ROLE_ARN', 'AWS_PROFILE', 'AWS_DEFAULT_PROFILE']
 const reportKeys = ['schemaVersion', 'status', 'counts', 'objects', 'failure']
 const countKeys = ['attempted', 'uploaded', 'readback', 'cloudfront']
 const failureCategories = new Set(['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'])
@@ -31,6 +30,11 @@ const exact = (value, keys) => Object.keys(value).join('\u0000') === keys.join('
 const beneath = (root, candidate) => { const rel = relative(resolve(root), resolve(candidate)); return rel !== '' && rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel) }
 const globalArgs = (config) => ['--profile', config.profile, '--region', config.region, '--output', 'json']
 const bodyBytes = (body) => body instanceof Uint8Array ? body : Buffer.from(body)
+const safeEnvironment = (value) => {
+  if (value === null || typeof value !== 'object' || Array.isArray(value) || Object.getOwnPropertySymbols(value).length > 0) return false
+  for (const key of Object.keys(value)) { const descriptor = Object.getOwnPropertyDescriptor(value, key); if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, 'value') || typeof descriptor.value !== 'string' || key.startsWith('AWS_')) return false }
+  return true
+}
 
 export class UploadValidationError extends Error {
   constructor(category) { super(`Migration upload validation failed (${category})`); this.name = 'UploadValidationError'; this.category = category }
@@ -97,7 +101,7 @@ function sealedConfig(config, approvedTarget) {
   if (!plain(config) || !builderConfigSafe(config) || !plain(approvedTarget) || !exact(approvedTarget, ['bucket', 'distributionDomain']) || approvedTarget.bucket !== config.bucket || approvedTarget.distributionDomain !== config.distributionDomain) fail('config')
   if (config.manifestSha256 !== SEALED_MANIFEST_SHA256 || config.objectCount !== SEALED_OBJECT_COUNT || config.allowedPrefix !== SEALED_PREFIX || !SEALED_ALLOWED_PREFIX.test(config.allowedPrefix)) fail('config')
   if (!isAbsolute(config.runDir) || !isAbsolute(config.manifestPath) || resolve(config.manifestPath) !== resolve(config.runDir, 'manifest.json') || !beneath(config.runDir, config.manifestPath)) fail('path')
-  if (config.env && (!plain(config.env) || AWS_ENV_KEYS.some((key) => config.env[key]))) fail('config')
+  if (config.env !== undefined && !safeEnvironment(config.env)) fail('config')
 }
 
 async function readSealedArtifacts(config, fs, { strictFiles = true } = {}) {

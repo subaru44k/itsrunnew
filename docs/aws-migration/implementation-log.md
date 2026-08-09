@@ -1708,3 +1708,25 @@ Node 24.18.1; migration tests 64 passed; core unit 7 passed; root check, CLI
 help, and git diff --check passed. No AWS/network/CloudFront/upload/IAM or
 Firebase operation occurred. T14F02+ remain pending Sol review.
 ```
+
+### Phase 4 T14F01R06 process-environment validation correction
+
+```text
+Start: 0abda35
+Result: complete; local-only correction, stopped before T14F02.
+Sealed configuration now accepts the actual Node process.env prototype and
+null-prototype string maps only when every own value is a data string and no
+key begins AWS_. Arrays, null, accessors, symbols, non-string values, and all
+AWS_* overrides remain rejected. The injected 74-object CLI test exercises a
+process.env-shaped map and reaches the full local STS/head/put/read/fetch
+orchestration.
+
+Two protected attempts had stopped locally before STS because of the previous
+prototype check; each had attempted/uploaded/readback/cloudfront counts zero,
+an empty object list, and zero S3 writes. Separate read-only diagnosis found
+all 74 keys absent. No protected rerun was performed.
+
+Node 24.18.1; migration tests 64 passed; core unit 7 passed; root check, CLI
+help, and git diff --check passed. No AWS/network/CloudFront/upload/IAM or
+Firebase operation occurred. T14F02+ remain pending Sol review.
+```

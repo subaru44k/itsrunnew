@@ -251,8 +251,10 @@ fails with a sanitized `MigrationWriteError` and performs no filesystem call.
 
 ## T14C comparison report contract
 
-The pure comparator consumes normalized source records and a validated target
-artifact set. It rebuilds canonical artifacts and compares every source day and
+The pure comparator consumes normalized source records, a validated target
+artifact set, and explicit trusted `{ sourceIdentity, updatedAt }` options. It
+never derives expected artifacts from target metadata. It rebuilds canonical
+artifacts and compares every source day and
 all three status cells, while also checking object identities, metadata, hashes,
 manifest aggregates, and canonical bytes. `comparedCellCount` is the expected
 source coverage (`sourceRecordCount * 3`), including cells that are missing from

@@ -946,6 +946,29 @@ credential/data operation or new dependency occurred. T14D+ remain pending Sol
 review.
 ```
 
+### Phase 4 T14C trusted-options and report-integrity follow-up
+
+```text
+Start: a938957
+Result: complete; local-only T14C follow-up, stopped before T14D.
+Comparator API now requires explicit trusted `{ sourceIdentity, updatedAt }`
+options and never derives expected artifacts from the target manifest. Source
+and target validation/counts are independent: valid-source invalid-target cases
+retain sourceRecordCount/transformedDayCount/comparedCellCount/expectedObjectCount
+4/4/12/4, while invalid direct source records and duplicates report `source`
+mismatches. Complete manifest identity/timestamp/object metadata/order/aggregate
+and canonical manifest-byte comparisons now reject self-consistent target rewrites.
+Report validation requires schemaVersion 1, real dates, exact count invariants,
+coherent per-kind coordinates, sorted mismatches, and match/exit-code coherence.
+
+Focused Firestore A+B+C tests: 37 passed; core unit 7 passed; root npm run
+check passed (web 44, core 7, service 25, infra 15, build); git diff --check
+passed. The zero-diff machine SHA remains
+30b6c176e3c9ec7501a0d24780604685a99bfc83fba219aacd066962c82aacbf. No
+Firebase/AWS/network/credential/data operation or new dependency occurred.
+T14D+ remain pending Sol review.
+```
+
 ### Phase 4 T14B deterministic transform and atomic writer follow-up
 
 ```text

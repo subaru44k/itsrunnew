@@ -1101,6 +1101,27 @@ AWS/Firebase/network/credential/data operation or new dependency occurred.
 T14D2 and T14E remain pending Sol review.
 ```
 
+### Phase 4 T14D3 cleanup/stream/report correction
+
+```text
+Start: 1e4cd9b
+Result: complete; local-only D3, stopped before T14E.
+Readback temporary cleanup now has an explicit sanitized cleanup/readback
+failure report with null key; original failures remain authoritative when
+fallback cleanup also fails. Pending stream reads cancel without unsafe
+releaseLock, non-stream bodies are rejected instead of unbounded arrayBuffer
+allocation, and abort signals remain observable at the deadline.
+Expanded AWS-free coverage includes cleanup/read/close failures, depth and
+file-count bounds, exact command arrays, collision prefixes, report tampering,
+stream/pending body behavior, strict headers/Age/cache/hash/schema checks, and
+current second-object failures.
+
+Node 24.18.1 Firestore A-D focused: 51 passed; root `npm run check` passed
+(web 44, core 7, service 25, infra 15, build); git diff --check passed. No
+AWS/Firebase/network/credential/data operation or new dependency occurred.
+T14E remains pending Sol review.
+```
+
 ### Phase 4 T14D2 CloudFront verification correction
 
 ```text

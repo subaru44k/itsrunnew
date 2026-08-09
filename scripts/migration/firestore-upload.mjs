@@ -15,7 +15,6 @@ const reportKeys = ['schemaVersion', 'status', 'counts', 'objects', 'failure']
 const countKeys = ['attempted', 'uploaded', 'readback', 'cloudfront']
 const failureCategories = new Set(['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'])
 const safeKey = (value) => typeof value === 'string' && /^data\/v1\/stadiums\/(?:oda|yumenoshima|komazawa|todoroki)\/availability\/\d{4}-(?:0[1-9]|1[0-2])\.json$/.test(value)
-const safeTag = (value) => typeof value === 'string' && /^[A-Za-z0-9._~+\/-]{1,256}$/.test(value)
 const validBucket = (value) => typeof value === 'string' && value.length >= 3 && value.length <= 63 && /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/.test(value) && !value.includes('..') && !/^\d+(?:\.\d+){3}$/.test(value)
 const validDomain = (value) => typeof value === 'string' && value.length <= 253 && /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/.test(value) && !value.includes('..') && !/^\d+(?:\.\d+){3}$/.test(value)
 const sha256 = (value) => createHash('sha256').update(value).digest('hex')
@@ -89,10 +88,10 @@ async function loadArtifacts(config, fs) {
 function responseValue(response, key) { return response && typeof response === 'object' ? response[key] : undefined }
 function strongTag(value) { return typeof value === 'string' && /^"[A-Za-z0-9._-]+"$/.test(value) }
 function versionTag(value) { return typeof value === 'string' && /^[A-Za-z0-9._~+\/-]{1,256}$/.test(value) }
-function failureFor(error, stage, key = null) { const category = error?.category === 'config' ? 'config' : error?.code === 409 || error?.code === 412 || error?.code === 'PreconditionFailed' ? 'collision' : error?.code === 'timeout' ? 'timeout' : (stage === 'readback' ? 'readback' : stage === 'cloudfront' ? 'cloudfront' : stage === 'preflight' ? 'preflight' : stage); return { stage, category: failureCategories.has(category) ? category : 'response', key } }
+function failureFor(error, stage, key = null) { const category = error?.category === 'config' ? 'config' : stage === 'cleanup' ? 'readback' : error?.code === 409 || error?.code === 412 || error?.code === 'PreconditionFailed' ? 'collision' : error?.code === 'timeout' ? 'timeout' : (stage === 'readback' ? 'readback' : stage === 'cloudfront' ? 'cloudfront' : stage === 'preflight' ? 'preflight' : stage); return { stage, category: failureCategories.has(category) ? category : 'response', key } }
 
 function validateUploadReport(report) {
-  if (!plain(report) || !exact(report, reportKeys) || report.schemaVersion !== 1 || !['match', 'mismatch'].includes(report.status) || !plain(report.counts) || !exact(report.counts, countKeys) || !Array.isArray(report.objects) || (report.failure !== null && (!plain(report.failure) || !exact(report.failure, ['stage', 'category', 'key']) || !['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'].includes(report.failure.category) || !['preflight', 'sts', 'upload', 'readback', 'cloudfront'].includes(report.failure.stage) || (report.failure.key !== null && !safeKey(report.failure.key)) || (report.failure.key !== null && !['upload', 'readback', 'cloudfront'].includes(report.failure.stage)) || (report.failure.key === null && ['upload', 'readback', 'cloudfront'].includes(report.failure.stage))))) throw new TypeError('invalid upload report')
+  if (!plain(report) || !exact(report, reportKeys) || report.schemaVersion !== 1 || !['match', 'mismatch'].includes(report.status) || !plain(report.counts) || !exact(report.counts, countKeys) || !Array.isArray(report.objects) || (report.failure !== null && (!plain(report.failure) || !exact(report.failure, ['stage', 'category', 'key']) || !['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'].includes(report.failure.category) || !['preflight', 'sts', 'upload', 'readback', 'cloudfront', 'cleanup'].includes(report.failure.stage) || (report.failure.key !== null && !safeKey(report.failure.key)) || (report.failure.stage === 'cleanup' && (report.failure.category !== 'readback' || report.failure.key !== null)) || (report.failure.key !== null && !['upload', 'readback', 'cloudfront'].includes(report.failure.stage)) || (report.failure.key === null && ['upload', 'readback', 'cloudfront'].includes(report.failure.stage))))) throw new TypeError('invalid upload report')
   for (const key of countKeys) if (!Number.isInteger(report.counts[key]) || report.counts[key] < 0) throw new TypeError('invalid upload report')
   if (report.counts.uploaded > report.counts.attempted || report.counts.readback > report.counts.uploaded || report.counts.cloudfront > report.counts.readback || report.objects.length !== report.counts.attempted) throw new TypeError('invalid upload report')
   let previousKey = ''
@@ -108,18 +107,19 @@ export function humanUploadReport(report) { validateUploadReport(report); const 
 
 async function readResponseBody(response, deadlinePromise, maxBytes = MAX_BYTES) {
   const reader = response.body?.getReader?.()
-  if (!reader) return bodyBytes(await Promise.race([response.arrayBuffer(), deadlinePromise]))
-  const chunks = []; let total = 0; let released = false
+  if (!reader) throw Object.assign(new Error(), { code: 'body' })
+  const chunks = []; let total = 0; let completed = false
+  const cancelReader = () => { try { Promise.resolve(reader.cancel()).catch(() => {}) } catch {} }
   try {
     while (true) {
       const result = await Promise.race([reader.read(), deadlinePromise]); if (result.done) break
-      const chunk = bodyBytes(result.value); total += chunk.byteLength; if (total > maxBytes) { try { void reader.cancel().catch(() => {}) } catch {} throw Object.assign(new Error(), { code: 'size' }) }; chunks.push(chunk)
+      const chunk = bodyBytes(result.value); total += chunk.byteLength; if (total > maxBytes) { cancelReader(); throw Object.assign(new Error(), { code: 'size' }) }; chunks.push(chunk)
     }
-    return Buffer.concat(chunks, total)
+    completed = true; return Buffer.concat(chunks, total)
   } catch (error) {
-    if (error?.code !== 'size') { try { void reader.cancel().catch(() => {}) } catch {} }
+    if (error?.code !== 'size') cancelReader()
     throw error
-  } finally { if (!released) { released = true; reader.releaseLock() } }
+  } finally { if (completed) { try { reader.releaseLock() } catch {} } }
 }
 
 function validateCloudFrontResponse(response, body, object) {
@@ -163,7 +163,7 @@ export async function uploadMigrationRun(config, { runAws, fetch, approvedTarget
     for (const [index, object] of artifacts.objects.entries()) {
       currentStage = 'readback'; currentKey = object.key; const entry = objectsReport[index]; const outputPath = join(temp, `${index}.json`); await runAws(getObjectVersionArgs(config, { ...object, versionId: entry.versionId }, outputPath)); const body = await readBoundedFile(fs, outputPath); if (sha256(body) !== object.sha256) throw Object.assign(new Error(), { code: 'hash' }); const schedule = JSON.parse(new TextDecoder().decode(body)); parseScheduleMonth(schedule, { stadium: object.stadium, yearMonth: object.yearMonth }); counts.readback += 1
     }
-    await fs.rm(temp, { recursive: true, force: true }); temp = null
+    try { await fs.rm(temp, { recursive: true, force: true }) } catch { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: objectsReport, failure: { stage: 'cleanup', category: 'readback', key: null } }; temp = null; return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) } }; temp = null
     for (const [index, object] of artifacts.objects.entries()) {
       currentStage = 'cloudfront'; currentKey = object.key; await boundedFetch(fetch, `https://${config.distributionDomain}/${object.key}`, config.maxAttempts ?? 3, config.timeoutMs ?? 5000, object); counts.cloudfront += 1
     }

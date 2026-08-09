@@ -90,6 +90,13 @@ browser-visible localized UI assertions, commit, and stop before T13S04.
 
 ## T13S04: honest administrator browser contract
 
+Sol accepted T13S03B through commits `d9daf69`, `8c18a32`, `7cc58da`,
+and their documentation commits. Independent Node 24 review passed 43 web unit
+tests and `npx playwright test --config playwright.admin.config.mjs` (4/4).
+The review confirmed zero-based slot mapping, exclusive conflict actions,
+sanitized authorization failures, localized status meanings, and retained saved
+metadata. T13S04 may proceed without AWS-write authority.
+
 After Sol accepts T13S03B, replace the current two fail-closed smoke assertions
 with the complete T13R05 local-production fake-OIDC/API matrix. Test injection
 must be default-off and visibly absent from a normal preview build. The static

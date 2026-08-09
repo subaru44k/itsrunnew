@@ -779,3 +779,12 @@ Browser proof: admin-local Playwright 26 passed across Japanese desktop and Engl
 Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; normal output verification passed; admin-local 26 passed; root checks and diff checks pending in this commit workflow.
 AWS authority: none; no AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
+
+### Phase 4 T13 S04A callback navigation follow-up
+
+```text
+Start: df5bed0
+Result: complete; removed the page-level navigation fallback so createAdminSession.callback remains the sole cleanup-then-replace navigation owner and preserves validated /manage/* return paths.
+The callback page now invokes session.callback(window.location.href) exactly once from onMounted after nextTick. Existing unit coverage retains valid /manage/schedule navigation, while callback browser coverage continues to verify success/failure/hostile safe /manage outcomes.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```

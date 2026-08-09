@@ -106,7 +106,10 @@ export function useAdminSession() {
         : config.cognitoAuthority && config.cognitoClientId
         ? createOidcPort(oidcConfig(config.cognitoAuthority, config.cognitoClientId, window.location.origin))
         : undefined,
-      navigate: async (path) => { await navigateTo(path, { replace: true }) },
+      navigate: async (path) => {
+        await navigateTo(path, { replace: true })
+        if (window.location.pathname !== path) await useRouter().replace(path)
+      },
     })
   }
   const session = browserSession ?? createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId, oidc: undefined })

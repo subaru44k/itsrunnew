@@ -170,7 +170,7 @@ function validateAwsArgs(args) {
 function classifyAwsError(error, stderr, args) {
   const text = typeof stderr === 'string' ? stderr.slice(0, MAX_CLI_OUTPUT_BYTES) : ''
   const operation = Array.isArray(args) ? args[7] : undefined
-  const leading = (code) => new RegExp(`^\\s*An error occurred \\((?:${code})\\) when calling the ${operation === 'head-object' ? 'HeadObject' : operation === 'put-object' ? 'PutObject' : ''} operation:`).test(text)
+  const leading = (code) => new RegExp(`^\\n?(?:aws: \\[ERROR\\]: )?An error occurred \\((?:${code})\\) when calling the ${operation === 'head-object' ? 'HeadObject' : operation === 'put-object' ? 'PutObject' : ''} operation:`).test(text)
   if (error?.code === 254 && operation === 'head-object' && (leading('404|NotFound|NoSuchKey'))) return 'NotFound'
   if (error?.code === 254 && operation === 'head-object' && (leading('403|AccessDenied|Forbidden'))) return 'AccessDenied'
   if (error?.code === 254 && operation === 'put-object' && leading('409|412|PreconditionFailed')) return 'Collision'

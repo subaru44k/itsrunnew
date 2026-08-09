@@ -1688,3 +1688,23 @@ check, CLI help, and git diff --check passed. No AWS CLI/network/CloudFront,
 upload, IAM, Firebase, or protected operation occurred. T14F02+ remain
 pending Sol review.
 ```
+
+### Phase 4 T14F01R05 wrapped AWS CLI diagnostic correction
+
+```text
+Start: 44b4939
+Result: complete; local-only correction, stopped before T14F02.
+The classifier accepts only the canonical HeadObject/PutObject service-error
+line, either unwrapped or with the exact optional `aws: [ERROR]: ` wrapper
+after one leading newline. Arbitrary prefixes, ANSI, wrong operations, and
+later embedded markers remain Other; stderr is never retained.
+
+The protected preflight attempt stopped before writes: report counts were all
+zero and object list empty. Read-only diagnosis confirmed the first HeadObject
+returned CLI exit 254 with service code 404 Not Found. No S3 write or rerun was
+performed.
+
+Node 24.18.1; migration tests 64 passed; core unit 7 passed; root check, CLI
+help, and git diff --check passed. No AWS/network/CloudFront/upload/IAM or
+Firebase operation occurred. T14F02+ remain pending Sol review.
+```

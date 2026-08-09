@@ -293,3 +293,23 @@ serialized. The human report is generated only from a schema-validated machine
 report and includes deterministic `expected=`/`actual=` values. Machine JSON
 uses two-space indentation and one trailing newline; exit code is exactly zero
 only for `match`.
+
+## T14D local upload/readback contract
+
+The local upload module requires injected `runAws(args)` and `fetch(url,
+options)` functions; it has no process runner, shell, AWS SDK, default fetch,
+environment credential access, or network default. Configuration explicitly
+contains profile `codex-prod`, account `470447451992`, region `ap-northeast-1`,
+reviewed bucket, distribution hostname, absolute run directory, and manifest
+path beneath that directory. Preflight reads the bounded canonical manifest and
+objects, verifies realpath containment/no symlink escape, exact file set, and
+the T14B artifact contract before STS or any PUT.
+
+AWS arguments use fixed global option order and only `put-object` with
+`--if-none-match '*'`, exact-version `get-object`, and a separate restore
+builder using explicit strong `--if-match`; the restore builder is never called
+by upload orchestration. Writes are sequential manifest order and stop on the
+first collision or malformed response. Readback and CloudFront verification are
+bounded and report only typed keys, hashes, safe ETags/version IDs, counts, and
+sanitized stage/category failures. No delete, sync, copy, wildcard, or
+invalidation operation is available in the upload flow.

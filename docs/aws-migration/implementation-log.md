@@ -921,6 +921,16 @@ Atomic writer uses an exclusive temporary sibling, containment checks, exclusive
 No Firebase/AWS/network/credential/data operation or new dependency occurred. T14C+ remain pending Sol review.
 ```
 
+### Phase 4 T14D local tooling final checks
+
+```text
+Correction to the preceding T14D entry: core unit 7 and root npm run check
+completed successfully before commit. Final focused A+B+C+D Firestore suite:
+43 passed (including 6 upload/readback tests). Root check passed (web 44,
+core 7, service 25, infra 15, build); git diff --check passed. No protected
+operation was attempted; T14E+ remain pending Sol review.
+```
+
 ### Phase 4 T14C exhaustive source/target comparison and reports
 
 ```text
@@ -967,6 +977,28 @@ passed. The zero-diff machine SHA remains
 30b6c176e3c9ec7501a0d24780604685a99bfc83fba219aacd066962c82aacbf. No
 Firebase/AWS/network/credential/data operation or new dependency occurred.
 T14D+ remain pending Sol review.
+```
+
+### Phase 4 T14D local upload/readback tooling
+
+```text
+Start: 2b59792
+Result: complete; local-only T14D, stopped before T14E.
+Added injected-runner/fetch-only tooling with explicit codex-prod/account/
+region/reviewed-bucket/distribution configuration. Absolute runDir/manifest
+preflight verifies bounded canonical manifest/object bytes, realpath containment,
+symlink escape, exact file set, and T14B validation before any AWS fake call.
+Deterministic builders cover STS, conditional PutObject, exact-version GetObject,
+and a separately callable strong-If-Match restore builder that orchestration
+never invokes. Sequential uploads stop on collision or malformed ETag/VersionId;
+readback and CloudFront checks are bounded, hash/parser/cache validated, and
+clean only exact temporary state.
+
+Machine/human reports are sanitized and schema validated: only typed keys,
+SHA-256, safe ETag/version IDs, counts, and stage/category failures are emitted.
+Focused A+B+C+D Firestore tests: 42 passed. Core/root checks remain required
+before commit. No AWS/Firebase/network/credential/data operation, invalidation,
+delete/sync/copy, or new dependency occurred. T14E+ remain pending Sol review.
 ```
 
 ### Phase 4 T14C final report-schema follow-up

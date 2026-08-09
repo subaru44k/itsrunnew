@@ -32,7 +32,7 @@ test('hosting stack keeps both buckets private and data versioned', () => {
 
 test('cloudfront has route rewrite, secure headers, and bounded data cache', () => {
   const result = template()
-  result.resourceCountIs('AWS::CloudFront::ResponseHeadersPolicy', 1)
+  result.resourceCountIs('AWS::CloudFront::ResponseHeadersPolicy', 2)
   const functions = result.findResources('AWS::CloudFront::Function')
   const code = Object.values(functions).map((resource) => resource.Properties.FunctionCode).find((value) => value.includes('komazawa_olympic'))
   assert.match(code, /data\//)
@@ -126,11 +126,38 @@ test('T11R04 exposes Cognito endpoints and permits only the token origin in CSP'
     'Fn::Join': ['', ['https://', { Ref: 'CognitoDomainPrefix' }, '.auth.', { Ref: 'AWS::Region' }, '.amazoncognito.com']],
   })
   assert.deepEqual(templateJson.Outputs.UserPoolIssuer.Value, { 'Fn::GetAtt': [poolLogicalId, 'ProviderURL'] })
-  const headersPolicy = Object.values(result.findResources('AWS::CloudFront::ResponseHeadersPolicy'))[0]
+  const headersPolicy = Object.values(result.findResources('AWS::CloudFront::ResponseHeadersPolicy')).find((resource) => !JSON.stringify(resource.Properties.ResponseHeadersPolicyConfig.CustomHeadersConfig).includes('Cache-Control'))
   const csp = JSON.stringify(headersPolicy.Properties.ResponseHeadersPolicyConfig.SecurityHeadersConfig.ContentSecurityPolicy)
   assert.match(csp, /CognitoDomainPrefix/)
   assert.match(csp, /amazoncognito\.com/)
   assert.doesNotMatch(csp, /accounts\.google|\*\.google|unsafe-eval/)
+})
+
+test('FA02 keeps shared security headers and scopes API no-store to api/*', () => {
+  const result = template()
+  const policies = Object.entries(result.findResources('AWS::CloudFront::ResponseHeadersPolicy'))
+  assert.equal(policies.length, 2)
+  const policyHeaders = policies.map(([logicalId, resource]) => ({ logicalId, config: resource.Properties.ResponseHeadersPolicyConfig }))
+  const apiPolicy = policyHeaders.find(({ config }) => JSON.stringify(config.CustomHeadersConfig).includes('Cache-Control'))
+  const publicPolicy = policyHeaders.find(({ config }) => !JSON.stringify(config.CustomHeadersConfig).includes('Cache-Control'))
+  assert.ok(apiPolicy)
+  assert.ok(publicPolicy)
+  assert.deepEqual(apiPolicy.config.SecurityHeadersConfig, publicPolicy.config.SecurityHeadersConfig)
+  assert.deepEqual(apiPolicy.config.CustomHeadersConfig, {
+    Items: [
+      { Header: 'Permissions-Policy', Value: 'camera=(), microphone=(), geolocation=()', Override: true },
+      { Header: 'Cache-Control', Value: 'no-store', Override: true },
+    ],
+  })
+  assert.deepEqual(publicPolicy.config.CustomHeadersConfig, {
+    Items: [{ Header: 'Permissions-Policy', Value: 'camera=(), microphone=(), geolocation=()', Override: true }],
+  })
+  const distribution = Object.values(result.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig
+  const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
+  const dataBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'data/*')
+  assert.deepEqual(apiBehavior.ResponseHeadersPolicyId, { Ref: apiPolicy.logicalId })
+  assert.deepEqual(distribution.DefaultCacheBehavior.ResponseHeadersPolicyId, { Ref: publicPolicy.logicalId })
+  assert.deepEqual(dataBehavior.ResponseHeadersPolicyId, { Ref: publicPolicy.logicalId })
 })
 
 test('T11 protects API routes with Cognito JWT and disables API caching', () => {

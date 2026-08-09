@@ -54,6 +54,7 @@ test('retained data and retry are localized', async ({ page }, testInfo) => {
     const body = route.request().url().includes('2026-08') ? august : july
     await route.fulfill({ status: 200, contentType: 'application/json', body })
   })
+  await page.clock.install({ time: new Date('2026-07-31T00:00:00+09:00') })
   await page.goto(pathFor(testInfo.project.name), { waitUntil: 'networkidle' })
   mode = 'network'
   await page.getByRole('button', { name: isJapanese(testInfo.project.name) ? '次の週' : 'Next week' }).click()

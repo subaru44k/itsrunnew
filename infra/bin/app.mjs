@@ -228,22 +228,28 @@ export class HostingStack extends Stack {
     const apiMethodFilter = new cloudfront.Function(this, 'ApiMethodFilter', { code: cloudfront.FunctionCode.fromInline(apiMethodFilterCode) })
     const htmlCache = new cloudfront.CachePolicy(this, 'HtmlCache', { defaultTtl: Duration.seconds(0), minTtl: Duration.seconds(0), maxTtl: Duration.days(1) })
     const dataCache = new cloudfront.CachePolicy(this, 'DataCache', { defaultTtl: Duration.seconds(60), minTtl: Duration.seconds(0), maxTtl: Duration.seconds(60) })
+    const sharedSecurityHeaders = {
+      strictTransportSecurity: { accessControlMaxAge: Duration.days(365), includeSubdomains: true, preload: true, override: true },
+      contentTypeOptions: { override: true },
+      frameOptions: { frameOption: cloudfront.HeadersFrameOption.DENY, override: true },
+      referrerPolicy: { referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override: true },
+      contentSecurityPolicy: { contentSecurityPolicy: Fn.join('', ["default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ", cognitoAuthBaseUrl, "; frame-src https://www.google.com https://maps.google.com; form-action 'self';"]), override: true },
+    }
+    const permissionsPolicyHeader = { header: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()', override: true }
     const responseHeaders = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeaders', {
-      securityHeadersBehavior: {
-        strictTransportSecurity: { accessControlMaxAge: Duration.days(365), includeSubdomains: true, preload: true, override: true },
-        contentTypeOptions: { override: true },
-        frameOptions: { frameOption: cloudfront.HeadersFrameOption.DENY, override: true },
-        referrerPolicy: { referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override: true },
-        contentSecurityPolicy: { contentSecurityPolicy: Fn.join('', ["default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ", cognitoAuthBaseUrl, "; frame-src https://www.google.com https://maps.google.com; form-action 'self';"]), override: true },
-      },
-      customHeadersBehavior: { customHeaders: [{ header: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()', override: true }] },
+      securityHeadersBehavior: sharedSecurityHeaders,
+      customHeadersBehavior: { customHeaders: [permissionsPolicyHeader] },
+    })
+    const apiResponseHeaders = new cloudfront.ResponseHeadersPolicy(this, 'ApiSecurityHeaders', {
+      securityHeadersBehavior: sharedSecurityHeaders,
+      customHeadersBehavior: { customHeaders: [permissionsPolicyHeader, { header: 'Cache-Control', value: 'no-store', override: true }] },
     })
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       defaultRootObject: 'index.html',
       defaultBehavior: { origin: origins.S3BucketOrigin.withOriginAccessControl(webBucket), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: htmlCache, responseHeadersPolicy: responseHeaders, functionAssociations: [{ function: rewrite, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }] },
       additionalBehaviors: {
         'data/*': { origin: origins.S3BucketOrigin.withOriginAccessControl(dataBucket), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: dataCache, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD },
-        'api/*': { origin: new origins.HttpOrigin(apiDomainName), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: apiCache, originRequestPolicy: apiOriginRequestPolicy, responseHeadersPolicy: responseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL, functionAssociations: [{ function: apiMethodFilter, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }] },
+        'api/*': { origin: new origins.HttpOrigin(apiDomainName), viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, cachePolicy: apiCache, originRequestPolicy: apiOriginRequestPolicy, responseHeadersPolicy: apiResponseHeaders, allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL, functionAssociations: [{ function: apiMethodFilter, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }] },
       },
     })
     const dataPolicy = dataBucket.node.tryFindChild('Policy')?.node.defaultChild

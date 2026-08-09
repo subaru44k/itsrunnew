@@ -443,6 +443,18 @@ FA04 stop: obtain one explicit bundled authorization for exactly one FA05 stack 
 FA05-FA07 AWS writes were exactly one CloudFormation deploy and one ETag-conditional PutObject for the approved preview fixture key. No retry, second deploy, policy v6, bootstrap, or invalidation occurred.
 
 ```text
+Sol T11/T12 final acceptance target: 5f23d2e
+Date: 2026-08-09
+Result: T11 and T12 accepted; T13 local implementation may begin under phase4-t13-plan.md
+Independent checks: Node 24.18.1; full preview E2E 88 passed; root npm run check passed; infra tests 15 passed; git diff --check; clean worktree
+CloudFormation proof: stack UPDATE_COMPLETE with 31 tracked resources and no failed resource; executed change set e0d6942d-4f74-4926-af24-355e53847ade added only ApiSecurityHeaders and modified the existing distribution without replacement
+Browser/API proof: CloudFront unauthenticated GET returns 401 with Cache-Control no-store; disallowed PATCH returns 405 with Allow GET, PUT, OPTIONS and no-store; public HTML and data cache contracts remain unchanged
+Fixture proof: current version wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE is 501 bytes with SHA-256 ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb; previous version ynZsSK9z.Jztbx7aF.A_qORkruUZu93l remains readable at its original 448 bytes and SHA-256 82fa4d1ecf2bd920b09c2e64edf96c6f5bc1f63a3a955e40bdacf20c2a4d560e
+Mutation audit: exactly one reviewed deploy and one ETag-conditional preview PutObject; invalidation list remains the three 2026-07-31 entries; no IAM/policy v6, Cognito administration, production, DNS, Firebase, or non-preview mutation
+T13 authority: local source, exact-pinned approved dependency, tests, documentation, and static build only; no AWS write, preview deployment, Cognito administration, or schedule mutation
+```
+
+```text
 Sol RC03 review target: 8c06d20
 Date: 2026-08-09
 Result: RC01-RC02 accepted; one explicit recovery authorization is required for RC04-RC06

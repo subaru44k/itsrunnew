@@ -8,7 +8,7 @@ export interface SessionOptions {
   clientId: string
   origin?: string
   oidc?: OidcPort
-  navigate?: (path: string) => void
+  navigate?: (path: string) => void | Promise<void>
 }
 
 let browserSession: ReturnType<typeof createAdminSession> | undefined
@@ -31,12 +31,14 @@ export function createAdminSession(options: SessionOptions) {
   const fail = () => { currentUser = null; state.value = 'sanitizedError'; error.value = 'authentication' }
   async function initialize() {
     if (initPromise) return initPromise
-    initPromise = (async () => {
+    const pending = (async () => {
       if (!manager) return
       try { currentUser = await manager.getUser(); state.value = currentUser ? 'signedIn' : 'signedOut' }
       catch { fail() }
     })()
-    return initPromise
+    initPromise = pending
+    void pending.finally(() => { if (initPromise === pending) initPromise = undefined })
+    return pending
   }
   async function login(returnPath = '/manage') {
     if (!manager) return fail()
@@ -46,22 +48,29 @@ export function createAdminSession(options: SessionOptions) {
   async function callback(url?: string) {
     if (callbackPromise) return callbackPromise
     callbackPromise = (async () => {
-      if (!manager) return fail()
+      if (!manager) { fail(); await navigate('/manage'); return }
       state.value = 'processingCallback'; error.value = null
+      let destination = '/manage'
       try {
         const result = await manager.signinCallback(url)
         currentUser = result; state.value = 'signedIn'
         const callbackState = result.state as { returnPath?: unknown } | undefined
-        navigate(safeReturnPath(callbackState?.returnPath))
-      } catch { fail(); navigate('/manage') }
-      finally { await manager.clearTransactionState().catch(() => undefined) }
+        destination = safeReturnPath(callbackState?.returnPath)
+      } catch { fail() }
+      finally {
+        await manager.clearTransactionState().catch(() => undefined)
+        await navigate(destination)
+      }
     })()
     return callbackPromise
   }
   async function logout() {
     if (!manager) return clear()
     state.value = 'signingOut'; currentUser = null
-    try { await manager.signoutRedirect({ post_logout_redirect_uri: `${options.origin ?? (typeof window !== 'undefined' ? window.location.origin : '')}/manage` }) } catch { clear() }
+    try {
+      await manager.signoutRedirect({ post_logout_redirect_uri: `${options.origin ?? (typeof window !== 'undefined' ? window.location.origin : '')}/manage` })
+      clear()
+    } catch { clear() }
   }
   async function getAccessToken() { return currentUser?.access_token ?? null }
   const attachEvents = () => {
@@ -92,6 +101,7 @@ export function useAdminSession() {
       oidc: config.cognitoAuthority && config.cognitoClientId
         ? createOidcPort(oidcConfig(config.cognitoAuthority, config.cognitoClientId, window.location.origin))
         : undefined,
+      navigate: async (path) => { await navigateTo(path, { replace: true }) },
     })
   }
   const session = browserSession ?? createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId, oidc: undefined })

@@ -789,6 +789,16 @@ The callback page now invokes session.callback(window.location.href) exactly onc
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
 
+### Phase 4 T13 S04B1 basic API outcomes
+
+```text
+Start: 56a3735
+Result: complete; stopped before S04B2/S05.
+Admin browser matrix added in the isolated test-only suite with fixed Japanese desktop and English mobile assertions: existing update (31 days x 3, exact GET/ETag, one strong If-Match PUT, JSON/body identity, returned updatedAt/ETag/VersionId), non-admin 403 (one GET/no PUT, permission message, fail-closed/no raw body), missing 404 create (31-day calendar x 3, one If-None-Match:* PUT, metadata), and expired 401 (localized reauthentication, no retry/raw response). No token/User persistence or token output is used.
+Checks: B1 focused 8 passed; full admin-local 34 passed (26 accepted baseline + 8 B1); web unit 44 passed; lint/typecheck/build passed; normal marker scan passed; root npm run check passed; git diff --check passed.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```
+
 ### Phase 4 T13 S04A navigation timing correction
 
 ```text

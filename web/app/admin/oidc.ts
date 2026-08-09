@@ -1,4 +1,4 @@
-import { UserManager, WebStorageStateStore, type User } from 'oidc-client-ts'
+import { InMemoryWebStorage, UserManager, WebStorageStateStore, type User } from 'oidc-client-ts'
 
 export const ADMIN_SCOPES = 'openid email profile itsrun/schedule.write'
 export const ADMIN_CALLBACK_PATH = '/manage/callback'
@@ -50,7 +50,8 @@ export function createOidcPort(config: OidcConfig): OidcPort {
     response_type: 'code',
     scope: ADMIN_SCOPES,
     automaticSilentRenew: false,
-    userStore: new WebStorageStateStore({ store: window.sessionStorage }),
+    stateStore: new WebStorageStateStore({ store: window.sessionStorage }),
+    userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
   }) as OidcPort
 }
 

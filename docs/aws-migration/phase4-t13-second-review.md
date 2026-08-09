@@ -127,6 +127,13 @@ Each increment must keep the 26 accepted administrator tests, the normal-build
 marker exclusion, and the preview-spec hashes unchanged. Stop after each for
 Sol review. Neither increment authorizes AWS writes or T13S05.
 
+Sol accepted T13S04B2 through `7395b00` and `0a2e53b`. The completed isolated
+administrator suite has 44 deterministic cases and covers the full T13R05
+authentication, conditional-write, conflict, comparison, lifecycle, and dirty
+selection contract across Japanese desktop and English mobile. T13S04 is
+accepted. T13S05 may run the T13R06 final verification and truthful log audit;
+it may not deploy or begin T14.
+
 ## T13S05: final verification and truthful acceptance log
 
 Run the complete T13R06 command list under Node 24, preserve all earlier

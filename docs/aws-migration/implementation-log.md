@@ -1204,3 +1204,25 @@ unit 7 passed; root `npm run check` passed; `git diff --check` passed. No
 Firebase/Google/AWS/network/auth/data operation occurred. T14E2+ remain
 pending Sol review.
 ```
+
+### Phase 4 T14E1R01 artifact correction
+
+```text
+Start: 088876a
+Result: complete; local-only E1R01, stopped before T14E2.
+The run artifact is now exactly snapshot.json plus capture.json. snapshot.json
+is directly consumable by normalizeFirestoreSnapshot and contains no volatile
+capture metadata; capture.json contains canonical project/database/time,
+normalized hash, bounded counts, and deterministic context hashes. Recursive
+canonical JSON validation rejects unstable SDK values, duplicate IDs, cycles,
+BigInt, and non-finite values. Atomic output validates realpath containment,
+rereads both files, reruns normalization/hash, and rejects reuse/symlink or
+partial output. CLI accepts only --help alone or --output <single-name>,
+validates all local inputs before dynamic SDK loading, and closes deleteApp in
+finally through the injected lifecycle seam.
+
+Node 24.18.1; exporter + Firestore A-D focused tests: 58 passed; core unit: 7
+passed; root check and diff checks recorded after this correction. No
+Google/Firebase/AWS/network/auth operation occurred. T14E2+ remain pending Sol
+review.
+```

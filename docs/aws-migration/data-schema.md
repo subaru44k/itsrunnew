@@ -318,3 +318,24 @@ first collision or malformed response. Readback and CloudFront verification are
 bounded and report only typed keys, hashes, safe ETags/version IDs, counts, and
 sanitized stage/category failures. No delete, sync, copy, wildcard, or
 invalidation operation is available in the upload flow.
+
+## T14E1 local exporter artifact contract
+
+The local exporter writes exactly two files beneath a newly created direct child
+of `.artifacts/migration/`: `snapshot.json` and `capture.json`. `snapshot.json`
+is the canonical T14A `RawFirestoreSnapshot` (`schemaVersion: 1` and exactly
+four sorted `{slug, legacyId, documents}` descriptors), with no project,
+capture, credential, or audit metadata. Every document has the exact typed
+`availability/{legacyId}/date/{YYYYMMDD}` path and `{status:[0,1,2]}` data.
+
+`capture.json` is canonical metadata with `schemaVersion`, exact project
+`itsrun-aaf42`, database `(default)`, ISO `capturedAt`, normalized-data
+SHA-256, bounded collection/document counts, and deterministic bounded context
+hashes/counts for `default/0` and `stadium_info`. Capture time changes only
+`capture.json`; snapshot bytes and normalized hash remain identical.
+
+Both files use recursively sorted plain JSON keys, canonical JSON plus one
+trailing newline, and a 1 MiB bound. The exporter rereads and validates both
+files, reruns the core normalizer/hash, and only then atomically renames the new
+run directory. Existing runs, symlinked roots/components, traversal, and
+partial output are rejected.

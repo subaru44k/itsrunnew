@@ -104,6 +104,24 @@ server must reject traversal and serve deterministic cache/content types.
 Legacy, admin, and explicit 88-test preview suites must all pass. Commit and
 stop before T13S05.
 
+Sol accepted the T13S04 authentication lifecycle and callback-route boundary
+through `da46b33`: the editor and callback are sibling routes, callback cleanup
+and safe replacement are browser-tested, lifecycle events clear memory auth,
+and the normal build excludes the fake adapter. Complete the remaining matrix
+in two non-overlapping increments:
+
+- **T13S04B1 — basic API outcomes:** existing update, non-admin 403, missing
+  create with `If-None-Match: *`, and expired/401 reauthentication. Assert exact
+  conditional headers, request counts, sanitized localized UI, and metadata.
+- **T13S04B2 — concurrency and operator decisions:** stale ETag conflict,
+  comparison failure and GET-only retry, explicit latest rebase/confirmed
+  replacement, and dirty reload/selection confirmation. Assert no automatic
+  PUT retry and retained base/draft/latest values.
+
+Each increment must keep the 26 accepted administrator tests, the normal-build
+marker exclusion, and the preview-spec hashes unchanged. Stop after each for
+Sol review. Neither increment authorizes AWS writes or T13S05.
+
 ## T13S05: final verification and truthful acceptance log
 
 Run the complete T13R06 command list under Node 24, preserve all earlier

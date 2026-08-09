@@ -1485,3 +1485,37 @@ all builds); git diff --check passed; worktree clean. No real exporter rerun,
 Google/Firebase/AWS/network/auth/data operation, ADC/IAM change, production
 capture, or dependency change occurred. Stop for Sol review.
 ```
+
+### Phase 4 T14E4 local transform and zero-difference comparison
+
+```text
+Start: e077707
+Result: complete; local-only T14E4, stopped for Sol review before T14F.
+The second accepted ignored snapshot was normalized with the accepted numeric
+parser and transformed using the explicit source label and updatedAt
+2026-08-09T20:45:44.589Z. The local output is confined to the ignored
+.artifacts/migration/t14e-transform run. It contains 74 validated monthly
+objects for the four public stadium slugs (komazawa 6, oda 45, todoroki 12,
+yumenoshima 11), plus the canonical manifest and comparison reports; no raw
+schedule output was committed.
+
+The normalized input contains 1,854 records spanning 20180525..20220906 and
+has normalized-data SHA-256
+e6686893ef5b7ecf6be4de0511decb145975bda04bb22267680c4eec10171a9f. The
+deterministic object index aggregate SHA-256 is
+31179ad86eed8a98a4aefdcb29ef55d08de345b71ecd1ff5d35c74b94f9c376b and the
+manifest SHA-256 is
+2d6000e0a56026abc1bdad91717d4627d942b6cef2d19e729239c5192000eb16. Every
+written body and manifest hash was reread and validated. The comparison is
+match with zero differences: sourceRecordCount 1854, transformedDayCount
+1854, comparedCellCount 5562, expected/actual object counts 74/74, and
+mismatchCount 0. The canonical comparison report SHA-256 is
+3a650d670437ea159054bba22d033fb87ad17f6aa85bbdc17929f53be889fc5b.
+
+Node 24.18.1; focused Firestore transform/compare/upload/export tests 53
+passed; core unit 7 passed; root npm run check passed (web 44, core 7,
+schedule-api 25, infra 15, all builds); git diff --check passed. No exporter
+rerun, Firebase/Google/AWS/network/auth operation, ADC/IAM change, upload,
+dependency change, or protected operation occurred. T14F remains pending Sol
+review.
+```

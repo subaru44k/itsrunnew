@@ -1577,3 +1577,30 @@ conditional-write/readback plan is documented in
 docs/aws-migration/phase4-t14-upload-plan.md. No AWS call, upload, IAM change,
 invalidation, production/DNS, or Firebase operation occurred in this review.
 ```
+
+### Phase 4 T14F01 local sealed-run and execution adapter
+
+```text
+Start: 1dfa0db
+Result: complete; local-only T14F01, stopped for Sol review before T14F02.
+Added a deterministic sealed-run builder that validates the accepted manifest
+SHA-256, exact 74-object count, typed stadium prefix, every body byte count and
+SHA-256, and shared schedule/parser contracts before atomically creating a new
+ignored run containing only manifest.json and the 74 schedule bodies. Raw
+snapshots, captures, comparison reports, credentials, and extra files are not
+copied.
+
+Added an explicit Node 24 execFile argument-array adapter with shell disabled,
+bounded stdout/stderr and JSON parsing, exact profile/account/region/target/
+bucket/domain/manifest/count/prefix validation, environment credential
+rejection, exact-key head-object absence preflight, and atomic machine/human
+report writing. Existing conditional If-None-Match upload and T14D report
+state-machine contracts remain unchanged; no delete/sync/copy/overwrite/retry
+path was added.
+
+Node 24.18.1; focused Firestore A-D plus F01 tests 57 passed; core unit 7
+passed; root npm run check passed (web 44, core 7, schedule-api 25, infra 15,
+all builds); git diff --check passed. No AWS CLI, network, CloudFront fetch,
+upload, IAM, Firebase, dependency, or protected operation occurred. T14F02+
+remain pending Sol review.
+```

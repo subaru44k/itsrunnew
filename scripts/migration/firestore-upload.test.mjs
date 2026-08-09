@@ -1,10 +1,11 @@
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { normalizeFirestoreSnapshot } from '../../packages/core/src/firestoreSnapshot.ts'
 import { transformFirestoreRecords } from './firestore-transform.mjs'
-import { getObjectVersionArgs, humanUploadReport, putObjectArgs, readBoundedFile, restoreObjectArgs, serializeUploadReport, stsArgs, uploadMigrationRun } from './firestore-upload.mjs'
+import { getObjectVersionArgs, headObjectArgs, humanUploadReport, preflightSealedAbsence, putObjectArgs, readBoundedFile, restoreObjectArgs, runAwsJson, sealUploadRun, serializeUploadReport, stsArgs, uploadMigrationRun, writeUploadReports } from './firestore-upload.mjs'
 
 const raw = JSON.parse(await readFile(new URL('./fixtures/firestore-snapshot.synthetic.json', import.meta.url), 'utf8'))
 const records = normalizeFirestoreSnapshot(raw)
@@ -156,5 +157,28 @@ describe('T14D injected local upload tooling', () => {
     const { runDir: streamDir, config: streamConfig } = await createRun(); const streamRunAws = async (args) => { if (args.includes('get-caller-identity')) return { Account: '470447451992' }; if (args.includes('put-object')) return { ETag: '"abc123"', VersionId: 'v1' }; await writeFile(args.at(-1), result.objects.find((object) => args.includes(object.key)).body); return {} }; const stream = new ReadableStream({ start(controller) { controller.enqueue(new TextEncoder().encode('{')); controller.enqueue(new TextEncoder().encode('"bad":true}')); controller.close() } }); const streamed = await uploadMigrationRun(streamConfig, { runAws: streamRunAws, fetch: async () => new Response(stream, { status: 200, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=0, s-maxage=60' } }), approvedTarget }); expect(streamed.report.failure.stage).toBe('cloudfront'); expect(streamed.report.failure.key).toBe(result.objects[0].key); await rm(streamDir, { recursive: true, force: true })
     const { runDir: overDir, config: overConfig } = await createRun(); const overRunAws = async (args) => { if (args.includes('get-caller-identity')) return { Account: '470447451992' }; if (args.includes('put-object')) return { ETag: '"abc123"', VersionId: 'v1' }; await writeFile(args.at(-1), result.objects.find((object) => args.includes(object.key)).body); return {} }; const oversized = await uploadMigrationRun({ ...overConfig, maxAttempts: 1 }, { runAws: overRunAws, fetch: async () => new Response(new Uint8Array(32769), { status: 200, headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=0, s-maxage=60' } }), approvedTarget }); expect(oversized.report.failure.stage).toBe('cloudfront'); expect(oversized.report.failure.key).toBe(result.objects[0].key); await rm(overDir, { recursive: true, force: true })
     const { runDir: deadlineDir, config: deadlineConfig } = await createRun(); let deadlineCalls = 0; const deadlineRunAws = async (args) => { if (args.includes('get-caller-identity')) return { Account: '470447451992' }; if (args.includes('put-object')) return { ETag: '"abc123"', VersionId: 'v1' }; await writeFile(args.at(-1), result.objects.find((object) => args.includes(object.key)).body); return {} }; const deadlineFetch = async () => { deadlineCalls += 1; if (deadlineCalls === 1) return new Response('', { status: 503 }); return new Promise(() => {}) }; const deadline = await uploadMigrationRun({ ...deadlineConfig, timeoutMs: 20, maxAttempts: 4 }, { runAws: deadlineRunAws, fetch: deadlineFetch, approvedTarget }); expect(deadline.report.failure.category).toBe('timeout'); expect(deadlineCalls).toBe(2); await rm(deadlineDir, { recursive: true, force: true })
+  })
+
+  it('seals the accepted 74-object run with exact files and reread hashes', async () => {
+    const source = resolve('.artifacts/migration/t14e-transform'); expect(existsSync(join(source, 'manifest.json'))).toBe(true)
+    const parent = await mkdtemp(join(tmpdir(), 't14f-seal-')); const target = join(parent, 'sealed'); const sealed = await sealUploadRun({ sourceDir: source, targetDir: target }); expect(sealed.objectCount).toBe(74)
+    const files = []; const walk = async (path) => { for (const entry of await readdir(path, { withFileTypes: true })) { const child = join(path, entry.name); if (entry.isDirectory()) await walk(child); else files.push(child.slice(target.length + 1)) } }; await walk(target)
+    expect(files).toHaveLength(75); expect(files).toContain('manifest.json'); expect(files.some((file) => file.includes('capture') || file.includes('comparison') || file.includes('credential'))).toBe(false); await rm(parent, { recursive: true, force: true })
+  })
+
+  it('rejects sealed manifest/hash/extra target inputs before writing', async () => {
+    const source = resolve('.artifacts/migration/t14e-transform'); const parent = await mkdtemp(join(tmpdir(), 't14f-seal-invalid-')); const target = join(parent, 'sealed'); const badSource = join(parent, 'bad-source'); await mkdir(badSource); await writeFile(join(badSource, 'manifest.json'), '{}')
+    await expect(sealUploadRun({ sourceDir: badSource, targetDir: target })).rejects.toThrow(); expect(existsSync(target)).toBe(false); await expect(sealUploadRun({ sourceDir: source, targetDir: target })).resolves.toMatchObject({ objectCount: 74 }); await expect(sealUploadRun({ sourceDir: source, targetDir: target })).rejects.toThrow(); await rm(parent, { recursive: true, force: true })
+  })
+
+  it('builds exact head-object args and writes reports atomically without raw data', async () => {
+    const config = { ...baseConfig, runDir: '/safe/run', manifestPath: '/safe/run/manifest.json' }; const key = result.objects[0].key; expect(headObjectArgs(config, key)).toEqual(['--profile', 'codex-prod', '--region', 'ap-northeast-1', '--output', 'json', 's3api', 'head-object', '--bucket', bucket, '--key', key]); expect(() => headObjectArgs(config, '../secret')).toThrow()
+    const artifacts = { objects: result.objects.map(({ body, ...object }) => object), manifest: result.manifest, manifestBytes: result.manifestBytes }; const absent = await preflightSealedAbsence(config, artifacts, async (args) => { expect(args).toContain('head-object'); const error = new Error(); error.code = 404; throw error }); expect(absent).toEqual({ objectCount: result.objects.length, allAbsent: true })
+    const report = { schemaVersion: 1, status: 'mismatch', counts: { attempted: 0, uploaded: 0, readback: 0, cloudfront: 0 }, objects: [], failure: { stage: 'preflight', category: 'preflight', key: null } }; const parent = await mkdtemp(join(tmpdir(), 't14f-report-')); const reportDir = join(parent, 'report'); await expect(writeUploadReports(report, reportDir)).resolves.toBe(reportDir); expect(JSON.parse(await readFile(join(reportDir, 'report.json'), 'utf8'))).toEqual(report); expect(await readFile(join(reportDir, 'report.txt'), 'utf8')).not.toMatch(/body|credential|path|secret/i); await expect(writeUploadReports(report, reportDir)).rejects.toThrow(); await rm(parent, { recursive: true, force: true })
+  })
+
+  it('uses execFile argument arrays with bounded JSON output and no shell', async () => {
+    const calls = []; const value = await runAwsJson((file, args, options, callback) => { calls.push({ file, args, options }); callback(null, '{"Account":"470447451992"}', '') }, ['--profile', 'codex-prod', 'sts', 'get-caller-identity']); expect(value).toEqual({ Account: '470447451992' }); expect(calls[0].file).toBe('aws'); expect(calls[0].options.shell).toBe(false); expect(calls[0].args).toEqual(['--profile', 'codex-prod', 'sts', 'get-caller-identity'])
+    await expect(runAwsJson((_file, _args, _options, callback) => callback(null, 'x'.repeat(100), ''), [], { maxOutputBytes: 10 })).rejects.toThrow(); await expect(runAwsJson((_file, _args, _options, callback) => callback(Object.assign(new Error(), { code: 403 }), '', 'raw principal'), [])).rejects.toThrow(/command/)
   })
 })

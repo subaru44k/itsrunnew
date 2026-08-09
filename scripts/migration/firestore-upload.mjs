@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
-import { mkdtemp, open, readdir, realpath, rm } from 'node:fs/promises'
+import { execFile as nodeExecFile } from 'node:child_process'
+import { mkdtemp, open, readdir, realpath, rm, mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { parseScheduleMonth } from '../../packages/core/src/index.ts'
 import { validateMigrationArtifacts } from './firestore-transform.mjs'
@@ -11,6 +12,12 @@ const ACCOUNT = '470447451992'
 const REGION = 'ap-northeast-1'
 const MAX_ARTIFACT_FILES = 1024
 const MAX_ARTIFACT_DEPTH = 16
+const MAX_CLI_OUTPUT_BYTES = 64 * 1024
+const SEALED_MANIFEST_SHA256 = '2d6000e0a56026abc1bdad91717d4627d942b6cef2d19e729239c5192000eb16'
+const SEALED_OBJECT_COUNT = 74
+const SEALED_PREFIX = 'data/v1/stadiums/'
+const SEALED_ALLOWED_PREFIX = /^data\/v1\/stadiums\/$/
+const AWS_ENV_KEYS = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN', 'AWS_WEB_IDENTITY_TOKEN_FILE', 'AWS_ROLE_ARN', 'AWS_PROFILE', 'AWS_DEFAULT_PROFILE']
 const reportKeys = ['schemaVersion', 'status', 'counts', 'objects', 'failure']
 const countKeys = ['attempted', 'uploaded', 'readback', 'cloudfront']
 const failureCategories = new Set(['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'])
@@ -83,6 +90,96 @@ async function loadArtifacts(config, fs) {
   if (allFiles.some((path) => !expected.has(resolve(path))) || expected.size !== allFiles.length) fail('extra-file')
   try { validateMigrationArtifacts({ objects: objects.map(({ bodyPath, ...object }) => object), manifest, manifestBytes }) } catch { fail('artifact') }
   return { objects, manifest, manifestBytes }
+}
+
+function sealedConfig(config, approvedTarget) {
+  if (!plain(config) || !builderConfigSafe(config) || !plain(approvedTarget) || !exact(approvedTarget, ['bucket', 'distributionDomain']) || approvedTarget.bucket !== config.bucket || approvedTarget.distributionDomain !== config.distributionDomain) fail('config')
+  if (config.manifestSha256 !== SEALED_MANIFEST_SHA256 || config.objectCount !== SEALED_OBJECT_COUNT || config.allowedPrefix !== SEALED_PREFIX || !SEALED_ALLOWED_PREFIX.test(config.allowedPrefix)) fail('config')
+  if (!isAbsolute(config.runDir) || !isAbsolute(config.manifestPath) || !beneath(config.runDir, config.manifestPath)) fail('path')
+  if (config.env && (!plain(config.env) || AWS_ENV_KEYS.some((key) => config.env[key]))) fail('config')
+}
+
+async function readSealedArtifacts(config, fs) {
+  const runRoot = resolve(config.runDir); const manifestPath = resolve(config.manifestPath)
+  const rootReal = await fs.realpath(runRoot); const manifestReal = await fs.realpath(manifestPath)
+  if (!beneath(rootReal, manifestReal)) fail('path')
+  const manifestBytes = await readBoundedFile(fs, manifestPath, 1024 * 1024)
+  if (sha256(manifestBytes) !== SEALED_MANIFEST_SHA256) fail('manifest')
+  let manifest; try { manifest = JSON.parse(new TextDecoder().decode(manifestBytes)) } catch { fail('manifest') }
+  if (!plain(manifest) || manifest.objects?.length !== SEALED_OBJECT_COUNT) fail('manifest')
+  const objects = []
+  for (const metadata of manifest.objects) {
+    if (!plain(metadata) || !safeKey(metadata.key) || !metadata.key.startsWith(SEALED_PREFIX)) fail('manifest')
+    const bodyPath = resolve(runRoot, metadata.key); const bodyReal = await fs.realpath(bodyPath)
+    if (!beneath(rootReal, bodyReal)) fail('path')
+    const body = await readBoundedFile(fs, bodyPath)
+    objects.push({ ...metadata, body, bodyPath })
+  }
+  try { validateMigrationArtifacts({ objects: objects.map(({ bodyPath, ...object }) => object), manifest, manifestBytes }) } catch { fail('artifact') }
+  return { objects, manifest, manifestBytes }
+}
+
+async function writeSealedArtifacts(targetDir, artifacts, fs) {
+  if (!isAbsolute(targetDir)) fail('path')
+  const target = resolve(targetDir); const parent = resolve(target, '..'); let temp
+  try { await fs.stat(target); fail('existing-target') } catch (error) { if (error instanceof UploadValidationError) throw error; if (error?.code !== 'ENOENT') throw error }
+  try {
+    await fs.mkdir(parent, { recursive: true }); temp = await fs.mkdtemp(join(parent, `.${target.split(sep).pop()}.tmp-`))
+    for (const object of artifacts.objects) { const destination = resolve(temp, object.key); if (!beneath(temp, destination)) fail('path'); await fs.mkdir(resolve(destination, '..'), { recursive: true }); await fs.writeFile(destination, object.body, { flag: 'wx' }) }
+    await fs.writeFile(resolve(temp, 'manifest.json'), artifacts.manifestBytes, { flag: 'wx' })
+    const files = await listFiles(fs, temp, temp); const expected = new Set(['manifest.json', ...artifacts.objects.map((object) => object.key)])
+    if (files.map((file) => relative(temp, file)).sort().join('\0') !== [...expected].sort().join('\0')) fail('sealed-files')
+    const rereadObjects = []
+    for (const object of artifacts.objects) { const body = await readBoundedFile(fs, resolve(temp, object.key)); if (body.byteLength !== object.bytes || sha256(body) !== object.sha256) fail('hash'); rereadObjects.push({ ...object, body }) }
+    const rereadManifest = await readBoundedFile(fs, resolve(temp, 'manifest.json'), 1024 * 1024); if (sha256(rereadManifest) !== SEALED_MANIFEST_SHA256) fail('hash')
+    validateMigrationArtifacts({ objects: rereadObjects.map(({ bodyPath, ...object }) => object), manifest: artifacts.manifest, manifestBytes: rereadManifest })
+    await fs.rename(temp, target); temp = null; return target
+  } catch (error) { if (temp) { try { await fs.rm(temp, { recursive: true, force: true }) } catch {} }; if (error instanceof UploadValidationError) throw error; throw new UploadValidationError('sealed-write') }
+}
+
+export async function sealUploadRun({ sourceDir, sourceManifestPath = join(sourceDir, 'manifest.json'), targetDir, fsImpl = {} } = {}) {
+  const fs = { mkdir, mkdtemp, open, readdir, realpath, readFile, rename, rm, stat, writeFile, ...fsImpl }
+  if (typeof sourceDir !== 'string' || typeof targetDir !== 'string' || !isAbsolute(sourceDir) || !isAbsolute(targetDir)) fail('path')
+  const config = { runDir: sourceDir, manifestPath: sourceManifestPath, manifestSha256: SEALED_MANIFEST_SHA256, objectCount: SEALED_OBJECT_COUNT, allowedPrefix: SEALED_PREFIX }
+  const artifacts = await readSealedArtifacts(config, fs); const output = await writeSealedArtifacts(targetDir, artifacts, fs)
+  return { output, manifest: artifacts.manifest, manifestBytes: artifacts.manifestBytes, objectCount: artifacts.objects.length }
+}
+
+export function headObjectArgs(config, key) { builderConfig(config); if (!safeKey(key)) fail('key'); return [...globalArgs(config), 's3api', 'head-object', '--bucket', config.bucket, '--key', key] }
+
+export async function runAwsJson(execFileImpl = nodeExecFile, args, { maxOutputBytes = MAX_CLI_OUTPUT_BYTES } = {}) {
+  if (typeof execFileImpl !== 'function' || !Array.isArray(args) || !Number.isInteger(maxOutputBytes) || maxOutputBytes < 1) fail('command')
+  return await new Promise((resolvePromise, reject) => {
+    execFileImpl('aws', args, { shell: false, windowsHide: true, encoding: 'utf8', maxBuffer: maxOutputBytes }, (error, stdout = '', stderr = '') => {
+      if (Buffer.byteLength(stdout) > maxOutputBytes || Buffer.byteLength(stderr) > maxOutputBytes) return reject(new UploadValidationError('output'))
+      if (error) { const safe = new UploadValidationError('command'); safe.code = error.code; return reject(safe) }
+      try { const value = JSON.parse(stdout); return resolvePromise(value) } catch { return reject(new UploadValidationError('json')) }
+    })
+  })
+}
+
+function notFound(error) { return error?.code === 404 || error?.code === '404' || error?.code === 'NotFound' || error?.code === 'NoSuchKey' }
+export async function preflightSealedAbsence(config, artifacts, runAws) {
+  if (typeof runAws !== 'function') fail('config')
+  for (const object of artifacts.objects) {
+    try { const response = await runAws(headObjectArgs(config, object.key)); if (!plain(response)) fail('preflight') ; fail('present') } catch (error) { if (notFound(error)) continue; if (error instanceof UploadValidationError) throw error; fail('preflight') }
+  }
+  return { objectCount: artifacts.objects.length, allAbsent: true }
+}
+
+export async function writeUploadReports(report, reportDir, fsImpl = {}) {
+  if (!isAbsolute(reportDir)) fail('report-path')
+  const fs = { mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, writeFile, ...fsImpl }; const machineBytes = serializeUploadReport(report); const human = humanUploadReport(report); const target = resolve(reportDir); let temp
+  try { await fs.stat(target); fail('report-existing') } catch (error) { if (error instanceof UploadValidationError) throw error; if (error?.code !== 'ENOENT') throw error }
+  try { await fs.mkdir(resolve(target, '..'), { recursive: true }); temp = await fs.mkdtemp(join(resolve(target, '..'), `.${target.split(sep).pop()}.tmp-`)); await fs.writeFile(resolve(temp, 'report.json'), machineBytes, { flag: 'wx' }); await fs.writeFile(resolve(temp, 'report.txt'), human, { flag: 'wx' }); if (JSON.stringify([...await fs.readFile(resolve(temp, 'report.json'))]) !== JSON.stringify([...machineBytes])) fail('report-reread'); await fs.rename(temp, target); temp = null; return target } catch (error) { if (temp) { try { await fs.rm(temp, { recursive: true, force: true }) } catch {} }; if (error instanceof UploadValidationError) throw error; throw new UploadValidationError('report-write') }
+}
+
+export async function uploadSealedMigrationRun(config, { runAws, fetch, approvedTarget, fsImpl = {}, reportDir } = {}) {
+  const fs = { mkdir, mkdtemp, open, readdir, realpath, readFile, rename, rm, stat, writeFile, ...fsImpl }; const counts = { attempted: 0, uploaded: 0, readback: 0, cloudfront: 0 }
+  let artifacts
+  try { sealedConfig(config, approvedTarget); artifacts = await readSealedArtifacts(config, fs) } catch (error) { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: [], failure: { stage: 'preflight', category: 'preflight', key: null } }; if (reportDir) await writeUploadReports(report, reportDir, fs); return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) } }
+  try { const identity = await runAws(stsArgs(config)); if (!identity || identity.Account !== ACCOUNT) fail('sts'); await preflightSealedAbsence(config, artifacts, runAws) } catch (error) { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: [], failure: { stage: error?.category === 'sts' ? 'sts' : 'preflight', category: error?.category === 'sts' ? 'sts' : 'preflight', key: null } }; if (reportDir) await writeUploadReports(report, reportDir, fs); return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) } }
+  const result = await uploadMigrationRun(config, { runAws, fetch, approvedTarget, fsImpl }); if (reportDir) await writeUploadReports(result.report, reportDir, fs); return result
 }
 
 function responseValue(response, key) { return response && typeof response === 'object' ? response[key] : undefined }

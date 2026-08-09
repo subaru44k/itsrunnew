@@ -727,11 +727,21 @@ AWS authority: none; no AWS/preview/Cognito/deployment/invalidation operation oc
 Milestone: T13S04 honest administrator browser contract
 Start: a44da55
 Date: 2026-08-09
-Result: local-only admin harness and static server completed; stopped before T13S05
+Result: partial local-only admin harness and static server; remaining matrix is explicitly not accepted, stopped before T13S05
 Build boundary: the admin Playwright webServer deterministically generates an isolated production output under .artifacts/admin-e2e-output with explicit non-secret authority/client values. The normal web build remains web/.output/public and a marker scan rejects admin-e2e authority/client or ADMIN_E2E markers there.
 Admin browser proof: root npm run test:e2e ran the legacy suite (14 passed) and the isolated admin suite (8 passed across desktop Japanese and mobile English). The admin suite asserts localized title/noindex/fail-closed behavior, callback routes, authorization-code + PKCE settings with exact scopes openid email profile itsrun/schedule.write and callback redirect URI, and a narrow build-only fake authority path covering authenticated GET/edit/conditional PUT with one request and no token/User persistence. No fake adapter grants production authorization.
 Static server proof: resolver tests cover query removal, directory/index resolution, unknown paths, decoded and backslash traversal rejection, root containment, deterministic HTML/JS/CSS/JSON/SVG/content fallback types, GET/HEAD, and 405 with Allow. Focused server tests: 3 passed.
 Preview preservation: preview-public-routes.spec.ts SHA-256 f220df4e3c8943ed888eea5846605883f13fd5a705b4fbd29d80d6b900a8424e before/after; preview-schedule-states.spec.ts SHA-256 37d528720efe072122cca78b97f0e945da127b143b7c16bccb54b356a9131dca before/after.
-Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; normal-output marker scan passed; root npm run check passed; root npm run test:e2e passed (14 legacy + 6 admin); preview suite passed 88/88; git diff --check passed.
+Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; normal-output marker scan passed; root npm run check passed; root npm run test:e2e at this point passed (14 legacy + 6 admin); preview suite passed 88/88; git diff --check passed.
 AWS authority: none; no AWS, Cognito, deployment, upload, invalidation, production, DNS, Firebase, or schedule mutation occurred. Stop for Sol review before T13S05.
+```
+
+### Phase 4 T13 second-review — T13S04 completion follow-up
+
+```text
+Start: f5de9e6
+Result: partial; retained prior tests and added deterministic build-only auth controls, failure coverage, and truthful accounting. S05 remains forbidden.
+Added coverage: build-only fake authority modes for initialization failure, redirect failure, authenticated GET/edit/conditional PUT, memory-only user/token proof, localized safe failure UI, and PKCE settings. Admin-local suite now passes 12 cases across desktop Japanese and mobile English. Static server temporary directories are cleaned in finally blocks.
+Known remaining matrix: direct browser callback success/cleanup navigation is not reproducible in the current static callback route without changing the callback page/session source outside this harness ownership; non-admin 403, missing-create, stale conflict/rebase/replace, comparison retry, dirty reload confirmation, expiry/unloaded/silent-renew event, and logout browser cases remain unimplemented. Existing unit session tests cover callback cleanup, hostile return paths, lifecycle events, logout, and memory-only storage.
+Checks: Node 24.18.1 static server 3 passed; admin-local Playwright 12 passed; normal output marker scan passed; git diff --check passed. No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```

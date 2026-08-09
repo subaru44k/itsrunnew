@@ -47,7 +47,7 @@ Operating system: macOS
 | T11R04 | complete; awaiting remaining Sol review items | `c63f159` | `npm run test:infra --workspace @itsrun/infra` (9 passed) | Added the parameterized Cognito auth base URL to CSP `connect-src` and outputs for auth base URL, issuer, User Pool ID, and app-client ID. No Google endpoint wildcard or AWS operation was introduced. |
 | T12 | blocked by T10/T11 | | | |
 | T13 | blocked by T10-T12 | | | |
-| T14 | blocked by T10-T12 and migration credentials | | | |
+| T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
 | T15 | blocked by T10-T14 | | | |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
@@ -1729,4 +1729,36 @@ all 74 keys absent. No protected rerun was performed.
 Node 24.18.1; migration tests 64 passed; core unit 7 passed; root check, CLI
 help, and git diff --check passed. No AWS/network/CloudFront/upload/IAM or
 Firebase operation occurred. T14F02+ remain pending Sol review.
+```
+
+### Phase 4 T14F02-T14F04 protected upload completion
+
+```text
+Start: 98a7536; status: complete and accepted; T15 not started.
+Scope: AWS_PROFILE=codex-prod, account 470447451992, region ap-northeast-1.
+The existing UPDATE_COMPLETE hosting stack and preview data bucket
+itsrun-preview-data-470447451992-ap-northeast-1 were verified with versioning
+Enabled and all four PublicAccessBlock settings true. CloudFront was the
+existing d2via50thoheqm.cloudfront.net distribution.
+
+The first two fixed-runner attempts stopped locally before STS due to the
+process.env prototype check; each had zero attempted/uploaded/readback/
+CloudFront counts, an empty object list, and zero AWS writes. A separate
+read-only diagnostic confirmed all 74 target keys absent. After the local
+correction, the single authorized write run passed the complete 74-key
+absence gate, created each key once with If-None-Match: *, read back all 74
+exact S3 versions, and verified all 74 objects through CloudFront HTTPS.
+No overwrite, delete, invalidation, IAM, or CloudFormation change occurred.
+
+Sanitized success report hashes: machine JSON
+92af2051c46684e2a196864c87972b46184268d207f8bbf03f6c9672482cad84;
+human report df1a3fae2d7fc7db16f15323896949086a7e44932c02951d82886fa6b06baade.
+Ignored artifacts, credentials, secrets, individual VersionIds, and raw
+schedule bodies were not committed.
+
+Node 24.18.1; npm ci succeeded (audit reported 7 moderate and 4 high
+vulnerabilities, unmodified); core unit 7 passed; migration tests 64 passed;
+root npm run check passed (web 44, core 7, schedule-api 25, infra 15 and
+build/synth); preview E2E 88 passed; git diff --check passed. T14 is complete;
+stop for Sol final review before T15.
 ```

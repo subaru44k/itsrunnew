@@ -921,6 +921,31 @@ Atomic writer uses an exclusive temporary sibling, containment checks, exclusive
 No Firebase/AWS/network/credential/data operation or new dependency occurred. T14C+ remain pending Sol review.
 ```
 
+### Phase 4 T14C exhaustive source/target comparison and reports
+
+```text
+Start: 15d7298
+Result: complete; local-only T14C, stopped before T14D.
+Added a pure comparator that validates normalized source records and target
+artifacts, rebuilds canonical monthly artifacts, and exhaustively compares
+objects, dates, all three status cells, metadata, hashes, byte sizes, parser
+identity, manifest aggregates, and canonical bytes. Invalid source/target data
+fails closed to sanitized integrity/source mismatches without raw body, path,
+credential, token, actor, or arbitrary injected-value output.
+
+The machine report has stable schema/order, sorted typed mismatches, exact
+sourceRecordCount/transformedDayCount/comparedCellCount/object counts, and
+comparisonExitCode is zero only for match. Human text is generated only from a
+validated machine report. Synthetic zero-diff report counts are 4/4/12 with
+expected/actual object counts 4/4; machine report SHA-256 is
+30b6c176e3c9ec7501a0d24780604685a99bfc83fba219aacd066962c82aacbf.
+
+Checks: Node 24.18.1; Firestore-focused A+B+C Vitest 35 passed; core unit and
+root npm run check remain to be run before commit. No Firebase/AWS/network/
+credential/data operation or new dependency occurred. T14D+ remain pending Sol
+review.
+```
+
 ### Phase 4 T14B deterministic transform and atomic writer follow-up
 
 ```text

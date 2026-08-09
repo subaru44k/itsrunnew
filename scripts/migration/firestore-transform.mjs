@@ -121,6 +121,10 @@ function validateArtifactSet({ objects, manifest, manifestBytes }) {
   return expectedManifestBytes
 }
 
+export function validateMigrationArtifacts(artifacts) {
+  return validateArtifactSet(artifacts)
+}
+
 export async function writeMigrationRun({ targetDir, objects, manifest, manifestBytes, fsImpl = {} }) {
   if (typeof targetDir !== 'string' || !isAbsolute(targetDir)) throw new MigrationWriteError('target')
   const expectedManifestBytes = validateArtifactSet({ objects, manifest, manifestBytes })

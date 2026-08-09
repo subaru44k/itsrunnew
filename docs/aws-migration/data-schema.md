@@ -248,3 +248,43 @@ SHA-256, aggregate counts/ranges, and canonical manifest bytes. Any mismatch
 fails with a sanitized `MigrationWriteError` and performs no filesystem call.
 `updatedAt` and `migrationUpdatedAt` are exact millisecond UTC timestamps whose
 `Date.toISOString()` round-trip is byte-identical to the supplied value.
+
+## T14C comparison report contract
+
+The pure comparator consumes normalized source records and a validated target
+artifact set. It rebuilds canonical artifacts and compares every source day and
+all three status cells, while also checking object identities, metadata, hashes,
+manifest aggregates, and canonical bytes. `comparedCellCount` is the expected
+source coverage (`sourceRecordCount * 3`), including cells that are missing from
+the target. The machine report has stable property order:
+
+```ts
+type ComparisonReport = {
+  schemaVersion: 1
+  status: 'match' | 'mismatch'
+  counts: {
+    sourceRecordCount: number
+    transformedDayCount: number
+    comparedCellCount: number
+    expectedObjectCount: number
+    actualObjectCount: number
+    mismatchCount: number
+  }
+  mismatches: Array<{
+    kind: 'cell' | 'date' | 'object' | 'integrity' | 'source'
+    stadium: string | null
+    yearMonth: string | null
+    date: string | null
+    slot: 0 | 1 | 2 | null
+    field: string
+    expected: 0 | 1 | 2 | number | string | null
+    actual: 0 | 1 | 2 | number | string | null
+  }>
+}
+```
+
+Mismatches are sorted deterministically and contain only typed coordinates and
+safe scalar categories; raw documents, bodies, credentials, paths, buckets,
+tokens, and actors are never serialized. The human report is generated only
+from a schema-validated machine report. Machine JSON uses two-space indentation
+and one trailing newline; exit code is exactly zero only for `match`.

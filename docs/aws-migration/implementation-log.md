@@ -1069,3 +1069,15 @@ unit 7 passed; root `npm run check` passed (web 44, core 7, service 25, infra
 15, build); `git diff --check` passed. No Firebase/AWS/network/credential/data
 operation or new dependency occurred. T14C+ remain pending Sol review.
 ```
+
+### Phase 4 T14D1 local upload/readback hardening
+
+```text
+Start: 4438121
+Result: complete; local-only T14D1 correction, stopped before T14E/D2.
+Separate approvedTarget approval, DNS validation, bounded readers, path-safe
+builders, current stage/key failure tracking, and sanitized report checks were
+added. Focused T14D A+B+C+D: 46 tests passed; core unit: 7 passed; root
+`npm run check`: web 44, core 7, service 25, infra 15, build passed; `git diff
+--check` passed. No AWS/Firebase/network/credential/data operation occurred.
+```

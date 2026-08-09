@@ -300,10 +300,15 @@ The local upload module requires injected `runAws(args)` and `fetch(url,
 options)` functions; it has no process runner, shell, AWS SDK, default fetch,
 environment credential access, or network default. Configuration explicitly
 contains profile `codex-prod`, account `470447451992`, region `ap-northeast-1`,
-reviewed bucket, distribution hostname, absolute run directory, and manifest
-path beneath that directory. Preflight reads the bounded canonical manifest and
-objects, verifies realpath containment/no symlink escape, exact file set, and
-the T14B artifact contract before STS or any PUT.
+runtime bucket/domain, absolute run directory, and manifest path beneath that
+directory. A separate immutable approved-target object independently provides
+the reviewed bucket and distribution hostname; it is never inferred from
+runtime config, and config must exactly match it. Bucket DNS and distribution
+hostname syntax reject schemes, paths, ports, IPs, wildcards, and double dots.
+Preflight reads the manifest through a chunked bounded reader capped at 1 MiB
+and each schedule at 32 KiB (never allocating more than limit+1), verifies
+realpath containment/no symlink escape, exact file set, and the T14B artifact
+contract before STS or any PUT.
 
 AWS arguments use fixed global option order and only `put-object` with
 `--if-none-match '*'`, exact-version `get-object`, and a separate restore

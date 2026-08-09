@@ -755,3 +755,14 @@ Added coverage: build-only fake authority modes for initialization failure, redi
 Known remaining matrix: direct browser callback success/cleanup navigation is not reproducible in the current static callback route without changing the callback page/session source outside this harness ownership; non-admin 403, missing-create, stale conflict/rebase/replace, comparison retry, dirty reload confirmation, expiry/unloaded/silent-renew event, and logout browser cases remain unimplemented. Existing unit session tests cover callback cleanup, hostile return paths, lifecycle events, logout, and memory-only storage.
 Checks: Node 24.18.1 static server 3 passed; admin-local Playwright 12 passed; normal output marker scan passed; git diff --check passed. No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
+
+### Phase 4 T13 S04A callback lifecycle follow-up — blocked at route boundary
+
+```text
+Start: a760f83
+Result: stopped with evidence; no S04 API/editor or S05 work performed.
+Attempt: changed manage/callback.vue from top-level client await to an explicit onMounted(() => void session.callback()) lifecycle. The generated client bundle contained the callback implementation, but the browser route still rendered the parent manage.vue page and never mounted callback.vue.
+Evidence: isolated admin build generated web/.output/public/manage/callback/index.html whose main content was the manage editor/login page (admin-title/admin schedule), not callback-title/loading. Direct GET /manage/callback?code=fake&state=fake remained at that URL; safe test-only callback counter was absent and no cleanup/navigation occurred. The same failure reproduced for success, callbackFailure, and hostileReturn modes (6 failures across ja desktop and en mobile). Existing 20 admin lifecycle tests remained passing before this attempt.
+Required resolution is outside the assigned callback-only files: the Nuxt nested route needs its parent route integration (manage.vue must render the child route, or equivalent route-structure correction) before callback.vue can mount. That file was not authorized for this milestone, so no speculative change was made.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred. Stop for Sol review and ownership decision.
+```

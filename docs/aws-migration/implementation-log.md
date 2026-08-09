@@ -517,6 +517,11 @@ Stop: return to Sol review; do not begin T13S02.
 ```
 
 ```text
+T13S01 evidence follow-up: 66999d5
+The focused session suite now has 20 passing tests, including cleanup rejection: cleanup is invoked, its raw error is swallowed without console output, and safe callback navigation still occurs. No source/config beyond the approved S01 files changed.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

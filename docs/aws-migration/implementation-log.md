@@ -1419,3 +1419,27 @@ builds); actual CLI --help passed; git diff --check passed. The prior second
 protected attempt remains read count 0 with no output run. No Firebase/Google/
 AWS/network/auth/data operation occurred. T14E2+ remain pending Sol review.
 ```
+
+### Phase 4 T14E1R08 snapshot diagnostic sanitization
+
+```text
+Start: 921c9ea
+Source/test commit: b1a9abc
+Result: complete; local-only R08, stopped before rerun/protected continuation.
+The first real protected export completed only the six allowlisted Firestore
+calls, then failed pre-output snapshot normalization with a generic sanitized
+snapshot category. No capture/output run was created and no AWS write occurred.
+The exact inner malformed-record cause is intentionally not claimed pending a
+separately reviewed rerun.
+
+SnapshotValidationError conversion now preserves only its bounded safe category
+and coordinate; invalid categories/coordinates and all unrelated SDK/errors
+remain generic ExportValidationError(snapshot). Tests prove category/coordinate
+propagation and that raw paths, IDs, values, messages, stacks, credentials, and
+SDK text cannot escape.
+
+Node 24.18.1; exporter focused tests 14 passed; core snapshot/unit tests 7
+passed; root npm run check passed (web 44, core 7, schedule-api 25, infra 15,
+all builds); git diff --check passed. No exporter rerun, Firebase/Google/AWS/
+network/auth/data operation occurred. T14E2+ remain pending Sol review.
+```

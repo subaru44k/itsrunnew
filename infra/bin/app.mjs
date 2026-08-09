@@ -174,12 +174,12 @@ export class HostingStack extends Stack {
     scheduleFunction.addPermission('ApiInvokeGet', {
       principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       action: 'lambda:InvokeFunction',
-      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/$default/GET', routePath]),
+      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', Aws.ACCOUNT_ID, ':', api.ref, '/$default/GET', routePath]),
     })
     scheduleFunction.addPermission('ApiInvokePut', {
       principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       action: 'lambda:InvokeFunction',
-      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', api.ref, '/$default/PUT', routePath]),
+      sourceArn: Fn.join('', ['arn:', Aws.PARTITION, ':execute-api:', Aws.REGION, ':', Aws.ACCOUNT_ID, ':', api.ref, '/$default/PUT', routePath]),
     })
     const apiScope = ['itsrun/schedule.write']
     const getRouteKey = 'GET /api/v1/stadiums/{stadium}/availability/{yearMonth}'

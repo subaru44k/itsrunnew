@@ -9,6 +9,18 @@ const template = () => {
   return assertions.Template.fromStack(app.node.findChild('TestHosting'))
 }
 
+const resolveSourceArnJoin = (sourceArn, values) => {
+  const [delimiter, parts] = sourceArn['Fn::Join']
+  return parts.map((part) => {
+    if (typeof part === 'string') return part
+    if (part.Ref === 'AWS::Partition') return values.partition
+    if (part.Ref === 'AWS::Region') return values.region
+    if (part.Ref === 'AWS::AccountId') return values.accountId
+    if (part.Ref === values.apiLogicalId) return values.apiId
+    throw new Error(`unexpected SourceArn join token: ${JSON.stringify(part)}`)
+  }).join(delimiter)
+}
+
 test('hosting stack keeps both buckets private and data versioned', () => {
   const result = template()
   result.resourceCountIs('AWS::S3::Bucket', 2)
@@ -199,11 +211,27 @@ test('T12 Lambda integration is bounded and data access is least privilege', () 
   const permissions = Object.values(result.findResources('AWS::Lambda::Permission'))
   assert.equal(permissions.length, 2)
   const apiLogicalId = Object.entries(result.findResources('AWS::ApiGatewayV2::Api')).find(([, resource]) => resource.Properties.ProtocolType === 'HTTP')[0]
-  const expectedSources = new Set([
-    JSON.stringify({ 'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':execute-api:', { Ref: 'AWS::Region' }, ':', { Ref: apiLogicalId }, '/$default/GET/api/v1/stadiums/*/availability/*']] }),
-    JSON.stringify({ 'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':execute-api:', { Ref: 'AWS::Region' }, ':', { Ref: apiLogicalId }, '/$default/PUT/api/v1/stadiums/*/availability/*']] }),
-  ])
-  assert.deepEqual(new Set(permissions.map((permission) => JSON.stringify(permission.Properties.SourceArn))), expectedSources)
+  const values = { partition: 'aws', region: 'ap-northeast-1', accountId: '470447451992', apiId: 'example-api-id', apiLogicalId }
+  const expectedMethods = new Set(['GET', 'PUT'])
+  const resolvedArns = new Set()
+  for (const permission of permissions) {
+    const sourceArn = permission.Properties.SourceArn
+    const method = sourceArn['Fn::Join'][1].at(-1).split('/')[2]
+    assert.equal(sourceArn['Fn::Join'][0], '')
+    assert.deepEqual(sourceArn['Fn::Join'][1], [
+      'arn:', { Ref: 'AWS::Partition' }, ':execute-api:', { Ref: 'AWS::Region' }, ':', { Ref: 'AWS::AccountId' }, ':', { Ref: apiLogicalId }, `/$default/${method}/api/v1/stadiums/*/availability/*`,
+    ])
+    assert.ok(expectedMethods.has(method))
+    expectedMethods.delete(method)
+    const resolved = resolveSourceArnJoin(sourceArn, values)
+    assert.equal(resolved, `arn:aws:execute-api:ap-northeast-1:470447451992:example-api-id/$default/${method}/api/v1/stadiums/*/availability/*`)
+    resolvedArns.add(resolved)
+  }
+  assert.equal(expectedMethods.size, 0)
+  assert.deepEqual(resolvedArns, new Set([
+    'arn:aws:execute-api:ap-northeast-1:470447451992:example-api-id/$default/GET/api/v1/stadiums/*/availability/*',
+    'arn:aws:execute-api:ap-northeast-1:470447451992:example-api-id/$default/PUT/api/v1/stadiums/*/availability/*',
+  ]))
   for (const permission of permissions) {
     assert.equal(permission.Properties.Principal, 'apigateway.amazonaws.com')
     assert.equal(permission.Properties.Action, 'lambda:InvokeFunction')

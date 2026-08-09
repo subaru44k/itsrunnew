@@ -500,7 +500,7 @@ T13 local boundary: only direct dependency `oidc-client-ts@3.5.0` was added. No 
 | T13R03 | complete; local only | `bf3ea60` | Missing months contain every real calendar date including leap years; editor retains base/draft on failure and conflict, prevents duplicate saves, and preserves latest comparison separately. |
 | T13R04 | complete; local only | `bf3ea60` | Admin routes set `noindex, nofollow`, load on signed-in transitions, and retain public status semantics and sanitized exclusive states. Raw public route/SEO suites were not weakened. |
 | T13R05 | complete; local only | `bf3ea60` | Legacy Playwright config selects only legacy tests. Separate local production-output admin config/server and 4 admin browser checks added; root E2E is 14 legacy + 4 admin passed. Explicit preview suite passed all 88. |
-| T13R06 | complete; local only | `bf3ea60` | Node 24.18.1 `npm ci`, root check, web/core tests, lint/typecheck/build, `npm run test:e2e` (18 passed total), explicit preview E2E (88 passed), diff check, and clean status. The initial T13 E2E failure record remains below. |
+| T13R06 | complete; local only | `bf3ea60`, follow-up | Node 24.18.1 `npm ci`, web unit 13 passed, core unit 7 passed, root check, lint/typecheck/build, `npm run test:e2e` (18 passed total), explicit preview E2E (88 passed), diff check, and clean status. The initial T13 E2E failure record remains below. |
 
 T13R01-R06 correction handoff: generated admin routes are `/manage`, `/manage/callback`, `/en/manage`, and `/en/manage/callback`; browser storage uses injected session transaction storage plus in-memory User storage. No AWS/Cognito/real-token/data mutation occurred. Stop for Sol review before T14.
 

@@ -491,6 +491,19 @@ AWS authority: None; no policy v4, deployment, Cognito-user/group, schedule writ
 
 T13 local boundary: only direct dependency `oidc-client-ts@3.5.0` was added. No AWS call/read/write, Cognito administration, schedule mutation, token persistence, API/schema change, or production/DNS/Firebase operation occurred. Stop for Sol review before T14.
 
+### Phase 4 T13 correction review: T13R01-T13R06
+
+| Milestone | Status | Commit | Evidence |
+| --- | --- | --- | --- |
+| T13R01 | complete; local only | `bf3ea60` | OIDC factory accepts injected transaction storage, uses `InMemoryWebStorage` for User/token storage, and shares one browser-lifetime session between `/manage` and `/manage/callback`. |
+| T13R02 | complete; local only | `bf3ea60` | API reader requires JSON, incrementally bounds UTF-8 response bodies at 32 KiB with stream cancellation/release, validates strong ETags/envelopes/VersionId, and validates outgoing DTO identity/schema/size/conditional headers. |
+| T13R03 | complete; local only | `bf3ea60` | Missing months contain every real calendar date including leap years; editor retains base/draft on failure and conflict, prevents duplicate saves, and preserves latest comparison separately. |
+| T13R04 | complete; local only | `bf3ea60` | Admin routes set `noindex, nofollow`, load on signed-in transitions, and retain public status semantics and sanitized exclusive states. Raw public route/SEO suites were not weakened. |
+| T13R05 | complete; local only | `bf3ea60` | Legacy Playwright config selects only legacy tests. Separate local production-output admin config/server and 4 admin browser checks added; root E2E is 14 legacy + 4 admin passed. Explicit preview suite passed all 88. |
+| T13R06 | complete; local only | `bf3ea60` | Node 24.18.1 `npm ci`, root check, web/core tests, lint/typecheck/build, `npm run test:e2e` (18 passed total), explicit preview E2E (88 passed), diff check, and clean status. The initial T13 E2E failure record remains below. |
+
+T13R01-R06 correction handoff: generated admin routes are `/manage`, `/manage/callback`, `/en/manage`, and `/en/manage/callback`; browser storage uses injected session transaction storage plus in-memory User storage. No AWS/Cognito/real-token/data mutation occurred. Stop for Sol review before T14.
+
 ```text
 Sol T13 first review target: 75804cb
 Date: 2026-08-09

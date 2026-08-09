@@ -720,3 +720,18 @@ Locale/browser proof: core 0/1/2 labels remain ja 未公開/利用可能/利用�
 Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; root npm run check passed (including infra tests/build); admin-local Playwright 4 passed; git diff --check passed.
 AWS authority: none; no AWS/preview/Cognito/deployment/invalidation operation occurred. Stop for Sol review before T13S04.
 ```
+
+### Phase 4 T13 second-review — T13S04
+
+```text
+Milestone: T13S04 honest administrator browser contract
+Start: a44da55
+Date: 2026-08-09
+Result: local-only admin harness and static server completed; stopped before T13S05
+Build boundary: the admin Playwright webServer deterministically generates an isolated production output under .artifacts/admin-e2e-output with explicit non-secret authority/client values. The normal web build remains web/.output/public and a marker scan rejects admin-e2e authority/client or ADMIN_E2E markers there.
+Admin browser proof: root npm run test:e2e ran the legacy suite (14 passed) and the isolated admin suite (6 passed across desktop Japanese and mobile English). The admin suite asserts localized title/noindex/fail-closed behavior, callback routes, and authorization-code + PKCE login URL with exact scopes openid email profile itsrun/schedule.write, callback redirect URI, S256 challenge, and no credentials in output. No fake adapter grants authorization or persists a User/token.
+Static server proof: resolver tests cover query removal, directory/index resolution, unknown paths, decoded and backslash traversal rejection, root containment, deterministic HTML/JS/CSS/JSON/SVG/content fallback types, GET/HEAD, and 405 with Allow. Focused server tests: 3 passed.
+Preview preservation: preview-public-routes.spec.ts SHA-256 f220df4e3c8943ed888eea5846605883f13fd5a705b4fbd29d80d6b900a8424e before/after; preview-schedule-states.spec.ts SHA-256 37d528720efe072122cca78b97f0e945da127b143b7c16bccb54b356a9131dca before/after.
+Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; normal-output marker scan passed; root npm run check passed; root npm run test:e2e passed (14 legacy + 6 admin); preview suite passed 88/88; git diff --check passed.
+AWS authority: none; no AWS, Cognito, deployment, upload, invalidation, production, DNS, Firebase, or schedule mutation occurred. Stop for Sol review before T13S05.
+```

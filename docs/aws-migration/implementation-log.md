@@ -909,3 +909,14 @@ Result: complete; tests/log only, stopped before T14B.
 Added 14 focused tests covering every top-level, descriptor, document/data, date/path, duplicate, status (including NaN/Infinity/float/boolean/object/undefined/string/null/sparse/short/long), permutation, immutability, copied tuple, and deterministic error boundary. Every malformed case asserts SnapshotValidationError with sanitized category/coordinate-only messages and no raw path, ID, credential, token, actor, or value echo.
 Checks: Node 24.18.1 core unit 7 passed; firestore-focused Vitest 14 passed; root npm run check passed (web 44, core 7, service 25, infra 15, build); git diff --check passed. Parser source was unchanged in this follow-up; no dependencies or protected operations were added.
 ```
+
+### Phase 4 T14B deterministic transform and atomic writer
+
+```text
+Start: 7dbccd9
+Result: complete; local-only T14B, stopped before T14C.
+Added deterministic monthly transformation and manifest generation with explicit sanitized sourceIdentity and canonical ISO updatedAt, no clock/random/path inputs, strict direct-record validation, sorted slug/month/day output, shared parseScheduleMonth validation, exact two-space JSON plus one newline, UTF-8 byte counts, and SHA-256 over exact bytes. Manifest property order/schema and empty-input null date ranges are documented and tested.
+Synthetic output: 4 objects with keys data/v1/stadiums/{komazawa,oda,todoroki,yumenoshima}/availability/{2024-01,2024-02,2024-03,2023-12}.json; bytes/hashes are fixed in focused tests: 188/d4f799f61635fc234753e554981b97ddb0493569781b6c40418ccf46851218c0, 183/d1e97a0a4b58c71a1ada419dfe3fb46e8ef3f9daf826a86aea3214dd65a11a44, 188/ad4d519f9afb761291b0ed314de2f3db080f17217b86df5e9bd0305ebd7be012, 191/133ef50a73e34f3e9bff3b46f3ab8c8e226637e2eb7455e6df266ce6f051626c.
+Atomic writer uses an exclusive temporary sibling, containment checks, exclusive files, atomic rename, exact-temp cleanup on failure, and refuses existing targets/relative traversal. Focused Firestore A+B tests: 24 passed; core unit: 7 passed; root npm run check passed (web 44, core 7, service 25, infra 15, build); git diff --check passed.
+No Firebase/AWS/network/credential/data operation or new dependency occurred. T14C+ remain pending Sol review.
+```

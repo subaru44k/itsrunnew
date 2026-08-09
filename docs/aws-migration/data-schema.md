@@ -203,3 +203,41 @@ records, tokens, or raw source values in records or validation errors. The
 committed synthetic fixture at
 `scripts/migration/fixtures/firestore-snapshot.synthetic.json` is test data,
 not a production export.
+
+## T14B monthly artifact and manifest contract
+
+The T14B serializer writes each monthly document with property order
+`schemaVersion`, `stadium`, `yearMonth`, `updatedAt`, `days`, using JSON
+`JSON.stringify(value, null, 2)` plus exactly one trailing newline. Day keys
+and monthly objects are sorted deterministically. UTF-8 bytes and SHA-256 are
+computed over those exact bytes, and the shared `parseScheduleMonth` parser
+enforces identity and the 32 KiB limit before an artifact is accepted.
+
+The manifest has exactly this property order and no local path, bucket,
+credential, actor, token, or capture-time fields:
+
+```ts
+type MigrationManifest = {
+  schemaVersion: 1
+  sourceIdentity: string
+  migrationUpdatedAt: string
+  sourceCount: number
+  dateRange: { from: string | null; to: string | null }
+  objects: Array<{
+    key: `data/v1/stadiums/${string}/availability/${string}.json`
+    stadium: string
+    yearMonth: string
+    sourceCount: number
+    dateRange: { from: string | null; to: string | null }
+    bytes: number
+    sha256: string
+    contentType: 'application/json'
+    cacheControl: 'public, max-age=0, s-maxage=60'
+  }>
+}
+```
+
+The atomic writer refuses an existing run directory, writes all precomputed
+objects and `manifest.json` into an exclusive temporary sibling, validates
+containment, then renames the temporary directory into place. Failures remove
+only that exact temporary directory and never leave a partial successful run.

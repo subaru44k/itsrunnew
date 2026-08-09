@@ -136,6 +136,13 @@ it may not deploy or begin T14.
 
 ## T13S05: final verification and truthful acceptance log
 
+Sol accepted T13S05 at `6cd3b52`. Node 24 verification passed core 7, web
+44, infra 15, static-server 3, legacy browser 14, isolated administrator 44,
+and explicit preview 88 tests. The normal build contains no administrator E2E
+adapter markers, the accepted preview specs are unchanged, and the worktree is
+clean. T13 is accepted as local implementation and test completion; it was not
+deployed during this milestone.
+
 Run the complete T13R06 command list under Node 24, preserve all earlier
 failure/review history, correct any premature completion claims, and stop for
 Sol acceptance. No deployment or T14 work.

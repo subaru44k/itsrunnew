@@ -1559,3 +1559,21 @@ accounts. A post-retirement exporter invocation stopped at ADC validation
 before network access and created no output. No operator email, credential
 path/content, token, IAM policy body, or raw data is recorded.
 ```
+
+### Sol T14E acceptance and T14F plan
+
+```text
+Sol acceptance baseline: f1e805a
+Decision: T14E complete and accepted. Two stable captures, the deterministic
+74-object transform, 5,562-cell zero-difference comparison, ignored-artifact
+boundary, and complete Google credential/IAM retirement were independently
+reviewed. Focused migration tests remained 53 passed and the worktree clean.
+
+T14F remains protected and unapproved. The accepted upload core lacks a real
+AWS execution adapter and an all-74-keys-absent gate before its first write;
+the T14E transform directory also intentionally contains comparison evidence
+that the sealed upload run must exclude. The exact local/runtime/preflight/
+conditional-write/readback plan is documented in
+docs/aws-migration/phase4-t14-upload-plan.md. No AWS call, upload, IAM change,
+invalidation, production/DNS, or Firebase operation occurred in this review.
+```

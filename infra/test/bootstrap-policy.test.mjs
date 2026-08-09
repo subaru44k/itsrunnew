@@ -101,37 +101,60 @@ const candidateV4Statements = {
   ], committedV3Statements.PreviewCloudFront.Resource),
 }
 
-test('candidate v4 has the exact reviewed statement contract', () => {
+const candidateV5Statements = {
+  ...candidateV4Statements,
+  PreviewHttpApiStageTags: statement('PreviewHttpApiStageTags', 'apigateway:TagResource', `arn:aws:apigateway:${region}::/apis/*/stages`),
+}
+
+test('candidate v5 has the exact reviewed statement contract', () => {
   assert.equal(policy.Version, '2012-10-17')
   assert.deepEqual(Object.keys(statements).sort(), [
-    ...Object.keys(candidateV4Statements),
+    ...Object.keys(candidateV5Statements),
   ].sort())
-  for (const [sid, expected] of Object.entries(candidateV4Statements)) {
+  for (const [sid, expected] of Object.entries(candidateV5Statements)) {
     assert.deepEqual(statements[sid], expected, sid)
   }
 })
 
-test('candidate v4 differs from the committed v3 contract only by reviewed additions', () => {
-  const addedStatementIds = Object.keys(statements).filter((sid) => !Object.hasOwn(committedV3Statements, sid))
+test('candidate v5 differs from the committed v4 contract only by stage tagging', () => {
+  assert.deepEqual(Object.keys(statements).filter((sid) => !Object.hasOwn(candidateV4Statements, sid)), ['PreviewHttpApiStageTags'])
+  for (const [sid, expected] of Object.entries(candidateV4Statements)) assert.deepEqual(statements[sid], expected, sid)
+  assert.deepEqual(statements.PreviewHttpApiStageTags, {
+    Sid: 'PreviewHttpApiStageTags',
+    Effect: 'Allow',
+    Action: 'apigateway:TagResource',
+    Resource: `arn:aws:apigateway:${region}::/apis/*/stages`,
+  })
+  assert.equal(statements.PreviewHttpApiStageTags.Action, 'apigateway:TagResource')
+  assert.equal(statements.PreviewHttpApiStageTags.Resource, 'arn:aws:apigateway:ap-northeast-1::/apis/*/stages')
+})
+
+test('committed v4 differs from the committed v3 contract only by reviewed additions', () => {
+  const addedStatementIds = Object.keys(candidateV4Statements).filter((sid) => !Object.hasOwn(committedV3Statements, sid))
   assert.deepEqual(addedStatementIds.sort(), Object.keys(reviewedV4Statements).sort())
   for (const [sid, expected] of Object.entries(committedV3Statements)) {
     if (sid === 'PreviewCloudFront') continue
-    assert.deepEqual(statements[sid], expected, sid)
+    assert.deepEqual(candidateV4Statements[sid], expected, sid)
   }
-  const candidateCloudFrontActions = statements.PreviewCloudFront.Action
+  const candidateCloudFrontActions = candidateV4Statements.PreviewCloudFront.Action
   assert.deepEqual(candidateCloudFrontActions.filter((action) => !reviewedOriginRequestPolicyActions.includes(action)),
     committedV3Statements.PreviewCloudFront.Action)
   const originStart = candidateCloudFrontActions.indexOf(reviewedOriginRequestPolicyActions[0])
   assert.deepEqual(candidateCloudFrontActions.slice(originStart, originStart + reviewedOriginRequestPolicyActions.length),
     reviewedOriginRequestPolicyActions)
-  assert.deepEqual(statements.PreviewCloudFront.Resource, committedV3Statements.PreviewCloudFront.Resource)
+  assert.deepEqual(candidateV4Statements.PreviewCloudFront.Resource, committedV3Statements.PreviewCloudFront.Resource)
 })
 
-test('candidate v4 has no wildcard action or forbidden privilege surface', () => {
+test('candidate v5 has no wildcard action or forbidden privilege surface', () => {
   const actions = policy.Statement.flatMap(({ Action }) => Array.isArray(Action) ? Action : [Action])
   assert.equal(actions.includes('*'), false)
   assert.equal(actions.some((action) => action.endsWith(':*')), false)
   const serialized = JSON.stringify(policy)
+  assert.equal(policy.Statement.filter(({ Action }) => Action === 'apigateway:TagResource').length, 1)
+  assert.equal(serialized.includes('apigateway:UntagResource'), false)
+  assert.equal(serialized.includes('/apis/*/stages/*'), false)
+  assert.equal(serialized.includes('arn:aws:apigateway:us-east-1::/apis/*/stages'), false)
+  assert.equal(serialized.includes('arn:aws:execute-api:'), false)
   for (const forbidden of [
     'kms:', 'ec2:', 'vpc:', 'efs:', 'elasticfilesystem:', 'firehose:', 's3files:', 'secretsmanager:', 'dynamodb:', 'sqs:', 'sns:', 'cognito-identity:',
     'cognito-idp:CreateIdentityPool', 'cognito-idp:DeleteIdentityPool', 'cognito-idp:CreateIdentityProvider',

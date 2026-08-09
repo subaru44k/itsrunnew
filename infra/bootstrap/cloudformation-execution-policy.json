@@ -126,6 +126,12 @@
       ]
     },
     {
+      "Sid": "PreviewHttpApiStageTags",
+      "Effect": "Allow",
+      "Action": "apigateway:TagResource",
+      "Resource": "arn:aws:apigateway:ap-northeast-1::/apis/*/stages"
+    },
+    {
       "Sid": "PreviewScheduleLambda",
       "Effect": "Allow",
       "Action": [

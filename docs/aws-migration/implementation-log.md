@@ -789,6 +789,16 @@ The callback page now invokes session.callback(window.location.href) exactly onc
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
 
+### Phase 4 T13 S04B2 admin concurrency follow-up
+
+```text
+Start: 5474034
+Result: complete; stopped before S04B3/S05.
+Added deterministic browser coverage for stale conflicts with explicit latest rebase, confirmed latest replacement, comparison GET-only retry, dirty same-selection reload confirmation, and dirty month/stadium selection confirmation. Each case runs in Japanese desktop and English mobile projects (10 focused tests total), with exact request counts, conditional headers, localized dialog/action text, deterministic cell values, and raw error/body non-exposure assertions.
+Focused B2: 10 passed. Full isolated admin suite: 44 passed (34 accepted prior cases plus 10 B2 cases). Web unit: 44 passed; lint, typecheck, build, normal-output marker scan, root npm run check, and git diff --check passed.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred; no dependencies or source contracts were changed.
+```
+
 ### Phase 4 T13 S04B1 assertion follow-up
 
 ```text

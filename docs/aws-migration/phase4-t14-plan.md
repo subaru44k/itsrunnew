@@ -66,6 +66,11 @@ that do not echo raw records or credentials.
 
 ## T14B: deterministic monthly transformation and manifest
 
+Sol accepted T14A through `108f9c5` and `de5db05`. The strict four-stadium
+snapshot contract, sanitized normalizer, synthetic fixture, permutation
+independence, and complete rejection matrix passed 14 focused tests under Node
+24. T14B may proceed without Firebase or AWS authority.
+
 1. Group validated records by stadium and calendar month and build only typed
    `data/v1/stadiums/{slug}/availability/{YYYY-MM}.json` keys.
 2. Require one explicit ISO `updatedAt` argument for the migration run. Do not

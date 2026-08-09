@@ -808,6 +808,17 @@ Focused B2: 10 passed. Full isolated admin suite: 44 passed (34 accepted prior c
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred; no dependencies or source contracts were changed.
 ```
 
+### Phase 4 T13 S05 final verification and truthful handoff
+
+```text
+Start: 77be9c1
+Result: complete; T13 local implementation/test acceptance verified, stopped before T14.
+Environment: Node v24.18.1; npm ci completed. Core unit 7 passed; web unit 44 passed; web lint/typecheck/build passed; static server tests 3 passed; infra tests 15 passed; root npm run check passed. Root E2E passed 14 legacy + 44 isolated admin cases. Explicit preview E2E passed 88/88. Normal output marker scan passed: no admin E2E/fake-authority markers in web/.output/public. Browser tests proved memory-only User/token handling and no token/User persistence in local/session storage; OIDC transaction material is the only temporary session storage contract.
+Preview preservation: tests/e2e/preview-public-routes.spec.ts SHA-256 f220df4e3c8943ed888eea5846605883f13fd5a705b4fbd29d80d6b900a8424e; tests/e2e/preview-schedule-states.spec.ts SHA-256 37d528720efe072122cca78b97f0e945da127b143b7c16bccb54b356a9131dca. Both remain byte-for-byte unchanged from the accepted baseline.
+Truthful accounting: this final record supersedes the earlier preliminary T13R06 count claims in the milestone table; earlier failed/partial callback navigation records remain preserved above and the later route/navigation resolutions remain recorded. T13 admin implementation and local tests are accepted; the admin UI has not been deployed to preview during T13 and would require separate explicit deployment authority. T14 has not started.
+No AWS calls or writes, IAM/policy changes, CloudFormation/CDK deployment, CloudFront invalidation, Cognito administration, preview data mutation, production/DNS/Firebase operation occurred.
+```
+
 ### Phase 4 T13 S04B1 assertion follow-up
 
 ```text

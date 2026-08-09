@@ -542,6 +542,11 @@ Stop: return to Sol review; do not begin T13S03.
 ```
 
 ```text
+T13S02 stream evidence follow-up: 88e2adf
+Focused web unit suite is now 25 passed; mocked overflowing and stream-error readers directly prove cancel() and releaseLock() are each invoked exactly once. No API behavior outside T13S02 changed.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

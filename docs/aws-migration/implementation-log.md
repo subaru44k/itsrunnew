@@ -1295,3 +1295,28 @@ service-account impersonation, two bounded read-only exports, local hash and
 comparison verification, and complete credential/IAM retirement. No Firebase
 write, AWS access/upload, production DNS, or other Google resource is included.
 ```
+
+### Phase 4 T14E1R04 protected-export CLI runtime correction
+
+```text
+Start: de3c5ca
+Source/test commit: 26dd8f8
+Result: complete; local-only correction, stopped before any Firebase read.
+The first protected CLI attempt was stopped before SDK initialization because
+plain Node 24 could not resolve the exporter import of
+packages/core/src/firestoreSnapshot.ts: ERR_MODULE_NOT_FOUND resolving its
+extensionless ./stadiums dependency. No Firestore entity/document/collection
+read occurred and no t14e-capture-1 output run directory was created.
+
+Core's narrow CLI-reachable relative imports now use explicit .ts specifiers,
+with the required TypeScript allowImportingTsExtensions workspace settings;
+parser logic was not duplicated. A real subprocess test invokes the exact
+Node entry for --help and invalid arguments and verifies sanitized status,
+stdout/stderr, and no SDK/auth/network initialization.
+
+Node 24.18.1; plain npm ci; exporter focused tests 12 passed; core unit 7
+passed; root npm run check passed (web 44, core 7, schedule-api 25, infra 15,
+all builds); actual `node scripts/migration/export-firestore.mjs --help`
+passed; git diff --check passed. No Firebase/Google/AWS/network/auth/data
+operation occurred. Protected export remains stopped for Sol review.
+```

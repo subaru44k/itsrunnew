@@ -1180,3 +1180,27 @@ No AWS/Firebase/network credential/data write, deployment, invalidation, IAM
 change, or dependency change occurred. D018/T14E requires a separately
 accepted read-only Firebase access mechanism.
 ```
+
+### Phase 4 T14E1 local exporter hardening
+
+```text
+Start: fe4ad2c
+Source/test/dependency commit: fcd55ba
+Result: complete; local-only T14E1, stopped before T14E2.
+Added exact root devDependency firebase-admin 14.2.0 and refactored the
+exporter into an injected adapter/read-plan/serialization layer plus a thin
+applicationDefault CLI. The local layer is restricted to itsrun-aaf42 and
+the default database, default/0, stadium_info, and the four exact typed date
+collections. It rejects credential JSON/path overrides, emulator/alternate
+project/database settings, mutating adapter surfaces, unsafe/reused output,
+and traversal. Document counts and serialized bytes are bounded; reads and
+serialization are deterministic, capture metadata is separate from the
+normalized-data hash, and atomic output creates only a new ignored migration
+run. SDK imports/initialization occur only after valid CLI invocation; help and
+invalid invocation remain offline.
+
+Checks: Node 24.18.1; export + Firestore A-D focused tests 58 passed; core
+unit 7 passed; root `npm run check` passed; `git diff --check` passed. No
+Firebase/Google/AWS/network/auth/data operation occurred. T14E2+ remain
+pending Sol review.
+```

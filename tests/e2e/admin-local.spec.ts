@@ -55,3 +55,20 @@ test('test-only authority can exercise authenticated GET/edit/conditional PUT wi
   await expect(page.locator('body')).not.toContainText(/admin-e2e-memory-token|claims|raw body/i)
   expect(await page.evaluate(() => Object.keys(localStorage).concat(Object.keys(sessionStorage)).some((key) => /token|user/i.test(key)))).toBe(false)
 })
+
+async function setE2eMode(page, value) { await page.addInitScript((mode) => sessionStorage.setItem('admin-e2e-mode', mode), value) }
+
+test('OIDC init and login failures are sanitized and offer retry without raw details', async ({ page }) => {
+  await setE2eMode(page, 'initFailure')
+  await page.goto('/manage', { waitUntil: 'domcontentloaded' })
+  await expect(page.getByRole('alert')).toContainText('認証を完了できませんでした。')
+  await expect(page.locator('body')).not.toContainText(/fake init failure|token|claims/i)
+})
+
+test('login redirect failure is sanitized without raw details', async ({ page }) => {
+  await setE2eMode(page, 'loginFailure')
+  await page.goto('/manage', { waitUntil: 'domcontentloaded' })
+  await page.getByRole('button', { name: '管理者としてログイン' }).click()
+  await expect(page.getByRole('alert')).toContainText('認証を完了できませんでした。')
+  await expect(page.locator('body')).not.toContainText(/fake redirect failure|token|claims/i)
+})

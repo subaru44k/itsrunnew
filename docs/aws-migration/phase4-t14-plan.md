@@ -92,6 +92,11 @@ serialization, and no credential or actor data in output.
 
 ## T14C: exhaustive source/target comparison and reports
 
+Sol accepted T14B through `b150629`, `3788e60`, and `de56e13`. Canonical
+timestamp, schedule, manifest, ordering, hashing, 32-KiB, preflight, and atomic
+writer contracts passed 30 focused A+B tests. T14C may proceed locally without
+Firebase or AWS authority.
+
 Implement a pure comparator that checks, for every normalized source record
 and every one of its three cells:
 

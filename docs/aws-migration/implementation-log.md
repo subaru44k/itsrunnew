@@ -1462,3 +1462,26 @@ the temporary Firestore boundary, normalize to numeric form, and reject every
 other coercion. Local implementation plus exactly two replacement read-only
 captures require one explicit user acceptance before protected work resumes.
 ```
+
+### Phase 4 T14 D019 local status normalization
+
+```text
+Start: abad925
+Source/test commit: 945683e
+Result: local implementation complete; D019 accepted locally, stopped for Sol
+review before the two replacement captures.
+The temporary Firestore snapshot boundary now accepts numeric statuses 0/1/2
+or exact one-character strings "0", "1", and "2", converting accepted
+strings to numeric normalized records and numeric snapshot output. The default
+core/runtime parser remains numeric-only, preserving the API/target schema.
+Whitespace, signs, decimals, leading zeroes, non-ASCII digits, text/case,
+empty strings, booleans, null, out-of-range values, sparse/short/long tuples,
+and extra fields remain rejected. Deterministic tests cover mixed tuples,
+conversion, all rejection classes, immutability, and sanitized diagnostics.
+
+Node 24.18.1; focused snapshot/export/transform tests 46 passed; core unit 7
+passed; root npm run check passed (web 44, core 7, schedule-api 25, infra 15,
+all builds); git diff --check passed; worktree clean. No real exporter rerun,
+Google/Firebase/AWS/network/auth/data operation, ADC/IAM change, production
+capture, or dependency change occurred. Stop for Sol review.
+```

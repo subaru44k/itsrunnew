@@ -97,7 +97,7 @@ export function getBrowserAdminSession(options: SessionOptions) {
 export function useAdminSession() {
   const config = useRuntimeConfig().public
   if (import.meta.client && !browserSession) {
-    const router = useRouter()
+    const nuxtApp = useNuxtApp()
     browserSession = createAdminSession({
       authority: config.cognitoAuthority,
       clientId: config.cognitoClientId,
@@ -107,7 +107,7 @@ export function useAdminSession() {
         : config.cognitoAuthority && config.cognitoClientId
         ? createOidcPort(oidcConfig(config.cognitoAuthority, config.cognitoClientId, window.location.origin))
         : undefined,
-      navigate: async (path) => { await router.replace(path) },
+      navigate: async (path) => { await nuxtApp.runWithContext(() => navigateTo(path, { replace: true })) },
     })
   }
   const session = browserSession ?? createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId, oidc: undefined })

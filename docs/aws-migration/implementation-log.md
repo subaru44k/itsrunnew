@@ -789,6 +789,16 @@ The callback page now invokes session.callback(window.location.href) exactly onc
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
 
+### Phase 4 T13 S04A Nuxt-context navigation follow-up
+
+```text
+Start: 56e9fdb
+Result: stopped after focused callback gate failure.
+Captured useNuxtApp() during useAdminSession setup and changed injected navigation to one await nuxtApp.runWithContext(() => navigateTo(path, { replace: true })); no router.replace, page fallback, history/location operation, or double navigation remains.
+Evidence: all six direct callback success/failure/hostile cases stayed at /manage/callback and failed the exact /manage URL assertion in the isolated admin build. Existing failure history is preserved; no test was weakened.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```
+
 ### Phase 4 T13 S04A navigation-context correction
 
 ```text

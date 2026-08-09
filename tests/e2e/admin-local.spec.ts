@@ -6,6 +6,7 @@ test('administrator route is localized, non-indexable, and fails closed without 
   await expect(page.locator('main.admin-page')).toContainText(/管理者スケジュール|Schedule administration/)
   await expect(page.getByRole('button', { name: /ログイン|Sign in/ }).or(page.getByRole('alert'))).toBeVisible()
   await expect(page.locator('body')).not.toContainText(/Bearer|access_token|id_token|stack|bucket/i)
+  await expect(page.locator('body')).not.toContainText(/Partly available|一部利用/)
 })
 
 test('callback route is a clean localized application route', async ({ page }) => {

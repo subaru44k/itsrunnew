@@ -361,6 +361,66 @@ Any future API stage, route, or account change requires matching permission and
 test updates. The cleanup exception applies only to the exact empty resources
 recorded above.
 
+## D016: Exact HTTP API stage tagging permission
+
+Status: accepted
+
+Problem:
+
+After the D015 correction, CloudFormation reached `AdminApiDefaultStage` but
+failed with an explicit authorization denial. The execution role was denied
+`apigateway:TagResource` on
+`arn:aws:apigateway:ap-northeast-1::/apis/n8ubvb3mm6/stages`, request ID
+`b2cb6489-7135-4019-b6c5-982f68a16b70`. Policy v4 permits the API Gateway HTTP
+management verbs on `/apis` and `/apis/*`, but it does not contain the distinct
+`apigateway:TagResource` action requested by the CloudFormation resource
+provider. The stack rolled back to `UPDATE_ROLLBACK_COMPLETE` and retained
+another empty User Pool and empty schedule LogGroup outside the restored graph.
+
+Decision:
+
+Prepare managed policy v5 by adding one independent statement only:
+
+- `Sid`: `PreviewHttpApiStageTags`;
+- `Action`: `apigateway:TagResource`;
+- `Resource`: `arn:aws:apigateway:ap-northeast-1::/apis/*/stages`.
+
+Do not add the action to the broader `/apis/*` lifecycle statement. Do not add
+`UntagResource`, another API Gateway action, a stage descendant wildcard,
+another region, `Action: *`, or `Resource: *`. Tests must prove v5 differs from
+the exact committed v4 contract only by this statement, and AWS policy
+simulation must allow the exact denied action/resource while leaving unrelated
+tag resources implicitly denied.
+
+After explicit authorization, create exactly one v5 managed-policy version and
+set it default without deleting v1-v4. Read it back and require exact equality
+with the committed candidate before any cleanup or deployment. Then clean only
+the fully gated empty failed-deploy resources, run exactly one deployment, and
+perform read-only acceptance verification.
+
+Alternatives:
+
+- Add `TagResource` to `PreviewHttpApi`: rejected because that grants it across
+  every `/apis/*` descendant instead of the observed stages collection.
+- Add `UntagResource` preemptively: rejected because no denial or current
+  operation requires it.
+- Remove stack tags or bypass CloudFormation tagging: rejected because standard
+  ownership tags are required for audit and exact cleanup gates.
+- Use AdministratorAccess or PowerUserAccess: rejected.
+
+Cost and maintenance effect:
+
+The statement adds no runtime resource or cost. It preserves exact
+CloudFormation ownership tags while limiting the new tagging action to preview
+HTTP API stage collections in one region.
+
+Rollback/removal:
+
+After T11/T12 deployment stabilizes, reassess whether this creation-time action
+is needed for ongoing deployments; remove it in a later least-privilege policy
+version if not. The failed-deploy cleanup exception applies only to the exact
+empty resources recorded in the recovery plan.
+
 ## Decision template
 
 Copy for new decisions:

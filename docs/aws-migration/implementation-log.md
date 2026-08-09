@@ -1100,3 +1100,21 @@ Node 24.18.1 focused upload tests: 9 passed; root `npm run check` passed
 AWS/Firebase/network/credential/data operation or new dependency occurred.
 T14D2 and T14E remain pending Sol review.
 ```
+
+### Phase 4 T14D2 CloudFront verification correction
+
+```text
+Start: a411e39
+Result: complete; local-only D2, stopped before T14E.
+CloudFront object verification now uses one real deadline across all fetch,
+stream reads, retries, aborts, and body/schema checks. Bodies are read
+incrementally with a hard 32 KiB bound; MIME base type, parsed max-age/s-maxage
+directives, Age, SHA-256, JSON, and schedule identity/schema are validated per
+attempt. Pending fetch/body operations abort at the deadline and timer cleanup
+is deterministic; failures retain the current object key.
+
+Node 24.18.1 root `npm run check` passed (web 44, core 7, service 25, infra
+15, build); focused upload tests: 10 passed; git diff --check passed. No
+AWS/Firebase/network/credential/data operation or new dependency occurred.
+T14E remains pending Sol review.
+```

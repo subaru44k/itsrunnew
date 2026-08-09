@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
-import { mkdir, mkdtemp, open, readdir, realpath, rm, stat } from 'node:fs/promises'
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { mkdtemp, open, readdir, realpath, rm } from 'node:fs/promises'
+import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { parseScheduleMonth } from '../../packages/core/src/index.ts'
 import { validateMigrationArtifacts } from './firestore-transform.mjs'
 
@@ -106,24 +106,48 @@ function validateUploadReport(report) {
 export function serializeUploadReport(report) { validateUploadReport(report); return new TextEncoder().encode(`${JSON.stringify(report, null, 2)}\n`) }
 export function humanUploadReport(report) { validateUploadReport(report); const lines = [`T14D upload: ${report.status.toUpperCase()}`, `Attempted: ${report.counts.attempted}`, `Uploaded: ${report.counts.uploaded}`, `Read back: ${report.counts.readback}`, `CloudFront: ${report.counts.cloudfront}`, `Failure: ${report.failure ? `${report.failure.stage}/${report.failure.category}` : 'none'}`]; for (const object of report.objects) lines.push(`- ${object.key} sha256=${object.sha256} etag=${object.etag ?? 'null'} versionId=${object.versionId ?? 'null'}`); return `${lines.join('\n')}\n` }
 
-async function boundedFetch(fetcher, url, attempts, timeoutMs) {
+async function readResponseBody(response, deadlinePromise, maxBytes = MAX_BYTES) {
+  const reader = response.body?.getReader?.()
+  if (!reader) return bodyBytes(await Promise.race([response.arrayBuffer(), deadlinePromise]))
+  const chunks = []; let total = 0; let released = false
+  try {
+    while (true) {
+      const result = await Promise.race([reader.read(), deadlinePromise]); if (result.done) break
+      const chunk = bodyBytes(result.value); total += chunk.byteLength; if (total > maxBytes) { try { void reader.cancel().catch(() => {}) } catch {} throw Object.assign(new Error(), { code: 'size' }) }; chunks.push(chunk)
+    }
+    return Buffer.concat(chunks, total)
+  } catch (error) {
+    if (error?.code !== 'size') { try { void reader.cancel().catch(() => {}) } catch {} }
+    throw error
+  } finally { if (!released) { released = true; reader.releaseLock() } }
+}
+
+function validateCloudFrontResponse(response, body, object) {
+  if (response.status !== 200) throw Object.assign(new Error(), { code: 'status' })
+  const contentType = response.headers?.get('content-type') ?? ''; if (contentType.split(';', 1)[0].trim().toLowerCase() !== 'application/json') throw Object.assign(new Error(), { code: 'headers' })
+  const directives = new Map(); for (const directive of (response.headers?.get('cache-control') ?? '').split(/[,;]/)) { const [rawKey, ...rawValue] = directive.trim().split('='); if (!rawKey) continue; const key = rawKey.toLowerCase(); const value = rawValue.join('='); if (directives.has(key)) throw Object.assign(new Error(), { code: 'headers' }); directives.set(key, value) }
+  if (directives.get('max-age') !== '0' || directives.get('s-maxage') !== '60') throw Object.assign(new Error(), { code: 'headers' })
+  const age = response.headers?.get('age'); if (age !== null && (!/^\d+$/.test(age) || Number(age) > 60)) throw Object.assign(new Error(), { code: 'headers' })
+  if (body.byteLength > MAX_BYTES || sha256(body) !== object.sha256) throw Object.assign(new Error(), { code: 'cloudfront' })
+  let schedule; try { schedule = JSON.parse(new TextDecoder().decode(body)) } catch { throw Object.assign(new Error(), { code: 'cloudfront' }) }
+  try { parseScheduleMonth(schedule, { stadium: object.stadium, yearMonth: object.yearMonth }) } catch { throw Object.assign(new Error(), { code: 'cloudfront' }) }
+}
+
+async function boundedFetch(fetcher, url, attempts, timeoutMs, object) {
+  const controller = new AbortController(); const deadlineAt = Date.now() + timeoutMs; let deadlineTimer
+  const deadlinePromise = new Promise((_, reject) => { const delay = Math.max(0, deadlineAt - Date.now()); deadlineTimer = setTimeout(() => { controller.abort(); reject(Object.assign(new Error(), { code: 'timeout' })) }, delay) })
   let lastError
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const controller = new AbortController(); let fetchTimer; let bodyTimer
-    try {
-      const fetchTimeout = new Promise((_, reject) => { fetchTimer = setTimeout(() => { controller.abort(); reject(Object.assign(new Error(), { code: 'timeout' })) }, timeoutMs) })
-      const response = await Promise.race([fetcher(url, { method: 'GET', signal: controller.signal }), fetchTimeout]); clearTimeout(fetchTimer); fetchTimer = undefined
-      if (response.status !== 200) throw Object.assign(new Error(), { code: 'status' })
-      const bodyTimeout = new Promise((_, reject) => { bodyTimer = setTimeout(() => { controller.abort(); reject(Object.assign(new Error(), { code: 'timeout' })) }, timeoutMs) })
-      const body = bodyBytes(await Promise.race([response.arrayBuffer(), bodyTimeout])); clearTimeout(bodyTimer); bodyTimer = undefined
-      return { response, body }
-    } catch (error) { lastError = error; if (attempt + 1 === attempts) throw error } finally { if (fetchTimer) clearTimeout(fetchTimer); if (bodyTimer) clearTimeout(bodyTimer); controller.abort() }
-  }
+  try {
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      if (Date.now() >= deadlineAt) throw Object.assign(new Error(), { code: 'timeout' })
+      try { const response = await Promise.race([fetcher(url, { method: 'GET', signal: controller.signal }), deadlinePromise]); if (response.status !== 200) throw Object.assign(new Error(), { code: 'status' }); const body = await readResponseBody(response, deadlinePromise); validateCloudFrontResponse(response, body, object); return { response, body } } catch (error) { lastError = error; if (error?.code === 'timeout' || Date.now() >= deadlineAt || attempt + 1 === attempts) throw error }
+    }
+  } finally { if (deadlineTimer) clearTimeout(deadlineTimer); controller.abort() }
   throw lastError
 }
 
 export async function uploadMigrationRun(config, { runAws, fetch, approvedTarget, fsImpl = {} } = {}) {
-  const fs = { mkdir, mkdtemp, open, readdir, realpath, rm, stat, ...fsImpl }; const objectsReport = []; const counts = { attempted: 0, uploaded: 0, readback: 0, cloudfront: 0 }
+  const fs = { mkdtemp, open, readdir, realpath, rm, ...fsImpl }; const objectsReport = []; const counts = { attempted: 0, uploaded: 0, readback: 0, cloudfront: 0 }
   let artifacts
   try { if (!configValid(config, approvedTarget) || typeof runAws !== 'function' || typeof fetch !== 'function') fail('config'); artifacts = await loadArtifacts(config, fs) } catch (error) { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: [], failure: failureFor(error, error instanceof UploadValidationError ? 'preflight' : 'preflight') }; return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) } }
   try {
@@ -141,7 +165,7 @@ export async function uploadMigrationRun(config, { runAws, fetch, approvedTarget
     }
     await fs.rm(temp, { recursive: true, force: true }); temp = null
     for (const [index, object] of artifacts.objects.entries()) {
-      currentStage = 'cloudfront'; currentKey = object.key; const entry = objectsReport[index]; const { response, body } = await boundedFetch(fetch, `https://${config.distributionDomain}/${object.key}`, config.maxAttempts ?? 3, config.timeoutMs ?? 5000); const contentType = response.headers?.get('content-type') ?? ''; const cache = response.headers?.get('cache-control') ?? ''; const age = response.headers?.get('age'); if (!contentType.toLowerCase().startsWith('application/json') || !/max-age=0/.test(cache) || !/s-maxage=60/.test(cache) || (age !== null && (!/^\d+$/.test(age) || Number(age) > 60))) throw Object.assign(new Error(), { code: 'headers' }); if (body.byteLength > MAX_BYTES || sha256(body) !== object.sha256) throw Object.assign(new Error(), { code: 'cloudfront' }); const schedule = JSON.parse(new TextDecoder().decode(body)); parseScheduleMonth(schedule, { stadium: object.stadium, yearMonth: object.yearMonth }); counts.cloudfront += 1
+      currentStage = 'cloudfront'; currentKey = object.key; await boundedFetch(fetch, `https://${config.distributionDomain}/${object.key}`, config.maxAttempts ?? 3, config.timeoutMs ?? 5000, object); counts.cloudfront += 1
     }
   } catch (error) { if (temp) { try { await fs.rm(temp, { recursive: true, force: true }) } catch {} }; const failure = failureFor(error, currentStage, currentKey); const report = { schemaVersion: 1, status: 'mismatch', counts, objects: objectsReport, failure }; return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) }
   }

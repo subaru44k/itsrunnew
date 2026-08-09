@@ -505,6 +505,18 @@ T13 local boundary: only direct dependency `oidc-client-ts@3.5.0` was added. No 
 T13R01-R06 correction handoff: generated admin routes are `/manage`, `/manage/callback`, `/en/manage`, and `/en/manage/callback`; browser storage uses injected session transaction storage plus in-memory User storage. No AWS/Cognito/real-token/data mutation occurred. Stop for Sol review before T14.
 
 ```text
+Sol T13S01 follow-up: 065a64e
+Date: 2026-08-09
+Result: complete; closed the S01 lifecycle/storage/navigation evidence gaps without advancing S02.
+Production navigation: useAdminSession injects Nuxt navigateTo(path, { replace: true }); callback awaits transaction cleanup before navigating to the validated User.state.returnPath or /manage on failure.
+Retry/lifecycle: initialize deduplicates concurrent calls, clears its settled promise for retry, and focused tests cover signed-out, signed-in, failure, retry, and concurrency. Logout clears memory before redirect and ends signedOut on both resolved and rejected redirect paths.
+Storage proof: actual UserManager settings.userStore accepts a token-bearing User JSON and returns it from the in-memory store; injected session storage contains no token/User value. The stateStore writes an oidc. transaction key, cleanup removes only oidc. keys, and unrelated session storage remains.
+Test proof: focused web session/OIDC suite now passes 19 tests covering unconfigured state, login safe/hostile paths, callback safe/hostile/concurrent/success/failure/cleanup ordering/navigation, lifecycle events/listener registration, logout outcomes, retry, raw surface absence, and no raw error logging.
+Checks: Node 24.18.1 web unit 19 passed; lint, typecheck, build, root npm run check, and git diff --check passed. No AWS/Cognito/preview operation occurred.
+Stop: return to Sol review; do not begin T13S02.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

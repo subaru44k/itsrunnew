@@ -529,6 +529,21 @@ Accepted boundary: exact oidc-client-ts 3.5.0 dependency and no AWS/Cognito/prev
 AWS authority: none; corrections are local source/test/docs/static build only and must stop before T14 or deployment
 ```
 
+### Phase 4 T13 second review — T13S01
+
+```text
+Milestone: T13S01
+Implementation commit: 020e476
+Date: 2026-08-09
+Result: complete; local-only OIDC/session correction
+Session boundary: one injectable browser-lifetime session factory with reset hook; initialize and callback promises are deduplicated and event listeners attach once. Raw User/manager/profile/claims are closure-only; the exposed surface is state, sanitized error, lifecycle methods, and getAccessToken.
+Callback boundary: User.state.returnPath is validated to /manage or /manage/*, successful and failed callbacks use injected replacement navigation, and query/fragment-bearing callback URLs are replaced with the exact safe path. Failure exposes only sanitized authentication error state.
+Cleanup/storage proof: explicit oidc-client-ts transaction cleanup removes only the dedicated oidc. transaction/PKCE storage keys and preserves unrelated sessionStorage keys. User/token storage remains InMemoryWebStorage; the focused tests prove the injected transaction store does not retain the token-bearing User.
+Lifecycle proof: unload, expiry, silent-renew error, logout success/failure, callback failure, and unconfigured paths clear memory authentication; no token, claims, or raw error is logged or exposed.
+Checks: Node 24.18.1 web unit 17 passed; web lint, typecheck, build, root npm run check (including infra tests/build), and git diff --check passed.
+AWS authority: none; no AWS/preview/Cognito operation occurred. Stop for Sol review before T13S02.
+```
+
 ### Phase 4 T14 advance planning
 
 ```text

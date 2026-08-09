@@ -522,6 +522,15 @@ The focused session suite now has 20 passing tests, including cleanup rejection:
 ```
 
 ```text
+Sol T13S01 acceptance target: 673c7d4
+Date: 2026-08-09
+Result: accepted; T13S02 exact bounded API repository work may begin
+Independent checks: Node 24.18.1; web unit 20 passed; web typecheck passed; git diff --check; clean worktree
+Review: production callback now awaits OIDC transaction cleanup and Nuxt navigateTo replacement into the shared browser-lifetime session; initialize retry, logout terminal state, lifecycle clearing, raw User non-exposure, and in-memory UserStore versus injected transaction storage are implemented and focused-tested
+Scope: authorize only phase4-t13-second-review.md T13S02 local adminApi source/tests/log; no UI, Playwright, AWS, Cognito, preview mutation, dependency, or T13S03+ work
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

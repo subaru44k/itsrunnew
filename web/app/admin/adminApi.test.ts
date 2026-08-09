@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { AdminApiError, AdminApiRepository, createEditor } from './adminApi'
+import { AdminApiError, AdminApiRepository, boundedJson, createEditor } from './adminApi'
 
 const document = { schemaVersion: 1 as const, stadium: 'oda' as const, yearMonth: '2026-08' as const, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] as [0, 1, 2] } }
 const response = (status: number, body: unknown, headers: Record<string, string> = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'content-length': String(JSON.stringify(body).length), ...headers } })
@@ -68,6 +68,16 @@ describe('AdminApiRepository', () => {
     await expect(tooLarge.get('oda', '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
     const exact = new AdminApiRepository('/api/v1', async () => 'token', async () => streamResponse(32 * 1024))
     await expect(exact.get('oda', '2026-08')).rejects.toMatchObject({ kind: 'invalid' })
+  })
+
+  it('cancels and releases an overflowing or errored reader exactly once', async () => {
+    const reader = { read: vi.fn(async () => ({ done: false, value: new Uint8Array(32 * 1024 + 1) })), cancel: vi.fn(async () => undefined), releaseLock: vi.fn() }
+    const body = { getReader: () => reader }
+    await expect(boundedJson({ body } as unknown as Response)).rejects.toBeDefined()
+    expect(reader.cancel).toHaveBeenCalledTimes(1); expect(reader.releaseLock).toHaveBeenCalledTimes(1)
+    const streamErrorReader = { read: vi.fn(async () => { throw new Error('stream failure') }), cancel: vi.fn(async () => undefined), releaseLock: vi.fn() }
+    await expect(boundedJson({ body: { getReader: () => streamErrorReader } } as unknown as Response)).rejects.toBeDefined()
+    expect(streamErrorReader.cancel).toHaveBeenCalledTimes(1); expect(streamErrorReader.releaseLock).toHaveBeenCalledTimes(1)
   })
 })
 describe('editor conflict semantics', () => {

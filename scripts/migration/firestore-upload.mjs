@@ -9,6 +9,8 @@ const CACHE_CONTROL = 'public, max-age=0, s-maxage=60'
 const PROFILE = 'codex-prod'
 const ACCOUNT = '470447451992'
 const REGION = 'ap-northeast-1'
+const MAX_ARTIFACT_FILES = 1024
+const MAX_ARTIFACT_DEPTH = 16
 const reportKeys = ['schemaVersion', 'status', 'counts', 'objects', 'failure']
 const countKeys = ['attempted', 'uploaded', 'readback', 'cloudfront']
 const failureCategories = new Set(['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'])
@@ -41,12 +43,16 @@ function configValid(config, approvedTarget) {
 }
 function builderConfigSafe(config) { return config.profile === PROFILE && config.account === ACCOUNT && config.region === REGION && validBucket(config.bucket) && validDomain(config.distributionDomain) }
 
-async function listFiles(fs, root, current = root) {
+async function listFiles(fs, root, current = root, depth = 0, limit = MAX_ARTIFACT_FILES) {
+  if (depth > MAX_ARTIFACT_DEPTH) fail('depth')
   const output = []
   for (const entry of await fs.readdir(current, { withFileTypes: true })) {
     const path = join(current, entry.name)
-    if (entry.isDirectory()) output.push(...await listFiles(fs, root, path))
-    else output.push(path)
+    if (entry.isSymbolicLink?.()) fail('path')
+    if (entry.isDirectory()) output.push(...await listFiles(fs, root, path, depth + 1, limit))
+    else if (entry.isFile()) output.push(path)
+    else fail('file')
+    if (output.length > limit) fail('extra-file')
   }
   return output
 }
@@ -74,7 +80,7 @@ async function loadArtifacts(config, fs) {
     if (!beneath(rootReal, bodyReal)) fail('path')
     const body = await readBoundedFile(fs, bodyPath); objects.push({ ...metadata, body, bodyPath })
   }
-  const allFiles = await listFiles(fs, runRoot); const expected = new Set([manifestPath, ...objects.map((object) => resolve(runRoot, object.key))].map((path) => resolve(path)))
+  const allFiles = await listFiles(fs, runRoot, runRoot, 0, Math.min(MAX_ARTIFACT_FILES, manifest.objects.length + 1)); const expected = new Set([manifestPath, ...objects.map((object) => resolve(runRoot, object.key))].map((path) => resolve(path)))
   if (allFiles.some((path) => !expected.has(resolve(path))) || expected.size !== allFiles.length) fail('extra-file')
   try { validateMigrationArtifacts({ objects: objects.map(({ bodyPath, ...object }) => object), manifest, manifestBytes }) } catch { fail('artifact') }
   return { objects, manifest, manifestBytes }
@@ -83,14 +89,15 @@ async function loadArtifacts(config, fs) {
 function responseValue(response, key) { return response && typeof response === 'object' ? response[key] : undefined }
 function strongTag(value) { return typeof value === 'string' && /^"[A-Za-z0-9._-]+"$/.test(value) }
 function versionTag(value) { return typeof value === 'string' && /^[A-Za-z0-9._~+\/-]{1,256}$/.test(value) }
-function failureFor(error, stage, key = null) { const category = error?.code === 409 || error?.code === 412 || error?.code === 'PreconditionFailed' ? 'collision' : error?.code === 'timeout' ? 'timeout' : (stage === 'readback' ? 'readback' : stage === 'cloudfront' ? 'cloudfront' : stage); return { stage, category: failureCategories.has(category) ? category : 'response', key } }
+function failureFor(error, stage, key = null) { const category = error?.category === 'config' ? 'config' : error?.code === 409 || error?.code === 412 || error?.code === 'PreconditionFailed' ? 'collision' : error?.code === 'timeout' ? 'timeout' : (stage === 'readback' ? 'readback' : stage === 'cloudfront' ? 'cloudfront' : stage === 'preflight' ? 'preflight' : stage); return { stage, category: failureCategories.has(category) ? category : 'response', key } }
 
 function validateUploadReport(report) {
   if (!plain(report) || !exact(report, reportKeys) || report.schemaVersion !== 1 || !['match', 'mismatch'].includes(report.status) || !plain(report.counts) || !exact(report.counts, countKeys) || !Array.isArray(report.objects) || (report.failure !== null && (!plain(report.failure) || !exact(report.failure, ['stage', 'category', 'key']) || !['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'].includes(report.failure.category) || !['preflight', 'sts', 'upload', 'readback', 'cloudfront'].includes(report.failure.stage) || (report.failure.key !== null && !safeKey(report.failure.key)) || (report.failure.key !== null && !['upload', 'readback', 'cloudfront'].includes(report.failure.stage)) || (report.failure.key === null && ['upload', 'readback', 'cloudfront'].includes(report.failure.stage))))) throw new TypeError('invalid upload report')
   for (const key of countKeys) if (!Number.isInteger(report.counts[key]) || report.counts[key] < 0) throw new TypeError('invalid upload report')
   if (report.counts.uploaded > report.counts.attempted || report.counts.readback > report.counts.uploaded || report.counts.cloudfront > report.counts.readback || report.objects.length !== report.counts.attempted) throw new TypeError('invalid upload report')
   let previousKey = ''
-  for (const object of report.objects) { if (!plain(object) || !exact(object, ['key', 'sha256', 'etag', 'versionId']) || !safeKey(object.key) || (previousKey && object.key <= previousKey) || !/^[a-f0-9]{64}$/.test(object.sha256) || (object.etag !== null && !strongTag(object.etag)) || (object.versionId !== null && !versionTag(object.versionId))) throw new TypeError('invalid upload report'); previousKey = object.key }
+  for (const [index, object] of report.objects.entries()) { if (!plain(object) || !exact(object, ['key', 'sha256', 'etag', 'versionId']) || !safeKey(object.key) || (previousKey && object.key <= previousKey) || !/^[a-f0-9]{64}$/.test(object.sha256) || (object.etag !== null && !strongTag(object.etag)) || (object.versionId !== null && !versionTag(object.versionId)) || (index < report.counts.uploaded && (object.etag === null || object.versionId === null)) || (index >= report.counts.uploaded && index < report.counts.attempted - (report.status === 'mismatch' && report.failure?.stage === 'upload' ? 1 : 0) && (object.etag === null || object.versionId === null))) throw new TypeError('invalid upload report'); previousKey = object.key }
+  if (report.status === 'mismatch' && report.failure && report.failure.key !== null) { const index = report.objects.findIndex((object) => object.key === report.failure.key); if (index < 0 || (report.failure.stage === 'upload' && index !== report.counts.attempted - 1) || (report.failure.stage === 'readback' && index !== report.counts.readback) || (report.failure.stage === 'cloudfront' && index !== report.counts.cloudfront)) throw new TypeError('invalid upload report') }
   if (report.status === 'match' && (report.failure !== null || report.counts.attempted !== report.counts.uploaded || report.counts.uploaded !== report.counts.readback || report.counts.readback !== report.counts.cloudfront)) throw new TypeError('invalid upload report')
   if (report.status === 'mismatch' && report.failure === null) throw new TypeError('invalid upload report')
   return report

@@ -1081,3 +1081,22 @@ added. Focused T14D A+B+C+D: 46 tests passed; core unit: 7 passed; root
 `npm run check`: web 44, core 7, service 25, infra 15, build passed; `git diff
 --check` passed. No AWS/Firebase/network/credential/data operation occurred.
 ```
+
+### Phase 4 T14D1b preflight/readback/report correction
+
+```text
+Start: 28d713d
+Result: complete; local-only D1b, stopped before D2/T14E.
+Configuration failures now report preflight/config while artifact, path, size,
+open/read/close, and file-enumeration failures remain sanitized preflight
+failures. Recursive enumeration rejects symlinks and non-regular entries and is
+bounded by the expected artifact set plus deterministic depth/file caps.
+Report validation enforces stage/category/key coherence and uploaded-prefix
+ETag/VersionId invariants; cleanup failures cannot replace the original
+failure or escape as raw errors.
+
+Node 24.18.1 focused upload tests: 9 passed; root `npm run check` passed
+(web 44, core 7, service 25, infra 15, build); git diff --check passed. No
+AWS/Firebase/network/credential/data operation or new dependency occurred.
+T14D2 and T14E remain pending Sol review.
+```

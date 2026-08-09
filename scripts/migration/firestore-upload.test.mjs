@@ -51,6 +51,7 @@ describe('T14D injected local upload tooling', () => {
     let done = false; closed = 0
     const exactFs = { open: async () => ({ read: async (buffer, offset, length) => { if (done) return { bytesRead: 0 }; done = true; buffer.fill(65, offset, offset + length); return { bytesRead: length - 1 } }, close: async () => { closed += 1 } }) }
     await expect(readBoundedFile(exactFs, '/manifest.json', 10)).resolves.toHaveLength(10); expect(closed).toBe(1)
+    const closeFailFs = { open: async () => ({ read: async () => ({ bytesRead: 0 }), close: async () => { throw new Error('raw close path') } }) }; await expect(readBoundedFile(closeFailFs, '/manifest.json', 10)).rejects.toThrow('raw close path')
   })
 
   it('preflights local artifacts, uploads/readbacks deterministically, then verifies CloudFront', async () => {
@@ -60,10 +61,11 @@ describe('T14D injected local upload tooling', () => {
 
   it('does not call AWS for config, path, extra-file, symlink, or STS mismatch', async () => {
     const { runDir, config } = await createRun(); const calls = []; const fake = async () => { calls.push('called'); return { Account: 'wrong' } }
-    const invalidConfig = await uploadMigrationRun({ ...config, bucket: 'other' }, { runAws: fake, fetch: successFetch(), approvedTarget }); expect(invalidConfig.report.failure.category).toBe('preflight'); expect(calls).toEqual([])
+    const invalidConfig = await uploadMigrationRun({ ...config, bucket: 'other' }, { runAws: fake, fetch: successFetch(), approvedTarget }); expect(invalidConfig.report.failure.category).toBe('config'); expect(invalidConfig.report.failure.stage).toBe('preflight'); expect(calls).toEqual([])
     await writeFile(join(runDir, 'extra.txt'), 'x'); const extra = await uploadMigrationRun(config, { runAws: fake, fetch: successFetch(), approvedTarget }); expect(extra.report.failure.category).toBe('preflight'); expect(calls).toEqual([]); await rm(join(runDir, 'extra.txt'))
     const outside = await mkdtemp(join(tmpdir(), 't14d-out-')); const expected = join(runDir, result.objects[0].key); await rm(expected); await symlink(join(outside, 'body'), expected); await writeFile(join(outside, 'body'), result.objects[0].body); const link = await uploadMigrationRun(config, { runAws: fake, fetch: successFetch(), approvedTarget }); expect(link.report.failure.category).toBe('preflight'); expect(calls).toEqual([]); await rm(outside, { recursive: true, force: true }); await rm(runDir, { recursive: true, force: true })
     const { runDir: stsDir, config: stsConfig } = await createRun(); const sts = await uploadMigrationRun(stsConfig, { runAws: fake, fetch: successFetch(), approvedTarget }); expect(sts.report.failure.stage).toBe('sts'); expect(calls).toContain('called'); await rm(stsDir, { recursive: true, force: true })
+    const { runDir: openDir, config: openConfig } = await createRun(); const opened = await uploadMigrationRun(openConfig, { runAws: fake, fetch: successFetch(), approvedTarget, fsImpl: { open: async () => { throw new Error('raw file path') } } }); expect(opened.report.failure).toEqual({ stage: 'preflight', category: 'preflight', key: null }); expect(JSON.stringify(opened.report)).not.toContain('raw file path'); await rm(openDir, { recursive: true, force: true })
   })
 
   it('stops on conditional collision without later writes or retries', async () => {

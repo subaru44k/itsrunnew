@@ -170,3 +170,36 @@ Group output by stadium and calendar month. The export tool must:
 5. Fail the whole export on malformed source data unless an explicit,
    reviewed exception is recorded.
 6. Never include Firebase credentials in output.
+
+## T14A raw Firestore snapshot contract
+
+The local, credential-free snapshot parser accepts exactly this top-level
+shape; no other fields are allowed:
+
+```ts
+type RawFirestoreSnapshot = {
+  schemaVersion: 1
+  collections: Array<{
+    slug: 'oda' | 'yumenoshima' | 'komazawa' | 'todoroki'
+    legacyId: string
+    documents: Array<{
+      path: `availability/${string}/date/${string}`
+      data: { status: [0 | 1 | 2, 0 | 1 | 2, 0 | 1 | 2] }
+    }>
+  }>
+}
+```
+
+`collections` contains exactly one descriptor for each `STADIUMS` entry, and
+each `legacyId` must match that entry. Empty `documents` arrays are valid.
+Document paths must be `availability/{legacyId}/date/{YYYYMMDD}` with a real
+Gregorian date, and `data` is a plain object containing only a dense tuple of
+three integer statuses. Unknown fields, duplicate dates, sparse tuples,
+cross-identity paths, and prototype-bearing objects are rejected.
+
+Normalization emits only `{ slug, date: YYYYMMDD, status }`, sorted by slug and
+date. It does not retain capture times, project metadata, credentials, actor
+records, tokens, or raw source values in records or validation errors. The
+committed synthetic fixture at
+`scripts/migration/fixtures/firestore-snapshot.synthetic.json` is test data,
+not a production export.

@@ -889,3 +889,14 @@ Implementation is now exactly navigate: async (path) => { await router.replace(p
 Evidence: the six direct callback success/failure/hostile browser cases (Japanese desktop and English mobile) remained at /manage/callback and failed their /manage URL assertion. No additional tests were run after this binding stop condition; prior 43 web unit tests and normal checks remain recorded in the preceding entry.
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
+
+### Phase 4 T14A pure Firestore snapshot parser
+
+```text
+Start: c4fe544
+Result: complete; local-only T14A, stopped before T14B.
+Added the pure @itsrun/core Firestore snapshot contract and normalizer. The exact raw schema is schemaVersion 1 plus four STADIUMS-mapped collection descriptors with explicit slug/legacyId/documents fields; empty collections normalize to an empty result. Validation rejects unknown/missing/duplicate/mismatched descriptors, malformed or cross-identity paths, non-real Gregorian dates, duplicate documents, non-plain/unknown data, sparse or wrong-length tuples, and every status outside dense integer 0/1/2. Normalized records contain only typed slug/date/status and sort deterministically independent of collection/document order.
+Synthetic fixture: four descriptors and four records covering 2023/2024 boundaries, leap day, and all statuses; normalized count 4 in sorted order komazawa/20240101, oda/20240229, todoroki/20240301, yumenoshima/20231231. No production values, credentials, actor data, or tokens are included.
+Checks: npm ci; core unit 7 passed; firestore-focused Vitest 8 passed; root npm run check passed (web 44, core 7, service 25, infra 15); git diff --check passed. The quoted glob invocation was corrected to the required shell-expanded focused command; final focused run passed.
+No Firebase import/install/read, AWS/network/write/deploy, production data, schedule mutation, or new dependency occurred. T14B+ and T14E remain pending Sol review.
+```

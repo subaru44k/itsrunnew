@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "collections": [
+    { "slug": "oda", "legacyId": "nVfuSmsj9cULg3712chv", "documents": [
+      { "path": "availability/nVfuSmsj9cULg3712chv/date/20240229", "data": { "status": [0, 1, 2] } }
+    ] },
+    { "slug": "yumenoshima", "legacyId": "VFurPbbeejEbtu1JNTzF", "documents": [
+      { "path": "availability/VFurPbbeejEbtu1JNTzF/date/20231231", "data": { "status": [2, 1, 0] } }
+    ] },
+    { "slug": "komazawa", "legacyId": "WrrQXe67xvIkGfMtJ51E", "documents": [
+      { "path": "availability/WrrQXe67xvIkGfMtJ51E/date/20240101", "data": { "status": [1, 2, 0] } }
+    ] },
+    { "slug": "todoroki", "legacyId": "67c7uxgRWDkxr1S4gPaR", "documents": [
+      { "path": "availability/67c7uxgRWDkxr1S4gPaR/date/20240301", "data": { "status": [0, 2, 1] } }
+    ] }
+  ]
+}

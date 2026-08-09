@@ -521,6 +521,18 @@ restricted in code to `default/0`, `stadium_info`, and the four documented
 normalizes both snapshots, and requires identical normalized-data hashes
 before transformation proceeds.
 
+The operator CLI receives the exact absolute path of that ignored impersonated
+ADC file through a dedicated argument. Before loading Firebase Admin it
+realpath-validates containment beneath the reviewed isolated gcloud directory,
+parses only the non-secret credential type and impersonation URL contract, and
+requires the exact temporary service-account email. It may set
+`GOOGLE_APPLICATION_CREDENTIALS` internally only for the Firebase SDK
+lifecycle, then restores the prior environment in `finally`. Arbitrary
+environment overrides, service-account key JSON, external-account files, user
+ADC, alternate impersonation targets, symlinks, and repository-tracked paths
+remain rejected. This avoids writing or replacing the operator's standard
+HOME ADC location.
+
 The operator revokes ADC immediately after the second verified export. Remove
 the Token Creator and Viewer bindings and delete the temporary service account
 after the migration evidence is accepted. Remove `firebase-admin` and the

@@ -43,8 +43,13 @@ After D018 approval, Luna may perform only local source/test/dependency work:
 2. Refactor `export-firestore.mjs` into dependency-injected pure collection and
    serialization functions plus a thin operator CLI.
 3. Use `applicationDefault()` and require exact project ID `itsrun-aaf42`.
-   Reject service-account JSON environment variables, inline credentials,
-   emulator hosts, alternate databases/projects, and output outside an ignored
+   Accept only a dedicated CLI argument naming the exact ignored impersonated
+   ADC created for D018. Validate its realpath, credential type, exact temporary
+   service-account impersonation URL, and containment before SDK loading; set
+   the standard credential environment only internally for the SDK lifecycle
+   and restore it in `finally`. Reject caller-provided credential environment,
+   service-account key/user/external-account JSON, inline credentials, emulator
+   hosts, alternate databases/projects, and output outside an ignored
    `.artifacts/migration/<new-run>/` directory.
 4. Permit reads only for `default/0`, `stadium_info`, and the four exact typed
    availability date collections. No collection-group query, listener,

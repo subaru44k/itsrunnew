@@ -1296,6 +1296,24 @@ comparison verification, and complete credential/IAM retirement. No Firebase
 write, AWS access/upload, production DNS, or other Google resource is included.
 ```
 
+### T14E protected export runtime stops before first read
+
+```text
+First attempt: plain Node 24 failed before Firebase SDK initialization because
+the accepted CLI entry could not resolve an extensionless core TypeScript
+import. No Firestore entity read occurred and no t14e-capture-1 directory was
+created. E1R04 corrected the actual Node entry and recorded the evidence.
+
+Second attempt: the real CLI linked successfully, but google-auth-library did
+not discover the impersonated ADC stored under the isolated CLOUDSDK_CONFIG;
+it attempted its default credential chain and stopped with no ADC. No
+Firestore entity read occurred and no export directory was created. The raw
+library error showed that the CLI needs an explicit sanitized credential
+boundary. D018 is therefore clarified to accept only the exact ignored
+impersonated ADC path through a dedicated validated argument, without writing
+to the operator's standard HOME ADC location.
+```
+
 ### Phase 4 T14E1R04 protected-export CLI runtime correction
 
 ```text

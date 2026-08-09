@@ -419,6 +419,16 @@ V503 stop: obtain explicit bundled authorization for exact v5 creation, exact fa
 
 V504-V507 stop: return to Sol for acceptance review. The deployment and infrastructure checks succeeded; public data-dependent assertions remain unresolved without separately authorized fixture/data publication, which was intentionally not performed.
 
+### Phase 4 final acceptance: FA01-FA03
+
+| Task | Status | Commit | Checks | Notes |
+| --- | --- | --- | --- | --- |
+| FA01 | complete; local only | `9e5908e` | Node 24 synth/build; infra contract tests | Extracted the existing complete security-header and Permissions-Policy values into shared values without changing the public `SecurityHeaders` policy. Added stack-owned `ApiSecurityHeaders` with the same security headers and Permissions-Policy plus `Cache-Control: no-store` with override enabled, and bound it only to the `api/*` behavior. Managed CachingDisabled, the exact OriginRequestPolicy, method filter, and existing API/Cognito/Lambda/IAM contracts were preserved. |
+| FA02 | complete; local only | `9e5908e` | `npm run test:infra --workspace @itsrun/infra` (15 passed) | Added semantic assertions for exactly two response-header policies, identical SecurityHeadersConfig and Permissions-Policy values, API-only no-store, and the API/default/data behavior references. No generated logical ID was hardcoded and prior T11/T12 assertions remain in place. |
+| FA03 | complete; local only | `9e5908e` | Schedule-state Playwright suite (24 passed) | Installed Playwright Clock only in the mocked retained-data/retry test at `2026-07-31T00:00:00+09:00`, before navigation. The raw `preview-public-routes.spec.ts` suite was not changed or instrumented. |
+
+FA01-FA03 local validation: `npm run build --workspace @itsrun/infra` and `npm run check` passed under Node 24.18.1; `git diff --check` passed. No AWS call/write, deployment, invalidation, upload, Cognito administration, or dependency change occurred.
+
 ```text
 Sol RC03 review target: 8c06d20
 Date: 2026-08-09

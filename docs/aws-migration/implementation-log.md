@@ -1631,3 +1631,25 @@ passed; actual CLI help/invalid boundaries passed; root npm run check passed;
 git diff --check passed. No AWS CLI/network/CloudFront/upload/IAM/Firebase or
 protected operation occurred. T14F02+ remain pending Sol review.
 ```
+
+### Phase 4 T14F01R02 sealed adapter correction
+
+```text
+Start: a91f80b
+Result: complete; local-only correction, stopped before T14F02.
+The public upload API now always performs its own STS identity check; only the
+sealed orchestration uses a private internal continuation after its single STS
+check. AWS CLI error classification requires the canonical leading operation
+form, with sanitized NotFound, AccessDenied, Collision, or Other enums only.
+PutObject 409/412/PreconditionFailed is mapped to a single collision stop with
+no retry or readback/fetch continuation. Generated AWS argument arrays require
+the exact reviewed operation, flags, bucket, key, and conditional semantics.
+The 74-object tests prove one STS, all 74 heads before any put, no head after
+the first put, first/middle/last present/malformed/denied stops, STS mismatch,
+and exact collision behavior. The fixed CLI rejects artifact-root symlink
+escapes before any injected AWS or fetch call.
+
+Node 24.18.1; focused upload tests 24 passed; no AWS CLI, network, CloudFront,
+upload, IAM, Firebase, or protected operation occurred. T14F02+ remain
+pending Sol review.
+```

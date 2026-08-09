@@ -153,12 +153,26 @@ export function headObjectArgs(config, key) { builderConfig(config); if (!safeKe
 
 function validateAwsArgs(args) {
   if (!Array.isArray(args) || args.length < 7 || args[0] !== '--profile' || args[2] !== '--region' || args[4] !== '--output' || args[5] !== 'json' || args[1] !== PROFILE || args[3] !== REGION) fail('command')
-  const command = args.slice(6).join('\0'); if (!/^(sts\0get-caller-identity|s3api\0(head-object|put-object|get-object)\0)/.test(command) || args.some((value) => typeof value !== 'string' || value.startsWith('--delete') || value.includes('sync') || value.includes('copy') || value.includes('delete'))) fail('command')
+  const command = args.slice(6); const operation = command[1]
+  if (command[0] === 'sts' && command.length === 2 && operation === 'get-caller-identity') return
+  if (command[0] !== 's3api' || !['head-object', 'put-object', 'get-object'].includes(operation) || args.some((value) => typeof value !== 'string' || value.startsWith('--delete') || /^(?:sync|cp|copy|delete)$/i.test(value))) fail('command')
+  const bucketAt = command.indexOf('--bucket'); const keyAt = command.indexOf('--key')
+  if (bucketAt !== 2 || keyAt !== 4 || command[3] !== 'itsrun-preview-data-470447451992-ap-northeast-1' || !safeKey(command[5])) fail('command')
+  if (operation === 'head-object' && command.length !== 6) fail('command')
+  if (operation === 'put-object') {
+    if (command.length !== 14 || command[6] !== '--body' || !isAbsolute(command[7]) || command[8] !== '--content-type' || command[9] !== 'application/json' || command[10] !== '--cache-control' || command[11] !== CACHE_CONTROL || command[12] !== '--if-none-match' || command[13] !== '*') fail('command')
+  }
+  if (operation === 'get-object') {
+    if (command.length !== 9 || command[6] !== '--version-id' || !versionTag(command[7]) || !isAbsolute(command[8])) fail('command')
+  }
 }
-function classifyAwsError(error, stderr) {
+function classifyAwsError(error, stderr, args) {
   const text = typeof stderr === 'string' ? stderr.slice(0, MAX_CLI_OUTPUT_BYTES) : ''
-  if (error?.code === 254 && /(?:\(404\)|\bNotFound\b|\bNoSuchKey\b)/.test(text)) return 'NotFound'
-  if (error?.code === 254 && /(?:\(403\)|\bAccessDenied\b|\bForbidden\b)/.test(text)) return 'AccessDenied'
+  const operation = Array.isArray(args) ? args[7] : undefined
+  const leading = (code) => new RegExp(`^\\s*An error occurred \\((?:${code})\\) when calling the ${operation === 'head-object' ? 'HeadObject' : operation === 'put-object' ? 'PutObject' : ''} operation:`).test(text)
+  if (error?.code === 254 && operation === 'head-object' && (leading('404|NotFound|NoSuchKey'))) return 'NotFound'
+  if (error?.code === 254 && operation === 'head-object' && (leading('403|AccessDenied|Forbidden'))) return 'AccessDenied'
+  if (error?.code === 254 && operation === 'put-object' && leading('409|412|PreconditionFailed')) return 'Collision'
   return 'Other'
 }
 export async function runAwsJson(execFileImpl = nodeExecFile, args, { maxOutputBytes = MAX_CLI_OUTPUT_BYTES } = {}) {
@@ -166,7 +180,7 @@ export async function runAwsJson(execFileImpl = nodeExecFile, args, { maxOutputB
   return await new Promise((resolvePromise, reject) => {
     execFileImpl('aws', args, { shell: false, windowsHide: true, encoding: 'utf8', maxBuffer: maxOutputBytes }, (error, stdout = '', stderr = '') => {
       if (Buffer.byteLength(stdout) > maxOutputBytes || Buffer.byteLength(stderr) > maxOutputBytes) return reject(new UploadValidationError('output'))
-      if (error) { const safe = new UploadValidationError('command'); safe.code = error.code; safe.serviceCode = classifyAwsError(error, stderr); return reject(safe) }
+      if (error) { const safe = new UploadValidationError('command'); safe.code = error.code; safe.serviceCode = classifyAwsError(error, stderr, args); return reject(safe) }
       try { const value = JSON.parse(stdout); return resolvePromise(value) } catch { return reject(new UploadValidationError('json')) }
     })
   })
@@ -193,13 +207,13 @@ export async function uploadSealedMigrationRun(config, { runAws, fetch, approved
   let artifacts
   try { sealedConfig(config, approvedTarget); artifacts = await readSealedArtifacts(config, fs) } catch (error) { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: [], failure: { stage: 'preflight', category: 'preflight', key: null } }; if (reportDir) await writeUploadReports(report, reportDir, fs); return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) } }
   try { const identity = await runAws(stsArgs(config)); if (!identity || identity.Account !== ACCOUNT) fail('sts'); await preflightSealedAbsence(config, artifacts, runAws) } catch (error) { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: [], failure: { stage: error?.category === 'sts' ? 'sts' : 'preflight', category: error?.category === 'sts' ? 'sts' : 'preflight', key: null } }; if (reportDir) await writeUploadReports(report, reportDir, fs); return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) } }
-  const result = await uploadMigrationRun(config, { runAws, fetch, approvedTarget, fsImpl, skipSts: true }); if (reportDir) await writeUploadReports(result.report, reportDir, fs); return result
+  const result = await executeUploadMigrationRun(config, { runAws, fetch, approvedTarget, fsImpl }, false); if (reportDir) await writeUploadReports(result.report, reportDir, fs); return result
 }
 
 function responseValue(response, key) { return response && typeof response === 'object' ? response[key] : undefined }
 function strongTag(value) { return typeof value === 'string' && /^"[A-Za-z0-9._-]+"$/.test(value) }
 function versionTag(value) { return typeof value === 'string' && /^[A-Za-z0-9._~+\/-]{1,256}$/.test(value) }
-function failureFor(error, stage, key = null) { const category = error?.category === 'config' ? 'config' : stage === 'cleanup' ? 'readback' : stage === 'upload' && (error?.code === 409 || error?.code === 412 || error?.code === 'PreconditionFailed') ? 'collision' : error?.code === 'timeout' ? 'timeout' : (stage === 'readback' ? 'readback' : stage === 'cloudfront' ? 'cloudfront' : stage === 'preflight' ? 'preflight' : stage); return { stage, category: failureCategories.has(category) ? category : 'response', key } }
+function failureFor(error, stage, key = null) { const category = error?.category === 'config' ? 'config' : stage === 'cleanup' ? 'readback' : stage === 'upload' && (error?.code === 409 || error?.code === 412 || error?.code === 'PreconditionFailed' || error?.serviceCode === 'Collision') ? 'collision' : error?.code === 'timeout' ? 'timeout' : (stage === 'readback' ? 'readback' : stage === 'cloudfront' ? 'cloudfront' : stage === 'preflight' ? 'preflight' : stage); return { stage, category: failureCategories.has(category) ? category : 'response', key } }
 
 function validateUploadReport(report) {
   if (!plain(report) || !exact(report, reportKeys) || report.schemaVersion !== 1 || !['match', 'mismatch'].includes(report.status) || !plain(report.counts) || !exact(report.counts, countKeys) || !Array.isArray(report.objects) || (report.failure !== null && (!plain(report.failure) || !exact(report.failure, ['stage', 'category', 'key']) || !['config', 'preflight', 'sts', 'upload', 'collision', 'readback', 'cloudfront', 'timeout', 'response'].includes(report.failure.category) || !['preflight', 'sts', 'upload', 'readback', 'cloudfront', 'cleanup'].includes(report.failure.stage) || (report.failure.key !== null && !safeKey(report.failure.key)) || (report.failure.stage === 'cleanup' && (report.failure.category !== 'readback' || report.failure.key !== null)) || (report.failure.key !== null && !['upload', 'readback', 'cloudfront'].includes(report.failure.stage)) || (report.failure.key === null && ['upload', 'readback', 'cloudfront'].includes(report.failure.stage))))) throw new TypeError('invalid upload report')
@@ -267,11 +281,11 @@ async function boundedFetch(fetcher, url, attempts, timeoutMs, object) {
   throw lastError
 }
 
-export async function uploadMigrationRun(config, { runAws, fetch, approvedTarget, fsImpl = {}, skipSts = false } = {}) {
+async function executeUploadMigrationRun(config, { runAws, fetch, approvedTarget, fsImpl = {} } = {}, performSts = true) {
   const fs = { mkdtemp, open, readdir, realpath, rm, ...fsImpl }; const objectsReport = []; const counts = { attempted: 0, uploaded: 0, readback: 0, cloudfront: 0 }
   let artifacts
   try { if (!configValid(config, approvedTarget) || typeof runAws !== 'function' || typeof fetch !== 'function') fail('config'); artifacts = await loadArtifacts(config, fs) } catch (error) { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: [], failure: failureFor(error, error instanceof UploadValidationError ? 'preflight' : 'preflight') }; return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) } }
-  if (!skipSts) {
+  if (performSts) {
     try {
       const identity = await runAws(stsArgs(config)); if (!identity || identity.Account !== ACCOUNT) throw Object.assign(new Error(), { code: 'account' })
     } catch (error) { const report = { schemaVersion: 1, status: 'mismatch', counts, objects: [], failure: { stage: 'sts', category: 'sts', key: null } }; return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) }
@@ -294,4 +308,8 @@ export async function uploadMigrationRun(config, { runAws, fetch, approvedTarget
   } catch (error) { if (temp) { try { await fs.rm(temp, { recursive: true, force: true }) } catch {} }; const failure = failureFor(error, currentStage, currentKey); const report = { schemaVersion: 1, status: 'mismatch', counts, objects: objectsReport, failure }; return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) }
   }
   const report = { schemaVersion: 1, status: 'match', counts, objects: objectsReport, failure: null }; return { report, machineBytes: serializeUploadReport(report), human: humanUploadReport(report) }
+}
+
+export async function uploadMigrationRun(config, options = {}) {
+  return executeUploadMigrationRun(config, options, true)
 }

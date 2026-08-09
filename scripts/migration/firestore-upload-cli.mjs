@@ -1,4 +1,5 @@
 import { relative, resolve, sep, isAbsolute } from 'node:path'
+import { lstat, realpath } from 'node:fs/promises'
 import { runAwsJson, uploadSealedMigrationRun } from './firestore-upload.mjs'
 
 const PROFILE = 'codex-prod'
@@ -15,6 +16,16 @@ const beneath = (root, candidate) => { const rel = relative(resolve(root), resol
 const directChild = (root, candidate) => beneath(root, candidate) && !relative(resolve(root), resolve(candidate)).includes(sep)
 const validRunName = (value) => typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(value)
 const usage = () => 'Usage: node scripts/migration/firestore-upload-cli.mjs --run <sealed-run-name> --report <report-run-name>'
+async function validArtifactRoots(fs, cwd, artifactRoot, runDir, reportDir) {
+  try {
+    const workspaceInfo = await fs.lstat(cwd); const artifactInfo = await fs.lstat(artifactRoot)
+    if (!workspaceInfo.isDirectory() || workspaceInfo.isSymbolicLink() || !artifactInfo.isDirectory() || artifactInfo.isSymbolicLink()) return false
+    const rootReal = await fs.realpath(artifactRoot); if (resolve(rootReal) !== resolve(artifactRoot)) return false
+    const runInfo = await fs.lstat(runDir); if (!runInfo.isDirectory() || runInfo.isSymbolicLink() || !beneath(rootReal, await fs.realpath(runDir))) return false
+    try { const reportInfo = await fs.lstat(reportDir); if (!reportInfo.isDirectory() || reportInfo.isSymbolicLink() || !beneath(rootReal, await fs.realpath(reportDir))) return false } catch (error) { if (error?.code !== 'ENOENT') return false }
+    return true
+  } catch { return false }
+}
 
 export function parseUploadCliArgs(argv) {
   if (argv.length === 1 && argv[0] === '--help') return { help: true }
@@ -29,6 +40,7 @@ export async function main(argv = process.argv.slice(2), env = process.env, { cw
   if (!env || ENV_KEYS.some((key) => env[key])) return 2
   const artifactRoot = resolve(cwd, '.artifacts/migration'); const runDir = resolve(artifactRoot, args.runName); const reportDir = resolve(artifactRoot, args.reportName)
   if (!directChild(artifactRoot, runDir) || !directChild(artifactRoot, reportDir) || runDir === reportDir) return 2
+  const fs = { lstat, realpath, ...fsImpl }; if (!(await validArtifactRoots(fs, resolve(cwd), artifactRoot, runDir, reportDir))) return 2
   const config = { profile: PROFILE, account: ACCOUNT, region: REGION, bucket: BUCKET, distributionDomain: DOMAIN, manifestSha256: MANIFEST_SHA256, objectCount: OBJECT_COUNT, allowedPrefix: PREFIX, runDir, manifestPath: resolve(runDir, 'manifest.json'), env }
   const approvedTarget = Object.freeze({ bucket: BUCKET, distributionDomain: DOMAIN })
   const aws = runAws ?? ((args) => runAwsJson(execFile, args)); const fetcher = fetch ?? globalThis.fetch

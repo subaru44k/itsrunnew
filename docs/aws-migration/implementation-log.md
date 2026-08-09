@@ -585,6 +585,17 @@ Tests/checks: Node 24.18.1 web unit 41 passed; root npm run check passed; git di
 ```
 
 ```text
+T13S03B implementation: d9daf69
+Date: 2026-08-09
+Result: complete; localized accessible admin editor rendering only.
+UI contract: manage.vue renders idle/auth, loading, missing, ready, saving, saved, loadFailure, saveFailure, forbidden, conflict, and comparisonFailure without relying on pre-S03 compatibility states. Safe localized messages never expose raw technical errors, response bodies, tokens, or claims.
+Status/time contract: ja/en use core meanings 0=未公開/Unknown, 1=利用可能/Available, 2=利用不可/Unavailable. Core stadium timeRanges provide actual slot headings. Initial month uses Asia/Tokyo current month.
+Safety/accessibility: dirty load/reload uses editor confirmation; saving disables competing controls and conflict hides normal Save. Conflict renders deterministic base/local/latest cells with explicit rebase, replacement confirmation, and GET-only comparison retry. Table caption/scope/labels, alert/status live regions, and noindex/nofollow are retained.
+Browser/unit evidence: local admin Playwright harness passed 4 tests across ja desktop and en mobile; admin display tests and web unit suite passed (43 web tests). Web lint/typecheck/build and root npm run check passed under Node 24.18.1; no AWS/preview/Cognito/dependency operation occurred.
+Stop before T13S04.
+```
+
+```text
 Sol T13 second review target: e854f98
 Date: 2026-08-09
 Result: not accepted; split remaining work into phase4-t13-second-review.md T13S01-T13S05 with a Sol review after each increment

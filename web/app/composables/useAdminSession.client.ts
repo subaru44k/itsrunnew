@@ -5,6 +5,8 @@ import { createOidcPort, oidcConfig, isSafeReturnPath, type OidcPort } from '../
 export type AdminSessionState = 'unconfigured' | 'signedOut' | 'redirecting' | 'processingCallback' | 'signedIn' | 'sanitizedError' | 'signingOut'
 export interface SessionOptions { authority: string; clientId: string; origin?: string; oidc?: OidcPort }
 
+let browserSession: ReturnType<typeof createAdminSession> | undefined
+
 function safeReturnPath(value: unknown): string { return isSafeReturnPath(value) ? value as string : '/manage' }
 
 export function createAdminSession(options: SessionOptions) {
@@ -61,7 +63,8 @@ export function createAdminSession(options: SessionOptions) {
 
 export function useAdminSession() {
   const config = useRuntimeConfig().public
-  const session = createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId })
+  if (import.meta.client && !browserSession) browserSession = createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId })
+  const session = browserSession ?? createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId, oidc: undefined })
   if (import.meta.client) void session.initialize()
   return session
 }

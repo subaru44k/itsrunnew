@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { StadiumSlug, YearMonth } from '@itsrun/core'
 import { AdminApiRepository, createEditor, type UpdateScheduleMonthRequest } from '../admin/adminApi'
 import { useAdminSession } from '../composables/useAdminSession.client'
@@ -7,6 +7,7 @@ import { useAdminSession } from '../composables/useAdminSession.client'
 const { t } = useI18n(); const session = useAdminSession(); const config = useRuntimeConfig().public
 const stadium = ref<StadiumSlug>('oda'); const month = ref<YearMonth>('2026-08'); const draft = ref<UpdateScheduleMonthRequest | null>(null)
 const editor = createEditor(new AdminApiRepository(config.apiBasePath, () => session.getAccessToken()))
+useHead({ meta: [{ name: 'robots', content: 'noindex, nofollow' }] })
 const labels = computed(() => Array.from({ length: 3 }, (_, i) => t(`admin.status${i}`)))
 const days = computed(() => Object.keys(draft.value?.days ?? {}).sort() as Array<keyof NonNullable<typeof draft.value>['days']>)
 const state = ref(editor.state)
@@ -17,7 +18,7 @@ function update(date: string, slot: number, value: string) { if (!draft.value) r
 function statusAt(date: string, slot: number) { return (draft.value?.days as Record<string, [number, number, number]> | undefined)?.[date]?.[slot] ?? 0 }
 function eventValue(event: Event) { return (event.target as HTMLSelectElement).value }
 function discard() { if (draft.value && !confirm(t('admin.discardConfirm'))) return; void load() }
-onMounted(() => { if (session.state.value === 'signedIn') void load() })
+watch(() => session.state.value, (next) => { if (next === 'signedIn') void load() }, { immediate: true })
 </script>
 
 <template>

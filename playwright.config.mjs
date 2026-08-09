@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests/e2e',
+  testMatch: /legacy-public-routes\.spec\.ts/,
   outputDir: '.artifacts/playwright',
   reporter: [['list'], ['html', { outputFolder: '.artifacts/playwright-report', open: 'never' }]],
   use: {

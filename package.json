@@ -18,7 +18,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:infra": "npm run test:infra --workspaces --if-present",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --config=playwright.config.mjs && playwright test --config=playwright.admin.config.mjs",
     "test:e2e:preview": "playwright test --config=playwright.preview.config.mjs",
     "baseline:browser": "node scripts/migration/capture-browser-baseline.mjs",
     "build": "npm run build --workspaces --if-present",

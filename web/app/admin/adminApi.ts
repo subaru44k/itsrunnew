@@ -21,11 +21,27 @@ async function readResponse(response: Response, expected: { stadium: StadiumSlug
   if (!response.ok) throw new AdminApiError(apiKind(response.status))
   const length = Number(response.headers.get('content-length') ?? 0)
   if (length > 32 * 1024) throw new AdminApiError('invalid')
+  const contentType = response.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase()
+  if (contentType !== 'application/json') throw new AdminApiError('invalid')
   let payload: unknown
-  try { payload = await response.json() } catch { throw new AdminApiError('invalid') }
-  if (!payload || typeof payload !== 'object' || !('document' in payload) || !('etag' in payload) || typeof payload.etag !== 'string' || !/^".+"$/.test(payload.etag)) throw new AdminApiError('invalid')
+  try { payload = await boundedJson(response) } catch { throw new AdminApiError('invalid') }
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload) || !('document' in payload) || !('etag' in payload) || typeof payload.etag !== 'string' || !/^"[^"\r\n]+"$/.test(payload.etag) || Object.keys(payload).some((key) => !['document', 'etag', 'versionId'].includes(key))) throw new AdminApiError('invalid')
+  if ('versionId' in payload && (typeof payload.versionId !== 'string' || !payload.versionId)) throw new AdminApiError('invalid')
   try { parseScheduleMonth(payload.document, expected) } catch { throw new AdminApiError('invalid') }
   return { document: payload.document as ScheduleMonth, etag: payload.etag, versionId: 'versionId' in payload && typeof payload.versionId === 'string' ? payload.versionId : undefined }
+}
+async function boundedJson(response: Response): Promise<unknown> {
+  if (!response.body) return response.json()
+  const reader = response.body.getReader(); const decoder = new TextDecoder(); let bytes = 0; let text = ''
+  try {
+    while (true) {
+      const chunk = await reader.read(); if (chunk.done) break
+      bytes += chunk.value.byteLength; if (bytes > 32 * 1024) { await reader.cancel(); throw new Error('response too large') }
+      text += decoder.decode(chunk.value, { stream: true })
+    }
+    text += decoder.decode(); return JSON.parse(text)
+  } catch (error) { try { await reader.cancel() } catch { /* already closed */ } try { reader.releaseLock() } catch { /* already released */ }; throw error }
+  finally { try { reader.releaseLock() } catch { /* already released */ } }
 }
 export class AdminApiRepository implements AdminApiPort {
   constructor(private readonly basePath = '/api/v1', private readonly token: () => Promise<string | null>, private readonly request: ApiFetch = fetch) {}
@@ -41,9 +57,12 @@ export class AdminApiRepository implements AdminApiPort {
     const safe = parseAdminPath(stadium, yearMonth)
     if (!('etag' in condition) && !condition.create) throw new AdminApiError('invalid')
     const headers: Record<string, string> = { 'Content-Type': 'application/json', ...('etag' in condition ? { 'If-Match': condition.etag } : { 'If-None-Match': '*' }) }
-    const keys = Object.keys(body as object); if (keys.some((key) => !['schemaVersion', 'stadium', 'yearMonth', 'days'].includes(key))) throw new AdminApiError('invalid')
+    const keys = Object.keys(body as object); if (keys.some((key) => !['schemaVersion', 'stadium', 'yearMonth', 'days'].includes(key)) || body.stadium !== safe.stadium || body.yearMonth !== safe.yearMonth || 'updatedAt' in (body as object)) throw new AdminApiError('invalid')
+    try { parseScheduleMonth({ ...body, updatedAt: '2026-01-01T00:00:00.000Z' }, safe) } catch { throw new AdminApiError('invalid') }
+    if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 32 * 1024) throw new AdminApiError('invalid')
     const result = await readResponse(await this.call(endpoint(this.basePath, safe.stadium, safe.yearMonth), { method: 'PUT', headers, body: JSON.stringify(body) }), safe)
     if (!result) throw new AdminApiError('invalid')
+    if (!result.versionId) throw new AdminApiError('invalid')
     return result
   }
 }
@@ -58,7 +77,12 @@ export type EditorState =
   | { kind: 'error'; error: ApiErrorKind }
   | { kind: 'saved'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; dirty: false }
 
-function emptyDraft(stadium: StadiumSlug, yearMonth: YearMonth): UpdateScheduleMonthRequest { return { schemaVersion: 1, stadium, yearMonth, days: {} } }
+function emptyDraft(stadium: StadiumSlug, yearMonth: YearMonth): UpdateScheduleMonthRequest {
+  const parts = yearMonth.split('-'); const year = Number(parts[0]); const month = Number(parts[1]); const days: UpdateScheduleMonthRequest['days'] = {}
+  const count = new Date(Date.UTC(year, month, 0)).getUTCDate()
+  for (let day = 1; day <= count; day += 1) { const date = `${yearMonth}-${String(day).padStart(2, '0')}` as `${number}-${number}-${number}`; days[date] = [0, 0, 0] }
+  return { schemaVersion: 1, stadium, yearMonth, days }
+}
 function cloneDraft(document: ScheduleMonth): UpdateScheduleMonthRequest { return { schemaVersion: 1, stadium: document.stadium, yearMonth: document.yearMonth, days: structuredClone(document.days) } }
 export function createEditor(api: AdminApiPort) {
   let state: EditorState = { kind: 'idle' }; let saveInFlight = false

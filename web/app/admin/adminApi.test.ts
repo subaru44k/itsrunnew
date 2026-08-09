@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { AdminApiError, AdminApiRepository, createEditor } from './adminApi'
 
 const document = { schemaVersion: 1 as const, stadium: 'oda' as const, yearMonth: '2026-08' as const, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] as [0, 1, 2] } }
-const response = (status: number, body: unknown, headers: Record<string, string> = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-length': String(JSON.stringify(body).length), ...headers } })
+const response = (status: number, body: unknown, headers: Record<string, string> = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'content-length': String(JSON.stringify(body).length), ...headers } })
 describe('AdminApiRepository', () => {
   it('uses exact same-origin paths and conditional headers', async () => {
     const request = vi.fn().mockImplementation(() => response(200, { document, etag: '"a"', versionId: 'v' }))

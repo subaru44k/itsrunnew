@@ -39,7 +39,7 @@ export function oidcConfig(authority: string, clientId: string, origin: string):
   }
 }
 
-export function createOidcPort(config: OidcConfig): OidcPort {
+export function createOidcPort(config: OidcConfig, storage: Storage = window.sessionStorage): OidcPort {
   // The import and UserManager are browser-only: this module is only called by
   // the .client composable after Nuxt has entered a browser lifecycle.
   return new UserManager({
@@ -50,7 +50,7 @@ export function createOidcPort(config: OidcConfig): OidcPort {
     response_type: 'code',
     scope: ADMIN_SCOPES,
     automaticSilentRenew: false,
-    stateStore: new WebStorageStateStore({ store: window.sessionStorage }),
+    stateStore: new WebStorageStateStore({ store: storage }),
     userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
   }) as OidcPort
 }

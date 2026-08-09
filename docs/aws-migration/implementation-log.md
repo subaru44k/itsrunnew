@@ -900,3 +900,12 @@ Synthetic fixture: four descriptors and four records covering 2023/2024 boundari
 Checks: npm ci; core unit 7 passed; firestore-focused Vitest 8 passed; root npm run check passed (web 44, core 7, service 25, infra 15); git diff --check passed. The quoted glob invocation was corrected to the required shell-expanded focused command; final focused run passed.
 No Firebase import/install/read, AWS/network/write/deploy, production data, schedule mutation, or new dependency occurred. T14B+ and T14E remain pending Sol review.
 ```
+
+### Phase 4 T14A strict snapshot test follow-up
+
+```text
+Start: 108f9c5
+Result: complete; tests/log only, stopped before T14B.
+Added 14 focused tests covering every top-level, descriptor, document/data, date/path, duplicate, status (including NaN/Infinity/float/boolean/object/undefined/string/null/sparse/short/long), permutation, immutability, copied tuple, and deterministic error boundary. Every malformed case asserts SnapshotValidationError with sanitized category/coordinate-only messages and no raw path, ID, credential, token, actor, or value echo.
+Checks: Node 24.18.1 core unit 7 passed; firestore-focused Vitest 14 passed; root npm run check passed (web 44, core 7, service 25, infra 15, build); git diff --check passed. Parser source was unchanged in this follow-up; no dependencies or protected operations were added.
+```

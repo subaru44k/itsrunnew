@@ -788,3 +788,13 @@ Result: complete; removed the page-level navigation fallback so createAdminSessi
 The callback page now invokes session.callback(window.location.href) exactly once from onMounted after nextTick. Existing unit coverage retains valid /manage/schedule navigation, while callback browser coverage continues to verify success/failure/hostile safe /manage outcomes.
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
+
+### Phase 4 T13 S04A navigation-context correction
+
+```text
+Start: ff2e046
+Result: stopped with evidence pending navigation implementation decision.
+The callback page fallback remains removed. useAdminSession captures the router during composable setup and performs one awaited Nuxt replace after router readiness; no useRouter call occurs inside the async callback and no double navigation is attempted.
+Focused unit tests continue to pass (43 web tests), but the six direct callback browser cases do not reach /manage with a single captured navigation in the isolated static admin build; all remain at /manage/callback with cleanup behavior not observable by the browser assertion. The prior page-level fallback made those cases pass but is explicitly forbidden for this correction. No test was weakened.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred. Stop for Sol review.
+```

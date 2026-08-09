@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { japanToday, type StadiumSlug, type YearMonth } from '@itsrun/core'
-import { AdminApiRepository, createEditor, type UpdateScheduleMonthRequest } from '../admin/adminApi'
-import { EDITOR_DISPLAY_STATES, editorAction, editorMessageKey, slotCellId, slotTimeRanges, statusLabels } from '../admin/adminUi'
-import { useAdminSession } from '../composables/useAdminSession.client'
+import { AdminApiRepository, createEditor, type UpdateScheduleMonthRequest } from '../../admin/adminApi'
+import { EDITOR_DISPLAY_STATES, editorAction, editorMessageKey, slotCellId, slotTimeRanges, statusLabels } from '../../admin/adminUi'
+import { useAdminSession } from '../../composables/useAdminSession.client'
 
 const { t, locale } = useI18n(); const session = useAdminSession(); const config = useRuntimeConfig().public
 const stadium = ref<StadiumSlug>('oda'); const month = ref<YearMonth>(japanToday().slice(0, 7) as YearMonth); const draft = ref<UpdateScheduleMonthRequest | null>(null)

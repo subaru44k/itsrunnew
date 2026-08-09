@@ -36,7 +36,7 @@ export function createAdminSession(options: SessionOptions) {
     if (initPromise) return initPromise
     const pending = (async () => {
       if (!manager) return
-      try { currentUser = await manager.getUser(); state.value = currentUser ? 'signedIn' : 'signedOut' }
+      try { currentUser = await manager.getUser(); state.value = currentUser ? 'signedIn' : state.value === 'sanitizedError' ? 'sanitizedError' : 'signedOut' }
       catch { fail() }
     })()
     initPromise = pending

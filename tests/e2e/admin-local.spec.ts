@@ -20,7 +20,8 @@ test('callback route is a clean localized application route', async ({ page }) =
   const english = test.info().project.name.toLowerCase().includes('en')
   await page.goto(english ? '/en/manage/callback' : '/manage/callback', { waitUntil: 'domcontentloaded' })
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow')
-  await expect(page.locator('main.admin-page')).toContainText(english ? 'Schedule administration' : '管理者スケジュール')
+  await expect(page).toHaveURL(/\/manage$/)
+  await expect(page.locator('main.admin-page')).toContainText('管理者スケジュール')
 })
 
 test('OIDC login uses authorization code + PKCE settings and exact administrator scopes', async ({ page }) => {
@@ -57,6 +58,24 @@ test('test-only authority can exercise authenticated GET/edit/conditional PUT wi
 })
 
 async function setE2eMode(page, value) { await page.addInitScript((mode) => sessionStorage.setItem('admin-e2e-mode', mode), value) }
+async function setupCallback(page, mode) {
+  await page.addInitScript((value) => { sessionStorage.setItem('admin-e2e-mode', value); sessionStorage.setItem('admin-e2e-transaction', JSON.stringify({ state: { returnPath: value === 'hostileReturn' ? 'https://evil.invalid' : '/manage' }, codeChallenge: 'test-only' })) }, mode)
+  const days = Object.fromEntries(Array.from({ length: 31 }, (_, index) => [`2026-08-${String(index + 1).padStart(2, '0')}`, [0, 0, 0]]))
+  const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-01T00:00:00.000Z', days }
+  await page.route('**/api/v1/stadiums/oda/availability/2026-08', async (route) => await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ document, etag: '"callback-etag"' }) }))
+}
+
+for (const callbackCase of ['success', 'callbackFailure', 'hostileReturn']) {
+  test(`direct callback ${callbackCase} is deterministic and same-origin`, async ({ page }) => {
+    await setupCallback(page, callbackCase)
+    await page.goto('/manage/callback?code=fake&state=fake#fragment', { waitUntil: 'domcontentloaded' })
+    await expect(page).toHaveURL(/\/manage$/)
+    expect(await page.evaluate(() => ({ callback: sessionStorage.getItem('admin-e2e-callback-count'), cleanup: sessionStorage.getItem('admin-e2e-cleanup-count'), transaction: sessionStorage.getItem('admin-e2e-transaction') }))).toEqual({ callback: '1', cleanup: '1', transaction: null })
+    if (callbackCase === 'success') await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
+    if (callbackCase === 'callbackFailure') await expect(page.getByRole('alert')).toContainText('認証を完了できませんでした。')
+    await expect(page.locator('body')).not.toContainText(/fake callback failure|evil\.invalid|admin-e2e-memory-token|claims/i)
+  })
+}
 
 test('OIDC init and login failures are sanitized and offer retry without raw details', async ({ page }) => {
   await setE2eMode(page, 'initFailure')

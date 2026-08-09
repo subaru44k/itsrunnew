@@ -766,3 +766,16 @@ Evidence: isolated admin build generated web/.output/public/manage/callback/inde
 Required resolution is outside the assigned callback-only files: the Nuxt nested route needs its parent route integration (manage.vue must render the child route, or equivalent route-structure correction) before callback.vue can mount. That file was not authorized for this milestone, so no speculative change was made.
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred. Stop for Sol review and ownership decision.
 ```
+
+### Phase 4 T13 S04A route correction
+
+```text
+Start: 131c3a1
+Result: complete for the callback-only route correction; stopped before S04 API/editor work and S05.
+Route fix: moved the editor page from pages/manage.vue to pages/manage/index.vue and corrected relative imports. The callback page is now a sibling route, so /manage renders only the editor/login page and /manage/callback renders only the callback loading page before lifecycle processing.
+Lifecycle fix: callback.vue uses an explicit client onMounted/nextTick call with the current callback URL. The session callback remains deduplicated, clears transaction state before navigation, and uses injected Nuxt navigateTo replacement; the fake callback adapter contains no callback history bypass. Sanitized callback failure state is retained through the post-callback manage initialization so the retry alert remains visible.
+Generated output proof: normal build and isolated admin build both generated separate manage/index.html and manage/callback/index.html; callback output contains callback-title and no admin-title. verify-normal-output.mjs passed with no admin E2E markers.
+Browser proof: admin-local Playwright 26 passed across Japanese desktop and English mobile. Direct success, callbackFailure, hostileReturn, cleanup/count exactly once, query/fragment removal, same-origin /manage replacement, signed-in/logout, sanitized failure, and no raw token/claim/error output are covered. Existing 20 lifecycle cases remain passing.
+Checks: Node 24.18.1 web unit 43 passed; web lint/typecheck/build passed; normal output verification passed; admin-local 26 passed; root checks and diff checks pending in this commit workflow.
+AWS authority: none; no AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```

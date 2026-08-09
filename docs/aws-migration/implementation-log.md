@@ -1226,3 +1226,26 @@ passed; root check and diff checks recorded after this correction. No
 Google/Firebase/AWS/network/auth operation occurred. T14E2+ remain pending Sol
 review.
 ```
+
+### Phase 4 T14E1R02 output preflight/lifecycle correction
+
+```text
+Start: 83884b3
+Result: complete; local-only E1R02, stopped before T14E2.
+Added complete workspace/artifact-root preflight before dynamic SDK loading,
+including lstat/realpath containment, symlink/non-directory/stat failure
+rejection, new-run checks, and a preflight target handle rechecked before temp
+creation and rename. Atomic output now writes exactly snapshot.json and
+capture.json, rereads exact bytes/schema/hash/context values, and cleans only
+the generated temp on failure. CLI argv and injected loader lifecycle tests
+cover help/invalid/no-loader, successful initialize/applicationDefault/project
+and default-database reads, deleteApp on success/failure, and sanitized SDK
+cleanup failures. Canonical ordering/value rejection and symlink-parent tests
+were added.
+
+Node 24.18.1; exporter + Firestore A-D focused: 59 passed; core unit: 7
+passed; root `npm run check` passed; `git diff --check` passed. npm ls confirms
+firebase-admin is absent from web and schedule-api trees. No
+Google/Firebase/AWS/network/auth operation occurred. T14E2+ remain pending
+Sol review.
+```

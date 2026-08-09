@@ -339,3 +339,10 @@ trailing newline, and a 1 MiB bound. The exporter rereads and validates both
 files, reruns the core normalizer/hash, and only then atomically renames the new
 run directory. Existing runs, symlinked roots/components, traversal, and
 partial output are rejected.
+
+Before SDK loading, the exporter preflights the approved workspace and artifact
+root with lstat/realpath containment, rejecting symlinked or non-directory
+components, existing run names, and stat/permission failures. The preflight
+handle is passed into the writer; it rechecks root identity immediately before
+temporary creation and rename. CLI validation accepts only `--help` alone or
+`--output <single-run-name>`.

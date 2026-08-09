@@ -789,6 +789,15 @@ The callback page now invokes session.callback(window.location.href) exactly onc
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
 
+### Phase 4 T13 S04B2 assertion follow-up
+
+```text
+Start: 7395b00
+Result: complete; stopped before S05.
+Strengthened the existing five B2 cases without source/UI changes. Stale conflict and comparison retry now assert the exact 2026-08-01 / 09:00-12:00 diff row with localized base/local/latest values; rebase preserves the edited value and the subsequent PUT body carries the edited tuple while the route verifies the latest ETag. Same-selection coverage exercises both dismissed Load and accepted Discard confirmation paths. Selection coverage changes stadium and month together, restores both on cancel, then requests the exact yumenoshima/2026-09 endpoint and returns a valid 30-day document; the rendered table has 90 selects.
+Checks: focused B2 10 passed; full admin-local 44 passed; web unit 44 passed; lint/typecheck/build passed; normal output marker scan passed; root npm run check passed; git diff --check passed. No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```
+
 ### Phase 4 T13 S04B2 admin concurrency follow-up
 
 ```text

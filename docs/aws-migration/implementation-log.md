@@ -789,6 +789,16 @@ The callback page now invokes session.callback(window.location.href) exactly onc
 No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
 ```
 
+### Phase 4 T13 S04B1 assertion follow-up
+
+```text
+Start: 98e7ba0
+Result: complete; no source fix required; stopped before B2/S05.
+Strengthened the four B1 cases with exact GET/PUT counts (8 focused cases = 4 x 2 projects), exact schema top-level keys, 31 date keys and valid 3-tuples, edited and unchanged cells, strong ETag conditions, Authorization/content type, returned metadata/status, single 403 alert, all 93 create defaults, and 401 reauthentication code/PKCE settings with no automatic retry (GET remains exactly one).
+Checks: B1 focused command `--grep 'B1 '` ran 8 passed; full admin-local 34 passed; web unit 44 passed; lint/typecheck/build passed; normal marker scan passed; root npm run check passed; git diff --check passed; clean worktree after commit.
+No AWS/Cognito/deployment/invalidation/production/DNS/Firebase operation occurred.
+```
+
 ### Phase 4 T13 S04B1 basic API outcomes
 
 ```text

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { normalizeFirestoreSnapshot } from '../../packages/core/src/firestoreSnapshot.ts'
+import { normalizeFirestoreSnapshot, SnapshotValidationError } from '../../packages/core/src/firestoreSnapshot.ts'
 
 export const PROJECT_ID = 'itsrun-aaf42'
 export const DATABASE_ID = '(default)'
@@ -12,7 +12,7 @@ const MAX_BYTES = 1024 * 1024
 const exact = (value, keys) => Object.keys(value).join('\0') === keys.join('\0')
 const exactSorted = (value, keys) => Object.keys(value).sort().join('\0') === [...keys].sort().join('\0')
 const plain = (value) => value !== null && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype
-const safeCoordinate = (value) => typeof value === 'string' && /^[a-z-]+(?:\[\d+\])?(?:\.document\[\d+\])?$/.test(value)
+const safeCoordinate = (value) => typeof value === 'string' && value.length <= 100 && /^[a-z-]+(?:\[\d+\])?(?:\.document\[\d+\])?$/.test(value)
 const preflightHandles = new WeakSet()
 const adcHandles = new WeakSet()
 const ADC_FILENAME = 'application_default_credentials.json'
@@ -24,6 +24,7 @@ export class ExportValidationError extends Error {
 }
 const fail = (category, coordinate = 'export') => { throw new ExportValidationError(category, coordinate) }
 const sanitize = (error, category = 'adapter') => error instanceof ExportValidationError ? error : new ExportValidationError(category)
+export function sanitizeSnapshotError(error) { if (error instanceof SnapshotValidationError && typeof error.category === 'string' && /^[a-z-]{1,32}$/.test(error.category) && safeCoordinate(error.coordinate)) return new ExportValidationError(error.category, error.coordinate); return new ExportValidationError('snapshot') }
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const bytes = (value) => new TextEncoder().encode(`${JSON.stringify(value)}\n`)
 const canonicalize = (value, coordinate = 'export', seen = new WeakSet()) => {
@@ -94,7 +95,7 @@ export async function readFirestoreSnapshot(adapter, config) {
   const validated = validateExportConfig(config); validateAdapter(adapter); const plan = buildReadPlan(); const defaultValue = await readCall(adapter, 'getDocument', 'default/0'); const infoDocs = docsFromCollection(await readCall(adapter, 'getCollection', 'stadium_info'), 'stadium_info')
   if (!plain(defaultValue) || typeof defaultValue.exists !== 'boolean' || (defaultValue.exists && !plain(defaultValue.data))) fail('document-shape', 'default'); if (defaultValue.exists) canonicalBytes(defaultValue.data, 'default')
   const collections = []; for (const item of plan.slice(2)) { const docs = docsFromCollection(await readCall(adapter, 'getCollection', item.path), item.path); collections.push({ slug: item.slug, legacyId: STADIUMS[item.slug], documents: docs.map((doc) => ({ path: `${item.path.replace(/\/date$/, '')}/date/${doc.id}`, data: doc.data })) }) }
-  const snapshot = canonicalize({ schemaVersion: 1, collections }, 'snapshot'); let normalized; try { normalized = normalizeFirestoreSnapshot(snapshot) } catch (error) { throw sanitize(error, 'snapshot') }
+  const snapshot = canonicalize({ schemaVersion: 1, collections }, 'snapshot'); let normalized; try { normalized = normalizeFirestoreSnapshot(snapshot) } catch (error) { throw sanitizeSnapshotError(error) }
   const snapshotBytes = canonicalBytes(snapshot, 'snapshot'); const normalizedDataBytes = canonicalBytes({ schemaVersion: 1, records: normalized }, 'normalized'); const infoContext = canonicalBytes(infoDocs, 'stadium_info'); const defaultContext = defaultValue.exists ? canonicalBytes(defaultValue.data, 'default') : new Uint8Array()
   const capture = canonicalize({ schemaVersion: 1, projectId: validated.projectId, databaseId: validated.databaseId, capturedAt: validated.capturedAt, normalizedDataSha256: sha256(normalizedDataBytes), counts: { collections: collections.length, documents: collections.reduce((sum, item) => sum + item.documents.length, 0), stadiumInfo: infoDocs.length }, contexts: { default: { exists: defaultValue.exists, bytes: defaultContext.byteLength, sha256: defaultValue.exists ? sha256(defaultContext) : null }, stadiumInfo: { bytes: infoContext.byteLength, sha256: sha256(infoContext) } } }, 'capture'); const captureBytes = canonicalBytes(capture, 'capture')
   return { snapshot, snapshotBytes, capture, captureBytes, normalizedDataSha256: capture.normalizedDataSha256, plan }

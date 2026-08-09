@@ -24,5 +24,6 @@
     "todoroki": { "official": "川崎市等々力陸上競技場", "access": ["南武線武蔵中原駅徒歩15分"], "contact": "等々力陸上競技場", "paragraphs": ["メインスタジアムは世界大会も開催される競技場です。", "サッカーの開催状況で利用可能日が変わるため、事前に確認してください。"] }
   },
   "nozomiTitle": "田中希実の記録", "nozomiDescription": "大会記録を確認できます。", "event": "種目", "result": "記録",
-  "pace": { "distance": "距離", "time": "通過タイム", "goal": "目標", "half": "ハーフ" }
+  "pace": { "distance": "距離", "time": "通過タイム", "goal": "目標", "half": "ハーフ" },
+  "admin": { "title": "管理者スケジュール", "login": "管理者としてログイン", "logout": "ログアウト", "loading": "認証情報を確認中です…", "configError": "管理画面を設定できません。", "authError": "認証を完了できませんでした。", "loadError": "スケジュールを読み込めませんでした。", "save": "保存", "saving": "保存中…", "saved": "保存しました。", "missing": "この月のデータはありません。新規作成できます。", "conflict": "別の更新があるため保存できませんでした。下に最新値を表示しています。", "comparisonError": "最新データを取得できませんでした。", "discard": "変更を破棄", "discardConfirm": "未保存の変更を破棄しますか？", "stadium": "競技場", "month": "月", "slot": "時間帯", "status0": "利用可能", "status1": "一部利用", "status2": "利用不可", "date": "日付", "retry": "再試行", "latest": "最新のサーバー値", "reload": "最新値を読み込む", "error": "保存できませんでした。" }
 }

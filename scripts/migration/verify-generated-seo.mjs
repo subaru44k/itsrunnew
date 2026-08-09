@@ -4,6 +4,7 @@ import { resolve, relative, dirname, join } from 'node:path'
 const argument = process.argv.indexOf('--web-dir')
 const root = resolve(argument === -1 ? 'web/.output/public' : process.argv[argument + 1])
 const compatibility = new Set(['/komazawa_olympic', '/en/komazawa_olympic'])
+const applicationRoutes = new Set(['/manage', '/manage/callback', '/en/manage', '/en/manage/callback'])
 const expectedRoutes = new Set([
   '/', '/yumenoshima', '/komazawa', '/todoroki', '/pace/marathon', '/nozomiantena',
   '/en', '/en/yumenoshima', '/en/komazawa', '/en/todoroki', '/en/pace/marathon', '/en/nozomiantena',
@@ -38,6 +39,7 @@ const actualRoutes = new Set()
 for (const file of await findIndexes(root)) {
   const route = routeFor(file)
   if (compatibility.has(route)) continue
+  if (applicationRoutes.has(route)) { actualRoutes.add(route); continue }
   actualRoutes.add(route)
   const html = await readFile(file, 'utf8')
   const lang = html.match(/<html[^>]+lang="([^"]+)"/)?.[1]
@@ -58,6 +60,7 @@ for (const route of expectedRoutes) {
   if (!actualRoutes.has(route)) throw new Error(`${route}: expected generated index.html is missing`)
 }
 for (const route of actualRoutes) {
+  if (applicationRoutes.has(route)) continue
   if (!expectedRoutes.has(route)) throw new Error(`${route}: unexpected normal generated route`)
 }
 console.log(`Generated SEO metadata verified under ${root}`)

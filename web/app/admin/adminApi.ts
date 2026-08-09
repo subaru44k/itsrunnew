@@ -1,0 +1,73 @@
+import { parseScheduleMonth } from '@itsrun/core'
+import type { ScheduleMonth, StadiumSlug, YearMonth } from '@itsrun/core'
+
+export type ApiFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+export type UpdateScheduleMonthRequest = Omit<ScheduleMonth, 'updatedAt'>
+export type ApiErrorKind = 'unauthorized' | 'forbidden' | 'notFound' | 'conflict' | 'unsupported' | 'rateLimited' | 'server' | 'network' | 'invalid'
+export class AdminApiError extends Error { constructor(readonly kind: ApiErrorKind, message = '管理APIを利用できません。', readonly requestId?: string) { super(message) } }
+export interface LoadedSchedule { document: ScheduleMonth; etag: string; versionId?: string }
+export interface AdminApiPort { get(stadium: StadiumSlug, yearMonth: YearMonth): Promise<LoadedSchedule | null>; put(stadium: StadiumSlug, yearMonth: YearMonth, body: UpdateScheduleMonthRequest, condition: { etag: string } | { create: true }): Promise<LoadedSchedule> }
+
+const validStadium = new Set<StadiumSlug>(['oda', 'yumenoshima', 'komazawa', 'todoroki'])
+const validMonth = /^\d{4}-(0[1-9]|1[0-2])$/
+export function parseAdminPath(stadium: string, yearMonth: string): { stadium: StadiumSlug; yearMonth: YearMonth } {
+  if (!validStadium.has(stadium as StadiumSlug) || !validMonth.test(yearMonth)) throw new AdminApiError('invalid')
+  return { stadium: stadium as StadiumSlug, yearMonth: yearMonth as YearMonth }
+}
+function endpoint(base: string, stadium: StadiumSlug, yearMonth: YearMonth) { return `${base.replace(/\/$/, '')}/stadiums/${stadium}/availability/${yearMonth}` }
+function apiKind(status: number): ApiErrorKind { return ({ 401: 'unauthorized', 403: 'forbidden', 404: 'notFound', 409: 'conflict', 415: 'unsupported', 429: 'rateLimited' } as Record<number, ApiErrorKind>)[status] ?? (status >= 500 ? 'server' : 'invalid') }
+async function readResponse(response: Response, expected: { stadium: StadiumSlug; yearMonth: YearMonth }, allowMissing = false): Promise<LoadedSchedule | null> {
+  if (response.status === 404 && allowMissing) return null
+  if (!response.ok) throw new AdminApiError(apiKind(response.status))
+  const length = Number(response.headers.get('content-length') ?? 0)
+  if (length > 32 * 1024) throw new AdminApiError('invalid')
+  let payload: unknown
+  try { payload = await response.json() } catch { throw new AdminApiError('invalid') }
+  if (!payload || typeof payload !== 'object' || !('document' in payload) || !('etag' in payload) || typeof payload.etag !== 'string' || !/^".+"$/.test(payload.etag)) throw new AdminApiError('invalid')
+  try { parseScheduleMonth(payload.document, expected) } catch { throw new AdminApiError('invalid') }
+  return { document: payload.document as ScheduleMonth, etag: payload.etag, versionId: 'versionId' in payload && typeof payload.versionId === 'string' ? payload.versionId : undefined }
+}
+export class AdminApiRepository implements AdminApiPort {
+  constructor(private readonly basePath = '/api/v1', private readonly token: () => Promise<string | null>, private readonly request: ApiFetch = fetch) {}
+  private async call(path: string, init: RequestInit) {
+    const accessToken = await this.token(); if (!accessToken) throw new AdminApiError('unauthorized')
+    try { return await this.request(path, { ...init, headers: { Authorization: `Bearer ${accessToken}`, ...(init.headers ?? {}) } }) } catch { throw new AdminApiError('network') }
+  }
+  async get(stadium: StadiumSlug, yearMonth: YearMonth) {
+    const safe = parseAdminPath(stadium, yearMonth)
+    return readResponse(await this.call(endpoint(this.basePath, safe.stadium, safe.yearMonth), { method: 'GET' }), safe, true)
+  }
+  async put(stadium: StadiumSlug, yearMonth: YearMonth, body: UpdateScheduleMonthRequest, condition: { etag: string } | { create: true }) {
+    const safe = parseAdminPath(stadium, yearMonth)
+    if (!('etag' in condition) && !condition.create) throw new AdminApiError('invalid')
+    const headers: Record<string, string> = { 'Content-Type': 'application/json', ...('etag' in condition ? { 'If-Match': condition.etag } : { 'If-None-Match': '*' }) }
+    const keys = Object.keys(body as object); if (keys.some((key) => !['schemaVersion', 'stadium', 'yearMonth', 'days'].includes(key))) throw new AdminApiError('invalid')
+    const result = await readResponse(await this.call(endpoint(this.basePath, safe.stadium, safe.yearMonth), { method: 'PUT', headers, body: JSON.stringify(body) }), safe)
+    if (!result) throw new AdminApiError('invalid')
+    return result
+  }
+}
+
+export type EditorState =
+  | { kind: 'idle' | 'loading' }
+  | { kind: 'missing'; draft: UpdateScheduleMonthRequest; base: null }
+  | { kind: 'ready'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; dirty: boolean }
+  | { kind: 'saving'; base: LoadedSchedule | null; draft: UpdateScheduleMonthRequest }
+  | { kind: 'conflict'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; latest: LoadedSchedule | null }
+  | { kind: 'comparisonError'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest }
+  | { kind: 'error'; error: ApiErrorKind }
+  | { kind: 'saved'; base: LoadedSchedule; draft: UpdateScheduleMonthRequest; dirty: false }
+
+function emptyDraft(stadium: StadiumSlug, yearMonth: YearMonth): UpdateScheduleMonthRequest { return { schemaVersion: 1, stadium, yearMonth, days: {} } }
+function cloneDraft(document: ScheduleMonth): UpdateScheduleMonthRequest { return { schemaVersion: 1, stadium: document.stadium, yearMonth: document.yearMonth, days: structuredClone(document.days) } }
+export function createEditor(api: AdminApiPort) {
+  let state: EditorState = { kind: 'idle' }; let saveInFlight = false
+  const listeners = new Set<(state: EditorState) => void>(); const emit = () => listeners.forEach((listener) => listener(state))
+  const set = (next: EditorState) => { state = next; emit() }
+  return {
+    get state() { return state }, subscribe(listener: (state: EditorState) => void) { listeners.add(listener); return () => listeners.delete(listener) },
+    async load(stadium: StadiumSlug, yearMonth: YearMonth) { set({ kind: 'loading' }); try { const loaded = await api.get(stadium, yearMonth); if (!loaded) set({ kind: 'missing', draft: emptyDraft(stadium, yearMonth), base: null }); else set({ kind: 'ready', base: loaded, draft: cloneDraft(loaded.document), dirty: false }) } catch (error) { set({ kind: 'error', error: error instanceof AdminApiError ? error.kind : 'network' }) } },
+    updateDraft(draft: UpdateScheduleMonthRequest) { if (state.kind === 'ready' || state.kind === 'missing' || state.kind === 'conflict') { if (state.kind === 'missing') set({ ...state, draft }); else set({ ...state, draft, dirty: true } as EditorState) } },
+    async save() { if (saveInFlight || (state.kind !== 'ready' && state.kind !== 'missing' && state.kind !== 'conflict')) return; saveInFlight = true; const before = state; const draft = before.draft; set({ kind: 'saving', base: before.kind === 'missing' ? null : before.base, draft }); try { const result = await api.put(draft.stadium, draft.yearMonth, draft, before.kind === 'missing' ? { create: true } : { etag: before.base.etag }); set({ kind: 'saved', base: result, draft: cloneDraft(result.document), dirty: false }) } catch (error) { if (error instanceof AdminApiError && error.kind === 'conflict' && before.kind !== 'missing') { try { const latest = await api.get(draft.stadium, draft.yearMonth); set({ kind: 'conflict', base: before.base, draft, latest }) } catch { set({ kind: 'comparisonError', base: before.base, draft }) } } else set({ kind: 'error', error: error instanceof AdminApiError ? error.kind : 'network' }) } finally { saveInFlight = false } },
+  }
+}

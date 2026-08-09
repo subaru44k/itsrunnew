@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | blocked by T10/T11 | | | |
 | T13 | blocked by T10-T12 | | | |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | blocked by T10-T14 | | | |
+| T15 | in progress; T15A complete, T15B-D pending Sol review | `5e4b19e` | T15A workflow contract tests (3 passed) | Local-only implementation started under Node 24.18.1; no AWS/GitHub write or deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1761,4 +1761,20 @@ vulnerabilities, unmodified); core unit 7 passed; migration tests 64 passed;
 root npm run check passed (web 44, core 7, schedule-api 25, infra 15 and
 build/synth); preview E2E 88 passed; git diff --check passed. T14 is complete;
 stop for Sol final review before T15.
+```
+
+### Phase 4 T15A validation workflow
+
+```text
+Start: 5e4b19e; result: complete locally, stopped at the T15A boundary.
+Added .github/workflows/validate-migration.yml for pull requests and pushes
+to migration/aws-s3-cloudfront. It grants contents:read only, uses bounded
+concurrency and a 30-minute timeout, pins checkout v4.2.2 and setup-node
+v4.4.0 to full commit SHAs, installs Node 24.18.1, runs npm ci/check and the
+production-browser E2E command after Chromium-only installation. No artifact,
+secret, AWS credential, id-token, or dangerous trigger is configured.
+
+The AWS-free workflow contract suite passed 3 tests under Node 24.18.1.
+No AWS/GitHub operation occurred. T15B-T15D remain pending and T15 is not
+complete until those milestones receive separate review.
 ```

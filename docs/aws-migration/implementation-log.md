@@ -3581,6 +3581,20 @@ substage categories, local tests, and after Sol acceptance one auth-only BS02
 execution. No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17 action is
 authorized.
 
+### Phase 4 T16 BS01 sanitized browser substage correction
+
+Starting from Sol handoff `4df6b2c`, BS01 added the exact typed browser
+substage failure boundary. Form checkpoints, callback-missing,
+manage-timeout, signed-in-missing, API-response-missing, and
+API-status-unexpected are retained only with `desktop` or `mobile` viewport;
+raw error messages, DOM, URL, and status material are discarded. Production
+browser-role checks now assign these typed failures, and injected coverage
+passes all allowlisted categories without canary leakage.
+
+Focused auth/Chromium tests passed 35/35; root `npm run check` and
+`git diff --check` passed. No AWS or live Hosted UI execution occurred.
+BS02 remains blocked pending Sol source review.
+
 ### Phase 4 T16 HU02 execution stop
 
 Starting from Sol approval `bcdc2b7`, Node `v24.18.1`, focused auth/Chromium

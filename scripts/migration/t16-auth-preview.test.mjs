@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import * as fsp from 'node:fs/promises'
-import { awaitHostedUiLogin, createConcreteAuthAdapters, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
+import { awaitHostedUiLogin, createBrowserSubstageError, createConcreteAuthAdapters, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
 function fakeRun({ fail = null, getShape = 'top-level' } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
@@ -116,4 +116,14 @@ test('browser role integration invokes form driver only after the delayed URL ga
   }
   const result = await runBrowserRoleSession(page, { username: 'alias.invalid', password: 'not-output', formDriver: async () => { order.push('form'); assert.equal(current, `https://${AUTH_CONSTANTS.hostedUiDomain}/login`); return { checkpoint: 'form-submitted' } } })
   assert.deepEqual(result, { checkpoint: 'form-submitted' }); assert.deepEqual(order, ['click', 'gate', 'form'])
+})
+
+test('browser substage failures retain only exact category and viewport', async () => {
+  const categories = ['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected']
+  for (const [index, category] of categories.entries()) {
+    const viewport = index % 2 === 0 ? 'desktop' : 'mobile'
+    const result = await runAuthCoordinator({ preflight: async () => ({ target: 'auth', users: 0, admins: 0, region: AUTH_CONSTANTS.region }), setup: async () => ({ users: 2, admins: 1 }), admin: { form: async () => { const error = new Error('canary raw browser error'); error.name = 'BrowserSubstageError'; error.category = category; error.viewport = viewport; throw error } }, cleanup: async () => ({ users: 0, admins: 0 }) })
+    assert.deepEqual(result.failure, { stage: 'admin-form', category, viewport }); assert.equal(JSON.stringify(result).includes('canary'), false); assert.equal(JSON.stringify(result).includes('raw browser'), false)
+  }
+  assert.throws(() => createBrowserSubstageError('canary', 'desktop'), /invalid browser substage/)
 })

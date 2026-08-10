@@ -22,6 +22,8 @@ export const COGNITO_MUTATING_OPERATIONS = Object.freeze([
 const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-users-in-group'])
 const operationSet = new Set([...COGNITO_MUTATING_OPERATIONS, ...COGNITO_READ_OPERATIONS])
 const checkpoints = new Set(['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'cleanup', 'complete'])
+const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected'])
+const browserViewports = new Set(['desktop', 'mobile'])
 
 export function parseAuthArgs(argv) {
   if (!Array.isArray(argv) || argv.length !== 1 || argv[0] !== EXECUTION_FLAG) throw new Error('invalid execution flag')
@@ -38,7 +40,13 @@ function identities(nextRandomBytes) {
   })
 }
 
+export function createBrowserSubstageError(category, viewport) {
+  if (!browserSubstageCategories.has(category) || !browserViewports.has(viewport)) throw new Error('invalid browser substage')
+  return Object.freeze({ name: 'BrowserSubstageError', category, viewport })
+}
+
 function safeFailure(error) {
+  if (error?.name === 'BrowserSubstageError' && browserSubstageCategories.has(error.category) && browserViewports.has(error.viewport)) return { category: error.category, viewport: error.viewport }
   if (error?.name === 'TimeoutError') return 'timeout'
   if (error?.message === 'invalid proof') return 'invalid-proof'
   return 'operation-failed'
@@ -66,7 +74,7 @@ export async function runAuthCoordinator(adapters = {}) {
   const invoke = async (stage, fn, role = null) => {
     lastCheckpoint = stage; counts.operations += 1
     try { const result = await (typeof fn === 'function' ? fn({ stage, role }) : fn?.run?.({ stage, role })); proof(stage, result); if (role) roleOutcomes[role] = 'passed' }
-    catch (error) { if (role) roleOutcomes[role] = 'failed'; failure = { stage, category: safeFailure(error) }; failureCheckpoint = stage; throw error }
+    catch (error) { if (role) roleOutcomes[role] = 'failed'; const normalized = safeFailure(error); failure = { stage, ...(typeof normalized === 'string' ? { category: normalized } : normalized) }; failureCheckpoint = stage; throw error }
   }
   try {
     await invoke('preflight', adapters.preflight)
@@ -76,7 +84,7 @@ export async function runAuthCoordinator(adapters = {}) {
   finally {
     lastCheckpoint = 'cleanup'; counts.operations += 1; counts.cleanups += 1
     try { proof('cleanup', await adapters.cleanup({ stage: 'cleanup' })) }
-    catch (error) { cleanupFailure = { stage: 'cleanup', category: safeFailure(error) }; if (!failure) { failure = cleanupFailure; failureCheckpoint = 'cleanup' } }
+    catch (error) { const normalized = safeFailure(error); cleanupFailure = { stage: 'cleanup', ...(typeof normalized === 'string' ? { category: normalized } : normalized) }; if (!failure) { failure = cleanupFailure; failureCheckpoint = 'cleanup' } }
   }
   const status = cleanupFailure ? 'cleanup-failed' : failure ? 'failed' : 'success'
   return { status, lastCheckpoint: status === 'success' ? 'complete' : lastCheckpoint, failureCheckpoint, roleOutcomes, counts, failure, cleanupFailure, restoreStatus: 'not-required', cleanupStatus: cleanupFailure ? 'failed' : 'passed' }
@@ -94,11 +102,11 @@ export async function awaitHostedUiLogin(page, { hostedUiHost = AUTH_CONSTANTS.h
   try { await Promise.all([page.waitForURL(exactHostedLogin, { timeout: timeoutMs }), login.click()]); return { checkpoint: 'hosted-ui-login' } } catch { throw new Error('hosted-ui-redirect-timeout') }
 }
 
-export async function runBrowserRoleSession(page, { username, password, loginGate = awaitHostedUiLogin, formDriver = driveHostedUiSignIn } = {}) {
+export async function runBrowserRoleSession(page, { username, password, viewport = 'desktop', loginGate = awaitHostedUiLogin, formDriver = driveHostedUiSignIn } = {}) {
   if (typeof loginGate !== 'function' || typeof formDriver !== 'function') throw new Error('invalid browser role boundary')
   await loginGate(page)
   const submitted = await formDriver(page, { username, password, waitForNavigationSignal: () => page.waitForURL(url => new URL(url).pathname === '/manage/callback', { timeout: 30000 }) })
-  if (submitted?.checkpoint !== 'form-submitted') throw new Error('form proof failed')
+  if (submitted?.checkpoint !== 'form-submitted') throw createBrowserSubstageError(submitted?.checkpoint ?? 'submit-not-observed', viewport)
   return { checkpoint: 'form-submitted' }
 }
 
@@ -113,16 +121,18 @@ async function runRealBrowserRole(role, username, password) {
       const onResponse = response => { try { const url = new URL(response.url()); if (url.pathname === AUTH_CONSTANTS.apiPath && response.request().method() === 'GET' && url.origin === new URL(AUTH_CONSTANTS.cloudFrontBase).origin) apiStatus = response.status() } catch {} }
       page.on('response', onResponse)
       await page.goto(`${AUTH_CONSTANTS.cloudFrontBase}/manage`, { waitUntil: 'domcontentloaded' })
-      const submitted = await runBrowserRoleSession(page, { username, password })
+      const viewportName = viewport.width > 600 ? 'desktop' : 'mobile'
+      const submitted = await runBrowserRoleSession(page, { username, password, viewport: viewportName })
       outcomes[viewport.width > 600 ? 'desktop' : 'mobile'] = submitted.checkpoint
       const callback = recorder.snapshot().events.some(event => event.kind === 'navigation' && event.path === '/manage/callback')
-      if (!callback) throw new Error('callback proof failed')
-      await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 })
-      if (await page.getByRole('button', { name: /Sign out|ログアウト/ }).count() < 1) throw new Error('signed-in sentinel failed')
+      if (!callback) throw createBrowserSubstageError('callback-missing', viewportName)
+      try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 }) } catch { throw createBrowserSubstageError('manage-timeout', viewportName) }
+      if (await page.getByRole('button', { name: /Sign out|ログアウト/ }).count() < 1) throw createBrowserSubstageError('signed-in-missing', viewportName)
       for (let attempt = 0; attempt < 300 && apiStatus === null; attempt += 1) await new Promise(resolve => setTimeout(resolve, 100))
       const status = apiStatus
       outcomes[viewport.width > 600 ? 'desktopStatus' : 'mobileStatus'] = status
-      if (role === 'admin' && status !== 200 || role === 'non-admin' && status !== 403) throw new Error('sentinel proof failed')
+      if (status === null) throw createBrowserSubstageError('api-response-missing', viewportName)
+      if (role === 'admin' && status !== 200 || role === 'non-admin' && status !== 403) throw createBrowserSubstageError('api-status-unexpected', viewportName)
       page.off('response', onResponse)
     } finally { recorder.detach(); await browser.close() }
   }

@@ -3003,6 +3003,18 @@ disposable user, at most two no-API/no-data login attempts, mandatory deletion,
 and sanitized evidence only. No authentication-flow, stack, IAM, or data change
 is authorized.
 
+### Phase 4 T16 BR01
+
+Added the dependency-free sanitized browser recorder to the existing auth
+harness. It attaches navigation/response listeners before the login action,
+retains only approved Cognito/CloudFront host, path, and integer status,
+strips queries, ignores unknown hosts, deduplicates deterministically, and
+detaches cleanly. Fake-page tests prove immediate callback→manage ordering,
+pre-action listener attachment, unknown/query non-leakage, and cleanup.
+Focused recorder/harness tests pass 8/8. Node 24 `npm run check` passed and
+local E2E passed legacy14/admin44. BR02 remains pending its fresh real-auth
+matrix; no AWS operation occurred.
+
 ### Phase 4 T16 final rehearsal authorization
 
 D031 proved email alias and internal Username both traverse the real callback;

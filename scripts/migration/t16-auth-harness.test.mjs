@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { assertReservedCell, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
+import { approvedBrowserHosts, assertReservedCell, createSanitizedBrowserRecorder, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
 
 test('operator input is validated without returning password material', () => {
   const result = validateOperatorEnvironment({ T16_ADMIN_USERNAME: 'preview-t16-admin@rehearsal.invalid', T16_NONADMIN_USERNAME: 'preview-t16-nonadmin@rehearsal.invalid', T16_ADMIN_PASSWORD: 'a'.repeat(24), T16_NONADMIN_PASSWORD: 'b'.repeat(24) })
@@ -53,4 +53,31 @@ test('Hosted UI diagnostic never exposes raw DOM, credentials, cookies, or hidde
 test('Hosted UI callback is recognized even when it immediately replaces to manage', () => {
   const result = normalizeHostedUiOutcome({ role: 'diagnostic', domText: 'safe', urlSequence: ['https://example.invalid/login', 'https://d2via50thoheqm.cloudfront.net/manage/callback', 'https://d2via50thoheqm.cloudfront.net/manage'], statuses: [200, 302, 200] })
   assert.equal(result.category, 'callback')
+})
+
+test('browser recorder attaches before action, retains immediate callback order, and deduplicates', () => {
+  const listeners = new Map()
+  const page = { on(name, fn) { listeners.set(name, [...(listeners.get(name) || []), fn]) }, off(name, fn) { listeners.set(name, (listeners.get(name) || []).filter(value => value !== fn)) }, emit(name, value) { for (const fn of listeners.get(name) || []) fn(value) } }
+  const recorder = createSanitizedBrowserRecorder(page)
+  assert.ok(listeners.get('framenavigated')?.length === 1)
+  page.emit('framenavigated', { url: () => 'https://itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com/login?state=hidden' })
+  page.emit('framenavigated', { url: () => 'https://d2via50thoheqm.cloudfront.net/manage/callback?code=hidden' })
+  page.emit('framenavigated', { url: () => 'https://d2via50thoheqm.cloudfront.net/manage' })
+  page.emit('framenavigated', { url: () => 'https://d2via50thoheqm.cloudfront.net/manage' })
+  page.emit('response', { url: () => 'https://d2via50thoheqm.cloudfront.net/manage?query=hidden', status: () => 200 })
+  page.emit('response', { url: () => 'https://untrusted.invalid/secret', status: () => 200 })
+  assert.deepEqual(recorder.snapshot(), { events: [
+    { kind: 'navigation', host: 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', path: '/login' },
+    { kind: 'navigation', host: 'd2via50thoheqm.cloudfront.net', path: '/manage/callback' },
+    { kind: 'navigation', host: 'd2via50thoheqm.cloudfront.net', path: '/manage' },
+    { kind: 'response', host: 'd2via50thoheqm.cloudfront.net', path: '/manage', status: 200 },
+  ] })
+  assert.deepEqual([...approvedBrowserHosts].sort(), ['d2via50thoheqm.cloudfront.net', 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com'])
+})
+
+test('browser recorder detaches cleanly and emits no raw URL material', () => {
+  const listeners = new Map(); const page = { on(name, fn) { listeners.set(name, fn) }, off(name, fn) { if (listeners.get(name) === fn) listeners.delete(name) }, emit(name, value) { listeners.get(name)?.(value) } }
+  const recorder = createSanitizedBrowserRecorder(page)
+  recorder.detach(); recorder.detach(); page.emit('framenavigated', { url: () => 'https://d2via50thoheqm.cloudfront.net/manage?token=secret' })
+  assert.deepEqual(recorder.snapshot(), { events: [] }); assert.deepEqual([...listeners.keys()], [])
 })

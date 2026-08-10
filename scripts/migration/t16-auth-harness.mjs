@@ -1,6 +1,7 @@
 const exactKey = 'data/v1/stadiums/oda/availability/2026-08.json'
 const sensitive = /token|password|secret|claim|authorization|cookie|access_key|raw|credential/i
 const hostedUiCategories = ['callback', 'incorrect-credentials', 'user-not-found', 'password-reset-required', 'oauth-error', 'unknown-login']
+const approvedBrowserHosts = new Set(['itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', 'd2via50thoheqm.cloudfront.net'])
 
 export function validateOperatorEnvironment(env = process.env) {
   const names = {
@@ -55,4 +56,29 @@ export function normalizeHostedUiOutcome({ role, domText = '', urlSequence = [],
   return { role, category, redirects, statuses: safeStatuses, durationMs: Number.isInteger(durationMs) && durationMs >= 0 ? durationMs : null }
 }
 
-export { exactKey, hostedUiCategories }
+export function createSanitizedBrowserRecorder(page) {
+  if (!page || typeof page.on !== 'function' || typeof page.off !== 'function') throw new Error('invalid recorder page')
+  const events = []
+  const seen = new Set()
+  const add = (kind, rawUrl, status = null) => {
+    try {
+      const url = new URL(typeof rawUrl === 'string' ? rawUrl : rawUrl?.url?.())
+      if (!approvedBrowserHosts.has(url.hostname) || !url.pathname.startsWith('/')) return
+      if (status !== null && (!Number.isInteger(status) || status < 100 || status > 599)) return
+      const event = status === null ? { kind, host: url.hostname, path: url.pathname } : { kind, host: url.hostname, path: url.pathname, status }
+      const key = JSON.stringify(event)
+      if (!seen.has(key)) { seen.add(key); events.push(event) }
+    } catch {}
+  }
+  const onNavigation = frame => add('navigation', frame?.url?.())
+  const onResponse = response => add('response', response?.url?.(), response?.status?.())
+  page.on('framenavigated', onNavigation)
+  page.on('response', onResponse)
+  let detached = false
+  return {
+    snapshot() { return { events: events.map(event => ({ ...event })) } },
+    detach() { if (!detached) { page.off('framenavigated', onNavigation); page.off('response', onResponse); detached = true } },
+  }
+}
+
+export { approvedBrowserHosts, exactKey, hostedUiCategories }

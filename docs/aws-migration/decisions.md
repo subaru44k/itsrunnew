@@ -1731,6 +1731,63 @@ Rollback/removal:
 Remove the preview executable and coordinator after T16 evidence is accepted;
 keep the operational evidence and security decisions.
 
+## D041: Replace the injected adapter stub with two concrete bounded executables
+
+Status: accepted
+
+Problem:
+
+PA02 did not implement its plan. The committed module still requires six
+injected environment adapters, and direct execution always fails as
+`adapter-unconfigured`. It contains no concrete AWS CLI, protected filesystem,
+Playwright, API/data, or restoration implementation. It also discards the
+internal Username returned by AdminCreateUser and uses the email alias for
+password/group/delete operations, reintroducing the D035 failure. Fake tests
+therefore prove only the stub, not an executable rehearsal.
+
+The operator has also confirmed that historical Firebase data may be discarded.
+No further Firestore capture, historical comparison, or production-history
+preservation is required. This does not remove the need to prove real Cognito
+authorization and one preview conditional write, but it allows the remaining
+work to focus only on the new stack.
+
+Decision:
+
+Split the final live proof into two concrete committed executables. The first is
+authentication-only: it implements the protected AWS CLI and Playwright
+adapters in source, creates two ephemeral users, uses returned internal
+Usernames for all administration, proves desktop/mobile admin 200 and non-admin
+403 through the real callback, then cleans identities. It cannot call S3 PUT.
+
+Only after that succeeds, the second executable reuses the reviewed authenticated
+browser boundary for the exact D029 one-cell preview update, stale conflict,
+public observation, and exact original-byte restoration. It cannot access any
+other object. Both executables generate credentials internally, accept no
+secret input, print one sanitized result, and are fake-tested before one live
+execution each. Do not add another generic injected stub.
+
+T17 removes Firebase runtime/configuration and migration-only Firestore tooling
+and dependencies. Historical source artifacts need not be carried into the AWS
+site. Production DNS/cutover remains a separate explicit boundary.
+
+Alternatives:
+
+- Continue extending the generic stub: rejected because it has repeatedly
+  allowed fake success while direct execution is impossible.
+- Skip real authentication: rejected because the Hosted UI path is the last
+  unproven user-facing dependency.
+- Repeat Firestore export/compare: rejected as unnecessary under the updated
+  data-retention requirement.
+
+Cost and maintenance effect:
+
+No AWS resource or dependency change. The live steps become smaller, observable,
+and independently recoverable; Firestore work ends.
+
+Rollback/removal:
+
+Remove both preview executables with the migration harness after T16 acceptance.
+
 ## Decision template
 
 Copy for new decisions:

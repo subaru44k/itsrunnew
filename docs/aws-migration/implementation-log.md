@@ -3356,6 +3356,22 @@ canary non-exposure, and sanitized unconfigured execution. No executable live
 run was performed; no AWS, Cognito, schedule-data, restore, or browser-hosted
 operation occurred. PA03 remains blocked pending Sol source review.
 
+### Phase 4 T16 PA Sol review and concrete-final correction
+
+Sol rejects PA02 functional acceptance. `t16-preview-adapter.mjs` is an injected
+stub: direct execution has no concrete dependencies and always returns
+`adapter-unconfigured`; it implements no AWS CLI, protected filesystem,
+Playwright, data, or restore adapter. It also discards AdminCreateUser's internal
+Username and incorrectly reuses the alias for later administration, contrary to
+D035. Fake tests cannot establish operational readiness.
+
+The operator confirmed historical Firebase data may be discarded. D041 and
+`phase4-t16-concrete-final-plan.md` end further Firestore work and split the
+remaining proof into a concrete auth-only executable followed, after success,
+by the exact preview data/restore executable. CF01 is local-only and must return
+for Sol source review before CF02. No additional live action is authorized by
+this record.
+
 ### Phase 4 T16 PA01
 
 PA01 is implemented locally from Sol handoff `6d275a6`. The coordinator now

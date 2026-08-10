@@ -3100,3 +3100,19 @@ runner and generated material were removed. Schedule writes=0, restore writes=0,
 CloudFront invalidation=0, and BR03/SS03 were not started. This is a terminal
 rehearsal stop; no retry, password reset, or additional identity operation is
 authorized in this run.
+
+### Phase 4 T16 IU01
+
+IU01 completed locally from Sol handoff `56014b5`. The dependency-free fake
+adapter proof passed two cases: both create responses were validated as
+nonempty internal identifiers; password, group, get, remove, and delete calls
+used only those internal identifiers; browser input used only the email
+aliases; and a password-setup failure cleaned the already-created internal
+identifier. Serialized output contained only sanitized booleans/counts and
+categories, with no identifiers, arguments, credential values, or raw errors.
+
+Repeated SS01 gates matched: recorder tests 8/8, root check passed (web44,
+core7, schedule-api25, infra19 plus build/synth), local E2E passed 14 legacy +
+44 admin, and read-only account/region, empty pool/group, and protected
+501-byte object baseline checks passed. No AWS write occurred. IU02 remains
+the single authorized real execution boundary.

@@ -2107,6 +2107,37 @@ Rollback/removal:
 
 Remove the auth-only probe after the transaction issue is fixed.
 
+## D051: Use the exact redirect callback API
+
+Status: accepted
+
+Problem:
+
+TS02 proved the exact callback has code/state, discovery succeeds, and the
+matching transaction exists, yet no token POST starts. The application only
+supports redirect authorization code flow, but the port invokes oidc-client's
+generic callback dispatcher, which rereads state to choose among redirect,
+popup, and silent callbacks before processing the redirect.
+
+Decision:
+
+Call `signinRedirectCallback` directly at the port boundary. Keep all PKCE,
+storage, token-memory, and sanitized application contracts unchanged. Deploy
+web-only after local review, then perform one auth-only confirmation.
+
+Alternatives:
+
+- Continue instrumenting stored state content: rejected as sensitive.
+- Support popup/silent callbacks: rejected because neither is in architecture.
+
+Cost and maintenance effect:
+
+No dependency/AWS change; implementation matches the single allowed OAuth flow.
+
+Rollback/removal:
+
+Restore generic dispatch only if popup or silent flows are explicitly designed.
+
 ## Decision template
 
 Copy for new decisions:

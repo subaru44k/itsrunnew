@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | R01-R04 complete locally; T15E05/T16 not started | `3173277` | Compact policy gates, exactly one v6 creation/readback, and exactly one dedicated OIDC-stack deployment passed | AWS v6 is default with v2-v6 retained; HostingStack remains unchanged. T15E05 and T16 remain outside this task. |
+| T15 | T15D/R01-R04 accepted; T15E05 ready | `3173277` + Sol acceptance below | Compact policy gates, exactly one v6 creation/readback, one dedicated OIDC-stack deployment, and independent Sol AWS/template verification passed | AWS v6 is default with v2-v6 retained; HostingStack remains unchanged; no GitHub workflow activation yet. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2189,4 +2189,34 @@ No HostingStack deployment, policy-version deletion, bootstrap, web/data
 upload, CloudFront invalidation, Cognito administration, GitHub operation,
 production/DNS/Firebase mutation, or T15E05/T16 work occurred. This record
 contains no credentials, tokens, or per-object data.
+```
+
+### Phase 4 T15 R01-R04 Sol acceptance
+
+```text
+Start: f6e826e; result: accepted and ready for T15E05. Sol independently
+reviewed every recovery commit, reran all 18 infra tests under Node 24.18.1,
+reran synth, and confirmed the exact 6,077-character compact policy contract
+and a clean worktree. Read-only AWS verification returned v6/default with
+exactly v2-v6 retained and exact AWS/local canonical SHA-256
+9bd2d67f19a917c0183d7f08649a4b7555ad736ada43f075115c5cebb80322de.
+
+The deployed template exactly matches fresh local synth. Provider URL,
+sts.amazonaws.com audience, Purpose tag, role name, one-hour duration,
+federated principal, exact migration-branch StringEquals subject, and sole
+AssumeRoleWithWebIdentity action all match. The role has no attached managed
+policy and its only inline policy contains exactly HostingStack DescribeStacks
+and preview-web PutObject. Provider and role have Retain/Retain. HostingStack
+remains UPDATE_COMPLETE and its deployed template exactly matches fresh local
+synth; outputs remain unchanged. No additional AWS or GitHub write occurred
+during Sol review.
+
+GitHub read-only baseline: repository subaru44k/itsrunnew is public with
+default branch master; Actions are enabled with allowed_actions=all and no SHA
+pinning requirement; default workflow permissions are write; master has no
+branch protection. Every committed workflow action is already full-SHA pinned.
+T15E05 will tighten repository Actions settings, push only the migration
+branch, require the resulting validation success, dispatch exactly one preview
+web deployment, verify external state, and derive protection check names from
+the successful run before protecting master.
 ```

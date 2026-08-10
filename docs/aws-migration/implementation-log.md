@@ -3495,6 +3495,18 @@ response-shape correction and, after Sol source acceptance, one further
 auth-only execution. No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17
 operation is authorized.
 
+### Phase 4 T16 CR01 callback initialization race correction
+
+Starting from Sol handoff `3b4e9c5`, `createAdminSession.initialize` now treats
+callback processing and signed-in state as newer monotonic state: a late
+`getUser()` resolve (null or stale nonnull user) or rejection cannot overwrite
+the callback user, destination, token access, or signed-in state. Deferred
+tests cover all three interleavings without raw error exposure.
+
+Web focused tests passed 47/47; admin-local Playwright E2E passed 44/44;
+root `npm run check` and `git diff --check` passed. No AWS, deployment, or
+production operation occurred. CR02 remains blocked pending Sol source review.
+
 ### Phase 4 T16 AG01 AdminGetUser response correction
 
 Starting from Sol handoff `4de0055`, AG01 changed only the concrete

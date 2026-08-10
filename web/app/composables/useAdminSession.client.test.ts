@@ -78,6 +78,25 @@ describe('browser admin session boundary', () => {
     expect(await session.getAccessToken()).toBe('memory-token')
   })
 
+  it.each([
+    ['null', (resolve: (value: User | null) => void, _reject: (reason?: unknown) => void) => resolve(null)],
+    ['nonnull stale user', (resolve: (value: User | null) => void, _reject: (reason?: unknown) => void) => resolve(fakeUser({ stale: true }))],
+    ['reject', (_resolve: (value: User | null) => void, reject: (reason?: unknown) => void) => reject(new Error('raw token=canary'))],
+  ])('callback wins over delayed initialize getUser %s', async (_label, settle) => {
+    const fake = fakePort(); let resolveGetUser!: (value: User | null) => void; let rejectGetUser!: (reason?: unknown) => void
+    fake.port.getUser = vi.fn(() => new Promise<User | null>((resolve, reject) => { resolveGetUser = resolve; rejectGetUser = reject }))
+    const navigate = vi.fn(async () => undefined)
+    const session = createAdminSession({ authority: 'https://issuer', clientId: 'client', oidc: fake.port, navigate })
+    const initialize = session.initialize(); await Promise.resolve()
+    await session.callback('https://preview.example/manage/callback?code=opaque')
+    settle(resolveGetUser, rejectGetUser)
+    await initialize
+    expect(session.state.value).toBe('signedIn')
+    expect(await session.getAccessToken()).toBe('memory-token')
+    expect(navigate).toHaveBeenCalledWith('/manage/schedule')
+    expect(session.error.value).toBeNull()
+  })
+
   it('sanitizes callback failure and retains only a sanitized error', async () => {
     const fake = fakePort()
     fake.port.signinCallback = vi.fn(async () => { throw new Error('token=secret') })

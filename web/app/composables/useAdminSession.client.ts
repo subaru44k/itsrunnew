@@ -43,8 +43,14 @@ export function createAdminSession(options: SessionOptions) {
     if (initPromise) return initPromise
     const pending = (async () => {
       if (!manager) return
-      try { currentUser = await manager.getUser(); state.value = currentUser ? 'signedIn' : state.value === 'sanitizedError' ? 'sanitizedError' : 'signedOut' }
-      catch { fail() }
+      try {
+        const loadedUser = await manager.getUser()
+        if (state.value === 'processingCallback' || state.value === 'signedIn') return
+        currentUser = loadedUser; state.value = currentUser ? 'signedIn' : state.value === 'sanitizedError' ? 'sanitizedError' : 'signedOut'
+      } catch {
+        if (state.value === 'processingCallback' || state.value === 'signedIn') return
+        fail()
+      }
     })()
     initPromise = pending
     void pending.finally(() => { if (initPromise === pending) initPromise = undefined })

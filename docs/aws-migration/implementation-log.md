@@ -3015,6 +3015,19 @@ Focused recorder/harness tests pass 8/8. Node 24 `npm run check` passed and
 local E2E passed legacy14/admin44. BR02 remains pending its fresh real-auth
 matrix; no AWS operation occurred.
 
+### Phase 4 T16 BR02 pre-browser stop and cleanup
+
+The fresh BR02 browser matrix could not start because the protected temporary
+password material was absent (no password reset or login attempt was made).
+The exact temporary pool state was read-only verified before cleanup: two
+users and one `admins` membership. After fresh STS/account/region checks,
+exactly three authorized Cognito writes were performed: remove the one
+temporary admin membership, delete the two temporary users, and no other
+Cognito resource was touched. Readback verified users=0 and admins
+membership=0. Temporary credential/driver files were absent. No schedule or
+other data write, deployment, invalidation, IAM, or production operation
+occurred; BR03 was not started.
+
 ### Phase 4 T16 final rehearsal authorization
 
 D031 proved email alias and internal Username both traverse the real callback;

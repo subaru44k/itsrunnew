@@ -1541,6 +1541,66 @@ Rollback/removal:
 Never revert to sensitive argv. A future SDK migration must preserve the same
 no-log/no-env/no-process-title boundary.
 
+## D038: Drive only the visible Hosted UI sign-in form and retain typed checkpoints
+
+Status: accepted
+
+Problem:
+
+The protected SA02 rehearsal completed both local-user setup paths but stopped
+before browser authentication. Top-level CloudTrail metadata shows the Hosted
+UI authorize/login GET sequence and no login POST. A read-only desktop/mobile
+DOM inspection found Cognito renders two responsive copies of the sign-in
+form, with exactly one visible copy. The committed harness proves callback
+recording and protected CLI inputs, but the temporary runner's form selection,
+fill, and submit sequence has no deterministic test or sanitized operation
+checkpoint. Repeating the same opaque runner would not produce new evidence.
+
+Decision:
+
+Add a dependency-free Hosted UI form driver to the committed T16 harness. It
+must scope all controls to exactly one visible `cognitoSignInForm`, require one
+visible username, password, and submit control, fill the two values without
+returning or logging them, confirm only boolean/non-secret readiness, and use a
+real submit-control click so Cognito's existing submit handler still runs. The
+driver returns only an allowlisted checkpoint category. A local browser fixture
+must reproduce the duplicate responsive forms on desktop and mobile and prove
+that the visible form alone submits exactly once. Failure cases cover no visible
+form, ambiguous visible forms, missing/disabled controls, fill failure, and no
+observed submit, without preserving DOM or raw errors.
+
+Before another real execution, run a no-credential, no-submit read-only check
+against the live Hosted UI to prove the exact scoped controls are singular,
+visible, and enabled at both viewports. Then one new protected execution may
+run from an independently verified empty pool/group and unchanged reserved
+object. It must expose only typed setup/form/callback/sentinel/data/cleanup
+checkpoints. No process inspection, raw CloudTrail event, DOM, URL query,
+identity, credential, token, AWS error, or stack trace may be recorded.
+
+On a pre-data failure, cleanup and stop with the typed checkpoint. After the
+first conditional schedule write, exact restoration remains the only priority.
+All D028-D037 no-retry, exact-object, no-invalidation, preview-only, and cleanup
+boundaries remain unchanged.
+
+Alternatives:
+
+- Retry the temporary runner unchanged: rejected because it would repeat an
+  unobservable failure.
+- Submit the form programmatically with `requestSubmit`: rejected because it
+  can bypass the existing control-click behavior used by Cognito's page.
+- Capture screenshots, DOM, console, request bodies, or raw errors: rejected
+  because they can retain credentials or authentication material.
+
+Cost and maintenance effect:
+
+No dependency or AWS resource change. The operational form boundary becomes
+locally reproducible and future Hosted UI markup drift produces a typed stop.
+
+Rollback/removal:
+
+Keep the typed form driver while Hosted UI is used; remove it only with the T16
+operational harness after migration acceptance.
+
 ## Decision template
 
 Copy for new decisions:

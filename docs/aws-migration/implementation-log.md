@@ -3198,3 +3198,18 @@ schedule writes=0, restore writes=0, and invalidation=0. No raw process
 arguments, environment, identifiers, credentials, or AWS errors were
 inspected or recorded. This is a terminal SA02 stop; no retry or further
 rehearsal action is authorized.
+
+### Phase 4 T16 Hosted UI form recovery authorization
+
+Read-only diagnosis after SA02 used only top-level CloudTrail metadata and
+sanitized DOM counts. Cognito user creation and permanent-password setup had
+completed; the Hosted UI authorize/login GET sequence occurred, but no login
+POST occurred. Desktop and mobile each render two responsive sign-in form
+copies with exactly one visible form and visible controls. Pool users and admins
+membership remain zero, and the reserved Oda object remains the protected
+501-byte baseline.
+
+D038 and `phase4-t16-hosted-ui-form-plan.md` require a committed, locally tested
+visible-form driver and typed checkpoints before one further bounded rehearsal.
+HF01-HF03 may proceed in order under their exact preview-only boundaries. No
+IAM, deploy, invalidation, production, DNS, Firebase, or T17 work is authorized.

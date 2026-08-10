@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A/B/C complete locally, T15D pending external IAM review | `82a847d` | T15A/B accepted; T15C workflow/helper and T15D infra contracts passed | Local-only implementation; no AWS/GitHub write or deployment. |
+| T15 | in progress; T15A-D accepted locally, T15E planned | `82a847d` + D021/T15E plan | T15A/B accepted; T15C workflow/helper and T15D infra contracts passed; Sol exact IAM/AWS baseline review | No OIDC/provider/role stack or GitHub workflow activation yet. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1968,4 +1968,27 @@ No PassRole is indicated by this synthesized graph. Deployment-principal
 CloudFormation change-set/lifecycle and CDK bootstrap asset permissions remain
 separate future review items; no such operation was run. T15E/T16 are not
 started.
+```
+
+### Phase 4 T15D Sol acceptance and T15E deployment plan
+
+```text
+Start: e721105; result: T15D accepted locally and T15E exact execution plan
+committed. Sol independently verified a clean migration branch, the two-stack
+synth manifest, the retained provider/role graph, the exact branch-only OIDC
+trust, and the two-action runtime policy. Read-only AWS checks with
+AWS_PROFILE=codex-prod and ap-northeast-1 returned account 470447451992,
+policy v5/default with v1-v5 retained, no OIDC providers, no exact GitHub role,
+and no ItsRunPreviewGitHubDeploy stack. AWS v5 exactly matched the committed
+policy at canonical SHA-256
+ca4a20e3e3a7c06c1f1196559886a9679dee98b9a25c7334dd8faf69b19e061e.
+AWS v1 exactly matched commit dc22db1 at canonical SHA-256
+598747d3e2158c4c52cfd9b50cb4c4883f8ac9f6c07013b54ed12ed24be1591a.
+
+D021 and phase4-t15-deploy-plan.md define the two exact-resource IAM statement
+candidate, immutable preflight, the IAM five-version gate, deletion of only
+archived nondefault v1, v6 exact readback, one OIDC-stack deployment, one
+GitHub workflow dispatch, external verification, and stop conditions. The
+read-only review made no AWS or GitHub write and did not change IAM, stacks,
+objects, invalidations, Cognito, production, DNS, or Firebase.
 ```

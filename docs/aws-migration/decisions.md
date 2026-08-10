@@ -669,6 +669,70 @@ Remove GitHub mode and the dedicated role/provider if Actions deployment is
 retired. Operator mode remains preview-only and does not authorize production
 deployment.
 
+## D021: Extend the existing preview CloudFormation execution policy for GitHub OIDC
+
+Status: accepted
+
+Problem:
+
+`ItsRunPreviewGitHubDeploy` is deliberately managed by CloudFormation, so its
+execution role needs narrowly scoped IAM lifecycle permissions for one OIDC
+provider and one role. The existing preview execution policy already has five
+saved versions (`v1` through `v5`), which is the IAM limit. Creating a second
+manually attached policy would introduce bootstrap-role attachment drift, while
+creating `v6` without first removing a nondefault version is impossible.
+
+Decision:
+
+Extend the existing `ItsRunPreviewCloudFormationExecutionPolicy` with exactly
+two independent statements. One statement covers the explicit lifecycle,
+read, and tag actions required by `AWS::IAM::OIDCProvider` on only
+`arn:aws:iam::470447451992:oidc-provider/token.actions.githubusercontent.com`.
+The other covers the explicit role and inline-policy lifecycle, read, and tag
+actions required by `AWS::IAM::Role` on only
+`arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy`.
+
+Do not add `iam:PassRole`, `iam:ListOpenIDConnectProviders`, managed-policy
+attachment actions, wildcard actions or resources, another provider/role, or
+any non-IAM service action. Before creating `v6`, require all of the following:
+
+- AWS/default `v5` exactly matches the committed pre-change policy;
+- AWS `v1` exactly matches commit `dc22db1` and its canonical SHA-256 is
+  `598747d3e2158c4c52cfd9b50cb4c4883f8ac9f6c07013b54ed12ed24be1591a`;
+- `v1` is nondefault and `v5` is default;
+- the provider, role, and stack do not already exist;
+- the candidate differs from `v5` only by the two reviewed statements.
+
+Delete only nondefault `v1`, then immediately create `v6` with
+`--set-as-default`. Preserve `v2` through `v5` and verify AWS `v6` exactly
+matches the committed candidate before any stack deployment. The deleted `v1`
+document remains recoverable from commit `dc22db1`; record the deletion and
+hash in the implementation log. A failed create after the deletion is a stop
+condition, not authority to remove another version or broaden permissions.
+
+Alternatives:
+
+- Attach a second managed policy directly to the bootstrap execution role:
+  rejected because it creates separately managed attachment state outside the
+  existing bootstrap policy contract.
+- Create the OIDC provider or role manually: rejected because it creates
+  console/CLI drift from the reviewed CloudFormation stack.
+- Use account-wide IAM resources or `iam:*`: rejected because the two physical
+  resource names are known before deployment.
+
+Cost and maintenance effect:
+
+There is no runtime cost. The execution policy gains two exact-resource IAM
+statements; four rollback versions remain available and `v1` remains archived
+in Git history.
+
+Rollback/removal:
+
+Set a retained prior version (`v5`) as default before rolling back the stack.
+Because both resources use retain policies, remove them only through a future
+separately reviewed retirement plan; do not infer deletion authority from a
+workflow rollback.
+
 ## Decision template
 
 Copy for new decisions:

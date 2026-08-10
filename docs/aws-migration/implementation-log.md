@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | A01 complete; A02 stopped at failed deployment helper | `f590744` | Selected action corrected; validation passed; second Preview run reached jobs but helper failed before raw preview E2E | No A03 cleanup or A04 protection was performed after the terminal failed-deployment stop. |
+| T15 | PutObject CLI recovery planned after client-side deployment failure | `10cf0c3` + D025/B01-B04 plan | OIDC/GetCallerIdentity/DescribeStacks succeeded; invalid fileb body failed before any S3 write | Temporary trigger remains remote; one exact helper fix and final deployment run are planned. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2409,4 +2409,25 @@ Because this second deployment attempt failed, A03 cleanup and A04 master
 protection are not authorized by the recovery stop condition. No retry,
 dispatch, cleanup push, merge, or protection write occurred. This record
 contains no credentials, tokens, raw command output, or object bodies.
+```
+
+### Phase 4 T15 A02 Sol diagnosis and D025 recovery plan
+
+```text
+Start: 10cf0c3; result: failed helper run accepted and exact CLI correction
+planned. Sol independently read run 31349359200 logs: validation and OIDC
+succeeded, while the helper exited 2 without emitting unsafe diagnostics.
+CloudTrail for its exact role session contains only GetCallerIdentity and
+DescribeStacks after the OIDC action. No web object has a LastModified at or
+after the helper step; data and invalidation inventories and HostingStack are
+unchanged. IAM simulation allows PutObject for the exact web object resource,
+and the bucket policy contains only TLS deny plus CloudFront read access.
+
+Fresh local build preflight succeeds with 58 objects. A non-writing AWS CLI
+`--generate-cli-skeleton output` check reproduces the client failure for
+`--body fileb:///absolute/path` with ParamValidation and accepts the identical
+plain absolute path. D025/B01-B04 therefore changes only the streaming-body
+argument contract, preserves all security boundaries, and authorizes one final
+separately identified workflow-file push after local verification. This Sol
+diagnosis made no AWS or GitHub write.
 ```

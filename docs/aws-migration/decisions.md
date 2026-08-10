@@ -905,6 +905,59 @@ Rollback/removal:
 Remove the exact AWS action pattern if GitHub preview deployment is retired.
 The D023 cleanup still removes the temporary push trigger after success.
 
+## D025: Use the AWS CLI streaming-blob path contract for PutObject
+
+Status: accepted
+
+Problem:
+
+After the D024 repository policy correction, the deployment workflow created
+jobs, passed validation/build/OIDC, and failed in the helper immediately after
+successful `GetCallerIdentity` and `DescribeStacks`. CloudTrail contains no
+write event and S3 contains no object updated during the run. A local
+non-sending AWS CLI skeleton validation reproduces the failure:
+`s3api put-object --body fileb:///absolute/path` returns `ParamValidation`
+because the streaming `Body` option requires a filesystem path. Passing the
+same absolute path without a URI prefix validates successfully.
+
+Decision:
+
+Change only `putObjectArgs` so `--body` is followed by the already preflighted
+absolute `object.path`, not `fileb://${object.path}`. Preserve the exact
+executable, argument-array execution, child environment, bucket/key/content
+type/cache metadata, object ordering, size/path/symlink checks, reports, OIDC
+checks, and every other helper/workflow contract. Never invoke a shell or log
+the local path.
+
+Add deterministic tests proving the body value is the exact absolute path,
+contains no `file:`, and remains a separate argument. Run AWS CLI
+`--generate-cli-skeleton output` locally for one generated object as a
+non-writing integration check. No new dependency or IAM permission is needed.
+
+Authorize one final new workflow-file push and deployment run because both
+prior failed runs made zero S3 writes: the first had zero jobs, and the second
+failed client-side before PutObject. Do not rerun either run or use dispatch.
+After success, remove the temporary trigger and complete T15 protection and
+verification. Any further deployment failure is terminal.
+
+Alternatives:
+
+- Use `aws s3 cp`: rejected because it weakens the exact per-object metadata
+  and command allow-list contract.
+- Pass file contents on stdin: rejected because it complicates bounded child
+  input and testing.
+- Add S3/IAM permissions: rejected because policy simulation already allows
+  the exact PutObject resource and the request never reached S3.
+
+Cost and maintenance effect:
+
+One argument changes; no AWS resource, dependency, or permission changes.
+
+Rollback/removal:
+
+Revert the argument only if a future AWS CLI contract changes and a reviewed
+non-writing validation demonstrates the replacement.
+
 ## Decision template
 
 Copy for new decisions:

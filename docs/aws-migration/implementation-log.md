@@ -48,8 +48,8 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | B01-B04 implementation and deployment accepted; final-doc validation stopped | `a812b41`, `144b025`, `5f67e08`, `023229f` | B02 validation/deploy + raw preview 88 passed; B03 cleanup validation passed; B04 protection read back exact; final docs validation run 31351135135 stopped on Chromium SIGSEGV | No retry was made. The final documentation SHA is pushed, but its required validation was interrupted by a hosted Chromium crash after 13/14 legacy cases; no deployment run was created. Sol review is required before any further action. |
-| T16 | blocked by T11-T15 | | | |
+| T15 | complete; accepted after Sol final review | `a812b41`, `144b025`, `5f67e08`, `023229f` + Sol acceptance below | Web helper 58/58/58; raw preview 88; trigger cleanup; master protection; local T15F; final-doc validation attempt 2 passed | Workflow is dispatch-only, selected action is exact-SHA pinned, data/invalidation/Hosting remain unchanged. |
+| T16 | ready; depends on accepted T15 | | | |
 | T17 | blocked by T16 | | | |
 
 ## Sol remediation log
@@ -2541,4 +2541,37 @@ created for that SHA. No retry or second push was made. The stop is recorded
 without copying the runner stack or raw logs; Sol review is required before
 any further action. The branch is clean at the local evidence follow-up; stop
 before T16.
+```
+
+### Phase 4 T15 Sol final acceptance
+
+```text
+Start: 7cd6f0c; result: T15 accepted. Sol independently reviewed the B01-B04
+diff and confirmed the only helper source change is the AWS CLI streaming Body
+argument from fileb URI to the already preflighted absolute path. The permanent
+deploy workflow is workflow_dispatch-only; all actions remain full-SHA pinned,
+the deploy job retains contents:read plus id-token:write only, and the selected
+non-GitHub repository action is the exact configure-aws-credentials SHA.
+
+GitHub run 31350133879 succeeded with ordered validation/deploy, exact OIDC,
+sanitized 58/58/58 helper result, and raw preview E2E 88. Cleanup validation
+31350706753 succeeded and no deploy run exists for the cleanup SHA. Master
+protection reads back strict `Node 24 validation`, one approval, stale-review
+dismissal, administrators enforced, conversation resolution, null actor
+restrictions, and force/deletion disabled. Default branch remains master and
+no PR or merge occurred.
+
+The first attempt of final-doc validation 31351135135 failed only because the
+hosted Chromium process received SIGSEGV after 13/14 legacy routes. The same
+exact SHA was rerun once without a code, settings, AWS, or workflow change;
+attempt 2/job 93342532989 passed every step, including all production-browser
+checks. No deploy workflow was created by either attempt because the temporary
+trigger had already been removed.
+
+The local T15F suite and prior external acceptance evidence remain accepted:
+data-version and invalidation inventory hashes are unchanged, HostingStack is
+unchanged, direct S3 is denied, and CloudFront web object hashes/types/cache
+metadata match the generated build. No additional deployment, invalidation,
+data/schedule, IAM, Cognito, production, DNS, or Firebase mutation occurred in
+the Sol review. T16 may start from the next clean committed handoff.
 ```

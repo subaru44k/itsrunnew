@@ -3553,3 +3553,17 @@ D043 and `phase4-t16-hosted-ui-redirect-plan.md` authorize the exact bounded
 Hosted UI URL gate, local tests, and after Sol acceptance one auth-only HU02
 execution. No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17 action is
 authorized.
+
+### Phase 4 T16 HU01 Hosted UI redirect gate correction
+
+Starting from Sol handoff `40fc07f`, HU01 factored the exported bounded
+`awaitHostedUiLogin` boundary. It clicks the exact localized administrator
+login control from CloudFront `/manage`, then waits without a fixed sleep for
+the exact Cognito host and `/login` path before the form driver can run.
+Recorder/API listener setup, PKCE application entry, cleanup, and sanitization
+remain unchanged. Delayed, wrong-path, and timeout fakes prove that form access
+cannot occur before the URL gate and failures remain sanitized.
+
+Focused auth/Chromium tests passed 33/33; root `npm run check` and
+`git diff --check` passed. No AWS or live Hosted UI execution occurred.
+HU02 remains blocked pending Sol source review.

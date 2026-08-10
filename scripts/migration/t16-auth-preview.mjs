@@ -86,6 +86,14 @@ function makeFs(fsPort = {}) {
   return { chmod: fsPort.chmod ?? chmod, mkdtemp: fsPort.mkdtemp ?? (prefix => mkdtemp(prefix)), mkdir: fsPort.mkdir ?? mkdir, stat: fsPort.stat ?? stat, writeFile: fsPort.writeFile ?? writeFile, unlink: fsPort.unlink ?? unlink, rm: fsPort.rm ?? rm }
 }
 
+export async function awaitHostedUiLogin(page, { hostedUiHost = AUTH_CONSTANTS.hostedUiDomain, timeoutMs = 30000 } = {}) {
+  if (!page || typeof page.getByRole !== 'function' || typeof page.waitForURL !== 'function' || !Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new Error('invalid hosted UI page')
+  const login = page.getByRole('button', { name: /Sign in as administrator|管理者としてログイン/ })
+  if (!login || typeof login.click !== 'function') throw new Error('login control unavailable')
+  const exactHostedLogin = value => { try { const url = new URL(typeof value === 'string' ? value : value?.toString?.()); return url.protocol === 'https:' && url.hostname === hostedUiHost && url.pathname === '/login' } catch { return false } }
+  try { await Promise.all([page.waitForURL(exactHostedLogin, { timeout: timeoutMs }), login.click()]); return { checkpoint: 'hosted-ui-login' } } catch { throw new Error('hosted-ui-redirect-timeout') }
+}
+
 async function runRealBrowserRole(role, username, password) {
   const { chromium } = await import('playwright')
   const outcomes = {}
@@ -97,7 +105,7 @@ async function runRealBrowserRole(role, username, password) {
       const onResponse = response => { try { const url = new URL(response.url()); if (url.pathname === AUTH_CONSTANTS.apiPath && response.request().method() === 'GET' && url.origin === new URL(AUTH_CONSTANTS.cloudFrontBase).origin) apiStatus = response.status() } catch {} }
       page.on('response', onResponse)
       await page.goto(`${AUTH_CONSTANTS.cloudFrontBase}/manage`, { waitUntil: 'domcontentloaded' })
-      await page.getByRole('button', { name: /Sign in as administrator|管理者としてログイン/ }).click()
+      awaitHostedUiLogin(page)
       const submitted = await driveHostedUiSignIn(page, { username, password, waitForNavigationSignal: () => page.waitForURL(url => new URL(url).pathname === '/manage/callback', { timeout: 30000 }) })
       outcomes[viewport.width > 600 ? 'desktop' : 'mobile'] = submitted.checkpoint
       if (submitted.checkpoint !== 'form-submitted') throw new Error('form proof failed')

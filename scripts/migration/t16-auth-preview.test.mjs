@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import * as fsp from 'node:fs/promises'
-import { createConcreteAuthAdapters, main, runAuthCoordinator, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
+import { awaitHostedUiLogin, createConcreteAuthAdapters, main, runAuthCoordinator, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
 function fakeRun({ fail = null, getShape = 'top-level' } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
@@ -93,4 +93,17 @@ test('direct wrapper emits sanitized result and sets exit status from typed outc
   assert.equal(success.status, 'success'); assert.deepEqual(exits, [0]); assert.equal(errors.length, 0); assert.equal(JSON.parse(output[0]).status, 'success')
   const failed = await runDirect({ argv: ['--execute-preview-auth'], dependencies: { adapters: { preflight: async () => ({ target: 'auth', users: 0, admins: 0, region: AUTH_CONSTANTS.region }), setup: async () => { throw new Error('canary') }, cleanup: async () => ({ users: 0, admins: 0 }) } }, stdout: value => output.push(value), stderr: value => errors.push(value), setExitCode: value => exits.push(value) })
   assert.equal(failed.status, 'failed'); assert.equal(exits.at(-1), 1); assert.equal(JSON.stringify(failed).includes('canary'), false)
+})
+
+test('Hosted UI redirect gate delays form access and enforces exact host/path', async () => {
+  let current = 'https://d2via50thoheqm.cloudfront.net/manage'; let formAccess = false
+  const page = {
+    getByRole() { return { click: async () => { await new Promise(resolve => setTimeout(resolve, 10)); current = `https://${AUTH_CONSTANTS.hostedUiDomain}/login?client_id=opaque` } } },
+    waitForURL(predicate, { timeout }) { return new Promise((resolve, reject) => { const started = Date.now(); const poll = () => { if (predicate(current)) return resolve(); if (Date.now() - started >= timeout) return reject(new Error('timeout')); setTimeout(poll, 1) }; poll() }) },
+    locator() { formAccess = true; throw new Error('form accessed before redirect gate') },
+  }
+  assert.deepEqual(await awaitHostedUiLogin(page, { timeoutMs: 1000 }), { checkpoint: 'hosted-ui-login' }); assert.equal(formAccess, false)
+  await assert.rejects(() => awaitHostedUiLogin({ getByRole: () => ({ click: async () => {} }), waitForURL: (predicate) => new Promise((resolve, reject) => { setTimeout(() => reject(new Error('timeout')), 5) }) }, { timeoutMs: 20 }), /hosted-ui-redirect-timeout/)
+  const wrong = { getByRole: () => ({ click: async () => {} }), waitForURL: (predicate) => { assert.equal(predicate(`https://${AUTH_CONSTANTS.hostedUiDomain}/authorize`), false); return Promise.reject(new Error('wrong path')) } }
+  await assert.rejects(() => awaitHostedUiLogin(wrong, { timeoutMs: 20 }), /hosted-ui-redirect-timeout/)
 })

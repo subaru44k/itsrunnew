@@ -3077,6 +3077,23 @@ successful empty-stdout AWS CLI command; the runner incorrectly JSON-parsed it.
 D036 and `phase4-t16-void-output-recovery-plan.md` require explicit JSON/void
 typing, realistic empty-output fake tests, and one corrected bounded execution.
 
+### Phase 4 T16 ephemeral credential exposure and recovery authorization
+
+During VO02, the primary agent's local process-list inspection displayed the
+ephemeral Cognito setup arguments. The runner was terminated immediately before
+browser/data access. Fresh STS-gated cleanup removed one group membership and
+two users; readback proved pool/group zero. The reserved object still has the
+original 501 bytes, ETag, VersionId, metadata, and SHA. The runner and its exact
+mode-0700 directory were removed. No token/code/long-lived AWS credential,
+schedule write, restore, invalidation, or production resource was involved;
+the exposed password is unusable because both users were deleted.
+
+D037 and `phase4-t16-sensitive-argv-recovery-plan.md` prohibit secrets in child
+arguments/environment and require mode-0600 operation JSON via
+`--cli-input-json`, canary tests, immediate unlink, and one corrected bounded
+execution. Future monitoring must use only sanitized result/AWS counts, never
+process command lines.
+
 ### Phase 4 T16 SS01
 
 SS01 completed locally from Sol handoff `4a76298` on Node 24.18.1. The focused

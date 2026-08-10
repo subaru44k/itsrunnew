@@ -1489,6 +1489,58 @@ Rollback/removal:
 
 Keep explicit JSON/void operation typing for all future operational runners.
 
+## D037: Keep Cognito credentials out of child-process argument lists
+
+Status: accepted
+
+Problem:
+
+During the authorized VO02 run, a primary read-only process inspection printed
+the child AWS CLI argument list, which contained the ephemeral email/password
+used for Cognito setup. The runner was immediately terminated before browser or
+data access; the exact two users and one group membership were deleted; the
+pool/group and object returned to baseline; process memory, temporary directory,
+and runner were removed. No token, authorization code, long-lived AWS
+credential, schedule write, or restore was involved. The incident also exposed
+a design flaw: sensitive AWS CLI values should not be command-line arguments
+because any local process listing can observe them.
+
+Decision:
+
+For Cognito operations containing alias, temporary/permanent password, or
+internal Username, write one operation-specific JSON document in the runner's
+mode-0700 directory with mode 0600 and invoke AWS CLI with only
+`--cli-input-json file://<validated-temporary-path>`. Delete each input file
+immediately after the child exits. No sensitive value may occur in executable
+arguments, environment, output, error, shell history, report, or process title.
+Browser credentials remain only in the owning Node process memory.
+
+Add an AWS-free test that scans every constructed child executable/argument/
+environment value and proves neither aliases nor passwords nor internal IDs are
+present, while the protected JSON payload is written only through the injected
+mode-0600 file adapter. Do not inspect process command lines during the next
+run; monitor only sanitized runner status and independent AWS counts.
+
+Alternatives:
+
+- Continue passing quoted arguments: rejected because quoting does not hide
+  process arguments.
+- Put secrets in environment variables: rejected because process environments
+  are another inspection surface.
+- Add the Cognito SDK: rejected because secure CLI input files solve the problem
+  without a dependency.
+- Reuse exposed credentials: rejected; their users were deleted.
+
+Cost and maintenance effect:
+
+No AWS/runtime/dependency change. Short-lived protected input files replace
+sensitive argv and are deleted after each operation.
+
+Rollback/removal:
+
+Never revert to sensitive argv. A future SDK migration must preserve the same
+no-log/no-env/no-process-title boundary.
+
 ## Decision template
 
 Copy for new decisions:

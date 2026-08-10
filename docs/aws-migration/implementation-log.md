@@ -2820,3 +2820,14 @@ Accepted inventory hashes remain
 policy/IAM/version, upload, schedule/data, invalidation, Cognito, GitHub,
 production, DNS, Firebase, or non-preview operation occurred.
 ```
+
+### Phase 4 T16C-D Sol authorization
+
+Sol accepts the corrected T16B alarm at `f8be50d` subject to final readback.
+D028 authorizes exactly two ephemeral `.invalid` local Cognito identities for
+real preview Hosted UI/JWT testing; both must be deleted after the rehearsal and
+do not satisfy the later production-operator requirement. D029 reserves only
+the Oda 2026-08 object and one tuple for a conditional API update, one rejected
+stale write, and one exact conditional byte restore with all versions retained.
+`phase4-t16-auth-rollback-plan.md` defines the dependency order, secret-handling
+boundary, AWS actions, cleanup, tests, and restoration-first stop behavior.

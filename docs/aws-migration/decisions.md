@@ -1070,6 +1070,110 @@ Rollback/removal:
 Remove the root dev dependency and regenerate the lockfile only together with
 a reviewed Nuxt/CLI update that satisfies a clean `npm ls --all`.
 
+## D028: Use ephemeral reserved-domain identities for preview authorization proof
+
+Status: accepted
+
+Problem:
+
+T16 must prove the deployed local Cognito admin and non-admin flows, but no
+production operator identity is yet approved. Inferring a real email from Git
+metadata or sending invitations would be inappropriate. Skipping real Hosted
+UI/JWT verification would leave the central authorization boundary untested.
+
+Decision:
+
+For T16 preview verification only, create exactly two ephemeral Cognito local
+users whose email-shaped usernames use the reserved `.invalid` domain and
+identify only the roles `preview-t16-admin` and `preview-t16-nonadmin`. Suppress
+all Cognito messages, mark the synthetic email attributes verified, generate
+strong random passwords only in an operator process or mode-0600 temporary
+storage outside the repository, and never print or persist credentials/tokens.
+
+The `admins` group must be empty before creation. Add only the synthetic admin,
+prove the non-admin is excluded, execute real Authorization Code + PKCE Hosted
+UI flows, and inspect browser storage/logging boundaries. After the T16D exact
+data restore and evidence collection, remove the admin from the group and
+delete both users. Prove the group and pool return to zero users. These users do
+not authorize production cutover; a named human operator remains a Phase 5
+entry requirement.
+
+Alternatives:
+
+- Infer the repository author's email: rejected because commit authorship is
+  not administrator authorization.
+- Ask for or log passwords: rejected because credentials stay outside chat and
+  Git.
+- Use mocked tokens or the test-only browser adapter: rejected because T16 must
+  prove the deployed Cognito/Lambda boundary.
+- Retain synthetic accounts: rejected because they have no operational owner.
+
+Cost and maintenance effect:
+
+The two preview users exist only during a bounded rehearsal and produce
+ordinary Cognito/API/CloudWatch usage. No identity provider, pool, client, IAM,
+or application change is required.
+
+Rollback/removal:
+
+On failure before schedule mutation, remove membership and delete both users.
+On failure after mutation, exact schedule restoration takes priority; delete
+the users only after restoration evidence is secure.
+
+## D029: Rehearse one conditional Oda update and restore exact versioned bytes
+
+Status: accepted
+
+Problem:
+
+The admin editor, Lambda conditional write, public 60-second freshness, conflict
+handling, and rollback path require a real preview data rehearsal. The API
+sets `updatedAt`, so using it to restore the old logical document cannot restore
+the exact original bytes.
+
+Decision:
+
+Reserve only
+`data/v1/stadiums/oda/availability/2026-08.json`. Immediately before mutation,
+capture its current ETag, VersionId, metadata, length, SHA-256, and exact bytes
+outside Git; validate the document and require the known pre-rehearsal tuple
+`2026-08-09[0] = 0`. In the admin UI change only that tuple to `1` and save once
+with the loaded strong ETag. Use a second authenticated admin browser loaded
+before the first save to issue one stale conditional save and prove 409 with no
+additional S3 version.
+
+After public/API/log verification, restore the captured exact bytes with one
+direct operator `s3:PutObject` to that exact key, preserving content type and
+cache control and requiring `If-Match` against the test version's ETag. Do not
+delete/copy/delete-marker any version and do not use an unconditional write.
+Verify the restored current SHA-256 equals the original, record the three
+VersionIds/ETags, validate parser output, and observe CloudFront returning the
+restored tuple within the 60-second contract. The temporary bytes are removed
+only after exact restoration is proven.
+
+Alternatives:
+
+- Restore through the API: rejected because server-controlled `updatedAt`
+  changes the exact bytes.
+- Delete the test version: rejected because rollback evidence and version
+  history must remain intact.
+- Unconditional operator overwrite: rejected because it could erase concurrent
+  work.
+- Exercise a different or production object: rejected; this is the already
+  reviewed preview Oda fixture-derived object.
+
+Cost and maintenance effect:
+
+Exactly two successful new S3 object versions are expected: the test API write
+and the conditional exact restore. The rejected stale write creates no version.
+No invalidation is used; verification observes the 60-second cache contract.
+
+Rollback/removal:
+
+The restored version remains current and prior versions remain retained. If the
+conditional restore precondition fails, stop all other work, retain the exact
+bytes/version reference, and return to Sol without attempting another write.
+
 ## Decision template
 
 Copy for new decisions:

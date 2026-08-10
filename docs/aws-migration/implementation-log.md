@@ -3862,3 +3862,17 @@ Because no AWS write occurred and the failure was an isolated runner/browser
 crash against the unchanged external legacy site, Sol authorizes one replacement
 dispatch of the same reviewed source. All CO02 write boundaries remain exact;
 another validation failure must stop without deployment or further retry.
+
+### Phase 4 T16 CO02 preview deployment acceptance
+
+Replacement exact-SHA workflow run `31439952408` at `f20417c` completed
+successfully. Repository checks, production-browser checks, the web-only
+deployment, and raw preview checks all passed. Post-run read-only verification
+confirmed the protected object remained 501 bytes with ETag
+`"b2591d35e23ac1b9f2a133f71198b953"` and VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`; invalidation count remained 3.
+
+No data, CloudFormation, IAM, Cognito administration, invalidation, Firebase,
+DNS, or production operation occurred. CO02 is accepted. CO03 may execute the
+committed auth-only executable once under its exact setup, cleanup, zero-write,
+and protected-object gates.

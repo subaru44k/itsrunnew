@@ -2831,3 +2831,25 @@ the Oda 2026-08 object and one tuple for a conditional API update, one rejected
 stale write, and one exact conditional byte restore with all versions retained.
 `phase4-t16-auth-rollback-plan.md` defines the dependency order, secret-handling
 boundary, AWS actions, cleanup, tests, and restoration-first stop behavior.
+
+### Phase 4 T16C01/C02 real-auth rehearsal preparation
+
+```text
+Start: 9fcacf4; C01/C02 local and read-only gates complete. Added the small
+AWS-free `t16-auth-harness` boundary test: exact reserved target, .invalid
+role identities, credential-presence-only handling, approved sanitized outcome
+fields, same-origin browser URL, and forbidden storage/console/network leakage.
+No test adapter, fetch replacement, token persistence, or credential material
+was added.
+
+Read-only C02 under codex-prod/account 470447451992/ap-northeast-1 found
+Hosting UPDATE_COMPLETE, alarm healthy, policy v7 default/v3-v7 retained and
+candidate SHA dd4a19a0ada79b4332ebb53245bc830a3d1d675322ea42f9a6011e1e70efaa97.
+The pool `ap-northeast-1_nmj9cP9st` has zero users, one empty admins group,
+one code/COGNITO-only public client, exact `itsrun/schedule.write` resource
+server, and zero external identity providers. Operator simulation allowed only
+the planned Cognito actions and exact reserved S3 PutObject key. The reserved
+object remains 501 bytes, SHA ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb,
+tuple 2026-08-09[0]=0, ETag/VersionId captured in protected operator temp
+storage outside the repository. No mutation occurred.
+```

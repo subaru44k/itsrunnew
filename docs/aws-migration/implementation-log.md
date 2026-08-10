@@ -3387,3 +3387,22 @@ handling.
 Focused AWS-free harness plus real Chromium tests passed `22/22`. Root
 `npm run check` is pending the PA01 commit gate. No AWS, Cognito, credential,
 schedule-data, or browser-hosted operation occurred.
+
+### Phase 4 T16 CF01
+
+CF01 is implemented locally in `t16-auth-preview.mjs`. The committed
+auth-only executable accepts only `--execute-preview-auth`, generates reserved
+`.invalid` identities and passwords in-process, uses mode-0700 temporary
+storage and mode-0600 protected Cognito JSON, invokes only the fixed AWS CLI
+profile/account/region and Cognito operation boundary, validates and retains
+the returned internal `Username`, and includes concrete Playwright callback,
+signed-in/logout, and admin/non-admin API GET proofs. It has no S3/data write
+path and emits only the typed sanitized coordinator result.
+
+The direct fake CLI/browser execution and argv-canary tests passed, including
+internal-ID mapping, cleanup, exact role proofs, and no raw result exposure.
+The existing real Chromium responsive form fixture remains in the focused
+suite. Focused T16 tests passed 28/28; root `npm run check` passed (including
+lint, typecheck, unit, infra, and build/synth); `git diff --check` passed. No
+AWS, Cognito, browser-hosted, data, S3, Firestore, deployment, or production
+operation occurred. CF02 is not authorized pending Sol source review.

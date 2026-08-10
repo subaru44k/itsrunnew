@@ -4157,3 +4157,15 @@ URL and proves the generic `signinCallback` method is never called. Focused web
 unit tests passed 48 tests, admin-local Playwright passed 46 tests across the
 desktop/mobile localized projects, `npm run check` passed, and
 `git diff --check` passed. No token persistence or dependency was added.
+
+### Phase 4 T16 RDC01 Sol acceptance and RDC02 authorization
+
+Sol reviewed `d1c15d3`. The production port invokes the exact redirect callback
+API and the test proves the generic dispatcher is never called. All D012 OAuth,
+PKCE, storage, session, and sanitization boundaries remain unchanged. RDC01 is
+accepted.
+
+RDC02 may push the exact reviewed revision and dispatch the existing web-only
+workflow once. Data, CloudFormation, IAM, Cognito administration, and
+invalidation are forbidden. Require all jobs and raw preview checks plus
+unchanged protected data/invalidation before RDC03.

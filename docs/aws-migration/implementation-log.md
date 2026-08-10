@@ -2583,6 +2583,16 @@ T16B alarm implementation, policy v7 work, AWS read/write, or Hosting deploy
 was attempted. Sol review is required before continuation.
 ```
 
+### Phase 4 T16A dependency-recovery authorization
+
+Sol diagnosed the stopped tree as an optional peer collision between Nuxt
+CLI's `@bomb.sh/tab@0.0.19` and SVGO's unrelated root
+`commander@11.1.0`. D027 authorizes exact-pinned root development dependency
+`commander@15.0.0` only; no runtime package, override, application import, AWS
+write, or weakened dependency gate is authorized. DR01-DR03 in
+`phase4-t16-dependency-recovery-plan.md` may run in order, including a complete
+T16A rerun before the original T16B AWS-write gates reopen.
+
 ### Phase 4 T15 Sol final acceptance
 
 ```text

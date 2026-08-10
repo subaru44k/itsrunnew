@@ -1025,6 +1025,51 @@ CloudFormation may delete the exact alarm using v7. V6 remains retained for a
 bounded rollback, but re-creating the OIDC provider or GitHub role requires a
 new Sol review rather than silently restoring their creation authority.
 
+## D027: Satisfy Nuxt CLI's optional Commander peer at the workspace root
+
+Status: accepted
+
+Problem:
+
+T16A's required `npm ls --all` gate reports `ELSPROBLEMS`. Nuxt 4.4.8 brings
+`@nuxt/cli@3.37.0` and `@bomb.sh/tab@0.0.19`. Tab declares optional peer
+`commander` as `^13.1.0 || ^14.0.0 || ^15.0.0`, but npm resolves the unrelated
+SVGO root copy `commander@11.1.0` to that peer. Builds and tests pass, but the
+installed tree is not semantically valid. Updating Nuxt would be a broad,
+unrelated release change and a global override would break SVGO's `^11.1.0`
+contract.
+
+Decision:
+
+Add exact-pinned `commander@15.0.0` as a root development-only dependency. It
+supports the project's Node 24 baseline and satisfies Tab's optional CLI peer;
+npm must keep `commander@11.1.0` nested for SVGO and `2.20.3` nested for Terser.
+No application source may import Commander and it must not enter the public web
+or Lambda runtime bundles. Update only the root manifest and lockfile, then run
+a clean install, exact dependency-tree assertions, and the complete T16A suite
+again at the new immutable commit.
+
+Alternatives:
+
+- Ignore `npm ls` or use `--legacy-peer-deps`: rejected because it weakens the
+  release dependency gate.
+- Globally override Commander: rejected because SVGO requires major 11.
+- Upgrade Nuxt and its CLI transitively: rejected as a much broader migration
+  during release verification.
+- Patch `node_modules` or the lockfile manually: rejected as non-reproducible.
+
+Cost and maintenance effect:
+
+This adds one build-time package already expected by an installed CLI peer and
+does not change deployed runtime dependencies. Remove it when the Nuxt CLI tree
+no longer exposes the optional peer collision, after `npm ls --all` proves the
+tree remains valid.
+
+Rollback/removal:
+
+Remove the root dev dependency and regenerate the lockfile only together with
+a reviewed Nuxt/CLI update that satisfies a clean `npm ls --all`.
+
 ## Decision template
 
 Copy for new decisions:

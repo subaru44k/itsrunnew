@@ -3595,6 +3595,16 @@ Focused auth/Chromium tests passed 35/35; root `npm run check` and
 `git diff --check` passed. No AWS or live Hosted UI execution occurred.
 BS02 remains blocked pending Sol source review.
 
+### Phase 4 T16 BS01 Sol acceptance and BS02 authorization
+
+Sol reviewed `e9bc20c`. Browser failures now retain only the exact allowlisted
+category and desktop/mobile viewport, while raw errors and browser material are
+discarded. Working login behavior is unchanged. BS01 is accepted.
+
+BS02 may execute the auth-only program exactly once after the same gates. A
+success must prove all four roles; a failure must return the typed substage and
+clean to zero. No retry or data/S3/Firestore/IAM/deploy/invalidation/CF03/T17.
+
 ### Phase 4 T16 HU02 execution stop
 
 Starting from Sol approval `bcdc2b7`, Node `v24.18.1`, focused auth/Chromium

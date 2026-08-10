@@ -2899,3 +2899,33 @@ not allow; this explains the pre-token failure. D030 and
 `phase4-t16-auth-csp-recovery-plan.md` authorize only that exact issuer origin,
 the two existing response-header-policy updates, and then a fresh C03/D01/D02
 rehearsal from the confirmed zero-user/group state.
+
+### Phase 4 T16 CSP02/CSP03 recovery result
+
+The CSP02 read-only gate matched policy v7 default with v3-v7 retained,
+Hosting `UPDATE_COMPLETE`, alarm healthy, the separate GitHub stack intact,
+zero pool users and `admins` members, and unchanged data/invalidation
+baselines. Fresh synth/validation and `cdk diff --no-change-set` showed only
+the D030 `connect-src` content update on `SecurityHeaders` and
+`ApiSecurityHeaders`.
+
+After a fresh STS check for account `470447451992` and region
+`ap-northeast-1`, exactly one Hosting deployment ran. Change set
+`1efe9296-cbca-4855-aba5-e6f0a78fe900` reached `UPDATE_COMPLETE`; only the
+two existing response-header policies updated. Readback showed both policies
+with self, the existing Hosted UI origin, and the exact regional Cognito
+issuer origin. Preview raw E2E passed 88/88; unauthenticated API GET/PATCH
+remained 401/405 with `no-store` and the documented Allow header; direct S3
+remained 403. No policy/IAM/version, object upload, schedule write, or
+invalidation occurred.
+
+CSP03 then created a new pair of suppressed `.invalid` identities and one
+temporary `admins` membership. Real desktop/mobile Hosted UI attempts reached
+OIDC discovery/authorize but all credential submissions returned to the
+Hosted UI login page; no callback, API request, token, or persistent auth
+storage was observed. This is a second deployed authentication stop, so D01
+and D02 were not attempted. Immediate cleanup removed the membership and both
+identities (3 cleanup writes), leaving pool users and group members at zero.
+CSP03 total writes were eight (two creates, two password settings, one group
+add, one group removal, and two deletes). Temporary credential material was
+removed outside the repository.

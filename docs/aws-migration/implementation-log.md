@@ -3494,3 +3494,17 @@ D042 and `phase4-t16-admin-get-response-plan.md` authorize the exact local
 response-shape correction and, after Sol source acceptance, one further
 auth-only execution. No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17
 operation is authorized.
+
+### Phase 4 T16 AG01 AdminGetUser response correction
+
+Starting from Sol handoff `4de0055`, AG01 changed only the concrete
+AdminGetUser validation to require an exact nonempty top-level `Username`
+matching the requested internal Username. The fake now models the AWS CLI
+shape and regression coverage includes valid, missing, nested-only, empty,
+and mismatched responses. Each invalid response retains a sanitized setup
+failure while attempting both identity deletions, both final readbacks, and
+temporary-directory removal.
+
+Focused auth/Chromium tests passed 32/32; root `npm run check` and
+`git diff --check` passed. No AWS or hosted-browser live operation occurred.
+AG02 remains blocked pending Sol source review.

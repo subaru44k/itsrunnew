@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
+import * as fsp from 'node:fs/promises'
 import { createConcreteAuthAdapters, main, runAuthCoordinator, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
-function fakeRun({ fail = null } = {}) {
+function fakeRun({ fail = null, getShape = 'top-level' } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
   const command = { calls, async execFile(_file, args, options) {
     calls.push(args); envs.push(options?.env)
@@ -15,7 +16,10 @@ function fakeRun({ fail = null } = {}) {
     const input = JSON.parse(await readFile(args[3].replace('file://', ''), 'utf8'))
     payloads.push({ op, input })
     if (op === 'admin-create-user') { users += 1; return { stdout: JSON.stringify({ User: { Username: input.Username.includes('-admin-') ? internal.admin : internal.nonAdmin } }), stderr: '' } }
-    if (op === 'admin-get-user') return { stdout: JSON.stringify({ User: { Username: input.Username } }), stderr: '' }
+    if (op === 'admin-get-user') {
+      const response = getShape === 'missing' ? {} : getShape === 'nested' ? { User: { Username: input.Username } } : getShape === 'empty' ? { Username: '' } : getShape === 'mismatched' ? { Username: 'wrong-internal-id' } : { Username: input.Username }
+      return { stdout: JSON.stringify(response), stderr: '' }
+    }
     if (op === 'admin-add-user-to-group') { admins = 1; return { stdout: '', stderr: '' } }
     if (op === 'admin-remove-user-from-group') { admins = 0; return { stdout: '', stderr: '' } }
     if (op === 'admin-delete-user') { users -= 1; return { stdout: '', stderr: '' } }
@@ -68,6 +72,19 @@ test('primary auth failure retains its checkpoint when cleanup also fails', asyn
   assert.equal(result.cleanupStatus, 'failed')
   assert.equal(result.cleanupFailure.category, 'operation-failed')
   assert.equal(JSON.stringify(result).includes('canary'), false)
+})
+
+test('AdminGetUser requires exact nonempty top-level Username and still cleans every response failure', async () => {
+  for (const shape of ['missing', 'nested', 'empty', 'mismatched']) {
+    const fake = fakeRun({ getShape: shape }); let tempRemoved = 0
+    const fs = { ...fsp, rm: async (...args) => { tempRemoved += 1; return fsp.rm(...args) } }
+    const result = await main(['--execute-preview-auth'], { command: fake.command, browser: fake.browser, fs, randomBytesImpl: n => Buffer.alloc(n, 6), clock: () => 4 })
+    assert.equal(result.status, 'failed'); assert.equal(result.failureCheckpoint, 'setup'); assert.equal(result.cleanupStatus, 'passed')
+    assert.equal(fake.calls.filter(args => args[1] === 'admin-delete-user').length, 2)
+    assert.equal(fake.calls.filter(args => args[1] === 'list-users').length, 2)
+    assert.equal(fake.calls.filter(args => args[1] === 'list-users-in-group').length, 2)
+    assert.equal(tempRemoved, 1); assert.equal(JSON.stringify(result).includes(shape), false)
+  }
 })
 
 test('direct wrapper emits sanitized result and sets exit status from typed outcome', async () => {

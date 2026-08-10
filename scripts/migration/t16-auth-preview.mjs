@@ -162,7 +162,7 @@ export function createConcreteAuthAdapters({ command, browser, fs: fsPort, rando
       await cognito('admin-set-user-password', { UserPoolId: AUTH_CONSTANTS.poolId, Username: adminUsername, Password: ids.adminPassword, Permanent: true });
       const nonAdmin = await cognito('admin-create-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: ids.nonAdminAlias, MessageAction: 'SUPPRESS' }, true); nonAdminUsername = nonAdmin?.User?.Username; if (typeof nonAdminUsername !== 'string' || !nonAdminUsername) throw new Error('invalid create response')
       await cognito('admin-set-user-password', { UserPoolId: AUTH_CONSTANTS.poolId, Username: nonAdminUsername, Password: ids.nonAdminPassword, Permanent: true }); await cognito('admin-add-user-to-group', { UserPoolId: AUTH_CONSTANTS.poolId, Username: adminUsername, GroupName: AUTH_CONSTANTS.group });
-      for (const username of [adminUsername, nonAdminUsername]) { const current = await cognito('admin-get-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: username }, true); if (current?.User?.Username !== username) throw new Error('invalid get response') }
+      for (const username of [adminUsername, nonAdminUsername]) { const current = await cognito('admin-get-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: username }, true); if (typeof current?.Username !== 'string' || current.Username.length === 0 || current.Username !== username) throw new Error('invalid get response') }
       return { users: 2, admins: 1 }
     },
     admin: browserFactory('admin', ids.adminAlias, ids.adminPassword, AUTH_CONSTANTS),

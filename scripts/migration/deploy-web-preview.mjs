@@ -9,6 +9,17 @@ export const WEB_DEPLOY_TARGET = Object.freeze({
 const ROLE = 'itsrun-preview-github-web-deploy'
 const MAX_BYTES = 10 * 1024 * 1024
 
+export function parseWebDeployArgs(argv) {
+  const values = {}; const allowed = new Set(['mode', 'profile', 'web-dir', 'report-dir'])
+  for (let index = 0; index < argv.length; index += 2) {
+    const name = argv[index]
+    if (!name?.startsWith('--') || !allowed.has(name.slice(2)) || !argv[index + 1] || argv[index + 1].startsWith('--')) throw fail('configuration')
+    values[name.slice(2)] = argv[index + 1]
+  }
+  if (!['operator', 'github'].includes(values.mode) || typeof values['web-dir'] !== 'string' || typeof values['report-dir'] !== 'string' || !isAbsolute(values['web-dir']) || !isAbsolute(values['report-dir']) || values.mode === 'operator' && values.profile !== 'codex-prod' || values.mode === 'github' && values.profile) throw fail('configuration')
+  return { mode: values.mode, profile: values.profile, webDir: values['web-dir'], reportDir: values['report-dir'] }
+}
+
 export function cacheControlForWebObject(key) {
   if (key.endsWith('.html') || key.endsWith('_payload.json') || key === '_nuxt/builds/latest.json') return 'no-cache, no-store, must-revalidate'
   const immutable = key.startsWith('_nuxt/') && (/(^|\/)[A-Za-z0-9_.-]*[A-Za-z0-9_-]{8,}\.[^/]+$/.test(key) || /^_nuxt\/builds\/[^/]+\.json$/.test(key))

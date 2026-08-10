@@ -52,6 +52,18 @@ Operating system: macOS
 | T16 | ready; depends on accepted T15 | | | |
 | T17 | blocked by T16 | | | |
 
+### Phase 4 T16 Sol execution authorization
+
+D026 and `phase4-t16-execution-plan.md` define the exact T16A release-candidate
+gate and T16B alarm deployment. Read-only entry evidence found policy v6
+default with v2-v6 retained, no `itsrun-preview` CloudWatch alarm, account
+`470447451992`, and region `ap-northeast-1`. AWS v2 exactly matched commit
+`22d7fd5` at canonical SHA-256
+`9318b40d9d601231335f6a1a4271ec8e5edc5700f5367dec2a407c329bee9f54`.
+No AWS write occurred during planning. T16A through T16B05 may proceed in
+dependency order under the exact D026 limits; T16C/D credentials and schedule
+mutation remain governed by their separate stop conditions.
+
 ## Sol remediation log
 
 | Remediation | Status | Commit | Checks | Notes |

@@ -958,6 +958,73 @@ Rollback/removal:
 Revert the argument only if a future AWS CLI contract changes and a reviewed
 non-writing validation demonstrates the replacement.
 
+## D026: Rotate the execution policy from T15 creation authority to the exact T16 alarm
+
+Status: accepted
+
+Problem:
+
+T16 requires one stack-owned HTTP API 5xx alarm. The current CloudFormation
+execution policy v6 is 6,077 non-whitespace characters against IAM's 6,144
+character limit, so appending CloudWatch permissions is not possible. V6 also
+retains two T15-only creation surfaces after the OIDC provider and deployment
+role have reached their reviewed steady state: OIDC-provider creation/tagging
+and lifecycle authority for the GitHub deployment role.
+
+Decision:
+
+Use the standard `AWS/ApiGateway` HTTP API metric named `5xx`, with exact
+dimensions `ApiId` and `Stage=$default`. Create exactly one metric alarm named
+`itsrun-preview-admin-api-5xx`: Sum over 300 seconds, threshold 1,
+`EvaluationPeriods=3`, `DatapointsToAlarm=2`, comparison greater than or equal
+to threshold, and `TreatMissingData=notBreaching`. It has an explicit preview
+description and no alarm action, SNS topic, dashboard, anomaly detector, or
+route-level detailed-metric charge.
+
+Create candidate execution policy v7 by starting from committed v6 and making
+only these changes:
+
+- remove `PreviewGitHubOidcProviderLifecycle` in full;
+- restore `PreviewScheduleLambdaRole.Resource` to the Hosting schedule role
+  pattern only, removing the exact GitHub deployment role ARN;
+- add `PreviewAdminApi5xxAlarm`, permitting only
+  `cloudwatch:PutMetricAlarm`, `cloudwatch:DeleteAlarms`, and
+  `cloudwatch:DescribeAlarms` on
+  `arn:aws:cloudwatch:ap-northeast-1:470447451992:alarm:itsrun-preview-admin-api-5xx`.
+
+The alarm receives no tags, so CloudFormation does not need CloudWatch tag
+actions. Before creating v7, prove AWS v6 equals the committed v6 candidate and
+AWS nondefault v2 equals commit `22d7fd5` (canonical SHA-256
+`9318b40d9d601231335f6a1a4271ec8e5edc5700f5367dec2a407c329bee9f54`).
+Delete only v2 to free the fifth version slot, create v7 as default, and retain
+v3-v7. Deploy only `ItsRunPreviewHosting` after template validation, exact
+diff review, and policy simulation pass.
+
+Alternatives:
+
+- Attach a second broad execution policy: rejected because it creates another
+  independently drifting privilege surface.
+- Keep the OIDC creation permissions and broaden a wildcard statement: rejected
+  because the policy is at its size limit and the T15 creation authority is no
+  longer needed for Hosting maintenance.
+- Alarm on a route-level metric: rejected because it requires paid detailed
+  metrics; the exact API and `$default` stage already isolate this admin API.
+- Add notifications: rejected until an operator endpoint is deliberately
+  selected.
+
+Cost and maintenance effect:
+
+One standard metric alarm has a small recurring CloudWatch charge. The
+execution role loses T15 creation authority and gains only exact-alarm
+lifecycle authority. GitHub web deployments keep using their separate runtime
+role and are unaffected.
+
+Rollback/removal:
+
+CloudFormation may delete the exact alarm using v7. V6 remains retained for a
+bounded rollback, but re-creating the OIDC provider or GitHub role requires a
+new Sol review rather than silently restoring their creation authority.
+
 ## Decision template
 
 Copy for new decisions:

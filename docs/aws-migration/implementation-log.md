@@ -3939,3 +3939,16 @@ nor retained by the recorder/classifier. Root `npm run check` and
 `git diff --check` passed. No AWS, live auth, deployment, IAM, CloudFormation,
 API/S3/Firestore write, production, or T17 operation occurred. OS01 is ready
 for Sol source review; OS02 remains unauthorized.
+
+### Phase 4 T16 OS01 Sol acceptance and OS02 authorization
+
+Sol reviewed `0446f9a`. The recorder retains only exact allowlisted host,
+pathname, method, and status; its typed result contains only one category and
+viewport. Canary tests prove query, fragment, headers, body, credential, token,
+claim, console, raw error, and the event trail are absent. Sol reran the focused
+harness/executable tests (33/33).
+
+OS01 is accepted. OS02 may run the unchanged auth-only executable once with
+the new local classifier and all existing exact account/resource, cleanup-zero,
+zero-data-write, protected-object, and invalidation gates. Stop after the typed
+result; no source fix, retry, deployment, or data rehearsal is authorized.

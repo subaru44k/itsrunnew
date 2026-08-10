@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import * as fsp from 'node:fs/promises'
-import { awaitHostedUiLogin, awaitSignedInSentinel, createBrowserSubstageError, createConcreteAuthAdapters, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
+import { awaitHostedUiLogin, awaitSignedInSentinel, createBrowserSubstageError, createConcreteAuthAdapters, installMatchingTransactionProbe, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
 function fakeRun({ fail = null, getShape = 'top-level' } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
@@ -49,6 +49,19 @@ test('direct fake execution uses the concrete boundary and emits only typed auth
 test('auth executable rejects every argv secret and wrong flag', async () => {
   await assert.rejects(() => main([]), /invalid execution flag/)
   await assert.rejects(() => main(['--execute-preview-auth', 'canary-password']), /invalid execution flag/)
+})
+
+test('matching transaction probe installs only an exact callback boundary', async () => {
+  const calls = []
+  await installMatchingTransactionProbe({ addInitScript: async (...args) => calls.push(args) }, {
+    origin: 'https://preview.example.invalid',
+  })
+  assert.equal(calls.length, 1)
+  const source = String(calls[0][0])
+  assert.match(source, /hasOwnProperty/)
+  assert.doesNotMatch(source, /getItem|\.key\s*\(/)
+  assert.doesNotMatch(JSON.stringify(calls), /canary|password|token|secret/)
+  await assert.rejects(() => installMatchingTransactionProbe({ addInitScript: async () => {} }, { origin: 'https://preview.example.invalid', pathname: '/manage' }), /invalid transaction probe/)
 })
 
 test('cleanup attempts deletion, readback, and temp cleanup after a removal failure', async () => {

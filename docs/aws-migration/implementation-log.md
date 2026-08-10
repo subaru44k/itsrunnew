@@ -4067,3 +4067,22 @@ type, cache metadata, and SHA-256. CloudFront invalidation count remained 3.
 No API PUT, S3 write, Firestore, IAM, CloudFormation, deployment, production,
 DNS, Firebase, or data rehearsal operation occurred. TRQ02 is a terminal stop;
 CF03/T17 remain unauthorized.
+
+### Phase 4 T16 TS01 transaction-state probe
+
+TS01 was implemented locally from Sol handoff `aa6b71318ffd5ab6b9027006bd82259ac83e8f62`.
+The auth-only Playwright role installs a pre-document probe before navigation,
+and the probe is bounded to the exact preview origin and `/manage/callback`
+pathname. It transiently parses only whether the callback has a state parameter
+and checks the exact `oidc.`-prefixed session-storage property without reading a
+stored value or enumerating keys. The result is immediately reduced to the
+typed categories `matching-transaction-present` or
+`matching-transaction-missing`; no state, key, query, token, header, body, or
+raw error is retained or emitted.
+
+Focused auth/harness/preview/form/adapter tests passed 41/41, including real
+Chromium and hostile storage canaries proving the probe runs before document
+application code and does not call `getItem` or `key`. `npm run check` passed
+(workspace lint, typecheck, unit, infra, and build checks), and
+`git diff --check` passed. No AWS or live auth execution was performed; TS01
+does not authorize a live run.

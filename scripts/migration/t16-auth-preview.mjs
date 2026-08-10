@@ -22,7 +22,7 @@ export const COGNITO_MUTATING_OPERATIONS = Object.freeze([
 const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-users-in-group'])
 const operationSet = new Set([...COGNITO_MUTATING_OPERATIONS, ...COGNITO_READ_OPERATIONS])
 const checkpoints = new Set(['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'cleanup', 'complete'])
-const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing'])
+const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing', 'matching-transaction-missing', 'matching-transaction-present'])
 const browserViewports = new Set(['desktop', 'mobile'])
 
 export function parseAuthArgs(argv) {
@@ -43,6 +43,17 @@ function identities(nextRandomBytes) {
 export function createBrowserSubstageError(category, viewport) {
   if (!browserSubstageCategories.has(category) || !browserViewports.has(viewport)) throw new Error('invalid browser substage')
   return Object.freeze({ name: 'BrowserSubstageError', category, viewport })
+}
+
+export async function installMatchingTransactionProbe(page, { origin, pathname = '/manage/callback', prefix = 'oidc.' } = {}) {
+  if (!page || typeof page.addInitScript !== 'function' || typeof origin !== 'string' || pathname !== '/manage/callback' || prefix !== 'oidc.') throw new Error('invalid transaction probe')
+  await page.addInitScript(({ expectedOrigin, expectedPath, keyPrefix }) => {
+    if (location.origin !== expectedOrigin || location.pathname !== expectedPath) return
+    const state = new URL(location.href).searchParams.get('state')
+    let present = false
+    if (state) present = Object.prototype.hasOwnProperty.call(sessionStorage, `${keyPrefix}${state}`)
+    Object.defineProperty(window, '__t16MatchingTransactionPresent', { value: present, writable: false, configurable: false })
+  }, { expectedOrigin: origin, expectedPath: pathname, keyPrefix: prefix })
 }
 
 function safeFailure(error) {
@@ -127,6 +138,7 @@ async function runRealBrowserRole(role, username, password) {
     const browser = await chromium.launch({ headless: true }); const page = await browser.newPage({ viewport })
     const recorder = createSanitizedBrowserRecorder(page)
     try {
+      await installMatchingTransactionProbe(page, { origin: new URL(AUTH_CONSTANTS.cloudFrontBase).origin })
       let apiStatus = null
       const onResponse = response => { try { const url = new URL(response.url()); if (url.pathname === AUTH_CONSTANTS.apiPath && response.request().method() === 'GET' && url.origin === new URL(AUTH_CONSTANTS.cloudFrontBase).origin) apiStatus = response.status() } catch {} }
       page.on('response', onResponse)
@@ -138,7 +150,14 @@ async function runRealBrowserRole(role, username, password) {
       if (!callback) throw createBrowserSubstageError('callback-missing', viewportName)
       try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 }) } catch { throw createBrowserSubstageError('manage-timeout', viewportName) }
       try { await awaitSignedInSentinel(page, { viewport: viewportName, timeoutMs: 30000 }) } catch (error) {
-        if (error?.name === 'BrowserSubstageError' && error.category === 'signed-in-missing') throw createBrowserSubstageError(classifyOAuthStatus(recorder.snapshot().events, { apiPath: AUTH_CONSTANTS.apiPath }), viewportName)
+        if (error?.name === 'BrowserSubstageError' && error.category === 'signed-in-missing') {
+          let category = classifyOAuthStatus(recorder.snapshot().events, { apiPath: AUTH_CONSTANTS.apiPath })
+          if (category === 'token-request-not-started') {
+            const matching = await page.evaluate(() => typeof window.__t16MatchingTransactionPresent === 'boolean' ? window.__t16MatchingTransactionPresent : null).catch(() => null)
+            category = matching === true ? 'matching-transaction-present' : 'matching-transaction-missing'
+          }
+          throw createBrowserSubstageError(category, viewportName)
+        }
         throw error
       }
       for (let attempt = 0; attempt < 300 && apiStatus === null; attempt += 1) await new Promise(resolve => setTimeout(resolve, 100))

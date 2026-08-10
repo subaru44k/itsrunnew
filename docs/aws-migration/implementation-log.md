@@ -3337,6 +3337,25 @@ fixture and a committed dependency-injected rehearsal state machine before one
 further thin-adapter execution. No additional live operation is authorized
 until PF01/PF02 and the repeated PF03 read-only gates succeed.
 
+### Phase 4 T16 PA02
+
+PA02 is committed locally from `d4329f4`. The preview-only adapter binds the
+proof-bearing coordinator to fixed preview constants, generates reserved
+`.invalid` identities and strong passwords inside its owning process, and
+keeps those values inside closures/injected protected and browser adapters.
+Its command boundary permits only the six D037 Cognito operations; the
+coordinator result contains no identity, credential, token, body, URL query,
+DOM, or raw error material. The executable accepts only the literal
+`--execute-preview-rehearsal` flag and has no environment/credential input;
+without injected adapters it fails closed with a sanitized category.
+
+The AWS-free adapter/coordinator/real-Chromium suite passed `26/26`.
+Injected tests cover fixed constants, exact operation allowlist, auth failure
+cleanup, no data after auth failure, update/stale/restore proof ordering,
+canary non-exposure, and sanitized unconfigured execution. No executable live
+run was performed; no AWS, Cognito, schedule-data, restore, or browser-hosted
+operation occurred. PA03 remains blocked pending Sol source review.
+
 ### Phase 4 T16 PA01
 
 PA01 is implemented locally from Sol handoff `6d275a6`. The coordinator now

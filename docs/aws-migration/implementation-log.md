@@ -2643,3 +2643,23 @@ found no Commander import in packages, web, services, infra, or migration
 runtime sources. DR02 immutable T16A re-verification follows this commit;
 AWS writes remain prohibited.
 ```
+
+### Phase 4 T16A dependency recovery DR02 immutable rerun
+
+```text
+Start: e22c9dc; result: complete locally. Under Node 24.18.1, npm ci
+completed with the pre-existing audit summary (11 vulnerabilities: 7
+moderate and 4 high). The complete T16A release checks passed: npm run check
+(web 44, core 7, schedule-api 25, infra 18, synth/build), npm run test:e2e
+(14 legacy plus 44 admin), and explicit preview E2E (88). Migration focused
+tests passed (175 tests across 9 files), static server tests passed (3),
+bootstrap policy tests passed (5), and the dedicated infra test/build passed
+(18 infra tests and successful CDK synth).
+
+The dependency gates passed with no invalid or extraneous packages. Root and
+Nuxt CLI use commander 15.0.0, SVGO retains nested commander 11.1.0, and
+Terser retains nested commander 2.20.3. No runtime Commander import was
+found. git diff --check passed and the worktree is clean. No AWS operation,
+policy-version write, alarm change, or Hosting deployment was performed;
+DR03/T16B remains gated for Sol review.
+```

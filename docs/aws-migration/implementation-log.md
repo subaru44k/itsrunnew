@@ -2877,6 +2877,18 @@ zero `admins` members. C03 AWS writes were exactly eight (two creates, two
 permanent-password settings, one group add, one group removal, and two
 deletes); no schedule/data object write occurred. D01/D02 were not attempted.
 
+### Phase 4 T16 CSP01
+
+Added only the D030 regional Cognito issuer origin to the shared CloudFront
+CSP: `https://cognito-idp.<AWS::Region>.amazonaws.com`, preserving the existing
+self and Hosted UI origins and all other directives. Semantic infra assertions
+require the exact ordered join in both existing response-header policies and
+reject wildcard, HTTP, path, foreign-region, and foreign-provider variants.
+Node 24 infra tests passed (19/19), root `npm run check` passed (web 44,
+core 7, schedule-api 25, infra 19 plus build/synth), and local E2E passed
+(legacy 14, admin 44). No AWS operation occurred; CSP02 remains pending the
+read-only preflight and single authorized Hosting deployment.
+
 ### Phase 4 T16C CSP recovery authorization
 
 Sol verified the deployed public runtime config has the exact issuer/client and

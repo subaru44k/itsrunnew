@@ -127,10 +127,23 @@ test('T11R04 exposes Cognito endpoints and permits only the token origin in CSP'
   })
   assert.deepEqual(templateJson.Outputs.UserPoolIssuer.Value, { 'Fn::GetAtt': [poolLogicalId, 'ProviderURL'] })
   const headersPolicy = Object.values(result.findResources('AWS::CloudFront::ResponseHeadersPolicy')).find((resource) => !JSON.stringify(resource.Properties.ResponseHeadersPolicyConfig.CustomHeadersConfig).includes('Cache-Control'))
+  const expected = {
+    'Fn::Join': ['', [
+      "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://",
+      { Ref: 'CognitoDomainPrefix' },
+      '.auth.',
+      { Ref: 'AWS::Region' },
+      '.amazoncognito.com https://cognito-idp.',
+      { Ref: 'AWS::Region' },
+      '.amazonaws.com; frame-src https://www.google.com https://maps.google.com; form-action \'self\';',
+  ]],
+  }
+  for (const resource of Object.values(result.findResources('AWS::CloudFront::ResponseHeadersPolicy'))) {
+    assert.deepEqual(resource.Properties.ResponseHeadersPolicyConfig.SecurityHeadersConfig.ContentSecurityPolicy, { ContentSecurityPolicy: expected, Override: true })
+  }
   const csp = JSON.stringify(headersPolicy.Properties.ResponseHeadersPolicyConfig.SecurityHeadersConfig.ContentSecurityPolicy)
-  assert.match(csp, /CognitoDomainPrefix/)
-  assert.match(csp, /amazoncognito\.com/)
-  assert.doesNotMatch(csp, /accounts\.google|\*\.google|unsafe-eval/)
+  assert.doesNotMatch(csp, /connect-src[^\]]*(?:\*|http:\/\/|accounts\.google|amazonaws\.com\/)/i)
+  assert.doesNotMatch(csp, /cognito-idp\.(?:us-east-1|eu-west-1)\.amazonaws\.com/i)
 })
 
 test('FA02 keeps shared security headers and scopes API no-store to api/*', () => {

@@ -251,7 +251,7 @@ export class HostingStack extends Stack {
       contentTypeOptions: { override: true },
       frameOptions: { frameOption: cloudfront.HeadersFrameOption.DENY, override: true },
       referrerPolicy: { referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override: true },
-      contentSecurityPolicy: { contentSecurityPolicy: Fn.join('', ["default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ", cognitoAuthBaseUrl, "; frame-src https://www.google.com https://maps.google.com; form-action 'self';"]), override: true },
+      contentSecurityPolicy: { contentSecurityPolicy: Fn.join('', ["default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ", cognitoAuthBaseUrl, " https://cognito-idp.", Aws.REGION, ".amazonaws.com; frame-src https://www.google.com https://maps.google.com; form-action 'self';"]), override: true },
     }
     const permissionsPolicyHeader = { header: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()', override: true }
     const responseHeaders = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeaders', {

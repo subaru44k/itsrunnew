@@ -3507,6 +3507,18 @@ Web focused tests passed 47/47; admin-local Playwright E2E passed 44/44;
 root `npm run check` and `git diff --check` passed. No AWS, deployment, or
 production operation occurred. CR02 remains blocked pending Sol source review.
 
+### Phase 4 T16 CR01 Sol acceptance and CR02 authorization
+
+Sol reviewed `cec974b`. The monotonic guard preserves callback-authenticated
+state against late null, stale-user, and rejected initialization, with deferred
+tests proving token and destination retention. CR01 is accepted.
+
+CR02 may push the migration branch and dispatch the existing exact-SHA-pinned
+`Deploy preview web` workflow once. It builds with the reviewed Cognito/API
+configuration and deploys web objects only. Data, CloudFormation, IAM, and
+invalidation are forbidden. Require workflow validation/deploy/raw-preview
+success and unchanged data/invalidation inventories before CR03.
+
 ### Phase 4 T16 AG01 AdminGetUser response correction
 
 Starting from Sol handoff `4de0055`, AG01 changed only the concrete

@@ -1219,6 +1219,58 @@ Remove this origin only if the administrator OIDC client no longer performs
 browser discovery and an equivalent reviewed issuer-validation design replaces
 it.
 
+## D031: Diagnose Hosted UI credentials with one disposable user and no data access
+
+Status: accepted
+
+Problem:
+
+After D030, real browsers reach OIDC discovery, authorize, and the legacy
+Hosted UI login form, but valid-looking credential submissions return to login
+without callback. Duplicate responsive forms were handled with visible-only
+selectors; users were `CONFIRMED`; password values were strongly generated,
+quoted, and never logged. The previous run did not capture the Hosted UI's
+sanitized error category or distinguish email-alias resolution from the
+internal Cognito username.
+
+Decision:
+
+Create one new suppressed `.invalid` diagnostic user, set one permanent
+password composed of `Aa1!` plus cryptographically random hexadecimal
+characters, and capture the returned internal Username only in protected
+operator memory. Confirm status/attributes through `AdminGetUser`. From one
+fresh OIDC authorization transaction, attempt the email alias once; capture
+only redirect hosts/paths, HTTP status, and a normalized allowlisted error
+category. If it fails before callback, repeat once in a fresh context with the
+internal Username. Never print page HTML, entered values, cookies, CSRF/ASF
+data, codes, tokens, claims, query strings, or raw errors.
+
+Do not add the user to `admins`, call the API, or touch schedule data. Delete
+the user immediately after both outcomes or the first successful callback,
+clear all temporary state, and prove pool/group zero. This is a bounded
+diagnostic, not a weakening of email-based sign-in or a production identity
+decision.
+
+Alternatives:
+
+- Guess that `.invalid` aliases are unsupported: rejected without evidence.
+- Enable password auth flows on the app client: rejected because the browser
+  contract remains Authorization Code + PKCE only.
+- Capture raw login pages/network bodies: rejected because they contain
+  credentials and transaction material.
+- Use a real email: rejected until a named production operator is approved.
+
+Cost and maintenance effect:
+
+One short-lived Cognito user and at most two login attempts. No resource,
+dependency, IAM, configuration, or data change.
+
+Rollback/removal:
+
+The user is always deleted and browser/credential state cleared. A successful
+diagnosis is converted into a separate reviewed recovery plan before another
+T16 rehearsal.
+
 ## Decision template
 
 Copy for new decisions:

@@ -2929,3 +2929,13 @@ identities (3 cleanup writes), leaving pool users and group members at zero.
 CSP03 total writes were eight (two creates, two password settings, one group
 add, one group removal, and two deletes). Temporary credential material was
 removed outside the repository.
+
+### Phase 4 T16 login diagnostic authorization
+
+Sol confirmed the second stop is beyond discovery and uses visible-only Hosted
+UI form selectors; users were confirmed and credentials were not exposed. The
+missing evidence is the normalized Hosted UI outcome and alias-versus-internal
+Username behavior. D031 and `phase4-t16-login-diagnostic-plan.md` authorize one
+disposable user, at most two no-API/no-data login attempts, mandatory deletion,
+and sanitized evidence only. No authentication-flow, stack, IAM, or data change
+is authorized.

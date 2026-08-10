@@ -3595,6 +3595,27 @@ Focused auth/Chromium tests passed 35/35; root `npm run check` and
 `git diff --check` passed. No AWS or live Hosted UI execution occurred.
 BS02 remains blocked pending Sol source review.
 
+### Phase 4 T16 BS02 execution stop
+
+Starting from Sol approval `a3bbfb1`, Node `v24.18.1`, focused auth/Chromium
+tests passed 35/35. Read-only gates matched account `470447451992`, region
+`ap-northeast-1`, pool users 0, `admins` membership 0, live desktop/mobile
+Hosted UI selector counts, and the protected Oda 501-byte baseline with exact
+metadata and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+
+The typed-substage auth executable ran exactly once with only
+`--execute-preview-auth`. Its sole sanitized result was `status: failed`,
+`lastCheckpoint: cleanup`, `failureCheckpoint: admin-form`,
+`roleOutcomes.admin: failed`, `failure: { stage: "admin-form",
+category: "signed-in-missing", viewport: "desktop" }`,
+`counts: { operations: 4, writes: 0, restores: 0, cleanups: 1 }`, and
+`cleanupStatus: passed`; exit status was nonzero and no retry was made.
+Independent post-run readback proved pool users 0, admins 0, the exact
+protected object bytes/hash/metadata, and no additional invalidation. No API
+PUT, S3 write, Firestore, IAM, deployment, or production operation occurred.
+BS02 is a terminal stop; CF03 and T17 remain unauthorized.
+
 ### Phase 4 T16 BS01 Sol acceptance and BS02 authorization
 
 Sol reviewed `e9bc20c`. Browser failures now retain only the exact allowlisted

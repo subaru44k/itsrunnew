@@ -101,24 +101,20 @@ const candidateV4Statements = {
   ], committedV3Statements.PreviewCloudFront.Resource),
 }
 
-const candidateV6Statements = {
-  ...candidateV4Statements,
-  PreviewHttpApiStageTags: statement('PreviewHttpApiStageTags', 'apigateway:TagResource', `arn:aws:apigateway:${region}::/apis/*/stages`),
-  PreviewGitHubOidcProviderLifecycle: statement('PreviewGitHubOidcProviderLifecycle', [
-    'iam:CreateOpenIDConnectProvider', 'iam:GetOpenIDConnectProvider', 'iam:DeleteOpenIDConnectProvider',
-    'iam:AddClientIDToOpenIDConnectProvider', 'iam:RemoveClientIDFromOpenIDConnectProvider',
-    'iam:UpdateOpenIDConnectProviderThumbprint', 'iam:ListOpenIDConnectProviderTags',
-    'iam:TagOpenIDConnectProvider', 'iam:UntagOpenIDConnectProvider',
-  ], `arn:aws:iam::${account}:oidc-provider/token.actions.githubusercontent.com`),
-  PreviewGitHubDeployRoleLifecycle: statement('PreviewGitHubDeployRoleLifecycle', [
-    'iam:CreateRole', 'iam:GetRole', 'iam:DeleteRole', 'iam:UpdateAssumeRolePolicy', 'iam:UpdateRole',
-    'iam:UpdateRoleDescription', 'iam:PutRolePolicy', 'iam:GetRolePolicy', 'iam:DeleteRolePolicy',
-    'iam:ListRolePolicies', 'iam:ListAttachedRolePolicies', 'iam:TagRole', 'iam:UntagRole',
-  ], `arn:aws:iam::${account}:role/itsrun-preview-github-web-deploy`),
-}
 const candidateV5Statements = {
   ...candidateV4Statements,
-  PreviewHttpApiStageTags: candidateV6Statements.PreviewHttpApiStageTags,
+  PreviewHttpApiStageTags: statement('PreviewHttpApiStageTags', 'apigateway:TagResource', `arn:aws:apigateway:${region}::/apis/*/stages`),
+}
+const candidateV6Statements = {
+  ...candidateV5Statements,
+  PreviewScheduleLambdaRole: statement('PreviewScheduleLambdaRole', candidateV4Statements.PreviewScheduleLambdaRole.Action, [
+    `arn:aws:iam::${account}:role/ItsRunPreviewHosting-ScheduleApiRole*`,
+    `arn:aws:iam::${account}:role/itsrun-preview-github-web-deploy`,
+  ]),
+  PreviewGitHubOidcProviderLifecycle: statement('PreviewGitHubOidcProviderLifecycle', [
+    'iam:CreateOpenIDConnectProvider', 'iam:GetOpenIDConnectProvider',
+    'iam:ListOpenIDConnectProviderTags', 'iam:TagOpenIDConnectProvider',
+  ], `arn:aws:iam::${account}:oidc-provider/token.actions.githubusercontent.com`),
 }
 
 test('candidate v6 has the exact reviewed statement contract', () => {
@@ -131,11 +127,11 @@ test('candidate v6 has the exact reviewed statement contract', () => {
   }
 })
 
-test('candidate v6 differs from the committed v5 contract only by the two reviewed statements', () => {
-  assert.deepEqual(Object.keys(statements).filter((sid) => !Object.hasOwn(candidateV5Statements, sid)).sort(), [
-    'PreviewGitHubDeployRoleLifecycle', 'PreviewGitHubOidcProviderLifecycle',
-  ].sort())
-  for (const [sid, expected] of Object.entries(candidateV5Statements)) assert.deepEqual(statements[sid], expected, sid)
+test('candidate v6 differs from the committed v5 contract only by compact D022 changes', () => {
+  assert.deepEqual(Object.keys(statements).sort(), Object.keys(candidateV6Statements).sort())
+  for (const [sid, expected] of Object.entries(candidateV5Statements)) {
+    if (sid !== 'PreviewScheduleLambdaRole') assert.deepEqual(statements[sid], expected, sid)
+  }
   assert.deepEqual(statements.PreviewHttpApiStageTags, {
     Sid: 'PreviewHttpApiStageTags',
     Effect: 'Allow',
@@ -144,10 +140,24 @@ test('candidate v6 differs from the committed v5 contract only by the two review
   })
   assert.equal(statements.PreviewHttpApiStageTags.Action, 'apigateway:TagResource')
   assert.equal(statements.PreviewHttpApiStageTags.Resource, 'arn:aws:apigateway:ap-northeast-1::/apis/*/stages')
+  assert.deepEqual(statements.PreviewScheduleLambdaRole, candidateV6Statements.PreviewScheduleLambdaRole)
   assert.deepEqual(statements.PreviewGitHubOidcProviderLifecycle, candidateV6Statements.PreviewGitHubOidcProviderLifecycle)
-  assert.deepEqual(statements.PreviewGitHubDeployRoleLifecycle, candidateV6Statements.PreviewGitHubDeployRoleLifecycle)
   assert.equal(statements.PreviewGitHubOidcProviderLifecycle.Resource, `arn:aws:iam::${account}:oidc-provider/token.actions.githubusercontent.com`)
-  assert.equal(statements.PreviewGitHubDeployRoleLifecycle.Resource, `arn:aws:iam::${account}:role/itsrun-preview-github-web-deploy`)
+  assert.deepEqual(statements.PreviewScheduleLambdaRole.Resource, [
+    `arn:aws:iam::${account}:role/ItsRunPreviewHosting-ScheduleApiRole*`,
+    `arn:aws:iam::${account}:role/itsrun-preview-github-web-deploy`,
+  ])
+})
+
+test('compact D022 candidate has the exact policy-size budget', () => {
+  const nonWhitespace = readFileSync(policyPath, 'utf8').replace(/\s/g, '')
+  assert.equal(nonWhitespace.length, 6077)
+  assert.ok(nonWhitespace.length <= 6144)
+  assert.deepEqual(statements.PreviewScheduleLambdaRole.Action, candidateV4Statements.PreviewScheduleLambdaRole.Action)
+  assert.deepEqual(statements.PreviewGitHubOidcProviderLifecycle.Action, [
+    'iam:CreateOpenIDConnectProvider', 'iam:GetOpenIDConnectProvider',
+    'iam:ListOpenIDConnectProviderTags', 'iam:TagOpenIDConnectProvider',
+  ])
 })
 
 test('committed v4 differs from the committed v3 contract only by reviewed additions', () => {
@@ -177,7 +187,7 @@ test('candidate v6 has no wildcard action or forbidden privilege surface', () =>
   assert.equal(serialized.includes('arn:aws:apigateway:us-east-1::/apis/*/stages'), false)
   assert.equal(serialized.includes('arn:aws:execute-api:'), false)
   assert.equal(statements.PreviewGitHubOidcProviderLifecycle.Action.includes('iam:PassRole'), false)
-  assert.equal(statements.PreviewGitHubDeployRoleLifecycle.Action.includes('iam:PassRole'), false)
+  assert.equal(statements.PreviewScheduleLambdaRole.Action.includes('iam:PassRole'), false)
   assert.equal(serialized.includes('iam:ListOpenIDConnectProviders'), false)
   assert.equal(serialized.includes('iam:AttachRolePolicy'), false)
   assert.equal(serialized.includes('iam:DetachRolePolicy'), false)

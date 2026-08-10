@@ -137,35 +137,10 @@
       "Action": [
         "iam:CreateOpenIDConnectProvider",
         "iam:GetOpenIDConnectProvider",
-        "iam:DeleteOpenIDConnectProvider",
-        "iam:AddClientIDToOpenIDConnectProvider",
-        "iam:RemoveClientIDFromOpenIDConnectProvider",
-        "iam:UpdateOpenIDConnectProviderThumbprint",
         "iam:ListOpenIDConnectProviderTags",
-        "iam:TagOpenIDConnectProvider",
-        "iam:UntagOpenIDConnectProvider"
+        "iam:TagOpenIDConnectProvider"
       ],
       "Resource": "arn:aws:iam::470447451992:oidc-provider/token.actions.githubusercontent.com"
-    },
-    {
-      "Sid": "PreviewGitHubDeployRoleLifecycle",
-      "Effect": "Allow",
-      "Action": [
-        "iam:CreateRole",
-        "iam:GetRole",
-        "iam:DeleteRole",
-        "iam:UpdateAssumeRolePolicy",
-        "iam:UpdateRole",
-        "iam:UpdateRoleDescription",
-        "iam:PutRolePolicy",
-        "iam:GetRolePolicy",
-        "iam:DeleteRolePolicy",
-        "iam:ListRolePolicies",
-        "iam:ListAttachedRolePolicies",
-        "iam:TagRole",
-        "iam:UntagRole"
-      ],
-      "Resource": "arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy"
     },
     {
       "Sid": "PreviewScheduleLambda",
@@ -211,7 +186,10 @@
         "iam:TagRole",
         "iam:UntagRole"
       ],
-      "Resource": "arn:aws:iam::470447451992:role/ItsRunPreviewHosting-ScheduleApiRole*"
+      "Resource": [
+        "arn:aws:iam::470447451992:role/ItsRunPreviewHosting-ScheduleApiRole*",
+        "arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy"
+      ]
     },
     {
       "Sid": "PassPreviewScheduleLambdaRoleOnly",

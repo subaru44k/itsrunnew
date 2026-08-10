@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | PutObject CLI recovery planned after client-side deployment failure | `10cf0c3` + D025/B01-B04 plan | OIDC/GetCallerIdentity/DescribeStacks succeeded; invalid fileb body failed before any S3 write | Temporary trigger remains remote; one exact helper fix and final deployment run are planned. |
+| T15 | B01-B04 implementation and deployment accepted; final-doc validation stopped | `a812b41`, `144b025`, `5f67e08`, `023229f` | B02 validation/deploy + raw preview 88 passed; B03 cleanup validation passed; B04 protection read back exact; final docs validation run 31351135135 stopped on Chromium SIGSEGV | No retry was made. The final documentation SHA is pushed, but its required validation was interrupted by a hosted Chromium crash after 13/14 legacy cases; no deployment run was created. Sol review is required before any further action. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2531,6 +2531,14 @@ the helper matched 58/58/58, and raw preview E2E was 88 passed. No later
 deployment run, AWS/GitHub retry, invalidation, data/schedule mutation,
 HostingStack/IAM/Cognito/production/DNS/Firebase change occurred.
 
-T15 B01-B04 is complete locally and externally accepted. The branch is clean
-at this documentation follow-up; stop before T16 and Sol final review.
+T15 B01-B04 implementation, the one authorized deployment, cleanup, and
+master protection are complete. The final documentation push's required
+validation run 31351135135 (job 93342053683, exact SHA) failed in the hosted
+Chromium process on legacy `/en/yumenoshima`: 13 tests passed, then the
+Chromium headless shell exited with SIGSEGV (exit 1). This was not an
+application assertion or migration check failure, and no deployment job was
+created for that SHA. No retry or second push was made. The stop is recorded
+without copying the runner stack or raw logs; Sol review is required before
+any further action. The branch is clean at the local evidence follow-up; stop
+before T16.
 ```

@@ -3540,3 +3540,16 @@ made. Independent post-run readback proved pool users 0, admins 0, the exact
 protected object bytes/hash/metadata, and no additional invalidation. No API
 PUT, S3 write, Firestore, IAM, deployment, or production operation occurred.
 AG02 is a terminal stop; CF03 and T17 remain unauthorized.
+
+### Phase 4 T16 asynchronous Hosted UI redirect recovery authorization
+
+Sanitized event names for AG02 show complete Cognito setup, authorize/login GET,
+no login POST, and complete cleanup. A no-user diagnostic returned
+`form-ambiguous`; a no-submit staged check then proved the form lookup occurred
+immediately after the application login click while the page was still on
+`/manage`. OIDC redirect starts asynchronously. No raw auth material was read.
+
+D043 and `phase4-t16-hosted-ui-redirect-plan.md` authorize the exact bounded
+Hosted UI URL gate, local tests, and after Sol acceptance one auth-only HU02
+execution. No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17 action is
+authorized.

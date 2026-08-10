@@ -1824,6 +1824,42 @@ Rollback/removal:
 
 Keep the exact response validation until the T16 harness is removed.
 
+## D043: Wait for the asynchronous Hosted UI redirect before locating its form
+
+Status: accepted
+
+Problem:
+
+AG02 passed all Cognito setup gates and stopped at `admin-form`; CloudTrail
+showed authorize/login GET and no login POST. A no-user diagnostic using the
+committed driver returned `form-ambiguous`. A second no-submit staged check
+proved the page was still on the application immediately after the login-button
+click: oidc-client begins its redirect asynchronously, while the executable
+looked for `cognitoSignInForm` without first waiting for the Hosted UI URL.
+
+Decision:
+
+After clicking the `/manage` login button, wait with a bounded deadline for the
+exact Hosted UI host and `/login` path before calling `driveHostedUiSignIn`.
+Add a dependency-injected test with a delayed redirect and prove the form
+locator is not used before that URL gate. Keep the existing PKCE/application
+entry, recorder, API response listener, and all security boundaries unchanged.
+After Sol source acceptance, permit one corrected auth-only execution.
+
+Alternatives:
+
+- Add a fixed sleep: rejected because it is timing-dependent.
+- Navigate directly to Hosted UI: rejected because it bypasses the application's
+  PKCE transaction setup.
+
+Cost and maintenance effect:
+
+No AWS/dependency change; the browser sequence matches oidc-client behavior.
+
+Rollback/removal:
+
+Keep the explicit URL gate while the operational harness exists.
+
 ## Decision template
 
 Copy for new decisions:

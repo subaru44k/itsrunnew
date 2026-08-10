@@ -4169,3 +4169,15 @@ RDC02 may push the exact reviewed revision and dispatch the existing web-only
 workflow once. Data, CloudFormation, IAM, Cognito administration, and
 invalidation are forbidden. Require all jobs and raw preview checks plus
 unchanged protected data/invalidation before RDC03.
+
+### Phase 4 T16 RDC02 preview deployment acceptance
+
+Exact-SHA workflow run `31443670161` at `4d95d43` completed successfully:
+repository and production-browser checks, web-only deploy, and raw preview
+checks all passed. The protected object remained 501 bytes with ETag
+`"b2591d35e23ac1b9f2a133f71198b953"` and VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`; invalidation count remained 3.
+
+No data, CloudFormation, IAM, Cognito administration, invalidation, Firebase,
+DNS, or production operation occurred. RDC02 is accepted and RDC03 may run the
+auth-only executable once under all existing exact gates.

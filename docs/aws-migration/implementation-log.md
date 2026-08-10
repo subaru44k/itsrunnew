@@ -3834,3 +3834,17 @@ PKCE, API, and no-secret tests remained passing. Focused web unit tests passed
 47/47; root `npm run check` and `git diff --check` passed. No AWS, live auth,
 deployment, invalidation, IAM, API/S3/Firestore write, production, or T17
 operation occurred.
+
+### Phase 4 T16 CO01 Sol acceptance and CO02 authorization
+
+Sol reviewed `eefbeba`. The callback page now suppresses only normal session
+restoration while retaining the shared in-memory session and invoking the OIDC
+callback; normal `/manage` continues explicit restoration. D046, PKCE, safe
+return-path validation, sanitized errors, logout, and memory-only tokens remain
+unchanged. The lifecycle E2E proves zero callback restoration calls and normal
+manage restoration. Sol also reran the focused session tests (11/11).
+
+CO01 is accepted. CO02 may push this exact reviewed revision and dispatch the
+existing exact-SHA web-only workflow once. Data, CloudFormation, IAM, Cognito
+administration, and invalidation remain forbidden. Require workflow success and
+unchanged protected data/invalidation inventories before CO03.

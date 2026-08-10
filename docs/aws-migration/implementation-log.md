@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | T15D/R01-R04 accepted; T15E05 ready | `3173277` + Sol acceptance below | Compact policy gates, exactly one v6 creation/readback, one dedicated OIDC-stack deployment, and independent Sol AWS/template verification passed | AWS v6 is default with v2-v6 retained; HostingStack remains unchanged; no GitHub workflow activation yet. |
+| T15 | T15E05 stopped at exactly-once dispatch gate | `3173277` + E05 stop follow-up | Settings tightened; one migration-branch push and validation run passed; deploy dispatch was not accepted by GitHub | AWS v6/HostingStack remain unchanged. No preview deployment or master protection was performed after the dispatch stop. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2219,4 +2219,44 @@ T15E05 will tighten repository Actions settings, push only the migration
 branch, require the resulting validation success, dispatch exactly one preview
 web deployment, verify external state, and derive protection check names from
 the successful run before protecting master.
+```
+
+### Phase 4 T15E05 GitHub activation stop
+
+```text
+Start: 9ae26b0; result: stopped at the exactly-once deployment-dispatch gate.
+Node 24.18.1 was used on migration/aws-s3-cloudfront with a clean worktree.
+
+Read-only repository baseline matched subaru44k/itsrunnew, default branch
+master, and the migration branch. The exact AWS baseline matched account
+470447451992/region ap-northeast-1: ItsRunPreviewGitHubDeploy and
+ItsRunPreviewHosting were present in their reviewed states, the OIDC role and
+trust were exact, HostingStack was UPDATE_COMPLETE, and the data bucket was
+versioned. No AWS write occurred in E05.
+
+The authorized Actions settings update read back exactly as enabled=true,
+allowed_actions=selected, sha_pinning_required=true; GitHub-owned actions are
+allowed and the only selected non-GitHub action is
+aws-actions/configure-aws-credentials. Default workflow permissions are read
+and can_approve_pull_request_reviews=false. No secret, variable, environment,
+key, or token was created.
+
+The sole authorized push created migration/aws-s3-cloudfront at exact SHA
+9ae26b0233b52e3f3b3bbe69be4a89828c182c6b. Its push validation run was
+31348125949
+(https://github.com/subaru44k/itsrunnew/actions/runs/31348125949), with head
+SHA exact, Node 24.18.1, checks, Chromium installation, and production E2E
+successful in 2m18s. GitHub emitted only the known Node-20 action deprecation
+annotation for the pinned checkout/setup-node releases; the run conclusion
+was success.
+
+The one authorized dispatch attempt for deploy-preview-web.yml with ref
+migration/aws-s3-cloudfront was rejected before dispatch because the workflow
+file is not present on the repository default branch:
+`HTTP 404: workflow deploy-preview-web.yml not found on the default branch`.
+No deployment run, OIDC session, helper invocation, PutObject, CloudFront
+readback, invalidation, data mutation, HostingStack mutation, or master branch
+protection change occurred. Per the no-retry stop condition, no second
+dispatch was attempted. The repository settings change and branch push remain
+the only E05 external writes.
 ```

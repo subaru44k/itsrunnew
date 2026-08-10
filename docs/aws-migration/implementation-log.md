@@ -2788,3 +2788,35 @@ Node 24.18.1 infra tests passed (19), infra synth/build passed, npm run check
 passed (web 44, core 7, schedule-api 25, infra 19), and git diff --check
 passed. No AWS operation or policy/IAM/dependency/resource change occurred.
 ```
+
+### Phase 4 T16 alarm correction AC02
+
+```text
+Start: e03be59; result: complete. Read-only preflight under
+AWS_PROFILE=codex-prod verified account 470447451992 and ap-northeast-1,
+policy v7 default with exactly v3-v7 retained, and AWS/local candidate
+sorted-canonical SHA-256
+dd4a19a0ada79b4332ebb53245bc830a3d1d675322ea42f9a6011e1e70efaa97.
+Hosting was UPDATE_COMPLETE; the existing alarm matched D026 with no
+AlarmDescription. GitHub deploy stack remained CREATE_COMPLETE. Fresh synth
+and template validation passed, and cdk diff showed only
+AdminApi5xxAlarm.AlarmDescription with the exact approved text.
+
+Exactly one `npx cdk deploy ItsRunPreviewHosting --require-approval never`
+was executed after a fresh STS check. Change set
+`75a9f1f7-1fdd-4a1c-a1b8-8957aad80e26` updated only AdminApi5xxAlarm and the
+stack reached UPDATE_COMPLETE. Readback exactly matches the description and
+all D026 fields: AWS/ApiGateway 5xx, ApiId 40xqzug59a, Stage $default,
+Sum/300, threshold 1, evaluation 3, datapoints 2, comparison greater/equal,
+notBreaching, empty action arrays, and healthy OK state.
+
+Post-deploy read-only checks passed: preview E2E 88; unauthenticated GET 401
+and PATCH 405 with `Cache-Control: no-store` (PATCH Allow GET, PUT, OPTIONS);
+direct web/data S3 returned 403. Current inventory reads remained 147 web
+objects, 76 data keys/95 version entries, and 3 historical invalidations.
+Accepted inventory hashes remain
+7beee9dc3cbe0e99663d8d2b34bbc27856cffc67c6d4f91eff19c22a91538d4e and
+83890be8558e3f6da4653cef4a74099b5c4e69f7800967d890f143949da62b44. No
+policy/IAM/version, upload, schedule/data, invalidation, Cognito, GitHub,
+production, DNS, Firebase, or non-preview operation occurred.
+```

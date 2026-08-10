@@ -2351,3 +2351,16 @@ run never created a job or AWS session, one separately identified workflow-file
 push is authorized after exact settings readback. No GitHub or AWS write was
 made during this Sol diagnosis.
 ```
+
+### Phase 4 T15 dispatch recovery A01 selected-action correction
+
+```text
+Start: 882d991; result: complete. Read-only settings matched D024 before the
+write: Actions enabled, selected mode, SHA pinning required, GitHub-owned
+actions allowed, verified actions disabled, default workflow permissions read,
+and PR approval disabled. The only mismatch was the selected pattern lacking
+the action SHA. The single authorized settings update changed only that value
+to `aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8`.
+Readback confirmed every other setting unchanged and the exact SHA-qualified
+pattern. No workflow, push, AWS, or deployment operation occurred in A01.
+```

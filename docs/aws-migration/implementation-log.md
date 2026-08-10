@@ -3442,3 +3442,22 @@ Regression coverage includes simultaneous auth and cleanup failures, primary
 checkpoint retention, cleanup continuation, and direct success/failure exit
 codes. Focused T16 tests pass 31/31 including the real Chromium responsive
 fixture. No live AWS or hosted-browser operation occurred.
+
+### Phase 4 T16 CF01 Sol acceptance and CF02 authorization
+
+Sol independently reviewed the concrete source and correction commits through
+`5f4922d`, then reran the three auth harness/form/preview files: 27/27 passed,
+including real Chromium. The executable now begins at `/manage` to preserve
+the real PKCE transaction, observes only the page-initiated exact API GET,
+uses returned internal Cognito Usernames for administration, independently
+attempts all cleanup actions, preserves simultaneous primary/cleanup failures,
+and exits nonzero on any typed failure. It has no S3/data/Firestore path and
+accepts no secret argument or environment input. Worktree and diff checks are
+clean.
+
+CF01 is accepted. CF02 is authorized exactly once under D041 and
+`phase4-t16-concrete-final-plan.md`: repeat the read-only gates, execute only
+`t16-auth-preview.mjs --execute-preview-auth`, observe only its sanitized JSON
+and exit status, independently prove users/group zero and no S3/data write,
+record truthful evidence, and stop. No retry or CF03/T17 work is authorized in
+that execution.

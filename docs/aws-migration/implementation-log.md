@@ -3876,3 +3876,35 @@ No data, CloudFormation, IAM, Cognito administration, invalidation, Firebase,
 DNS, or production operation occurred. CO02 is accepted. CO03 may execute the
 committed auth-only executable once under its exact setup, cleanup, zero-write,
 and protected-object gates.
+
+### Phase 4 T16 CO03 auth-only confirmation stop
+
+Starting from Sol handoff `b74f2c040891bef637eb240639f61b8c1a8a9438`, Node
+`v24.18.1`, focused web unit tests passed 47/47, admin-local Playwright passed
+46/46 across Japanese desktop and English mobile, and root `npm run check`
+passed. Read-only gates matched account `470447451992`, region
+`ap-northeast-1`, pool users 0, `admins` membership 0, and the live desktop
+and mobile Hosted UI selector each returned one visible form with three
+controls. The protected Oda object baseline was 501 bytes, ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and
+the exact content type/cache metadata. CloudFront invalidation count was 3.
+
+The committed auth-only executable ran exactly once with
+`--execute-preview-auth`; its sanitized result was `status: failed`,
+`lastCheckpoint: cleanup`, `failureCheckpoint: admin-form`,
+`roleOutcomes.admin: failed`, `roleOutcomes.non-admin: not-run`,
+`counts: { operations: 4, writes: 0, restores: 0, cleanups: 1 }`,
+`failure: { stage: admin-form, category: signed-in-missing, viewport: desktop }`,
+`cleanupStatus: passed`, `cleanupFailure: null`, and
+`restoreStatus: not-required`. Exit status was nonzero; no retry was made.
+Because the admin role failed at the signed-in UI substage, the non-admin and
+remaining viewport proofs were not reached.
+
+Independent post-run readback proved pool users 0 and `admins` membership 0.
+The protected object remained 501 bytes with the same ETag, VersionId, content
+type, cache metadata, and SHA-256. CloudFront invalidation count remained 3.
+No API PUT, S3 write, Firestore, IAM, CloudFormation, deployment, production,
+DNS, Firebase, or data rehearsal operation occurred. CO03 is a terminal stop;
+CF03/T17 remain unauthorized.

@@ -2138,6 +2138,36 @@ Rollback/removal:
 
 Restore generic dispatch only if popup or silent flows are explicitly designed.
 
+## D052: Reduce callback exceptions to fixed safe categories
+
+Status: accepted
+
+Problem:
+
+RDC03 still stopped before token POST with a matching transaction. The remaining
+failure is inside redirect callback state loading/validation, but raw exceptions
+must not be inspected or logged.
+
+Decision:
+
+At the adapter boundary, classify only exact known exception shapes into fixed
+constants and discard the exception. Emit the constant through a dedicated
+ephemeral browser event consumed only by auth diagnosis. Do not change user
+text or expose raw material.
+
+Alternatives:
+
+- Capture raw errors: rejected by the security boundary.
+- Continue speculative state changes: rejected without the exception class.
+
+Cost and maintenance effect:
+
+No dependency/AWS change; one diagnostic identifies the exact local branch.
+
+Rollback/removal:
+
+Remove the diagnostic event after the callback issue closes.
+
 ## Decision template
 
 Copy for new decisions:

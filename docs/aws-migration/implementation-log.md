@@ -4182,6 +4182,16 @@ No data, CloudFormation, IAM, Cognito administration, invalidation, Firebase,
 DNS, or production operation occurred. RDC02 is accepted and RDC03 may run the
 auth-only executable once under all existing exact gates.
 
+### Phase 4 T16 RDC03 result and callback-error plan
+
+RDC03 commit `aaa847e` records one safe execution still ending at desktop
+`matching-transaction-present`. Cleanup was zero; protected data and three
+invalidations were unchanged; data writes remained zero. Direct redirect
+callback dispatch therefore did not resolve the pre-token failure.
+
+D052 and `phase4-t16-callback-error-plan.md` authorize CET01 local-only fixed
+callback exception taxonomy. No AWS/live auth is authorized in CET01.
+
 ### Phase 4 T16 RDC03 redirect-callback auth-only confirmation stop
 
 Starting from Sol handoff `19469e5e173c7b165c55a56f25cb52c2781ea993`, Node

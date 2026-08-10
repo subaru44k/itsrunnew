@@ -53,7 +53,8 @@ describe('T15A migration validation workflow', () => {
 describe('T15C preview deployment workflow', () => {
   it('uses only the temporary exact migration-workflow push trigger plus dispatch', async () => {
     const text = await workflow('deploy-preview-web.yml');
-    expect(text).toMatch(/^on:\s*\n\s+push:\s*\n\s+branches:\s*\n\s+- migration\/aws-s3-cloudfront\s*\n\s+paths:\s*\n\s+- \.github\/workflows\/deploy-preview-web\.yml\s*\n\s+workflow_dispatch:\s*$/m);
+    expect(text).toContain('# D024 one-time recovery request; remove this temporary push block after acceptance.');
+    expect(text).toMatch(/^on:\s*\n(?:\s*#.*\n)?\s+push:\s*\n\s+branches:\s*\n\s+- migration\/aws-s3-cloudfront\s*\n\s+paths:\s*\n\s+- \.github\/workflows\/deploy-preview-web\.yml\s*\n\s+workflow_dispatch:\s*$/m);
     expect(text).not.toMatch(/pull_request|schedule:|workflow_run|workflow_call|repository_dispatch/);
     expect(text.match(/^\s+push:\s*$/gm)).toHaveLength(1);
     expect(text.match(/^\s+workflow_dispatch:\s*$/gm)).toHaveLength(1);

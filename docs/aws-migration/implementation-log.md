@@ -2352,6 +2352,17 @@ push is authorized after exact settings readback. No GitHub or AWS write was
 made during this Sol diagnosis.
 ```
 
+### Phase 4 T15 dispatch recovery A02 one-time retry request
+
+```text
+Start: d8a7436; result: local recovery request prepared. Added only the
+concise D024 comment to the existing exact temporary push trigger. Workflow
+permissions, actions, jobs, commands, branch/path filters, and dispatch event
+remain unchanged. Focused workflow/helper tests and npm run check passed. The
+required one-time push and external run gate follows this commit; no push or
+deployment operation occurred while preparing A02.
+```
+
 ### Phase 4 T15 dispatch recovery A01 selected-action correction
 
 ```text

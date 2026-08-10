@@ -1,6 +1,7 @@
 name: Deploy preview web
 
 on:
+  # D024 one-time recovery request; remove this temporary push block after acceptance.
   push:
     branches:
       - migration/aws-s3-cloudfront

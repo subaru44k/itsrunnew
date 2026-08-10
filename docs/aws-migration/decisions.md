@@ -1860,6 +1860,41 @@ Rollback/removal:
 
 Keep the explicit URL gate while the operational harness exists.
 
+## D044: Preserve the exact sanitized browser substage on auth-only failure
+
+Status: accepted
+
+Problem:
+
+HU02 again reported coordinator checkpoint `admin-form`, but delayed CloudTrail
+metadata shows `CognitoAuthentication` succeeded and Lambda had no request log.
+The concrete role adapter executes form, callback, signed-in, and API sentinel
+inside the first lazy `form` call; any later exception is therefore flattened
+to `admin-form/operation-failed`.
+
+Decision:
+
+Without logging raw errors or browser material, attach one allowlisted category
+and viewport to role-adapter failures: form checkpoint, callback missing,
+manage timeout, signed-in sentinel missing, API response missing, or unexpected
+API status. `safeFailure` may return only those stable categories. Tests exercise
+each substage and prove canary/raw material is discarded. Then permit one
+auth-only execution after Sol review.
+
+Alternatives:
+
+- Inspect DOM/network/raw browser errors: rejected as unnecessary and sensitive.
+- Continue with generic `operation-failed`: rejected because it cannot direct a
+  correction.
+
+Cost and maintenance effect:
+
+No functional/AWS/dependency change; operational evidence becomes actionable.
+
+Rollback/removal:
+
+Remove with the auth harness after T16.
+
 ## Decision template
 
 Copy for new decisions:

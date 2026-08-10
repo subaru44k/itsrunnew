@@ -3568,6 +3568,19 @@ Focused auth/Chromium tests passed 33/33; root `npm run check` and
 `git diff --check` passed. No AWS or live Hosted UI execution occurred.
 HU02 remains blocked pending Sol source review.
 
+### Phase 4 T16 browser-substage recovery authorization
+
+Delayed top-level evidence for HU02 shows successful CognitoAuthentication and
+no Lambda request, while the coordinator retained only generic `admin-form`.
+Source review confirms the lazy role adapter performs callback, signed-in, and
+API checks inside that first call, flattening every later failure. No raw event,
+DOM, network body, credential, or error was inspected.
+
+D044 and `phase4-t16-browser-substage-plan.md` authorize allowlisted sanitized
+substage categories, local tests, and after Sol acceptance one auth-only BS02
+execution. No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17 action is
+authorized.
+
 ### Phase 4 T16 HU02 execution stop
 
 Starting from Sol approval `bcdc2b7`, Node `v24.18.1`, focused auth/Chromium

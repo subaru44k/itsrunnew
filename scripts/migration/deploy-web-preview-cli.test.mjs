@@ -11,6 +11,13 @@ describe('T15B CLI boundary', () => {
     await expect(main(['--mode', 'operator', '--web-dir', '/tmp/build'])).rejects.toMatchObject({ category: 'configuration' })
     await expect(main(['--mode', 'operator', '--profile', 'other', '--web-dir', '/tmp/build', '--report-dir', '/tmp/report'])).rejects.toMatchObject({ category: 'configuration' })
   })
+  it.each([
+    ['duplicate', ['--mode', 'operator', '--mode', 'operator', '--profile', 'codex-prod', '--web-dir', '/tmp/build', '--report-dir', '/tmp/report']],
+    ['odd', ['--mode', 'operator', '--profile']],
+    ['relative', ['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', 'build', '--report-dir', '/tmp/report']],
+    ['github-profile', ['--mode', 'github', '--profile', 'codex-prod', '--web-dir', '/tmp/build', '--report-dir', '/tmp/report']],
+    ['operator-missing-profile', ['--mode', 'operator', '--web-dir', '/tmp/build', '--report-dir', '/tmp/report']],
+  ])('rejects parse args %s', async (_name, args) => { await expect(main(args)).rejects.toMatchObject({ category: 'configuration' }) })
   it('preflights report target before STS and rejects an existing run', async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br3-')); const webDir = join(workspaceRoot, 'build'); await mkdir(webDir); await writeFile(join(webDir, 'index.html'), 'x'); const reportDir = join(workspaceRoot, '.artifacts', 'migration', 'run1'); await mkdir(reportDir, { recursive: true }); const calls = []
     await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', reportDir], {}, { workspaceRoot, execImpl: () => { calls.push(true) } })).rejects.toMatchObject({ category: 'report' }); expect(calls).toHaveLength(0); await rm(workspaceRoot, { recursive: true, force: true })

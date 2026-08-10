@@ -111,11 +111,12 @@ function outputValues(value) {
 }
 
 function normalizedCache(value) { return value.split(',').map((part) => part.trim()).filter(Boolean).sort().join(',') }
-async function waitUntil(deadline, sleep, milliseconds, key) {
-  const remaining = Math.min(milliseconds, Math.max(0, deadline - Date.now()))
+async function waitUntil(deadline, sleep, milliseconds, now, key) {
+  const remaining = Math.max(0, deadline - now())
+  if (remaining <= 0 || milliseconds >= remaining) throw fail('timeout', key)
   let timer
   const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(fail('timeout', key)), remaining) })
-  try { await Promise.race([sleep(remaining), timeout]) } finally { clearTimeout(timer) }
+  try { await Promise.race([sleep(milliseconds), timeout]); if (now() >= deadline) throw fail('timeout', key) } finally { clearTimeout(timer) }
 }
 function encodedUrl(domain, key, hash) {
   if (domain !== WEB_DEPLOY_TARGET.domain || !safeKey(key)) throw fail('cloudfront', key)
@@ -127,6 +128,7 @@ export async function verifyWebObject(domain, object, options = {}) {
   const now = options.now ?? Date.now
   const deadline = now() + (options.timeoutMs ?? 30000)
   const sleep = options.sleep ?? ((ms) => new Promise((resolveDelay) => setTimeout(resolveDelay, ms)))
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || !Number.isFinite(options.timeoutMs ?? 30000) || (options.timeoutMs ?? 30000) <= 0) throw fail('configuration', object.key)
   let lastError
   for (let attempt = 0; attempt < maxAttempts && now() <= deadline; attempt += 1) {
     const controller = new AbortController(); let timer
@@ -143,7 +145,7 @@ export async function verifyWebObject(domain, object, options = {}) {
       })()
       await Promise.race([operation, timeout])
       return
-    } catch (error) { lastError = error; if (error?.category === 'timeout') break; if (attempt + 1 < maxAttempts) { try { await waitUntil(deadline, sleep, 1000, object.key) } catch (waitError) { lastError = waitError; break } } } finally { if (timer) clearTimeout(timer); controller.abort() }
+    } catch (error) { lastError = error; if (error?.category === 'timeout') break; if (attempt + 1 < maxAttempts) { try { await waitUntil(deadline, sleep, Math.min(1000, Math.max(0, deadline - now())), now, object.key) } catch (waitError) { lastError = waitError; break } } } finally { if (timer) clearTimeout(timer); controller.abort() }
   }
   throw fail(lastError?.category === 'timeout' ? 'timeout' : 'cloudfront', lastError?.key ?? object.key)
 }

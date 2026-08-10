@@ -130,6 +130,20 @@ test('visible-form driver rejects absent/ambiguous forms and missing or disabled
 
 test('visible-form driver sanitizes fill/click failures and bounds no-submit', async () => {
   const fillFailure = await driveHostedUiSignIn(fakeHostedPage({ fillError: true }).page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: async () => undefined }); assert.deepEqual(fillFailure, { checkpoint: 'fill-failed' }); assert.doesNotMatch(JSON.stringify(fillFailure), /canary|password/i)
-  const clickFailure = await driveHostedUiSignIn(fakeHostedPage({ clickError: true }).page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: async () => undefined }); assert.deepEqual(clickFailure, { checkpoint: 'fill-failed' })
+  const clickFailure = await driveHostedUiSignIn(fakeHostedPage({ clickError: true }).page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: async () => undefined }); assert.deepEqual(clickFailure, { checkpoint: 'click-failed' })
   let setCount = 0; let clearCount = 0; const timer = { set(callback) { setCount += 1; return setTimeout(callback, 2) }, clear(id) { clearCount += 1; clearTimeout(id) } }; const timeout = await driveHostedUiSignIn(fakeHostedPage().page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: () => new Promise(() => {}), timeoutMs: 2, timer }); assert.deepEqual(timeout, { checkpoint: 'submit-not-observed' }); assert.equal(setCount, 1); assert.equal(clearCount, 1)
+})
+
+test('visible-form driver detaches cancellable signal after early failure', async () => {
+  let cancelled = 0
+  let rejectSignal
+  const signal = new Promise((_, reject) => { rejectSignal = reject })
+  const result = await driveHostedUiSignIn(fakeHostedPage({ clickError: true }).page, {
+    username: 'canary-alias', password: 'canary-password',
+    waitForNavigationSignal: () => ({ promise: signal, cancel() { cancelled += 1 } }),
+  })
+  assert.deepEqual(result, { checkpoint: 'click-failed' })
+  assert.equal(cancelled, 1)
+  rejectSignal(new Error('canary signal rejection'))
+  await new Promise(resolve => setImmediate(resolve))
 })

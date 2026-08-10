@@ -3214,6 +3214,21 @@ visible-form driver and typed checkpoints before one further bounded rehearsal.
 HF01-HF03 may proceed in order under their exact preview-only boundaries. No
 IAM, deploy, invalidation, production, DNS, Firebase, or T17 work is authorized.
 
+### Phase 4 T16 PF01
+
+PF01 is implemented locally from Sol correction `a65ead2`. The Hosted UI
+driver now attaches rejection handling immediately, supports an injected
+cancellable navigation signal, clears its bounded timer and detaches the
+signal on every action outcome, and returns the distinct `click-failed`
+checkpoint. A real Playwright Chromium fixture (desktop and mobile responsive
+forms) proves that only the visible named Cognito form is filled and submitted
+once; the existing AWS-free failure/timer/canary tests remain in place.
+
+Node `v24.18.1` focused harness and browser tests passed `17/17`; root
+`npm run check` passed (web44, core7, schedule-api25, infra19 plus build/synth).
+No AWS, Cognito, browser-hosted, credential, or data operation occurred. PF02
+is next; PF03 remains blocked until PF02 succeeds.
+
 ### Phase 4 T16 HF01
 
 HF01 completed locally from Sol handoff `47b5b24` under Node 24.18.1. The

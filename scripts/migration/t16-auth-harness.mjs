@@ -85,7 +85,7 @@ export function createSanitizedBrowserRecorder(page) {
 
 const sensitiveCliOperations = new Set(['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user'])
 
-const hostedUiCheckpoints = new Set(['form-ready', 'form-submitted', 'form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'submit-not-observed'])
+const hostedUiCheckpoints = new Set(['form-ready', 'form-submitted', 'form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed'])
 
 export async function driveHostedUiSignIn(page, { username, password, waitForNavigationSignal, timeoutMs = 30000, timer = { set: setTimeout, clear: clearTimeout } } = {}) {
   const checkpoint = (value) => { if (!hostedUiCheckpoints.has(value)) throw new Error('invalid hosted UI checkpoint'); return { checkpoint: value } }
@@ -100,12 +100,26 @@ export async function driveHostedUiSignIn(page, { username, password, waitForNav
     if (await usernameControl.count() !== 1 || await passwordControl.count() !== 1 || await submitControl.count() !== 1) return checkpoint('control-missing')
     if (!(await usernameControl.isVisible()) || !(await passwordControl.isVisible()) || !(await submitControl.isVisible()) || !(await usernameControl.isEnabled()) || !(await passwordControl.isEnabled()) || !(await submitControl.isEnabled())) return checkpoint('control-disabled')
     if (typeof waitForNavigationSignal !== 'function') return checkpoint('submit-not-observed')
-    const signal = Promise.resolve().then(() => waitForNavigationSignal())
-    try { await usernameControl.fill(username); await passwordControl.fill(password) } catch { return checkpoint('fill-failed') }
-    try { await submitControl.click() } catch { return checkpoint('fill-failed') }
     let timerId
-    const timeout = new Promise((_, reject) => { timerId = timer.set(() => reject(new Error('timeout')), timeoutMs) })
-    try { await Promise.race([signal, timeout]); return checkpoint('form-submitted') } catch { return checkpoint('submit-not-observed') } finally { if (timerId !== undefined) timer.clear(timerId) }
+    let detach = () => {}
+    let signal
+    try {
+      const source = waitForNavigationSignal()
+      signal = source && typeof source === 'object' && 'promise' in source ? source.promise : source
+      if (source && typeof source.cancel === 'function') detach = source.cancel
+      signal = Promise.resolve(signal)
+      // Attach rejection handling before any action can return early. The injected
+      // signal may reject after a fill/click failure, and must never become unhandled.
+      signal.catch(() => {})
+      const timeout = new Promise((_, reject) => { timerId = timer.set(() => reject(new Error('timeout')), timeoutMs) })
+      try { await usernameControl.fill(username); await passwordControl.fill(password) } catch { return checkpoint('fill-failed') }
+      try { await submitControl.click() } catch { return checkpoint('click-failed') }
+      try { await Promise.race([signal, timeout]); return checkpoint('form-submitted') } catch { return checkpoint('submit-not-observed') }
+    } catch { return checkpoint('submit-not-observed') }
+    finally {
+      if (timerId !== undefined) timer.clear(timerId)
+      try { await detach() } catch {}
+    }
   } catch { return checkpoint('form-ambiguous') }
 }
 

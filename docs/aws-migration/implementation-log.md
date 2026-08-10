@@ -3213,3 +3213,20 @@ D038 and `phase4-t16-hosted-ui-form-plan.md` require a committed, locally tested
 visible-form driver and typed checkpoints before one further bounded rehearsal.
 HF01-HF03 may proceed in order under their exact preview-only boundaries. No
 IAM, deploy, invalidation, production, DNS, Firebase, or T17 work is authorized.
+
+### Phase 4 T16 HF01
+
+HF01 completed locally from Sol handoff `47b5b24` under Node 24.18.1. The
+dependency-free Hosted UI driver now scopes exactly one visible
+`form[name="cognitoSignInForm"]`, requires unique visible/enabled username,
+password, and submit controls, fills values without retaining them, clicks the
+real submit control, and requires a bounded navigation signal with timer
+cleanup. It returns only typed checkpoints.
+
+The focused harness suite passed 15/15, covering desktop/mobile responsive
+duplicate-form selection, absent/ambiguous forms, missing/disabled controls,
+fill/click rejection, bounded no-submit, timer cleanup, canary non-exposure,
+and all prior recorder/protected-input cases. Root `npm run check` passed
+(web44, core7, schedule-api25, infra19 plus build/synth). No Cognito user,
+credential, browser, or AWS operation occurred. HF02 is next; HF03 remains
+blocked until HF02 succeeds.

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { approvedBrowserHosts, assertReservedCell, createProtectedCliInput, createSanitizedBrowserRecorder, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
+import { approvedBrowserHosts, assertReservedCell, createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
 
 test('operator input is validated without returning password material', () => {
   const result = validateOperatorEnvironment({ T16_ADMIN_USERNAME: 'preview-t16-admin@rehearsal.invalid', T16_NONADMIN_USERNAME: 'preview-t16-nonadmin@rehearsal.invalid', T16_ADMIN_PASSWORD: 'a'.repeat(24), T16_NONADMIN_PASSWORD: 'b'.repeat(24) })
@@ -102,4 +102,34 @@ test('protected CLI operation table supports per-operation JSON files and immedi
 test('protected adapter failure cleanup retains internal identity without exposing it', () => {
   const calls = []; const internal = 'canary-internal'; calls.push({ operation: 'create', id: internal }); try { throw new Error('canary-password') } catch { calls.push({ operation: 'delete', id: internal }) }
   assert.deepEqual(calls.map(({ operation }) => operation), ['create', 'delete']); const safe = { status: 'setup-failed', cleanup: true, calls: 2 }; assert.doesNotMatch(JSON.stringify(safe), /canary|password|internal/i)
+})
+
+function fakeHostedPage({ visibleForm = true, ambiguous = false, controls = {}, fillError = false, clickError = false } = {}) {
+  const forms = [{ visible: visibleForm, username: '', password: '', submits: 0 }]
+  if (ambiguous) forms.push({ visible: true, username: '', password: '', submits: 0 })
+  const control = (form, name) => ({ async count() { return controls[name]?.count ?? 1 }, async isVisible() { return form.visible && controls[name]?.visible !== false }, async isEnabled() { return controls[name]?.enabled !== false }, async fill(value) { if (fillError) throw new Error(`canary ${value}`); form[name] = value }, async click() { if (clickError) throw new Error('canary click'); form.submits += 1 } })
+  const locator = (selector) => {
+    if (selector.startsWith('form')) { const visible = forms.filter((form) => form.visible); return { async count() { return visible.length }, async isVisible() { return visible.length === 1 && visible[0].visible }, async isEnabled() { return true }, locator: (nested) => control(visible[0], nested.includes('username') ? 'username' : nested.includes('password') ? 'password' : 'submit') } }
+    throw new Error('unexpected page selector')
+  }
+  return { page: { locator }, forms }
+}
+
+test('visible-form driver scopes responsive duplicates and submits only selected form on desktop/mobile fixtures', async () => {
+  for (const viewport of ['desktop', 'mobile']) {
+    const fixture = fakeHostedPage(); const result = await driveHostedUiSignIn(fixture.page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: async () => ({ navigation: viewport }), timeoutMs: 20 }); assert.deepEqual(result, { checkpoint: 'form-submitted' }); assert.equal(fixture.forms[0].username, 'canary-alias'); assert.equal(fixture.forms[0].password, 'canary-password'); assert.equal(fixture.forms[0].submits, 1)
+  }
+})
+
+test('visible-form driver rejects absent/ambiguous forms and missing or disabled controls', async () => {
+  assert.deepEqual(await driveHostedUiSignIn(fakeHostedPage({ visibleForm: false }).page, { username: 'canary', password: 'canary', waitForNavigationSignal: async () => undefined }), { checkpoint: 'form-ambiguous' })
+  assert.deepEqual(await driveHostedUiSignIn(fakeHostedPage({ ambiguous: true }).page, { username: 'canary', password: 'canary', waitForNavigationSignal: async () => undefined }), { checkpoint: 'form-ambiguous' })
+  assert.deepEqual(await driveHostedUiSignIn(fakeHostedPage({ controls: { username: { count: 0 } } }).page, { username: 'canary', password: 'canary', waitForNavigationSignal: async () => undefined }), { checkpoint: 'control-missing' })
+  assert.deepEqual(await driveHostedUiSignIn(fakeHostedPage({ controls: { password: { enabled: false } } }).page, { username: 'canary', password: 'canary', waitForNavigationSignal: async () => undefined }), { checkpoint: 'control-disabled' })
+})
+
+test('visible-form driver sanitizes fill/click failures and bounds no-submit', async () => {
+  const fillFailure = await driveHostedUiSignIn(fakeHostedPage({ fillError: true }).page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: async () => undefined }); assert.deepEqual(fillFailure, { checkpoint: 'fill-failed' }); assert.doesNotMatch(JSON.stringify(fillFailure), /canary|password/i)
+  const clickFailure = await driveHostedUiSignIn(fakeHostedPage({ clickError: true }).page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: async () => undefined }); assert.deepEqual(clickFailure, { checkpoint: 'fill-failed' })
+  let setCount = 0; let clearCount = 0; const timer = { set(callback) { setCount += 1; return setTimeout(callback, 2) }, clear(id) { clearCount += 1; clearTimeout(id) } }; const timeout = await driveHostedUiSignIn(fakeHostedPage().page, { username: 'canary-alias', password: 'canary-password', waitForNavigationSignal: () => new Promise(() => {}), timeoutMs: 2, timer }); assert.deepEqual(timeout, { checkpoint: 'submit-not-observed' }); assert.equal(setCount, 1); assert.equal(clearCount, 1)
 })

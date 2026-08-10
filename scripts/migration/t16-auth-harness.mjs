@@ -85,6 +85,30 @@ export function createSanitizedBrowserRecorder(page) {
 
 const sensitiveCliOperations = new Set(['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user'])
 
+const hostedUiCheckpoints = new Set(['form-ready', 'form-submitted', 'form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'submit-not-observed'])
+
+export async function driveHostedUiSignIn(page, { username, password, waitForNavigationSignal, timeoutMs = 30000, timer = { set: setTimeout, clear: clearTimeout } } = {}) {
+  const checkpoint = (value) => { if (!hostedUiCheckpoints.has(value)) throw new Error('invalid hosted UI checkpoint'); return { checkpoint: value } }
+  if (!page || typeof page.locator !== 'function' || typeof timer.set !== 'function' || typeof timer.clear !== 'function' || typeof timeoutMs !== 'number' || timeoutMs <= 0 || typeof username !== 'string' || typeof password !== 'string') return checkpoint('form-ambiguous')
+  let form
+  try {
+    const forms = page.locator('form[name="cognitoSignInForm"]:visible')
+    if (await forms.count() !== 1) return checkpoint('form-ambiguous')
+    form = forms
+    if (!(await form.isVisible()) || !(await form.isEnabled())) return checkpoint('control-disabled')
+    const usernameControl = form.locator('input[name="username"]:visible'); const passwordControl = form.locator('input[name="password"]:visible'); const submitControl = form.locator('input[type="submit"][name="signInSubmitButton"]:visible')
+    if (await usernameControl.count() !== 1 || await passwordControl.count() !== 1 || await submitControl.count() !== 1) return checkpoint('control-missing')
+    if (!(await usernameControl.isVisible()) || !(await passwordControl.isVisible()) || !(await submitControl.isVisible()) || !(await usernameControl.isEnabled()) || !(await passwordControl.isEnabled()) || !(await submitControl.isEnabled())) return checkpoint('control-disabled')
+    if (typeof waitForNavigationSignal !== 'function') return checkpoint('submit-not-observed')
+    const signal = Promise.resolve().then(() => waitForNavigationSignal())
+    try { await usernameControl.fill(username); await passwordControl.fill(password) } catch { return checkpoint('fill-failed') }
+    try { await submitControl.click() } catch { return checkpoint('fill-failed') }
+    let timerId
+    const timeout = new Promise((_, reject) => { timerId = timer.set(() => reject(new Error('timeout')), timeoutMs) })
+    try { await Promise.race([signal, timeout]); return checkpoint('form-submitted') } catch { return checkpoint('submit-not-observed') } finally { if (timerId !== undefined) timer.clear(timerId) }
+  } catch { return checkpoint('form-ambiguous') }
+}
+
 export function createProtectedCliInput({ root, filePath, operation, payload, inspectFile, writeProtected, unlink }) {
   if (!sensitiveCliOperations.has(operation) || typeof payload !== 'object' || payload === null || typeof inspectFile !== 'function' || typeof writeProtected !== 'function' || typeof unlink !== 'function') throw new Error('invalid protected operation')
   if (!isAbsolute(root) || !isAbsolute(filePath)) throw new Error('invalid protected path')
@@ -103,4 +127,4 @@ export function createProtectedCliInput({ root, filePath, operation, payload, in
   }
 }
 
-export { approvedBrowserHosts, exactKey, hostedUiCategories }
+export { approvedBrowserHosts, exactKey, hostedUiCategories, hostedUiCheckpoints }

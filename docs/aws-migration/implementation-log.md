@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A-D accepted locally, T15E01 complete; E02-E04 pending | `d9c26a6` + D021/T15E plan | E01 policy tests/build/check passed; immutable AWS preflight required before writes | No OIDC/provider/role stack or GitHub workflow activation yet. |
+| T15 | in progress; T15A-D accepted locally, T15E01/E02 complete; E03-E04 pending | `37bad43` + D021/T15E plan | E01 tests/checks and E02 immutable AWS/template preflight passed | No OIDC/provider/role stack or GitHub workflow activation yet. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2009,4 +2009,34 @@ surfaces. The bootstrap README records the v6 gate. No AWS operation occurred.
 Node 24.18.1: focused policy tests 4 passed; infra tests 17 passed; infra
 build/synth passed; root npm run check passed; git diff --check passed. E02
 read-only preflight is next; no policy version or stack write has occurred.
+```
+
+### Phase 4 T15E02 immutable preflight
+
+```text
+Start: 37bad43; result: read-only gates passed; committed before any write.
+AWS_PROFILE=codex-prod and ap-northeast-1 returned account 470447451992 and
+the configured region ap-northeast-1. The exact execution policy ARN reports
+v5 default with exactly v1-v5 retained. AWS v5 canonical sorted-pretty JSON
+SHA-256 is ca4a20e3e3a7c06c1f1196559886a9679dee98b9a25c7334dd8faf69b19e061e;
+AWS v1 matches commit dc22db1 at
+598747d3e2158c4c52cfd9b50cb4c4883f8ac9f6c07013b54ed12ed24be1591a. The
+committed candidate canonical SHA-256 is
+a257ac02346a692248825568421732af7ee969f449204ad8f0da714dcbeb7488 and its
+delta from v5 is exactly PreviewGitHubOidcProviderLifecycle plus
+PreviewGitHubDeployRoleLifecycle.
+
+Read-only absence checks found no OIDC providers, no exact role, and no
+ItsRunPreviewGitHubDeploy stack. Fresh synth HostingStack template SHA-256 is
+7f1cd50ea4b5c440579ffec11ea2c03c5fc35fab66a4230d8b2c56ec66af857e; the
+reviewed GitHub stack template SHA-256 is
+43b2e3f69ca9f6a1c48056c57304b509b372131f30e2dea099885f4c9359ada6.
+CloudFormation ValidateTemplate reports only CAPABILITY_NAMED_IAM. Candidate
+statements alone pass Access Analyzer validation and IAM custom-policy
+simulation for all 22 reviewed actions. Full historical v5 validation reports
+one pre-existing INVALID_ACTION for apigateway:TagResource; it was not changed
+or broadened. No AWS write, stack mutation, policy version change, GitHub,
+HostingStack, web/data, invalidation, Cognito, production, DNS, or Firebase
+operation occurred. E03 is authorized to proceed with only v1 deletion and
+one v6 creation after repeating these gates.
 ```

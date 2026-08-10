@@ -14,7 +14,11 @@ describe('T15A migration validation workflow', () => {
     const text = await workflow('validate-migration.yml');
     expect(text).toMatch(/pull_request:\s*\n\s+branches:\s*\n\s+- migration\/aws-s3-cloudfront/);
     expect(text).toMatch(/push:\s*\n\s+branches:\s*\n\s+- migration\/aws-s3-cloudfront/);
-    expect(text).toMatch(/permissions:\s*\n\s+contents:\s*read/);
+    expect(text.match(/^permissions:\s*$/gm)).toHaveLength(1);
+    expect(text).toMatch(/^permissions:\s*\n\s+contents:\s*read\s*\n\s*\nconcurrency:/m);
+    expect(text).not.toMatch(/^[ \t]+permissions:/m);
+    expect(text).not.toMatch(/\b[a-z0-9-]+:\s*write\b/i);
+    expect(text).not.toMatch(/workflow_dispatch|schedule:|workflow_run|repository_dispatch/);
     expect(text).not.toMatch(/pull_request_target|id-token\s*:\s*write|contents\s*:\s*write|secrets\./);
     expect(text).toMatch(/concurrency:/);
     expect(text).toMatch(/timeout-minutes:\s*30/);
@@ -33,7 +37,12 @@ describe('T15A migration validation workflow', () => {
   it('runs the bounded Node/npm/Chromium production checks without artifacts', async () => {
     const text = await workflow('validate-migration.yml');
     expect(text).toContain('node-version: 24.18.1');
-    expect(text).toContain('npm ci');
+    const npmPin = text.indexOf('npm install --global npm@11.4.2');
+    const npmGate = text.indexOf('test "$(npm --version)" = "11.4.2"');
+    const npmCi = text.indexOf('npm ci');
+    expect(npmPin).toBeGreaterThan(-1);
+    expect(npmGate).toBeGreaterThan(npmPin);
+    expect(npmCi).toBeGreaterThan(npmGate);
     expect(text).toContain('npm run check');
     expect(text).toContain('npm run test:e2e');
     expect(text).toContain('playwright install --with-deps chromium');

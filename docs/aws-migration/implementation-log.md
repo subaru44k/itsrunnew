@@ -39,16 +39,16 @@ Operating system: macOS
 | T08 | complete | `9cd06d0` | `node scripts/migration/create-preview-seed.mjs`; `node scripts/migration/verify-preview-seed.mjs`; `npm run check` | Generated clearly labeled non-production Oda JSON under ignored preview artifacts with deterministic SHA-256 manifest and 60-second cache metadata. No AWS upload or production overwrite. |
 | T09 | complete | `5bbae68` | R01-R07 complete; T10/Phase 4 intentionally not started. | Preview CloudFront vertical slice is deployed and verified below. Handing back to Sol for Phase 3 review. |
 | T10 | complete | `40c07f3` | Node 24.18.1: `npm run check`; `npx vitest run scripts/migration/deploy-preview.test.mjs` (20 passed); `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview` (88 passed); `git diff --check` | Confirmed all Phase 3 P3R/C/RR/FF findings are closed with no new dependency or architecture change. Phase 4 may proceed to T11. |
-| T11 | blocked by stop condition | `8d6de28` | Read-only repository/config inspection; no AWS write attempted | Cognito/Google federation cannot be safely parameterized for deployment: no Google client ID or secret reference, Cognito domain prefix, callback/logout URLs, or administrator configuration is provided. `.env.example` contains only an empty `NUXT_PUBLIC_SITE_URL` and `/api/v1`; no undocumented value was inferred. T11 and dependent T12-T17 are paused pending the exact configuration and authority. |
+| T11 | complete; accepted | `5f23d2e` | Final acceptance: infra 15, root check, preview E2E 88 | Deployed preview Cognito/API/CloudFront contracts accepted; historical stop records remain below. |
 | T11-local | local implementation complete; awaiting Sol IAM review | `3c9fba3` | Node 24.18.1: `npm run check` (passed); `npm run test:infra --workspace @itsrun/infra` (5 passed); `npm run build --workspace @itsrun/infra` / CDK synth (passed); `git diff --check` (passed) | Sol configuration contract is now explicit. Added parameterized Cognito User Pool/Google IdP/domain/app client, empty `admins` group, HTTP API JWT authorizer/protected route contracts, and CloudFront `/api/*` no-cache behavior. The prior T11 stop record at `8d6de28` is retained above. No AWS API/write, deploy, bootstrap, or managed-policy v4 operation was performed. T11 remains incomplete until Sol reviews the synthesized IAM requirements and a later approved deployment/integration test. |
 | T11R01 | complete; awaiting remaining Sol review items | `4bccdd6` | `npm run test:infra --workspace @itsrun/infra` (6 passed) | Replaced the managed all-viewer API origin request policy with a stack-owned allow-list policy. Authorization is forwarded through a stack-owned zero-TTL cache policy as required by CloudFront; Content-Type, If-Match, and If-None-Match use the origin request policy. Cookies and query strings remain disabled. No AWS operation was performed. |
 | T11R02 | complete; awaiting remaining Sol review items | `1f4dd3a` | `npm run test:infra --workspace @itsrun/infra` (7 passed) | Added an API-only viewer-request method filter. GET, PUT, and OPTIONS pass; HEAD, PATCH, POST, and DELETE return 405 with the exact Allow header. The public route rewrite function is unchanged. No AWS operation was performed. |
 | T11R03 | complete; awaiting remaining Sol review items | `97af556` | `npm run test:infra --workspace @itsrun/infra` (8 passed) | Added parameterized local-development CORS limited to one origin and the four API headers, with GET/PUT/OPTIONS only and no credentials wildcard. Enabled Cognito User Pool deletion protection while retaining CloudFormation. No AWS operation was performed. |
 | T11R04 | complete; awaiting remaining Sol review items | `c63f159` | `npm run test:infra --workspace @itsrun/infra` (9 passed) | Added the parameterized Cognito auth base URL to CSP `connect-src` and outputs for auth base URL, issuer, User Pool ID, and app-client ID. No Google endpoint wildcard or AWS operation was introduced. |
-| T12 | blocked by T10/T11 | | | |
-| T13 | blocked by T10-T12 | | | |
+| T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
+| T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A complete, T15B-D pending Sol review | `5e4b19e` | T15A workflow contract tests (3 passed) | Local-only implementation started under Node 24.18.1; no AWS/GitHub write or deployment. |
+| T15 | in progress; T15A complete, T15B-D pending Sol review | `2c2fec8` | T15A workflow contract tests (3 passed) | Local-only implementation started under Node 24.18.1; no AWS/GitHub write or deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1775,6 +1775,8 @@ production-browser E2E command after Chromium-only installation. No artifact,
 secret, AWS credential, id-token, or dangerous trigger is configured.
 
 The AWS-free workflow contract suite passed 3 tests under Node 24.18.1.
+The follow-up requires the workflow to install and fail-closed verify exact
+npm 11.4.2 before npm ci; the workflow contract now enforces that order.
 No AWS/GitHub operation occurred. T15B-T15D remain pending and T15 is not
 complete until those milestones receive separate review.
 ```

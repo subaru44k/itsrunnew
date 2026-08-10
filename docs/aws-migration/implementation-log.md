@@ -2909,6 +2909,30 @@ credentials, cookies, hidden transaction values, codes, tokens, and claims
 cannot appear in the result. Focused tests pass 5/5. LD02 remains pending its
 single-user read-only diagnostic and mandatory cleanup.
 
+### Phase 4 T16 LD02 result
+
+Read-only gates matched account/region, policy v7 with v3-v7 retained, healthy
+Hosting/alarm/CSP, code/PKCE COGNITO-only client, and zero pool/group users.
+One suppressed `.invalid` diagnostic user was created, permanently
+password-set, and confirmed with `AdminGetUser`; it was never added to a
+group. The email-alias browser attempt reached the sanitized `callback`
+category (`/manage/callback` then same-origin `/manage`) with no API request.
+
+The initial normalizer classified this as `unknown-login` because it only
+examined the final path, so the harness proceeded to the one permitted
+internal-Username diagnostic attempt before the defect was recognized. That
+attempt also reached the sanitized `callback` category with zero API
+requests. No raw DOM, credentials, cookies, hidden fields, query strings,
+codes, tokens, claims, or raw errors were recorded. The normalizer now treats
+any same-origin callback path in the sequence as `callback`, with focused tests
+passing 6/6.
+
+The diagnostic user was immediately deleted (one cleanup write); pool users
+and `admins` members read back as zero. LD02 writes were exactly three (create,
+permanent-password set, delete); no group, API, schedule, data, or deployment
+operation occurred. Temporary credential/script files were removed outside
+the repository.
+
 ### Phase 4 T16 CSP02/CSP03 recovery result
 
 The CSP02 read-only gate matched policy v7 default with v3-v7 retained,

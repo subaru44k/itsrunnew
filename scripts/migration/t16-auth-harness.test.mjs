@@ -49,3 +49,8 @@ test('Hosted UI diagnostic never exposes raw DOM, credentials, cookies, or hidde
   assert.doesNotMatch(JSON.stringify(result), /user@example|passw0rd|cookie|hidden|csrf|code|token|xyz/i)
   assert.throws(() => normalizeHostedUiOutcome({ role: 'diagnostic', domText: raw, urlSequence: ['javascript:alert(1)'], statuses: [200] }))
 })
+
+test('Hosted UI callback is recognized even when it immediately replaces to manage', () => {
+  const result = normalizeHostedUiOutcome({ role: 'diagnostic', domText: 'safe', urlSequence: ['https://example.invalid/login', 'https://d2via50thoheqm.cloudfront.net/manage/callback', 'https://d2via50thoheqm.cloudfront.net/manage'], statuses: [200, 302, 200] })
+  assert.equal(result.category, 'callback')
+})

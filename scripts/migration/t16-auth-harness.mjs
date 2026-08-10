@@ -41,8 +41,7 @@ export function normalizeHostedUiOutcome({ role, domText = '', urlSequence = [],
     return value
   })
   const text = domText.toLowerCase()
-  const finalPath = redirects.at(-1)?.path || ''
-  const category = finalPath === '/manage/callback'
+  const category = redirects.some(({ path }) => path === '/manage/callback')
     ? 'callback'
     : /incorrect|invalid username|wrong password|authentication failed/.test(text)
       ? 'incorrect-credentials'

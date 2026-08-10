@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | selected-action recovery planned after zero-job startup failure | `47db942` + D024/A01-A04 plan | D023 exact trigger and normal validation passed; deployment run had zero jobs and no AWS session | Temporary trigger remains remote; exact SHA action-policy correction and one final deployment run are planned. |
+| T15 | A01 complete; A02 stopped at failed deployment helper | `3a7a6e6` + A02 stop follow-up | Selected action corrected; validation passed; second Preview run reached jobs but helper failed before raw preview E2E | No A03 cleanup or A04 protection was performed after the terminal failed-deployment stop. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2374,4 +2374,39 @@ the action SHA. The single authorized settings update changed only that value
 to `aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8`.
 Readback confirmed every other setting unchanged and the exact SHA-qualified
 pattern. No workflow, push, AWS, or deployment operation occurred in A01.
+```
+
+### Phase 4 T15 dispatch recovery A02 deployment stop
+
+```text
+Start: d8a7436; A02 commit/push SHA:
+3a7a6e610c22703e21b10a8f12cbe03e4a3f1de7. The selected-action setting was
+read back with the exact SHA-qualified pattern before the push. Read-only AWS
+baselines remained account 470447451992/region ap-northeast-1, HostingStack
+UPDATE_COMPLETE, and the same data-version and invalidation inventory hashes:
+7beee9dc3cbe0e99663d8d2b34bbc27856cffc67c6d4f91eff19c22a91538d4e and
+83890be8558e3f6da4653cef4a74099b5c4e69f7800967d890f143949da62b44.
+
+The normal validation job in Preview run 31349359200 succeeded before deploy:
+validation job 93337159470, context `Node 24 validation`, Node 24.18.1,
+checks/Chromium/E2E all passed. The sole new Preview deployment run was
+31349359200
+(https://github.com/subaru44k/itsrunnew/actions/runs/31349359200), exact head
+SHA 3a7a6e6. Deploy job 93337415921 passed setup, validation, build, and OIDC
+credential configuration, then failed at `Deploy web-only preview` with exit
+code 2; raw preview E2E was skipped. No deployment report was emitted and no
+retry or rerun was performed.
+
+Read-only post-failure checks show HostingStack remains UPDATE_COMPLETE with
+the reviewed outputs, and the data-version/invalidation hashes remain exactly
+unchanged. The current web-bucket inventory hash is
+89ca02316baf1c69aec0c273d0dcfea5f159332d99201355d58f927c5714a4fd8; no
+pre-run web inventory hash was captured, so no web deployment acceptance or
+absence claim is made. No CloudFront invalidation, schedule-data mutation,
+HostingStack mutation, Cognito, production/DNS/Firebase change was observed.
+
+Because this second deployment attempt failed, A03 cleanup and A04 master
+protection are not authorized by the recovery stop condition. No retry,
+dispatch, cleanup push, merge, or protection write occurred. This record
+contains no credentials, tokens, raw command output, or object bodies.
 ```

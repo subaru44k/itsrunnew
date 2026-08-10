@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import * as fsp from 'node:fs/promises'
-import { awaitHostedUiLogin, createConcreteAuthAdapters, main, runAuthCoordinator, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
+import { awaitHostedUiLogin, createConcreteAuthAdapters, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
 function fakeRun({ fail = null, getShape = 'top-level' } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
@@ -106,4 +106,14 @@ test('Hosted UI redirect gate delays form access and enforces exact host/path', 
   await assert.rejects(() => awaitHostedUiLogin({ getByRole: () => ({ click: async () => {} }), waitForURL: (predicate) => new Promise((resolve, reject) => { setTimeout(() => reject(new Error('timeout')), 5) }) }, { timeoutMs: 20 }), /hosted-ui-redirect-timeout/)
   const wrong = { getByRole: () => ({ click: async () => {} }), waitForURL: (predicate) => { assert.equal(predicate(`https://${AUTH_CONSTANTS.hostedUiDomain}/authorize`), false); return Promise.reject(new Error('wrong path')) } }
   await assert.rejects(() => awaitHostedUiLogin(wrong, { timeoutMs: 20 }), /hosted-ui-redirect-timeout/)
+})
+
+test('browser role integration invokes form driver only after the delayed URL gate', async () => {
+  let current = 'https://d2via50thoheqm.cloudfront.net/manage'; const order = []
+  const page = {
+    getByRole() { return { click: async () => { order.push('click'); await new Promise(resolve => setTimeout(resolve, 10)); current = `https://${AUTH_CONSTANTS.hostedUiDomain}/login` } } },
+    waitForURL(predicate, { timeout }) { return new Promise((resolve, reject) => { const started = Date.now(); const poll = () => { if (predicate(current)) { order.push('gate'); return resolve() }; if (Date.now() - started >= timeout) return reject(new Error('timeout')); setTimeout(poll, 1) }; poll() }) },
+  }
+  const result = await runBrowserRoleSession(page, { username: 'alias.invalid', password: 'not-output', formDriver: async () => { order.push('form'); assert.equal(current, `https://${AUTH_CONSTANTS.hostedUiDomain}/login`); return { checkpoint: 'form-submitted' } } })
+  assert.deepEqual(result, { checkpoint: 'form-submitted' }); assert.deepEqual(order, ['click', 'gate', 'form'])
 })

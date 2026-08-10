@@ -3567,3 +3567,17 @@ cannot occur before the URL gate and failures remain sanitized.
 Focused auth/Chromium tests passed 33/33; root `npm run check` and
 `git diff --check` passed. No AWS or live Hosted UI execution occurred.
 HU02 remains blocked pending Sol source review.
+
+### Phase 4 T16 HU01 Sol correction
+
+Sol review found the production role path invoked the redirect gate without
+awaiting it, so form driving could still race the asynchronous Hosted UI
+navigation. HU01 now routes production through the exported
+`runBrowserRoleSession`, which explicitly awaits the exact-host/path gate
+before invoking the form driver. An integration-level delayed fake proves the
+ordering `click`, URL gate, then form driver; the existing real Chromium
+fixture remains covered.
+
+Focused auth/Chromium tests passed 34/34; root `npm run check` and
+`git diff --check` passed. No AWS or live Hosted UI execution occurred.
+HU02 remains blocked pending Sol source review.

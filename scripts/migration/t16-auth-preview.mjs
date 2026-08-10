@@ -94,6 +94,14 @@ export async function awaitHostedUiLogin(page, { hostedUiHost = AUTH_CONSTANTS.h
   try { await Promise.all([page.waitForURL(exactHostedLogin, { timeout: timeoutMs }), login.click()]); return { checkpoint: 'hosted-ui-login' } } catch { throw new Error('hosted-ui-redirect-timeout') }
 }
 
+export async function runBrowserRoleSession(page, { username, password, loginGate = awaitHostedUiLogin, formDriver = driveHostedUiSignIn } = {}) {
+  if (typeof loginGate !== 'function' || typeof formDriver !== 'function') throw new Error('invalid browser role boundary')
+  await loginGate(page)
+  const submitted = await formDriver(page, { username, password, waitForNavigationSignal: () => page.waitForURL(url => new URL(url).pathname === '/manage/callback', { timeout: 30000 }) })
+  if (submitted?.checkpoint !== 'form-submitted') throw new Error('form proof failed')
+  return { checkpoint: 'form-submitted' }
+}
+
 async function runRealBrowserRole(role, username, password) {
   const { chromium } = await import('playwright')
   const outcomes = {}
@@ -105,10 +113,8 @@ async function runRealBrowserRole(role, username, password) {
       const onResponse = response => { try { const url = new URL(response.url()); if (url.pathname === AUTH_CONSTANTS.apiPath && response.request().method() === 'GET' && url.origin === new URL(AUTH_CONSTANTS.cloudFrontBase).origin) apiStatus = response.status() } catch {} }
       page.on('response', onResponse)
       await page.goto(`${AUTH_CONSTANTS.cloudFrontBase}/manage`, { waitUntil: 'domcontentloaded' })
-      awaitHostedUiLogin(page)
-      const submitted = await driveHostedUiSignIn(page, { username, password, waitForNavigationSignal: () => page.waitForURL(url => new URL(url).pathname === '/manage/callback', { timeout: 30000 }) })
+      const submitted = await runBrowserRoleSession(page, { username, password })
       outcomes[viewport.width > 600 ? 'desktop' : 'mobile'] = submitted.checkpoint
-      if (submitted.checkpoint !== 'form-submitted') throw new Error('form proof failed')
       const callback = recorder.snapshot().events.some(event => event.kind === 'navigation' && event.path === '/manage/callback')
       if (!callback) throw new Error('callback proof failed')
       await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 })

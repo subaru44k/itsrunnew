@@ -2933,6 +2933,21 @@ permanent-password set, delete); no group, API, schedule, data, or deployment
 operation occurred. Temporary credential/script files were removed outside
 the repository.
 
+### Phase 4 T16 FR01
+
+Local gates passed under Node 24: focused auth harness 6/6, root check, and
+local E2E (legacy14/admin44). Read-only AWS gates matched account
+470447451992/region ap-northeast-1, policy v7 default with v3-v7 retained,
+Hosting/alarm/CSP/GitHub baselines, exact code/PKCE COGNITO-only client, pool
+and group zero, API no-store, and private S3. The D029 Oda object was captured
+outside the repository with the exact 501-byte SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, cell
+`2026-08-09[0]=0`, ETag `"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`, `application/json`, and
+`public, max-age=0, s-maxage=60`. AWS CLI `PutObject` supports `IfMatch`, and
+the exact-key restore permission simulation was allowed. FR01 performed no
+AWS write.
+
 ### Phase 4 T16 CSP02/CSP03 recovery result
 
 The CSP02 read-only gate matched policy v7 default with v3-v7 retained,

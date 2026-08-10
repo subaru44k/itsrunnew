@@ -1,4 +1,4 @@
-import { App, Aws, CfnOutput, CfnParameter, Duration, Fn, RemovalPolicy, Stack } from 'aws-cdk-lib'
+import { App, Aws, CfnOutput, CfnParameter, Duration, Fn, RemovalPolicy, Stack, Tags } from 'aws-cdk-lib'
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
@@ -269,9 +269,49 @@ export class HostingStack extends Stack {
   }
 }
 
+export class GitHubDeployStack extends Stack {
+  constructor(scope, id, props) {
+    super(scope, id, props)
+    const provider = new iam.CfnOIDCProvider(this, 'GitHubActionsOidcProvider', {
+      url: 'https://token.actions.githubusercontent.com',
+      clientIdList: ['sts.amazonaws.com'],
+      tags: [{ key: 'Purpose', value: 'ItsRun preview web deployment' }],
+    })
+    provider.applyRemovalPolicy(RemovalPolicy.RETAIN)
+    const role = new iam.Role(this, 'GitHubWebDeployRole', {
+      roleName: 'itsrun-preview-github-web-deploy',
+      description: 'OIDC role for the reviewed ItsRun preview web deployment workflow.',
+      maxSessionDuration: Duration.hours(1),
+      assumedBy: new iam.FederatedPrincipal(provider.ref, {
+        StringEquals: {
+          'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
+          'token.actions.githubusercontent.com:sub': 'repo:subaru44k/itsrunnew:ref:refs/heads/migration/aws-s3-cloudfront',
+        },
+      }, 'sts:AssumeRoleWithWebIdentity'),
+      inlinePolicies: {
+        PreviewWebDeployment: new iam.PolicyDocument({ statements: [
+          new iam.PolicyStatement({
+            actions: ['cloudformation:DescribeStacks'],
+            resources: ['arn:aws:cloudformation:ap-northeast-1:470447451992:stack/ItsRunPreviewHosting/*'],
+          }),
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: ['arn:aws:s3:::itsrun-preview-web-470447451992-ap-northeast-1/*'],
+          }),
+        ] }),
+      },
+    })
+    Tags.of(role).add('Purpose', 'ItsRun preview web deployment')
+    role.applyRemovalPolicy(RemovalPolicy.RETAIN)
+    new CfnOutput(this, 'GitHubActionsProviderArn', { value: provider.attrArn })
+    new CfnOutput(this, 'GitHubWebDeployRoleArn', { value: role.roleArn })
+  }
+}
+
 export function createApp() {
   const app = new App()
   new HostingStack(app, 'ItsRunPreviewHosting')
+  new GitHubDeployStack(app, 'ItsRunPreviewGitHubDeploy')
   return app
 }
 

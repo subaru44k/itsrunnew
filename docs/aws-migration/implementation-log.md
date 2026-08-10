@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | stopped at T15E03 policy-size limit; E04 not started | `36af186` + E03 stop evidence below | E01 tests/checks and E02 immutable AWS/template preflight passed; v1 deletion succeeded, v6 creation denied | AWS v5 remains default with v2-v5 retained; no OIDC/provider/role stack deployment. |
+| T15 | policy-size recovery planned after T15E03 stop; E04 not started | `eae3d74` + D022 recovery plan | Sol accepted E01/E02, confirmed the E03 size-only failure, and defined a 6,077-character exact candidate | AWS v5 remains default with v2-v5 retained; no OIDC/provider/role stack deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2062,4 +2062,27 @@ not provide a separate resource/event beyond that policy operation. No
 provider/role stack, HostingStack, web/data, GitHub, invalidation, Cognito,
 production, DNS, or Firebase operation occurred. T15E04 is blocked pending a
 new reviewed policy-size resolution and authorization.
+```
+
+### Phase 4 T15E03 Sol review and D022 recovery plan
+
+```text
+Start: eae3d74; result: E03 stop accepted and an exact compact recovery plan
+prepared. Sol independently reran the 17 infra tests and synth under Node
+24.18.1, reviewed every E01-E03 commit, and confirmed a clean worktree. A
+fresh read-only AWS check returned account 470447451992, v5/default with
+exactly v2-v5 retained, no provider, and no GitHub stack. No v6 or partial
+CloudFormation resource exists.
+
+The rejected candidate is 6,624 non-whitespace characters. D022 preserves the
+effective reviewed role action/resource pairs by adding the exact GitHub role
+ARN to the existing thirteen-action PreviewScheduleLambdaRole Resource array,
+and limits the retained provider's initial-create statement to exact
+Create/Get/ListTags/Tag actions. The resulting deterministic candidate is
+6,077 characters, below the 6,144 limit, and adds no wildcard, PassRole,
+provider mutation/deletion, managed-policy attachment, service, account, or
+other resource. phase4-t15-policy-size-recovery-plan.md defines renewed local,
+read-only, one-v6-write, and one-stack-deploy gates. This Sol review made no
+AWS or GitHub write and did not mutate HostingStack, web/data, invalidation,
+Cognito, production, DNS, or Firebase.
 ```

@@ -671,7 +671,7 @@ deployment.
 
 ## D021: Extend the existing preview CloudFormation execution policy for GitHub OIDC
 
-Status: accepted
+Status: superseded by D022 after the T15E03 policy-size stop
 
 Problem:
 
@@ -732,6 +732,69 @@ Set a retained prior version (`v5`) as default before rolling back the stack.
 Because both resources use retain policies, remove them only through a future
 separately reviewed retirement plan; do not infer deletion authority from a
 workflow rollback.
+
+## D022: Fit the initial OIDC deployment into the existing policy size limit
+
+Status: accepted
+
+Problem:
+
+The exact D021 candidate has 6,624 non-whitespace characters. IAM rejected its
+single authorized creation attempt because a customer-managed policy is limited
+to 6,144 characters. The attempt made no policy version; `v5` remains default
+and `v2` through `v5` remain available. Deleting another version cannot solve a
+per-version size limit, and a second managed policy would retain the bootstrap
+attachment drift rejected by D021.
+
+Decision:
+
+Keep one execution policy and preserve its effective v5 contract. Reuse the
+existing `PreviewScheduleLambdaRole` statement because it already contains the
+exact thirteen role and inline-policy actions reviewed for the GitHub deploy
+role. Change only its `Resource` from the existing schedule-role ARN to an
+array containing that unchanged ARN and the exact
+`arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy` ARN. This is
+semantically the same action/resource permission pair reviewed in D021 without
+duplicating the action list.
+
+For the initial retained `AWS::IAM::OIDCProvider` creation, grant only:
+
+- `iam:CreateOpenIDConnectProvider`;
+- `iam:GetOpenIDConnectProvider`;
+- `iam:ListOpenIDConnectProviderTags`;
+- `iam:TagOpenIDConnectProvider`.
+
+Scope all four actions to only
+`arn:aws:iam::470447451992:oidc-provider/token.actions.githubusercontent.com`.
+Do not pre-grant provider update, client-ID mutation, thumbprint mutation,
+untag, or deletion actions. The CDK provider has retain policies, and none of
+those actions is required by the reviewed initial-create template. A future
+provider update or retirement requires its own exact policy review.
+
+The compact candidate must remain at or below 6,144 non-whitespace characters;
+the reviewed construction is 6,077. It must differ from AWS/default v5 only by
+the exact role Resource addition and one four-action provider statement. No
+existing action is removed, and no wildcard, PassRole, list-provider, managed
+policy, service, account, provider, or role scope is added.
+
+Alternatives:
+
+- Delete another policy version: rejected because version count and policy
+  document size are independent limits.
+- Remove existing v5 permissions: rejected because the deployed HostingStack
+  still requires its lifecycle contract.
+- Grant all OIDC lifecycle actions now: rejected because they are unnecessary
+  for initial creation and do not fit the existing policy.
+
+Cost and maintenance effect:
+
+There is no runtime cost or additional managed policy. The 67-character size
+headroom is small but deterministic and protected by an exact size assertion.
+
+Rollback/removal:
+
+Set v5 as default to remove all GitHub-stack execution permissions. Retained
+provider/role cleanup remains a separately reviewed future operation.
 
 ## Decision template
 

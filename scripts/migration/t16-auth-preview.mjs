@@ -60,7 +60,7 @@ function proof(stage, value) {
 }
 
 export async function runAuthCoordinator(adapters = {}) {
-  let lastCheckpoint = 'preflight'; let failure = null; let failureCheckpoint = null
+  let lastCheckpoint = 'preflight'; let failure = null; let failureCheckpoint = null; let cleanupFailure = null
   const counts = { operations: 0, writes: 0, restores: 0, cleanups: 0 }
   const roleOutcomes = { admin: 'not-run', 'non-admin': 'not-run' }
   const invoke = async (stage, fn, role = null) => {
@@ -76,10 +76,10 @@ export async function runAuthCoordinator(adapters = {}) {
   finally {
     lastCheckpoint = 'cleanup'; counts.operations += 1; counts.cleanups += 1
     try { proof('cleanup', await adapters.cleanup({ stage: 'cleanup' })) }
-    catch (error) { failure ??= { stage: 'cleanup', category: safeFailure(error) }; failureCheckpoint ??= 'cleanup' }
+    catch (error) { cleanupFailure = { stage: 'cleanup', category: safeFailure(error) }; if (!failure) { failure = cleanupFailure; failureCheckpoint = 'cleanup' } }
   }
-  const status = failure ? 'failed' : 'success'
-  return { status, lastCheckpoint: status === 'success' ? 'complete' : lastCheckpoint, failureCheckpoint, roleOutcomes, counts, failure, restoreStatus: 'not-required', cleanupStatus: failure?.stage === 'cleanup' ? 'failed' : 'passed' }
+  const status = cleanupFailure ? 'cleanup-failed' : failure ? 'failed' : 'success'
+  return { status, lastCheckpoint: status === 'success' ? 'complete' : lastCheckpoint, failureCheckpoint, roleOutcomes, counts, failure, cleanupFailure, restoreStatus: 'not-required', cleanupStatus: cleanupFailure ? 'failed' : 'passed' }
 }
 
 function makeFs(fsPort = {}) {
@@ -173,6 +173,19 @@ export function createConcreteAuthAdapters({ command, browser, fs: fsPort, rando
 
 export async function main(argv = process.argv.slice(2), dependencies = {}) { parseAuthArgs(argv); const adapters = dependencies.adapters ?? createConcreteAuthAdapters(dependencies); return runAuthCoordinator(adapters) }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().then(result => process.stdout.write(`${JSON.stringify(result)}\n`)).catch(() => { process.stderr.write('{"status":"failed","category":"operation-failed"}\n'); process.exitCode = 1 })
+export async function runDirect({ argv = process.argv.slice(2), dependencies = {}, stdout = value => process.stdout.write(value), stderr = value => process.stderr.write(value), setExitCode = value => { process.exitCode = value } } = {}) {
+  try {
+    const result = await main(argv, dependencies)
+    stdout(`${JSON.stringify(result)}\n`)
+    setExitCode(result.status === 'success' ? 0 : 1)
+    return result
+  } catch {
+    stderr('{"status":"failed","category":"operation-failed"}\n')
+    setExitCode(1)
+    return null
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) runDirect()
 
 export { createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn }

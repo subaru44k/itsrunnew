@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
-import { createConcreteAuthAdapters, main, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
+import { createConcreteAuthAdapters, main, runAuthCoordinator, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
 function fakeRun({ fail = null } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
@@ -50,8 +50,30 @@ test('auth executable rejects every argv secret and wrong flag', async () => {
 test('cleanup attempts deletion, readback, and temp cleanup after a removal failure', async () => {
   const fake = fakeRun({ fail: 'admin-remove-user-from-group' })
   const result = await main(['--execute-preview-auth'], { command: fake.command, browser: fake.browser, randomBytesImpl: n => Buffer.alloc(n, 8), clock: () => 2 })
-  assert.equal(result.status, 'failed')
+  assert.equal(result.status, 'cleanup-failed')
+  assert.equal(result.cleanupStatus, 'failed')
   assert.equal(fake.calls.some(args => args[1] === 'admin-delete-user'), true)
   assert.equal(fake.calls.some(args => args[1] === 'list-users'), true)
   assert.equal(fake.calls.some(args => args[1] === 'list-users-in-group'), true)
+})
+
+test('primary auth failure retains its checkpoint when cleanup also fails', async () => {
+  const result = await runAuthCoordinator({
+    preflight: async () => { throw new Error('canary auth failure') },
+    cleanup: async () => { throw new Error('canary cleanup failure') },
+  })
+  assert.equal(result.status, 'cleanup-failed')
+  assert.equal(result.failureCheckpoint, 'preflight')
+  assert.equal(result.failure.category, 'operation-failed')
+  assert.equal(result.cleanupStatus, 'failed')
+  assert.equal(result.cleanupFailure.category, 'operation-failed')
+  assert.equal(JSON.stringify(result).includes('canary'), false)
+})
+
+test('direct wrapper emits sanitized result and sets exit status from typed outcome', async () => {
+  const fake = fakeRun(); const output = []; const errors = []; const exits = []
+  const success = await runDirect({ argv: ['--execute-preview-auth'], dependencies: { command: fake.command, browser: fake.browser, randomBytesImpl: n => Buffer.alloc(n, 9), clock: () => 3 }, stdout: value => output.push(value), stderr: value => errors.push(value), setExitCode: value => exits.push(value) })
+  assert.equal(success.status, 'success'); assert.deepEqual(exits, [0]); assert.equal(errors.length, 0); assert.equal(JSON.parse(output[0]).status, 'success')
+  const failed = await runDirect({ argv: ['--execute-preview-auth'], dependencies: { adapters: { preflight: async () => ({ target: 'auth', users: 0, admins: 0, region: AUTH_CONSTANTS.region }), setup: async () => { throw new Error('canary') }, cleanup: async () => ({ users: 0, admins: 0 }) } }, stdout: value => output.push(value), stderr: value => errors.push(value), setExitCode: value => exits.push(value) })
+  assert.equal(failed.status, 'failed'); assert.equal(exits.at(-1), 1); assert.equal(JSON.stringify(failed).includes('canary'), false)
 })

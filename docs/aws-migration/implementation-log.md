@@ -3428,3 +3428,17 @@ internal-ID administration, aliases only at the browser boundary, cleanup
 continuation after removal failure, and the sanitized result. No live
 operation occurred. Focused T16 tests pass 29/29;
 root checks and diff checks remain required before commit.
+
+### Phase 4 T16 CF01 final correction
+
+The coordinator now preserves a primary auth/setup failure separately from a
+cleanup failure, reports `cleanup-failed` with a typed sanitized
+`cleanupFailure`, and never reports cleanup as passed after a failed cleanup
+proof. The direct executable is routed through an injectable `runDirect`
+wrapper that prints one sanitized result and sets exit status 0 only for a
+typed success; failed results and thrown entry errors set status 1.
+
+Regression coverage includes simultaneous auth and cleanup failures, primary
+checkpoint retention, cleanup continuation, and direct success/failure exit
+codes. Focused T16 tests pass 31/31 including the real Chromium responsive
+fixture. No live AWS or hosted-browser operation occurred.

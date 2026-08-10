@@ -1895,6 +1895,40 @@ Rollback/removal:
 
 Remove with the auth harness after T16.
 
+## D045: Await the hydrated signed-in sentinel after callback navigation
+
+Status: accepted
+
+Problem:
+
+BS02 proved form submission, Cognito authentication, callback observation, and
+final `/manage`, then returned `signed-in-missing`. The executable checks the
+logout locator with immediate `count()` as soon as the URL changes. Nuxt/Vue
+hydration and the callback session update are asynchronous, so URL completion
+does not imply the signed-in control has rendered.
+
+Decision:
+
+Replace the immediate count with the locator's bounded visible wait, then await
+the already bounded API response. Keep `signed-in-missing` as the timeout
+category. Add an injected delayed-render test proving the sentinel can appear
+after URL completion and that timeout remains sanitized. After Sol review,
+permit one auth-only run.
+
+Alternatives:
+
+- Fixed sleep: rejected as timing-dependent.
+- Remove the sentinel: rejected because callback URL alone does not prove an
+  application session.
+
+Cost and maintenance effect:
+
+No AWS/dependency change; browser timing matches hydrated UI behavior.
+
+Rollback/removal:
+
+Keep bounded visibility waiting while the harness exists.
+
 ## Decision template
 
 Copy for new decisions:

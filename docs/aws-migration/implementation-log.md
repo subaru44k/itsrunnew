@@ -3616,6 +3616,15 @@ protected object bytes/hash/metadata, and no additional invalidation. No API
 PUT, S3 write, Firestore, IAM, deployment, or production operation occurred.
 BS02 is a terminal stop; CF03 and T17 remain unauthorized.
 
+### Phase 4 T16 signed-in hydration recovery authorization
+
+BS02's typed evidence proves successful form/authentication/callback/final
+`/manage` and stops at the immediate logout-control count. Source review found
+the check runs before Nuxt/Vue hydration and session rendering can complete.
+D045 and `phase4-t16-signed-in-wait-plan.md` authorize only a bounded visible
+sentinel wait, local tests, and after Sol acceptance one auth-only SI02 run.
+No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17 action is authorized.
+
 ### Phase 4 T16 BS01 Sol acceptance and BS02 authorization
 
 Sol reviewed `e9bc20c`. Browser failures now retain only the exact allowlisted

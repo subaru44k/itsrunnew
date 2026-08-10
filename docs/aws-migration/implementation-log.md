@@ -2859,3 +2859,20 @@ validation defect (`http-200` was rejected); the validator was corrected to
 allow digits, and the focused three-test suite plus the subsequent Node 24
 `npm run check` completed successfully. No AWS operation or credential
 material was involved.
+
+### Phase 4 T16C03 stop: real Hosted UI gate
+
+C03 was stopped after the exact two temporary `.invalid` identities were
+created with suppressed messages, the admin identity was added to `admins`,
+and four real-browser attempts (desktop/mobile × admin/non-admin) were made
+against the deployed preview. `/manage` did not redirect to the Cognito
+Hosted UI; it returned the localized sanitized authentication-failure state
+without a Cognito authorization request, API request, token, or persistent
+credential material. This is a deployed-preview authentication configuration
+stop, not a test-adapter result.
+
+The cleanup gate was executed immediately: the temporary group membership and
+both identities were removed, and the pool was read back with zero users and
+zero `admins` members. C03 AWS writes were exactly eight (two creates, two
+permanent-password settings, one group add, one group removal, and two
+deletes); no schedule/data object write occurred. D01/D02 were not attempted.

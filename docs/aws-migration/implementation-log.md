@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | R01-R03 complete; R04 pending | `b082e4f` + D022 recovery plan | Compact candidate/preflight passed; exactly one v6 creation/readback passed | AWS v6 is default with v2-v6 retained; no OIDC/provider/role stack deployment. |
+| T15 | R01-R04 complete locally; T15E05/T16 not started | `d401a73` + R04 follow-up | Compact policy gates, exactly one v6 creation/readback, and exactly one dedicated OIDC-stack deployment passed | AWS v6 is default with v2-v6 retained; HostingStack remains unchanged. T15E05 and T16 remain outside this task. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2146,4 +2146,47 @@ four-action provider statement. No other policy/version operation occurred.
 
 No provider/role/stack or HostingStack mutation occurred. R04 is authorized
 for exactly one ItsRunPreviewGitHubDeploy deployment only.
+```
+
+### Phase 4 T15 policy-size recovery R04 dedicated GitHub deployment
+
+```text
+Start: aaa0e03 recovery line; result: complete for the authorized R04 scope.
+The first repository-root CDK invocation stopped locally because the CDK app
+was not resolvable from that working directory (`--app is required`); it made
+no AWS call or write. The single corrected invocation was run from `infra/`:
+`npx cdk deploy ItsRunPreviewGitHubDeploy --require-approval never`, using
+Node 24.18.1, AWS_PROFILE=codex-prod, account 470447451992, and
+ap-northeast-1. It published only the reviewed GitHub-stack template asset
+and completed one CloudFormation change set:
+arn:aws:cloudformation:ap-northeast-1:470447451992:changeSet/cdk-deploy-change-set/cbe7e7ef-573a-4778-8bb7-b7f39c1c6aba.
+
+ItsRunPreviewGitHubDeploy reached CREATE_COMPLETE (4/4 resources) at stack
+arn:aws:cloudformation:ap-northeast-1:470447451992:stack/ItsRunPreviewGitHubDeploy/579dd6a0-945c-11f1-b5e4-0ad6b14d546d.
+The deployed template SHA-256 is
+43b2e3f69ca9f6a1c48056c57304b509b372131f30e2dea099885f4c9359ada6.
+The exact outputs are the GitHub OIDC provider ARN
+`arn:aws:iam::470447451992:oidc-provider/token.actions.githubusercontent.com`
+and role ARN
+`arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy`.
+
+Read-only verification confirmed the exact token.actions.githubusercontent.com
+provider with audience sts.amazonaws.com, branch-only StringEquals trust for
+repo:subaru44k/itsrunnew, role max session 3600, and no StringLike condition.
+The role has no attached managed policies and exactly one inline policy with
+only DescribeStacks on the exact HostingStack ARN pattern and PutObject on
+the exact preview web-bucket object ARN. Provider and role retain on delete.
+
+The execution-policy state remains v6 default with exactly v2-v6 retained;
+the committed/AWS v6 canonical SHA-256 is
+9bd2d67f19a917c0183d7f08649a4b7555ad736ada43f075115c5cebb80322de. Hosting
+remains UPDATE_COMPLETE with unchanged outputs, including the existing web
+bucket, data bucket, distribution domain, API endpoint, and Cognito outputs;
+the fresh HostingStack template SHA-256 remains
+7f1cd50ea4b5c440579ffec11ea2c03c5fc35fab66a4230d8b2c56ec66af857e.
+
+No HostingStack deployment, policy-version deletion, bootstrap, web/data
+upload, CloudFront invalidation, Cognito administration, GitHub operation,
+production/DNS/Firebase mutation, or T15E05/T16 work occurred. This record
+contains no credentials, tokens, or per-object data.
 ```

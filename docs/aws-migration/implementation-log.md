@@ -3520,3 +3520,23 @@ AG02 may execute the corrected auth-only program exactly once after the same
 zero/baseline gates. Observe only sanitized result/exit status and independent
 final counts. No retry, data/S3/Firestore/IAM/deploy/invalidation/CF03/T17
 operation is authorized in that execution.
+
+### Phase 4 T16 AG02 execution stop
+
+Starting from Sol approval `961d8b6`, Node `v24.18.1`, focused auth/Chromium
+tests passed 32/32. Read-only gates matched account `470447451992`, region
+`ap-northeast-1`, pool users 0, `admins` membership 0, and the live desktop /
+mobile Hosted UI selector. The protected Oda object matched the 501-byte
+baseline, ETag/version identifiers, content type/cache control, and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+
+The corrected auth executable ran exactly once with only
+`--execute-preview-auth`. Its sole sanitized result was `status: failed`,
+`lastCheckpoint: cleanup`, `failureCheckpoint: admin-form`,
+`roleOutcomes.admin: failed`, `counts: { operations: 4, writes: 0,
+restores: 0, cleanups: 1 }`, `cleanupStatus: passed`, and
+`failure.category: operation-failed`; exit status was nonzero and no retry was
+made. Independent post-run readback proved pool users 0, admins 0, the exact
+protected object bytes/hash/metadata, and no additional invalidation. No API
+PUT, S3 write, Firestore, IAM, deployment, or production operation occurred.
+AG02 is a terminal stop; CF03 and T17 remain unauthorized.

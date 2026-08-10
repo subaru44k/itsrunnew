@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | R01/R02 complete; R03-R04 pending | `0984ea2` + D022 recovery plan | Compact candidate and renewed immutable AWS/template preflight passed | AWS v5 remains default with v2-v5 retained; no OIDC/provider/role stack deployment. |
+| T15 | R01-R03 complete; R04 pending | `b082e4f` + D022 recovery plan | Compact candidate/preflight passed; exactly one v6 creation/readback passed | AWS v6 is default with v2-v6 retained; no OIDC/provider/role stack deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2129,4 +2129,21 @@ policy simulation allowed all 17 reviewed provider/role actions only on the
 reviewed resource set. No AWS write, policy version change, stack mutation,
 GitHub, HostingStack, web/data, invalidation, Cognito, production, DNS, or
 Firebase operation occurred. R03 is authorized for exactly one v6 creation.
+```
+
+### Phase 4 T15 policy-size recovery R03 policy rotation
+
+```text
+Start: b082e4f; result: complete. Immediately before the write, all R02
+identity/version/hash/absence gates passed. Exactly one
+CreatePolicyVersion --set-as-default was issued for the compact candidate;
+AWS returned VersionId v6 with IsDefaultVersion true. Read-only verification
+shows exactly v2, v3, v4, v5, and v6 retained, with v6 default. AWS v6 is
+byte/order-equivalent to the committed candidate and canonical SHA-256 is
+9bd2d67f19a917c0183d7f08649a4b7555ad736ada43f075115c5cebb80322de. The only
+semantic delta from v5 is the D022 role-resource addition and compact
+four-action provider statement. No other policy/version operation occurred.
+
+No provider/role/stack or HostingStack mutation occurred. R04 is authorized
+for exactly one ItsRunPreviewGitHubDeploy deployment only.
 ```

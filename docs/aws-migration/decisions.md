@@ -853,6 +853,58 @@ The mandatory cleanup commit removes the temporary trigger. The permanent
 workflow remains `workflow_dispatch` only until a later reviewed default-branch
 merge makes manual dispatch available.
 
+## D024: Correct the selected-action pattern before the one deployment retry
+
+Status: accepted
+
+Problem:
+
+The D023 push created exactly one deployment workflow run, but GitHub ended it
+at `startup_failure` before creating a job. The selected-action setting read
+back as `aws-actions/configure-aws-credentials`, which lacks the required
+`@TAG-OR-SHA` suffix and therefore matches no action invocation. The normal
+validation workflow succeeded because it uses only GitHub-owned actions. The
+failed deployment run had zero jobs, logs, OIDC sessions, and AWS writes.
+
+Decision:
+
+Correct the repository's sole non-GitHub selected-action pattern to the exact
+already reviewed workflow reference:
+
+```text
+aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8
+```
+
+Keep `github_owned_allowed=true`, `verified_allowed=false`, selected-only
+actions, SHA pinning required, and default workflow permissions read-only.
+Do not use `@*`, a tag, organization wildcard, another action, or verified-all.
+Read the setting back before another workflow push.
+
+Authorize one new push-triggered deployment run because the first run never
+entered a job and could not exercise deployment authority. Make the recovery
+request an explicit workflow-file commit while the exact D023 trigger is still
+present. Do not use GitHub's rerun endpoint or `workflow_dispatch`. After a
+successful run, continue the mandatory D023 trigger cleanup and master
+protection. A second startup/deployment failure is a hard stop.
+
+Alternatives:
+
+- Allow `aws-actions/configure-aws-credentials@*`: rejected because only one
+  audited SHA is used.
+- Allow all verified actions: rejected because it is substantially broader.
+- Rerun the failed run: rejected because the run snapshot predates the explicit
+  settings correction and the plan requires a separately identifiable request.
+
+Cost and maintenance effect:
+
+No AWS or runtime change. The repository policy becomes both syntactically
+valid and narrower than the originally intended repository-level pattern.
+
+Rollback/removal:
+
+Remove the exact AWS action pattern if GitHub preview deployment is retired.
+The D023 cleanup still removes the temporary push trigger after success.
+
 ## Decision template
 
 Copy for new decisions:

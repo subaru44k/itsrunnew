@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | G01 complete; G02 stopped on failed push deployment run | `297ead6` | Exact temporary trigger pushed; validation succeeded; Preview deployment run ended `startup_failure` with zero jobs | No cleanup push, preview deployment, or master protection was performed after the binding failed-deployment stop. |
+| T15 | selected-action recovery planned after zero-job startup failure | `47db942` + D024/A01-A04 plan | D023 exact trigger and normal validation passed; deployment run had zero jobs and no AWS session | Temporary trigger remains remote; exact SHA action-policy correction and one final deployment run are planned. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2330,4 +2330,24 @@ Because a failed deployment run is a binding stop condition, G03 cleanup and
 G04 master protection were not attempted. No retry, workflow dispatch, second
 deployment run, cleanup push, or merge occurred. This record contains no
 credentials, tokens, raw logs, or object bodies.
+```
+
+### Phase 4 T15 G02 Sol diagnosis and D024 recovery plan
+
+```text
+Start: 47db942; result: failed-run stop accepted and exact settings correction
+planned. Sol independently confirmed remote SHA 8068f85, successful normal
+validation run 31348798987, and deployment run 31348799391 with conclusion
+startup_failure, zero jobs, no logs, and no AWS execution. The deployed-workflow
+source still has only the exact temporary branch/path trigger plus
+workflow_dispatch and otherwise matches T15C.
+
+The sole non-GitHub allowed-action pattern reads
+`aws-actions/configure-aws-credentials`, while GitHub's required action syntax
+is OWNER/REPOSITORY@TAG-OR-SHA. D024 corrects it to the exact already pinned
+SHA `aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8`;
+it does not use @*, a tag, verified-all, or another action. Because the first
+run never created a job or AWS session, one separately identified workflow-file
+push is authorized after exact settings readback. No GitHub or AWS write was
+made during this Sol diagnosis.
 ```

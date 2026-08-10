@@ -3077,3 +3077,16 @@ to sanitized role/status/count/hash/boolean fields; it does not print paths,
 identities, credentials, query/header/body/cookie/DOM/token/error material.
 The runner was not executed in SS01; SS02 remains the single authorized
 execution boundary.
+
+### Phase 4 T16 SS02 stop
+
+The one authorized SS02 process was invoked once after SS01. It stopped before
+browser authentication and before any schedule/data operation: one temporary
+Cognito user creation completed, while the following credential setup step
+failed. The process emitted only its sanitized failed result. Mandatory
+failure cleanup then deleted that one temporary user; no group membership had
+been added. Readback verified users=0 and admins membership=0. The temporary
+runner and generated material were removed. Schedule writes=0, restore writes=0,
+CloudFront invalidation=0, and BR03/SS03 were not started. This is a terminal
+rehearsal stop; no retry, password reset, or additional identity operation is
+authorized in this run.

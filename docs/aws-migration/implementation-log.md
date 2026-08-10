@@ -2555,6 +2555,34 @@ any further action. The branch is clean at the local evidence follow-up; stop
 before T16.
 ```
 
+### Phase 4 T16A release-candidate verification stop
+
+```text
+Start: d47d131; result: stopped before T16B01. Branch
+migration/aws-s3-cloudfront, exact HEAD d47d131, clean worktree, and Node
+24.18.1 were confirmed. No AWS or GitHub write, dependency edit, source edit,
+policy operation, synth mutation, deploy, alarm, data, schedule, or
+invalidation operation occurred.
+
+The required Node 24 release-candidate checks were run in order. `npm ci`
+completed with the repository's existing audit result (11 vulnerabilities:
+7 moderate and 4 high). `npm run check` passed (web 44, core 7,
+schedule-api 25, infra 18, synth/build). `npm run test:e2e` passed 14 legacy
+and 44 isolated admin cases. Explicit preview E2E passed 88 cases.
+
+The required `npm ls --all` gate failed with npm `ELSPROBLEMS` and was not
+hidden or repaired: Nuxt's existing `@bomb.sh/tab@0.0.19` path resolves
+`commander@11.1.0`, which is invalid against its declared
+`^13.1.0 || ^14.0.0 || ^15.0.0` range. The same invalid dependency is also
+reported through the existing cssnano/svgo path; Vitest's commander 2.20.3
+path is valid. This is an installed-tree/dependency-contract failure, not a
+T16 source failure. `git diff --check` passed and the worktree remains clean.
+
+Per T16A stop conditions, no retry, dependency change, contract weakening,
+T16B alarm implementation, policy v7 work, AWS read/write, or Hosting deploy
+was attempted. Sol review is required before continuation.
+```
+
 ### Phase 4 T15 Sol final acceptance
 
 ```text

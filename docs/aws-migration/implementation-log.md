@@ -3461,3 +3461,23 @@ CF01 is accepted. CF02 is authorized exactly once under D041 and
 and exit status, independently prove users/group zero and no S3/data write,
 record truthful evidence, and stop. No retry or CF03/T17 work is authorized in
 that execution.
+
+### Phase 4 T16 CF02 execution stop
+
+Starting from Sol approval `6056d11`, Node `v24.18.1`, the required focused
+T16 suite passed 31/31 and the read-only gates matched account
+`470447451992`, region `ap-northeast-1`, pool users 0, `admins` membership 0,
+and the live Hosted UI selector (desktop/mobile: one visible Cognito form and
+three enabled controls). The protected Oda object matched the 501-byte
+baseline, ETag/version identifiers, content type/cache control, and
+SHA-256 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+
+The committed auth executable was run exactly once with only
+`--execute-preview-auth`. Its sole sanitized result was `status: failed`,
+`lastCheckpoint: cleanup`, `failureCheckpoint: setup`,
+`counts: { operations: 3, writes: 0, restores: 0, cleanups: 1 }`,
+`cleanupStatus: passed`, and `failure.category: operation-failed`; no retry
+was made. Independent post-run readback proved pool users 0, admins 0, the
+same protected object bytes/hash/metadata, and no additional invalidation.
+No API PUT, S3 write, Firestore, deployment, IAM, or production operation
+occurred. CF02 is a terminal stop; CF03 and T17 remain unauthorized.

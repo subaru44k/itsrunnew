@@ -4026,6 +4026,17 @@ TRQ02 may run the auth-only executable once under all existing exact gates.
 Stop after the typed result with cleanup zero and unchanged protected data and
 invalidations. No retry, source fix, deployment, or data rehearsal is authorized.
 
+### Phase 4 T16 TRQ02 result and transaction-state plan
+
+TRQ02 commit `ca78738` records one safe execution ending at desktop
+`token-request-not-started`. Callback code/state were present and discovery
+succeeded; cleanup read back zero, protected data was unchanged, invalidation
+count remained 3, and data writes remained zero.
+
+D050 and `phase4-t16-transaction-state-plan.md` authorize TS01 local-only
+matching-transaction presence classification. No AWS/live auth is authorized
+until Sol reviews it.
+
 ### Phase 4 T16 TRQ02 request-status auth-only execution stop
 
 Starting from Sol handoff `bac80af1365e1511c1b0c7101f1c326ed9e770b9`, Node

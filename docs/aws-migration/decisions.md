@@ -2075,6 +2075,38 @@ Rollback/removal:
 
 Remove callback presence and request-failure detail after the live issue closes.
 
+## D050: Probe only matching transaction presence before callback code
+
+Status: accepted
+
+Problem:
+
+TRQ02 proved code/state are present, discovery succeeds, and no token POST
+starts. The remaining meaningful distinction is whether the callback state has
+a matching oidc-client transaction in sessionStorage before callback code runs.
+
+Decision:
+
+In auth-only Playwright, use a pre-document exact-origin/path probe to derive a
+single matching-key presence boolean. Parse the state only transiently; do not
+read stored content, expose key names, or retain any value. Reduce the boolean
+immediately to a typed category. Do not add instrumentation to the application
+or raw preview suite.
+
+Alternatives:
+
+- Inspect session storage/key values: rejected as sensitive and unnecessary.
+- Change the state store immediately: rejected until loss/mismatch is proven.
+
+Cost and maintenance effect:
+
+No application, dependency, or AWS change; one bounded execution completes the
+pre-token diagnosis.
+
+Rollback/removal:
+
+Remove the auth-only probe after the transaction issue is fixed.
+
 ## Decision template
 
 Copy for new decisions:

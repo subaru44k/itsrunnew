@@ -22,7 +22,7 @@ export const COGNITO_MUTATING_OPERATIONS = Object.freeze([
 const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-users-in-group'])
 const operationSet = new Set([...COGNITO_MUTATING_OPERATIONS, ...COGNITO_READ_OPERATIONS])
 const checkpoints = new Set(['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'cleanup', 'complete'])
-const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing'])
+const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing'])
 const browserViewports = new Set(['desktop', 'mobile'])
 
 export function parseAuthArgs(argv) {

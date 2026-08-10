@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { approvedBrowserHosts, assertReservedCell, classifyOAuthStatus, createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, oauthStatusCategories, runT16Coordinator, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
+import { approvedBrowserHosts, assertReservedCell, classifyOAuthStatus, createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, runT16Coordinator, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
 
 test('operator input is validated without returning password material', () => {
   const result = validateOperatorEnvironment({ T16_ADMIN_USERNAME: 'preview-t16-admin@rehearsal.invalid', T16_NONADMIN_USERNAME: 'preview-t16-nonadmin@rehearsal.invalid', T16_ADMIN_PASSWORD: 'a'.repeat(24), T16_NONADMIN_PASSWORD: 'b'.repeat(24) })
@@ -68,7 +68,7 @@ test('browser recorder attaches before action, retains immediate callback order,
   page.emit('response', { url: () => 'https://untrusted.invalid/secret', status: () => 200 })
   assert.deepEqual(recorder.snapshot(), { events: [
     { kind: 'navigation', host: 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', path: '/login' },
-    { kind: 'navigation', host: 'd2via50thoheqm.cloudfront.net', path: '/manage/callback' },
+    { kind: 'navigation', host: 'd2via50thoheqm.cloudfront.net', path: '/manage/callback', codePresent: true, statePresent: false },
     { kind: 'navigation', host: 'd2via50thoheqm.cloudfront.net', path: '/manage' },
     { kind: 'response', host: 'd2via50thoheqm.cloudfront.net', path: '/manage', status: 200 },
   ] })
@@ -89,15 +89,15 @@ test('OAuth status classification is exact, deterministic, and typed', () => {
   const cases = [
     [[], 'oauth-discovery-missing'],
     [[{ ...discovery, status: 404 }], 'oauth-discovery-rejected'],
-    [[discovery], 'oauth-token-endpoint-missing'],
-    [[discovery, { ...token, status: 400 }], 'oauth-token-endpoint-rejected'],
-    [[discovery, token], 'oauth-token-success-session-missing'],
+    [[discovery], 'token-request-not-started'],
+    [[discovery, { ...token, status: 400 }], 'token-response-rejected'],
+    [[discovery, token], 'token-success-session-missing'],
     [[discovery, token, { ...api, status: 500 }], 'api-status-unexpected'],
   ]
   for (const [events, category] of cases) assert.equal(classifyOAuthStatus(events), category)
-  assert.deepEqual([...new Set(cases.map(([, category]) => category))].sort(), oauthStatusCategories.filter(category => category !== 'api-response-missing').sort())
+  assert.deepEqual([...new Set(cases.map(([, category]) => category))].sort(), ['oauth-discovery-missing', 'oauth-discovery-rejected', 'token-request-not-started', 'token-response-rejected', 'token-success-session-missing', 'api-status-unexpected'].sort())
   const canary = { ...token, path: '/oauth2/token?code=secret&state=canary', method: 'POST', status: 200, headers: { authorization: 'Bearer canary' }, body: 'canary-token' }
-  assert.equal(classifyOAuthStatus([discovery, canary]), 'oauth-token-endpoint-missing')
+  assert.equal(classifyOAuthStatus([discovery, canary]), 'token-request-not-started')
   assert.deepEqual(classifyOAuthStatus([discovery, token]), classifyOAuthStatus([discovery, token]))
   assert.doesNotMatch(JSON.stringify(classifyOAuthStatus([discovery, canary])), /secret|canary/i)
 })
@@ -108,6 +108,20 @@ test('browser recorder retains only exact OAuth method/status fields', () => {
   listeners.get('response')?.({ url: () => 'https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_nmj9cP9st/.well-known/openid-configuration?secret=canary', status: () => 200, request: () => ({ method: () => 'GET', headers: () => ({ authorization: 'canary' }), postData: () => 'canary' }) })
   assert.deepEqual(recorder.snapshot(), { events: [{ kind: 'response', host: 'cognito-idp.ap-northeast-1.amazonaws.com', path: '/ap-northeast-1_nmj9cP9st/.well-known/openid-configuration', status: 200, method: 'GET' }] })
   assert.doesNotMatch(JSON.stringify(recorder.snapshot()), /secret|canary|authorization/i)
+})
+
+test('token request and callback parameter status retain only booleans', () => {
+  const listeners = new Map(); const page = { on(name, fn) { listeners.set(name, fn) }, off() {} }
+  const recorder = createSanitizedBrowserRecorder(page)
+  listeners.get('framenavigated')?.({ url: () => 'https://d2via50thoheqm.cloudfront.net/manage/callback?code=secret&state=opaque&evil=canary' })
+  listeners.get('request')?.({ url: () => 'https://itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com/oauth2/token?code=secret', method: () => 'POST', headers: () => ({ authorization: 'canary' }), postData: () => 'token=canary' })
+  listeners.get('requestfailed')?.({ url: () => 'https://itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com/oauth2/token', method: () => 'POST', failure: () => ({ errorText: 'raw-canary-failure' }) })
+  assert.deepEqual(recorder.snapshot(), { events: [
+    { kind: 'navigation', host: 'd2via50thoheqm.cloudfront.net', path: '/manage/callback', codePresent: true, statePresent: true },
+    { kind: 'request', host: 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', path: '/oauth2/token', method: 'POST' },
+    { kind: 'requestfailed', host: 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', path: '/oauth2/token', method: 'POST' },
+  ] })
+  assert.doesNotMatch(JSON.stringify(recorder.snapshot()), /secret|opaque|evil|canary|authorization|raw-canary/i)
 })
 
 test('protected CLI boundary uses file URI only and sanitizes canary payloads', () => {

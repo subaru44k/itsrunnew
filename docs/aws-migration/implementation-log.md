@@ -3994,3 +3994,22 @@ type, cache metadata, and SHA-256. CloudFront invalidation count remained 3.
 No API PUT, S3 write, Firestore, IAM, CloudFormation, deployment, production,
 DNS, Firebase, or data rehearsal operation occurred. OS02 is a terminal stop;
 CF03/T17 remain unauthorized.
+
+### Phase 4 T16 TRQ01 token request classification
+
+Starting from Sol handoff `a0557ed268f66e11c11dd9f897a6e22c9408cc6a`, Node
+`v24.18.1`, TRQ01 extends the sanitized recorder to observe only exact POST
+requests to the allowlisted token endpoint, Playwright request-failed presence,
+and response status. Callback navigation stores only `codePresent` and
+`statePresent` booleans for the exact callback pathname. Request failure text,
+query values, headers, bodies, credentials, tokens, claims, console text, and
+raw errors are never retained or emitted.
+
+Typed categories now distinguish callback parameter missing, token request not
+started, token request failed before response, token response rejected, and
+token success/session missing, while preserving existing discovery/API
+categories. Focused auth/harness tests passed 39/39, including hostile-canary
+request/requestfailed and callback-query tests. Root `npm run check` and
+`git diff --check` passed. No AWS, live auth, deployment, API/S3/Firestore
+write, IAM, CloudFormation, production, or T17 operation occurred. TRQ01 is
+ready for Sol source review; TRQ02 remains unauthorized.

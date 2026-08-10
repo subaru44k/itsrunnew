@@ -7,7 +7,7 @@ const approvedBrowserHosts = new Set(['itsrun-preview-470447451992.auth.ap-north
 const oauthIssuerHost = 'cognito-idp.ap-northeast-1.amazonaws.com'
 const oauthDiscoveryPath = '/ap-northeast-1_nmj9cP9st/.well-known/openid-configuration'
 const oauthTokenPath = '/oauth2/token'
-const oauthStatusCategories = ['oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'api-response-missing', 'api-status-unexpected']
+const oauthStatusCategories = ['oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing', 'api-response-missing', 'api-status-unexpected']
 const approvedOAuthHosts = new Set([...approvedBrowserHosts, oauthIssuerHost])
 
 export function validateOperatorEnvironment(env = process.env) {
@@ -69,14 +69,22 @@ export function classifyOAuthStatus(events, { apiPath = '/api/v1/stadiums/oda/av
   const matches = (event, host, path, method) => event.host === host && event.path === path && (method === undefined || event.method === undefined || event.method === method)
   const api = safeEvents.find(event => event.kind === 'response' && matches(event, 'd2via50thoheqm.cloudfront.net', apiPath, 'GET'))
   if (api && api.status !== 200 && api.status !== 403) return 'api-status-unexpected'
+  const callback = safeEvents.find(event => event.kind === 'navigation' && matches(event, 'd2via50thoheqm.cloudfront.net', '/manage/callback'))
+  if (callback && (callback.codePresent !== true || callback.statePresent !== true)) return 'callback-parameters-missing'
   const discovery = safeEvents.find(event => event.kind === 'response' && matches(event, oauthIssuerHost, oauthDiscoveryPath, 'GET'))
   if (!discovery) return 'oauth-discovery-missing'
   if (discovery.status === undefined || discovery.status < 200 || discovery.status >= 300) return 'oauth-discovery-rejected'
+  const tokenEvents = safeEvents.filter(event => event.kind === 'request' || event.kind === 'requestfailed' || (event.kind === 'response' && matches(event, 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', oauthTokenPath, 'POST')))
+  const tokenRequest = tokenEvents.find(event => event.kind === 'request')
+  const tokenFailed = tokenEvents.find(event => event.kind === 'requestfailed')
   const token = safeEvents.find(event => event.kind === 'response' && matches(event, 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', oauthTokenPath, 'POST'))
-  if (!token) return 'oauth-token-endpoint-missing'
-  if (token.status === undefined || token.status < 200 || token.status >= 300) return 'oauth-token-endpoint-rejected'
-  if (!api) return 'oauth-token-success-session-missing'
-  return 'oauth-token-success-session-missing'
+  if (callback && (callback.codePresent !== true || callback.statePresent !== true)) return 'callback-parameters-missing'
+  if (!tokenRequest && !tokenFailed && !token) return 'token-request-not-started'
+  if (tokenFailed && !token) return 'token-request-failed'
+  if (!token) return 'token-request-not-started'
+  if (token.status === undefined || token.status < 200 || token.status >= 300) return 'token-response-rejected'
+  if (!api) return 'token-success-session-missing'
+  return 'token-success-session-missing'
 }
 
 export { approvedOAuthHosts, oauthStatusCategories }
@@ -91,20 +99,26 @@ export function createSanitizedBrowserRecorder(page) {
       if (!approvedOAuthHosts.has(url.hostname) || !url.pathname.startsWith('/')) return
       if (status !== null && (!Number.isInteger(status) || status < 100 || status > 599)) return
       let method
-      if (kind === 'response') { try { const request = rawUrl?.request?.(); const value = request?.method?.(); if (typeof value === 'string') method = value } catch {} }
-      const event = status === null ? { kind, host: url.hostname, path: url.pathname } : { kind, host: url.hostname, path: url.pathname, status, ...(method ? { method } : {}) }
+      if (kind === 'response' || kind === 'request' || kind === 'requestfailed') { try { const request = kind === 'response' ? rawUrl?.request?.() : rawUrl; const value = request?.method?.(); if (typeof value === 'string') method = value } catch {} }
+      if ((kind === 'request' || kind === 'requestfailed') && (url.hostname !== 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com' || url.pathname !== oauthTokenPath || method !== 'POST')) return
+      const callbackFlags = kind === 'navigation' && url.hostname === 'd2via50thoheqm.cloudfront.net' && url.pathname === '/manage/callback' ? { codePresent: url.searchParams.has('code'), statePresent: url.searchParams.has('state') } : {}
+      const event = { kind, host: url.hostname, path: url.pathname, ...(status !== null ? { status } : {}), ...(method ? { method } : {}), ...callbackFlags }
       const key = JSON.stringify(event)
       if (!seen.has(key)) { seen.add(key); events.push(event) }
     } catch {}
   }
   const onNavigation = frame => add('navigation', frame?.url?.())
   const onResponse = response => add('response', response, response?.status?.())
+  const onRequest = request => add('request', request)
+  const onRequestFailed = request => add('requestfailed', request)
   page.on('framenavigated', onNavigation)
   page.on('response', onResponse)
+  page.on('request', onRequest)
+  page.on('requestfailed', onRequestFailed)
   let detached = false
   return {
     snapshot() { return { events: events.map(event => ({ ...event })) } },
-    detach() { if (!detached) { page.off('framenavigated', onNavigation); page.off('response', onResponse); detached = true } },
+    detach() { if (!detached) { page.off('framenavigated', onNavigation); page.off('response', onResponse); page.off('request', onRequest); page.off('requestfailed', onRequestFailed); detached = true } },
   }
 }
 

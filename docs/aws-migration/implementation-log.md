@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A-D accepted locally, T15E01/E02 complete; E03-E04 pending | `37bad43` + D021/T15E plan | E01 tests/checks and E02 immutable AWS/template preflight passed | No OIDC/provider/role stack or GitHub workflow activation yet. |
+| T15 | stopped at T15E03 policy-size limit; E04 not started | `36af186` + E03 stop evidence below | E01 tests/checks and E02 immutable AWS/template preflight passed; v1 deletion succeeded, v6 creation denied | AWS v5 remains default with v2-v5 retained; no OIDC/provider/role stack deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2039,4 +2039,27 @@ or broadened. No AWS write, stack mutation, policy version change, GitHub,
 HostingStack, web/data, invalidation, Cognito, production, DNS, or Firebase
 operation occurred. E03 is authorized to proceed with only v1 deletion and
 one v6 creation after repeating these gates.
+```
+
+### Phase 4 T15E03 policy rotation stop
+
+```text
+Start: 36af186; result: stopped after the authorized exact writes; T15E04
+was not started. Immediately before the first write, STS/account/region and
+the v5/default, v1-v5, and canonical v1/v5 gates passed. Exactly one
+nondefault policy version, v1, was deleted from
+arn:aws:iam::470447451992:policy/ItsRunPreviewCloudFormationExecutionPolicy.
+Immediately before the second write, STS/account/region and the post-delete
+v2-v5/v5-default gates passed. The one authorized
+iam:CreatePolicyVersion --set-as-default attempt for the committed candidate
+failed with AWS LimitExceeded: `Cannot exceed quota for PolicySize: 6144`.
+No retry or alternate policy operation was performed.
+
+Read-only confirmation after the failure shows exactly v2, v3, v4, and v5
+retained, with v5 still default; v6 was not created. The exact AWS write
+failure action was iam:CreatePolicyVersion on the managed policy ARN; AWS did
+not provide a separate resource/event beyond that policy operation. No
+provider/role stack, HostingStack, web/data, GitHub, invalidation, Cognito,
+production, DNS, or Firebase operation occurred. T15E04 is blocked pending a
+new reviewed policy-size resolution and authorization.
 ```

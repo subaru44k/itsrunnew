@@ -1355,6 +1355,54 @@ Rollback/removal:
 Keep the recorder while the callback uses immediate history replacement;
 replace it only with an equivalent tested event-ordering contract.
 
+## D034: Keep the protected rehearsal in one bounded credential-owning process
+
+Status: accepted
+
+Problem:
+
+BR02 stopped before login because Cognito setup and browser execution were
+separated across operator processes; the protected password state was correctly
+unavailable to the later process. The users were immediately cleaned up and no
+data write occurred. Recreating or resetting passwords between milestones adds
+unnecessary identity writes and another failure surface.
+
+Decision:
+
+Run the next protected rehearsal in one bounded local process that generates
+credentials, creates users/membership, drives all browser contexts, performs the
+conditional update/conflict, restores exact bytes, and cleans identities. The
+process may use a newly created mode-0700 directory and mode-0600 files outside
+the repository for credentials and original bytes. It must validate those files
+before the first AWS write, never print their path/content, and remove them in a
+`finally` cleanup after successful restore.
+
+The process source is temporary and outside Git. Before execution, inspect it
+for exact targets/actions, no shell interpolation, sanitized output only, a
+single-attempt restore guard, restoration-first failure handling, and identity
+cleanup. Emit one sanitized summary only after cleanup. Do not split setup and
+browser work across turns or processes.
+
+Alternatives:
+
+- Persist passwords in Git, chat, Actions, or shell history: rejected.
+- Reset passwords in each milestone: rejected as unnecessary mutation.
+- Store browser tokens/storage state between processes: rejected by the
+  memory-only token contract.
+- Keep users after failure: rejected; pre-data failures require cleanup.
+
+Cost and maintenance effect:
+
+No repository/runtime/AWS resource change. The bounded process reduces
+credential lifetime and ensures cleanup/restore control flow owns all mutable
+state.
+
+Rollback/removal:
+
+Delete the temporary process and directory after verified restore and identity
+cleanup. Preserve the protected original bytes only if the single conditional
+restore fails and Sol recovery is required.
+
 ## Decision template
 
 Copy for new decisions:

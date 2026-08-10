@@ -3047,3 +3047,13 @@ before login, so the immediate callback was unobservable. D033 and
 `phase4-t16-browser-recorder-recovery-plan.md` require a tested pre-login
 sanitized recorder and a signed-in UI sentinel before API access, then authorize
 one fresh matrix and the unchanged conditional update/restore rehearsal.
+
+### Phase 4 T16 single-session recovery authorization
+
+BR01's recorder passed eight focused tests. BR02 then stopped before browser
+execution because its later process correctly lacked the prior process's
+temporary password state. Existing cleanup removed one membership and two users
+and returned pool/group to zero without login or data access. D034 and
+`phase4-t16-single-session-rehearsal-plan.md` require the next and only runner
+to own credential generation, auth, data restore, and cleanup in one bounded
+process with restoration-first `finally` control.

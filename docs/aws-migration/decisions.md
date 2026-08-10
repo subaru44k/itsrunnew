@@ -1969,6 +1969,45 @@ Rollback/removal:
 
 Revert the monotonic guard and redeploy web if the focused tests regress.
 
+## D047: Separate callback completion from normal session restoration
+
+Status: accepted
+
+Problem:
+
+CR03 again completed Cognito authentication and returned through the callback,
+but the signed-in UI did not appear. D046 prevents a late restoration result
+from overwriting callback state, yet the callback page still starts normal
+`getUser()` restoration automatically before its mounted callback. The two
+independent authentication lifecycles remain unnecessarily coupled.
+
+Decision:
+
+Make initialization an explicit page responsibility. The callback page obtains
+the shared session without starting restoration and exclusively consumes the
+authorization response. The normal manage page explicitly starts restoration.
+Keep D046 as defense in depth and preserve the existing in-memory token store,
+PKCE, return-path validation, and sanitized failures.
+
+After local review, deploy the static web only and perform one auth-only
+confirmation. Historical Firestore comparison and migration remain out of
+scope because the user authorized discarding old data.
+
+Alternatives:
+
+- Add another wait or retry: rejected because it does not remove competing
+  session lifecycles.
+- Persist the user/token: rejected by the security contract.
+
+Cost and maintenance effect:
+
+No new dependency or AWS resource; page lifecycle ownership becomes explicit.
+
+Rollback/removal:
+
+Restore automatic initialization only if callback and normal entry are later
+made mutually exclusive by a different reviewed session architecture.
+
 ## Decision template
 
 Copy for new decisions:

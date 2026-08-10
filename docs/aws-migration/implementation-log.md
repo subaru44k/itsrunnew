@@ -3802,3 +3802,14 @@ content type, cache metadata, and SHA-256. CloudFront invalidation count
 remained 3. No API PUT, S3 write, Firestore, IAM, deployment, or production
 operation occurred. CR03 is a terminal stop; no corrective implementation or
 retry is authorized, and CF03/T17 remain unauthorized.
+
+### Phase 4 T16 CR03 Sol review and callback ownership plan
+
+Sol accepted the sanitized CR03 evidence in `5ee95eb`: the single execution
+stopped at desktop `signed-in-missing`, cleanup read back zero users and zero
+admins, and the protected data and invalidation inventories were unchanged.
+
+Source review found the callback page still invokes the composable's automatic
+normal `getUser()` restoration before its mounted callback. D047 and
+`phase4-t16-callback-ownership-plan.md` authorize CO01 to separate those page
+lifecycles locally. No AWS operation or live auth retry is authorized in CO01.

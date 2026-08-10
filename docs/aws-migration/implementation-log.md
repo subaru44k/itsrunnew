@@ -2680,3 +2680,24 @@ change, 5 tests), infra tests (19), npm run check (web 44/core 7/schedule-api
 25/infra 19 plus build/synth), and git diff --check. No AWS operation was
 performed. T16B02 candidate policy work follows; AWS writes remain blocked.
 ```
+
+### Phase 4 T16B02 D026 candidate execution policy v7
+
+```text
+Start: 9a47542; result: complete locally. The committed candidate is a
+deterministic v6-to-v7 delta of exactly three changes: remove
+PreviewGitHubOidcProviderLifecycle, remove the GitHub deployment role ARN from
+PreviewScheduleLambdaRole while retaining its Hosting role pattern, and add
+PreviewAdminApi5xxAlarm with only cloudwatch:PutMetricAlarm,
+cloudwatch:DeleteAlarms, and cloudwatch:DescribeAlarms on the exact
+itsrun-preview-admin-api-5xx alarm ARN. All other v6 statements are
+byte-semantic unchanged. The candidate is 5,954 non-whitespace characters,
+within the 6,144-character limit, with no wildcard action or forbidden
+privilege.
+
+The focused policy test passed (5 tests), and the full Node 24 infra/root
+checks passed with the alarm source (infra 19, web 44, core 7,
+schedule-api 25, synth/build); git diff --check passed. No AWS operation or
+policy version write occurred. T16B03 read-only gates are next; AWS writes
+remain blocked.
+```

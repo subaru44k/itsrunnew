@@ -105,7 +105,7 @@ const candidateV5Statements = {
   ...candidateV4Statements,
   PreviewHttpApiStageTags: statement('PreviewHttpApiStageTags', 'apigateway:TagResource', `arn:aws:apigateway:${region}::/apis/*/stages`),
 }
-const candidateV6Statements = {
+const committedV6Statements = {
   ...candidateV5Statements,
   PreviewScheduleLambdaRole: statement('PreviewScheduleLambdaRole', candidateV4Statements.PreviewScheduleLambdaRole.Action, [
     `arn:aws:iam::${account}:role/ItsRunPreviewHosting-ScheduleApiRole*`,
@@ -117,18 +117,32 @@ const candidateV6Statements = {
   ], `arn:aws:iam::${account}:oidc-provider/token.actions.githubusercontent.com`),
 }
 
-test('candidate v6 has the exact reviewed statement contract', () => {
+const candidateV7Statements = {
+  ...candidateV5Statements,
+  PreviewScheduleLambdaRole: statement('PreviewScheduleLambdaRole', candidateV4Statements.PreviewScheduleLambdaRole.Action,
+    `arn:aws:iam::${account}:role/ItsRunPreviewHosting-ScheduleApiRole*`),
+  PreviewAdminApi5xxAlarm: statement('PreviewAdminApi5xxAlarm', [
+    'cloudwatch:PutMetricAlarm', 'cloudwatch:DeleteAlarms', 'cloudwatch:DescribeAlarms',
+  ], `arn:aws:cloudwatch:${region}:${account}:alarm:itsrun-preview-admin-api-5xx`),
+}
+
+test('candidate v7 has the exact reviewed statement contract', () => {
   assert.equal(policy.Version, '2012-10-17')
   assert.deepEqual(Object.keys(statements).sort(), [
-    ...Object.keys(candidateV6Statements),
+    ...Object.keys(candidateV7Statements),
   ].sort())
-  for (const [sid, expected] of Object.entries(candidateV6Statements)) {
+  for (const [sid, expected] of Object.entries(candidateV7Statements)) {
     assert.deepEqual(statements[sid], expected, sid)
   }
 })
 
-test('candidate v6 differs from the committed v5 contract only by compact D022 changes', () => {
-  assert.deepEqual(Object.keys(statements).sort(), Object.keys(candidateV6Statements).sort())
+test('candidate v7 differs from the committed v6 contract only by compact D026 changes', () => {
+  assert.deepEqual(Object.keys(statements).sort(), Object.keys(candidateV7Statements).sort())
+  assert.deepEqual(Object.keys(committedV6Statements).filter((sid) => !Object.hasOwn(candidateV7Statements, sid)), ['PreviewGitHubOidcProviderLifecycle'])
+  assert.deepEqual(Object.keys(candidateV7Statements).filter((sid) => !Object.hasOwn(committedV6Statements, sid)), ['PreviewAdminApi5xxAlarm'])
+  for (const sid of Object.keys(committedV6Statements).filter((sid) => sid !== 'PreviewGitHubOidcProviderLifecycle' && sid !== 'PreviewScheduleLambdaRole')) {
+    assert.deepEqual(statements[sid], committedV6Statements[sid], sid)
+  }
   for (const [sid, expected] of Object.entries(candidateV5Statements)) {
     if (sid !== 'PreviewScheduleLambdaRole') assert.deepEqual(statements[sid], expected, sid)
   }
@@ -140,24 +154,24 @@ test('candidate v6 differs from the committed v5 contract only by compact D022 c
   })
   assert.equal(statements.PreviewHttpApiStageTags.Action, 'apigateway:TagResource')
   assert.equal(statements.PreviewHttpApiStageTags.Resource, 'arn:aws:apigateway:ap-northeast-1::/apis/*/stages')
-  assert.deepEqual(statements.PreviewScheduleLambdaRole, candidateV6Statements.PreviewScheduleLambdaRole)
-  assert.deepEqual(statements.PreviewGitHubOidcProviderLifecycle, candidateV6Statements.PreviewGitHubOidcProviderLifecycle)
-  assert.equal(statements.PreviewGitHubOidcProviderLifecycle.Resource, `arn:aws:iam::${account}:oidc-provider/token.actions.githubusercontent.com`)
-  assert.deepEqual(statements.PreviewScheduleLambdaRole.Resource, [
-    `arn:aws:iam::${account}:role/ItsRunPreviewHosting-ScheduleApiRole*`,
-    `arn:aws:iam::${account}:role/itsrun-preview-github-web-deploy`,
-  ])
+  assert.deepEqual(statements.PreviewScheduleLambdaRole, candidateV7Statements.PreviewScheduleLambdaRole)
+  assert.equal(statements.PreviewGitHubOidcProviderLifecycle, undefined)
+  assert.deepEqual(statements.PreviewScheduleLambdaRole.Resource,
+    `arn:aws:iam::${account}:role/ItsRunPreviewHosting-ScheduleApiRole*`)
+  assert.deepEqual(statements.PreviewAdminApi5xxAlarm, candidateV7Statements.PreviewAdminApi5xxAlarm)
 })
 
-test('compact D022 candidate has the exact policy-size budget', () => {
+test('compact D026 candidate has the exact policy-size budget', () => {
   const nonWhitespace = readFileSync(policyPath, 'utf8').replace(/\s/g, '')
-  assert.equal(nonWhitespace.length, 6077)
+  assert.equal(nonWhitespace.length, 5954)
   assert.ok(nonWhitespace.length <= 6144)
   assert.deepEqual(statements.PreviewScheduleLambdaRole.Action, candidateV4Statements.PreviewScheduleLambdaRole.Action)
-  assert.deepEqual(statements.PreviewGitHubOidcProviderLifecycle.Action, [
-    'iam:CreateOpenIDConnectProvider', 'iam:GetOpenIDConnectProvider',
-    'iam:ListOpenIDConnectProviderTags', 'iam:TagOpenIDConnectProvider',
+  assert.ok(nonWhitespace.length <= 6144)
+  assert.deepEqual(statements.PreviewAdminApi5xxAlarm.Action, [
+    'cloudwatch:PutMetricAlarm', 'cloudwatch:DeleteAlarms', 'cloudwatch:DescribeAlarms',
   ])
+  assert.equal(statements.PreviewAdminApi5xxAlarm.Resource,
+    `arn:aws:cloudwatch:${region}:${account}:alarm:itsrun-preview-admin-api-5xx`)
 })
 
 test('committed v4 differs from the committed v3 contract only by reviewed additions', () => {
@@ -176,7 +190,7 @@ test('committed v4 differs from the committed v3 contract only by reviewed addit
   assert.deepEqual(candidateV4Statements.PreviewCloudFront.Resource, committedV3Statements.PreviewCloudFront.Resource)
 })
 
-test('candidate v6 has no wildcard action or forbidden privilege surface', () => {
+test('candidate v7 has no wildcard action or forbidden privilege surface', () => {
   const actions = policy.Statement.flatMap(({ Action }) => Array.isArray(Action) ? Action : [Action])
   assert.equal(actions.includes('*'), false)
   assert.equal(actions.some((action) => action.endsWith(':*')), false)
@@ -186,7 +200,7 @@ test('candidate v6 has no wildcard action or forbidden privilege surface', () =>
   assert.equal(serialized.includes('/apis/*/stages/*'), false)
   assert.equal(serialized.includes('arn:aws:apigateway:us-east-1::/apis/*/stages'), false)
   assert.equal(serialized.includes('arn:aws:execute-api:'), false)
-  assert.equal(statements.PreviewGitHubOidcProviderLifecycle.Action.includes('iam:PassRole'), false)
+  assert.equal(statements.PreviewAdminApi5xxAlarm.Action.includes('iam:PassRole'), false)
   assert.equal(statements.PreviewScheduleLambdaRole.Action.includes('iam:PassRole'), false)
   assert.equal(serialized.includes('iam:ListOpenIDConnectProviders'), false)
   assert.equal(serialized.includes('iam:AttachRolePolicy'), false)
@@ -197,7 +211,7 @@ test('candidate v6 has no wildcard action or forbidden privilege surface', () =>
     'cognito-idp:CreateIdentityPool', 'cognito-idp:DeleteIdentityPool', 'cognito-idp:CreateIdentityProvider',
     'cognito-idp:DeleteIdentityProvider', 's3:DeleteObject', 's3:PutObject', 's3:PutObjectAcl',
     'iam:AttachRolePolicy', 'iam:DetachRolePolicy', 'iam:PutRolePermissionsBoundary', 'iam:DeleteRolePermissionsBoundary',
-    'AdministratorAccess', 'PowerUserAccess', 'arn:aws:iam::123456789012:', 'itsrun-prod',
+    'AdministratorAccess', 'PowerUserAccess', 'arn:aws:iam::123456789012:', 'itsrun-prod', 'iam:CreateOpenIDConnectProvider',
   ]) assert.equal(serialized.includes(forbidden), false, forbidden)
   const wildcardResourceSids = policy.Statement.filter(({ Resource }) => Resource === '*').map(({ Sid }) => Sid).sort()
   assert.deepEqual(wildcardResourceSids, [

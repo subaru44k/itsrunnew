@@ -132,17 +132,6 @@
       "Resource": "arn:aws:apigateway:ap-northeast-1::/apis/*/stages"
     },
     {
-      "Sid": "PreviewGitHubOidcProviderLifecycle",
-      "Effect": "Allow",
-      "Action": [
-        "iam:CreateOpenIDConnectProvider",
-        "iam:GetOpenIDConnectProvider",
-        "iam:ListOpenIDConnectProviderTags",
-        "iam:TagOpenIDConnectProvider"
-      ],
-      "Resource": "arn:aws:iam::470447451992:oidc-provider/token.actions.githubusercontent.com"
-    },
-    {
       "Sid": "PreviewScheduleLambda",
       "Effect": "Allow",
       "Action": [
@@ -186,10 +175,17 @@
         "iam:TagRole",
         "iam:UntagRole"
       ],
-      "Resource": [
-        "arn:aws:iam::470447451992:role/ItsRunPreviewHosting-ScheduleApiRole*",
-        "arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy"
-      ]
+      "Resource": "arn:aws:iam::470447451992:role/ItsRunPreviewHosting-ScheduleApiRole*"
+    },
+    {
+      "Sid": "PreviewAdminApi5xxAlarm",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:DescribeAlarms"
+      ],
+      "Resource": "arn:aws:cloudwatch:ap-northeast-1:470447451992:alarm:itsrun-preview-admin-api-5xx"
     },
     {
       "Sid": "PassPreviewScheduleLambdaRoleOnly",

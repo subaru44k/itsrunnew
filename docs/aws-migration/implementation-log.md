@@ -3230,3 +3230,17 @@ and all prior recorder/protected-input cases. Root `npm run check` passed
 (web44, core7, schedule-api25, infra19 plus build/synth). No Cognito user,
 credential, browser, or AWS operation occurred. HF02 is next; HF03 remains
 blocked until HF02 succeeds.
+
+### Phase 4 T16 HF02
+
+HF02 completed read-only from `bb31ef4`. The live Cognito Hosted UI was opened
+without filling or submitting at desktop and mobile viewports. Both sanitized
+selector checkpoints reported host match, one visible named form, one visible
+username/password/submit control, and all three controls enabled. No DOM,
+screenshot, text, query, console, network body, credential, or browser state
+was retained.
+
+Independent read-only gates matched account `470447451992`, region
+`ap-northeast-1`, pool users=0, admins membership=0, and the reserved Oda
+object at the protected 501-byte/hash baseline. No AWS write occurred. HF03 is
+the next and only authorized execution boundary.

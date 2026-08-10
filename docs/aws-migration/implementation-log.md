@@ -3116,3 +3116,14 @@ core7, schedule-api25, infra19 plus build/synth), local E2E passed 14 legacy +
 44 admin, and read-only account/region, empty pool/group, and protected
 501-byte object baseline checks passed. No AWS write occurred. IU02 remains
 the single authorized real execution boundary.
+
+### Phase 4 T16 IU02 stop
+
+The corrected D035 runner was executed exactly once. Its sanitized result
+stopped before browser authentication and before any schedule/data operation;
+no raw AWS error or operation detail was retained. Mandatory finally cleanup
+completed, and read-only verification returned pool users=0 and admins
+membership=0. The protected Oda object remained the 501-byte baseline hash.
+The temporary runner/material were removed. Schedule writes=0, restore writes=0,
+and CloudFront invalidation=0. This is a terminal stop for IU02; no retry,
+password reset, or further rehearsal operation is authorized.

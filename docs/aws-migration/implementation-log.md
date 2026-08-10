@@ -3508,3 +3508,15 @@ temporary-directory removal.
 Focused auth/Chromium tests passed 32/32; root `npm run check` and
 `git diff --check` passed. No AWS or hosted-browser live operation occurred.
 AG02 remains blocked pending Sol source review.
+
+### Phase 4 T16 AG01 Sol acceptance and AG02 authorization
+
+Sol reviewed `70ea153`: the production and fake contracts now both require the
+exact top-level Username, and all four invalid shapes clean both identities and
+return sanitized setup failure. The correction is limited to D042; source and
+worktree checks are clean. AG01 is accepted.
+
+AG02 may execute the corrected auth-only program exactly once after the same
+zero/baseline gates. Observe only sanitized result/exit status and independent
+final counts. No retry, data/S3/Firestore/IAM/deploy/invalidation/CF03/T17
+operation is authorized in that execution.

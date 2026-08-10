@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | dispatch recovery planned after GitHub default-branch gate | `30a8cf3` + D023/G01-G04 plan | Settings tightened; exact migration-branch validation succeeded; Sol confirmed rejected dispatch created no run | One temporary exact push trigger is planned; no preview deployment or master protection yet. |
+| T15 | G01 complete; G02 stopped on failed push deployment run | `8068f85` + G02 stop follow-up | Exact temporary trigger pushed; validation succeeded; Preview deployment run ended `startup_failure` with zero jobs | No cleanup push, preview deployment, or master protection was performed after the binding failed-deployment stop. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2291,4 +2291,43 @@ request. After exactly one successful deploy run and external verification, a
 cleanup revision removes the push trigger before any later branch commit. The
 permanent workflow remains workflow_dispatch-only. No AWS/GitHub write was
 made during this Sol review.
+```
+
+### Phase 4 T15 first-dispatch recovery G02 deployment stop
+
+```text
+Start: 1d20897; G01 commit/push SHA:
+8068f85426a31f21ec5fcdce54e2cf4867dbdf32.
+Read-only pre-push baselines matched the exact repository/branch, tightened
+Actions settings, AWS account 470447451992/region ap-northeast-1, v6/default
+policy and reviewed OIDC role/trust/inline policy, HostingStack UPDATE_COMPLETE,
+and the reviewed HostingStack template SHA
+b5ae99c62f73b2c7df1bc361510247e133c436a42ea99cc179290fa34e93ce0e.
+The data-version inventory hash was
+7beee9dc3cbe0e99663d8d2b34bbc27856cffc67c6d4f91eff19c22a91538d4e and the
+CloudFront invalidation inventory hash was
+83890be8558e3f6da4653cef4a74099b5c4e69f7800967d890f143949da62b44.
+
+The one authorized push advanced only migration/aws-s3-cloudfront from
+9ae26b0 to 8068f85. Its normal validation run
+31348798987
+(https://github.com/subaru44k/itsrunnew/actions/runs/31348798987) succeeded
+for the exact SHA; Node 24.18.1, repository checks, Chromium, and production
+E2E completed successfully. The observed validation job context was
+`Node 24 validation`.
+
+The same push created exactly one temporary push-triggered Preview deployment
+run, 31348799391
+(https://github.com/subaru44k/itsrunnew/actions/runs/31348799391), for the
+exact SHA. It ended immediately with `startup_failure`, had zero jobs, and
+its logs endpoint reported no log. No OIDC session, helper invocation, S3
+PutObject, CloudFront readback, invalidation, HostingStack mutation, data
+mutation, or production/DNS/Firebase/Cognito change occurred. The exact
+GitHub API run record identified workflow `Deploy preview web`, path
+`.github/workflows/deploy-preview-web.yml`, event `push`, and run attempt 1.
+
+Because a failed deployment run is a binding stop condition, G03 cleanup and
+G04 master protection were not attempted. No retry, workflow dispatch, second
+deployment run, cleanup push, or merge occurred. This record contains no
+credentials, tokens, raw logs, or object bodies.
 ```

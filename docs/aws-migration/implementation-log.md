@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A/B complete locally, T15C pending T15D/Sol external review | `980e58d` | T15A/B accepted; T15C workflow/helper contract and E2E checks passed | Local-only implementation; no AWS/GitHub write or deployment. |
+| T15 | in progress; T15A/B/C complete locally, T15D pending external IAM review | `82a847d` | T15A/B accepted; T15C workflow/helper and T15D infra contracts passed | Local-only implementation; no AWS/GitHub write or deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1931,4 +1931,41 @@ remains text); no local path, credential, token, or raw error is emitted.
 Node 24.18.1 focused workflow/helper tests: 76 passed; npm run check passed;
 root E2E passed 58 tests (14 legacy plus 44 local admin); git diff --check
 passed. No AWS/GitHub/network operation occurred. T15D is not started.
+```
+
+### Phase 4 T15D GitHub OIDC role definition
+
+```text
+Start: ce8d2aa; source/test commit: 82a847d; result: complete locally and
+pending external IAM review. Added the separate ItsRunPreviewGitHubDeploy
+CDK stack to the existing app while leaving HostingStack tests/contracts
+isolated. The synthesized graph contains one retained
+AWS::IAM::OIDCProvider for https://token.actions.githubusercontent.com with
+the single sts.amazonaws.com audience, and one retained role named
+itsrun-preview-github-web-deploy with a one-hour session limit, sanitized
+description/tag, and an exact StringEquals audience plus migration-branch
+subject trust. Its sole inline policy has exactly
+cloudformation:DescribeStacks on the ItsRunPreviewHosting stack ARN pattern
+and s3:PutObject on the exact preview web bucket object ARN. No managed
+policies, GetObject, data bucket, delete/list, invalidation, PassRole, or
+other service permissions are present. ProviderArn and RoleArn are outputs.
+
+Infra tests: 17 passed; infra build/synth passed; root npm run check passed;
+workflow/helper focused tests 76 passed; git diff --check passed. No AWS,
+GitHub, deployment, IAM, or network operation occurred.
+
+Execution-role candidate for a later separately reviewed CloudFormation
+operation is intentionally ungranted: lifecycle/read/tag candidates are
+iam:GetOpenIDConnectProvider, iam:TagOpenIDConnectProvider,
+iam:UntagOpenIDConnectProvider, iam:DeleteOpenIDConnectProvider against the
+exact provider ARN, plus iam:GetRole, iam:TagRole, iam:UntagRole,
+iam:UpdateAssumeRolePolicy, iam:PutRolePolicy, iam:DeleteRolePolicy,
+iam:UpdateRoleDescription, and iam:DeleteRole against the exact role ARN.
+CreateOpenIDConnectProvider and CreateRole are also unresolved lifecycle
+candidates; their resource-scope requirements (including any required `*`)
+must be confirmed from AWS documentation/review and are not guessed here.
+No PassRole is indicated by this synthesized graph. Deployment-principal
+CloudFormation change-set/lifecycle and CDK bootstrap asset permissions remain
+separate future review items; no such operation was run. T15E/T16 are not
+started.
 ```

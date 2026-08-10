@@ -1601,6 +1601,68 @@ Rollback/removal:
 Keep the typed form driver while Hosted UI is used; remove it only with the T16
 operational harness after migration acceptance.
 
+## D039: Commit and test the rehearsal coordinator before another protected run
+
+Status: accepted
+
+Problem:
+
+HF01's unit test used a hand-built locator fake and repeated the same object for
+the desktop/mobile labels; it did not exercise Playwright, responsive CSS,
+locator visibility, or a real form submit event as D038 required. HF03 then
+returned only a generic failure after setup, without any D038 form checkpoint.
+The data and identities were safely restored to baseline, but the temporary
+runner still owned too much uncommitted orchestration for Sol to review or test.
+
+The current driver also starts the injected navigation promise before fill but
+does not settle/cancel it on an early fill or click failure, and classifies a
+click failure as `fill-failed`. These are locally correctable contract gaps; a
+further opaque rehearsal would not be justified.
+
+Decision:
+
+Keep the environment-specific credential and AWS/browser adapters temporary,
+but move the complete credential-free rehearsal coordinator into the committed
+harness. It receives injected Cognito, browser-role, data-rehearsal, and cleanup
+adapters; advances through an explicit allowlisted state machine; and always
+returns the last safe checkpoint and cleanup/restoration counts. Its tests must
+cover full success, every pre-browser/setup failure, every form/callback/
+sentinel role outcome, post-write failure with restoration priority, cleanup
+failure, and sanitized output. No credential, identity, object body, raw error,
+or adapter argument may enter the result.
+
+Replace the simulated responsive proof with a real local Chromium test using
+the already installed Playwright dependency. The HTML fixture renders two
+Cognito-shaped responsive forms with CSS selecting one at desktop and the other
+at mobile. The committed driver must fill and click only the visible scoped
+form, observe exactly one real submit event, and leave the hidden form empty.
+Fix the navigation-signal lifecycle so early action failures cannot leave an
+unhandled rejection or timer, and distinguish `fill-failed` from `click-failed`.
+
+Only after these committed tests and a repeated read-only baseline gate succeed
+may one protected run use a thin temporary adapter around the exact committed
+coordinator. The final result must identify the last typed checkpoint even on
+failure. Do not retry an untyped or mismatched result.
+
+Alternatives:
+
+- Patch another temporary runner: rejected because Sol cannot reproduce its
+  control flow after deletion.
+- Keep the locator fake as browser proof: rejected because it cannot detect
+  Playwright selector, visibility, or submit-event mismatches.
+- Commit credentials or environment-specific identities: rejected; only the
+  credential-free coordinator belongs in Git.
+
+Cost and maintenance effect:
+
+No dependency or AWS resource change. More of the operational workflow becomes
+reviewable and deterministic, reducing repeated live Cognito rehearsals.
+
+Rollback/removal:
+
+Retain the coordinator through T16 acceptance and remove it with migration-only
+operational tooling in the documented cleanup phase.
+
 ## Decision template
 
 Copy for new decisions:

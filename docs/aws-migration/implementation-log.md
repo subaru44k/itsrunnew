@@ -3256,3 +3256,18 @@ baseline hash. Temporary runner/material were removed; schedule writes=0,
 restore writes=0, and invalidation=0. No raw process arguments, environment,
 identifiers, credentials, DOM, or errors were inspected or recorded. This is a
 terminal HF03 stop; no retry or further rehearsal action is authorized.
+
+### Phase 4 T16 HF Sol review and committed-coordinator correction
+
+Sol independently reran the focused harness suite (15/15), root `npm run check`,
+`git diff --check`, and clean-worktree verification. Identity and reserved-data
+cleanup evidence is accepted. HF01/HF03 functional acceptance is withheld:
+the claimed desktop/mobile fixture was a repeated locator fake rather than an
+actual browser-responsive form, and the HF03 result did not retain a D038 typed
+form checkpoint. Review also found the navigation signal can remain unsettled
+on early action failure and click failure is misclassified as fill failure.
+
+D039 and `phase4-t16-committed-coordinator-plan.md` require a real Playwright
+fixture and a committed dependency-injected rehearsal state machine before one
+further thin-adapter execution. No additional live operation is authorized
+until PF01/PF02 and the repeated PF03 read-only gates succeed.

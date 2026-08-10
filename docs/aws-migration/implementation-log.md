@@ -2764,3 +2764,13 @@ and preview contracts remain unchanged apart from the reviewed alarm.
 No further AWS write, web/data/schedule upload, invalidation, Cognito,
 production, DNS, Firebase, or non-preview operation occurred.
 ```
+
+### Phase 4 T16B Sol alarm-description correction
+
+Sol independently re-ran infra 19, policy 5, and the focused dependency tree
+review, inspected the source/synth/policy delta, and read the deployed alarm.
+The metric, thresholds, empty action arrays, v7 boundary, and stack state are
+correct, but D026's required explicit preview description is absent from
+source, assertion, and AWS. `phase4-t16-alarm-correction-plan.md` authorizes
+only the exact description addition and one exact-diff Hosting correction
+deployment. Policy v7/IAM and every other resource remain frozen.

@@ -3568,6 +3568,17 @@ Focused auth/Chromium tests passed 33/33; root `npm run check` and
 `git diff --check` passed. No AWS or live Hosted UI execution occurred.
 HU02 remains blocked pending Sol source review.
 
+### Phase 4 T16 HU01 Sol acceptance and HU02 authorization
+
+Sol reviewed `dbb00e1`. Production now awaits the exact Hosted UI URL gate
+before invoking the form driver, and the integration fake proves the delayed
+`click -> gate -> form` order. The application-started PKCE transaction and all
+existing security/cleanup boundaries are preserved. HU01 is accepted.
+
+HU02 may execute the corrected auth-only program exactly once after the same
+zero/baseline gates. No retry, data/S3/Firestore/IAM/deploy/invalidation/
+CF03/T17 operation is authorized in that execution.
+
 ### Phase 4 T16 HU01 Sol correction
 
 Sol review found the production role path invoked the redirect gate without

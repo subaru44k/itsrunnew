@@ -1446,6 +1446,49 @@ Rollback/removal:
 Remove the mapping only if Cognito changes the pool's username contract in a
 separately reviewed migration.
 
+## D036: Treat successful no-output AWS CLI operations as void
+
+Status: accepted
+
+Problem:
+
+Top-level CloudTrail metadata for IU02 shows `AdminCreateUser` and
+`AdminSetUserPassword` both completed, no second create was attempted, and the
+first user was later deleted. `admin-set-user-password` returns empty stdout on
+success. The temporary runner parsed every successful AWS CLI stdout as JSON,
+so the empty successful response caused a local parse failure. The fake adapter
+incorrectly returned an object and missed this contract.
+
+Decision:
+
+The temporary runner's command adapter must distinguish JSON-returning and
+void-success operations. For an exit-code-zero void operation, require empty or
+whitespace stdout and return a fixed internal `void-success` sentinel; never
+call `JSON.parse`. JSON operations must still require nonempty valid JSON.
+Update the AWS-free adapter test to model real empty stdout for password set,
+group add/remove, and user delete, and prove the sequence proceeds to the second
+create while cleanup remains exact.
+
+Failure evidence may expose only the operation category and stable local/service
+code, not stderr, stdout, arguments, identities, or messages.
+
+Alternatives:
+
+- Make AWS CLI emit synthetic JSON: rejected because the operation contract is
+  naturally void.
+- Ignore all parse errors: rejected because JSON-returning operations must stay
+  strictly validated.
+- Infer an AWS service failure: rejected by the successful CloudTrail event.
+
+Cost and maintenance effect:
+
+No AWS/runtime/dependency change. The operator adapter matches AWS CLI output
+semantics and gains a regression test.
+
+Rollback/removal:
+
+Keep explicit JSON/void operation typing for all future operational runners.
+
 ## Decision template
 
 Copy for new decisions:

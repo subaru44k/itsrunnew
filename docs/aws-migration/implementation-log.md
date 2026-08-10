@@ -3068,6 +3068,15 @@ the internal Username returned by `AdminCreateUser`. D035 and
 proof, internal IDs for admin/cleanup APIs only, email aliases for Hosted UI
 only, then one corrected bounded execution.
 
+### Phase 4 T16 void-output recovery authorization
+
+Sol inspected only top-level CloudTrail event metadata: IU02 successfully
+completed one `AdminCreateUser` and one `AdminSetUserPassword`, attempted no
+second create, and later deleted the first user. The password operation is a
+successful empty-stdout AWS CLI command; the runner incorrectly JSON-parsed it.
+D036 and `phase4-t16-void-output-recovery-plan.md` require explicit JSON/void
+typing, realistic empty-output fake tests, and one corrected bounded execution.
+
 ### Phase 4 T16 SS01
 
 SS01 completed locally from Sol handoff `4a76298` on Node 24.18.1. The focused

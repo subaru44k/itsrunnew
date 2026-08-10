@@ -3136,3 +3136,18 @@ membership=0. The protected Oda object remained the 501-byte baseline hash.
 The temporary runner/material were removed. Schedule writes=0, restore writes=0,
 and CloudFront invalidation=0. This is a terminal stop for IU02; no retry,
 password reset, or further rehearsal operation is authorized.
+
+### Phase 4 T16 VO01
+
+VO01 completed locally from Sol handoff `bc79c33` under Node 24.18.1. The
+dependency-free AWS adapter proof passed six cases: successful void operations
+with empty stdout return a fixed sentinel without JSON parsing; JSON operations
+require nonempty valid JSON; nonempty void output, empty/malformed JSON, and
+nonzero execution are rejected; and partial cleanup retains the internal
+identity while emitting only a stable category. Fake setup/cleanup completed
+for two users and the sanitized result contained no identifiers, arguments,
+credentials, stdout/stderr, or raw errors.
+
+Read-only account/region, empty pool/group, and protected 501-byte object gates
+matched; recorder tests passed 8/8 and the worktree remained clean. No AWS
+write occurred. VO02 remains the single authorized real execution boundary.

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-const session = useAdminSession()
+const session = useAdminSession({ initialize: false })
 useHead({ meta: [{ name: 'robots', content: 'noindex, nofollow' }] })
 onMounted(() => { void session.callback(window.location.href) })
 </script>

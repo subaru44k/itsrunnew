@@ -24,6 +24,19 @@ test('callback route is a clean localized application route', async ({ page }) =
   await expect(page.locator('main.admin-page')).toContainText('管理者スケジュール')
 })
 
+test('callback owns OIDC completion while manage owns restoration', async ({ page }) => {
+  await setupCallback(page, 'success')
+  await page.goto('/manage/callback?code=fake&state=fake#fragment', { waitUntil: 'domcontentloaded' })
+  expect(await page.evaluate(() => sessionStorage.getItem('admin-e2e-callback-restore-count'))).toBeNull()
+  await expect(page).toHaveURL(/\/manage$/)
+  await page.waitForFunction(() => sessionStorage.getItem('admin-e2e-manage-restore-count') === '1')
+  expect(await page.evaluate(() => sessionStorage.getItem('admin-e2e-manage-restore-count'))).toBe('1')
+  await page.goto('/manage', { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(() => sessionStorage.getItem('admin-e2e-manage-restore-count') === '2')
+  expect(await page.evaluate(() => sessionStorage.getItem('admin-e2e-manage-restore-count'))).toBe('2')
+  await expect(page.getByRole('button', { name: '管理者としてログイン' })).toBeVisible()
+})
+
 test('OIDC login uses authorization code + PKCE settings and exact administrator scopes', async ({ page }) => {
   await page.goto('/manage', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: '管理者としてログイン' }).click()

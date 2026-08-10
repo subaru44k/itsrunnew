@@ -107,7 +107,7 @@ export function getBrowserAdminSession(options: SessionOptions) {
   return browserSession
 }
 
-export function useAdminSession() {
+export function useAdminSession(options: { initialize?: boolean } = {}) {
   const config = useRuntimeConfig().public
   if (import.meta.client && !browserSession) {
     browserSession = createAdminSession({
@@ -123,6 +123,6 @@ export function useAdminSession() {
     })
   }
   const session = browserSession ?? createAdminSession({ authority: config.cognitoAuthority, clientId: config.cognitoClientId, oidc: undefined })
-  if (import.meta.client) void session.initialize()
+  if (import.meta.client && options.initialize !== false) void session.initialize()
   return session
 }

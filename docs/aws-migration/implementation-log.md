@@ -3813,3 +3813,24 @@ Source review found the callback page still invokes the composable's automatic
 normal `getUser()` restoration before its mounted callback. D047 and
 `phase4-t16-callback-ownership-plan.md` authorize CO01 to separate those page
 lifecycles locally. No AWS operation or live auth retry is authorized in CO01.
+
+### Phase 4 T16 CO01 callback ownership correction
+
+Starting from Sol handoff `b204c5a37b769f2505ab3acf239a20cc012e25a8`, Node
+`v24.18.1`, CO01 made session restoration an explicit page responsibility.
+`useAdminSession` now accepts an initialization option; `/manage/callback`
+obtains the shared in-memory session with initialization disabled and invokes
+only the OIDC callback, while normal `/manage` uses the default restoration.
+No raw URL route detection, token persistence, PKCE, safe return-path,
+sanitized-error, D046 guard, or logout behavior was changed.
+
+The deterministic admin-local Playwright suite passed 46/46 across Japanese
+desktop and English mobile. The new lifecycle proof observed zero
+`getUser` restoration calls while callback was mounted, callback success
+reached the safe `/manage` destination, and normal manage mounting performed
+bounded restoration (including a second explicit manage mount). Existing
+callback success/failure/hostile-return, signed-in/signed-out, lifecycle,
+PKCE, API, and no-secret tests remained passing. Focused web unit tests passed
+47/47; root `npm run check` and `git diff --check` passed. No AWS, live auth,
+deployment, invalidation, IAM, API/S3/Firestore write, production, or T17
+operation occurred.

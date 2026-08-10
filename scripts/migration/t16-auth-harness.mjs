@@ -155,7 +155,31 @@ const coordinatorStages = [
 ]
 
 function coordinatorFailure(error) {
+  if (error?.message === 'invalid proof') return 'invalid-proof'
   return error?.name === 'TimeoutError' ? 'timeout' : 'operation-failed'
+}
+
+function exactProof(value, keys, predicate) {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join('|') !== [...keys].sort().join('|') || !predicate(value)) throw new Error('invalid proof')
+  return value
+}
+
+function validateCoordinatorProof(stage, value, role = null) {
+  switch (stage) {
+    case 'preflight': return exactProof(value, ['target', 'baseline'], v => v.target === 'd029' && v.baseline === true)
+    case 'setup': return exactProof(value, ['users', 'admins'], v => v.users === 2 && v.admins === 1)
+    case 'admin-form': case 'non-admin-form': return exactProof(value, ['desktop', 'mobile'], v => v.desktop === 'form-submitted' && v.mobile === 'form-submitted')
+    case 'admin-callback': case 'non-admin-callback': return exactProof(value, ['desktop', 'mobile'], v => v.desktop === true && v.mobile === true)
+    case 'admin-sentinel': return exactProof(value, ['desktop', 'mobile'], v => v.desktop === 200 && v.mobile === 200)
+    case 'non-admin-sentinel': return exactProof(value, ['desktop', 'mobile'], v => v.desktop === 403 && v.mobile === 403)
+    case 'data-read': return exactProof(value, ['contexts', 'baseline'], v => v.contexts === 2 && v.baseline === true)
+    case 'data-update': return exactProof(value, ['putCount', 'newEtag', 'newVersionId'], v => v.putCount === 1 && v.newEtag === true && v.newVersionId === true)
+    case 'stale-conflict': return exactProof(value, ['putCount', 'status', 'versionUnchanged'], v => v.putCount === 1 && v.status === 409 && v.versionUnchanged === true)
+    case 'public-observation': return exactProof(value, ['status', 'slot'], v => v.status === 200 && v.slot === 1)
+    case 'restore': return exactProof(value, ['putCount', 'bytesExact', 'hashExact', 'metadataExact'], v => v.putCount === 1 && v.bytesExact === true && v.hashExact === true && v.metadataExact === true)
+    case 'cleanup': return exactProof(value, ['users', 'admins'], v => v.users === 0 && v.admins === 0)
+    default: throw new Error(`invalid proof stage ${role || ''}`)
+  }
 }
 
 async function invokeCoordinatorAdapter(adapter, method, context) {
@@ -168,6 +192,7 @@ export async function runT16Coordinator(adapters = {}) {
   const checkpoint = (value) => { if (!coordinatorCheckpoints.has(value)) throw new Error('invalid coordinator checkpoint'); return value }
   let lastCheckpoint = checkpoint('preflight')
   let failure = null
+  let failureCheckpoint = null
   let restoreFailure = null
   let cleanupFailure = null
   let writeAttempted = false
@@ -179,11 +204,13 @@ export async function runT16Coordinator(adapters = {}) {
     lastCheckpoint = checkpoint(stage)
     markOperation()
     try {
-      await invokeCoordinatorAdapter(adapter, method, { stage, role, markWrite, markOperation })
+      const result = await invokeCoordinatorAdapter(adapter, method, { stage, role, markWrite, markOperation })
+      validateCoordinatorProof(stage, result, role)
       if (role) roleOutcomes[role] = 'passed'
     } catch (error) {
       if (role) roleOutcomes[role] = 'failed'
       failure = { stage, category: coordinatorFailure(error) }
+      failureCheckpoint = stage
       throw error
     }
   }
@@ -204,20 +231,24 @@ export async function runT16Coordinator(adapters = {}) {
       lastCheckpoint = checkpoint('restore')
       counts.operations += 1
       counts.restores += 1
-      try { await invokeCoordinatorAdapter(adapters.restore, 'run', { stage: 'restore', markOperation, markWrite }) } catch (error) { restoreFailure = { stage: 'restore', category: coordinatorFailure(error) } }
+      try { validateCoordinatorProof('restore', await invokeCoordinatorAdapter(adapters.restore, 'run', { stage: 'restore', markOperation, markWrite })) } catch (error) { restoreFailure = { stage: 'restore', category: coordinatorFailure(error) }; failureCheckpoint ??= 'restore' }
     }
     lastCheckpoint = checkpoint('cleanup')
     counts.operations += 1
     counts.cleanups += 1
-    try { await invokeCoordinatorAdapter(adapters.cleanup, 'run', { stage: 'cleanup', markOperation }) } catch (error) { cleanupFailure = { stage: 'cleanup', category: coordinatorFailure(error) } }
+    try { validateCoordinatorProof('cleanup', await invokeCoordinatorAdapter(adapters.cleanup, 'run', { stage: 'cleanup', markOperation })) } catch (error) { cleanupFailure = { stage: 'cleanup', category: coordinatorFailure(error) }; failureCheckpoint ??= 'cleanup' }
   }
   const status = restoreFailure ? 'restore-failed' : cleanupFailure ? 'cleanup-failed' : failure ? 'failed' : 'success'
+  if (status === 'success') lastCheckpoint = checkpoint('complete')
   return {
     status,
     lastCheckpoint,
+    failureCheckpoint,
     roleOutcomes,
     counts,
     failure: restoreFailure ?? cleanupFailure ?? failure,
+    restoreStatus: writeAttempted ? (restoreFailure ? 'failed' : 'passed') : 'not-required',
+    cleanupStatus: cleanupFailure ? 'failed' : 'passed',
   }
 }
 

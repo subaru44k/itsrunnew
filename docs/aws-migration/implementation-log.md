@@ -3336,3 +3336,19 @@ D039 and `phase4-t16-committed-coordinator-plan.md` require a real Playwright
 fixture and a committed dependency-injected rehearsal state machine before one
 further thin-adapter execution. No additional live operation is authorized
 until PF01/PF02 and the repeated PF03 read-only gates succeed.
+
+### Phase 4 T16 PA01
+
+PA01 is implemented locally from Sol handoff `6d275a6`. The coordinator now
+requires exact proof objects for every stage: baseline/preflight and setup,
+desktop/mobile form and callback proofs, role-specific 200/403 sentinels,
+two-context baseline read, one update PUT with new ETag/VersionId, one stale
+409 PUT with unchanged current version, public tuple 1, exact restoration, and
+zero-user/group cleanup. Resolved no-op or malformed values become typed
+`invalid-proof` failures. `failureCheckpoint` is retained independently from
+restore and cleanup progress; any marked write activates restoration-first
+handling.
+
+Focused AWS-free harness plus real Chromium tests passed `22/22`. Root
+`npm run check` is pending the PA01 commit gate. No AWS, Cognito, credential,
+schedule-data, or browser-hosted operation occurred.

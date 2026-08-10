@@ -110,6 +110,16 @@ export async function runBrowserRoleSession(page, { username, password, viewport
   return { checkpoint: 'form-submitted' }
 }
 
+export async function awaitSignedInSentinel(page, { viewport = 'desktop', timeoutMs = 30000 } = {}) {
+  if (!page || typeof page.getByRole !== 'function' || !browserViewports.has(viewport) || !Number.isFinite(timeoutMs) || timeoutMs <= 0) throw createBrowserSubstageError('signed-in-missing', viewport)
+  try {
+    const logout = page.getByRole('button', { name: /Sign out|ログアウト/ })
+    if (!logout || typeof logout.waitFor !== 'function') throw new Error('sentinel unavailable')
+    await logout.waitFor({ state: 'visible', timeout: timeoutMs })
+  } catch { throw createBrowserSubstageError('signed-in-missing', viewport) }
+  return { checkpoint: 'signed-in-visible', viewport }
+}
+
 async function runRealBrowserRole(role, username, password) {
   const { chromium } = await import('playwright')
   const outcomes = {}
@@ -127,7 +137,7 @@ async function runRealBrowserRole(role, username, password) {
       const callback = recorder.snapshot().events.some(event => event.kind === 'navigation' && event.path === '/manage/callback')
       if (!callback) throw createBrowserSubstageError('callback-missing', viewportName)
       try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 }) } catch { throw createBrowserSubstageError('manage-timeout', viewportName) }
-      if (await page.getByRole('button', { name: /Sign out|ログアウト/ }).count() < 1) throw createBrowserSubstageError('signed-in-missing', viewportName)
+      await awaitSignedInSentinel(page, { viewport: viewportName, timeoutMs: 30000 })
       for (let attempt = 0; attempt < 300 && apiStatus === null; attempt += 1) await new Promise(resolve => setTimeout(resolve, 100))
       const status = apiStatus
       outcomes[viewport.width > 600 ? 'desktopStatus' : 'mobileStatus'] = status

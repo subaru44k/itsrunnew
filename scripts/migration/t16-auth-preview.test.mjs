@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import * as fsp from 'node:fs/promises'
-import { awaitHostedUiLogin, createBrowserSubstageError, createConcreteAuthAdapters, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
+import { awaitHostedUiLogin, awaitSignedInSentinel, createBrowserSubstageError, createConcreteAuthAdapters, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
 function fakeRun({ fail = null, getShape = 'top-level' } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
@@ -126,4 +126,13 @@ test('browser substage failures retain only exact category and viewport', async 
     assert.deepEqual(result.failure, { stage: 'admin-form', category, viewport }); assert.equal(JSON.stringify(result).includes('canary'), false); assert.equal(JSON.stringify(result).includes('raw browser'), false)
   }
   assert.throws(() => createBrowserSubstageError('canary', 'desktop'), /invalid browser substage/)
+})
+
+test('signed-in sentinel waits for delayed visible hydration and times out safely', async () => {
+  let visible = false
+  const delayed = { getByRole: () => ({ waitFor: async ({ state }) => { assert.equal(state, 'visible'); await new Promise(resolve => setTimeout(resolve, 10)); visible = true } }) }
+  const result = await awaitSignedInSentinel(delayed, { viewport: 'desktop', timeoutMs: 1000 })
+  assert.deepEqual(result, { checkpoint: 'signed-in-visible', viewport: 'desktop' }); assert.equal(visible, true)
+  const timeout = { getByRole: () => ({ waitFor: async () => { throw new Error('canary raw timeout') } }) }
+  await assert.rejects(() => awaitSignedInSentinel(timeout, { viewport: 'mobile', timeoutMs: 10 }), error => error.name === 'BrowserSubstageError' && error.category === 'signed-in-missing' && error.viewport === 'mobile' && !String(error.message).includes('canary'))
 })

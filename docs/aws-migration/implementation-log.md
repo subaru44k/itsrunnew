@@ -3568,6 +3568,19 @@ Focused auth/Chromium tests passed 33/33; root `npm run check` and
 `git diff --check` passed. No AWS or live Hosted UI execution occurred.
 HU02 remains blocked pending Sol source review.
 
+### Phase 4 T16 SI01 signed-in sentinel correction
+
+Starting from Sol handoff `dee70ac`, SI01 replaced the immediate logout
+locator count with the exported bounded `awaitSignedInSentinel` visibility
+wait (`state: visible`, exact timeout). Delayed hydration success and timeout
+tests prove the wait is deterministic, has no fixed sleep, and returns only
+the typed `signed-in-missing` substage without raw material. Existing API,
+auth, recorder, and cleanup behavior remains unchanged.
+
+Focused auth/Chromium tests passed 36/36; root `npm run check` and
+`git diff --check` passed. No AWS or live Hosted UI execution occurred.
+SI02 remains blocked pending Sol source review.
+
 ### Phase 4 T16 browser-substage recovery authorization
 
 Delayed top-level evidence for HU02 shows successful CognitoAuthentication and

@@ -1,6 +1,11 @@
 name: Deploy preview web
 
 on:
+  push:
+    branches:
+      - migration/aws-s3-cloudfront
+    paths:
+      - .github/workflows/deploy-preview-web.yml
   workflow_dispatch:
 
 permissions:

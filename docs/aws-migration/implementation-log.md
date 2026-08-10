@@ -2261,6 +2261,19 @@ dispatch was attempted. The repository settings change and branch push remain
 the only E05 external writes.
 ```
 
+### Phase 4 T15 first-dispatch recovery G01 temporary trigger
+
+```text
+Start: 1d20897; result: complete locally; the one-time push request is ready.
+Added only the exact temporary push trigger to deploy-preview-web.yml for
+branch migration/aws-s3-cloudfront and path
+.github/workflows/deploy-preview-web.yml. workflow_dispatch and all T15C
+permissions, actions, jobs, commands, OIDC, and helper contracts remain
+unchanged. Focused workflow contract coverage proves the exact trigger and
+rejects all other event surfaces. No GitHub/AWS operation occurred in G01;
+G02 is the single authorized push/execution gate.
+```
+
 ### Phase 4 T15E05 Sol stop review and D023 plan
 
 ```text

@@ -3848,3 +3848,17 @@ CO01 is accepted. CO02 may push this exact reviewed revision and dispatch the
 existing exact-SHA web-only workflow once. Data, CloudFormation, IAM, Cognito
 administration, and invalidation remain forbidden. Require workflow success and
 unchanged protected data/invalidation inventories before CO03.
+
+### Phase 4 T16 CO02 validation-runner stop and replacement authorization
+
+Exact-SHA workflow run `31439784561` stopped before the deploy job. Repository
+checks passed, but the external legacy Firebase compatibility suite's Chromium
+process received SIGSEGV while opening `/yumenoshima`; 13 other routes passed.
+This was a browser-process crash, not an assertion or application failure. The
+deploy job was skipped, and read-only verification confirmed the protected
+object and invalidation count 3 were unchanged.
+
+Because no AWS write occurred and the failure was an isolated runner/browser
+crash against the unchanged external legacy site, Sol authorizes one replacement
+dispatch of the same reviewed source. All CO02 write boundaries remain exact;
+another validation failure must stop without deployment or further retry.

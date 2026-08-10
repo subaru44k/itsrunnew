@@ -1,5 +1,6 @@
 const exactKey = 'data/v1/stadiums/oda/availability/2026-08.json'
 const sensitive = /token|password|secret|claim|authorization|cookie|access_key|raw|credential/i
+const hostedUiCategories = ['callback', 'incorrect-credentials', 'user-not-found', 'password-reset-required', 'oauth-error', 'unknown-login']
 
 export function validateOperatorEnvironment(env = process.env) {
   const names = {
@@ -28,4 +29,31 @@ export function inspectBrowserArtifacts({ url, localStorageKeys = [], sessionSto
   return { urlPath: new URL(url).pathname, localStorageKeys: localStorageKeys.length, sessionStorageKeys: sessionStorageKeys.length, consoleMessages: consoleMessages.length, networkRequests: networkUrls.length }
 }
 
-export { exactKey }
+export function normalizeHostedUiOutcome({ role, domText = '', urlSequence = [], statuses = [], durationMs = null }) {
+  if (!['admin', 'non-admin', 'diagnostic'].includes(role) || typeof domText !== 'string' || !Array.isArray(urlSequence) || !Array.isArray(statuses)) throw new Error('invalid diagnostic input')
+  const redirects = urlSequence.map(value => {
+    const url = new URL(value)
+    if (!['https:', 'http:'].includes(url.protocol) || !url.hostname || !url.pathname.startsWith('/')) throw new Error('unsafe diagnostic URL')
+    return { host: url.hostname, path: url.pathname }
+  })
+  const safeStatuses = statuses.map(value => {
+    if (!Number.isInteger(value) || value < 100 || value > 599) throw new Error('invalid diagnostic status')
+    return value
+  })
+  const text = domText.toLowerCase()
+  const finalPath = redirects.at(-1)?.path || ''
+  const category = finalPath === '/manage/callback'
+    ? 'callback'
+    : /incorrect|invalid username|wrong password|authentication failed/.test(text)
+      ? 'incorrect-credentials'
+      : /user not found|unknown user|does not exist/.test(text)
+        ? 'user-not-found'
+        : /forgot password|reset password|new password required/.test(text)
+          ? 'password-reset-required'
+          : /oauth|authorize|authorization|openid|discovery/.test(text)
+            ? 'oauth-error'
+            : 'unknown-login'
+  return { role, category, redirects, statuses: safeStatuses, durationMs: Number.isInteger(durationMs) && durationMs >= 0 ? durationMs : null }
+}
+
+export { exactKey, hostedUiCategories }

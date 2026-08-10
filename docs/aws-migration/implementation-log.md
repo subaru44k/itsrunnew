@@ -2900,6 +2900,15 @@ not allow; this explains the pre-token failure. D030 and
 the two existing response-header-policy updates, and then a fresh C03/D01/D02
 rehearsal from the confirmed zero-user/group state.
 
+### Phase 4 T16 LD01
+
+Extended the existing AWS-free auth harness with a Hosted UI diagnostic
+normalizer. It emits only an allowlisted category, sanitized host/path
+sequence, integer status list, role, and duration; query strings, DOM text,
+credentials, cookies, hidden transaction values, codes, tokens, and claims
+cannot appear in the result. Focused tests pass 5/5. LD02 remains pending its
+single-user read-only diagnostic and mandatory cleanup.
+
 ### Phase 4 T16 CSP02/CSP03 recovery result
 
 The CSP02 read-only gate matched policy v7 default with v3-v7 retained,

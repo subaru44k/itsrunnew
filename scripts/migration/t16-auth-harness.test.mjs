@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { assertReservedCell, exactKey, inspectBrowserArtifacts, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
+import { assertReservedCell, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
 
 test('operator input is validated without returning password material', () => {
   const result = validateOperatorEnvironment({ T16_ADMIN_USERNAME: 'preview-t16-admin@rehearsal.invalid', T16_NONADMIN_USERNAME: 'preview-t16-nonadmin@rehearsal.invalid', T16_ADMIN_PASSWORD: 'a'.repeat(24), T16_NONADMIN_PASSWORD: 'b'.repeat(24) })
@@ -18,4 +18,34 @@ test('outcomes and browser inspection contain only approved fields', () => {
   assert.deepEqual(outcome, { role: 'admin', outcome: 'http-200', httpStatus: 200, etag: '"safe"', versionId: 'version', sha256: 'a'.repeat(64), durationMs: 3, counts: { requests: 1 } })
   assert.deepEqual(inspectBrowserArtifacts({ url: 'https://d2via50thoheqm.cloudfront.net/manage', sessionStorageKeys: ['oidc.transaction.state'] }), { urlPath: '/manage', localStorageKeys: 0, sessionStorageKeys: 1, consoleMessages: 0, networkRequests: 0 })
   assert.throws(() => inspectBrowserArtifacts({ url: 'https://d2via50thoheqm.cloudfront.net/manage', consoleMessages: ['raw token'] }))
+})
+
+test('Hosted UI diagnostic normalizes allowlisted categories and strips query material', () => {
+  const result = normalizeHostedUiOutcome({
+    role: 'diagnostic',
+    domText: 'Incorrect username or password; hidden csrf and token values are not retained',
+    urlSequence: [
+      'https://itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com/login?code=secret-code',
+      'https://d2via50thoheqm.cloudfront.net/manage?state=opaque-token',
+    ],
+    statuses: [200, 302],
+    durationMs: 42,
+  })
+  assert.deepEqual(result, {
+    role: 'diagnostic', category: 'incorrect-credentials',
+    redirects: [
+      { host: 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', path: '/login' },
+      { host: 'd2via50thoheqm.cloudfront.net', path: '/manage' },
+    ], statuses: [200, 302], durationMs: 42,
+  })
+  assert.deepEqual(hostedUiCategories, ['callback', 'incorrect-credentials', 'user-not-found', 'password-reset-required', 'oauth-error', 'unknown-login'])
+  assert.doesNotMatch(JSON.stringify(result), /secret|token|csrf|password|code|\?/i)
+})
+
+test('Hosted UI diagnostic never exposes raw DOM, credentials, cookies, or hidden fields', () => {
+  const raw = 'user@example.invalid passw0rd! cookie=abc hidden=csrf-value code=abc token=xyz'
+  const result = normalizeHostedUiOutcome({ role: 'diagnostic', domText: raw, urlSequence: ['https://example.invalid/login?code=abc&state=xyz'], statuses: [302] })
+  assert.equal(result.category, 'unknown-login')
+  assert.doesNotMatch(JSON.stringify(result), /user@example|passw0rd|cookie|hidden|csrf|code|token|xyz/i)
+  assert.throws(() => normalizeHostedUiOutcome({ role: 'diagnostic', domText: raw, urlSequence: ['javascript:alert(1)'], statuses: [200] }))
 })

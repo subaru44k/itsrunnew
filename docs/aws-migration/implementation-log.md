@@ -2701,3 +2701,31 @@ schedule-api 25, synth/build); git diff --check passed. No AWS operation or
 policy version write occurred. T16B03 read-only gates are next; AWS writes
 remain blocked.
 ```
+
+### Phase 4 T16B03 read-only preflight
+
+```text
+Start: debc4c9; result: complete locally and read-only. STS returned account
+470447451992 in ap-northeast-1 under codex-prod. The execution policy is
+default v6 with exactly v2-v6 retained. AWS v6 equals the reconstructed
+committed v6 contract at sorted-canonical SHA-256
+400ba3cbced406e283fafa34292aeb5e425ed69eb291c0bc15c2a31352cf5415; the
+nondefault v2 equals commit 22d7fd5 and its required sorted-canonical SHA-256
+9318b40d9d601231335f6a1a4271ec8e5edc5700f5367dec2a407c329bee9f54. The
+reviewed alarm is absent.
+
+ItsRunPreviewHosting is UPDATE_COMPLETE with the accepted API, Cognito,
+distribution, and bucket outputs; ItsRunPreviewGitHubDeploy is CREATE_COMPLETE
+with the accepted provider and role outputs. Fresh synth and template
+validation passed with CAPABILITY_IAM; `cdk diff --no-change-set` showed only
+AWS::CloudWatch::Alarm AdminApi5xxAlarm. Candidate-action simulation allowed
+the three exact alarm actions on the exact alarm ARN and implicitly denied the
+same PutMetricAlarm action on another alarm ARN. The accepted data-version and
+CloudFront-invalidation inventory hashes remain
+7beee9dc3cbe0e99663d8d2b34bbc27856cffc67c6d4f91eff19c22a91538d4e and
+83890be8558e3f6da4653cef4a74099b5c4e69f7800967d890f143949da62b44.
+
+No AWS write, policy-version mutation, Hosting/GitHub stack mutation, object
+upload, schedule/data change, or invalidation occurred. All B03 gates are
+green; B04's authorized writes may now be considered.
+```

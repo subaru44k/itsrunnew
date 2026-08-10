@@ -2115,7 +2115,8 @@ with v5 default; AWS v5 canonical SHA-256 remains
 ca4a20e3e3a7c06c1f1196559886a9679dee98b9a25c7334dd8faf69b19e061e. The local
 compact candidate is exactly 6,077 non-whitespace characters and differs from
 v5 only by the ordered GitHub role resource addition and four-action provider
-statement.
+statement. Its canonical sorted-pretty JSON SHA-256 is
+9bd2d67f19a917c0183d7f08649a4b7555ad736ada43f075115c5cebb80322de.
 
 No OIDC provider, exact role, or ItsRunPreviewGitHubDeploy stack exists.
 Fresh HostingStack template SHA-256 remains

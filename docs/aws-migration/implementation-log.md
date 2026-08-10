@@ -4097,3 +4097,34 @@ category. Real-Chromium and hostile-canary coverage passed 41/41.
 TS01 is accepted. TS02 may run auth-only once with all existing exact gates.
 Stop after the typed result, require cleanup zero and unchanged protected data
 and invalidations, and do not retry, fix source, deploy, or rehearse data.
+
+### Phase 4 T16 TS02 transaction-state auth-only execution stop
+
+Starting from Sol handoff `f41d3426831a934c28137655f82e20b5599c33b0`, Node
+`v24.18.1`, all focused/root/diff gates passed. Read-only preflight matched
+account `470447451992`, region `ap-northeast-1`, pool users 0, `admins`
+membership 0, the exact preview CloudFront/Hosted UI resources, and the live
+`/manage`-initiated Hosted UI selector (desktop/mobile: one visible form with
+three controls each). The protected Oda object baseline was 501 bytes, ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and
+the exact content type/cache metadata. CloudFront invalidation count was 3.
+
+The committed auth-only executable ran exactly once with
+`--execute-preview-auth`. Its sanitized result was `status: failed`,
+`lastCheckpoint: cleanup`, `failureCheckpoint: admin-form`,
+`roleOutcomes.admin: failed`, `roleOutcomes.non-admin: not-run`,
+`counts: { operations: 4, writes: 0, restores: 0, cleanups: 1 }`,
+`failure: { stage: admin-form, category: matching-transaction-present, viewport: desktop }`,
+`cleanupStatus: passed`, `cleanupFailure: null`, and
+`restoreStatus: not-required`. Exit status was nonzero; no retry or source fix
+was made. The remaining role/viewport proofs were not reached after the
+bounded admin failure.
+
+Independent post-run readback proved pool users 0 and `admins` membership 0.
+The protected object remained 501 bytes with the same ETag, VersionId, content
+type, cache metadata, and SHA-256. CloudFront invalidation count remained 3.
+No API PUT, S3 write, Firestore, IAM, CloudFormation, deployment, production,
+DNS, Firebase, or data rehearsal operation occurred. TS02 is a terminal stop;
+no further transaction-state execution or T17 is authorized here.

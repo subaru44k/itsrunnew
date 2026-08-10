@@ -10,10 +10,11 @@ const ROLE = 'itsrun-preview-github-web-deploy'
 const MAX_BYTES = 10 * 1024 * 1024
 
 export function parseWebDeployArgs(argv) {
-  const values = {}; const allowed = new Set(['mode', 'profile', 'web-dir', 'report-dir'])
+  const values = {}; const seen = new Set(); const allowed = new Set(['mode', 'profile', 'web-dir', 'report-dir'])
   for (let index = 0; index < argv.length; index += 2) {
     const name = argv[index]
     if (!name?.startsWith('--') || !allowed.has(name.slice(2)) || !argv[index + 1] || argv[index + 1].startsWith('--')) throw fail('configuration')
+    if (seen.has(name)) throw fail('configuration'); seen.add(name)
     values[name.slice(2)] = argv[index + 1]
   }
   if (!['operator', 'github'].includes(values.mode) || typeof values['web-dir'] !== 'string' || typeof values['report-dir'] !== 'string' || !isAbsolute(values['web-dir']) || !isAbsolute(values['report-dir']) || values.mode === 'operator' && values.profile !== 'codex-prod' || values.mode === 'github' && values.profile) throw fail('configuration')
@@ -44,7 +45,7 @@ async function list(root, prefix = '') {
   const out = []
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     const key = prefix ? `${prefix}/${entry.name}` : entry.name
-    if (!safeKey(key)) throw fail('path')
+    if (!safeKey(key) || /(^|\/)(credentials?|config|\.env|\.aws|\.artifacts)(\/|$)/i.test(key)) throw fail('path')
     if (entry.isDirectory()) out.push(...await list(root, key))
     else if (entry.isFile() && !entry.isSymbolicLink()) out.push(key)
     else throw fail('path')
@@ -87,20 +88,22 @@ export async function collectWebObjects(webDir, fsApi = { lstat, readFile }) {
     if (!stat.isFile() || stat.isSymbolicLink?.() || stat.size > MAX_BYTES) throw fail('path', key)
     const body = await fsApi.readFile(path)
     if (body.byteLength > MAX_BYTES) throw fail('size', key)
-    objects.push({ key, path, size: body.byteLength, body, sha256: createHash('sha256').update(body).digest('hex'), contentType: contentType(key), cacheControl: cacheControlForWebObject(key) })
+    if (body.byteLength !== stat.size) throw fail('size', key)
+    objects.push({ key, path, size: body.byteLength, sha256: createHash('sha256').update(body).digest('hex'), contentType: contentType(key), cacheControl: cacheControlForWebObject(key) })
   }
   return objects.sort((a, b) => (a.cacheControl.includes('immutable') ? 0 : a.cacheControl.includes('no-cache') ? 2 : 1) - (b.cacheControl.includes('immutable') ? 0 : b.cacheControl.includes('no-cache') ? 2 : 1) || a.key.localeCompare(b.key))
 }
 
 export function putObjectArgs(object, bucket, mode = 'operator') {
   if (!safeKey(object.key) || bucket !== WEB_DEPLOY_TARGET.bucket || !isAbsolute(object.path) || mode === 'github' && object.path.includes('..')) throw fail('configuration')
-  return ['s3api', 'put-object', '--bucket', bucket, '--key', object.key, '--body', object.path, '--content-type', object.contentType, '--cache-control', object.cacheControl]
+  return ['s3api', 'put-object', '--bucket', bucket, '--key', object.key, '--body', `fileb://${object.path}`, '--content-type', object.contentType, '--cache-control', object.cacheControl]
 }
 
 function outputValues(value) {
   const stack = value?.Stacks?.[0]
   if (!Array.isArray(value?.Stacks) || value.Stacks.length !== 1 || stack?.StackStatus !== 'UPDATE_COMPLETE') throw fail('stack')
-  const outputs = Object.fromEntries((stack?.Outputs ?? []).map((item) => [item.OutputKey, item.OutputValue]))
+  if (!Array.isArray(stack.Outputs) || stack.Outputs.some((item) => !item || typeof item.OutputKey !== 'string' || typeof item.OutputValue !== 'string') || new Set(stack.Outputs.map((item) => item.OutputKey)).size !== stack.Outputs.length) throw fail('stack')
+  const outputs = Object.fromEntries(stack.Outputs.map((item) => [item.OutputKey, item.OutputValue]))
   if (outputs.WebBucketName !== WEB_DEPLOY_TARGET.bucket || outputs.DistributionDomainName !== WEB_DEPLOY_TARGET.domain) throw fail('stack')
   return outputs
 }
@@ -132,7 +135,7 @@ export async function verifyWebObject(domain, object, options = {}) {
       })()
       await Promise.race([operation, timeout])
       return
-    } catch (error) { lastError = error; if (error?.category === 'timeout') break; if (attempt + 1 < maxAttempts) await sleep(Math.min(1000, Math.max(0, deadline - now()))) } finally { if (timer) clearTimeout(timer); controller.abort() }
+    } catch (error) { lastError = error; if (error?.category === 'timeout') break; if (attempt + 1 < maxAttempts) { const wait = Math.min(1000, Math.max(0, deadline - now())); const waitTimer = new Promise((_, reject) => setTimeout(() => reject(fail('timeout', object.key)), wait)); try { await Promise.race([sleep(wait), waitTimer]) } catch (waitError) { lastError = waitError; break } } } finally { if (timer) clearTimeout(timer); controller.abort() }
   }
   throw fail(lastError?.category === 'timeout' ? 'timeout' : 'cloudfront', lastError?.key ?? object.key)
 }
@@ -142,9 +145,9 @@ export async function deployWebPreview(config, options = {}) {
   const mode = modeEnv(config); const runAws = options.runAws
   if (typeof runAws !== 'function') throw fail('configuration')
   let objects; try { objects = await collectWebObjects(config.webDir, options.fsApi) } catch (error) { throw fail(error.category ?? 'preflight', error.key) }
-  const identity = await runAws(['sts', 'get-caller-identity', '--region', config.region, ...(mode.profile ? ['--profile', mode.profile] : [])])
-  if (identity?.Account !== config.account || config.mode === 'github' && (!identity.Arn?.includes(`assumed-role/${ROLE}/`) || !identity.Arn?.split('/')[2])) throw fail('identity')
-  const outputs = outputValues(await runAws(['cloudformation', 'describe-stacks', '--stack-name', config.stack, '--region', config.region, ...(mode.profile ? ['--profile', mode.profile] : [])]))
+  const identity = await runAws(['sts', 'get-caller-identity'])
+  if (identity?.Account !== config.account || config.mode === 'github' && !new RegExp(`^arn:aws:sts::${config.account}:assumed-role/${ROLE}/[A-Za-z0-9+=,.@_-]{1,64}$`).test(identity.Arn ?? '')) throw fail('identity')
+  const outputs = outputValues(await runAws(['cloudformation', 'describe-stacks', '--stack-name', config.stack]))
   try {
     for (const object of objects) await runAws(putObjectArgs(object, outputs.WebBucketName, config.mode))
   } catch { throw fail('upload') }
@@ -154,11 +157,13 @@ export async function deployWebPreview(config, options = {}) {
   return { schemaVersion: 1, status: 'match', mode: config.mode, objectCount: objects.length, objects: objects.map(({ key, size, sha256, contentType, cacheControl }) => ({ key, size, sha256, contentType, cacheControl })) }
 }
 
-export async function writeWebReport(report, reportRoot, fsApi = { mkdir, rename, rm, writeFile, lstat }) {
-  if (!reportRoot || !isAbsolute(reportRoot) || !report || report.status !== 'match' || !reportRoot.includes(`${sep}.artifacts${sep}migration${sep}`)) throw fail('report')
-  const root = resolve(reportRoot); const target = `${root}/web-deploy-report.json`; let rootStat
-  try { rootStat = await fsApi.lstat(root); if (rootStat.isSymbolicLink?.()) throw fail('report'); await fsApi.lstat(target); throw fail('report') } catch (error) { if (error?.category === 'report') throw error }
-  await fsApi.mkdir(root, { recursive: true }); const temp = `${root}/.report-${process.pid}`
+export async function writeWebReport(report, reportRoot, fsApi = { mkdir, rename, rm, writeFile, lstat }, workspaceRoot = process.cwd()) {
+  const expectedParent = resolve(workspaceRoot, '.artifacts', 'migration')
+  if (!reportRoot || !isAbsolute(reportRoot) || !report || report.status !== 'match' || resolve(reportRoot, '..') !== expectedParent || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(reportRoot.split(sep).at(-1))) throw fail('report')
+  const root = resolve(reportRoot); const target = `${root}/web-deploy-report.json`
+  for (const parent of [workspaceRoot, resolve(workspaceRoot, '.artifacts'), expectedParent]) { const parentStat = await fsApi.lstat(parent); if (!parentStat.isDirectory() || parentStat.isSymbolicLink?.()) throw fail('report') }
+  try { await fsApi.lstat(root); throw fail('report') } catch (error) { if (error?.category === 'report') throw error }
+  await fsApi.mkdir(root); const temp = `${root}/.report-${process.pid}`
   try { await fsApi.mkdir(temp); await fsApi.writeFile(`${temp}/report.json`, `${JSON.stringify(report)}\n`); await fsApi.rename(`${temp}/report.json`, target); await fsApi.rm(temp, { recursive: true, force: true }) } catch { await fsApi.rm(temp, { recursive: true, force: true }).catch(() => {}); throw fail('report') }
   return target
 }

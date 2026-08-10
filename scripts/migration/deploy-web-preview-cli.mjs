@@ -9,16 +9,19 @@ export function createAwsRunner(mode, env = process.env, execImpl = execFile) {
   return async (args) => {
     const global = ['--region', WEB_DEPLOY_TARGET.region]
     if (mode === 'operator') global.push('--profile', 'codex-prod')
-    const result = await promisify(execImpl)(executable, [...args, ...global], { env: childEnv, maxBuffer: 1024 * 1024 })
-    try { return JSON.parse(result.stdout) } catch { throw new Error('aws response') }
+    const finalArgs = [...args, ...global, '--no-cli-pager', '--output', 'json']
+    try {
+      const result = await promisify(execImpl)(executable, finalArgs, { env: childEnv, maxBuffer: 1024 * 1024, timeout: 60000 })
+      try { return JSON.parse(result.stdout) } catch { throw new Error('invalid command response') }
+    } catch { const error = new Error('web deployment command failed'); error.category = 'command'; throw error }
   }
 }
 
-export async function main(argv = process.argv.slice(2), env = process.env) {
+export async function main(argv = process.argv.slice(2), env = process.env, dependencies = {}) {
   if (argv.includes('--help')) return 'usage: --mode operator|github --web-dir /absolute/build --report-dir /absolute/reports [--profile codex-prod]'
   const parsed = parseWebDeployArgs(argv)
-  const report = await deployWebPreview({ ...parsed, ...WEB_DEPLOY_TARGET, env }, { runAws: createAwsRunner(parsed.mode, env) })
-  await writeWebReport(report, parsed.reportDir)
+  const report = await deployWebPreview({ ...parsed, ...WEB_DEPLOY_TARGET, env }, { runAws: createAwsRunner(parsed.mode, env, dependencies.execImpl), fetchImpl: dependencies.fetchImpl, now: dependencies.now, sleep: dependencies.sleep, maxAttempts: dependencies.maxAttempts, timeoutMs: dependencies.timeoutMs })
+  await writeWebReport(report, parsed.reportDir, dependencies.fsApi, dependencies.workspaceRoot)
   return report
 }
 

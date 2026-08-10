@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | R01 complete; R02-R04 pending | `059ca00` + D022 recovery plan | Compact 6,077-character candidate tests/checks passed; renewed AWS preflight required | AWS v5 remains default with v2-v5 retained; no OIDC/provider/role stack deployment. |
+| T15 | R01/R02 complete; R03-R04 pending | `0984ea2` + D022 recovery plan | Compact candidate and renewed immutable AWS/template preflight passed | AWS v5 remains default with v2-v5 retained; no OIDC/provider/role stack deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2103,4 +2103,29 @@ root npm run check passed; git diff --check passed. The policy source has
 exactly 6,077 non-whitespace characters (under 6,144). No AWS operation was
 performed. R02 renewed read-only preflight is next; no policy version or stack
 write has occurred.
+```
+
+### Phase 4 T15 policy-size recovery R02 preflight
+
+```text
+Start: 0984ea2; result: renewed read-only gates passed and committed before
+the authorized write. AWS_PROFILE=codex-prod, account 470447451992, and
+region ap-northeast-1 matched. The managed policy has exactly v2-v5 retained
+with v5 default; AWS v5 canonical SHA-256 remains
+ca4a20e3e3a7c06c1f1196559886a9679dee98b9a25c7334dd8faf69b19e061e. The local
+compact candidate is exactly 6,077 non-whitespace characters and differs from
+v5 only by the ordered GitHub role resource addition and four-action provider
+statement.
+
+No OIDC provider, exact role, or ItsRunPreviewGitHubDeploy stack exists.
+Fresh HostingStack template SHA-256 remains
+7f1cd50ea4b5c440579ffec11ea2c03c5fc35fab66a4230d8b2c56ec66af857e; the
+GitHub stack template remains
+43b2e3f69ca9f6a1c48056c57304b509b372131f30e2dea099885f4c9359ada6.
+CloudFormation validation requires only CAPABILITY_NAMED_IAM. Compact
+candidate Access Analyzer validation returned no findings, and IAM custom
+policy simulation allowed all 17 reviewed provider/role actions only on the
+reviewed resource set. No AWS write, policy version change, stack mutation,
+GitHub, HostingStack, web/data, invalidation, Cognito, production, DNS, or
+Firebase operation occurred. R03 is authorized for exactly one v6 creation.
 ```

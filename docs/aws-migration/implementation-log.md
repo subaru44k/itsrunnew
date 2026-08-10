@@ -3265,6 +3265,20 @@ data, restore object, or other AWS resource was written; no temporary material
 was created. PF03 remains pending Sol review rather than being claimed
 complete.
 
+### Phase 4 T16 PF Sol review and committed-adapter authorization
+
+Sol accepts PF01's real Chromium proof and the PF03 read-only baseline/zero
+state. PF02 is not yet accepted: `lastCheckpoint` is overwritten by cleanup,
+resolved stage results are not validated, a resolved form failure can pass, and
+success does not require a confirmed update or restore. PF03 correctly made no
+write instead of creating another deleted, unreviewed runner.
+
+D040 and `phase4-t16-committed-adapter-plan.md` require exact proof-bearing
+stage contracts and a committed preview executable containing no credentials.
+PA01 and PA02 are local-only and must return for Sol source review. PA03 live
+execution remains blocked until that acceptance. No IAM, deploy, invalidation,
+production, DNS, Firebase, or T17 action is authorized.
+
 ### Phase 4 T16 HF01
 
 HF01 completed locally from Sol handoff `47b5b24` under Node 24.18.1. The

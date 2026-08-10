@@ -1663,6 +1663,74 @@ Rollback/removal:
 Retain the coordinator through T16 acceptance and remove it with migration-only
 operational tooling in the documented cleanup phase.
 
+## D040: Commit the secret-free preview adapter and require proof-bearing stage results
+
+Status: accepted
+
+Problem:
+
+PF03 correctly refused to invent another unreviewed temporary runner. Sol's
+review of the new coordinator found that its `lastCheckpoint` is always replaced
+by `cleanup`, resolved adapter calls are accepted without validating their
+result, a resolved form failure can be treated as success, and the coordinator
+can report success without a confirmed update or restore. The coordinator is a
+useful boundary but is not yet proof-bearing.
+
+The environment adapter does not need credentials in source, arguments, or
+environment. The two reserved-domain aliases and strong passwords can be
+generated inside one Node process; Cognito CLI payloads can continue through
+D037 protected JSON; and Playwright can receive values directly in memory.
+Therefore the adapter source itself can and should be committed and tested.
+
+Decision:
+
+Define exact, non-secret results for every coordinator stage. Preflight proves
+the exact target/baseline; setup proves users=2/admins=1; each form proves
+`form-submitted`; callbacks prove observed callback; signed-in sentinels prove
+the expected admin 200 or non-admin 403; data read proves both contexts loaded
+the baseline; update proves one PUT and a new ETag/VersionId; stale proves one
+PUT, 409, and unchanged current version; public observation proves tuple 1;
+restore proves one conditional write and exact original bytes/hash/metadata;
+cleanup proves users=0/admins=0. Any other resolved value is a typed contract
+failure. Preserve the failure checkpoint separately from cleanup/restore
+progress. Successful completion is impossible unless update, stale conflict,
+restore, and cleanup proofs all pass.
+
+Commit a preview-specific, credential-free executable adapter. It contains only
+reviewed constants and code, generates ephemeral aliases/passwords in process,
+uses protected mode-0600 Cognito CLI JSON, drives real Playwright pages with the
+committed form driver/recorder, and retains original object bytes only in its
+mode-0700 temporary directory. It prints only the coordinator's sanitized
+allowlisted result. The executable accepts no username/password/token/body
+argument or environment variable. Unit/integration tests inject fake CLI,
+browser, clock, and object adapters and scan process boundaries/output for
+canaries. Direct execution requires an explicit preview-only confirmation flag,
+exact AWS profile/account/region gates, zero starting users/group, and the D029
+object baseline.
+
+One execution is permitted only after Sol accepts the committed executable and
+all AWS-free tests. No process inspection or raw authentication material is
+allowed. Restoration-first and all existing preview-only boundaries remain.
+
+Alternatives:
+
+- Continue with deleted temporary runners: rejected because their behavior is
+  neither reviewable nor reproducible.
+- Put credentials in environment variables: rejected by D037 and because child
+  processes can inherit them.
+- Accept resolved calls without proof objects: rejected because no-op adapters
+  could produce false success.
+
+Cost and maintenance effect:
+
+No dependency or AWS resource change. The one-time rehearsal becomes a normal
+reviewed operational program with deterministic fake tests.
+
+Rollback/removal:
+
+Remove the preview executable and coordinator after T16 evidence is accepted;
+keep the operational evidence and security decisions.
+
 ## Decision template
 
 Copy for new decisions:

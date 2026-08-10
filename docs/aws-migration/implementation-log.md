@@ -3246,6 +3246,25 @@ cleanup, exact counts, and canary non-exposure. No AWS, Cognito, credential,
 schedule-data, or browser-hosted operation occurred. PF03 remains blocked
 pending the required read-only gates.
 
+### Phase 4 T16 PF03 stop
+
+PF03 read-only gates were rechecked after PF01/PF02: STS account was
+`470447451992` in `ap-northeast-1`; the deployed preview pool was
+`itsrun-preview-admins` with deletion protection active, zero users, and the
+`admins` group had zero members. The reserved Oda object remained 501 bytes
+with its protected baseline ETag and `public, max-age=0, s-maxage=60` metadata.
+The prior HF02 desktop/mobile live selector gate remains the accepted
+credential-free form evidence.
+
+The PF03 execution boundary is stopped locally: this checkout contains no
+reviewed environment adapter/thin runner that can bind the committed
+coordinator to the protected Cognito/data/restore operations. Constructing
+one would require introducing unreviewed credential-bearing runtime inputs,
+which is outside the committed PF03 boundary. No users, groups, schedule
+data, restore object, or other AWS resource was written; no temporary material
+was created. PF03 remains pending Sol review rather than being claimed
+complete.
+
 ### Phase 4 T16 HF01
 
 HF01 completed locally from Sol handoff `47b5b24` under Node 24.18.1. The

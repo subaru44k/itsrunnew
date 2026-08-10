@@ -2972,3 +2972,14 @@ Username behavior. D031 and `phase4-t16-login-diagnostic-plan.md` authorize one
 disposable user, at most two no-API/no-data login attempts, mandatory deletion,
 and sanitized evidence only. No authentication-flow, stack, IAM, or data change
 is authorized.
+
+### Phase 4 T16 final rehearsal authorization
+
+D031 proved email alias and internal Username both traverse the real callback;
+the original final-path-only diagnostic was the remaining false negative. The
+corrected six-test normalizer is accepted. D032 and
+`phase4-t16-final-rehearsal-plan.md` authorize a fresh email-alias-only
+admin/non-admin desktop/mobile matrix followed by the exact D029 one-cell
+conditional update, stale 409, exact-byte conditional restore, and mandatory
+zero-user cleanup. No deployment, IAM, invalidation, or other data target is
+authorized.

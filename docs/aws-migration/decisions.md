@@ -1271,6 +1271,48 @@ The user is always deleted and browser/credential state cleared. A successful
 diagnosis is converted into a separate reviewed recovery plan before another
 T16 rehearsal.
 
+## D032: Resume the rehearsal with the corrected callback classifier and email aliases
+
+Status: accepted
+
+Problem:
+
+D031 proved that both the synthetic email alias and internal Cognito Username
+complete Authorization Code + PKCE and traverse `/manage/callback` to
+`/manage`. The earlier C03 runs were falsely reported as login failures because
+the diagnostic looked only at the final history-replaced path. The corrected
+normalizer recognizes any observed callback path and has an AWS-free regression
+test. Internal Username is an implementation identifier and should not become
+an operator login contract.
+
+Decision:
+
+Accept the corrected callback classifier and resume T16C/D using only the
+synthetic email aliases. Run the full desktop/mobile admin/non-admin matrix,
+then two independently authenticated admin editor contexts for the conditional
+update/conflict. Preserve all D028-D029 secret, cleanup, conditional-write, and
+exact-restore controls. Internal Usernames may be used only by Cognito cleanup
+APIs in protected operator memory and never for login or evidence.
+
+Alternatives:
+
+- Treat immediate history replacement as auth failure: rejected by the real
+  callback sequence and the application design.
+- Use internal UUID usernames operationally: rejected because the pool is
+  configured for email sign-in.
+- Skip the full matrix after the diagnostic: rejected because no API/admin-group
+  authorization has yet been proven.
+
+Cost and maintenance effect:
+
+No resource, dependency, IAM, or application change. The corrected test harness
+prevents false-negative operational evidence.
+
+Rollback/removal:
+
+Keep the classifier while the callback page uses same-document history
+replacement. D028 cleanup and D029 exact data restore remain mandatory.
+
 ## Decision template
 
 Copy for new decisions:

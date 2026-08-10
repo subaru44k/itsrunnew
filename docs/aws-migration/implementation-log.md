@@ -3057,3 +3057,23 @@ and returned pool/group to zero without login or data access. D034 and
 `phase4-t16-single-session-rehearsal-plan.md` require the next and only runner
 to own credential generation, auth, data restore, and cleanup in one bounded
 process with restoration-first `finally` control.
+
+### Phase 4 T16 SS01
+
+SS01 completed locally from Sol handoff `4a76298` on Node 24.18.1. The focused
+recorder tests passed 8/8, root `npm run check` passed (web44/core7/
+schedule-api25/infra19 plus build/synth), and local E2E passed 14 legacy + 44
+admin cases. Read-only gates matched the project account/region, the exact
+pool/group were empty, and the reserved Oda object remained the protected
+501-byte baseline with its recorded ETag/VersionId/hash and JSON cache
+metadata. No AWS write occurred.
+
+A temporary mode-0700 runner was reviewed outside the repository and imported
+successfully under Node 24. It uses only `execFile` argument arrays, exact
+project constants, generated in-memory credentials persisted only to a
+mode-0600 temporary file, the pre-login sanitized recorder, visible signed-in
+and load-form sentinels, and a single restoration guard. Its output is limited
+to sanitized role/status/count/hash/boolean fields; it does not print paths,
+identities, credentials, query/header/body/cookie/DOM/token/error material.
+The runner was not executed in SS01; SS02 remains the single authorized
+execution boundary.

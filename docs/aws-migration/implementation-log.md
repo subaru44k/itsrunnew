@@ -3602,6 +3602,17 @@ protected object bytes/hash/metadata, and no additional invalidation. No API
 PUT, S3 write, Firestore, IAM, deployment, or production operation occurred.
 SI02 is a terminal stop; CF03 and T17 remain unauthorized.
 
+### Phase 4 T16 callback initialization race authorization
+
+SI02 retains successful Cognito authentication, callback, and final `/manage`
+but no signed-in state or API request after a full bounded wait. Source review
+found `useAdminSession()` starts `initialize()` before the callback page mounts;
+its late null/error result can overwrite the newer callback state. D046 and
+`phase4-t16-callback-race-plan.md` authorize the monotonic local session fix,
+one web-only preview deployment after Sol review, and one subsequent auth-only
+run. No data/S3/Firestore/IAM/CloudFormation/invalidation/CF03/T17 action is
+authorized.
+
 ### Phase 4 T16 SI01 Sol acceptance and SI02 authorization
 
 Sol reviewed `edf0a06`. The final `/manage` session proof now awaits the exact

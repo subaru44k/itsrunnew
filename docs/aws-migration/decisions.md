@@ -1929,6 +1929,46 @@ Rollback/removal:
 
 Keep bounded visibility waiting while the harness exists.
 
+## D046: Prevent late session initialization from overwriting a callback login
+
+Status: accepted
+
+Problem:
+
+SI02 still reached successful Cognito authentication, callback, and final
+`/manage`, but no signed-in control or API request appeared even with a bounded
+hydration wait. On the callback page, `useAdminSession()` starts `initialize()`
+immediately and `onMounted` starts `callback()`. A slower `manager.getUser()`
+can resolve null or reject after callback has set `processingCallback` or
+`signedIn`, overwriting the successful callback state with `signedOut` or an
+error. Existing tests do not cover this interleaving.
+
+Decision:
+
+Make initialization monotonic: after awaiting `getUser`, do not modify current
+user/state if callback processing or a signed-in state has begun; likewise a
+late initialize error must not overwrite those states. Add deterministic
+deferred resolve/reject tests proving callback success wins. Do not persist
+tokens or change OIDC settings.
+
+After local review, deploy only the corrected static web to the existing preview
+through the accepted deployment path, with no data fixture write or invalidation.
+Run raw preview E2E, then one auth-only execution. No Firestore work is required.
+
+Alternatives:
+
+- Increase browser wait: rejected because the application remains signed out.
+- Serialize callback behind initialize: rejected because callback must consume
+  the authorization response promptly and owns the newer state.
+
+Cost and maintenance effect:
+
+No dependency/infrastructure change. Session state becomes race-safe.
+
+Rollback/removal:
+
+Revert the monotonic guard and redeploy web if the focused tests regress.
+
 ## Decision template
 
 Copy for new decisions:

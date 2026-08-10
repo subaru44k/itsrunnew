@@ -2729,3 +2729,38 @@ No AWS write, policy-version mutation, Hosting/GitHub stack mutation, object
 upload, schedule/data change, or invalidation occurred. All B03 gates are
 green; B04's authorized writes may now be considered.
 ```
+
+### Phase 4 T16B04 policy v7 rotation and T16B05 Hosting deployment
+
+```text
+Start: 62622e2; result: complete. After a fresh STS/account/region check,
+exactly one nondefault policy version (v2) was deleted. After a second fresh
+STS check, exactly one candidate version was created with set-as-default;
+AWS assigned v7. Readback shows exactly v3-v7 retained, v7 default, and
+sorted-canonical AWS/local candidate SHA-256
+dd4a19a0ada79b4332ebb53245bc830a3d1d675322ea42f9a6011e1e70efaa97. No
+additional policy version or IAM change occurred.
+
+After repeating the v7/stack/STS gates, exactly one `npx cdk deploy
+ItsRunPreviewHosting --require-approval never` was executed. Change set
+`4596d7a4-067e-4dd8-81c1-456ab735be9a` reached UPDATE_COMPLETE. Events were
+limited to AdminApi5xxAlarm CREATE_IN_PROGRESS/CREATE_COMPLETE, CDK metadata
+update, and the parent stack update; no existing hosting resource changed.
+The alarm readback is exact: AWS/ApiGateway 5xx, ApiId 40xqzug59a, Stage
+$default, Sum/300, threshold 1, evaluation 3, datapoints 2,
+GreaterThanOrEqualToThreshold, notBreaching, initial INSUFFICIENT_DATA, and
+all three action arrays empty.
+
+Read-only post-deploy checks passed: preview raw E2E 88; unauthenticated API
+GET returned 401 and PATCH returned 405 with `Allow: GET, PUT, OPTIONS`, both
+with `Cache-Control: no-store`; direct web/data S3 requests returned 403.
+Current inventory reads found 147 web objects, 76 data keys (95 version
+entries), and 3 historical CloudFront invalidations; no inventory write or
+invalidation was performed. Accepted T15 data-version and invalidation
+baseline hashes remain 7beee9dc3cbe0e99663d8d2b34bbc27856cffc67c6d4f91eff19c22a91538d4e
+and 83890be8558e3f6da4653cef4a74099b5c4e69f7800967d890f143949da62b44.
+Hosting outputs, GitHub deploy stack, OIDC provider/role, web/data privacy,
+and preview contracts remain unchanged apart from the reviewed alarm.
+No further AWS write, web/data/schedule upload, invalidation, Cognito,
+production, DNS, Firebase, or non-preview operation occurred.
+```

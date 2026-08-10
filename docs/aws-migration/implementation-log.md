@@ -3168,3 +3168,20 @@ credentials, stdout/stderr, or raw errors.
 Read-only account/region, empty pool/group, and protected 501-byte object gates
 matched; recorder tests passed 8/8 and the worktree remained clean. No AWS
 write occurred. VO02 remains the single authorized real execution boundary.
+
+### Phase 4 T16 SA01
+
+SA01 completed locally from Sol handoff `20b7309` under Node 24.18.1. The
+dependency-free protected CLI boundary now allowlists the six Cognito
+administrative operations, validates an absolute file beneath the protected
+root, rejects symlink/non-regular/non-0600/outside targets, writes through an
+injected protected writer, returns only `file://` input arguments, and performs
+idempotent immediate unlink cleanup. Writer/inspect/cleanup failures are
+sanitized.
+
+The focused harness suite passed 12/12, including canary alias/password/
+internal-ID non-exposure, per-operation JSON-file cleanup, partial cleanup,
+and unknown/path/mode/symlink rejection. Root `npm run check` passed (web44,
+core7, schedule-api25, infra19 plus build/synth); read-only account/region,
+empty pool/group, and protected 501-byte object gates matched. No AWS write
+occurred. SA02 remains the single authorized real execution boundary.

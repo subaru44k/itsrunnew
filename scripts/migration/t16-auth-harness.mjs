@@ -1,3 +1,5 @@
+import { isAbsolute, relative, resolve } from 'node:path'
+
 const exactKey = 'data/v1/stadiums/oda/availability/2026-08.json'
 const sensitive = /token|password|secret|claim|authorization|cookie|access_key|raw|credential/i
 const hostedUiCategories = ['callback', 'incorrect-credentials', 'user-not-found', 'password-reset-required', 'oauth-error', 'unknown-login']
@@ -78,6 +80,26 @@ export function createSanitizedBrowserRecorder(page) {
   return {
     snapshot() { return { events: events.map(event => ({ ...event })) } },
     detach() { if (!detached) { page.off('framenavigated', onNavigation); page.off('response', onResponse); detached = true } },
+  }
+}
+
+const sensitiveCliOperations = new Set(['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user'])
+
+export function createProtectedCliInput({ root, filePath, operation, payload, inspectFile, writeProtected, unlink }) {
+  if (!sensitiveCliOperations.has(operation) || typeof payload !== 'object' || payload === null || typeof inspectFile !== 'function' || typeof writeProtected !== 'function' || typeof unlink !== 'function') throw new Error('invalid protected operation')
+  if (!isAbsolute(root) || !isAbsolute(filePath)) throw new Error('invalid protected path')
+  const rootPath = resolve(root); const targetPath = resolve(filePath); const child = relative(rootPath, targetPath)
+  if (!child || child === '..' || child.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`) || isAbsolute(child)) throw new Error('protected path containment')
+  let info
+  try { info = inspectFile(targetPath) } catch { throw new Error('protected file inspect') }
+  if (!info || info.isSymbolicLink || !info.isFile || info.mode !== 0o600) throw new Error('protected file mode')
+  let encoded
+  try { encoded = JSON.stringify(payload); if (!encoded || encoded === 'undefined') throw new Error('invalid payload') } catch { throw new Error('invalid protected payload') }
+  try { writeProtected(targetPath, encoded) } catch { throw new Error('protected write') }
+  let removed = false
+  return {
+    args: ['cognito-idp', operation, '--cli-input-json', `file://${targetPath}`],
+    cleanup() { if (!removed) { try { unlink(targetPath) } catch { throw new Error('protected cleanup') } removed = true } },
   }
 }
 

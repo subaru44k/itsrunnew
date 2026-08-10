@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { approvedBrowserHosts, assertReservedCell, createSanitizedBrowserRecorder, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
+import { approvedBrowserHosts, assertReservedCell, createProtectedCliInput, createSanitizedBrowserRecorder, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
 
 test('operator input is validated without returning password material', () => {
   const result = validateOperatorEnvironment({ T16_ADMIN_USERNAME: 'preview-t16-admin@rehearsal.invalid', T16_NONADMIN_USERNAME: 'preview-t16-nonadmin@rehearsal.invalid', T16_ADMIN_PASSWORD: 'a'.repeat(24), T16_NONADMIN_PASSWORD: 'b'.repeat(24) })
@@ -80,4 +80,26 @@ test('browser recorder detaches cleanly and emits no raw URL material', () => {
   const recorder = createSanitizedBrowserRecorder(page)
   recorder.detach(); recorder.detach(); page.emit('framenavigated', { url: () => 'https://d2via50thoheqm.cloudfront.net/manage?token=secret' })
   assert.deepEqual(recorder.snapshot(), { events: [] }); assert.deepEqual([...listeners.keys()], [])
+})
+
+test('protected CLI boundary uses file URI only and sanitizes canary payloads', () => {
+  const root = '/tmp/t16-protected'; const filePath = `${root}/operation.json`; let written = ''; let unlinked = 0
+  const boundary = createProtectedCliInput({ root, filePath, operation: 'admin-set-user-password', payload: { alias: 'canary-alias', password: 'canary-password', internal: 'canary-internal' }, inspectFile: () => ({ isFile: true, isSymbolicLink: false, mode: 0o600 }), writeProtected: (_path, body) => { written = body }, unlink: () => { unlinked += 1 } })
+  assert.deepEqual(boundary.args, ['cognito-idp', 'admin-set-user-password', '--cli-input-json', `file://${filePath}`]); assert.match(written, /canary-password/); assert.doesNotMatch(JSON.stringify(boundary), /canary-alias|canary-password|canary-internal/); boundary.cleanup(); boundary.cleanup(); assert.equal(unlinked, 1)
+})
+
+test('protected CLI boundary rejects unknown, outside, symlink, non-0600, and writer failures', () => {
+  const base = { root: '/tmp/t16-protected', filePath: '/tmp/t16-protected/operation.json', payload: { value: 'canary' }, inspectFile: () => ({ isFile: true, isSymbolicLink: false, mode: 0o600 }), writeProtected: () => {}, unlink: () => {} }
+  assert.throws(() => createProtectedCliInput({ ...base, operation: 'delete-all' })); assert.throws(() => createProtectedCliInput({ ...base, filePath: '/tmp/other/operation.json', operation: 'admin-delete-user' })); assert.throws(() => createProtectedCliInput({ ...base, operation: 'admin-delete-user', inspectFile: () => ({ isFile: true, isSymbolicLink: true, mode: 0o600 }) })); assert.throws(() => createProtectedCliInput({ ...base, operation: 'admin-delete-user', inspectFile: () => ({ isFile: true, isSymbolicLink: false, mode: 0o644 }) })); assert.throws(() => createProtectedCliInput({ ...base, operation: 'admin-delete-user', writeProtected: () => { throw new Error('canary writer') } }), /protected write/)
+})
+
+test('protected CLI operation table supports per-operation JSON files and immediate cleanup', () => {
+  const operations = ['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user']; const files = []; const removed = []
+  for (const [index, operation] of operations.entries()) { const path = `/tmp/t16-protected/op-${index}.json`; const boundary = createProtectedCliInput({ root: '/tmp/t16-protected', filePath: path, operation, payload: { internal: 'canary-internal', alias: 'canary-alias', password: 'canary-password' }, inspectFile: () => ({ isFile: true, isSymbolicLink: false, mode: 0o600 }), writeProtected: (file, body) => files.push({ file, body }), unlink: (file) => removed.push(file) }); boundary.cleanup() }
+  assert.equal(files.length, operations.length); assert.deepEqual(removed, files.map(({ file }) => file)); assert.equal(new Set(files.map(({ file }) => file)).size, operations.length); assert.equal(JSON.stringify(removed).includes('canary'), false)
+})
+
+test('protected adapter failure cleanup retains internal identity without exposing it', () => {
+  const calls = []; const internal = 'canary-internal'; calls.push({ operation: 'create', id: internal }); try { throw new Error('canary-password') } catch { calls.push({ operation: 'delete', id: internal }) }
+  assert.deepEqual(calls.map(({ operation }) => operation), ['create', 'delete']); const safe = { status: 'setup-failed', cleanup: true, calls: 2 }; assert.doesNotMatch(JSON.stringify(safe), /canary|password|internal/i)
 })

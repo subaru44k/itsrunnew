@@ -2458,3 +2458,43 @@ contract remain unchanged. Focused workflow/helper tests and npm run check are
 required before the one-time push; no external operation occurred while
 preparing B02.
 ```
+
+### Phase 4 T15 PutObject recovery B02 successful deployment and B03 cleanup
+
+```text
+Start: 0383664; B01 commit a812b41; B02 cleanup-source commit 144b025.
+The exact one-time push advanced migration/aws-s3-cloudfront to
+144b02571f846073e0bb5973c2106c2581d9d68b. Normal validation run 31350133926
+and Preview deployment run 31350133879 both matched that SHA. Validation job
+93339239856 passed with Node 24.18.1, npm 11.4.2, repository checks,
+Chromium, and production-browser checks. Deploy job 93339524824 passed the
+reviewed build, OIDC setup, web-only helper, and raw preview checks; the run
+finished successfully in 4m46s. The helper report was a sanitized match with
+58 attempted/uploaded/verified objects (report SHA-256
+5b9481860ae221ec1c9619f0649a97c3b13fed61513e057a6325f5438bdf0bea); raw
+preview E2E completed 88 passed. No retry, rerun, or dispatch was used.
+
+Read-only post-deploy gates matched the pre-run baseline: account
+470447451992, region ap-northeast-1, HostingStack UPDATE_COMPLETE, reviewed
+HostingStack canonical template SHA-256
+b5ae99c62f73b2c7df1bc361510247e133c436a42ea99cc179290fa34e93ce0e, and the
+same four hosting outputs (web bucket, data bucket, distribution ID/domain,
+and API/Cognito outputs). Data object-version inventory SHA-256 remained
+7beee9dc3cbe0e99663d8d2b34bbc27856cffc67c6d4f91eff19c22a91538d4e and the
+CloudFront invalidation inventory SHA-256 remained
+83890be8558e3f6da4653cef4a74099b5c4e69f7800967d890f143949da62b44. The
+post-run web inventory contained 147 objects and had SHA-256
+b8d39df5b1ae37aeafe2934f8c057d414dc629a61922c56bac7a66c96baf58ed; no
+delete/list-sync operation or invalidation occurred. Public CloudFront
+readback returned the expected HTML/JSON no-cache contract and the helper
+verified each uploaded object’s exact body hash, content type, and cache
+metadata. The data bucket remained versioned and public access block remained
+enabled; direct S3 web access returned 403. No Hosting, data, schedule,
+Cognito, production/DNS/Firebase, IAM, or CloudFormation mutation occurred.
+
+B03 cleanup is now prepared locally by removing the complete temporary push
+block and recovery comment, leaving workflow_dispatch-only. The focused
+workflow contract is updated accordingly; the cleanup push and its required
+validation/no-deployment proof remain the next authorized gate. B04 master
+protection has not been attempted.
+```

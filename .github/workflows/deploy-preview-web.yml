@@ -1,12 +1,6 @@
 name: Deploy preview web
 
 on:
-  # D025 one-time recovery request; remove this temporary push block after acceptance.
-  push:
-    branches:
-      - migration/aws-s3-cloudfront
-    paths:
-      - .github/workflows/deploy-preview-web.yml
   workflow_dispatch:
 
 permissions:

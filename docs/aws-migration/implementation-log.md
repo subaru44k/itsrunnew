@@ -2876,3 +2876,14 @@ both identities were removed, and the pool was read back with zero users and
 zero `admins` members. C03 AWS writes were exactly eight (two creates, two
 permanent-password settings, one group add, one group removal, and two
 deletes); no schedule/data object write occurred. D01/D02 were not attempted.
+
+### Phase 4 T16C CSP recovery authorization
+
+Sol verified the deployed public runtime config has the exact issuer/client and
+the Cognito discovery document has the correct Hosted UI endpoints. Browser
+discovery nevertheless originates at
+`https://cognito-idp.ap-northeast-1.amazonaws.com`, which the deployed CSP does
+not allow; this explains the pre-token failure. D030 and
+`phase4-t16-auth-csp-recovery-plan.md` authorize only that exact issuer origin,
+the two existing response-header-policy updates, and then a fresh C03/D01/D02
+rehearsal from the confirmed zero-user/group state.

@@ -1174,6 +1174,51 @@ The restored version remains current and prior versions remain retained. If the
 conditional restore precondition fails, stop all other work, retain the exact
 bytes/version reference, and return to Sol without attempting another write.
 
+## D030: Permit the exact Cognito issuer origin for browser OIDC discovery
+
+Status: accepted
+
+Problem:
+
+The first real T16 Hosted UI attempt safely failed before authorization. The
+deployed runtime config contains the exact user-pool issuer and client ID, and
+the issuer's OIDC metadata correctly points to the Hosted UI authorization and
+token endpoints. However, `oidc-client-ts` must first fetch
+`/.well-known/openid-configuration` from the issuer origin
+`https://cognito-idp.ap-northeast-1.amazonaws.com`. The current CloudFront CSP
+allows only self and the Hosted UI auth origin in `connect-src`, so the browser
+blocks discovery and the application reports a sanitized authentication error.
+
+Decision:
+
+Add only `https://cognito-idp.<stack-region>.amazonaws.com` to `connect-src`,
+alongside self and the existing parameterized Cognito Hosted UI origin. Do not
+allow a path, wildcard region/domain, Google endpoint, `*.amazonaws.com`, or any
+other connect origin. Apply the same shared CSP to the existing web and API
+response-header policies as today. Assert the exact ordered CSP string and
+absence of broad/foreign origins.
+
+Alternatives:
+
+- Hard-code OIDC metadata in the web: rejected because discovery is the
+  standards-based source of the deployed authorization/token endpoints.
+- Use the Hosted UI domain as issuer: rejected because JWT issuer validation
+  must remain the User Pool provider URL.
+- Add an AWS wildcard: rejected because one exact regional origin is sufficient.
+- Disable CSP or browser auth: rejected because both are security requirements.
+
+Cost and maintenance effect:
+
+No new resource, dependency, IAM permission, or recurring charge. Updating the
+two existing response-header policies changes only one exact CSP origin and
+allows standards-based discovery.
+
+Rollback/removal:
+
+Remove this origin only if the administrator OIDC client no longer performs
+browser discovery and an equivalent reviewed issuer-validation design replaces
+it.
+
 ## Decision template
 
 Copy for new decisions:

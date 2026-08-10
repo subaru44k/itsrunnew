@@ -95,6 +95,13 @@ unexpected stack/bucket/domain, path traversal, cache/hash/status failures,
 timeout, fail-before-write behavior, and absence of any data-bucket key,
 DeleteObject, sync, ACL, or invalidation operation.
 
+Credential handling follows D020. Local operator execution requires the exact
+`codex-prod` profile. GitHub Actions execution accepts no profile and uses only
+the short-lived OIDC environment session. The modes are mutually exclusive,
+never fall back to one another, and both validate STS before mutation; GitHub
+mode also validates the fixed `itsrun-preview-github-web-deploy` assumed-role
+principal and exact repository/ref context.
+
 ## T15C: explicit preview deployment workflow
 
 Add a separate `workflow_dispatch` workflow only after T15A and T15B pass.

@@ -618,6 +618,57 @@ Rollback/removal:
 Remove the temporary Firestore exporter and its compatibility rule with
 `firebase-admin` in T17 after migration evidence is accepted.
 
+## D020: Explicit credential modes for the preview web deployment helper
+
+Status: accepted
+
+Problem:
+
+T15B requires an exact local AWS profile, while T15C must use GitHub OIDC and
+must not create a profile or long-lived AWS credential. Treating both as an
+implicit ambient credential chain would weaken fail-closed account and
+principal checks; forcing `--profile codex-prod` in Actions would prevent the
+OIDC session from being used correctly.
+
+Decision:
+
+The web-only deployment helper has two explicit, mutually exclusive credential
+modes. Operator mode requires the exact `codex-prod` profile and rejects the
+GitHub Actions execution context. GitHub mode accepts no profile or access-key
+input, requires the exact repository and branch-ref context, and consumes only
+the short-lived environment credentials established by the reviewed OIDC
+action. Both modes call STS before any mutation and require account
+`470447451992`; GitHub mode additionally requires the assumed-role principal
+for the fixed role `itsrun-preview-github-web-deploy`.
+
+The GitHub trust policy remains the security boundary and matches only
+`repo:subaru44k/itsrunnew:ref:refs/heads/migration/aws-s3-cloudfront` with
+audience `sts.amazonaws.com`. Environment-context checks in the helper are
+defence in depth, not a substitute for that trust. Credentials, tokens, and
+profiles are never accepted as workflow inputs, command arguments, reports,
+or artifacts. The helper must not fall back from one mode to the other.
+
+Alternatives:
+
+- Always pass `--profile codex-prod`: rejected because GitHub OIDC supplies an
+  ephemeral environment session, not a workstation profile.
+- Accept the default AWS credential chain without a mode: rejected because a
+  local or CI misconfiguration could select an unintended principal.
+- Materialize OIDC credentials into an AWS profile: rejected because it adds
+  a credential file and unnecessary secret-handling surface.
+
+Cost and maintenance effect:
+
+The extra mode and STS assertions are small pure validation branches with no
+runtime dependency. The physical role name is stable so the expected STS ARN
+can be asserted and audited.
+
+Rollback/removal:
+
+Remove GitHub mode and the dedicated role/provider if Actions deployment is
+retired. Operator mode remains preview-only and does not authorize production
+deployment.
+
 ## Decision template
 
 Copy for new decisions:

@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A-B complete, T15C-D pending Sol review | `cb0b18a` | T15A contract 3 passed; T15B focused helper 5 + existing deploy-preview 20 passed | Local-only implementation; no AWS/GitHub write or deployment. |
+| T15 | in progress; T15A-B complete, T15C-D pending Sol review | `edf8ff8` | T15A contract 3 passed; T15B helper/CLI 7 + existing deploy-preview 20 passed | Local-only implementation; no AWS/GitHub write or deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1784,7 +1784,7 @@ complete until those milestones receive separate review.
 ### Phase 4 T15B web-only preview helper
 
 ```text
-Start: c5080cb; source/test commit: cb0b18a; result: complete locally,
+Start: c5080cb; source/test commits: cb0b18a, edf8ff8; result: complete locally,
 stopped before T15C/T15D.
 Added scripts/migration/deploy-web-preview.mjs with explicit operator and
 GitHub-OIDC credential modes. It gates exact account, region, stack, web
@@ -1797,7 +1797,7 @@ HTTPS readback; reports contain only typed keys, sizes, hashes, metadata and
 counts. No schedule/data mode, copy/sync/delete/ACL/invalidation or raw error
 surface exists.
 
-Node 24.18.1 focused T15B tests: 5 passed; existing deploy-preview tests: 20
-passed. No AWS/GitHub/network operation occurred. T15C-T15D remain pending
+Node 24.18.1 focused T15B helper/CLI tests: 7 passed; existing deploy-preview
+tests: 20 passed. No AWS/GitHub/network operation occurred. T15C-T15D remain pending
 Sol review.
 ```

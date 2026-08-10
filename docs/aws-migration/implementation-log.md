@@ -3481,3 +3481,16 @@ was made. Independent post-run readback proved pool users 0, admins 0, the
 same protected object bytes/hash/metadata, and no additional invalidation.
 No API PUT, S3 write, Firestore, deployment, IAM, or production operation
 occurred. CF02 is a terminal stop; CF03 and T17 remain unauthorized.
+
+### Phase 4 T16 AdminGetUser response-shape recovery authorization
+
+Sanitized top-level CloudTrail names for CF02 show two AdminCreateUser, two
+AdminSetUserPassword, AdminAddUserToGroup, and exactly one AdminGetUser before
+the cleanup sequence. Source review found the exact local defect: the fake and
+validator expected nested `User.Username`, while AWS CLI AdminGetUser returns
+top-level `Username`. No raw event/error or identity was inspected.
+
+D042 and `phase4-t16-admin-get-response-plan.md` authorize the exact local
+response-shape correction and, after Sol source acceptance, one further
+auth-only execution. No data/S3/Firestore/IAM/deploy/invalidation/CF03/T17
+operation is authorized.

@@ -1788,6 +1788,42 @@ Rollback/removal:
 
 Remove both preview executables with the migration harness after T16 acceptance.
 
+## D042: Validate AdminGetUser's top-level Username response
+
+Status: accepted
+
+Problem:
+
+The one CF02 run safely stopped during setup and cleaned both users. Sanitized
+top-level CloudTrail event names show both creates/passwords and the group add
+succeeded, followed by exactly one AdminGetUser and cleanup. The concrete code
+and fake incorrectly modeled AdminGetUser as `{ User: { Username } }`; AWS CLI
+returns `{ Username, ... }`. The first successful service response was therefore
+rejected locally before the second get or any browser/data operation.
+
+Decision:
+
+Validate the exact nonempty top-level `Username` and require it to equal the
+internal Username supplied to AdminGetUser. Correct the fake to the real shape
+and add negative missing/nested/mismatched response tests. Re-run all local auth
+checks, then permit one further auth-only CF02 execution after Sol source review.
+No other contract, resource, permission, or live-data action changes.
+
+Alternatives:
+
+- Remove AdminGetUser verification: rejected because the internal-ID mapping is
+  a useful pre-browser gate.
+- Inspect raw CloudTrail/AWS errors: rejected; the sanitized event sequence and
+  committed response-shape defect are sufficient.
+
+Cost and maintenance effect:
+
+No dependency or AWS change. The fake matches the real CLI response contract.
+
+Rollback/removal:
+
+Keep the exact response validation until the T16 harness is removed.
+
 ## Decision template
 
 Copy for new decisions:

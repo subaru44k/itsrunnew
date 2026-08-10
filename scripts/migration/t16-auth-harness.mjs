@@ -141,4 +141,84 @@ export function createProtectedCliInput({ root, filePath, operation, payload, in
   }
 }
 
+const coordinatorCheckpoints = new Set([
+  'preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel',
+  'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'data-read',
+  'data-update', 'stale-conflict', 'public-observation', 'restore', 'cleanup', 'complete',
+])
+
+const coordinatorStages = [
+  ['setup', 'setup'],
+  ['admin-form', 'admin', 'form'], ['admin-callback', 'admin', 'callback'], ['admin-sentinel', 'admin', 'sentinel'],
+  ['non-admin-form', 'nonAdmin', 'form'], ['non-admin-callback', 'nonAdmin', 'callback'], ['non-admin-sentinel', 'nonAdmin', 'sentinel'],
+  ['data-read', 'data', 'read'], ['data-update', 'data', 'update'], ['stale-conflict', 'data', 'stale'], ['public-observation', 'data', 'public'],
+]
+
+function coordinatorFailure(error) {
+  return error?.name === 'TimeoutError' ? 'timeout' : 'operation-failed'
+}
+
+async function invokeCoordinatorAdapter(adapter, method, context) {
+  const operation = typeof adapter === 'function' ? adapter : adapter?.[method] ?? adapter?.run
+  if (typeof operation !== 'function') throw new Error('missing adapter')
+  return operation(context)
+}
+
+export async function runT16Coordinator(adapters = {}) {
+  const checkpoint = (value) => { if (!coordinatorCheckpoints.has(value)) throw new Error('invalid coordinator checkpoint'); return value }
+  let lastCheckpoint = checkpoint('preflight')
+  let failure = null
+  let restoreFailure = null
+  let cleanupFailure = null
+  let writeAttempted = false
+  const counts = { operations: 0, writes: 0, restores: 0, cleanups: 0 }
+  const roleOutcomes = { admin: 'not-run', 'non-admin': 'not-run' }
+  const markOperation = () => { counts.operations += 1 }
+  const markWrite = () => { writeAttempted = true; counts.writes += 1 }
+  const invoke = async (stage, adapter, method, role = null) => {
+    lastCheckpoint = checkpoint(stage)
+    markOperation()
+    try {
+      await invokeCoordinatorAdapter(adapter, method, { stage, role, markWrite, markOperation })
+      if (role) roleOutcomes[role] = 'passed'
+    } catch (error) {
+      if (role) roleOutcomes[role] = 'failed'
+      failure = { stage, category: coordinatorFailure(error) }
+      throw error
+    }
+  }
+
+  try {
+    if (!adapters || typeof adapters !== 'object' || Array.isArray(adapters)) {
+      failure = { stage: 'preflight', category: 'invalid-config' }
+      throw new Error('invalid adapters')
+    }
+    await invoke('preflight', adapters.preflight, 'run')
+    await invoke('setup', adapters.setup, 'run')
+    for (const [stage, adapterName, method] of coordinatorStages.slice(1, 7)) await invoke(stage, adapters[adapterName], method, adapterName === 'nonAdmin' ? 'non-admin' : 'admin')
+    for (const [stage, adapterName, method] of coordinatorStages.slice(7)) await invoke(stage, adapters[adapterName], method)
+  } catch {
+    // The typed failure is retained below; adapter errors never cross the boundary.
+  } finally {
+    if (writeAttempted) {
+      lastCheckpoint = checkpoint('restore')
+      counts.operations += 1
+      counts.restores += 1
+      try { await invokeCoordinatorAdapter(adapters.restore, 'run', { stage: 'restore', markOperation, markWrite }) } catch (error) { restoreFailure = { stage: 'restore', category: coordinatorFailure(error) } }
+    }
+    lastCheckpoint = checkpoint('cleanup')
+    counts.operations += 1
+    counts.cleanups += 1
+    try { await invokeCoordinatorAdapter(adapters.cleanup, 'run', { stage: 'cleanup', markOperation }) } catch (error) { cleanupFailure = { stage: 'cleanup', category: coordinatorFailure(error) } }
+  }
+  const status = restoreFailure ? 'restore-failed' : cleanupFailure ? 'cleanup-failed' : failure ? 'failed' : 'success'
+  return {
+    status,
+    lastCheckpoint,
+    roleOutcomes,
+    counts,
+    failure: restoreFailure ?? cleanupFailure ?? failure,
+  }
+}
+
 export { approvedBrowserHosts, exactKey, hostedUiCategories, hostedUiCheckpoints }

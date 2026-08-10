@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { approvedBrowserHosts, assertReservedCell, createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
+import { approvedBrowserHosts, assertReservedCell, createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn, exactKey, hostedUiCategories, inspectBrowserArtifacts, normalizeHostedUiOutcome, runT16Coordinator, sanitizeOutcome, validateOperatorEnvironment } from './t16-auth-harness.mjs'
 
 test('operator input is validated without returning password material', () => {
   const result = validateOperatorEnvironment({ T16_ADMIN_USERNAME: 'preview-t16-admin@rehearsal.invalid', T16_NONADMIN_USERNAME: 'preview-t16-nonadmin@rehearsal.invalid', T16_ADMIN_PASSWORD: 'a'.repeat(24), T16_NONADMIN_PASSWORD: 'b'.repeat(24) })
@@ -146,4 +146,64 @@ test('visible-form driver detaches cancellable signal after early failure', asyn
   assert.equal(cancelled, 1)
   rejectSignal(new Error('canary signal rejection'))
   await new Promise(resolve => setImmediate(resolve))
+})
+
+function coordinatorFixture({ failAt = null, restoreFails = false, cleanupFails = false } = {}) {
+  const calls = []
+  const stage = (name, action = async () => {}) => async context => {
+    calls.push(name)
+    if (name === 'data-update') context.markWrite()
+    if (failAt === name) throw new Error('canary raw adapter failure')
+    await action(context)
+  }
+  return {
+    calls,
+    adapters: {
+      preflight: stage('preflight'), setup: stage('setup'),
+      admin: { form: stage('admin-form'), callback: stage('admin-callback'), sentinel: stage('admin-sentinel') },
+      nonAdmin: { form: stage('non-admin-form'), callback: stage('non-admin-callback'), sentinel: stage('non-admin-sentinel') },
+      data: { read: stage('data-read'), update: stage('data-update'), stale: stage('stale-conflict'), public: stage('public-observation') },
+      restore: stage('restore', async () => { if (restoreFails) throw new Error('canary restore failure') }),
+      cleanup: stage('cleanup', async () => { if (cleanupFails) throw new Error('canary cleanup failure') }),
+    },
+  }
+}
+
+test('credential-free coordinator returns stable success state and exact write/restore ordering', async () => {
+  const fixture = coordinatorFixture()
+  const result = await runT16Coordinator(fixture.adapters)
+  assert.deepEqual(result, {
+    status: 'success', lastCheckpoint: 'cleanup',
+    roleOutcomes: { admin: 'passed', 'non-admin': 'passed' },
+    counts: { operations: 14, writes: 1, restores: 1, cleanups: 1 }, failure: null,
+  })
+  assert.deepEqual(fixture.calls, ['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'data-read', 'data-update', 'stale-conflict', 'public-observation', 'restore', 'cleanup'])
+})
+
+test('coordinator failure matrix preserves checkpoint, blocks data after auth, and always cleans identities', async () => {
+  for (const [failAt, expected] of [['setup', 'setup'], ['admin-form', 'admin-form'], ['admin-callback', 'admin-callback'], ['admin-sentinel', 'admin-sentinel'], ['non-admin-form', 'non-admin-form'], ['non-admin-callback', 'non-admin-callback'], ['non-admin-sentinel', 'non-admin-sentinel'], ['data-read', 'data-read'], ['data-update', 'data-update'], ['stale-conflict', 'stale-conflict'], ['public-observation', 'public-observation']]) {
+    const fixture = coordinatorFixture({ failAt })
+    const result = await runT16Coordinator(fixture.adapters)
+    assert.equal(result.status, 'failed'); assert.equal(result.failure.stage, expected); assert.equal(result.lastCheckpoint, 'cleanup')
+    assert.equal(fixture.calls.at(-1), 'cleanup')
+    if (!['data-update', 'stale-conflict', 'public-observation'].includes(failAt)) assert.equal(fixture.calls.some(call => call === 'data-update'), false)
+    assert.doesNotMatch(JSON.stringify(result), /canary|adapter raw/i)
+  }
+})
+
+test('coordinator restores once before cleanup after write failure and treats restore failure as terminal', async () => {
+  const failed = coordinatorFixture({ failAt: 'stale-conflict' })
+  const result = await runT16Coordinator(failed.adapters)
+  assert.equal(result.status, 'failed'); assert.equal(result.failure.stage, 'stale-conflict')
+  assert.deepEqual(failed.calls.slice(-2), ['restore', 'cleanup']); assert.equal(result.counts.writes, 1); assert.equal(result.counts.restores, 1)
+  const restoreFailure = coordinatorFixture({ failAt: 'stale-conflict', restoreFails: true })
+  const terminal = await runT16Coordinator(restoreFailure.adapters)
+  assert.equal(terminal.status, 'restore-failed'); assert.equal(terminal.failure.stage, 'restore'); assert.deepEqual(restoreFailure.calls.slice(-2), ['restore', 'cleanup'])
+})
+
+test('coordinator reports partial cleanup without exposing adapter material', async () => {
+  const fixture = coordinatorFixture({ cleanupFails: true })
+  const result = await runT16Coordinator(fixture.adapters)
+  assert.equal(result.status, 'cleanup-failed'); assert.equal(result.failure.stage, 'cleanup'); assert.equal(result.counts.cleanups, 1)
+  assert.doesNotMatch(JSON.stringify(result), /canary|raw adapter/i)
 })

@@ -49,7 +49,7 @@ describe('T15B CLI boundary', () => {
     expect(calls).toHaveLength(3)
     expect(calls[0].args).toEqual(['sts', 'get-caller-identity', '--region', 'ap-northeast-1', '--profile', 'codex-prod', '--no-cli-pager', '--output', 'json'])
     expect(calls[1].args).toEqual(['cloudformation', 'describe-stacks', '--stack-name', 'ItsRunPreviewHosting', '--region', 'ap-northeast-1', '--profile', 'codex-prod', '--no-cli-pager', '--output', 'json'])
-    expect(calls[2].args).toEqual(['s3api', 'put-object', '--bucket', 'itsrun-preview-web-470447451992-ap-northeast-1', '--key', 'index.html', '--body', `fileb://${webDir}/index.html`, '--content-type', 'text/html', '--cache-control', 'no-cache, no-store, must-revalidate', '--region', 'ap-northeast-1', '--profile', 'codex-prod', '--no-cli-pager', '--output', 'json'])
+    expect(calls[2].args).toEqual(['s3api', 'put-object', '--bucket', 'itsrun-preview-web-470447451992-ap-northeast-1', '--key', 'index.html', '--body', `${webDir}/index.html`, '--content-type', 'text/html', '--cache-control', 'no-cache, no-store, must-revalidate', '--region', 'ap-northeast-1', '--profile', 'codex-prod', '--no-cli-pager', '--output', 'json'])
     for (const call of calls) { expect(call.file).toBe('/usr/local/aws-cli/aws'); expect(call.options.env).toEqual({}) }
     expect((await readFile(join(reportDir, 'web-deploy-report.json'), 'utf8')).includes(webDir)).toBe(false)
     await rm(workspaceRoot, { recursive: true, force: true })

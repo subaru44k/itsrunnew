@@ -98,7 +98,7 @@ export async function collectWebObjects(webDir, fsApi = { lstat, readFile }) {
 
 export function putObjectArgs(object, bucket, mode = 'operator') {
   if (!safeKey(object.key) || bucket !== WEB_DEPLOY_TARGET.bucket || !isAbsolute(object.path)) throw fail('configuration')
-  return ['s3api', 'put-object', '--bucket', bucket, '--key', object.key, '--body', `fileb://${object.path}`, '--content-type', object.contentType, '--cache-control', object.cacheControl]
+  return ['s3api', 'put-object', '--bucket', bucket, '--key', object.key, '--body', object.path, '--content-type', object.contentType, '--cache-control', object.cacheControl]
 }
 
 function outputValues(value) {

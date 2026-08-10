@@ -2431,3 +2431,19 @@ argument contract, preserves all security boundaries, and authorizes one final
 separately identified workflow-file push after local verification. This Sol
 diagnosis made no AWS or GitHub write.
 ```
+
+### Phase 4 T15 PutObject recovery B01 body-path correction
+
+```text
+Start: 0383664; result: complete locally. Changed only putObjectArgs so the
+AWS CLI `--body` value is the preflighted absolute object path, without a
+fileb:// URI or shell wrapper. Pure and CLI tests prove exact argument order,
+absolute path separation, unchanged content/cache metadata, and sanitized
+credential/error boundaries. Focused migration tests passed (76); npm run
+check passed (web 44, core 7, schedule-api 25, infra 18, synth/build).
+
+The non-writing AWS CLI `put-object --generate-cli-skeleton output` check
+accepted the first generated object's plain absolute body path and produced
+valid skeleton JSON; no AWS request or write occurred. B02 is the separately
+authorized one-time workflow push gate.
+```

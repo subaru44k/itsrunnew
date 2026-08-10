@@ -13,7 +13,13 @@ const config = (webDir, extra = {}) => ({ mode: 'operator', profile: 'codex-prod
 function runner(calls, identity = { Account: WEB_DEPLOY_TARGET.account }) { return async (args) => { calls.push(args); if (args[0] === 'sts') return identity; if (args[0] === 'cloudformation') return { Stacks: [{ StackStatus: 'UPDATE_COMPLETE', Outputs: [{ OutputKey: 'WebBucketName', OutputValue: WEB_DEPLOY_TARGET.bucket }, { OutputKey: 'DistributionDomainName', OutputValue: WEB_DEPLOY_TARGET.domain }] }] }; return {} } }
 
 describe('T15B isolated web deployment', () => {
-  it('builds explicit per-object commands and immutable/short/html order', () => { expect(cacheControlForWebObject('index.html')).toContain('no-cache'); expect(putObjectArgs({ key: 'index.html', path: '/tmp/index.html', contentType: 'text/html', cacheControl: cacheControlForWebObject('index.html') }, WEB_DEPLOY_TARGET.bucket)[1]).toBe('put-object') })
+  it('builds an absolute plain-body argument and immutable/short/html order', () => {
+    expect(cacheControlForWebObject('index.html')).toContain('no-cache')
+    const args = putObjectArgs({ key: 'index.html', path: '/tmp/index.html', contentType: 'text/html', cacheControl: cacheControlForWebObject('index.html') }, WEB_DEPLOY_TARGET.bucket)
+    expect(args).toEqual(['s3api', 'put-object', '--bucket', WEB_DEPLOY_TARGET.bucket, '--key', 'index.html', '--body', '/tmp/index.html', '--content-type', 'text/html', '--cache-control', 'no-cache, no-store, must-revalidate'])
+    expect(args[args.indexOf('--body') + 1]).toBe('/tmp/index.html')
+    expect(args.join(' ')).not.toContain('fileb://')
+  })
   it('fails identity before any write and rejects wrong mode context', async () => { const root = await build(); const calls = []; await expect(deployWebPreview(config(root), { runAws: runner(calls, { Account: 'x' }) })).rejects.toMatchObject({ category: 'identity' }); expect(calls).toHaveLength(1); await expect(deployWebPreview(config(root, { mode: 'github', profile: 'codex-prod' }), { runAws: runner([]) })).rejects.toMatchObject({ category: 'configuration' }) })
   it('accepts only the reviewed GitHub OIDC context and role after STS', async () => {
     const root = await build()

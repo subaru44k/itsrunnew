@@ -3013,3 +3013,12 @@ admin/non-admin desktop/mobile matrix followed by the exact D029 one-cell
 conditional update, stale 409, exact-byte conditional restore, and mandatory
 zero-user cleanup. No deployment, IAM, invalidation, or other data target is
 authorized.
+
+### Phase 4 T16 browser-recorder recovery authorization
+
+Sol confirmed FR02 used the correct real login form but recorded only the final
+`/manage` path; unlike D031, it did not attach a response sequence listener
+before login, so the immediate callback was unobservable. D033 and
+`phase4-t16-browser-recorder-recovery-plan.md` require a tested pre-login
+sanitized recorder and a signed-in UI sentinel before API access, then authorize
+one fresh matrix and the unchanged conditional update/restore rehearsal.

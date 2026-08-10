@@ -1313,6 +1313,48 @@ Rollback/removal:
 Keep the classifier while the callback page uses same-document history
 replacement. D028 cleanup and D029 exact data restore remain mandatory.
 
+## D033: Record callback navigation before login and require signed-in UI state
+
+Status: accepted
+
+Problem:
+
+FR02's four cases ended at `/manage` with no API request, but its driver did not
+attach response/navigation collection before authentication and supplied only
+the final URL to the callback normalizer. Cognito legitimately replaces
+`/manage/callback` with `/manage` immediately, so the evidence lost the callback
+that D031's pre-registered listener had observed. This is a test-driver evidence
+defect, not a new Cognito failure.
+
+Decision:
+
+Add an AWS-free tested browser recorder boundary that is attached before the
+login click and retains only allowlisted host/path/status metadata, never query,
+headers, bodies, cookies, or DOM. The operational driver must require both an
+observed `/manage/callback` and a signed-in UI sentinel (logout control plus the
+admin load form) before making the role-appropriate GET. Waiting for final
+`/manage` alone is insufficient. Use this one driver for every desktop/mobile
+admin/non-admin case and the two stale-editor contexts.
+
+Alternatives:
+
+- Increase a fixed sleep: rejected because it does not repair lost event
+  ordering.
+- Treat final `/manage` as proof: rejected because signed-out and signed-in
+  states share the path.
+- Inspect tokens or network headers: rejected because UI state and API outcome
+  prove authorization without exposing credentials.
+
+Cost and maintenance effect:
+
+No runtime/dependency/AWS change. A deterministic operator-test boundary avoids
+another false negative and preserves sanitized evidence.
+
+Rollback/removal:
+
+Keep the recorder while the callback uses immediate history replacement;
+replace it only with an equivalent tested event-ordering contract.
+
 ## Decision template
 
 Copy for new decisions:

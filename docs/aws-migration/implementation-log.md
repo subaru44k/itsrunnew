@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A complete, T15B corrective pass pending Sol review | `cf98fa5` | T15A accepted; T15BR01-R06 focused tests recorded below | Local-only implementation; no AWS/GitHub write or deployment. |
+| T15 | in progress; T15A complete, T15B corrective pass pending Sol review | `f59e71f` | T15A accepted; T15BR01-R06 focused tests recorded below | Local-only implementation; no AWS/GitHub write or deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1846,4 +1846,23 @@ Node 24.18.1: focused helper/CLI/deploy-preview tests 34 passed; all migration
 Vitest suites excluding the existing node:test-format file 116 passed; static
 Node tests 3 passed; npm run check passed; git diff --check passed. No
 AWS/GitHub/network operation occurred. T15C/T15D remain pending Sol review.
+```
+
+### Phase 4 T15B BR03 follow-up
+
+```text
+Start: 44b234b; source/test commit: f59e71f; result: corrective pass
+complete locally and pending Sol review. Report targets are now prepared and
+created exclusively before STS through a branded handle rooted at the exact
+workspace .artifacts/migration/<safe-run> path; writes reject forged,
+cross-workspace, symlink, collision, and overwrite targets. Deployment
+failures produce only bounded sanitized failed reports with attempted,
+uploaded, and verified counts. Filesystem, credential, MIME/cache, stack,
+identity, CLI command, timeout, and partial-failure cases are individually
+covered.
+
+Node 24.18.1: focused helper/CLI tests 33 passed; all migration Vitest suites
+excluding the existing node:test-format file 135 passed; static Node tests 3
+passed; npm run check and git diff --check passed. No AWS/GitHub/network
+operation occurred. T15C/T15D remain pending Sol review.
 ```

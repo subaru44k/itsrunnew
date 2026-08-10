@@ -4139,3 +4139,21 @@ With callback code/state, discovery, and matching transaction all present but
 no token POST, D051 and `phase4-t16-redirect-callback-plan.md` authorize RDC01
 to replace generic callback dispatch with the exact redirect callback locally.
 No AWS/live auth is authorized in RDC01.
+
+### Phase 4 T16 RDC01 redirect-only callback correction
+
+RDC01 was implemented locally from Sol handoff
+`e0b8ae8c0329ca29018230261f77774551aa95ec` with no AWS or live-auth action.
+The production OIDC adapter now calls only
+`UserManager.signinRedirectCallback(url)` at the existing semantic
+`signinCallback` port boundary. The generic callback dispatcher is not
+invoked. Existing Authorization Code + PKCE settings, sessionStorage
+transaction state, in-memory user storage, safe return-path validation,
+sanitized errors, transaction cleanup, scopes, and logout behavior are
+unchanged.
+
+The exact port unit test proves redirect callback invocation with the callback
+URL and proves the generic `signinCallback` method is never called. Focused web
+unit tests passed 48 tests, admin-local Playwright passed 46 tests across the
+desktop/mobile localized projects, `npm run check` passed, and
+`git diff --check` passed. No token persistence or dependency was added.

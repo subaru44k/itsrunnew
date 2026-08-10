@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import type { User } from 'oidc-client-ts'
+import { UserManager } from 'oidc-client-ts'
 import { ADMIN_SCOPES, oidcConfig, isSafeReturnPath, createOidcPort } from './oidc'
 describe('OIDC boundary', () => {
   it('uses code/PKCE callback boundaries and exact scopes', () => { expect(ADMIN_SCOPES).toBe('openid email profile itsrun/schedule.write'); expect(oidcConfig('https://issuer/', 'client', 'https://preview.example')).toEqual({ authority: 'https://issuer', clientId: 'client', redirectUri: 'https://preview.example/manage/callback', postLogoutRedirectUri: 'https://preview.example/manage' }) })
@@ -26,5 +28,19 @@ describe('OIDC boundary', () => {
     await manager.clearTransactionState()
     expect(storage.getItem('unrelated')).toBe('keep')
     expect([...values.keys()].some((key) => key.includes('transaction'))).toBe(false)
+  })
+  it('uses only the redirect callback API at the production port boundary', async () => {
+    const redirectUser = { access_token: 'memory-only-token', profile: { sub: 'admin' } } as unknown as User
+    const redirect = vi.spyOn(UserManager.prototype, 'signinRedirectCallback').mockResolvedValue(redirectUser)
+    const generic = vi.spyOn(UserManager.prototype, 'signinCallback').mockRejectedValue(new Error('generic callback must not run'))
+    try {
+      const port = createOidcPort(oidcConfig('https://issuer', 'client', 'https://preview.example'), {} as Storage)
+      await expect(port.signinCallback('https://preview.example/manage/callback?code=opaque&state=opaque')).resolves.toBe(redirectUser)
+      expect(redirect).toHaveBeenCalledWith('https://preview.example/manage/callback?code=opaque&state=opaque')
+      expect(generic).not.toHaveBeenCalled()
+    } finally {
+      redirect.mockRestore()
+      generic.mockRestore()
+    }
   })
 })

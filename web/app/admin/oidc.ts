@@ -60,7 +60,7 @@ export function createOidcPort(config: OidcConfig, storage: Storage = window.ses
     getUser: () => manager.getUser(),
     signinRedirect: (args) => manager.signinRedirect(args),
     signinCallback: async (url) => {
-      const user = await manager.signinCallback(url)
+      const user = await manager.signinRedirectCallback(url)
       if (!user) throw new Error('OIDC callback did not produce a user')
       return user
     },

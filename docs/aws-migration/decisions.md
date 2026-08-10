@@ -796,6 +796,63 @@ Rollback/removal:
 Set v5 as default to remove all GitHub-stack execution permissions. Retained
 provider/role cleanup remains a separately reviewed future operation.
 
+## D023: Bootstrap the first preview deployment without a default-branch merge
+
+Status: accepted
+
+Problem:
+
+GitHub accepted and validated the migration branch, but rejected the sole
+`workflow_dispatch` API request with HTTP 404 because the deployment workflow
+does not yet exist on the default branch. GitHub only registers a manually
+dispatched workflow from the default branch. Merging the migration or workflow
+to `master` now would violate the Phase 5 review boundary, and temporarily
+changing the default branch would weaken repository controls.
+
+Decision:
+
+Use one temporary, branch-and-path-restricted push trigger to bootstrap the
+first preview deployment entirely from `migration/aws-s3-cloudfront`. Add a
+`push` trigger to `deploy-preview-web.yml` that matches only that exact branch
+and only changes to `.github/workflows/deploy-preview-web.yml`. Keep
+`workflow_dispatch` unchanged for later use after the reviewed workflow reaches
+the default branch. Do not add pull-request, schedule, tag, wildcard branch,
+repository-dispatch, environment, or input triggers.
+
+The commit adding this trigger is the explicit one-time deployment request.
+Push it once, require the workflow's own validation job to succeed, then allow
+its deploy job to assume the exact OIDC role and update only preview web
+objects. Do not retry a failed deployment run. After successful external
+verification, remove only the temporary push trigger and push the cleanup
+commit. GitHub evaluates the workflow definition at the pushed revision, so
+the cleanup revision has no push trigger and cannot deploy. Require the normal
+validation workflow on every pushed revision.
+
+This exception authorizes exactly one deployment run, not a second dispatch.
+The prior rejected API request created no run and consumed no AWS authority.
+It does not authorize `master`, HostingStack, data, invalidation, IAM, Cognito,
+production, DNS, or Firebase changes.
+
+Alternatives:
+
+- Cherry-pick the workflow to `master`: rejected because it crosses the final
+  migration review/merge boundary early.
+- Change the repository default branch temporarily: rejected because it is a
+  broad repository-control mutation with ambiguous workflow effects.
+- Keep a permanent push deploy trigger: rejected because later workflow edits
+  could deploy implicitly.
+
+Cost and maintenance effect:
+
+The temporary trigger exists for one reviewed commit interval and is removed
+immediately after acceptance. No dependency or AWS resource is added.
+
+Rollback/removal:
+
+The mandatory cleanup commit removes the temporary trigger. The permanent
+workflow remains `workflow_dispatch` only until a later reviewed default-branch
+merge makes manual dispatch available.
+
 ## Decision template
 
 Copy for new decisions:

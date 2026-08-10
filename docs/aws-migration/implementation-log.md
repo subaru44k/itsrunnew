@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | T15E05 stopped at exactly-once dispatch gate | `30a8cf3` | Settings tightened; one migration-branch push and validation run passed; deploy dispatch was not accepted by GitHub | AWS v6/HostingStack remain unchanged. No preview deployment or master protection was performed after the dispatch stop. |
+| T15 | dispatch recovery planned after GitHub default-branch gate | `30a8cf3` + D023/G01-G04 plan | Settings tightened; exact migration-branch validation succeeded; Sol confirmed rejected dispatch created no run | One temporary exact push trigger is planned; no preview deployment or master protection yet. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -2259,4 +2259,23 @@ readback, invalidation, data mutation, HostingStack mutation, or master branch
 protection change occurred. Per the no-retry stop condition, no second
 dispatch was attempted. The repository settings change and branch push remain
 the only E05 external writes.
+```
+
+### Phase 4 T15E05 Sol stop review and D023 plan
+
+```text
+Start: 7c8dd50; result: stop accepted and a one-run recovery plan prepared.
+Sol independently confirmed the clean local branch is exactly two log commits
+ahead of remote SHA 9ae26b0, Actions settings are selected/full-SHA/read-only
+as recorded, and run 31348125949 is a successful push-triggered Migration
+validation for exact SHA 9ae26b0. The rejected workflow_dispatch request
+created no Actions run. AWS state and preview objects were not mutated.
+
+D023 avoids a pre-review master merge or default-branch change. The reviewed
+temporary trigger matches only migration/aws-s3-cloudfront and only a change
+to deploy-preview-web.yml; the trigger-addition commit is the explicit one-time
+request. After exactly one successful deploy run and external verification, a
+cleanup revision removes the push trigger before any later branch commit. The
+permanent workflow remains workflow_dispatch-only. No AWS/GitHub write was
+made during this Sol review.
 ```

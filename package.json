@@ -29,6 +29,7 @@
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.1.2",
     "aws-cdk": "^2.1134.0",
+    "commander": "15.0.0",
     "eslint": "^10.8.0",
     "firebase-admin": "14.2.0",
     "typescript": "^6.0.3",

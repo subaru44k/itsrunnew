@@ -2625,3 +2625,21 @@ metadata match the generated build. No additional deployment, invalidation,
 data/schedule, IAM, Cognito, production, DNS, or Firebase mutation occurred in
 the Sol review. T16 may start from the next clean committed handoff.
 ```
+
+### Phase 4 T16A dependency recovery DR01 exact Commander peer
+
+```text
+Start: cb5b87a; result: complete locally. Added only root devDependency
+`commander: 15.0.0` with an npm-generated lockfile update. No override,
+production dependency, application/runtime import, Lambda bundle import, or
+other package was added.
+
+Under Node 24.18.1, npm install and clean `npm ci` completed with the existing
+audit summary (11 vulnerabilities: 7 moderate and 4 high). `npm ls --all`
+and `npm ls @bomb.sh/tab commander --all` are valid with no invalid or
+extraneous entries: root/Tab resolve Commander 15.0.0, SVGO retains nested
+Commander 11.1.0, and Terser retains nested Commander 2.20.3. Source scans
+found no Commander import in packages, web, services, infra, or migration
+runtime sources. DR02 immutable T16A re-verification follows this commit;
+AWS writes remain prohibited.
+```

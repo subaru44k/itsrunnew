@@ -4,6 +4,11 @@ const exactKey = 'data/v1/stadiums/oda/availability/2026-08.json'
 const sensitive = /token|password|secret|claim|authorization|cookie|access_key|raw|credential/i
 const hostedUiCategories = ['callback', 'incorrect-credentials', 'user-not-found', 'password-reset-required', 'oauth-error', 'unknown-login']
 const approvedBrowserHosts = new Set(['itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', 'd2via50thoheqm.cloudfront.net'])
+const oauthIssuerHost = 'cognito-idp.ap-northeast-1.amazonaws.com'
+const oauthDiscoveryPath = '/ap-northeast-1_nmj9cP9st/.well-known/openid-configuration'
+const oauthTokenPath = '/oauth2/token'
+const oauthStatusCategories = ['oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'api-response-missing', 'api-status-unexpected']
+const approvedOAuthHosts = new Set([...approvedBrowserHosts, oauthIssuerHost])
 
 export function validateOperatorEnvironment(env = process.env) {
   const names = {
@@ -58,6 +63,24 @@ export function normalizeHostedUiOutcome({ role, domText = '', urlSequence = [],
   return { role, category, redirects, statuses: safeStatuses, durationMs: Number.isInteger(durationMs) && durationMs >= 0 ? durationMs : null }
 }
 
+export function classifyOAuthStatus(events, { apiPath = '/api/v1/stadiums/oda/availability/2026-08' } = {}) {
+  if (!Array.isArray(events)) return 'oauth-discovery-missing'
+  const safeEvents = events.filter(event => event && typeof event === 'object' && typeof event.kind === 'string' && typeof event.host === 'string' && typeof event.path === 'string' && (event.method === undefined || typeof event.method === 'string') && (event.status === undefined || Number.isInteger(event.status)))
+  const matches = (event, host, path, method) => event.host === host && event.path === path && (method === undefined || event.method === undefined || event.method === method)
+  const api = safeEvents.find(event => event.kind === 'response' && matches(event, 'd2via50thoheqm.cloudfront.net', apiPath, 'GET'))
+  if (api && api.status !== 200 && api.status !== 403) return 'api-status-unexpected'
+  const discovery = safeEvents.find(event => event.kind === 'response' && matches(event, oauthIssuerHost, oauthDiscoveryPath, 'GET'))
+  if (!discovery) return 'oauth-discovery-missing'
+  if (discovery.status === undefined || discovery.status < 200 || discovery.status >= 300) return 'oauth-discovery-rejected'
+  const token = safeEvents.find(event => event.kind === 'response' && matches(event, 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com', oauthTokenPath, 'POST'))
+  if (!token) return 'oauth-token-endpoint-missing'
+  if (token.status === undefined || token.status < 200 || token.status >= 300) return 'oauth-token-endpoint-rejected'
+  if (!api) return 'oauth-token-success-session-missing'
+  return 'oauth-token-success-session-missing'
+}
+
+export { approvedOAuthHosts, oauthStatusCategories }
+
 export function createSanitizedBrowserRecorder(page) {
   if (!page || typeof page.on !== 'function' || typeof page.off !== 'function') throw new Error('invalid recorder page')
   const events = []
@@ -65,15 +88,17 @@ export function createSanitizedBrowserRecorder(page) {
   const add = (kind, rawUrl, status = null) => {
     try {
       const url = new URL(typeof rawUrl === 'string' ? rawUrl : rawUrl?.url?.())
-      if (!approvedBrowserHosts.has(url.hostname) || !url.pathname.startsWith('/')) return
+      if (!approvedOAuthHosts.has(url.hostname) || !url.pathname.startsWith('/')) return
       if (status !== null && (!Number.isInteger(status) || status < 100 || status > 599)) return
-      const event = status === null ? { kind, host: url.hostname, path: url.pathname } : { kind, host: url.hostname, path: url.pathname, status }
+      let method
+      if (kind === 'response') { try { const request = rawUrl?.request?.(); const value = request?.method?.(); if (typeof value === 'string') method = value } catch {} }
+      const event = status === null ? { kind, host: url.hostname, path: url.pathname } : { kind, host: url.hostname, path: url.pathname, status, ...(method ? { method } : {}) }
       const key = JSON.stringify(event)
       if (!seen.has(key)) { seen.add(key); events.push(event) }
     } catch {}
   }
   const onNavigation = frame => add('navigation', frame?.url?.())
-  const onResponse = response => add('response', response?.url?.(), response?.status?.())
+  const onResponse = response => add('response', response, response?.status?.())
   page.on('framenavigated', onNavigation)
   page.on('response', onResponse)
   let detached = false

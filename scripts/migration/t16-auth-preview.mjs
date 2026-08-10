@@ -4,7 +4,7 @@ import { chmod, mkdtemp, mkdir, stat, unlink, writeFile, rm } from 'node:fs/prom
 import { tmpdir } from 'node:os'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 import { promisify } from 'node:util'
-import { createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn } from './t16-auth-harness.mjs'
+import { classifyOAuthStatus, createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn } from './t16-auth-harness.mjs'
 
 export const AUTH_CONSTANTS = Object.freeze({
   profile: 'codex-prod', account: '470447451992', region: 'ap-northeast-1',
@@ -22,7 +22,7 @@ export const COGNITO_MUTATING_OPERATIONS = Object.freeze([
 const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-users-in-group'])
 const operationSet = new Set([...COGNITO_MUTATING_OPERATIONS, ...COGNITO_READ_OPERATIONS])
 const checkpoints = new Set(['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'cleanup', 'complete'])
-const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected'])
+const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing'])
 const browserViewports = new Set(['desktop', 'mobile'])
 
 export function parseAuthArgs(argv) {
@@ -137,7 +137,10 @@ async function runRealBrowserRole(role, username, password) {
       const callback = recorder.snapshot().events.some(event => event.kind === 'navigation' && event.path === '/manage/callback')
       if (!callback) throw createBrowserSubstageError('callback-missing', viewportName)
       try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 }) } catch { throw createBrowserSubstageError('manage-timeout', viewportName) }
-      await awaitSignedInSentinel(page, { viewport: viewportName, timeoutMs: 30000 })
+      try { await awaitSignedInSentinel(page, { viewport: viewportName, timeoutMs: 30000 }) } catch (error) {
+        if (error?.name === 'BrowserSubstageError' && error.category === 'signed-in-missing') throw createBrowserSubstageError(classifyOAuthStatus(recorder.snapshot().events, { apiPath: AUTH_CONSTANTS.apiPath }), viewportName)
+        throw error
+      }
       for (let attempt = 0; attempt < 300 && apiStatus === null; attempt += 1) await new Promise(resolve => setTimeout(resolve, 100))
       const status = apiStatus
       outcomes[viewport.width > 600 ? 'desktopStatus' : 'mobileStatus'] = status
@@ -222,4 +225,4 @@ export async function runDirect({ argv = process.argv.slice(2), dependencies = {
 
 if (import.meta.url === `file://${process.argv[1]}`) runDirect()
 
-export { createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn }
+export { classifyOAuthStatus, createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn }

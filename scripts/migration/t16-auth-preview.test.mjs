@@ -119,7 +119,7 @@ test('browser role integration invokes form driver only after the delayed URL ga
 })
 
 test('browser substage failures retain only exact category and viewport', async () => {
-  const categories = ['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected']
+  const categories = ['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing']
   for (const [index, category] of categories.entries()) {
     const viewport = index % 2 === 0 ? 'desktop' : 'mobile'
     const result = await runAuthCoordinator({ preflight: async () => ({ target: 'auth', users: 0, admins: 0, region: AUTH_CONSTANTS.region }), setup: async () => ({ users: 2, admins: 1 }), admin: { form: async () => { const error = new Error('canary raw browser error'); error.name = 'BrowserSubstageError'; error.category = category; error.viewport = viewport; throw error } }, cleanup: async () => ({ users: 0, admins: 0 }) })

@@ -3920,3 +3920,22 @@ end at `/manage`.
 D048 and `phase4-t16-oauth-status-plan.md` authorize OS01 local-only sanitized
 OAuth status classification. No AWS operation or live authentication is
 authorized until Sol reviews that implementation.
+
+### Phase 4 T16 OS01 OAuth status classification
+
+Starting from Sol handoff `22cbb4cf256200b8eee5b617107d70823c46b80d`, Node
+`v24.18.1`, OS01 extends the sanitized browser recorder with exact method and
+status fields when available and adds deterministic OAuth status classification.
+Only the exact preview CloudFront host, exact Hosted UI host, and exact
+regional Cognito issuer host are accepted. Discovery and token endpoint
+pathnames are exact; the classifier distinguishes discovery missing/rejected,
+token endpoint missing/rejected, token success followed by missing session,
+and existing API response states. Final browser failures remain category plus
+viewport only; no event trail is returned.
+
+Focused auth/harness tests passed 38/38, including canary tests proving query,
+fragment, headers, bodies, credentials, and token material are neither read
+nor retained by the recorder/classifier. Root `npm run check` and
+`git diff --check` passed. No AWS, live auth, deployment, IAM, CloudFormation,
+API/S3/Firestore write, production, or T17 operation occurred. OS01 is ready
+for Sol source review; OS02 remains unauthorized.

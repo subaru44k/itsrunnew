@@ -34,4 +34,4 @@ export async function main(argv = process.argv.slice(2), env = process.env, depe
   }
 }
 
-if (process.argv[1]?.endsWith('deploy-web-preview-cli.mjs')) main().then((result) => { if (typeof result === 'string') console.log(result) }).catch(() => { process.exitCode = 2 })
+if (process.argv[1]?.endsWith('deploy-web-preview-cli.mjs')) main().then((result) => { console.log(typeof result === 'string' ? result : JSON.stringify(result)) }).catch(() => { process.exitCode = 2 })

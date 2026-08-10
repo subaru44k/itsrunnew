@@ -11,6 +11,10 @@ describe('T15B CLI boundary', () => {
     await expect(main(['--mode', 'operator', '--web-dir', '/tmp/build'])).rejects.toMatchObject({ category: 'configuration' })
     await expect(main(['--mode', 'operator', '--profile', 'other', '--web-dir', '/tmp/build', '--report-dir', '/tmp/report'])).rejects.toMatchObject({ category: 'configuration' })
   })
+  it('preflights report target before STS and rejects an existing run', async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br3-')); const webDir = join(workspaceRoot, 'build'); await mkdir(webDir); await writeFile(join(webDir, 'index.html'), 'x'); const reportDir = join(workspaceRoot, '.artifacts', 'migration', 'run1'); await mkdir(reportDir, { recursive: true }); const calls = []
+    await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', reportDir], {}, { workspaceRoot, execImpl: () => { calls.push(true) } })).rejects.toMatchObject({ category: 'report' }); expect(calls).toHaveLength(0); await rm(workspaceRoot, { recursive: true, force: true })
+  })
   it('passes only mode-approved executable, args, and child environment', async () => {
     const calls = []
     const fakeExec = (file, args, options, callback) => { calls.push({ file, args, options }); callback(null, { stdout: '{"Account":"x"}', stderr: '' }) }
@@ -41,5 +45,9 @@ describe('T15B CLI boundary', () => {
   it('sanitizes command failures and never exposes stderr or credential values', async () => {
     const fakeExec = (_file, _args, _options, callback) => callback(Object.assign(new Error('secret-token stderr'), { stderr: 'secret-token stderr' }))
     await expect(createAwsRunner('operator', { PATH: '/bin', HOME: '/tmp' }, fakeExec)(['sts', 'get-caller-identity'])).rejects.toSatisfy((error) => error.category === 'command' && !error.message.includes('secret-token'))
+  })
+  it('writes only a sanitized failure report after a partial command failure', async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br3-fail-')); const webDir = join(workspaceRoot, 'build'); const reportDir = join(workspaceRoot, '.artifacts', 'migration', 'run1'); await mkdir(webDir); await writeFile(join(webDir, 'index.html'), 'x'); const fakeExec = (_file, args, _options, callback) => { if (args[0] === 'sts') callback(null, { stdout: '{"Account":"470447451992"}' }); else callback(Object.assign(new Error('credential-secret'), { stderr: 'credential-secret' })) }
+    await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', reportDir], {}, { workspaceRoot, execImpl: fakeExec })).rejects.toMatchObject({ category: 'command' }); const report = await readFile(join(reportDir, 'web-deploy-report.json'), 'utf8'); expect(report).toContain('failed'); expect(report).not.toContain('credential-secret'); expect(report).not.toContain(workspaceRoot); await rm(workspaceRoot, { recursive: true, force: true })
   })
 })

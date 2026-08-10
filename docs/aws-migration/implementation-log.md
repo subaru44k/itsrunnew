@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A-D accepted locally, T15E planned | `82a847d` + D021/T15E plan | T15A/B accepted; T15C workflow/helper and T15D infra contracts passed; Sol exact IAM/AWS baseline review | No OIDC/provider/role stack or GitHub workflow activation yet. |
+| T15 | in progress; T15A-D accepted locally, T15E01 complete; E02-E04 pending | `d9c26a6` + D021/T15E plan | E01 policy tests/build/check passed; immutable AWS preflight required before writes | No OIDC/provider/role stack or GitHub workflow activation yet. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1991,4 +1991,22 @@ archived nondefault v1, v6 exact readback, one OIDC-stack deployment, one
 GitHub workflow dispatch, external verification, and stop conditions. The
 read-only review made no AWS or GitHub write and did not change IAM, stacks,
 objects, invalidations, Cognito, production, DNS, or Firebase.
+```
+
+### Phase 4 T15E01 policy-v6 candidate
+
+```text
+Start: 6bff88a; source/test/docs commit: d9c26a6; result: complete locally.
+The committed v5 policy statements remain unchanged and exactly two D021
+statements were added: PreviewGitHubOidcProviderLifecycle with the reviewed
+nine OIDC-provider lifecycle/read/tag actions on the exact provider ARN, and
+PreviewGitHubDeployRoleLifecycle with the reviewed thirteen role/inline-policy
+lifecycle/read/tag actions on the exact role ARN. Focused policy tests prove
+the candidate delta, exact actions/resources, and rejection of wildcard,
+PassRole, provider-list, managed-policy, cross-account, and unrelated-service
+surfaces. The bootstrap README records the v6 gate. No AWS operation occurred.
+
+Node 24.18.1: focused policy tests 4 passed; infra tests 17 passed; infra
+build/synth passed; root npm run check passed; git diff --check passed. E02
+read-only preflight is next; no policy version or stack write has occurred.
 ```

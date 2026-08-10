@@ -4013,3 +4013,15 @@ request/requestfailed and callback-query tests. Root `npm run check` and
 `git diff --check` passed. No AWS, live auth, deployment, API/S3/Firestore
 write, IAM, CloudFormation, production, or T17 operation occurred. TRQ01 is
 ready for Sol source review; TRQ02 remains unauthorized.
+
+### Phase 4 T16 TRQ01 Sol acceptance and TRQ02 authorization
+
+Sol reviewed `d3953d6`. Exact callback code/state presence is reduced to two
+booleans; exact token POST request/requestfailed observations retain no failure
+text, URL query, headers, or body. The final result remains category plus
+viewport and excludes the event trail. Hostile-canary coverage and the focused
+39/39 result are accepted.
+
+TRQ02 may run the auth-only executable once under all existing exact gates.
+Stop after the typed result with cleanup zero and unchanged protected data and
+invalidations. No retry, source fix, deployment, or data rehearsal is authorized.

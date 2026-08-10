@@ -2933,6 +2933,21 @@ permanent-password set, delete); no group, API, schedule, data, or deployment
 operation occurred. Temporary credential/script files were removed outside
 the repository.
 
+### Phase 4 T16 FR02 stop
+
+FR01 gates and protected Oda baseline remained exact. FR02 created exactly two
+suppressed `.invalid` users, permanently set both passwords, and added only the
+admin user to `admins` (5 writes total). Four fresh real-browser contexts
+(desktop/mobile admin and non-admin, email aliases only) produced only the
+sanitized `unknown-login` category with zero API requests; no callback/GET
+200/403 matrix evidence was established. Recorded browser evidence was
+limited to path/method/status metadata, storage key names/counts, and console
+categories; no token, code, query, credential, header, body, or raw error was
+retained. Because the required auth gate did not pass and identifier retries
+are forbidden, FR03 was not attempted. Immediate cleanup removed the admin
+membership and both users (3 writes), leaving pool users and group members at
+zero. Temporary credential/script files were removed outside the repository.
+
 ### Phase 4 T16 FR01
 
 Local gates passed under Node 24: focused auth harness 6/6, root check, and

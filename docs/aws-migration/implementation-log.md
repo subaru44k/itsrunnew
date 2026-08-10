@@ -3058,6 +3058,16 @@ and returned pool/group to zero without login or data access. D034 and
 to own credential generation, auth, data restore, and cleanup in one bounded
 process with restoration-first `finally` control.
 
+### Phase 4 T16 internal-Username recovery authorization
+
+The first single-session runner correctly cleaned up after a pre-auth failure:
+one user create and one user delete, with pool/group zero and no data access.
+Sol diagnosed that `AdminSetUserPassword` received the email alias instead of
+the internal Username returned by `AdminCreateUser`. D035 and
+`phase4-t16-internal-username-recovery-plan.md` require an AWS-free adapter
+proof, internal IDs for admin/cleanup APIs only, email aliases for Hosted UI
+only, then one corrected bounded execution.
+
 ### Phase 4 T16 SS01
 
 SS01 completed locally from Sol handoff `4a76298` on Node 24.18.1. The focused

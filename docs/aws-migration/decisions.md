@@ -1403,6 +1403,49 @@ Delete the temporary process and directory after verified restore and identity
 cleanup. Preserve the protected original bytes only if the single conditional
 restore fails and Sol recovery is required.
 
+## D035: Use Cognito's returned internal Username for administration only
+
+Status: accepted
+
+Problem:
+
+The first D034 runner stopped safely after `AdminCreateUser` because
+`AdminSetUserPassword` received the email alias rather than the internal
+Username returned by Cognito. In a pool configured with `UsernameAttributes:
+[email]`, the email is the sign-in alias while Cognito generates a stable
+internal Username for administrative APIs. The runner discarded stderr and
+cleaned the single user; pool/group/data returned to zero.
+
+Decision:
+
+Parse and validate each `AdminCreateUser` response in memory and use its exact
+returned internal Username for password setting, group membership, AdminGetUser,
+group removal, and deletion. Use the email alias only in the Hosted UI form.
+Never output either identifier. Before AWS execution, run an adapter-level fake
+test proving create returns an internal identifier, every subsequent admin call
+uses it, browser input uses only the alias, and cleanup retains the internal
+identifier on partial failure.
+
+The temporary runner may classify future AWS failures by operation and stable
+service error code, but must not emit stderr/message/request IDs or arguments.
+
+Alternatives:
+
+- Continue using the alias for admin APIs: rejected by the observed failure.
+- Use internal UUID for browser login: rejected because email is the documented
+  operator sign-in contract.
+- Log both values for debugging: rejected as unnecessary identity exposure.
+
+Cost and maintenance effect:
+
+No AWS resource, dependency, or runtime change. One in-memory mapping corrects
+the operator harness.
+
+Rollback/removal:
+
+Remove the mapping only if Cognito changes the pool's username contract in a
+separately reviewed migration.
+
 ## Decision template
 
 Copy for new decisions:

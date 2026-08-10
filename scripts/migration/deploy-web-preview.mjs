@@ -33,10 +33,10 @@ function modeEnv(config) {
   const env = config.env ?? process.env
   if (config.mode === 'operator') {
     if (config.profile !== 'codex-prod' || env.GITHUB_ACTIONS === 'true' || env.AWS_ACCESS_KEY_ID || env.AWS_SECRET_ACCESS_KEY || env.AWS_SESSION_TOKEN || env.AWS_WEB_IDENTITY_TOKEN_FILE || env.AWS_SHARED_CREDENTIALS_FILE || env.AWS_CONFIG_FILE) throw fail('configuration')
-    return { profile: config.profile }
+    return { profile: config.profile, executable: '/usr/local/aws-cli/aws' }
   }
-  if (config.mode !== 'github' || config.profile || config.accessKey || config.sessionToken || env.AWS_PROFILE || env.AWS_ACCESS_KEY_ID || env.AWS_SECRET_ACCESS_KEY || env.AWS_SHARED_CREDENTIALS_FILE || env.GITHUB_ACTIONS !== 'true' || env.GITHUB_REPOSITORY !== 'subaru44k/itsrunnew' || env.GITHUB_REF !== 'refs/heads/migration/aws-s3-cloudfront') throw fail('configuration')
-  return {}
+  if (config.mode !== 'github' || config.profile || config.accessKey || config.sessionToken || env.AWS_PROFILE || env.AWS_CONFIG_FILE || env.AWS_SHARED_CREDENTIALS_FILE || env.AWS_WEB_IDENTITY_TOKEN_FILE || !env.AWS_ACCESS_KEY_ID || !env.AWS_SECRET_ACCESS_KEY || !env.AWS_SESSION_TOKEN || env.GITHUB_ACTIONS !== 'true' || env.GITHUB_REPOSITORY !== 'subaru44k/itsrunnew' || env.GITHUB_REF !== 'refs/heads/migration/aws-s3-cloudfront') throw fail('configuration')
+  return { executable: '/usr/local/bin/aws' }
 }
 
 async function list(root, prefix = '') {
@@ -58,7 +58,17 @@ function contentType(key) {
   if (key.endsWith('.js')) return 'application/javascript'
   if (key.endsWith('.css')) return 'text/css'
   if (key.endsWith('.svg')) return 'image/svg+xml'
-  if (/\.(png|jpe?g|gif|webp|ico)$/.test(key)) return 'image/*'
+  if (key.endsWith('.png')) return 'image/png'
+  if (key.endsWith('.jpg') || key.endsWith('.jpeg')) return 'image/jpeg'
+  if (key.endsWith('.gif')) return 'image/gif'
+  if (key.endsWith('.webp')) return 'image/webp'
+  if (key.endsWith('.ico')) return 'image/x-icon'
+  if (key.endsWith('.woff')) return 'font/woff'
+  if (key.endsWith('.woff2')) return 'font/woff2'
+  if (key.endsWith('.txt')) return 'text/plain'
+  if (key.endsWith('.xml')) return 'application/xml'
+  if (key.endsWith('.webmanifest')) return 'application/manifest+json'
+  if (key.endsWith('.map')) return 'application/json'
   return 'application/octet-stream'
 }
 
@@ -89,29 +99,42 @@ export function putObjectArgs(object, bucket, mode = 'operator') {
 
 function outputValues(value) {
   const stack = value?.Stacks?.[0]
+  if (!Array.isArray(value?.Stacks) || value.Stacks.length !== 1 || stack?.StackStatus !== 'UPDATE_COMPLETE') throw fail('stack')
   const outputs = Object.fromEntries((stack?.Outputs ?? []).map((item) => [item.OutputKey, item.OutputValue]))
   if (outputs.WebBucketName !== WEB_DEPLOY_TARGET.bucket || outputs.DistributionDomainName !== WEB_DEPLOY_TARGET.domain) throw fail('stack')
   return outputs
 }
 
 function normalizedCache(value) { return value.split(',').map((part) => part.trim()).filter(Boolean).sort().join(',') }
-async function verifyObject(domain, object, options) {
+function encodedUrl(domain, key, hash) {
+  if (domain !== WEB_DEPLOY_TARGET.domain || !safeKey(key)) throw fail('cloudfront', key)
+  return `https://${domain}/${key.split('/').map((segment) => encodeURIComponent(segment)).join('/')}?sha256=${encodeURIComponent(hash)}`
+}
+export async function verifyWebObject(domain, object, options = {}) {
   const fetchImpl = options.fetchImpl ?? fetch
   const maxAttempts = options.maxAttempts ?? 3
-  const deadline = (options.now?.() ?? Date.now()) + (options.timeoutMs ?? 30000)
-  for (let attempt = 0; attempt < maxAttempts && (options.now?.() ?? Date.now()) <= deadline; attempt += 1) {
-    const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), Math.max(0, deadline - (options.now?.() ?? Date.now())))
+  const now = options.now ?? Date.now
+  const deadline = now() + (options.timeoutMs ?? 30000)
+  const sleep = options.sleep ?? ((ms) => new Promise((resolveDelay) => setTimeout(resolveDelay, ms)))
+  let lastError
+  for (let attempt = 0; attempt < maxAttempts && now() <= deadline; attempt += 1) {
+    const controller = new AbortController(); let timer
     try {
-      const response = await fetchImpl(`https://${domain}/${object.key}`, { signal: controller.signal })
+      const remaining = Math.max(0, deadline - now())
+      const timeout = new Promise((_, reject) => { timer = setTimeout(() => { controller.abort(); reject(fail('timeout', object.key)) }, remaining) })
+      const operation = (async () => {
+        const response = await fetchImpl(encodedUrl(domain, object.key, object.sha256), { signal: controller.signal })
       if (response.status !== 200) throw new Error('status')
       if ((response.headers.get('content-type') ?? '').split(';')[0].trim() !== object.contentType) throw new Error('content-type')
       if (normalizedCache(response.headers.get('cache-control') ?? '') !== normalizedCache(object.cacheControl)) throw new Error('cache-control')
       const body = Buffer.from(await response.arrayBuffer())
       if (body.length > MAX_BYTES || createHash('sha256').update(body).digest('hex') !== object.sha256) throw new Error('hash')
+      })()
+      await Promise.race([operation, timeout])
       return
-    } catch { if (attempt + 1 >= maxAttempts) throw fail('cloudfront', object.key) } finally { clearTimeout(timer); controller.abort() }
+    } catch (error) { lastError = error; if (error?.category === 'timeout') break; if (attempt + 1 < maxAttempts) await sleep(Math.min(1000, Math.max(0, deadline - now()))) } finally { if (timer) clearTimeout(timer); controller.abort() }
   }
-  throw fail('timeout')
+  throw fail(lastError?.category === 'timeout' ? 'timeout' : 'cloudfront', lastError?.key ?? object.key)
 }
 
 export async function deployWebPreview(config, options = {}) {
@@ -122,14 +145,20 @@ export async function deployWebPreview(config, options = {}) {
   const identity = await runAws(['sts', 'get-caller-identity', '--region', config.region, ...(mode.profile ? ['--profile', mode.profile] : [])])
   if (identity?.Account !== config.account || config.mode === 'github' && (!identity.Arn?.includes(`assumed-role/${ROLE}/`) || !identity.Arn?.split('/')[2])) throw fail('identity')
   const outputs = outputValues(await runAws(['cloudformation', 'describe-stacks', '--stack-name', config.stack, '--region', config.region, ...(mode.profile ? ['--profile', mode.profile] : [])]))
-  for (const object of objects) await runAws(putObjectArgs(object, outputs.WebBucketName, config.mode))
-  for (const object of objects) await verifyObject(outputs.DistributionDomainName, object, options)
+  try {
+    for (const object of objects) await runAws(putObjectArgs(object, outputs.WebBucketName, config.mode))
+  } catch { throw fail('upload') }
+  try {
+    for (const object of objects) await verifyWebObject(outputs.DistributionDomainName, object, options)
+  } catch (error) { throw fail(error?.category === 'timeout' ? 'timeout' : 'cloudfront', error?.key) }
   return { schemaVersion: 1, status: 'match', mode: config.mode, objectCount: objects.length, objects: objects.map(({ key, size, sha256, contentType, cacheControl }) => ({ key, size, sha256, contentType, cacheControl })) }
 }
 
-export async function writeWebReport(report, reportRoot, fsApi = { mkdir, rename, rm, writeFile }) {
-  if (!reportRoot || !isAbsolute(reportRoot) || !report || report.status !== 'match') throw fail('report')
-  const root = resolve(reportRoot); await fsApi.mkdir(root, { recursive: true }); const temp = `${root}/.report-${process.pid}`; const target = `${root}/web-deploy-report.json`
+export async function writeWebReport(report, reportRoot, fsApi = { mkdir, rename, rm, writeFile, lstat }) {
+  if (!reportRoot || !isAbsolute(reportRoot) || !report || report.status !== 'match' || !reportRoot.includes(`${sep}.artifacts${sep}migration${sep}`)) throw fail('report')
+  const root = resolve(reportRoot); const target = `${root}/web-deploy-report.json`; let rootStat
+  try { rootStat = await fsApi.lstat(root); if (rootStat.isSymbolicLink?.()) throw fail('report'); await fsApi.lstat(target); throw fail('report') } catch (error) { if (error?.category === 'report') throw error }
+  await fsApi.mkdir(root, { recursive: true }); const temp = `${root}/.report-${process.pid}`
   try { await fsApi.mkdir(temp); await fsApi.writeFile(`${temp}/report.json`, `${JSON.stringify(report)}\n`); await fsApi.rename(`${temp}/report.json`, target); await fsApi.rm(temp, { recursive: true, force: true }) } catch { await fsApi.rm(temp, { recursive: true, force: true }).catch(() => {}); throw fail('report') }
   return target
 }

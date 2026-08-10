@@ -2853,3 +2853,9 @@ object remains 501 bytes, SHA ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5d
 tuple 2026-08-09[0]=0, ETag/VersionId captured in protected operator temp
 storage outside the repository. No mutation occurred.
 ```
+
+Follow-up: the initial focused harness run exposed a local numeric-outcome
+validation defect (`http-200` was rejected); the validator was corrected to
+allow digits, and the focused three-test suite plus the subsequent Node 24
+`npm run check` completed successfully. No AWS operation or credential
+material was involved.

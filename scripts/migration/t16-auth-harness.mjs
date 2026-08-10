@@ -17,7 +17,7 @@ export function assertReservedCell(target) {
 }
 
 export function sanitizeOutcome({ role, outcome, httpStatus = null, etag = null, versionId = null, sha256 = null, durationMs = null, counts = null }) {
-  if (!['admin', 'non-admin'].includes(role) || typeof outcome !== 'string' || !/^[a-z][a-z-]{1,31}$/.test(outcome)) throw new Error('invalid outcome')
+  if (!['admin', 'non-admin'].includes(role) || typeof outcome !== 'string' || !/^[a-z][a-z0-9-]{1,31}$/.test(outcome)) throw new Error('invalid outcome')
   const result = { role, outcome, httpStatus, etag, versionId, sha256, durationMs, counts }
   return result
 }

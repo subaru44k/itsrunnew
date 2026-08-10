@@ -4086,3 +4086,14 @@ application code and does not call `getItem` or `key`. `npm run check` passed
 (workspace lint, typecheck, unit, infra, and build checks), and
 `git diff --check` passed. No AWS or live auth execution was performed; TS01
 does not authorize a live run.
+
+### Phase 4 T16 TS01 Sol acceptance and TS02 authorization
+
+Sol reviewed `d38ce4c`. The exact callback probe runs before application code,
+uses only own-property presence for the transient callback state key, never
+reads storage content or enumerates keys, and reduces the result to one typed
+category. Real-Chromium and hostile-canary coverage passed 41/41.
+
+TS01 is accepted. TS02 may run auth-only once with all existing exact gates.
+Stop after the typed result, require cleanup zero and unchanged protected data
+and invalidations, and do not retry, fix source, deploy, or rehearse data.

@@ -3519,6 +3519,22 @@ configuration and deploys web objects only. Data, CloudFormation, IAM, and
 invalidation are forbidden. Require workflow validation/deploy/raw-preview
 success and unchanged data/invalidation inventories before CR03.
 
+### Phase 4 T16 CR02 preview web-only deployment
+
+The migration branch was pushed at reviewed SHA `2765c09`, and GitHub Actions
+run `31437886126` completed successfully. Its validation job passed repository
+checks and production-browser checks; its deployment job built the reviewed
+web, deployed web objects only, and passed the raw preview checks. The run was
+exact-SHA pinned to `2765c097d80400a71e1dde2bb2084597b9b04da9`.
+
+Post-run read-only verification confirmed the protected data object remained
+501 bytes with ETag `"b2591d35e23ac1b9f2a133f71198b953"` and VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`. The distribution still has only the three
+historical targeted invalidations from 2026-07-31; CR02 created no invalidation.
+No data, CloudFormation, IAM, Cognito administration, Firebase, DNS, or
+production operation occurred. CR02 is accepted and CR03 may run once under
+the existing auth-only stop conditions.
+
 ### Phase 4 T16 AG01 AdminGetUser response correction
 
 Starting from Sol handoff `4de0055`, AG01 changed only the concrete

@@ -3406,3 +3406,25 @@ suite. Focused T16 tests passed 28/28; root `npm run check` passed (including
 lint, typecheck, unit, infra, and build/synth); `git diff --check` passed. No
 AWS, Cognito, browser-hosted, data, S3, Firestore, deployment, or production
 operation occurred. CF02 is not authorized pending Sol source review.
+
+### Phase 4 T16 CF01 Sol correction
+
+Sol source review identified concrete-boundary defects in the initial CF01
+commit. The auth executable was corrected to start at the CloudFront `/manage`
+page and click the localized administrator sign-in control, retain the
+pre-login recorder and page-initiated exact API GET response, and require the
+real callback, final `/manage`, and translated sign-out sentinel. The API
+path is now `/api/v1/stadiums/oda/availability/2026-08`; no direct Hosted UI
+authorization URL or `page.request` API probe remains.
+
+Read-only preflight now proves STS account `470447451992`, fixed region,
+zero users, and zero `admins` membership using exact `list-users` and
+`list-users-in-group` calls. Cleanup attempts every applicable removal,
+deletion, readback, and temporary-directory removal independently. The
+protected operation helper verifies containment and mode `0600` before each
+CLI call and unlinks immediately; generated identities remain closure-only.
+Regression fakes cover distinct internal IDs, exact env/CLI boundaries,
+internal-ID administration, aliases only at the browser boundary, cleanup
+continuation after removal failure, and the sanitized result. No live
+operation occurred. Focused T16 tests pass 29/29;
+root checks and diff checks remain required before commit.

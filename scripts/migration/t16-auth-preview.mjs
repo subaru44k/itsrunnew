@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { execFile as nodeExecFile } from 'node:child_process'
 import { chmod, mkdtemp, mkdir, stat, unlink, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { isAbsolute, join, relative, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { createProtectedCliInput, createSanitizedBrowserRecorder, driveHostedUiSignIn } from './t16-auth-harness.mjs'
 
@@ -11,7 +11,7 @@ export const AUTH_CONSTANTS = Object.freeze({
   poolId: 'ap-northeast-1_nmj9cP9st', clientId: '1olddro3tldfinupl52u9dl1j4',
   hostedUiDomain: 'itsrun-preview-470447451992.auth.ap-northeast-1.amazoncognito.com',
   cloudFrontBase: 'https://d2via50thoheqm.cloudfront.net', group: 'admins',
-  apiPath: '/api/schedule/oda/2026-08',
+  apiPath: '/api/v1/stadiums/oda/availability/2026-08',
 })
 
 export const EXECUTION_FLAG = '--execute-preview-auth'
@@ -19,7 +19,7 @@ export const COGNITO_MUTATING_OPERATIONS = Object.freeze([
   'admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group',
   'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user',
 ])
-const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-groups'])
+const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-users-in-group'])
 const operationSet = new Set([...COGNITO_MUTATING_OPERATIONS, ...COGNITO_READ_OPERATIONS])
 const checkpoints = new Set(['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'cleanup', 'complete'])
 
@@ -49,7 +49,7 @@ function proof(stage, value) {
     if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join('|') !== keys.sort().join('|') || !test(value)) throw new Error('invalid proof')
     return value
   }
-  if (stage === 'preflight') return exact(['target', 'users', 'admins'], v => v.target === 'auth' && v.users === 0 && v.admins === 0)
+  if (stage === 'preflight') return exact(['target', 'users', 'admins', 'region'], v => v.target === 'auth' && v.users === 0 && v.admins === 0 && v.region === AUTH_CONSTANTS.region)
   if (stage === 'setup') return exact(['users', 'admins'], v => v.users === 2 && v.admins === 1)
   if (stage.endsWith('-form')) return exact(['desktop', 'mobile'], v => v.desktop === 'form-submitted' && v.mobile === 'form-submitted')
   if (stage.endsWith('-callback')) return exact(['desktop', 'mobile'], v => v.desktop === true && v.mobile === true)
@@ -93,18 +93,23 @@ async function runRealBrowserRole(role, username, password) {
     const browser = await chromium.launch({ headless: true }); const page = await browser.newPage({ viewport })
     const recorder = createSanitizedBrowserRecorder(page)
     try {
-      const target = `https://${AUTH_CONSTANTS.hostedUiDomain}/login?client_id=${AUTH_CONSTANTS.clientId}&response_type=code&redirect_uri=${encodeURIComponent(`${AUTH_CONSTANTS.cloudFrontBase}/manage/callback`)}`
-      await page.goto(target, { waitUntil: 'domcontentloaded' })
+      let apiStatus = null
+      const onResponse = response => { try { const url = new URL(response.url()); if (url.pathname === AUTH_CONSTANTS.apiPath && response.request().method() === 'GET' && url.origin === new URL(AUTH_CONSTANTS.cloudFrontBase).origin) apiStatus = response.status() } catch {} }
+      page.on('response', onResponse)
+      await page.goto(`${AUTH_CONSTANTS.cloudFrontBase}/manage`, { waitUntil: 'domcontentloaded' })
+      await page.getByRole('button', { name: /Sign in as administrator|管理者としてログイン/ }).click()
       const submitted = await driveHostedUiSignIn(page, { username, password, waitForNavigationSignal: () => page.waitForURL(url => new URL(url).pathname === '/manage/callback', { timeout: 30000 }) })
       outcomes[viewport.width > 600 ? 'desktop' : 'mobile'] = submitted.checkpoint
       if (submitted.checkpoint !== 'form-submitted') throw new Error('form proof failed')
       const callback = recorder.snapshot().events.some(event => event.kind === 'navigation' && event.path === '/manage/callback')
       if (!callback) throw new Error('callback proof failed')
-      const response = await page.request.get(`${AUTH_CONSTANTS.cloudFrontBase}${AUTH_CONSTANTS.apiPath}`)
-      outcomes[viewport.width > 600 ? 'desktopStatus' : 'mobileStatus'] = response.status()
-      if (role === 'admin' && response.status() !== 200 || role === 'non-admin' && response.status() !== 403) throw new Error('sentinel proof failed')
-      const logout = page.locator('[data-testid="admin-logout"], a[href*="logout"], button:has-text("Logout"), button:has-text("ログアウト")')
-      if (await logout.count() < 1) throw new Error('signed-in sentinel failed')
+      await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 })
+      if (await page.getByRole('button', { name: /Sign out|ログアウト/ }).count() < 1) throw new Error('signed-in sentinel failed')
+      for (let attempt = 0; attempt < 300 && apiStatus === null; attempt += 1) await new Promise(resolve => setTimeout(resolve, 100))
+      const status = apiStatus
+      outcomes[viewport.width > 600 ? 'desktopStatus' : 'mobileStatus'] = status
+      if (role === 'admin' && status !== 200 || role === 'non-admin' && status !== 403) throw new Error('sentinel proof failed')
+      page.off('response', onResponse)
     } finally { recorder.detach(); await browser.close() }
   }
   return { form: { desktop: outcomes.desktop, mobile: outcomes.mobile }, callback: { desktop: true, mobile: true }, sentinel: { desktop: outcomes.desktopStatus, mobile: outcomes.mobileStatus } }
@@ -120,9 +125,10 @@ function makeCli(command = {}) {
   const exec = command.execFile ?? promisify(nodeExecFile)
   const env = { AWS_PROFILE: AUTH_CONSTANTS.profile, AWS_REGION: AUTH_CONSTANTS.region, AWS_DEFAULT_REGION: AUTH_CONSTANTS.region, PATH: process.env.PATH ?? '' }
   return async (operation, payload, { json = false, root, inputPath } = {}) => {
+    if (operation === 'sts-get-caller-identity') { const result = await exec('aws', ['sts', 'get-caller-identity'], { env, windowsHide: true }); try { return JSON.parse(result.stdout ?? '') } catch { throw new Error('invalid aws json') } }
     if (!operationSet.has(operation)) throw new Error('forbidden cognito operation')
     let args = ['cognito-idp', operation, '--user-pool-id', AUTH_CONSTANTS.poolId]
-    if (operation === 'list-groups') args = ['cognito-idp', operation, '--user-pool-id', AUTH_CONSTANTS.poolId]
+    if (operation === 'list-users-in-group') args = ['cognito-idp', operation, '--user-pool-id', AUTH_CONSTANTS.poolId, '--group-name', AUTH_CONSTANTS.group]
     if (payload) args = []
     if (inputPath) args = ['cognito-idp', operation, '--cli-input-json', `file://${inputPath}`]
     else if (payload) throw new Error('protected input required')
@@ -139,8 +145,9 @@ export function createConcreteAuthAdapters({ command, browser, fs: fsPort, rando
   const browserFactory = browser ?? ((role, username, password) => realBrowserRole(role, username, password))
   const protectedCall = async (operation, payload, json = false) => {
     const path = join(root, `${operation}-${Math.floor(clock())}.json`)
+    const child = relative(resolve(root), resolve(path)); if (!isAbsolute(root) || !child || child.startsWith('..')) throw new Error('protected path containment')
     await fs.writeFile(path, JSON.stringify(payload), { mode: 0o600, flag: 'wx' })
-    try { return await cli(operation, null, { json, root, inputPath: path }) } finally { await fs.unlink(path).catch(() => {}) }
+    try { const info = await fs.stat(path); if ((info.mode & 0o777) !== 0o600 || info.isSymbolicLink?.()) throw new Error('protected file mode'); return await cli(operation, null, { json, root, inputPath: path }) } finally { await fs.unlink(path).catch(() => {}) }
   }
   const cognito = async (operation, payload, json = false) => {
     if (!COGNITO_MUTATING_OPERATIONS.includes(operation)) throw new Error('forbidden cognito operation')
@@ -148,8 +155,7 @@ export function createConcreteAuthAdapters({ command, browser, fs: fsPort, rando
   }
   const readCount = async operation => (await cli(operation, null, { json: true }))
   return {
-    identities: { adminAlias: ids.adminAlias, nonAdminAlias: ids.nonAdminAlias },
-    async preflight() { const users = await readCount('list-users'); const groups = await readCount('list-groups'); return { target: 'auth', users: users?.Users?.length ?? -1, admins: groups?.Groups?.find(g => g.GroupName === AUTH_CONSTANTS.group)?.Users?.length ?? 0 } },
+    async preflight() { const caller = await cli('sts-get-caller-identity', null, { json: true }); if (caller?.Account !== AUTH_CONSTANTS.account) throw new Error('account mismatch'); const users = await readCount('list-users'); const groups = await readCount('list-users-in-group'); return { target: 'auth', users: users?.Users?.length ?? -1, admins: groups?.Users?.length ?? -1, region: AUTH_CONSTANTS.region } },
     async setup() {
       root ??= await fs.mkdtemp(join(tmpdir(), 't16-auth-')); await fs.chmod(root, 0o700)
       const admin = await cognito('admin-create-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: ids.adminAlias, MessageAction: 'SUPPRESS' }, true); adminUsername = admin?.User?.Username; if (typeof adminUsername !== 'string' || !adminUsername) throw new Error('invalid create response')
@@ -161,7 +167,7 @@ export function createConcreteAuthAdapters({ command, browser, fs: fsPort, rando
     },
     admin: browserFactory('admin', ids.adminAlias, ids.adminPassword, AUTH_CONSTANTS),
     nonAdmin: browserFactory('non-admin', ids.nonAdminAlias, ids.nonAdminPassword, AUTH_CONSTANTS),
-    async cleanup() { if (adminUsername) { try { await cognito('admin-remove-user-from-group', { UserPoolId: AUTH_CONSTANTS.poolId, Username: adminUsername, GroupName: AUTH_CONSTANTS.group }) } finally { await cognito('admin-delete-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: adminUsername }) } } if (nonAdminUsername) await cognito('admin-delete-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: nonAdminUsername }); const users = await readCount('list-users'); const groups = await readCount('list-groups'); await fs.rm(root, { recursive: true, force: true }).catch(() => {}); return { users: users?.Users?.length ?? -1, admins: groups?.Groups?.find(g => g.GroupName === AUTH_CONSTANTS.group)?.Users?.length ?? 0 } },
+    async cleanup() { const failures = []; const attempt = async action => { try { await action() } catch { failures.push(true) } }; if (adminUsername) await attempt(() => cognito('admin-remove-user-from-group', { UserPoolId: AUTH_CONSTANTS.poolId, Username: adminUsername, GroupName: AUTH_CONSTANTS.group })); if (adminUsername) await attempt(() => cognito('admin-delete-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: adminUsername })); if (nonAdminUsername) await attempt(() => cognito('admin-delete-user', { UserPoolId: AUTH_CONSTANTS.poolId, Username: nonAdminUsername })); let users; let groups; await attempt(async () => { users = await readCount('list-users') }); await attempt(async () => { groups = await readCount('list-users-in-group') }); await attempt(() => fs.rm(root, { recursive: true, force: true })); if (failures.length) throw new Error('cleanup failed'); return { users: users?.Users?.length ?? -1, admins: groups?.Users?.length ?? -1 } },
   }
 }
 

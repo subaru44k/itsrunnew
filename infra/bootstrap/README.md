@@ -1,5 +1,19 @@
 # Preview CDK bootstrap
 
+## T15 D021 policy-v6 gate
+
+The GitHub preview OIDC stack is a separate retained CDK stack. Its
+CloudFormation execution policy candidate adds exactly two independent
+statements to the reviewed v5 document: the exact OIDC provider lifecycle
+actions on `arn:aws:iam::470447451992:oidc-provider/token.actions.githubusercontent.com`
+and the exact role lifecycle actions on
+`arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy`.
+Before any policy write, verify AWS v5 is the reviewed canonical document,
+retain v2-v5, delete only nondefault v1, create exactly v6 as default, and
+verify the candidate delta. No PassRole, wildcard action/resource, managed
+policy attachment, additional provider/role, or HostingStack deployment is
+permitted by this gate.
+
 This policy is only for account `470447451992`, region `ap-northeast-1`, and
 the `ItsRunPreviewHosting` preview stack. CloudFront creation APIs require
 `Resource: "*"` because AWS does not expose a distribution ARN before the

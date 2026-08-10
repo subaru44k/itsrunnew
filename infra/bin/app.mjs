@@ -8,6 +8,7 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as logs from 'aws-cdk-lib/aws-logs'
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -204,6 +205,22 @@ export class HostingStack extends Stack {
     for (const route of apiRoutes) apiStage.addResourceDependency(route)
     apiStage.addPropertyOverride('RouteSettings', {
       [putRouteKey]: { ThrottlingBurstLimit: 10, ThrottlingRateLimit: 5 },
+    })
+    new cloudwatch.CfnAlarm(this, 'AdminApi5xxAlarm', {
+      alarmName: 'itsrun-preview-admin-api-5xx',
+      namespace: 'AWS/ApiGateway',
+      metricName: '5xx',
+      statistic: 'Sum',
+      period: 300,
+      threshold: 1,
+      evaluationPeriods: 3,
+      datapointsToAlarm: 2,
+      comparisonOperator: 'GreaterThanOrEqualToThreshold',
+      treatMissingData: 'notBreaching',
+      dimensions: [
+        { name: 'ApiId', value: api.ref },
+        { name: 'Stage', value: '$default' },
+      ],
     })
     const apiDomainName = Fn.join('', [api.ref, '.execute-api.', Aws.REGION, '.amazonaws.com'])
     const cognitoAuthBaseUrl = Fn.join('', ['https://', cognitoDomainPrefix.valueAsString, '.auth.', Aws.REGION, '.amazoncognito.com'])

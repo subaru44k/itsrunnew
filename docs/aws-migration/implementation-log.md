@@ -2663,3 +2663,20 @@ found. git diff --check passed and the worktree is clean. No AWS operation,
 policy-version write, alarm change, or Hosting deployment was performed;
 DR03/T16B remains gated for Sol review.
 ```
+
+### Phase 4 T16B01 D026 API 5xx alarm source
+
+```text
+Start: 0723263; result: complete locally. HostingStack now defines exactly
+one stack-owned AWS::CloudWatch::Alarm named itsrun-preview-admin-api-5xx for
+AWS/ApiGateway metric 5xx, dimensions ApiId=<AdminApi Ref> and Stage=$default,
+Sum/300 seconds, threshold 1, evaluation periods 3, datapoints to alarm 2,
+GreaterThanOrEqualToThreshold, and notBreaching missing data. It has no alarm,
+OK, insufficient-data, tag, SNS, dashboard, anomaly, or detailed-metric
+actions. Existing hosting contracts remain intact.
+
+Node 24.18.1 checks passed: bootstrap policy focused test (before B02 policy
+change, 5 tests), infra tests (19), npm run check (web 44/core 7/schedule-api
+25/infra 19 plus build/synth), and git diff --check. No AWS operation was
+performed. T16B02 candidate policy work follows; AWS writes remain blocked.
+```

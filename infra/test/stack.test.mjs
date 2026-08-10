@@ -333,3 +333,25 @@ test('T11R02 filters API methods at the viewer request edge', () => {
   const apiBehavior = distribution.CacheBehaviors.find((behavior) => behavior.PathPattern === 'api/*')
   assert.ok(apiBehavior.FunctionAssociations.some(({ FunctionARN }) => FunctionARN['Fn::GetAtt']?.[0] === filterLogicalId))
 })
+
+test('D026 defines exactly one actionless API 5xx alarm', () => {
+  const result = template()
+  const alarms = Object.entries(result.findResources('AWS::CloudWatch::Alarm'))
+  assert.equal(alarms.length, 1)
+  const [, alarm] = alarms[0]
+  assert.equal(alarm.Properties.AlarmName, 'itsrun-preview-admin-api-5xx')
+  assert.equal(alarm.Properties.Namespace, 'AWS/ApiGateway')
+  assert.equal(alarm.Properties.MetricName, '5xx')
+  assert.equal(alarm.Properties.Statistic, 'Sum')
+  assert.equal(alarm.Properties.Period, 300)
+  assert.equal(alarm.Properties.Threshold, 1)
+  assert.equal(alarm.Properties.EvaluationPeriods, 3)
+  assert.equal(alarm.Properties.DatapointsToAlarm, 2)
+  assert.equal(alarm.Properties.ComparisonOperator, 'GreaterThanOrEqualToThreshold')
+  assert.equal(alarm.Properties.TreatMissingData, 'notBreaching')
+  assert.deepEqual(alarm.Properties.Dimensions, [
+    { Name: 'ApiId', Value: { Ref: Object.keys(result.findResources('AWS::ApiGatewayV2::Api'))[0] } },
+    { Name: 'Stage', Value: '$default' },
+  ])
+  for (const key of ['AlarmActions', 'OKActions', 'InsufficientDataActions', 'Tags']) assert.equal(alarm.Properties[key], undefined)
+})

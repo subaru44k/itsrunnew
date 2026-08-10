@@ -15,13 +15,16 @@ describe('T15B CLI boundary', () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br3-')); const webDir = join(workspaceRoot, 'build'); await mkdir(webDir); await writeFile(join(webDir, 'index.html'), 'x'); const reportDir = join(workspaceRoot, '.artifacts', 'migration', 'run1'); await mkdir(reportDir, { recursive: true }); const calls = []
     await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', reportDir], {}, { workspaceRoot, execImpl: () => { calls.push(true) } })).rejects.toMatchObject({ category: 'report' }); expect(calls).toHaveLength(0); await rm(workspaceRoot, { recursive: true, force: true })
   })
+  it('rejects symlinked artifact parent and cross-workspace report before STS', async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br4-link-')); const outside = await mkdtemp(join(tmpdir(), 't15br4-out-')); const webDir = join(workspaceRoot, 'build'); await mkdir(webDir); await writeFile(join(webDir, 'index.html'), 'x'); await (await import('node:fs/promises')).symlink(outside, join(workspaceRoot, '.artifacts')); const calls = []; await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', join(workspaceRoot, '.artifacts', 'migration', 'run1')], {}, { workspaceRoot, execImpl: () => { calls.push(true) } })).rejects.toMatchObject({ category: 'report' }); expect(calls).toHaveLength(0); await rm(workspaceRoot, { recursive: true, force: true }); await rm(outside, { recursive: true, force: true })
+  })
   it('passes only mode-approved executable, args, and child environment', async () => {
     const calls = []
     const fakeExec = (file, args, options, callback) => { calls.push({ file, args, options }); callback(null, { stdout: '{"Account":"x"}', stderr: '' }) }
     await createAwsRunner('github', { PATH: '/bin', HOME: '/tmp', AWS_ACCESS_KEY_ID: 'id', AWS_SECRET_ACCESS_KEY: 'secret', AWS_SESSION_TOKEN: 'session', AWS_PROFILE: 'bad', AWS_CONFIG_FILE: '/bad' }, fakeExec)(['sts', 'get-caller-identity'])
     expect(calls[0].file).toBe('/usr/local/bin/aws')
     expect(calls[0].args).toEqual(['sts', 'get-caller-identity', '--region', 'ap-northeast-1', '--no-cli-pager', '--output', 'json'])
-    expect(calls[0].options.env).toEqual({ PATH: '/bin', HOME: '/tmp', AWS_ACCESS_KEY_ID: 'id', AWS_SECRET_ACCESS_KEY: 'secret', AWS_SESSION_TOKEN: 'session' })
+    expect(calls[0].options.env).toEqual({ AWS_ACCESS_KEY_ID: 'id', AWS_SECRET_ACCESS_KEY: 'secret', AWS_SESSION_TOKEN: 'session' })
   })
   it('runs the injected CLI boundary with one exact global set per AWS call', async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br2-'))
@@ -37,8 +40,10 @@ describe('T15B CLI boundary', () => {
     const fetchImpl = async () => new Response(body, { status: 200, headers: { 'content-type': 'text/html', 'cache-control': cacheControlForWebObject('index.html') } })
     await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', reportDir], {}, { execImpl: fakeExec, fetchImpl, workspaceRoot })).resolves.toMatchObject({ status: 'match' })
     expect(calls).toHaveLength(3)
-    for (const call of calls) { expect(call.file).toBe('/usr/local/aws-cli/aws'); expect(call.args.filter((value) => value === '--region')).toHaveLength(1); expect(call.args.filter((value) => value === '--profile')).toHaveLength(1); expect(call.args).toContain('--no-cli-pager'); expect(call.args).toContain('--output'); expect(call.options.env.AWS_ACCESS_KEY_ID).toBeUndefined() }
-    expect(calls[2].args.find((value) => value.startsWith('fileb:///'))).toBeDefined()
+    expect(calls[0].args).toEqual(['sts', 'get-caller-identity', '--region', 'ap-northeast-1', '--profile', 'codex-prod', '--no-cli-pager', '--output', 'json'])
+    expect(calls[1].args).toEqual(['cloudformation', 'describe-stacks', '--stack-name', 'ItsRunPreviewHosting', '--region', 'ap-northeast-1', '--profile', 'codex-prod', '--no-cli-pager', '--output', 'json'])
+    expect(calls[2].args).toEqual(['s3api', 'put-object', '--bucket', 'itsrun-preview-web-470447451992-ap-northeast-1', '--key', 'index.html', '--body', `fileb://${webDir}/index.html`, '--content-type', 'text/html', '--cache-control', 'no-cache, no-store, must-revalidate', '--region', 'ap-northeast-1', '--profile', 'codex-prod', '--no-cli-pager', '--output', 'json'])
+    for (const call of calls) { expect(call.file).toBe('/usr/local/aws-cli/aws'); expect(call.options.env).toEqual({}) }
     expect((await readFile(join(reportDir, 'web-deploy-report.json'), 'utf8')).includes(webDir)).toBe(false)
     await rm(workspaceRoot, { recursive: true, force: true })
   })
@@ -46,8 +51,9 @@ describe('T15B CLI boundary', () => {
     const fakeExec = (_file, _args, _options, callback) => callback(Object.assign(new Error('secret-token stderr'), { stderr: 'secret-token stderr' }))
     await expect(createAwsRunner('operator', { PATH: '/bin', HOME: '/tmp' }, fakeExec)(['sts', 'get-caller-identity'])).rejects.toSatisfy((error) => error.category === 'command' && !error.message.includes('secret-token'))
   })
+  it.each(['invalid-json', 'oversized-json', 'timeout-shaped'])('sanitizes %s command output', async (kind) => { const fakeExec = (_file, _args, _options, callback) => { if (kind === 'timeout-shaped') return callback(Object.assign(new Error('timed out secret'), { code: 'ETIMEDOUT', stderr: 'secret' })); callback(null, { stdout: kind === 'invalid-json' ? '{' : 'x'.repeat(1024 * 1024 + 1), stderr: 'raw-secret' }) }; await expect(createAwsRunner('operator', { PATH: '/bin' }, fakeExec)(['sts', 'get-caller-identity'])).rejects.toMatchObject({ category: 'command', message: 'web deployment command failed' }) })
   it('writes only a sanitized failure report after a partial command failure', async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br3-fail-')); const webDir = join(workspaceRoot, 'build'); const reportDir = join(workspaceRoot, '.artifacts', 'migration', 'run1'); await mkdir(webDir); await writeFile(join(webDir, 'index.html'), 'x'); const fakeExec = (_file, args, _options, callback) => { if (args[0] === 'sts') callback(null, { stdout: '{"Account":"470447451992"}' }); else callback(Object.assign(new Error('credential-secret'), { stderr: 'credential-secret' })) }
-    await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', reportDir], {}, { workspaceRoot, execImpl: fakeExec })).rejects.toMatchObject({ category: 'command' }); const report = await readFile(join(reportDir, 'web-deploy-report.json'), 'utf8'); expect(report).toContain('failed'); expect(report).not.toContain('credential-secret'); expect(report).not.toContain(workspaceRoot); await rm(workspaceRoot, { recursive: true, force: true })
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 't15br3-fail-')); const webDir = join(workspaceRoot, 'build'); const reportDir = join(workspaceRoot, '.artifacts', 'migration', 'run1'); await mkdir(webDir); await writeFile(join(webDir, 'index.html'), 'x'); await writeFile(join(webDir, 'robots.txt'), 'x'); let putCount = 0; const fakeExec = (_file, args, _options, callback) => { if (args[0] === 'sts') callback(null, { stdout: '{"Account":"470447451992"}' }); else if (args[0] === 'cloudformation') callback(null, { stdout: '{"Stacks":[{"StackStatus":"UPDATE_COMPLETE","Outputs":[{"OutputKey":"WebBucketName","OutputValue":"itsrun-preview-web-470447451992-ap-northeast-1"},{"OutputKey":"DistributionDomainName","OutputValue":"d2via50thoheqm.cloudfront.net"}]}]}' }); else { putCount += 1; if (putCount === 2) callback(Object.assign(new Error('credential-secret'), { stderr: 'credential-secret' })); else callback(null, { stdout: '{}' }) } }
+    await expect(main(['--mode', 'operator', '--profile', 'codex-prod', '--web-dir', webDir, '--report-dir', reportDir], {}, { workspaceRoot, execImpl: fakeExec })).rejects.toMatchObject({ category: 'upload' }); const report = await readFile(join(reportDir, 'web-deploy-report.json'), 'utf8'); expect(report).toContain('failed'); expect(report).toContain('"attemptedCount":2'); expect(report).toContain('"uploadedCount":1'); expect(report).toContain('"verifiedCount":0'); expect(report).not.toContain('credential-secret'); expect(report).not.toContain(workspaceRoot); await rm(workspaceRoot, { recursive: true, force: true })
   })
 })

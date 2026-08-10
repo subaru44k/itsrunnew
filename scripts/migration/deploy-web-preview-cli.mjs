@@ -4,7 +4,7 @@ import { deployWebPreview, parseWebDeployArgs, prepareWebReportTarget, writeWebR
 
 export function createAwsRunner(mode, env = process.env, execImpl = execFile) {
   const executable = mode === 'operator' ? '/usr/local/aws-cli/aws' : '/usr/local/bin/aws'
-  const keys = mode === 'github' ? ['PATH', 'HOME', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN'] : ['PATH', 'HOME']
+  const keys = mode === 'github' ? ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN'] : ['HOME']
   const childEnv = Object.fromEntries(keys.filter((key) => env[key]).map((key) => [key, env[key]]))
   return async (args) => {
     const global = ['--region', WEB_DEPLOY_TARGET.region]
@@ -12,6 +12,7 @@ export function createAwsRunner(mode, env = process.env, execImpl = execFile) {
     const finalArgs = [...args, ...global, '--no-cli-pager', '--output', 'json']
     try {
       const result = await promisify(execImpl)(executable, finalArgs, { env: childEnv, maxBuffer: 1024 * 1024, timeout: 60000 })
+      if (typeof result.stdout !== 'string' || Buffer.byteLength(result.stdout, 'utf8') > 1024 * 1024) throw new Error('invalid command response')
       try { return JSON.parse(result.stdout) } catch { throw new Error('invalid command response') }
     } catch { const error = new Error('web deployment command failed'); error.category = 'command'; throw error }
   }
@@ -23,7 +24,7 @@ export async function main(argv = process.argv.slice(2), env = process.env, depe
   const workspaceRoot = dependencies.workspaceRoot ?? process.cwd()
   const handle = await prepareWebReportTarget(workspaceRoot, parsed.reportDir, dependencies.fsApi)
   try {
-    const report = await deployWebPreview({ ...parsed, ...WEB_DEPLOY_TARGET, env }, { runAws: createAwsRunner(parsed.mode, env, dependencies.execImpl), fetchImpl: dependencies.fetchImpl, now: dependencies.now, sleep: dependencies.sleep, maxAttempts: dependencies.maxAttempts, timeoutMs: dependencies.timeoutMs })
+    const report = await deployWebPreview({ ...parsed, ...WEB_DEPLOY_TARGET, env }, { runAws: createAwsRunner(parsed.mode, env, dependencies.execImpl), fsApi: dependencies.fsApi, fetchImpl: dependencies.fetchImpl, now: dependencies.now, sleep: dependencies.sleep, maxAttempts: dependencies.maxAttempts, timeoutMs: dependencies.timeoutMs })
     await writeWebReport(handle, report, dependencies.fsApi)
     return report
   } catch (error) {

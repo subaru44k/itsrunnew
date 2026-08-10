@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | A01 complete; A02 stopped at failed deployment helper | `3a7a6e6` + A02 stop follow-up | Selected action corrected; validation passed; second Preview run reached jobs but helper failed before raw preview E2E | No A03 cleanup or A04 protection was performed after the terminal failed-deployment stop. |
+| T15 | A01 complete; A02 stopped at failed deployment helper | `f590744` | Selected action corrected; validation passed; second Preview run reached jobs but helper failed before raw preview E2E | No A03 cleanup or A04 protection was performed after the terminal failed-deployment stop. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 

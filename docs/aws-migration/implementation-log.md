@@ -2498,3 +2498,39 @@ workflow contract is updated accordingly; the cleanup push and its required
 validation/no-deployment proof remain the next authorized gate. B04 master
 protection has not been attempted.
 ```
+
+### Phase 4 T15 PutObject recovery B03/B04 final acceptance
+
+```text
+B03 cleanup commit/push SHA: 5f67e0827e606d5f71c93ac7caad2f8aed1c5958
+(short 5f67e08). The temporary push trigger and recovery comment were removed
+and deploy-preview-web.yml is workflow_dispatch-only; no other workflow
+contract changed. Exactly one cleanup push was made. Its only Actions run was
+Migration validation 31350706753
+(https://github.com/subaru44k/itsrunnew/actions/runs/31350706753), exact SHA,
+with job 93340803734 and context `Node 24 validation`; it passed Node
+24.18.1, npm 11.4.2, repository checks, Chromium, and production-browser
+checks. GitHub reported no Deploy preview web run for the cleanup SHA.
+
+B04 protection was applied once after observing the successful context. The
+readback is exact: required status checks strict with only `Node 24
+validation`; one approving review; stale-review dismissal enabled; code-owner
+review and last-push approval not required; administrators enforced; required
+conversation resolution enabled; restrictions null; force pushes and branch
+deletion remain disabled. Default branch remains master; no PR, merge, or
+default-branch change was made.
+
+Final local gates under Node 24.18.1 passed: npm ci (npm 11.16.0 local; the
+workflow gate used npm 11.4.2), npm run check (web 44/core 7/schedule-api 25/
+infra 18, synth/build), npm run test:e2e (14 legacy + 44 isolated admin
+cases), all migration Vitest suites excluding the standalone node:test file
+(9 files, 175 passed), standalone static server node:test (3 passed), and
+git diff --check. The authorized B02 deployment remained the only successful
+Preview deployment run in this recovery; its validation/deploy jobs passed,
+the helper matched 58/58/58, and raw preview E2E was 88 passed. No later
+deployment run, AWS/GitHub retry, invalidation, data/schedule mutation,
+HostingStack/IAM/Cognito/production/DNS/Firebase change occurred.
+
+T15 B01-B04 is complete locally and externally accepted. The branch is clean
+at this documentation follow-up; stop before T16 and Sol final review.
+```

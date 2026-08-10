@@ -2447,3 +2447,14 @@ accepted the first generated object's plain absolute body path and produced
 valid skeleton JSON; no AWS request or write occurred. B02 is the separately
 authorized one-time workflow push gate.
 ```
+
+### Phase 4 T15 PutObject recovery B02 one-time deployment request
+
+```text
+Start: a812b41; result: local request prepared. Replaced only the temporary
+D024 workflow comment with the concise D025 recovery comment; the exact push
+trigger, workflow_dispatch, permissions, jobs, actions, commands, and helper
+contract remain unchanged. Focused workflow/helper tests and npm run check are
+required before the one-time push; no external operation occurred while
+preparing B02.
+```

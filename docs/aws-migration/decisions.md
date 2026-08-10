@@ -2008,6 +2008,41 @@ Rollback/removal:
 Restore automatic initialization only if callback and normal entry are later
 made mutually exclusive by a different reviewed session architecture.
 
+## D048: Diagnose callback failure from sanitized OAuth status only
+
+Status: accepted
+
+Problem:
+
+CO03 still ended at `signed-in-missing`. The current executable proves the
+browser reached `/manage/callback` and later `/manage`, but callback failure also
+navigates to `/manage`; therefore those URLs do not prove discovery, code/token
+exchange, or local session creation succeeded. Further app changes would be
+speculation.
+
+Decision:
+
+Use the existing browser recorder to derive one typed failure category from
+only exact allowlisted hosts, pathnames, methods, and status codes. Explicitly
+discard query/fragment, headers, bodies, credentials, tokens, claims, console
+text, and raw errors. After local security review, permit one auth-only
+diagnostic execution with the existing cleanup and zero-data-write gates.
+
+Alternatives:
+
+- Read raw browser/network errors: rejected because OAuth material may leak.
+- Continue changing session timing: rejected without evidence of the failed
+  OAuth substage.
+
+Cost and maintenance effect:
+
+No dependency or AWS change. Failure evidence becomes actionable and safe.
+
+Rollback/removal:
+
+Remove the temporary detailed classifier after T16 is accepted; retain generic
+sanitized categories in reusable tests if useful.
+
 ## Decision template
 
 Copy for new decisions:

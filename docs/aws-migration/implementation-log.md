@@ -3244,3 +3244,15 @@ Independent read-only gates matched account `470447451992`, region
 `ap-northeast-1`, pool users=0, admins membership=0, and the reserved Oda
 object at the protected 501-byte/hash baseline. No AWS write occurred. HF03 is
 the next and only authorized execution boundary.
+
+### Phase 4 T16 HF03 stop
+
+The D038/D037 runner was executed exactly once after HF01/HF02. It stopped
+before browser authentication and before schedule/data access after the
+Cognito setup path; its sanitized result recorded ten bounded Cognito
+operations and no auth result. Independent readback verified pool users=0 and
+admins membership=0. The protected Oda object remained 501 bytes with its
+baseline hash. Temporary runner/material were removed; schedule writes=0,
+restore writes=0, and invalidation=0. No raw process arguments, environment,
+identifiers, credentials, DOM, or errors were inspected or recorded. This is a
+terminal HF03 stop; no retry or further rehearsal action is authorized.

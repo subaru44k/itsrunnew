@@ -340,6 +340,7 @@ test('D026 defines exactly one actionless API 5xx alarm', () => {
   assert.equal(alarms.length, 1)
   const [, alarm] = alarms[0]
   assert.equal(alarm.Properties.AlarmName, 'itsrun-preview-admin-api-5xx')
+  assert.equal(alarm.Properties.AlarmDescription, 'Preview administrator HTTP API sustained 5xx alarm; operator-observed with no notification actions.')
   assert.equal(alarm.Properties.Namespace, 'AWS/ApiGateway')
   assert.equal(alarm.Properties.MetricName, '5xx')
   assert.equal(alarm.Properties.Statistic, 'Sum')

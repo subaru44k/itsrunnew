@@ -2774,3 +2774,17 @@ correct, but D026's required explicit preview description is absent from
 source, assertion, and AWS. `phase4-t16-alarm-correction-plan.md` authorizes
 only the exact description addition and one exact-diff Hosting correction
 deployment. Policy v7/IAM and every other resource remain frozen.
+
+### Phase 4 T16 alarm correction AC01
+
+```text
+Start: a9db9f7; result: complete locally. Added only the exact D026
+AlarmDescription: `Preview administrator HTTP API sustained 5xx alarm;
+operator-observed with no notification actions.` The semantic alarm assertion
+requires exact equality while retaining every prior metric, dimension,
+threshold, empty-action, and resource-count contract.
+
+Node 24.18.1 infra tests passed (19), infra synth/build passed, npm run check
+passed (web 44, core 7, schedule-api 25, infra 19), and git diff --check
+passed. No AWS operation or policy/IAM/dependency/resource change occurred.
+```

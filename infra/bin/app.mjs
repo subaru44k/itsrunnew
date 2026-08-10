@@ -208,6 +208,7 @@ export class HostingStack extends Stack {
     })
     new cloudwatch.CfnAlarm(this, 'AdminApi5xxAlarm', {
       alarmName: 'itsrun-preview-admin-api-5xx',
+      alarmDescription: 'Preview administrator HTTP API sustained 5xx alarm; operator-observed with no notification actions.',
       namespace: 'AWS/ApiGateway',
       metricName: '5xx',
       statistic: 'Sum',

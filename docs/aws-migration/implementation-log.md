@@ -3185,3 +3185,16 @@ and unknown/path/mode/symlink rejection. Root `npm run check` passed (web44,
 core7, schedule-api25, infra19 plus build/synth); read-only account/region,
 empty pool/group, and protected 501-byte object gates matched. No AWS write
 occurred. SA02 remains the single authorized real execution boundary.
+
+### Phase 4 T16 SA02 stop
+
+The D037-sensitive-argv runner was executed exactly once. Its sanitized result
+stopped before browser authentication and before schedule/data access after
+the Cognito setup path; the process performed ten bounded Cognito operations
+including mandatory internal-identity cleanup. Independent readback verified
+pool users=0 and admins membership=0. The protected Oda object remained 501
+bytes with its baseline hash. The temporary runner and material were removed;
+schedule writes=0, restore writes=0, and invalidation=0. No raw process
+arguments, environment, identifiers, credentials, or AWS errors were
+inspected or recorded. This is a terminal SA02 stop; no retry or further
+rehearsal action is authorized.

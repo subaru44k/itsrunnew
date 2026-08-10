@@ -48,7 +48,7 @@ Operating system: macOS
 | T12 | complete; accepted | `5f23d2e` | Final acceptance and deployed preview evidence | T11/T12 final acceptance is recorded at `5f23d2e`; historical blocker rows and recovery records remain unchanged below. |
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
-| T15 | in progress; T15A complete, T15B corrective pass pending Sol review | `edf8ff8` | T15A accepted; T15BR01-R06 focused tests recorded below | Local-only implementation; no AWS/GitHub write or deployment. |
+| T15 | in progress; T15A complete, T15B corrective pass pending Sol review | `cf98fa5` | T15A accepted; T15BR01-R06 focused tests recorded below | Local-only implementation; no AWS/GitHub write or deployment. |
 | T16 | blocked by T11-T15 | | | |
 | T17 | blocked by T16 | | | |
 
@@ -1823,4 +1823,27 @@ artifact run.
 
 Node 24.18.1 focused helper/CLI/deploy-preview tests: 31 passed. No
 AWS/GitHub/network operation occurred; T15C/T15D remain pending Sol review.
+```
+
+### Phase 4 T15B BR02 follow-up
+
+```text
+Start: 5adc551; source/test commit: cf98fa5; result: corrective pass
+complete locally and pending Sol review. The earlier T15B completion claim is
+retained as history; this record supersedes it for acceptance.
+
+CLI command construction now adds region/profile exactly once, --no-cli-pager
+and --output json exactly once, and uses fileb:///absolute/path for PutObject
+blobs. Exec failures, invalid/oversized JSON, stderr and credentials become a
+typed sanitized command error. GitHub role ARN validation is full-regex and
+credential values are required, nonblank, and never serialized. CloudFront
+fetch/body/retry waits share a deadline with encoded key/hash URLs and exact
+MIME/cache checks. Stack and output cardinality/status/duplicate gates are
+strict; reports require a new direct child under the workspace
+.artifacts/migration root and reject existing/symlink/forged targets.
+
+Node 24.18.1: focused helper/CLI/deploy-preview tests 34 passed; all migration
+Vitest suites excluding the existing node:test-format file 116 passed; static
+Node tests 3 passed; npm run check passed; git diff --check passed. No
+AWS/GitHub/network operation occurred. T15C/T15D remain pending Sol review.
 ```

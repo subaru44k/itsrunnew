@@ -3581,6 +3581,14 @@ Focused auth/Chromium tests passed 36/36; root `npm run check` and
 `git diff --check` passed. No AWS or live Hosted UI execution occurred.
 SI02 remains blocked pending Sol source review.
 
+### Phase 4 T16 SI01 Sol acceptance and SI02 authorization
+
+Sol reviewed `edf0a06`. The final `/manage` session proof now awaits the exact
+localized logout control with a bounded visible wait; delayed hydration and
+typed timeout are covered. SI01 is accepted. SI02 may run the auth-only program
+once after the same gates. No retry or data/S3/Firestore/IAM/deploy/
+invalidation/CF03/T17.
+
 ### Phase 4 T16 browser-substage recovery authorization
 
 Delayed top-level evidence for HU02 shows successful CognitoAuthentication and

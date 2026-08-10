@@ -2043,6 +2043,38 @@ Rollback/removal:
 Remove the temporary detailed classifier after T16 is accepted; retain generic
 sanitized categories in reusable tests if useful.
 
+## D049: Distinguish absent token request from browser request failure
+
+Status: accepted
+
+Problem:
+
+OS02 proved discovery succeeded and no token response was observed, but a
+response-only recorder cannot distinguish a pre-request callback/state failure
+from CSP/network failure after the request starts. It also does not prove the
+callback carried both required OAuth parameters.
+
+Decision:
+
+For exact allowlisted paths only, retain request-start and request-failed
+booleans plus method/status, and derive only code/state presence booleans at the
+callback. Never inspect or retain values, headers, bodies, failure text, or raw
+events in the result. After local review, run one auth-only diagnosis.
+
+Alternatives:
+
+- Capture raw Playwright failure text: rejected as unnecessary and potentially
+  sensitive.
+- Assume state loss or CSP: rejected because the current evidence supports both.
+
+Cost and maintenance effect:
+
+No dependency/AWS change; one more bounded diagnostic separates the root causes.
+
+Rollback/removal:
+
+Remove callback presence and request-failure detail after the live issue closes.
+
 ## Decision template
 
 Copy for new decisions:

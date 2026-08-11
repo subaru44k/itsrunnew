@@ -4591,3 +4591,17 @@ web-only workflow once, verify the unchanged protected object and invalidation
 inventories, then run the committed auth-only executable once from zero
 users/group. No data write, Firestore, IAM, CloudFormation, invalidation,
 production, DNS, Firebase, or T17 operation is authorized by NU02.
+
+### Phase 4 T16 NU02 preview deployment acceptance
+
+Exact-SHA workflow `31471010254` at `026e966` passed repository checks,
+production-browser checks, the web-only deployment, and raw preview checks.
+Independent read-only verification matched account `470447451992`, pool users
+0, `admins` membership 0, and CloudFront invalidation count 3. The protected
+object remained 501 bytes with ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`, and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+No data, IAM, CloudFormation, invalidation, Cognito administration, Firestore,
+production, DNS, or Firebase change occurred. The one NU02 auth-only execution
+is authorized under the existing exact cleanup and zero-data-write gates.

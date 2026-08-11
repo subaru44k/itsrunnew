@@ -273,7 +273,8 @@ async function defaultBrowserLauncher() {
 }
 
 export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, fetchImpl = globalThis.fetch, responseTimeout = 90000, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout, browserRoleSession = runBrowserRoleSession, signedInSentinel = awaitSignedInSentinel } = {}) {
-  let chromium; let contexts = []; let pages = []; let loaded = []; let accepted = null; let cleaned = false
+  let chromium; let contexts = []; let pages = []; let allContexts = []; const closedContexts = new Set(); let loaded = []; let accepted = null; let cleaned = false
+  const closeContext = async context => { if (!context || closedContexts.has(context)) return; closedContexts.add(context); await context.close().catch(() => {}) }
   const awaitReady = async (control, expectedValue, label) => {
     if (!control || typeof control.waitFor !== 'function' || typeof control.isVisible !== 'function' || typeof control.isEnabled !== 'function' || typeof control.click !== 'function') fail(`${label} unavailable`)
     await control.waitFor({ state: 'visible', timeout: responseTimeout })
@@ -288,15 +289,14 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
       if (typeof username !== 'string' || typeof password !== 'string') fail('browser credentials unavailable')
       if (!Number.isFinite(responseTimeout) || responseTimeout <= 0) fail('browser response timeout')
       const authoritative = validateBrowserBaseline(baseline)
-      chromium = await launcher(); contexts = [await chromium.newContext(), await chromium.newContext()]; pages = await Promise.all(contexts.map(context => context.newPage()))
-      loaded = []
-      for (const [index, page] of pages.entries()) {
-        const context = index === 0 ? 'first' : 'second'
+      chromium = await launcher(); contexts = []; pages = []; allContexts = []; loaded = []
+      const runPage = async (index, page, contextName) => {
+        const context = contextName
         let responsePromise; let validationPromise
         try {
           responsePromise = page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }, { timeout: responseTimeout })
           Promise.resolve(responsePromise).catch(() => {})
-          validationPromise = Promise.resolve(responsePromise).then(response => validateAuthenticatedGetTransport(response, { origin }), () => { throw createDataSetupError('authenticated-api-response', context, 'response-missing') })
+          validationPromise = Promise.resolve(responsePromise).then(response => validateAuthenticatedGetTransport(response, { origin }), () => { throw createDataSetupError('authenticated-api-response', contextName, 'response-missing') })
           Promise.resolve(validationPromise).catch(() => {})
           await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' })
           try { await browserRoleSession(page, { username, password, viewport: 'desktop' }) } catch (error) { const category = setupCategory(error); throw createDataSetupError(category === 'operation-failed' ? 'form-submission' : category, context) }
@@ -306,8 +306,24 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
           const cell = page.locator(`[id="${DATA_CONSTANTS.date}-${DATA_CONSTANTS.slot}"]`); await awaitReady(cell, String(DATA_CONSTANTS.before), 'target cell')
           if (typeof page.getByRole !== 'function') fail('baseline alert')
           const alert = page.getByRole('alert', {}); if (typeof alert?.count === 'function' && await alert.count() > 0) fail('baseline alert')
-          loaded.push({ document: clone(authoritative.document), etag: authoritative.etag, tuple: authoritative.tuple })
+          return { document: clone(authoritative.document), etag: authoritative.etag, tuple: authoritative.tuple }
         } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); await Promise.resolve(validationPromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context, normalized.reason) }
+      }
+      for (const [index, contextName] of [[0, 'first'], [1, 'second']]) {
+        let completed = false
+        for (let attempt = 0; attempt < 2 && !completed; attempt += 1) {
+          const context = await chromium.newContext(); allContexts.push(context)
+          try {
+            const page = await context.newPage(); const baseline = await runPage(index, page, contextName)
+            contexts.push(context); pages.push(page); loaded.push(baseline); completed = true
+          } catch (error) {
+            await closeContext(context)
+            const normalized = sanitizeDataSetupFailure(error, contextName)
+            if (attempt === 0 && normalized.category === 'hosted-ui-redirect') continue
+            throw createDataSetupError(normalized.category, normalized.context, normalized.reason)
+          }
+        }
+        if (!completed) fail('browser context unavailable')
       }
       return { contexts: 2 }
     },
@@ -346,7 +362,7 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
       } catch { fail('observation timeout') }
       fail('observation timeout')
     },
-    async cleanup() { if (cleaned) return; cleaned = true; for (const context of contexts) await context.close().catch(() => {}); await chromium?.close?.().catch?.(() => {}) },
+    async cleanup() { if (cleaned) return; cleaned = true; for (const context of allContexts) await closeContext(context); await chromium?.close?.().catch?.(() => {}) },
   }
 }
 

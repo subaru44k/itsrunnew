@@ -5584,3 +5584,20 @@ and alarm `OK`. The exact S3 current object remains 501 bytes with the same
 ETag, VersionId, metadata, AES256 encryption, tuple 0, and SHA-256 as the
 retained baseline; CloudFront body/hash/tuple also remain exact. The API is
 401 with `no-store` and direct S3 is 403. No rerun is permitted.
+
+### T16 HR01-HR02 bounded Hosted UI retry implementation — 2026-08-11
+
+Implemented the authorized local-only bounded retry. Browser setup now creates
+logical contexts sequentially, permits at most one fresh-context retry only for
+an exact first-attempt `hosted-ui-redirect` failure, drains the raw and
+validation waiters, and closes every failed context exactly once. Only the two
+successful contexts/pages are retained; final cleanup closes all created
+contexts once and the browser once. No form, manage, sentinel, authenticated
+response, baseline UI, load, update, stale, poll, restore, or unknown failure
+is retried.
+
+AWS-free focused coverage proves both logical contexts retry once then succeed,
+two redirect failures stop after two attempts, non-redirect failures receive
+one attempt, successful pages are the only retained data contexts, cleanup is
+exactly-once, and no data stage or sensitive/unhandled rejection leaks occur.
+Focused T16 data tests pass (54 tests).

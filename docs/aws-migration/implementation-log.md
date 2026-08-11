@@ -5230,6 +5230,18 @@ the closed checkpoint/category/context/reason and do not rerun. No restore
 retry, invalidation, IAM/CloudFormation/deploy, other object, delete/version
 delete, production, DNS, Firebase, or T17 operation is authorized.
 
+### T16 body-read stop diagnosis and IR01-IR02 authorization
+
+The one execution from `abc72ce` stopped safely at setup with the closed result
+`authenticated-api-response` / `first` / `body-read`; `1b7ad1c` records writes
+and restores 0/0, cleanup passed, zero identities, and the unchanged exact
+baseline. The matching API audit status was 200 and the app reached signed-in
+rendering. The helper currently defers `response.json()` until after manage and
+sentinel waits, so Playwright/CDP body availability can expire before local
+validation. `phase4-t16-data-immediate-response-plan.md` authorizes only the
+local immediate-validation ordering and AWS-free tests. No AWS/network/live or
+T17 operation is authorized pending Sol review.
+
 ### T16 response-diagnosed CF03 execution stop — 2026-08-11
 
 The one authorized execution from clean commit `abc72ce` stopped during setup

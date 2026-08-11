@@ -5769,3 +5769,16 @@ cleanup contract remain unchanged. No AWS/network/live, identity/data,
 recovery-material, deploy/invalidation, IAM/CloudFormation, T17,
 production/DNS, Firebase, historical-data, or dependency action is authorized
 pending Sol review.
+
+### T16 SC01-SC02 saved-cell proof correction — 2026-08-11
+
+Local-only correction completed from authorized clean `c2fbf9b`: the retained
+baseline VersionId is now `R4ErT.g1nIVo6tcP4KrDX5gen94BwMON`. Pre-save target
+select proof remains visible, enabled, actionable, and value-checked. After
+the exact saved status, metadata, and PUT transport proof, the target select
+is now required to remain visible with value `1` and disabled; no post-save
+action is attempted. Deterministic tests cover accepted disabled state and
+enabled, hidden, missing, and wrong-value failures while retaining pre-save
+actionability coverage. Focused T16 tests pass `56/56`; combined auth/data
+tests pass `99/99`. No AWS, network, live, identity, S3, recovery-material,
+deployment, invalidation, or other out-of-scope operation was performed.

@@ -5303,6 +5303,20 @@ content/cache/checksum metadata, followed by read-only proof. No retry, other
 write, delete, invalidation, deploy/IAM/CloudFormation, Firebase, CF03 rerun, or
 T17 action is authorized.
 
+### T16 exact recovery acceptance and CM01-CM02 authorization
+
+MR01-MR02 completed at `9522108` with exactly one conditional recovery
+PutObject and no retry. Readback and CloudFront again prove the exact 501-byte
+baseline, approved SHA-256, tuple 0, content/cache metadata, and encryption;
+users/admins remain 0/0, invalidations 3, and alarm OK. The retained material
+was not deleted. Sol identified the product cause in
+`services/schedule-api/src/s3-store.ts`: PutObject sets ContentType but omits
+the required data-object CacheControl, so S3 replaced the original cache
+metadata during the successful API write. `phase4-t16-api-cache-metadata-plan.md`
+authorizes only the local exact SDK-input correction, tests, build/synth, and
+documentation. No AWS/network/deploy or T17 operation is authorized pending
+Sol review.
+
 ### T16 immediate-validation CF03 execution stop — 2026-08-11
 
 The one authorized execution from clean commit `b7bf704` stopped at the update

@@ -5010,3 +5010,17 @@ unchanged 501-byte target with baseline ETag/VersionId/metadata, SHA-256
 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
 0. The rehearsal is stopped for Sol review; no further live execution is
 authorized in this task.
+
+### T16 update-stop diagnosis and CS01-CS02 local authorization
+
+Sol reviewed the stop at `e1e921d` and performed read-only CloudWatch inspection
+after confirming account `470447451992` and region `ap-northeast-1`. The recent
+audit records contain the expected authenticated GET requests and no PUT, which
+places the failure before the API write. The admin page renders the exact id
+`2026-08-09-0`, while the browser adapter incorrectly uses the unescaped CSS id
+selector `#2026-08-09-0`; CSS identifiers beginning with a digit require
+escaping. `phase4-t16-data-cell-selector-plan.md` authorizes only the local
+CS01-CS02 selector/readiness correction and deterministic regression tests. No
+AWS write, live execution, Cognito mutation, S3 operation, deploy, invalidation,
+IAM/CloudFormation change, Firebase access, or T17 work is authorized pending
+Sol source review.

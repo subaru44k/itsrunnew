@@ -5699,3 +5699,35 @@ tests cover both saved locales, incorrect/missing status text, delayed conflict
 controls, and bounded conflict timeout. Focused data coverage is `56/56` and no
 AWS, network, identity, recovery-material deletion, or other live operation was
 performed.
+
+### T16 UR01-UR03 Sol acceptance and one corrected CF03 execution
+
+Sol independently reviewed `a3721b5` and the UI-wait correction `cd33495`.
+Focused T16 data tests pass 56/56 and combined auth/data tests pass 99/99;
+`node --check`, root `npm run check`, and `git diff --check` also pass. The
+accepted proof no longer performs a secondary Playwright read of PUT or
+comparison response bodies. It composes exact request/response transport,
+bounded localized saved/conflict UI, and immediate protected S3 readback before
+accepting exact document/ETag/VersionId state. Restore now correctly requires
+the original content-derived ETag, a new VersionId, exact readback bytes,
+metadata, SHA-256, document, and tuple, while preserving the conditional test
+ETag and one-attempt boundary.
+
+The immediate read-only gate matched account `470447451992`, region
+`ap-northeast-1`, Hosting `UPDATE_COMPLETE`, the reviewed active/successful
+Lambda CodeSha, users/admins `0/0`, invalidation count `3`, alarm `OK`, and the
+exact current 501-byte baseline with VersionId
+`BH9YGdC.aioqdL4AR8Po5ggdJ6BmSE.Z`. CloudFront returned the exact body,
+SHA-256, and tuple 0.
+
+Exactly one fresh invocation of the committed corrected CF03 runner is
+authorized with `AWS_PROFILE=codex-prod`, account `470447451992`, region
+`ap-northeast-1`, and the documented preview target only. Permitted mutations
+are limited to the helper's temporary local Cognito user and admins membership,
+one exact UI conditional tuple update, one stale UI PUT that must return 409
+without retry, one conditional exact-original restore, and identity cleanup.
+Public observations remain bounded. Do not rerun on terminal failure and do not
+manually restore. No extra restore, recovery-material deletion, invalidation,
+deployment, IAM/CloudFormation change, other object/version/delete operation,
+production/DNS, Firebase, historical-data import, or T17 action is authorized
+in this invocation.

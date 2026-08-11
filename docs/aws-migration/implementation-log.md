@@ -4798,7 +4798,7 @@ data writes remain unauthorized until separate Sol review.
 Implemented nested public-access-block/versioning gates, strict retained
 baseline/test object validation, coupled ETag/VersionId/document readback,
 conditional restore identity/readback proof, and recovery-material retention
-for unknown or failed post-write states. Focused suite currently passes 20;
-the exhaustive concrete adapter/filesystem mismatch matrix remains before
-completion.
+for unknown or failed post-write states. DC02A compact-current and coordinator
+coverage now passes 21 focused tests; the exhaustive concrete adapter/filesystem
+mismatch matrix remains before DC02 completion.
 No AWS/live/DC03 operation occurred.

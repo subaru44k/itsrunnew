@@ -14,8 +14,8 @@ const proof = {
   cleanup: { users: 0, admins: 0 },
 }
 
-function adapters({ fail = null, order = [] } = {}) {
-  const make = stage => async input => { order.push(stage); if (fail === stage) throw new Error('canary'); return proof[stage] }
+function adapters({ fail = null, order = [], restoreArgs = [] } = {}) {
+  const make = stage => async input => { order.push(stage); if (stage === 'restore') restoreArgs.push(input); if (fail === stage) throw new Error('canary'); return proof[stage] }
   return { preflight: make('preflight'), capture: make('capture'), setup: make('setup'), load: make('load'), update: make('update'), readCurrent: async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1 }), stale: make('stale'), poll: async input => { order.push(`poll-${input.expected}`); return { tuple: input.expected, attempts: 1 } }, restore: make('restore'), cleanup: make('cleanup') }
 }
 
@@ -49,8 +49,13 @@ test('indeterminate baseline is fail-closed without restore, while unknown state
   for (const state of ['baseline', 'unknown']) {
     const order = []; const base = adapters({ fail: 'update', order }); base.readCurrent = async () => ({ state })
     const result = await runDataRehearsal(base)
-    assert.equal(result.restoreStatus, 'not-required'); assert.equal(order.includes('restore'), false); assert.equal(result.status, 'failed')
+    assert.equal(result.restoreStatus, 'not-required'); assert.equal(order.includes('restore'), false); assert.equal(result.status, 'failed'); if (state === 'unknown') assert.equal(result.failure.category, 'recovery-required')
   }
+})
+
+test('indeterminate exact test restores once with observed ETag and VersionId', async () => {
+  const order = []; const restoreArgs = []; const base = adapters({ fail: 'update', order, restoreArgs }); base.readCurrent = async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1 }); const result = await runDataRehearsal(base)
+  assert.equal(result.restoreStatus, 'passed'); assert.equal(restoreArgs.length, 1); assert.equal(restoreArgs[0].ifMatch, proof.update.etag); assert.equal(restoreArgs[0].versionId, proof.update.versionId)
 })
 
 test('restore failure retains recovery material and never retries', async () => {
@@ -90,10 +95,11 @@ test('current-object classifier is exact and fail-closed for every state mismatc
   assert.deepEqual(classifyCurrentObject({ ...baseline, bytes: Buffer.from(JSON.stringify(baselineDocument)), parsed: { document: baselineDocument, tuple: 0 } }, { ...baseline, parsed: { document: baselineDocument } }), { state: 'baseline', tuple: 0 })
   const expectedTest = { etag: valid.head.ETag, versionId: valid.head.VersionId, document: testDocument, sha256: createHash('sha256').update(valid.bytes).digest('hex') }; assert.deepEqual(classifyCurrentObject(valid, baseline, expectedTest).state, 'test')
   for (const bad of [
-    { ...valid, bytes: Buffer.from('wrong') }, { ...valid, parsed: { document: { ...testDocument, days: { ...testDocument.days, '2026-08-10': [2, 2, 0] } }, tuple: 1 } },
+    { ...valid, bytes: Buffer.from(JSON.stringify(testDocument, null, 2)) }, { ...valid, bytes: Buffer.from('wrong') }, { ...valid, parsed: { document: { ...testDocument, days: { ...testDocument.days, '2026-08-10': [2, 2, 0] } }, tuple: 1 } },
     { ...valid, parsed: { document: { ...testDocument, updatedAt: baselineDocument.updatedAt }, tuple: 1 } }, { ...valid, head: { ...valid.head, ContentType: 'text/plain' } },
     { ...valid, head: { ...valid.head, CacheControl: 'public' } }, { ...valid, head: { ...valid.head, ETag: 'weak' } }, { ...valid, head: { ...valid.head, VersionId: '' } },
   ]) assert.doesNotThrow(() => assert.deepEqual(classifyCurrentObject(bad, baseline, expectedTest), { state: 'unknown' }))
+  assert.deepEqual(classifyCurrentObject({ ...baseline, bytes: Buffer.from(`${JSON.stringify(baselineDocument)} `) }, baseline), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject({ ...baseline, sha256: 'wrong' }, baseline), { state: 'unknown' })
   assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: '"other"', versionId: valid.head.VersionId, document: testDocument }), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: valid.head.ETag, versionId: 'other', document: testDocument }), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: valid.head.ETag, versionId: valid.head.VersionId, document: baselineDocument }), { state: 'unknown' })
 })
 
@@ -115,7 +121,7 @@ test('direct construction uses low-level CLI and independent browser ports', asy
     if (args[1] === 'head-object') return { stdout: JSON.stringify({ ContentLength: 501, ETag: currentEtag, VersionId: currentVersion, ChecksumSHA256: DATA_CONSTANTS.baselineSha256, ContentType: DATA_CONSTANTS.contentType, CacheControl: DATA_CONSTANTS.cacheControl, ServerSideEncryption: 'AES256' }), stderr: '' }
     if (args[1] === 'get-bucket-versioning') return { stdout: JSON.stringify({ Status: 'Enabled' }), stderr: '' }
     if (args[1] === 'get-public-access-block') return { stdout: JSON.stringify({ PublicAccessBlockConfiguration: { BlockPublicAcls: true, IgnorePublicAcls: true, BlockPublicPolicy: true, RestrictPublicBuckets: true } }), stderr: '' }
-    if (args[1] === 'get-object') { const bytes = currentEtag === proof.update.etag ? Buffer.from(`${JSON.stringify({ ...baselineDocument, updatedAt: proof.update.updatedAt, days: { ...baselineDocument.days, '2026-08-09': [1, 1, 2] } }, null, 2)}\n`) : baseline; await (await import('node:fs/promises')).writeFile(args.at(-1), bytes); return { stdout: '', stderr: '' } }
+    if (args[1] === 'get-object') { const bytes = currentEtag === proof.update.etag ? Buffer.from(JSON.stringify({ ...baselineDocument, updatedAt: proof.update.updatedAt, days: { ...baselineDocument.days, '2026-08-09': [1, 1, 2] } })) : baseline; await (await import('node:fs/promises')).writeFile(args.at(-1), bytes); return { stdout: '', stderr: '' } }
     if (args[1] === 'put-object') { currentEtag = '"fedcba9876543210fedcba9876543210"'; currentVersion = 'restore-version'; return { stdout: JSON.stringify({ ETag: currentEtag, VersionId: currentVersion }), stderr: '' } }
     if (args[1] === 'list-users') return { stdout: JSON.stringify({ Users: Array.from({ length: users }) }), stderr: '' }
     if (args[1] === 'list-users-in-group') return { stdout: JSON.stringify({ Users: Array.from({ length: admins }) }), stderr: '' }

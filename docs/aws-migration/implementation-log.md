@@ -4919,19 +4919,6 @@ passes 38/38 and the combined T16 data/auth suite passes 81/81. `npm run check`,
 `node --check`, and `git diff --check` pass. No AWS/network/live operation
 occurred; stop for Sol review.
 
-### T16 CS01-CS02 actionability follow-up complete — 2026-08-11
-
-Replaced the one-sample enabled check with bounded Playwright trial
-actionability (`click({trial: true, timeout})`) for both the target cell and
-localized Save control, while retaining baseline and selected-value checks.
-AWS-free fakes now model disabled-to-enabled transitions, permanent disabled
-bounded failure, and prove trial actions do not count as real Save clicks or
-PUTs. PUT/response/comparison waiters now receive the explicit response timeout
-and immediate rejection sidecars; a click-failure regression proves late
-waiters produce no unhandled rejection. Focused data tests: 43/43; combined
-T16 auth/data: 86/86. `npm run check`, `node --check`, and `git diff --check`
-pass. No AWS/network/live operation occurred; stop for Sol review.
-
 ### T16 LS01 final rejection-handling correction
 
 Attached an immediate consuming sidecar to each authenticated GET waiter while
@@ -5050,3 +5037,16 @@ disabled Save controls, exact selector use, and zero PUTs on preflight failure.
 Focused data tests: 42/42; combined T16 auth/data: 85/85. `npm run check`,
 `node --check`, and `git diff --check` pass. No AWS/network/live operation
 occurred; stop for Sol review.
+
+### T16 CS01-CS02 actionability follow-up complete — 2026-08-11
+
+Replaced the one-sample enabled check with bounded Playwright trial
+actionability (`click({trial: true, timeout})`) for both the target cell and
+localized Save control, while retaining baseline and selected-value checks.
+AWS-free fakes now model disabled-to-enabled transitions, permanent disabled
+bounded failure, and prove trial actions do not count as real Save clicks or
+PUTs. PUT/response/comparison waiters now receive the explicit response timeout
+and immediate rejection sidecars; a click-failure regression proves late
+waiters produce no unhandled rejection. Focused data tests: 43/43; combined
+T16 auth/data: 86/86. `npm run check`, `node --check`, and `git diff --check`
+pass. No AWS/network/live operation occurred; stop for Sol review.

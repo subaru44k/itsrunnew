@@ -5268,3 +5268,23 @@ with exactly-once cleanup and zero data stages. Focused data tests: 49/49;
 combined T16 auth/data tests: 92/92. `npm run check`, `node --check`, and
 `git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
 review.
+
+### T16 IR01-IR02 Sol acceptance and one immediate-validation CF03 execution
+
+Sol independently reviewed IR01-IR02 at `d2f3098`. Exact response validation and
+body reading now begin immediately when the waiter resolves, while manage and
+sentinel completion still gate acceptance; raw and validation promises are
+handled and drained on every exit. Sol reran the focused suite (49/49),
+`node --check`, and `git diff --check`; Luna's combined suite (92/92) and root
+check passed, and the worktree is clean.
+
+The immediate read-only gate reconfirmed account `470447451992`, users/admins
+0/0, invalidation count 3, and the exact encrypted 501-byte baseline object,
+ETag/VersionId/metadata, and CloudFront SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+
+Exactly one fresh execution is authorized under the same exact CF03 profile,
+account, region, target, conditional update/stale/restore, bounded observation,
+identity cleanup, and stop boundaries. It must not be rerun on failure. No
+restore retry, invalidation, IAM/CloudFormation/deploy, other object,
+delete/version-delete, production, DNS, Firebase, or T17 action is authorized.

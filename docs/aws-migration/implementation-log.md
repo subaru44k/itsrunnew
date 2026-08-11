@@ -5521,6 +5521,24 @@ rerun on failure. No extra restore retry, invalidation, deploy/IAM/
 CloudFormation, other object/delete/version-delete, production/DNS, Firebase,
 or T17 operation is authorized.
 
+### T16 transient Hosted UI stop review and one fresh execution
+
+The execution recorded at `b03273d` stopped in the first context at the exact
+`hosted-ui-redirect` boundary before any load, write, restore, or poll; cleanup
+passed. The same committed login path has passed in prior CF03 executions, so
+this is classified as a transient bounded redirect stop rather than a source or
+data-contract finding. Sol's immediate read-only gate again matched account,
+users/admins 0/0, invalidations 3, and the exact current baseline object/hash/
+metadata/tuple.
+
+One new execution of the unchanged committed UI-proof CF03 runner is authorized
+under all exact constraints above. This is not a retry inside the stopped
+process. It must run once and stop on any failure. If the same Hosted UI redirect
+stop recurs, no further unchanged execution is authorized; return for a local
+fresh-context bounded-retry design. No additional restore retry, invalidation,
+deploy/IAM/CloudFormation, other object/delete/version-delete, production/DNS,
+Firebase, or T17 action is authorized.
+
 ### T16 UI-proof CF03 execution stop — 2026-08-11
 
 The single authorized execution from clean `a7d929a` was invoked exactly once

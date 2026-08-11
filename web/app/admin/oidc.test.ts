@@ -49,10 +49,23 @@ describe('OIDC boundary', () => {
     ['syntax', new SyntaxError('state=token-canary'), 'state-malformed'],
     ['request type', new Error('invalid request_type in state'), 'invalid-redirect-request-type'],
     ['oauth response', new ErrorResponse({ error: 'invalid_grant', error_description: 'token=canary' }), 'oauth-response-error'],
+    ['state mismatch', new Error('State does not match'), 'state-mismatch'],
+    ['client id missing', new Error('No client_id on state'), 'client-id-missing'],
+    ['authority missing', new Error('No authority on state'), 'authority-missing'],
+    ['authority mismatch', new Error('authority mismatch on settings vs. signin state'), 'authority-mismatch'],
+    ['client id mismatch', new Error('client_id mismatch on settings vs. signin state'), 'client-id-mismatch'],
+    ['code missing', new Error('Expected code in response'), 'code-missing'],
     ['other', { message: 'state=secret', token: 'canary' }, 'callback-other'],
   ])('reduces hostile callback value %s to a fixed category', (_label, caught, category) => {
     expect(classifyOidcCallbackError(caught)).toBe(category)
     expect(JSON.stringify(classifyOidcCallbackError(caught))).not.toMatch(/canary|secret|token/)
+  })
+  it.each([
+    'State does not match ', 'state does not match', 'No client_id on state!',
+    'No authority on state\n', 'authority mismatch on settings vs. signin state ',
+    'client_id mismatch on settings vs. signin state.', 'Expected code in response ',
+  ])('rejects near-match validation message %s', (message) => {
+    expect(classifyOidcCallbackError(new Error(message))).toBe('callback-other')
   })
   it('dispatches only the fixed callback category and throws a generic error', async () => {
     const dispatch = vi.fn(); vi.stubGlobal('window', { dispatchEvent: dispatch }); vi.stubGlobal('CustomEvent', class { type: string; detail: unknown; constructor(type: string, init: { detail: unknown }) { this.type = type; this.detail = init.detail } })

@@ -4,14 +4,20 @@ export const ADMIN_SCOPES = 'openid email profile itsrun/schedule.write'
 export const ADMIN_CALLBACK_PATH = '/manage/callback'
 export const ADMIN_LOGOUT_PATH = '/manage'
 export const OIDC_CALLBACK_ERROR_EVENT = 'itsrun:oidc-callback-category'
-export const OIDC_CALLBACK_ERROR_CATEGORIES = ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'callback-other'] as const
+export const OIDC_CALLBACK_ERROR_CATEGORIES = ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'callback-other'] as const
 export type OidcCallbackErrorCategory = typeof OIDC_CALLBACK_ERROR_CATEGORIES[number]
 
 export function classifyOidcCallbackError(caught: unknown): OidcCallbackErrorCategory {
   if (caught == null) return 'state-unavailable'
   if (caught instanceof SyntaxError) return 'state-malformed'
-  if (caught instanceof Error && caught.message === 'invalid request_type in state') return 'invalid-redirect-request-type'
   if (caught instanceof ErrorResponse) return 'oauth-response-error'
+  if (caught instanceof Error && caught.message === 'invalid request_type in state') return 'invalid-redirect-request-type'
+  if (caught instanceof Error && caught.message === 'State does not match') return 'state-mismatch'
+  if (caught instanceof Error && caught.message === 'No client_id on state') return 'client-id-missing'
+  if (caught instanceof Error && caught.message === 'No authority on state') return 'authority-missing'
+  if (caught instanceof Error && caught.message === 'authority mismatch on settings vs. signin state') return 'authority-mismatch'
+  if (caught instanceof Error && caught.message === 'client_id mismatch on settings vs. signin state') return 'client-id-mismatch'
+  if (caught instanceof Error && caught.message === 'Expected code in response') return 'code-missing'
   return 'callback-other'
 }
 

@@ -4308,3 +4308,18 @@ type, cache metadata, and SHA-256. CloudFront invalidation count remained 3.
 No API PUT, S3 write, Firestore, IAM, CloudFormation, deployment, production,
 DNS, Firebase, or data rehearsal operation occurred. CET03 is a terminal stop;
 no retry or further auth-only run is authorized.
+
+### Phase 4 T16 SV01 exact state-validation taxonomy
+
+SV01 was implemented locally from Sol handoff
+`fffc2db464add6c20de607df2ebb4cb1a8e8937f`. The callback classifier now
+recognizes only the six exact installed oidc-client pre-token messages and
+reduces them to fixed categories: `state-mismatch`, `client-id-missing`,
+`authority-missing`, `authority-mismatch`, `client-id-mismatch`, and
+`code-missing`. Near-match messages remain `callback-other`. No message or
+caught value is retained, logged, stringified, or emitted; the existing event
+boundary carries only the fixed category and preserves all CET safety rules.
+
+Focused auth tests passed 43/43, web unit tests passed 68, admin-local
+Playwright passed 46, `npm run check` passed, and `git diff --check` passed.
+No AWS/live auth/deployment or dependency change was made.

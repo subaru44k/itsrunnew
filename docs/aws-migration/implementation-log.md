@@ -5601,3 +5601,35 @@ two redirect failures stop after two attempts, non-redirect failures receive
 one attempt, successful pages are the only retained data contexts, cleanup is
 exactly-once, and no data stage or sensitive/unhandled rejection leaks occur.
 Focused T16 data tests pass (54 tests).
+
+### T16 HR01-HR02 Sol acceptance and one bounded-retry CF03 execution
+
+Sol independently reviewed `b7d2336` and reran the focused data suite (54/54),
+`node --check`, and `git diff --check`. The implementation is accepted: each
+logical browser session is created sequentially and receives at most one retry,
+only when its first fresh context fails with the exact sanitized
+`hosted-ui-redirect` category. Failed contexts and response waiters are drained
+and closed, successful contexts alone reach the data stages, and final cleanup
+is exactly once. No other setup category, data operation, restore, or poll is
+retried.
+
+The immediate read-only gate matched account `470447451992`, region
+`ap-northeast-1`, Hosting `UPDATE_COMPLETE`, the active/successful reviewed
+Lambda CodeSha, users/admins `0/0`, and invalidation count `3`. The S3 current
+object remained the exact 501-byte baseline ETag/current VersionId/content/
+cache/encryption/SHA-256 and tuple 0. CloudFront returned status 200 with the
+same 501-byte body, ETag, cache metadata, SHA-256, and tuple 0; its S3-version
+response header named the older byte-identical baseline version, which does not
+alter the exact body or mutable-object cache contract.
+
+Exactly one fresh CF03 invocation of the committed bounded-retry runner is
+authorized with `AWS_PROFILE=codex-prod`, account `470447451992`, region
+`ap-northeast-1`, and only the documented preview target. The only permitted
+mutations are the runner's temporary local Cognito user, its admins-group
+membership, one successful UI conditional update of the exact Oda tuple, one
+stale UI request that must return 409 without retry, one conditional restoration
+of the exact captured original, and identity cleanup. Public tuple-1 and tuple-0
+observations remain bounded. Do not rerun on any terminal failure. No extra
+restore attempt, invalidation, deployment, IAM/CloudFormation change, other S3
+object or version operation, production/DNS, Firebase, historical-data import,
+or T17 action is authorized in this invocation.

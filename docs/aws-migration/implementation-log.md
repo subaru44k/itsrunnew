@@ -4573,3 +4573,21 @@ desktop/mobile; `npm run check` passed with web 92, core 7, schedule API 25,
 and infra 19 tests; `git diff --check` passed. No callback/session/security
 behavior was weakened and no AWS/live-auth/deploy/data/IAM/CloudFormation/
 invalidation/Cognito/production/DNS/Firebase/T17/dependency operation occurred.
+
+### Phase 4 T16 NU01 Sol acceptance and NU02 authorization
+
+Sol reviewed `4b8f3e8` and correction `915b40b`. The selector accepts only the
+exact callback origin/path and an unambiguous OAuth response, prefers a valid
+current URL, otherwise consumes exactly one validated document navigation URL,
+and keeps the full URL only in the page setup closure. Encoded semantic query
+names and malformed encodings are handled without inspecting or exposing
+response values. No callback value reaches storage, logs, DOM, events, or
+evidence.
+
+Independent focused web tests passed 59/59 and admin-local Chromium passed
+48/48 across desktop/mobile; `git diff --check` passed and the worktree was
+clean. NU01 is accepted. NU02 may push the exact reviewed SHA, run the existing
+web-only workflow once, verify the unchanged protected object and invalidation
+inventories, then run the committed auth-only executable once from zero
+users/group. No data write, Firestore, IAM, CloudFormation, invalidation,
+production, DNS, Firebase, or T17 operation is authorized by NU02.

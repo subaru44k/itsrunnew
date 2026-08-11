@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial, validateRestoreProof, validateProtectedRun } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial, validateRestoreProof, validateProtectedRun, shouldRemoveRecoveryMaterial } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -112,6 +112,9 @@ test('protected material validator enforces direct child, modes, symlinks, and b
   await validateProtectedMaterial({ fs, parent, run, file, bytes })
   for (const target of [parent, run, file]) { states = { ...states, [target]: { ...(states[target] ?? {}), isSymbolicLink: () => true } }; await assert.rejects(validateProtectedMaterial({ fs, parent, run, file, bytes }), /protected/); states[target] = { mode: target === file ? 0o600 : 0o700, ...(target === file ? { isFile: () => true } : { isDirectory: () => true }) } }
   states[run] = { mode: 0o700, isDirectory: () => true }; states[file] = { mode: 0o600, isFile: () => true }; fs.readFile = async () => Buffer.from('swapped'); await assert.rejects(validateProtectedMaterial({ fs, parent, run, file, bytes }), /protected material/)
+  fs.readFile = async () => bytes; for (const [name, mapping, target] of [
+    ['parent mode', { [parent]: { mode: 0o755, isDirectory: () => true }, [run]: states[run], [file]: states[file] }, file], ['run mode', { [parent]: states[parent], [run]: { mode: 0o755, isDirectory: () => true }, [file]: states[file] }, file], ['file mode', { [parent]: states[parent], [run]: states[run], [file]: { mode: 0o644, isFile: () => true } }, file], ['parent non-dir', { [parent]: { mode: 0o700, isDirectory: () => false }, [run]: states[run], [file]: states[file] }, file], ['file non-file', { [parent]: states[parent], [run]: states[run], [file]: { mode: 0o600, isFile: () => false } }, file], ['nested file', { [parent]: states[parent], [run]: states[run], [`${run}/nested/capture.json`]: states[file] }, `${run}/nested/capture.json`], ['escaped file', { [parent]: states[parent], [run]: states[run], [`${parent}/other.json`]: states[file] }, `${parent}/other.json`],
+  ]) { states = mapping; await assert.rejects(validateProtectedMaterial({ fs, parent, run, file: target, bytes }), /protected/, name) }
 })
 
 test('restore proof independently rejects identity, readback, metadata, and content mismatches', () => {
@@ -123,8 +126,19 @@ test('restore proof independently rejects identity, readback, metadata, and cont
 })
 
 test('protected run validator rejects non-direct, escaped, prefixed, and malformed runs', async () => {
-  const parent = '/repo/.artifacts/migration'; const good = `${parent}/t16-data-good`; let state = { parent: { mode: 0o700, isDirectory: () => true }, run: { mode: 0o700, isDirectory: () => true } }; const fs = { lstat: async path => state[path] }; await validateProtectedRun({ fs, parent, run: good.replace('t16-data-good', 't16-data-good') }).catch(() => {})
-  state = { [parent]: state.parent, [good]: state.run }; await validateProtectedRun({ fs, parent, run: good }); for (const bad of []) await assert.rejects(validateProtectedRun({ fs, parent, run: bad }), /protected/)
+  const parent = '/repo/.artifacts/migration'; const good = `${parent}/t16-data-good`; let state = { [parent]: { mode: 0o700, isDirectory: () => true }, [good]: { mode: 0o700, isDirectory: () => true } }; const fs = { lstat: async path => state[path] }; await validateProtectedRun({ fs, parent, run: good })
+  const cases = [
+    ['parent mode', { [parent]: { mode: 0o755, isDirectory: () => true }, [good]: state[good] }], ['run mode', { [parent]: state[parent], [good]: { mode: 0o755, isDirectory: () => true } }],
+    ['parent symlink', { [parent]: { mode: 0o700, isDirectory: () => true, isSymbolicLink: () => true }, [good]: state[good] }], ['run symlink', { [parent]: state[parent], [good]: { mode: 0o700, isDirectory: () => true, isSymbolicLink: () => true } }],
+    ['parent non-directory', { [parent]: { mode: 0o700, isDirectory: () => false }, [good]: state[good] }], ['run non-directory', { [parent]: state[parent], [good]: { mode: 0o700, isDirectory: () => false } }],
+    ['relative', { migration: state[parent], good: state[good] }], ['escaped sibling', { [parent]: state[parent], [`${parent}/../t16-data-good`]: state[good] }], ['nested', { [parent]: state[parent], [`${parent}/nested/t16-data-good`]: state[good] }], ['bad prefix', { [parent]: state[parent], [`${parent}/other`]: state[good] }],
+  ]
+  for (const [name, mapping] of cases) { state = mapping; const run = name === 'relative' ? 'migration/good' : name === 'escaped sibling' ? `${parent}/../t16-data-good` : name === 'nested' ? `${parent}/nested/t16-data-good` : name === 'bad prefix' ? `${parent}/other` : good; await assert.rejects(validateProtectedRun({ fs, parent: name === 'relative' ? 'migration' : parent, run }), /protected/, name) }
+})
+
+test('recovery removal truth table is fail-closed', () => {
+  assert.equal(shouldRemoveRecoveryMaterial({ restoreStatus: 'not-required', restoreAttempted: false }), true); assert.equal(shouldRemoveRecoveryMaterial({ restoreStatus: 'passed', restoreAttempted: true }), true)
+  for (const input of [{ restoreStatus: 'not-required', restoreAttempted: true }, { restoreStatus: 'started', restoreAttempted: true }, { restoreStatus: 'failed', restoreAttempted: true }, { restoreStatus: 'not-required', recoveryMaterialRetained: true }, { restoreStatus: 'passed', cleanupFailed: true }]) assert.equal(shouldRemoveRecoveryMaterial(input), false)
 })
 
 test('direct wrapper emits only the allowlisted sanitized result', async () => {

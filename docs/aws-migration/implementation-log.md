@@ -5454,3 +5454,18 @@ restore, bounded tuple-0 observation, and identity cleanup rules above. On any
 failure do not rerun. No extra restore retry, invalidation, deploy/IAM/
 CloudFormation, other object/delete/version-delete, production/DNS, Firebase,
 or T17 operation is authorized.
+
+### T16 cache-corrected CF03 execution stop — 2026-08-11
+
+The one authorized execution from clean commit `30faea9` stopped during setup
+with sanitized `failureCheckpoint=setup`, category
+`authenticated-api-response`, context `first`, reason `body-read`,
+`writes=0`, `restores=0`, `cleanups=1`, and cleanup passed. No retry or manual
+operation was performed. Post-stop read-only checks found users/admins `0/0`,
+invalidation count `3`, the API 5xx alarm `OK`, API `401` with `no-store`,
+direct S3 `403`, and the unchanged exact baseline: 501 bytes, ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`K7Bf..b6RWTudXarByS0s53Qi3t7E2d6`, `application/json`,
+`public, max-age=0, s-maxage=60`, AES256, tuple 0, and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`. The
+rehearsal is stopped for Sol review and must not be rerun.

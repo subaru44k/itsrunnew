@@ -4999,3 +4999,14 @@ cleanup, and stop boundaries. It must run once only and may not be rerun on
 failure. No restore retry, invalidation, IAM/CloudFormation/deploy, other
 object, delete/version-delete, production, DNS, Firebase, or T17 action is
 authorized.
+
+### T16 load-corrected CF03 rehearsal stop — 2026-08-11
+
+The one authorized execution from clean commit `85a615d` reached the update
+checkpoint and returned a sanitized typed failure before any data write:
+`writes=0`, `restores=0`, and `cleanupStatus=passed`. No retry or manual write
+was performed. The post-stop read-only gate matched users/admins 0/0 and the
+unchanged 501-byte target with baseline ETag/VersionId/metadata, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
+0. The rehearsal is stopped for Sol review; no further live execution is
+authorized in this task.

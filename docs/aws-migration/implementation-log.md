@@ -5481,3 +5481,20 @@ direct S3 `403`, and the unchanged exact baseline: 501 bytes, ETag
 `public, max-age=0, s-maxage=60`, AES256, tuple 0, and SHA-256
 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`. The
 rehearsal is stopped for Sol review and must not be rerun.
+
+### T16 UB01-UB02 UI baseline proof implementation — 2026-08-11
+
+Implemented the authorized local-only correction. The concrete adapter now
+passes the exact retained `{document, etag, tuple}` capture into browser setup;
+baseline shape, parser, strong ETag, and tuple-0 are validated with independent
+clones. Authenticated GETs validate only the exact transport contract (status,
+origin/path, JSON content type, and `no-store`) without a Playwright body read.
+Both contexts then prove the rendered target cell is visible, enabled, and
+value 0 with no alert before load. Existing exact PUT/stale/comparison,
+transaction, cleanup, and late-waiter contracts remain enforced. The
+unreachable secondary body-diagnostic validator/reasons were removed.
+
+AWS-free focused coverage includes malformed/missing/weak/nonzero baseline,
+transport failures and body-read non-use, independent clones, UI readiness and
+alert handling, exact request divergence, stale conflict, cleanup, and
+unhandled-rejection behavior. Focused T16 data tests pass (51 tests).

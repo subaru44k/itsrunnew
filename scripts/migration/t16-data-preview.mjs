@@ -69,7 +69,7 @@ export function shouldRemoveRecoveryMaterial({ restoreStatus = 'not-required', r
 const cognitoOperations = new Set(['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user', 'list-users', 'list-users-in-group', 'sts-get-caller-identity'])
 const strongEtag = value => typeof value === 'string' && /^"[0-9a-f]{32,}"$/i.test(value)
 const dataSetupCategories = new Set(['hosted-ui-redirect', 'form-submission', 'manage-return', 'signed-in-sentinel', 'authenticated-api-response', 'operation-failed'])
-const responseReasons = new Set(['transport-contract', 'response-missing', 'body-read', 'body-shape', 'etag', 'schedule-schema', 'reserved-tuple'])
+const responseReasons = new Set(['transport-contract', 'response-missing'])
 const setupContext = value => value === 'second' ? 'second' : 'first'
 const setupCategory = error => {
   if (dataSetupCategories.has(error?.category)) return error.category
@@ -91,6 +91,12 @@ export function sanitizeDataSetupFailure(error, context = error?.context) {
   const category = reason ? 'authenticated-api-response' : setupCategory(error)
   return Object.freeze({ category, context: setupContext(context), ...(category === 'authenticated-api-response' ? { reason: reason ?? 'transport-contract' } : {}) })
 }
+export function validateBrowserBaseline(baseline) {
+  if (!baseline || typeof baseline !== 'object' || Array.isArray(baseline) || Object.keys(baseline).sort().join('|') !== 'document|etag|tuple' || !strongEtag(baseline.etag) || baseline.tuple !== DATA_CONSTANTS.before) fail('browser baseline mismatch')
+  const parsed = parseSchedule(Buffer.from(JSON.stringify(baseline.document)))
+  if (parsed.tuple !== DATA_CONSTANTS.before || !exactEqual(parsed.document, baseline.document)) fail('browser baseline mismatch')
+  return { document: clone(baseline.document), etag: baseline.etag, tuple: parsed.tuple }
+}
 function responseDiagnostic(reason) { return Object.assign(new Error('authenticated response contract'), { name: 'AuthenticatedResponseDiagnostic', reason }) }
 const safeTimestamp = value => typeof value === 'string' && !Number.isNaN(Date.parse(value)) && value === new Date(value).toISOString()
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
@@ -103,16 +109,10 @@ const headerValue = (headers, name) => {
   const wanted = name.toLowerCase(); const entry = Object.entries(headers ?? {}).find(([key]) => key.toLowerCase() === wanted)
   return typeof entry?.[1] === 'string' ? entry[1].trim() : ''
 }
-export async function validateAuthenticatedGetResponse(response, { origin = DATA_CONSTANTS.apiOrigin } = {}) {
+export function validateAuthenticatedGetTransport(response, { origin = DATA_CONSTANTS.apiOrigin } = {}) {
   if (!response) throw responseDiagnostic('response-missing')
-  let headers; let url; let expected
-  try { headers = response.headers(); url = new URL(response.url()); expected = new URL(origin); if (response.status() !== 200 || url.origin !== expected.origin || url.pathname !== DATA_CONSTANTS.apiPath || normalizedHeader(headers, 'content-type').split(';')[0] !== 'application/json' || normalizedHeader(headers, 'cache-control').split(';')[0] !== 'no-store') throw responseDiagnostic('transport-contract') } catch (error) { if (error?.name === 'AuthenticatedResponseDiagnostic') throw error; throw responseDiagnostic('transport-contract') }
-  let payload; try { payload = await response.json() } catch { throw responseDiagnostic('body-read') }
-  if (Object.keys(payload ?? {}).sort().join('|') !== 'document|etag') throw responseDiagnostic('body-shape')
-  const document = payload.document; const etag = payload.etag; if (!strongEtag(etag)) throw responseDiagnostic('etag')
-  let parsed; try { parsed = parseSchedule(Buffer.from(JSON.stringify(document))) } catch { throw responseDiagnostic('schedule-schema') }
-  if (parsed.tuple !== DATA_CONSTANTS.before) throw responseDiagnostic('reserved-tuple')
-  return { document: clone(document), etag, tuple: parsed.tuple }
+  try { const headers = response.headers(); const url = new URL(response.url()); const expected = new URL(origin); if (response.status() !== 200 || url.origin !== expected.origin || url.pathname !== DATA_CONSTANTS.apiPath || normalizedHeader(headers, 'content-type').split(';')[0] !== 'application/json' || normalizedHeader(headers, 'cache-control').split(';')[0] !== 'no-store') throw responseDiagnostic('transport-contract') } catch (error) { if (error?.name === 'AuthenticatedResponseDiagnostic') throw error; throw responseDiagnostic('transport-contract') }
+  return true
 }
 function parseSchedule(bytes) {
   if (!Buffer.isBuffer(bytes) || bytes.length > 32768) fail('invalid schedule')
@@ -155,7 +155,7 @@ function exactObject(value, keys, predicate) {
 
 function proof(stage, value) {
   if (stage === 'preflight') return exactObject(value, ['users', 'admins', 'bytes', 'etag', 'versionId', 'sha256', 'tuple'], v => v.users === 0 && v.admins === 0 && v.bytes === DATA_CONSTANTS.baselineBytes && v.etag === DATA_CONSTANTS.baselineEtag && v.versionId === DATA_CONSTANTS.baselineVersionId && v.sha256 === DATA_CONSTANTS.baselineSha256 && v.tuple === DATA_CONSTANTS.before)
-  if (stage === 'capture') return exactObject(value, ['bytes', 'sha256', 'etag', 'versionId'], v => v.bytes === DATA_CONSTANTS.baselineBytes && v.sha256 === DATA_CONSTANTS.baselineSha256 && v.etag === DATA_CONSTANTS.baselineEtag && v.versionId === DATA_CONSTANTS.baselineVersionId)
+  if (stage === 'capture') return exactObject(value, ['bytes', 'document', 'etag', 'sha256', 'tuple', 'versionId'], v => v.bytes === DATA_CONSTANTS.baselineBytes && v.sha256 === DATA_CONSTANTS.baselineSha256 && v.etag === DATA_CONSTANTS.baselineEtag && v.versionId === DATA_CONSTANTS.baselineVersionId && v.tuple === DATA_CONSTANTS.before && validateBrowserBaseline({ document: v.document, etag: v.etag, tuple: v.tuple }))
   if (stage === 'setup') return exactObject(value, ['contexts'], v => v.contexts === 2)
   if (stage === 'load') return exactObject(value, ['adminEtag', 'staleEtag', 'tuple'], v => strongEtag(v.adminEtag) && strongEtag(v.staleEtag) && v.tuple === DATA_CONSTANTS.before)
   if (stage === 'update') return exactObject(value, ['status', 'etag', 'versionId', 'cacheControl', 'updatedAt', 'document', 'tuple', 'puts'], v => v.status === 200 && strongEtag(v.etag) && v.etag !== DATA_CONSTANTS.baselineEtag && typeof v.versionId === 'string' && v.versionId.length > 0 && v.cacheControl === 'no-store' && safeTimestamp(v.updatedAt) && v.document?.days?.[DATA_CONSTANTS.date]?.[DATA_CONSTANTS.slot] === DATA_CONSTANTS.after && v.tuple === DATA_CONSTANTS.after && v.puts === 1)
@@ -167,7 +167,7 @@ function proof(stage, value) {
 }
 
 export function createLoadInputFromCapture(capture) {
-  if (!capture || typeof capture !== 'object' || Array.isArray(capture) || Object.keys(capture).sort().join('|') !== 'bytes|etag|sha256|versionId' || !strongEtag(capture.etag)) fail('load input mismatch')
+  if (!capture || typeof capture !== 'object' || Array.isArray(capture) || Object.keys(capture).sort().join('|') !== 'bytes|document|etag|sha256|tuple|versionId' || capture.bytes !== DATA_CONSTANTS.baselineBytes || capture.sha256 !== DATA_CONSTANTS.baselineSha256 || capture.versionId !== DATA_CONSTANTS.baselineVersionId || !strongEtag(capture.etag) || validateBrowserBaseline({ document: capture.document, etag: capture.etag, tuple: capture.tuple }).tuple !== DATA_CONSTANTS.before) fail('load input mismatch')
   return { etag: capture.etag }
 }
 
@@ -182,7 +182,7 @@ export async function runDataRehearsal(adapters) {
     original = await invoke('capture', adapters.capture)
     if (!preflight || original.etag !== preflight.etag) throw new Error('captured baseline identity mismatch')
     recoveryOriginal = typeof adapters.getOriginal === 'function' ? adapters.getOriginal() : original
-    await invoke('setup', adapters.setup)
+    await invoke('setup', () => adapters.setup({ baseline: validateBrowserBaseline({ document: original.document, etag: original.etag, tuple: original.tuple }) }))
     const loaded = await invoke('load', () => adapters.load(createLoadInputFromCapture(original)))
     if (loaded.adminEtag !== original.etag || loaded.staleEtag !== original.etag || loaded.tuple !== DATA_CONSTANTS.before) throw new Error('loaded baseline identity mismatch')
     // Mark the operation possible before entering the boundary. A transport
@@ -272,7 +272,7 @@ async function defaultBrowserLauncher() {
   return chromium.launch({ headless: true })
 }
 
-export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, fetchImpl = globalThis.fetch, responseTimeout = 90000, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout, browserRoleSession = runBrowserRoleSession, signedInSentinel = awaitSignedInSentinel, getResponseValidator = validateAuthenticatedGetResponse } = {}) {
+export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, fetchImpl = globalThis.fetch, responseTimeout = 90000, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout, browserRoleSession = runBrowserRoleSession, signedInSentinel = awaitSignedInSentinel } = {}) {
   let chromium; let contexts = []; let pages = []; let loaded = []; let accepted = null; let cleaned = false
   const awaitReady = async (control, expectedValue, label) => {
     if (!control || typeof control.waitFor !== 'function' || typeof control.isVisible !== 'function' || typeof control.isEnabled !== 'function' || typeof control.click !== 'function') fail(`${label} unavailable`)
@@ -284,9 +284,10 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
   }
   const pageFor = index => { const page = pages[index]; if (!page) fail('browser context unavailable'); return page }
   return {
-    async setup({ username, password } = {}) {
+    async setup({ username, password, baseline } = {}) {
       if (typeof username !== 'string' || typeof password !== 'string') fail('browser credentials unavailable')
       if (!Number.isFinite(responseTimeout) || responseTimeout <= 0) fail('browser response timeout')
+      const authoritative = validateBrowserBaseline(baseline)
       chromium = await launcher(); contexts = [await chromium.newContext(), await chromium.newContext()]; pages = await Promise.all(contexts.map(context => context.newPage()))
       loaded = []
       for (const [index, page] of pages.entries()) {
@@ -295,13 +296,17 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
         try {
           responsePromise = page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }, { timeout: responseTimeout })
           Promise.resolve(responsePromise).catch(() => {})
-          validationPromise = Promise.resolve(responsePromise).then(response => getResponseValidator(response, { origin }), () => { throw createDataSetupError('authenticated-api-response', context, 'response-missing') })
+          validationPromise = Promise.resolve(responsePromise).then(response => validateAuthenticatedGetTransport(response, { origin }), () => { throw createDataSetupError('authenticated-api-response', context, 'response-missing') })
           Promise.resolve(validationPromise).catch(() => {})
           await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' })
           try { await browserRoleSession(page, { username, password, viewport: 'desktop' }) } catch (error) { const category = setupCategory(error); throw createDataSetupError(category === 'operation-failed' ? 'form-submission' : category, context) }
           try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: responseTimeout }) } catch { throw createDataSetupError('manage-return', context) }
           try { await signedInSentinel(page, { viewport: 'desktop', timeoutMs: responseTimeout }) } catch { throw createDataSetupError('signed-in-sentinel', context) }
-          try { loaded.push(await validationPromise) } catch (error) { const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError('authenticated-api-response', context, normalized.reason ?? 'transport-contract') }
+          try { await validationPromise } catch (error) { const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError('authenticated-api-response', context, normalized.reason ?? 'transport-contract') }
+          const cell = page.locator(`[id="${DATA_CONSTANTS.date}-${DATA_CONSTANTS.slot}"]`); await awaitReady(cell, String(DATA_CONSTANTS.before), 'target cell')
+          if (typeof page.getByRole !== 'function') fail('baseline alert')
+          const alert = page.getByRole('alert', {}); if (typeof alert?.count === 'function' && await alert.count() > 0) fail('baseline alert')
+          loaded.push({ document: clone(authoritative.document), etag: authoritative.etag, tuple: authoritative.tuple })
         } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); await Promise.resolve(validationPromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context, normalized.reason) }
       }
       return { contexts: 2 }
@@ -377,14 +382,14 @@ export function createConcreteDataAdapters({ command, execFile, browser, browser
       const object = await readObject({ retain: true }); const head = object.head; if (head.ContentType !== DATA_CONSTANTS.contentType || head.CacheControl !== DATA_CONSTANTS.cacheControl || head.ServerSideEncryption === undefined) fail('object metadata mismatch')
       currentOriginal = object; return { users: 0, admins: 0, bytes: object.bytes.length, etag: head.ETag, versionId: head.VersionId, sha256: sha256(object.bytes), tuple: object.parsed.tuple }
     },
-    async capture() { const object = await readObject({ retain: true }); currentOriginal = object; return { bytes: object.bytes.length, sha256: sha256(object.bytes), etag: object.head.ETag, versionId: object.head.VersionId } },
+    async capture() { const object = await readObject({ retain: true }); currentOriginal = object; return { bytes: object.bytes.length, document: clone(object.parsed.document), etag: object.head.ETag, sha256: sha256(object.bytes), tuple: object.parsed.tuple, versionId: object.head.VersionId } },
     getOriginal() { return currentOriginal },
-    async setup() {
+    async setup({ baseline } = {}) {
       const dir = await protectedRoot(); const suffix = randomBytesImpl(8).toString('hex'); const alias = `preview-t16-data-${suffix}@rehearsal.invalid`; const password = `Aa1!${randomBytesImpl(24).toString('hex')}`
       const created = await cognito('admin-create-user', { UserPoolId: DATA_CONSTANTS.poolId, Username: alias, MessageAction: 'SUPPRESS' }, { root: dir, jsonOutput: true }); identity = created?.User?.Username; if (typeof identity !== 'string' || !identity) fail('internal username missing')
       await cognito('admin-set-user-password', { UserPoolId: DATA_CONSTANTS.poolId, Username: identity, Password: password, Permanent: true }, { root: dir }); await cognito('admin-add-user-to-group', { UserPoolId: DATA_CONSTANTS.poolId, Username: identity, GroupName: 'admins' }, { root: dir })
       const verified = await cognito('admin-get-user', { UserPoolId: DATA_CONSTANTS.poolId, Username: identity }, { root: dir, jsonOutput: true }); if (verified?.Username !== identity) fail('internal username mismatch')
-      return browserCall('setup', { contexts: 2, username: alias, password })
+      return browserCall('setup', { baseline, contexts: 2, username: alias, password })
     },
     async load(input) { return browserCall('load', input) }, async update(input) { return browserCall('update', input) }, async stale(input) { return browserCall('stale', input) }, async poll(input) { return browserCall('poll', input) },
     async readCurrent(expected = {}) { let object; try { object = await readObject({ allowTest: true }) } catch { return { state: 'unknown' } } return classifyCurrentObject(object, currentOriginal, expected) },

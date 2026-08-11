@@ -30,6 +30,11 @@ export function parseDataArgs(argv) {
 }
 
 function fail(message = 'invalid proof') { throw new Error(message) }
+export function validateBucketGates(versioning, publicAccessBlock) {
+  const block = publicAccessBlock?.PublicAccessBlockConfiguration
+  if (versioning?.Status !== 'Enabled' || block?.BlockPublicAcls !== true || block?.IgnorePublicAcls !== true || block?.BlockPublicPolicy !== true || block?.RestrictPublicBuckets !== true) fail('bucket gate mismatch')
+  return true
+}
 const cognitoOperations = new Set(['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user', 'list-users', 'list-users-in-group', 'sts-get-caller-identity'])
 const strongEtag = value => typeof value === 'string' && /^"[0-9a-f]{32,}"$/i.test(value)
 const safeTimestamp = value => typeof value === 'string' && !Number.isNaN(Date.parse(value)) && value === new Date(value).toISOString()
@@ -116,6 +121,7 @@ export async function runDataRehearsal(adapters) {
       const current = await adapters.readCurrent()
       if (current.state === 'baseline') { writePossible = false; throw error }
       if (current.state === 'test') { testEtag = current.etag; testVersionId = current.versionId; throw error }
+      recoveryMaterialRetained = true
       writePossible = false
       throw new Error('recovery-required')
     }
@@ -221,19 +227,19 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
  * coordinator boundary.
  */
 export function createConcreteDataAdapters({ command, execFile, browser, browserLauncher = defaultBrowserLauncher, httpsPort, clock = () => Date.now(), sleep, timer = setTimeout, clearTimer = clearTimeout, fs: fsPort, randomBytesImpl = randomBytes } = {}) {
-  const fs = fsPort ?? { mkdtemp, chmod, writeFile, readFile, unlink, rm, stat, mkdir }
+  const fs = fsPort ?? { mkdtemp, chmod, writeFile, readFile, unlink, rm, stat, lstat: stat, mkdir }
   command ??= createProtectedDataCli({ execFile: execFile ?? promisify(nodeExecFile) })
   const run = typeof command === 'function' ? command : command?.run
   if (typeof run !== 'function') fail('invalid protected command')
   const cognito = makeProtectedCognitoCli({ execFile: execFile ?? promisify(nodeExecFile), fs }); let root; let currentOriginal; let identity; let captureCounter = 0; const browserPort = browser ?? createPlaywrightDataBrowser({ launcher: browserLauncher, httpsPort, clock, sleep, timer, clearTimer })
-  const protectedRoot = async () => { if (!root) { const parent = resolve('.artifacts/migration'); await fs.mkdir(parent, { recursive: true, mode: 0o700 }); await fs.chmod(parent, 0o700); root = await fs.mkdtemp(join(parent, 't16-data-')); await fs.chmod(root, 0o700) } return root }
+  const protectedRoot = async () => { if (!root) { const parent = resolve('.artifacts/migration'); await fs.mkdir(parent, { recursive: true, mode: 0o700 }); await fs.chmod(parent, 0o700); const parentInfo = await (fs.lstat ?? fs.stat)(parent); if ((parentInfo.mode & 0o777) !== 0o700 || parentInfo.isSymbolicLink?.()) fail('protected parent mode'); root = await fs.mkdtemp(join(parent, 't16-data-')); await fs.chmod(root, 0o700); const rootInfo = await (fs.lstat ?? fs.stat)(root); if ((rootInfo.mode & 0o777) !== 0o700 || rootInfo.isSymbolicLink?.()) fail('protected run mode') } return root }
   const readObject = async ({ retain = false, allowTest = false } = {}) => {
     const dir = await protectedRoot(); const path = join(dir, `capture-${captureCounter += 1}-${randomBytesImpl(8).toString('hex')}.json`); const child = relative(resolve(dir), resolve(path)); if (!isAbsolute(dir) || child.startsWith('..')) fail('protected path containment')
-    const dirInfo = await fs.stat(dir); if ((dirInfo.mode & 0o777) !== 0o700 || dirInfo.isSymbolicLink?.()) fail('protected directory mode')
+    const dirInfo = await (fs.lstat ?? fs.stat)(dir); if ((dirInfo.mode & 0o777) !== 0o700 || dirInfo.isSymbolicLink?.()) fail('protected directory mode')
     await fs.writeFile(path, Buffer.alloc(0), { mode: 0o600, flag: 'wx' }); await fs.chmod(path, 0o600)
     try {
       const head = json((await run('head-object')).stdout); await run('get-object', { inputPath: path }); const bytes = await fs.readFile(path); const parsed = parseSchedule(bytes)
-      const info = await fs.stat(path); if ((info.mode & 0o777) !== 0o600 || info.isSymbolicLink?.() || bytes.length !== 501 || (!allowTest && sha256(bytes) !== DATA_CONSTANTS.baselineSha256)) fail('protected capture mismatch')
+      const info = await (fs.lstat ?? fs.stat)(path); if ((info.mode & 0o777) !== 0o600 || info.isSymbolicLink?.() || bytes.length !== DATA_CONSTANTS.baselineBytes || !strongEtag(head.ETag) || typeof head.VersionId !== 'string' || !head.VersionId || head.ContentType !== DATA_CONSTANTS.contentType || head.CacheControl !== DATA_CONSTANTS.cacheControl || head.ServerSideEncryption === undefined || (!allowTest && (sha256(bytes) !== DATA_CONSTANTS.baselineSha256 || head.ETag !== DATA_CONSTANTS.baselineEtag || head.VersionId !== DATA_CONSTANTS.baselineVersionId || !exactEqual(parsed.document, currentOriginal?.parsed?.document ?? parsed.document)))) fail('protected capture mismatch')
       return { path, bytes, head, parsed }
     } finally { if (!retain) await fs.unlink(path).catch(() => {}) }
   }
@@ -242,7 +248,7 @@ export function createConcreteDataAdapters({ command, execFile, browser, browser
     async preflight() {
       const caller = await cognito('sts-get-caller-identity', null, { jsonOutput: true }); if (caller?.Account !== DATA_CONSTANTS.account) fail('account mismatch')
       const users = await cognito('list-users', null, { jsonOutput: true }); const admins = await cognito('list-users-in-group', null, { jsonOutput: true }); if ((users?.Users?.length ?? -1) !== 0 || (admins?.Users?.length ?? -1) !== 0) fail('nonempty identity gate')
-      const versioning = json((await run('get-bucket-versioning')).stdout); const publicBlock = json((await run('get-public-access-block')).stdout); if (versioning.Status !== 'Enabled' || publicBlock.BlockPublicAcls !== true || publicBlock.IgnorePublicAcls !== true || publicBlock.BlockPublicPolicy !== true || publicBlock.RestrictPublicBuckets !== true) fail('bucket gate mismatch')
+      const versioning = json((await run('get-bucket-versioning')).stdout); const publicBlock = json((await run('get-public-access-block')).stdout); validateBucketGates(versioning, publicBlock)
       const object = await readObject({ retain: true }); const head = object.head; if (head.ContentType !== DATA_CONSTANTS.contentType || head.CacheControl !== DATA_CONSTANTS.cacheControl || head.ServerSideEncryption === undefined) fail('object metadata mismatch')
       currentOriginal = object; return { users: 0, admins: 0, bytes: object.bytes.length, etag: head.ETag, versionId: head.VersionId, sha256: sha256(object.bytes), tuple: object.parsed.tuple }
     },
@@ -256,9 +262,9 @@ export function createConcreteDataAdapters({ command, execFile, browser, browser
       return browserCall('setup', { contexts: 2, username: alias, password })
     },
     async load(input) { return browserCall('load', input) }, async update(input) { return browserCall('update', input) }, async stale(input) { return browserCall('stale', input) }, async poll(input) { return browserCall('poll', input) },
-    async readCurrent(expected = {}) { const object = await readObject({ allowTest: true }); const tuple = object.parsed.tuple; if (object.head.ETag === DATA_CONSTANTS.baselineEtag && object.head.VersionId === DATA_CONSTANTS.baselineVersionId && tuple === DATA_CONSTANTS.before) return { state: 'baseline', tuple }; if (tuple === DATA_CONSTANTS.after && strongEtag(object.head.ETag) && object.head.VersionId !== DATA_CONSTANTS.baselineVersionId) return { state: 'test', etag: object.head.ETag, versionId: object.head.VersionId, tuple }; return { state: 'unknown' } },
-    async restore({ ifMatch, original = currentOriginal } = {}) {
-      if (!original?.path || !ifMatch) fail('restore proof unavailable'); const checksum = createHash('sha256').update(original.bytes).digest('base64'); const result = await run('put-object', { inputPath: original.path, ifMatch, checksum }); const response = json(result.stdout); if (!strongEtag(response.ETag) || !response.VersionId) fail('restore response mismatch'); const readback = await readObject(); if (readback.parsed.tuple !== DATA_CONSTANTS.before || sha256(readback.bytes) !== DATA_CONSTANTS.baselineSha256) fail('restore readback mismatch'); return { status: 200, etag: response.ETag, versionId: response.VersionId, bytes: readback.bytes.length, sha256: sha256(readback.bytes), tuple: readback.parsed.tuple }
+    async readCurrent(expected = {}) { let object; try { object = await readObject({ allowTest: true }) } catch { return { state: 'unknown' } } const baseline = currentOriginal; if (!baseline) return { state: 'unknown' }; const tuple = object.parsed.tuple; if (object.head.ETag === DATA_CONSTANTS.baselineEtag && object.head.VersionId === DATA_CONSTANTS.baselineVersionId && sha256(object.bytes) === DATA_CONSTANTS.baselineSha256 && tuple === DATA_CONSTANTS.before && exactEqual(object.parsed.document, baseline.parsed.document)) return { state: 'baseline', tuple }; const expectedDocument = expected.document; if (tuple === DATA_CONSTANTS.after && validateOneCellDelta(baseline.parsed.document, object.parsed.document, { requireUpdatedAt: true }) && strongEtag(object.head.ETag) && object.head.VersionId !== DATA_CONSTANTS.baselineVersionId && (!expected.etag || object.head.ETag === expected.etag) && (!expected.versionId || object.head.VersionId === expected.versionId) && (!expectedDocument || !expectedDocument.schemaVersion || exactEqual(object.parsed.document, expectedDocument))) return { state: 'test', etag: object.head.ETag, versionId: object.head.VersionId, tuple }; return { state: 'unknown' } },
+    async restore({ ifMatch, versionId, original = currentOriginal } = {}) {
+      if (!original?.path || !ifMatch) fail('restore proof unavailable'); const checksum = createHash('sha256').update(original.bytes).digest('base64'); const result = await run('put-object', { inputPath: original.path, ifMatch, checksum }); const response = json(result.stdout); if (!strongEtag(response.ETag) || !response.VersionId || response.ETag === DATA_CONSTANTS.baselineEtag || response.ETag === ifMatch || response.VersionId === DATA_CONSTANTS.baselineVersionId || (versionId && response.VersionId === versionId)) fail('restore response mismatch'); const readback = await readObject({ allowTest: true }); if (readback.parsed.tuple !== DATA_CONSTANTS.before || sha256(readback.bytes) !== DATA_CONSTANTS.baselineSha256 || !exactEqual(readback.parsed.document, original.parsed.document) || readback.head.ContentType !== DATA_CONSTANTS.contentType || readback.head.CacheControl !== DATA_CONSTANTS.cacheControl) fail('restore readback mismatch'); return { status: 200, etag: response.ETag, versionId: response.VersionId, bytes: readback.bytes.length, sha256: sha256(readback.bytes), tuple: readback.parsed.tuple }
     },
     async cleanup({ recoveryMaterialRetained = false } = {}) { let failed = false; try { await browserCall('cleanup', {}) } catch { failed = true } const dir = await protectedRoot(); if (identity) { await cognito('admin-remove-user-from-group', { UserPoolId: DATA_CONSTANTS.poolId, Username: identity, GroupName: 'admins' }, { root: dir }).catch(() => { failed = true }); await cognito('admin-delete-user', { UserPoolId: DATA_CONSTANTS.poolId, Username: identity }, { root: dir }).catch(() => { failed = true }) } let users = -1; let admins = -1; try { users = (await cognito('list-users', null, { jsonOutput: true }))?.Users?.length ?? -1 } catch { failed = true } try { admins = (await cognito('list-users-in-group', null, { jsonOutput: true }))?.Users?.length ?? -1 } catch { failed = true } if (users !== 0 || admins !== 0) failed = true; if (!recoveryMaterialRetained && root) await fs.rm(root, { recursive: true, force: true }); if (failed) fail('cleanup failed'); return { users, admins } },
   }

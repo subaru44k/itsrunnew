@@ -5557,3 +5557,19 @@ ETag `"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
 CloudFront remained 200 with the exact body/hash/tuple and cache metadata; API
 remained 401 and direct S3 403. No rerun is permitted.
+
+### T16 unchanged UI-proof CF03 execution stop — 2026-08-11
+
+The single authorized execution from clean `da3d7be` was invoked exactly once
+after all read-only gates matched and stopped safely during setup at the second
+context hosted-UI redirect. The sanitized result was
+`failureCheckpoint=setup`, category `hosted-ui-redirect`, context `second`,
+with operations `4`, writes `0`, restores `0`, polls `0`, cleanups `1`,
+cleanup `passed`, and `recoveryMaterialRetained=false`. No UI update, stale
+request, S3 PutObject, retry, or other mutation occurred.
+
+Post-stop read-only checks found users/admins `0/0`, invalidation count `3`,
+and alarm `OK`. The exact S3 current object remains 501 bytes with the same
+ETag, VersionId, metadata, AES256 encryption, tuple 0, and SHA-256 as the
+retained baseline; CloudFront body/hash/tuple also remain exact. The API is
+401 with `no-store` and direct S3 is 403. No rerun is permitted.

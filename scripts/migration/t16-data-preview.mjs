@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { execFile as nodeExecFile } from 'node:child_process'
-import { mkdtemp, chmod, writeFile, readFile, unlink, rm, stat } from 'node:fs/promises'
+import { mkdtemp, chmod, writeFile, readFile, unlink, rm, stat, mkdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve, relative, isAbsolute } from 'node:path'
 import { promisify } from 'node:util'
@@ -114,10 +114,14 @@ export function safeArgs(operation, { inputPath, ifMatch, checksum } = {}) {
   }
   return base
 }
+export function safeBucketArgs(operation) {
+  if (!['get-bucket-versioning', 'get-public-access-block'].includes(operation)) fail('forbidden bucket operation')
+  return ['s3api', operation, '--bucket', DATA_CONSTANTS.bucket]
+}
 
 export function createProtectedDataCli({ execFile = promisify(nodeExecFile) } = {}) {
   const env = { AWS_PROFILE: DATA_CONSTANTS.profile, AWS_REGION: DATA_CONSTANTS.region, AWS_DEFAULT_REGION: DATA_CONSTANTS.region, PATH: process.env.PATH ?? '' }
-  return async (operation, options = {}) => execFile('aws', safeArgs(operation, options), { env, windowsHide: true })
+  return async (operation, options = {}) => execFile('aws', ['get-bucket-versioning', 'get-public-access-block'].includes(operation) ? safeBucketArgs(operation) : safeArgs(operation, options), { env, windowsHide: true })
 }
 
 export function createProtectedDataFile({ fs = { mkdtemp, chmod, writeFile, readFile, unlink, rm }, randomBytesImpl = randomBytes } = {}) {
@@ -151,21 +155,23 @@ async function defaultBrowserLauncher() {
   return chromium.launch({ headless: true })
 }
 
-export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, httpsPort, clock = () => Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) } = {}) {
-  let chromium; let contexts = []; let pages = []
+export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, httpsPort, clock = () => Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout } = {}) {
+  let chromium; let contexts = []; let pages = []; let loaded = []
   const pageFor = index => { const page = pages[index]; if (!page) fail('browser context unavailable'); return page }
   return {
     async setup({ username, password } = {}) {
       if (typeof username !== 'string' || typeof password !== 'string') fail('browser credentials unavailable')
       chromium = await launcher(); contexts = [await chromium.newContext(), await chromium.newContext()]; pages = await Promise.all(contexts.map(context => context.newPage()))
+      const getResponses = pages.map(page => page.waitForResponse(response => { try { return new URL(response.url()).pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }))
       for (const page of pages) { await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' }); await runBrowserRoleSession(page, { username, password, viewport: 'desktop' }); await page.waitForURL(url => new URL(url).pathname === '/manage'); await awaitSignedInSentinel(page, { viewport: 'desktop' }) }
+      loaded = await Promise.all(getResponses.map(async response => { if (response.status() !== 200 || (response.headers()['content-type'] ?? '').split(';')[0] !== 'application/json' || response.headers()['cache-control'] !== 'no-store') fail('authenticated GET contract'); const payload = await response.json(); const document = payload?.document; const etag = payload?.etag; const versionId = payload?.versionId; const parsed = parseSchedule(Buffer.from(JSON.stringify(document))); if (!strongEtag(etag) || !versionId || parsed.tuple !== DATA_CONSTANTS.before) fail('authenticated GET proof'); return { document, etag, versionId, tuple: parsed.tuple } }))
       return { contexts: 2 }
     },
-    async load({ etag }) { if (typeof etag !== 'string') fail('baseline etag unavailable'); const results = []; for (const page of pages) { const result = await page.evaluate(async path => { const response = await fetch(path, { cache: 'no-store' }); return { status: response.status, etag: response.headers.get('etag'), cacheControl: response.headers.get('cache-control') } }, DATA_CONSTANTS.apiPath); results.push(result) } if (results.some(result => result.status !== 200 || result.etag !== etag)) fail('browser baseline mismatch'); return { adminEtag: results[0].etag, staleEtag: results[1].etag, tuple: DATA_CONSTANTS.before } },
+    async load({ etag }) { if (typeof etag !== 'string' || loaded.length !== 2 || loaded.some(result => result.etag !== etag)) fail('browser baseline mismatch'); return { adminEtag: loaded[0].etag, staleEtag: loaded[1].etag, tuple: DATA_CONSTANTS.before } },
     async update(input) { return this.submit(pageFor(0), input, DATA_CONSTANTS.after) },
     async stale(input) { return this.submit(pageFor(1), input, DATA_CONSTANTS.after, true) },
-    async submit(page, input, value, stale = false) { const cell = page.locator(`#${DATA_CONSTANTS.date}-${DATA_CONSTANTS.slot}`); await cell.selectOption(String(value)); const responsePromise = page.waitForResponse(response => { try { return new URL(response.url()).pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'PUT' } catch { return false } }); await page.getByRole('button', { name: /Save|保存/ }).click(); const response = await responsePromise; const cacheControl = response.headers()['cache-control'] ?? ''; const etag = response.headers().etag ?? ''; let updatedAt = ''; let tuple = value; if (response.status() === 200) { const payload = await response.json(); updatedAt = payload?.document?.updatedAt ?? ''; tuple = payload?.document?.days?.[DATA_CONSTANTS.date]?.[DATA_CONSTANTS.slot] ?? value } return { status: response.status(), etag, versionId: response.headers()['x-version-id'] ?? '', cacheControl, updatedAt, tuple, puts: 1, ...(stale ? { retries: 0 } : {}) } },
-    async poll({ expected, maxAttempts = 60, maxMs = 70000 } = {}) { const started = clock(); for (let attempt = 1; attempt <= maxAttempts && clock() - started <= maxMs; attempt += 1) { const result = httpsPort?.get ? await httpsPort.get(`${origin}/${DATA_CONSTANTS.key}`) : await pageFor(0).evaluate(async path => { const response = await fetch(path, { cache: 'no-store' }); const body = await response.json(); return { tuple: body?.days?.['2026-08-09']?.[0] } }, `${origin}/${DATA_CONSTANTS.key}`); if (result.tuple === expected) return { tuple: expected, attempts: attempt }; await sleep(1000) } fail('observation timeout') },
+    async submit(page, input, value, stale = false) { const cell = page.locator(`#${DATA_CONSTANTS.date}-${DATA_CONSTANTS.slot}`); await cell.selectOption(String(value)); const requestPromise = page.waitForRequest(request => { try { return new URL(request.url()).pathname === DATA_CONSTANTS.apiPath && request.method() === 'PUT' } catch { return false } }); const responsePromise = page.waitForResponse(response => { try { return new URL(response.url()).pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'PUT' } catch { return false } }); const comparisonPromise = stale ? page.waitForResponse(response => { try { return new URL(response.url()).pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }) : null; await page.getByRole('button', { name: /Save|保存/ }).click(); const request = await requestPromise; const response = await responsePromise; const headers = request.headers(); const body = request.postDataJSON(); if (headers['content-type'] !== 'application/json' || headers['if-match'] !== input.ifMatch || headers['if-none-match'] || !body || Object.keys(body).sort().join('|') !== 'days|schemaVersion|stadium|yearMonth' || body.schemaVersion !== 1 || body.stadium !== 'oda' || body.yearMonth !== '2026-08' || body.days?.[DATA_CONSTANTS.date]?.[DATA_CONSTANTS.slot] !== value) fail('UI PUT contract'); const cacheControl = response.headers()['cache-control'] ?? ''; const result = await response.json(); if (response.status() === 409) { if (!stale || cacheControl !== 'no-store') fail('conflict contract'); const comparison = await comparisonPromise; if (comparison.status() !== 200 || comparison.headers()['cache-control'] !== 'no-store') fail('comparison contract'); const current = await comparison.json(); if (!strongEtag(current?.etag) || current?.document?.days?.[DATA_CONSTANTS.date]?.[DATA_CONSTANTS.slot] !== value) fail('comparison mismatch'); return { status: 409, etag: current.etag, versionId: current?.versionId ?? '', cacheControl, puts: 1, retries: 0, tuple: value } } if (response.status() !== 200 || cacheControl !== 'no-store') fail('update contract'); const etag = result?.etag; const document = result?.document; const parsed = parseSchedule(Buffer.from(JSON.stringify(document))); return { status: 200, etag, versionId: result?.versionId, cacheControl, updatedAt: document.updatedAt, tuple: parsed.tuple, puts: 1 } },
+    async poll({ expected, maxAttempts = 60, maxMs = 70000 } = {}) { const controller = new AbortController(); let deadlineTimer; const deadline = new Promise((_, reject) => { deadlineTimer = timer(() => { controller.abort(); reject(new Error('observation deadline')) }, maxMs) }); const started = clock(); try { for (let attempt = 1; attempt <= maxAttempts && clock() - started <= maxMs; attempt += 1) { const request = httpsPort?.get ? httpsPort.get(`${origin}/${DATA_CONSTANTS.key}`, { signal: controller.signal }) : pageFor(0).evaluate(async path => { const response = await fetch(path, { cache: 'no-store' }); if (response.status !== 200 || response.headers.get('content-type')?.split(';')[0] !== 'application/json') throw new Error('public response contract'); const body = await response.json(); return { tuple: body?.days?.['2026-08-09']?.[0] } }, `${origin}/${DATA_CONSTANTS.key}`); const result = await Promise.race([request, deadline]); if (result.tuple === expected) return { tuple: expected, attempts: attempt }; await Promise.race([sleep(1000), deadline]) } } catch { fail('observation timeout') } finally { clearTimer(deadlineTimer); controller.abort() } fail('observation timeout') },
     async cleanup() { for (const context of contexts) await context.close().catch(() => {}); await chromium?.close?.().catch?.(() => {}) },
   }
 }
@@ -176,13 +182,13 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
  * same methods. No request body, URL, token, or browser object crosses the
  * coordinator boundary.
  */
-export function createConcreteDataAdapters({ command, execFile, browser, browserLauncher = defaultBrowserLauncher, httpsPort, clock = () => Date.now(), sleep, fs: fsPort, randomBytesImpl = randomBytes } = {}) {
-  const fs = fsPort ?? { mkdtemp, chmod, writeFile, readFile, unlink, rm, stat }
+export function createConcreteDataAdapters({ command, execFile, browser, browserLauncher = defaultBrowserLauncher, httpsPort, clock = () => Date.now(), sleep, timer = setTimeout, clearTimer = clearTimeout, fs: fsPort, randomBytesImpl = randomBytes } = {}) {
+  const fs = fsPort ?? { mkdtemp, chmod, writeFile, readFile, unlink, rm, stat, mkdir }
   command ??= createProtectedDataCli({ execFile: execFile ?? promisify(nodeExecFile) })
   const run = typeof command === 'function' ? command : command?.run
   if (typeof run !== 'function') fail('invalid protected command')
-  const cognito = makeProtectedCognitoCli({ execFile: execFile ?? promisify(nodeExecFile), fs }); let root; let currentOriginal; let identity; let captureCounter = 0; const browserPort = browser ?? createPlaywrightDataBrowser({ launcher: browserLauncher, httpsPort, clock, sleep })
-  const protectedRoot = async () => { root ??= await fs.mkdtemp(join(tmpdir(), 't16-data-')); await fs.chmod(root, 0o700); return root }
+  const cognito = makeProtectedCognitoCli({ execFile: execFile ?? promisify(nodeExecFile), fs }); let root; let currentOriginal; let identity; let captureCounter = 0; const browserPort = browser ?? createPlaywrightDataBrowser({ launcher: browserLauncher, httpsPort, clock, sleep, timer, clearTimer })
+  const protectedRoot = async () => { if (!root) { const parent = resolve('.artifacts/migration'); await fs.mkdir(parent, { recursive: true, mode: 0o700 }); await fs.chmod(parent, 0o700); root = await fs.mkdtemp(join(parent, 't16-data-')); await fs.chmod(root, 0o700) } return root }
   const readObject = async ({ retain = false } = {}) => {
     const dir = await protectedRoot(); const path = join(dir, `capture-${captureCounter += 1}-${randomBytesImpl(8).toString('hex')}.json`); const child = relative(resolve(dir), resolve(path)); if (!isAbsolute(dir) || child.startsWith('..')) fail('protected path containment')
     const dirInfo = await fs.stat(dir); if ((dirInfo.mode & 0o777) !== 0o700 || dirInfo.isSymbolicLink?.()) fail('protected directory mode')
@@ -198,6 +204,7 @@ export function createConcreteDataAdapters({ command, execFile, browser, browser
     async preflight() {
       const caller = await cognito('sts-get-caller-identity', null, { jsonOutput: true }); if (caller?.Account !== DATA_CONSTANTS.account) fail('account mismatch')
       const users = await cognito('list-users', null, { jsonOutput: true }); const admins = await cognito('list-users-in-group', null, { jsonOutput: true }); if ((users?.Users?.length ?? -1) !== 0 || (admins?.Users?.length ?? -1) !== 0) fail('nonempty identity gate')
+      const versioning = json((await run('get-bucket-versioning')).stdout); const publicBlock = json((await run('get-public-access-block')).stdout); if (versioning.Status !== 'Enabled' || publicBlock.BlockPublicAcls !== true || publicBlock.IgnorePublicAcls !== true || publicBlock.BlockPublicPolicy !== true || publicBlock.RestrictPublicBuckets !== true) fail('bucket gate mismatch')
       const object = await readObject({ retain: true }); const head = object.head; if (head.ContentType !== DATA_CONSTANTS.contentType || head.CacheControl !== DATA_CONSTANTS.cacheControl || head.ServerSideEncryption === undefined) fail('object metadata mismatch')
       currentOriginal = object; return { users: 0, admins: 0, bytes: object.bytes.length, etag: head.ETag, versionId: head.VersionId, sha256: sha256(object.bytes), tuple: object.parsed.tuple }
     },

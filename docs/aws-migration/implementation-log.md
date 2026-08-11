@@ -4709,3 +4709,15 @@ CF03R05-CF03R08 in `phase4-t16-data-source-review.md` specify the required real
 UI API observation, bucket/deadline gates, recovery lifecycle, and self-contained
 low-level tests. These remain local source/test/documentation tasks only; no AWS
 or live rehearsal operation is authorized.
+
+### CF03R05-R08 Luna second correction
+
+Corrected the direct browser boundary to consume the application's
+authenticated GET response, parse JSON-body ETags/version IDs, observe exact UI
+PUT requests and responses, and require the stale conflict/comparison GET
+sequence. Added separate bucket versioning/public-access gates, bounded
+CloudFront polling with AbortController/deadline/timer cleanup, known retained
+recovery-parent handling, and a self-contained deterministic 501-byte fixture.
+Focused data tests pass (9), existing T16 auth/harness tests remain passing,
+and `npm run check`, `node --check`, and `git diff --check` pass. No AWS/live
+operation or later-phase action occurred. Pending Sol source re-review.

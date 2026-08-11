@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { readFile as readFsFile } from 'node:fs/promises'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, createProtectedDataCli } from './t16-data-preview.mjs'
+import { createHash } from 'node:crypto'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -73,6 +73,8 @@ test('S3 command boundary is exact and conditional', async () => {
   assert.equal(calls[2].args.includes('--if-match') && calls[2].args.includes('"test"'), true)
   assert.equal(calls.every(call => call.options.env.AWS_PROFILE === DATA_CONSTANTS.profile && call.options.env.AWS_REGION === DATA_CONSTANTS.region), true)
   assert.throws(() => safeArgs('delete-object'), /forbidden data operation/)
+  assert.deepEqual(safeBucketArgs('get-bucket-versioning'), ['s3api', 'get-bucket-versioning', '--bucket', DATA_CONSTANTS.bucket])
+  assert.throws(() => safeBucketArgs('list-objects-v2'), /forbidden bucket operation/)
 })
 
 test('direct wrapper emits only the allowlisted sanitized result', async () => {
@@ -83,12 +85,16 @@ test('direct wrapper emits only the allowlisted sanitized result', async () => {
 })
 
 test('direct construction uses low-level CLI and independent browser ports', async () => {
-  const baseline = await readFsFile('.artifacts/preview-seed/data/v1/stadiums/oda/availability/2026-08.json')
+  const baselineDocument = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2], '2026-08-10': [1, 2, 0], '2026-08-11': [2, 0, 1], '2026-08-12': [0, 1, 2], '2026-08-13': [1, 2, 0], '2026-08-14': [2, 0, 1], '2026-08-15': [0, 1, 2] } }
+  const baseline = Buffer.from(`${JSON.stringify(baselineDocument, null, 2)}\n`)
+  assert.equal(baseline.length, DATA_CONSTANTS.baselineBytes); assert.equal(createHash('sha256').update(baseline).digest('hex'), DATA_CONSTANTS.baselineSha256)
   const calls = []; let users = 0; let admins = 0; let currentEtag = DATA_CONSTANTS.baselineEtag
   const execFile = async (_file, args) => {
     calls.push(args)
     if (args[0] === 'sts') return { stdout: JSON.stringify({ Account: DATA_CONSTANTS.account }), stderr: '' }
     if (args[1] === 'head-object') return { stdout: JSON.stringify({ ContentLength: 501, ETag: currentEtag, VersionId: currentEtag === DATA_CONSTANTS.baselineEtag ? DATA_CONSTANTS.baselineVersionId : 'new-version', ChecksumSHA256: DATA_CONSTANTS.baselineSha256, ContentType: DATA_CONSTANTS.contentType, CacheControl: DATA_CONSTANTS.cacheControl, ServerSideEncryption: 'AES256' }), stderr: '' }
+    if (args[1] === 'get-bucket-versioning') return { stdout: JSON.stringify({ Status: 'Enabled' }), stderr: '' }
+    if (args[1] === 'get-public-access-block') return { stdout: JSON.stringify({ BlockPublicAcls: true, IgnorePublicAcls: true, BlockPublicPolicy: true, RestrictPublicBuckets: true }), stderr: '' }
     if (args[1] === 'get-object') { await (await import('node:fs/promises')).writeFile(args.at(-1), baseline); return { stdout: '', stderr: '' } }
     if (args[1] === 'put-object') { currentEtag = '"fedcba9876543210fedcba9876543210"'; return { stdout: JSON.stringify({ ETag: currentEtag, VersionId: 'restore-version' }), stderr: '' } }
     if (args[1] === 'list-users') return { stdout: JSON.stringify({ Users: Array.from({ length: users }) }), stderr: '' }
@@ -105,4 +111,14 @@ test('direct construction uses low-level CLI and independent browser ports', asy
   assert.equal(result.status, 'success', JSON.stringify(result)); assert.equal(calls.some(args => args[1] === 'get-object' && args.at(-1).startsWith('/')), true)
   assert.equal(calls.some(args => args[1] === 'put-object' && args.includes('--if-match')), true)
   assert.equal(calls.some(args => args.includes('delete-object') || args.includes('list-objects-v2')), false)
+})
+
+test('low-level Playwright page boundary observes exact UI PUT JSON response', async () => {
+  const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
+  const request = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }) }
+  const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
+  const page = { locator: () => ({ selectOption: async value => assert.equal(value, '1') }), waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => {} }) }
+  const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
+  const result = await browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag }, 1)
+  assert.equal(result.status, 200); assert.equal(result.versionId, 'version-2'); assert.equal(result.tuple, 1)
 })

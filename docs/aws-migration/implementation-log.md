@@ -4793,9 +4793,12 @@ source, tests, and documentation are authorized next exactly as specified by
 `phase4-t16-data-final-correction.md`; DC03, AWS/network/live operations, and
 data writes remain unauthorized until separate Sol review.
 
-### T16 DC02 local correction
+### T16 DC02 local correction in progress
 
 Implemented nested public-access-block/versioning gates, strict retained
 baseline/test object validation, coupled ETag/VersionId/document readback,
 conditional restore identity/readback proof, and recovery-material retention
-for unknown or failed post-write states. No AWS/live/DC03 operation occurred.
+for unknown or failed post-write states. Focused suite currently passes 20;
+the exhaustive concrete adapter/filesystem mismatch matrix remains before
+completion.
+No AWS/live/DC03 operation occurred.

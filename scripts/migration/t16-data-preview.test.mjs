@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -85,6 +85,18 @@ test('bucket gates require Enabled versioning and every nested public-block bool
   assert.throws(() => validateBucketGates(good, { BlockPublicAcls: true }), /bucket gate/)
 })
 
+test('current-object classifier is exact and fail-closed for every state mismatch', () => {
+  const baselineDocument = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2], '2026-08-10': [1, 2, 0] } }; const testDocument = { ...baselineDocument, updatedAt: '2026-01-02T00:00:00.000Z', days: { ...baselineDocument.days, '2026-08-09': [1, 1, 2] } }; const bytes = value => Buffer.from(JSON.stringify(value)); const baseline = { bytes: bytes(baselineDocument), sha256: createHash('sha256').update(bytes(baselineDocument)).digest('hex'), parsed: { document: baselineDocument }, head: { ETag: DATA_CONSTANTS.baselineEtag, VersionId: DATA_CONSTANTS.baselineVersionId, ContentType: DATA_CONSTANTS.contentType, CacheControl: DATA_CONSTANTS.cacheControl, ServerSideEncryption: 'AES256' } }; const valid = { bytes: bytes(testDocument), parsed: { document: testDocument, tuple: 1 }, head: { ...baseline.head, ETag: '"0123456789abcdef0123456789abcdef"', VersionId: 'test-version' } }
+  assert.deepEqual(classifyCurrentObject({ ...baseline, bytes: Buffer.from(JSON.stringify(baselineDocument)), parsed: { document: baselineDocument, tuple: 0 } }, { ...baseline, parsed: { document: baselineDocument } }), { state: 'baseline', tuple: 0 })
+  const expectedTest = { etag: valid.head.ETag, versionId: valid.head.VersionId, document: testDocument, sha256: createHash('sha256').update(valid.bytes).digest('hex') }; assert.deepEqual(classifyCurrentObject(valid, baseline, expectedTest).state, 'test')
+  for (const bad of [
+    { ...valid, bytes: Buffer.from('wrong') }, { ...valid, parsed: { document: { ...testDocument, days: { ...testDocument.days, '2026-08-10': [2, 2, 0] } }, tuple: 1 } },
+    { ...valid, parsed: { document: { ...testDocument, updatedAt: baselineDocument.updatedAt }, tuple: 1 } }, { ...valid, head: { ...valid.head, ContentType: 'text/plain' } },
+    { ...valid, head: { ...valid.head, CacheControl: 'public' } }, { ...valid, head: { ...valid.head, ETag: 'weak' } }, { ...valid, head: { ...valid.head, VersionId: '' } },
+  ]) assert.doesNotThrow(() => assert.deepEqual(classifyCurrentObject(bad, baseline, expectedTest), { state: 'unknown' }))
+  assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: '"other"', versionId: valid.head.VersionId, document: testDocument }), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: valid.head.ETag, versionId: 'other', document: testDocument }), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: valid.head.ETag, versionId: valid.head.VersionId, document: baselineDocument }), { state: 'unknown' })
+})
+
 test('direct wrapper emits only the allowlisted sanitized result', async () => {
   const output = []; const errors = []; const exits = []
   const result = await runDirect({ argv: [EXECUTION_FLAG], dependencies: { adapters: adapters(), testOnly: true }, stdout: value => output.push(value), stderr: value => errors.push(value), setExitCode: value => exits.push(value) })
@@ -114,7 +126,7 @@ test('direct construction uses low-level CLI and independent browser ports', asy
     if (args[1] === 'admin-get-user') return { stdout: JSON.stringify({ Username: 'internal-user' }), stderr: '' }
     return { stdout: '', stderr: '' }
   }
-  const browser = { async setup() { return { contexts: 2 } }, async load() { return proof.load }, async update() { currentEtag = proof.update.etag; currentVersion = proof.update.versionId; return proof.update }, async stale() { return proof.stale }, async poll(input) { return { tuple: input.expected, attempts: 1 } }, async cleanup() { return proof.cleanup } }
+  const browser = { async setup() { return { contexts: 2 } }, async load() { return proof.load }, async update() { currentEtag = proof.update.etag; currentVersion = proof.update.versionId; return { ...proof.update, document: { ...baselineDocument, updatedAt: proof.update.updatedAt, days: { ...baselineDocument.days, '2026-08-09': [1, 1, 2] } } } }, async stale() { return proof.stale }, async poll(input) { return { tuple: input.expected, attempts: 1 } }, async cleanup() { return proof.cleanup } }
   const result = await main([EXECUTION_FLAG], { execFile, browser, randomBytesImpl: n => Buffer.alloc(n, 7) })
   assert.equal(result.status, 'success', JSON.stringify(result)); assert.equal(calls.some(args => args[1] === 'get-object' && args.at(-1).startsWith('/')), true)
   assert.equal(calls.some(args => args[1] === 'put-object' && args.includes('--if-match')), true)

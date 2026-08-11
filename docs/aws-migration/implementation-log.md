@@ -4400,3 +4400,9 @@ Sol reviewed `1b2edf4`; only the two exact Logger state-read constants map to
 fixed categories, near matches remain generic, and caught material is discarded.
 All focused/web/admin/root checks passed. STR02 may push exact SHA, run web-only
 once, verify unchanged inventories, then run auth-only once and stop.
+
+### Phase 4 T16 STR02 preview deployment acceptance
+
+Exact-SHA workflow `31446988819` at `5ac03d1` passed all checks, web-only
+deployment, and raw preview. Protected data and invalidation count 3 remained
+unchanged. One auth-only STR02 diagnosis is authorized under existing gates.

@@ -126,10 +126,10 @@ function exactObject(value, keys, predicate) {
 }
 
 function proof(stage, value) {
-  if (stage === 'preflight') return exactObject(value, ['users', 'admins', 'bytes', 'etag', 'versionId', 'sha256', 'tuple'], v => v.users === 0 && v.admins === 0 && v.bytes === DATA_CONSTANTS.baselineBytes && v.etag === DATA_CONSTANTS.baselineEtag && v.versionId === DATA_CONSTANTS.baselineVersionId && v.sha256 === DATA_CONSTANTS.baselineSha256 && v.tuple === DATA_CONSTANTS.before)
-  if (stage === 'capture') return exactObject(value, ['bytes', 'sha256', 'etag', 'versionId'], v => v.bytes === DATA_CONSTANTS.baselineBytes && v.sha256 === DATA_CONSTANTS.baselineSha256 && v.etag === DATA_CONSTANTS.baselineEtag && v.versionId === DATA_CONSTANTS.baselineVersionId)
+  if (stage === 'preflight') return exactObject(value, ['users', 'admins', 'bytes', 'etag', 'versionId', 'sha256', 'tuple'], v => v.users === 0 && v.admins === 0 && v.bytes === DATA_CONSTANTS.baselineBytes && strongEtag(v.etag) && v.versionId === DATA_CONSTANTS.baselineVersionId && v.sha256 === DATA_CONSTANTS.baselineSha256 && v.tuple === DATA_CONSTANTS.before)
+  if (stage === 'capture') return exactObject(value, ['bytes', 'sha256', 'etag', 'versionId'], v => v.bytes === DATA_CONSTANTS.baselineBytes && v.sha256 === DATA_CONSTANTS.baselineSha256 && strongEtag(v.etag) && v.versionId === DATA_CONSTANTS.baselineVersionId)
   if (stage === 'setup') return exactObject(value, ['contexts'], v => v.contexts === 2)
-  if (stage === 'load') return exactObject(value, ['adminEtag', 'staleEtag', 'tuple'], v => v.adminEtag === DATA_CONSTANTS.baselineEtag && v.staleEtag === DATA_CONSTANTS.baselineEtag && v.tuple === DATA_CONSTANTS.before)
+  if (stage === 'load') return exactObject(value, ['adminEtag', 'staleEtag', 'tuple'], v => strongEtag(v.adminEtag) && strongEtag(v.staleEtag) && v.tuple === DATA_CONSTANTS.before)
   if (stage === 'update') return exactObject(value, ['status', 'etag', 'versionId', 'cacheControl', 'updatedAt', 'document', 'tuple', 'puts'], v => v.status === 200 && strongEtag(v.etag) && v.etag !== DATA_CONSTANTS.baselineEtag && typeof v.versionId === 'string' && v.versionId.length > 0 && v.cacheControl === 'no-store' && safeTimestamp(v.updatedAt) && v.document?.days?.[DATA_CONSTANTS.date]?.[DATA_CONSTANTS.slot] === DATA_CONSTANTS.after && v.tuple === DATA_CONSTANTS.after && v.puts === 1)
   if (stage === 'stale') return exactObject(value, ['status', 'etag', 'cacheControl', 'puts', 'retries', 'tuple'], v => v.status === 409 && strongEtag(v.etag) && v.cacheControl === 'no-store' && v.puts === 1 && v.retries === 0 && v.tuple === DATA_CONSTANTS.after)
   if (stage === 'public-updated' || stage === 'public-restored') return exactObject(value, ['tuple', 'attempts'], v => v.tuple === (stage === 'public-updated' ? DATA_CONSTANTS.after : DATA_CONSTANTS.before) && Number.isInteger(v.attempts) && v.attempts >= 1)
@@ -145,11 +145,13 @@ export async function runDataRehearsal(adapters) {
   let writeStatus = 'not-started'; let staleStatus = 'not-started'; let restoreStatus = 'not-required'; let cleanupStatus = 'not-started'
   const invoke = async (stage, fn, count = true) => { lastCheckpoint = stage; if (count) counts.operations += 1; const value = await fn(); proof(stage, value); return value }
   try {
-    await invoke('preflight', adapters.preflight)
+    const preflight = await invoke('preflight', adapters.preflight)
     original = await invoke('capture', adapters.capture)
+    if (!preflight || original.etag !== preflight.etag) throw new Error('captured baseline identity mismatch')
     recoveryOriginal = typeof adapters.getOriginal === 'function' ? adapters.getOriginal() : original
     await invoke('setup', adapters.setup)
-    await invoke('load', adapters.load)
+    const loaded = await invoke('load', () => adapters.load({ etag: original.etag }))
+    if (loaded.adminEtag !== original.etag || loaded.staleEtag !== original.etag || loaded.tuple !== DATA_CONSTANTS.before) throw new Error('loaded baseline identity mismatch')
     // Mark the operation possible before entering the boundary. A transport
     // failure can leave S3 changed even when no response was received.
     writePossible = true; counts.operations += 1; lastCheckpoint = 'update'

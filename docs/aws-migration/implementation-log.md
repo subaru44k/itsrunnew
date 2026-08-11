@@ -4972,3 +4972,13 @@ although the real browser adapter requires the retained captured ETag. Its
 permissive fake load ignored this missing contract. The local-only
 `phase4-t16-data-load-contract-plan.md` LC01-LC02 correction is authorized.
 No further live invocation or AWS operation is authorized pending Sol review.
+
+### T16 LC01-LC02 local correction complete
+
+The coordinator now retains the exact preflight/capture ETag and invokes load
+once with `{etag: original.etag}`; load output must match it for both pages and
+tuple 0. Added nonconstant captured ETag coverage and missing/mismatched/
+malformed load proof cases, all stopping before update/stale/restore with one
+cleanup. Focused data tests: 41/41; combined T16 data/auth: 84/84.
+`npm run check`, `node --check`, and `git diff --check` pass. No AWS/network/live
+operation occurred; stop for Sol review.

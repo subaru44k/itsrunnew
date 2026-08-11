@@ -14,9 +14,9 @@ const proof = {
   cleanup: { users: 0, admins: 0 },
 }
 
-function adapters({ fail = null, order = [], restoreArgs = [] } = {}) {
+function adapters({ fail = null, order = [], restoreArgs = [], loadArgs = [] } = {}) {
   const make = stage => async input => { order.push(stage); if (stage === 'restore') restoreArgs.push(input); if (fail === stage) throw new Error('canary'); return proof[stage] }
-  return { preflight: make('preflight'), capture: make('capture'), setup: make('setup'), load: make('load'), update: make('update'), readCurrent: async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1, document: proof.update.document }), stale: make('stale'), poll: async input => { order.push(`poll-${input.expected}`); return { tuple: input.expected, attempts: 1 } }, restore: make('restore'), cleanup: make('cleanup') }
+  return { preflight: make('preflight'), capture: make('capture'), setup: make('setup'), load: async input => { loadArgs.push(input); return make('load')(input) }, update: make('update'), readCurrent: async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1, document: proof.update.document }), stale: make('stale'), poll: async input => { order.push(`poll-${input.expected}`); return { tuple: input.expected, attempts: 1 } }, restore: make('restore'), cleanup: make('cleanup') }
 }
 
 test('accepts only the literal execution flag', async () => {
@@ -31,6 +31,14 @@ test('complete rehearsal has one update, one stale conflict, one restore, and cl
   assert.equal(result.counts.writes, 1); assert.equal(result.counts.restores, 1)
   assert.equal(order.indexOf('restore') < order.indexOf('cleanup'), true)
   assert.equal(order.filter(stage => stage === 'stale').length, 1)
+})
+
+test('load receives the exact captured nonconstant ETag once', async () => {
+  const captured = '"11111111111111111111111111111111"'; const loadArgs = []; const base = adapters({ loadArgs }); base.preflight = async () => ({ ...proof.preflight, etag: captured }); base.capture = async () => ({ ...proof.capture, etag: captured }); base.load = async input => { loadArgs.push(input); assert.deepEqual(input, { etag: captured }); return { adminEtag: captured, staleEtag: captured, tuple: 0 } }; const result = await runDataRehearsal(base); assert.equal(result.status, 'success'); assert.deepEqual(loadArgs, [{ etag: captured }])
+})
+
+test('missing, mismatched, and malformed load proofs stop before update and clean once', async () => {
+  for (const bad of [undefined, { adminEtag: '"22222222222222222222222222222222"', staleEtag: proof.preflight.etag, tuple: 0 }, { adminEtag: 'weak', staleEtag: proof.preflight.etag, tuple: 0 }]) { const order = []; const base = adapters({ order }); base.load = async () => bad; const result = await runDataRehearsal(base); assert.equal(result.status, 'failed'); assert.equal(result.failureCheckpoint, 'load'); assert.equal(order.filter(stage => stage === 'update' || stage === 'stale' || stage === 'restore').length, 0); assert.equal(order.filter(stage => stage === 'cleanup').length, 1) }
 })
 
 test('an indeterminate update still gets exactly one restoration attempt before cleanup', async () => {
@@ -311,10 +319,10 @@ test('low-level stale conflict resolves with one PUT, comparison GET, and locali
 
 test('low-level launcher/context setup captures two independent authenticated GET baselines', async () => {
   const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
-  let getCount = 0
+  const capturedEtag = '"11111111111111111111111111111111"'; let getCount = 0
   const makePage = () => {
     let getResolver
-    const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document: { ...baseline, days: { ...baseline.days } }, etag: DATA_CONSTANTS.baselineEtag }) }
+    const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document: { ...baseline, days: { ...baseline.days } }, etag: capturedEtag }) }
     const control = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, fill: async () => {}, click: async () => {} }
     const form = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, locator: () => control }
     return { waitForResponse: () => response, goto: async () => { getCount += 1 }, waitForURL: async predicate => { for (const url of [`https://${DATA_CONSTANTS.hostedUiDomain}/login`, `${DATA_CONSTANTS.apiOrigin}/manage/callback`, `${DATA_CONSTANTS.apiOrigin}/manage`]) { try { if (predicate(url)) return } catch {} } throw new Error('unexpected URL') }, locator: selector => selector.startsWith('form') ? form : control, getByRole: (_role, options) => /Sign out|ログアウト/.test(options.name) ? { waitFor: async () => {} } : { click: async () => {} } }
@@ -324,7 +332,7 @@ test('low-level launcher/context setup captures two independent authenticated GE
   const browser = createPlaywrightDataBrowser({ launcher })
   assert.deepEqual(await browser.setup({ username: 'test', password: 'test' }), { contexts: 2 })
   assert.equal(getCount, 2)
-  assert.deepEqual(await browser.load({ etag: DATA_CONSTANTS.baselineEtag }), { adminEtag: DATA_CONSTANTS.baselineEtag, staleEtag: DATA_CONSTANTS.baselineEtag, tuple: 0 })
+  assert.deepEqual(await browser.load({ etag: capturedEtag }), { adminEtag: capturedEtag, staleEtag: capturedEtag, tuple: 0 })
 })
 
 test('setup owns each GET waiter sequentially with finite timeout and no unhandled rejection', async () => {

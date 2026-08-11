@@ -4468,3 +4468,22 @@ passed unchanged on mount, and never persisted, logged, or rendered. Unit 73,
 admin E2E 46, root check, and diff passed. CU01 is accepted. CU02 may push exact
 SHA and run web-only once, verify inventories, then auth-only once under existing
 cleanup/zero-write gates.
+
+### Phase 4 T16 CU02 preview deployment acceptance
+
+Exact-SHA workflow `31447974423` targeted `12c9979`. Attempt 1 stopped before
+deployment when the GitHub-hosted Chromium process received `SIGSEGV` during
+the legacy `/en/` production-browser check; 13 checks had passed and the deploy
+job was skipped. The failed job was rerun once without changing the reviewed
+SHA. Attempt 2 passed repository checks, all production-browser checks, the
+web-only deployment, and raw preview checks.
+
+Independent read-only verification matched account `470447451992` in
+`ap-northeast-1`. The protected Oda object remained 501 bytes with ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`, and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+CloudFront invalidation count remained 3. No data, IAM, CloudFormation,
+invalidation, Cognito administration, Firebase, DNS, or production change was
+made. The one CU02 auth-only verification is authorized under the existing
+cleanup and zero-data-write gates.

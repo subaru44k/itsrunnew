@@ -4780,3 +4780,15 @@ and deterministic timestamp/UI negatives; focused data tests passed 18/18,
 with `npm run check`, `node --check`, and `git diff --check` passing. This
 follow-up preserves case-sensitive conditional ETag values and records no
 AWS/live or DC02/DC03 operation.
+
+### T16 DC01 Sol acceptance and DC02 authorization
+
+Sol independently reviewed DC01 through commit `057cdf1`. The adapter retains
+exact API origin/path/method waiters, validates two independent authenticated
+GET baselines, proves one successful conditional PUT followed by one stale
+409/comparison GET with localized conflict controls, and preserves
+case-sensitive `If-Match` comparison. The focused data suite passed 18/18 in
+the primary thread and the worktree was clean. DC01 is accepted. DC02 local
+source, tests, and documentation are authorized next exactly as specified by
+`phase4-t16-data-final-correction.md`; DC03, AWS/network/live operations, and
+data writes remain unauthorized until separate Sol review.

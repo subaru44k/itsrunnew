@@ -4332,3 +4332,11 @@ emitted. Focused/web/admin suites passed. SV01 is accepted. SV02 may push exact
 SHA and run the web-only workflow once, with no data/IAM/CloudFormation/Cognito
 admin/invalidation. After successful checks and unchanged inventories, auth-only
 may run once and must stop at its typed result.
+
+### Phase 4 T16 SV02 preview deployment acceptance
+
+Exact-SHA workflow `31446018098` at `cf5b035` passed all validation,
+production-browser, web-only deployment, and raw preview checks. Protected data
+and ETag/VersionId remained unchanged; invalidation count remained 3. No other
+AWS/Firebase/production change occurred. The one auth-only SV02 diagnosis is
+authorized under existing cleanup and zero-write gates.

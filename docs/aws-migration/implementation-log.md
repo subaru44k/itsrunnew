@@ -4324,6 +4324,20 @@ Focused auth tests passed 43/43, web unit tests passed 68, admin-local
 Playwright passed 46, `npm run check` passed, and `git diff --check` passed.
 No AWS/live auth/deployment or dependency change was made.
 
+### Phase 4 T16 STR01 state-read taxonomy
+
+STR01 was implemented locally from Sol handoff
+`42cc0f4309ef3513f7058376ef628e3554e74763`. The callback classifier now maps
+only the exact installed-library messages `No state in response` and `No
+matching state found in storage` to `state-response-missing` and
+`matching-state-storage-missing`. Near matches remain `callback-other`; no
+caught value or message is retained, logged, stringified, or emitted, and the
+existing event carries only the fixed category.
+
+Focused auth tests passed 43/43, web unit tests passed 72, admin-local
+Playwright passed 46, `npm run check` passed, and `git diff --check` passed.
+No AWS/live auth/deployment or dependency change was made.
+
 ### Phase 4 T16 SV02 state-validation auth-only diagnosis stop
 
 Starting from Sol handoff `6c08dec13c90e614aa9bfbb952bdb5041bbc8bdf`, Node

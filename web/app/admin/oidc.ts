@@ -4,7 +4,7 @@ export const ADMIN_SCOPES = 'openid email profile itsrun/schedule.write'
 export const ADMIN_CALLBACK_PATH = '/manage/callback'
 export const ADMIN_LOGOUT_PATH = '/manage'
 export const OIDC_CALLBACK_ERROR_EVENT = 'itsrun:oidc-callback-category'
-export const OIDC_CALLBACK_ERROR_CATEGORIES = ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'callback-other'] as const
+export const OIDC_CALLBACK_ERROR_CATEGORIES = ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'state-response-missing', 'matching-state-storage-missing', 'callback-other'] as const
 export type OidcCallbackErrorCategory = typeof OIDC_CALLBACK_ERROR_CATEGORIES[number]
 
 export function classifyOidcCallbackError(caught: unknown): OidcCallbackErrorCategory {
@@ -18,6 +18,8 @@ export function classifyOidcCallbackError(caught: unknown): OidcCallbackErrorCat
   if (caught instanceof Error && caught.message === 'authority mismatch on settings vs. signin state') return 'authority-mismatch'
   if (caught instanceof Error && caught.message === 'client_id mismatch on settings vs. signin state') return 'client-id-mismatch'
   if (caught instanceof Error && caught.message === 'Expected code in response') return 'code-missing'
+  if (caught instanceof Error && caught.message === 'No state in response') return 'state-response-missing'
+  if (caught instanceof Error && caught.message === 'No matching state found in storage') return 'matching-state-storage-missing'
   return 'callback-other'
 }
 

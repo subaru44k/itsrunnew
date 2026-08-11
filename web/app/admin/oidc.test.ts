@@ -55,6 +55,8 @@ describe('OIDC boundary', () => {
     ['authority mismatch', new Error('authority mismatch on settings vs. signin state'), 'authority-mismatch'],
     ['client id mismatch', new Error('client_id mismatch on settings vs. signin state'), 'client-id-mismatch'],
     ['code missing', new Error('Expected code in response'), 'code-missing'],
+    ['state response missing', new Error('No state in response'), 'state-response-missing'],
+    ['matching state storage missing', new Error('No matching state found in storage'), 'matching-state-storage-missing'],
     ['other', { message: 'state=secret', token: 'canary' }, 'callback-other'],
   ])('reduces hostile callback value %s to a fixed category', (_label, caught, category) => {
     expect(classifyOidcCallbackError(caught)).toBe(category)
@@ -64,6 +66,7 @@ describe('OIDC boundary', () => {
     'State does not match ', 'state does not match', 'No client_id on state!',
     'No authority on state\n', 'authority mismatch on settings vs. signin state ',
     'client_id mismatch on settings vs. signin state.', 'Expected code in response ',
+    'No state in response ', 'No matching state found in storage.',
   ])('rejects near-match validation message %s', (message) => {
     expect(classifyOidcCallbackError(new Error(message))).toBe('callback-other')
   })

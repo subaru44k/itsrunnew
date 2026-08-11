@@ -22,7 +22,7 @@ export const COGNITO_MUTATING_OPERATIONS = Object.freeze([
 const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-users-in-group'])
 const operationSet = new Set([...COGNITO_MUTATING_OPERATIONS, ...COGNITO_READ_OPERATIONS])
 const checkpoints = new Set(['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'cleanup', 'complete'])
-const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing', 'matching-transaction-missing', 'matching-transaction-present', 'state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'callback-other'])
+const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing', 'matching-transaction-missing', 'matching-transaction-present', 'state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'state-response-missing', 'matching-state-storage-missing', 'callback-other'])
 const browserViewports = new Set(['desktop', 'mobile'])
 
 export function parseAuthArgs(argv) {
@@ -59,7 +59,7 @@ export async function installMatchingTransactionProbe(page, { origin, pathname =
 export async function installCallbackErrorProbe(page) {
   if (!page || typeof page.addInitScript !== 'function') throw new Error('invalid callback error probe')
   await page.addInitScript(() => {
-      const allowed = new Set(['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'callback-other'])
+      const allowed = new Set(['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'state-response-missing', 'matching-state-storage-missing', 'callback-other'])
     window.addEventListener('itsrun:oidc-callback-category', event => {
       const category = event instanceof CustomEvent && typeof event.detail === 'string' && allowed.has(event.detail) ? event.detail : null
       if (category) Object.defineProperty(window, '__t16CallbackErrorCategory', { value: category, writable: false, configurable: false })
@@ -163,7 +163,7 @@ async function runRealBrowserRole(role, username, password) {
       try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 }) } catch { throw createBrowserSubstageError('manage-timeout', viewportName) }
       try { await awaitSignedInSentinel(page, { viewport: viewportName, timeoutMs: 30000 }) } catch (error) {
         if (error?.name === 'BrowserSubstageError' && error.category === 'signed-in-missing') {
-          const callbackError = await page.evaluate(() => ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'callback-other'].includes(window.__t16CallbackErrorCategory) ? window.__t16CallbackErrorCategory : null).catch(() => null)
+          const callbackError = await page.evaluate(() => ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'state-mismatch', 'client-id-missing', 'authority-missing', 'authority-mismatch', 'client-id-mismatch', 'code-missing', 'state-response-missing', 'matching-state-storage-missing', 'callback-other'].includes(window.__t16CallbackErrorCategory) ? window.__t16CallbackErrorCategory : null).catch(() => null)
           let category = callbackError ?? classifyOAuthStatus(recorder.snapshot().events, { apiPath: AUTH_CONSTANTS.apiPath })
           if (category === 'token-request-not-started') {
             const matching = await page.evaluate(() => typeof window.__t16MatchingTransactionPresent === 'boolean' ? window.__t16MatchingTransactionPresent : null).catch(() => null)

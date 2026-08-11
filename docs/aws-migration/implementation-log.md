@@ -5827,3 +5827,21 @@ AES256 encryption, SHA-256, and tuple 0. The restored current VersionId is
 body/hash/cache metadata and tuple 0; invalidations remain `3`, alarm is `OK`,
 API is HTTP 401 with `no-store`, and direct S3 is HTTP 403. No recovery-material
 deletion, deployment, invalidation, or other out-of-scope operation occurred.
+
+### T16 stale stop Sol diagnosis and CH01-CH02 authorization
+
+Sol confirmed that the exact Japanese `admin.conflict` heading begins
+`別の更新があるため保存できませんでした。` and contains neither the English
+word `conflict` nor the Japanese literal `競合`. The helper's role-name regex
+therefore cannot find the real Japanese heading after the stale request even
+when the application reaches the intended state. The accepted update and
+single restore left the exact baseline current at VersionId
+`kpbPZRFYYVZbVgHdWlBIEYp2DJAmC4vU`.
+
+`phase4-t16-conflict-heading-plan.md` authorizes only a local correction using
+the stable `#conflict-title` with exact committed Japanese/English text and
+deterministic tests. The stale response/comparison transport, actionability,
+protected S3, public observation, restore, retry, and cleanup contracts remain
+unchanged. No AWS/network/live, identity/data/recovery-material,
+deploy/invalidation, IAM/CloudFormation, dependency, T17, production/DNS,
+Firebase, or historical-data action is authorized pending Sol review.

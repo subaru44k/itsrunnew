@@ -2168,6 +2168,29 @@ Rollback/removal:
 
 Remove the diagnostic event after the callback issue closes.
 
+## D053: Classify exact oidc-client pre-token validation messages
+
+Status: accepted
+
+Problem:
+
+CET03 returned callback-other. Installed oidc-client source shows only six fixed
+generic Error messages between state loading and token POST.
+
+Decision:
+
+Compare only those exact constants and emit fixed categories. Reject near
+matches and discard all caught material. After local review, deploy web-only and
+run one auth-only diagnosis.
+
+Cost and maintenance effect:
+
+No dependency/AWS change; identifies the mismatched configuration field.
+
+Rollback/removal:
+
+Remove detailed categories after T16 closes.
+
 ## Decision template
 
 Copy for new decisions:

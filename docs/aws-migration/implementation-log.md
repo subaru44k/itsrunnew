@@ -5084,3 +5084,15 @@ bytes before observing tuple 0 and deleting the temporary identity. It must run
 once and stop on any failure. No second execution, restore retry, invalidation,
 IAM/CloudFormation/deploy, other object, delete/version-delete, production,
 DNS, Firebase, or T17 operation is authorized by this entry.
+
+### T16 selector-corrected CF03 rehearsal stop — 2026-08-11
+
+The one authorized execution from clean commit `861395b` stopped during
+authenticated browser setup with a sanitized typed failure: `writes=0`,
+`restores=0`, and `cleanupStatus=passed`. No retry or manual write was
+performed. Post-stop read-only checks found users/admins `0/0`, invalidation
+count `3`, the API 5xx alarm `OK` with no actions, and the unchanged encrypted
+501-byte target with baseline ETag/VersionId/metadata, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
+0. The rehearsal is stopped for Sol review; no further live execution is
+authorized by this entry.

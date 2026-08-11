@@ -4605,3 +4605,30 @@ object remained 501 bytes with ETag
 No data, IAM, CloudFormation, invalidation, Cognito administration, Firestore,
 production, DNS, or Firebase change occurred. The one NU02 auth-only execution
 is authorized under the existing exact cleanup and zero-data-write gates.
+
+### Phase 4 T16 NU02 auth-only live confirmation
+
+Starting from `03577132ff24566efd4ea4c5c3ee76b30f09dd27` on
+`migration/aws-s3-cloudfront`, Node `v24.18.1`, focused auth harness tests
+passed 43/43, `npm run check` passed, and `git diff --check` passed. Read-only
+preflight matched account `470447451992`, region `ap-northeast-1`, pool users 0,
+admins membership 0, the one-form/three-control Hosted UI selector, the exact
+501-byte protected-object baseline including ETag/VersionId/SHA-256, and
+CloudFront invalidation count 3.
+
+The committed auth-only executable ran exactly once with
+`--execute-preview-auth` and exited 0. Its sanitized result was `status: success`,
+`lastCheckpoint: complete`, both `roleOutcomes.admin` and
+`roleOutcomes.non-admin` passed, `counts: { operations: 9, writes: 0,
+restores: 0, cleanups: 1 }`, `failure: null`, `cleanupFailure: null`,
+`restoreStatus: not-required`, and `cleanupStatus: passed`. All four
+desktop/mobile role flows were reached: admin protected GET returned 200 on
+desktop/mobile and non-admin protected GET returned 403 on desktop/mobile.
+No API PUT was attempted.
+
+Independent post-run readback proved pool users 0, admins membership 0,
+protected object ContentLength 501 with the same ETag, VersionId, content type,
+cache metadata, and SHA-256, and invalidation count 3. No S3/data write,
+Firestore, IAM, CloudFormation, deployment, production, DNS, Firebase, or T17
+operation occurred. NU02 is a terminal stop for Sol review; no retry or source
+fix was made.

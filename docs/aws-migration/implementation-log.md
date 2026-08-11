@@ -4438,3 +4438,10 @@ once, verify unchanged inventories, then run auth-only once and stop.
 Exact-SHA workflow `31446988819` at `5ac03d1` passed all checks, web-only
 deployment, and raw preview. Protected data and invalidation count 3 remained
 unchanged. One auth-only STR02 diagnosis is authorized under existing gates.
+
+### Phase 4 T16 STR02 result and callback-URL plan
+
+STR02 commit `f987677` safely returned desktop `state-response-missing`, while
+the pre-document probe had proved arriving code/state presence. Cleanup and
+inventories were exact. D055 and `phase4-t16-callback-url-plan.md` authorize
+CU01 locally; no AWS/live auth.

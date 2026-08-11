@@ -2213,6 +2213,28 @@ Rollback/removal:
 
 Remove detailed categories after T16 closes.
 
+## D055: Capture callback URL before mounted router work
+
+Status: accepted
+
+Problem:
+
+STR02 proved the arriving document has state but oidc-client receives a response
+without state. The callback page reads `window.location.href` only in onMounted.
+
+Decision:
+
+Capture the URL once during client setup and pass the immutable value on mount;
+never persist or expose it. After review, deploy web-only and confirm once.
+
+Cost and maintenance effect:
+
+No dependency/AWS change.
+
+Rollback/removal:
+
+Keep early capture while callback is client-rendered.
+
 ## Decision template
 
 Copy for new decisions:

@@ -4928,3 +4928,26 @@ it proves zero unhandled rejections and exactly-once cleanup of all resources.
 The focused data suite passes 39/39 and the combined T16 data/auth suite passes
 82/82. `npm run check`, `node --check`, and `git diff --check` pass. No
 AWS/network/live operation occurred; stop for Sol review.
+
+### T16 LS01-LS02 Sol acceptance and one corrected CF03 execution
+
+Sol independently reviewed LS01-LS02 through commit `fd81532` and reran the
+focused data suite (39/39). Each authenticated GET waiter is now created only
+for its current page, has an explicit 90-second limit, receives an immediate
+rejection consumer, and is validated before the second page starts. Delayed
+rejection tests prove no unhandled rejection and exactly-once browser cleanup.
+
+The post-stop read-only gate again matched account `470447451992`, pool users
+0, `admins` members 0, invalidation count 3, and the exact unchanged 501-byte
+baseline object/ETag/VersionId/metadata/SHA-256. Protected prior T16 capture
+directories remain mode 0700 under `.artifacts/migration`; they are not inputs
+to the corrected execution and are not deleted by this authorization.
+
+One fresh execution of the corrected committed executable is authorized with
+the same exact profile/account/region, target object, one successful UI PUT,
+one stale 409 PUT, one conditional original-byte restore PUT, and identity
+cleanup boundaries recorded at `e9679d7`. This is a new execution after a
+reviewed source correction; it must still run exactly once and must not be
+rerun on failure. No restore retry, invalidation, IAM/CloudFormation/deploy,
+other object, delete/version-delete, production, DNS, Firebase, or T17 action
+is authorized.

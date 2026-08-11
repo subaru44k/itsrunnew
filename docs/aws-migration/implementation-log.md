@@ -4324,6 +4324,38 @@ Focused auth tests passed 43/43, web unit tests passed 68, admin-local
 Playwright passed 46, `npm run check` passed, and `git diff --check` passed.
 No AWS/live auth/deployment or dependency change was made.
 
+### Phase 4 T16 SV02 state-validation auth-only diagnosis stop
+
+Starting from Sol handoff `6c08dec13c90e614aa9bfbb952bdb5041bbc8bdf`, Node
+`v24.18.1`, focused auth/web tests, root `npm run check`, and
+`git diff --check` passed. Read-only preflight matched account
+`470447451992`, region `ap-northeast-1`, pool users 0, `admins` membership 0,
+the exact preview resources, and the real `/manage`-initiated Hosted UI
+selector (desktop/mobile: one visible form with three controls each). The
+protected Oda object baseline was 501 bytes, ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE`, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and
+the exact content type/cache metadata. CloudFront invalidation count was 3.
+
+The committed auth-only executable ran exactly once with
+`--execute-preview-auth`. Its sanitized result was `status: failed`,
+`lastCheckpoint: cleanup`, `failureCheckpoint: admin-form`,
+`roleOutcomes.admin: failed`, `roleOutcomes.non-admin: not-run`,
+`counts: { operations: 4, writes: 0, restores: 0, cleanups: 1 }`,
+`failure: { stage: admin-form, category: callback-other, viewport: desktop }`,
+`cleanupStatus: passed`, `cleanupFailure: null`, and
+`restoreStatus: not-required`. Exit status was nonzero; no retry or source fix
+was made. The remaining role/viewport proofs were not reached after the
+bounded admin failure.
+
+Independent post-run readback proved pool users 0 and `admins` membership 0.
+The protected object remained 501 bytes with the same ETag, VersionId, content
+type, cache metadata, and SHA-256. CloudFront invalidation count remained 3.
+No API PUT, S3 write, Firestore, IAM, CloudFormation, deployment, production,
+DNS, Firebase, or data rehearsal operation occurred. SV02 is a terminal stop;
+no retry or further auth-only run is authorized.
+
 ### Phase 4 T16 SV01 Sol acceptance and SV02 deployment authorization
 
 Sol reviewed `a7b41c0`. Only the six exact installed-library messages map to

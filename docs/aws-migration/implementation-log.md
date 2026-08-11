@@ -4747,3 +4747,13 @@ body and cleanup tests are absent.
 `phase4-t16-data-final-correction.md` defines isolated DC01-DC03 corrections.
 Only DC01 local source/tests are authorized next. No AWS/live operation or
 later milestone is authorized.
+
+### DC01 Sol correction follow-up
+
+Added pure whole-document one-cell delta validation and retained each page's
+baseline/accepted update document in the Playwright closure. UI request and
+response checks now enforce exact shape, origin, normalized content type,
+headers, timestamps, ETag/VersionId, one PUT, localized conflict UI, and exact
+comparison-document equality. Added low-level negative delta/body contract
+coverage. Focused T16/auth suites: 47 passed; `npm run check`, `node --check`,
+and `git diff --check` passed. No AWS/live or DC02+ operation occurred.

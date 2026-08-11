@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -119,6 +119,20 @@ test('low-level Playwright page boundary observes exact UI PUT JSON response', a
   const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
   const page = { locator: () => ({ selectOption: async value => assert.equal(value, '1') }), waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => {} }) }
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
-  const result = await browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag }, 1)
+  const baselineDocument = { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
+  const result = await browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument }, 1)
   assert.equal(result.status, 200); assert.equal(result.versionId, 'version-2'); assert.equal(result.tuple, 1)
+})
+
+test('whole-document delta rejects every non-target mutation and stale timestamp', () => {
+  const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2], '2026-08-10': [1, 2, 0] } }
+  const accepted = { ...baseline, updatedAt: '2026-08-11T00:00:00.000Z', days: { ...baseline.days, '2026-08-09': [1, 1, 2] } }
+  assert.equal(validateOneCellDelta(baseline, accepted, { requireUpdatedAt: true }), accepted)
+  for (const candidate of [
+    { ...accepted, days: { ...accepted.days, '2026-08-10': [2, 2, 0] } },
+    { ...accepted, days: { ...accepted.days, '2026-08-09': [1, 2, 2] } },
+    { ...accepted, days: { ...accepted.days, '2026-08-11': [1, 1, 1] } },
+    { ...accepted, updatedAt: baseline.updatedAt },
+    { ...accepted, unknown: true },
+  ]) assert.throws(() => validateOneCellDelta(baseline, candidate, { requireUpdatedAt: true }), /mismatch|timestamp/)
 })

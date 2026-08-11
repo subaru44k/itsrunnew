@@ -4832,3 +4832,14 @@ timer-cleanup, malformed-response, body-size, and retry-success cases are
 covered without AWS/network access. The focused T16 data/auth suite passes
 73/73; `npm run check`, `node --check`, and `git diff --check` pass. No
 AWS/live/DC04/T17 operation occurred; stop for Sol review.
+
+### T16 DC03 Sol correction
+
+Strengthened the shared monthly schedule parser to enforce the exact
+`data-schema.md` shape, identity, Gregorian August 2026 dates, dense status
+tuples, unknown-field rejection, and 32 KiB bound. Added direct polling cases
+for malformed JSON/schema, missing and oversized bodies, exact cache metadata,
+pending stream cancellation, active-timer cleanup across every termination
+path, late fetch/body rejection guarding, and a deterministic overall-deadline
+counter. The combined T16 data/auth suite passes 78/78; focused data tests
+pass 35/35. No AWS/network/live operation occurred; stop for Sol review.

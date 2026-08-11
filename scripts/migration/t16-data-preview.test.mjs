@@ -190,7 +190,7 @@ function publicResponse({ status = 200, type = 'application/json', cache = DATA_
 
 test('public poll uses exact injected fetch boundary and retries tuple mismatch', async () => {
   const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [0, 1, 2] } }
-  const calls = []; let clears = 0; let sequence = [publicResponse({ body: { ...document, days: { [DATA_CONSTANTS.date]: [0, 1, 2] } } }), publicResponse({ body: { ...document, days: { [DATA_CONSTANTS.date]: [1, 1, 2] } } })]
+  const calls = []; let clears = 0; let sequence = [publicResponse({ type: 'application/json; charset=utf-8', body: { ...document, days: { [DATA_CONSTANTS.date]: [0, 1, 2] } } }), publicResponse({ body: { ...document, days: { [DATA_CONSTANTS.date]: [1, 1, 2] } } })]
   const result = await createPlaywrightDataBrowser({ fetchImpl: async (url, options) => { calls.push({ url, options }); return sequence.shift() }, timer: setTimeout, clearTimer: id => { clears += 1; clearTimeout(id) }, sleep: async () => {} }).poll({ expected: 1, maxAttempts: 3, maxMs: 1000 })
   assert.deepEqual(result, { tuple: 1, attempts: 2 }); assert.equal(calls.length, 2); assert.equal(calls[0].url, `${DATA_CONSTANTS.apiOrigin}/${DATA_CONSTANTS.key}`); assert.equal(calls[0].options.method, 'GET'); assert.equal(calls[0].options.cache, 'no-store'); assert.equal(calls[0].options.credentials, 'omit'); assert.deepEqual(calls[0].options.headers, { accept: 'application/json' }); assert.equal(calls[0].options.headers.authorization, undefined); assert.equal(clears >= 2, true)
 })
@@ -209,7 +209,59 @@ test('public poll aborts pending fetch/body at the overall deadline and clears t
 test('public poll enforces max attempts and rejects invalid bounded responses', async () => {
   let calls = 0; await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: async () => { calls += 1; return publicResponse({ body: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [0, 1, 2] } } }) }, sleep: async () => {} }).poll({ expected: 1, maxAttempts: 3, maxMs: 500 }), /observation timeout/); assert.equal(calls, 3)
   const streamed = publicResponse({ body: Buffer.from('{}') }); streamed.body = { getReader: () => { let done = false; return { read: async () => { if (done) return { done: true }; done = true; return { done: false, value: Buffer.alloc(32769) } }, cancel: async () => {}, releaseLock: () => {} } } }
-  for (const response of [publicResponse({ status: 500 }), publicResponse({ type: 'text/plain' }), publicResponse({ cache: 'no-store' }), publicResponse({ body: Buffer.alloc(32769), length: 32769 }), streamed]) await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: async () => response, sleep: async () => {} }).poll({ expected: 1, maxAttempts: 1, maxMs: 500 }), /observation timeout/)
+  for (const response of [publicResponse({ status: 500 }), publicResponse({ type: 'text/plain' }), publicResponse({ type: 'application/json; charset=utf-8', cache: 'no-store' }), publicResponse({ cache: `${DATA_CONSTANTS.cacheControl}; foo=bar` }), publicResponse({ body: Buffer.alloc(32769), length: 32769 }), publicResponse({ body: Buffer.from('{') }), { status: 200, headers: { get: name => name === 'content-type' ? 'application/json' : DATA_CONSTANTS.cacheControl } }, streamed]) await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: async () => response, sleep: async () => {} }).poll({ expected: 1, maxAttempts: 1, maxMs: 500 }), /observation timeout/)
+})
+
+test('shared schedule parser rejects every malformed exact-month schema', async () => {
+  const valid = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [0, 1, 2] } }
+  const malformed = [
+    Buffer.from('{'), Buffer.from(JSON.stringify(null)), Buffer.from(JSON.stringify([])), Buffer.from(JSON.stringify({ ...valid, extra: true })),
+    Buffer.from(JSON.stringify({ ...valid, days: { '2026-07-31': [0, 1, 2] } })), Buffer.from(JSON.stringify({ ...valid, days: { '2026-08-32': [0, 1, 2] } })),
+    Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, 1], '2026-08-10': [0, 1, 2] } })), Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, 3, 2], '2026-08-10': [0, 1, 2] } })),
+    Buffer.from(JSON.stringify({ ...valid, days: Object.fromEntries(Array.from({ length: 32 }, (_, index) => [`2026-08-${String(index + 1).padStart(2, '0')}`, [0, 1, 2]])) })),
+  ]
+  for (const bytes of malformed) { const response = publicResponse({ body: bytes }); await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: async () => response }).poll({ expected: 1, maxAttempts: 1, maxMs: 500 }), /observation timeout/) }
+})
+
+test('public poll aborts and cancels a pending stream reader exactly once', async () => {
+  let readerSignal; let cancelCount = 0; let releaseCount = 0; let resolveRead
+  const response = publicResponse({ body: Buffer.from('{}') }); response.body = { getReader: options => { readerSignal = options.signal; return { read: () => new Promise(resolve => { resolveRead = resolve }), cancel: async () => { cancelCount += 1; resolveRead?.({ done: true }) }, releaseLock: () => { releaseCount += 1 } } } }
+  await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: async () => response }).poll({ expected: 1, maxAttempts: 1, maxMs: 20 }), /observation timeout/)
+  assert.equal(readerSignal.aborted, true); assert.equal(cancelCount, 1); assert.equal(releaseCount, 1)
+})
+
+test('public poll leaves no active timers across success, exhaustion, and deadline paths', async () => {
+  const tracked = () => { const active = new Set(); const timer = (fn, ms) => { const id = setTimeout(() => { active.delete(id); fn() }, ms); active.add(id); return id }; const clearTimer = id => { active.delete(id); clearTimeout(id) }; return { active, timer, clearTimer } }
+  const valid = publicResponse({ body: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [1, 1, 2] } } })
+  for (const scenario of ['success', 'exhausted', 'fetch-timeout', 'body-timeout', 'sleep-timeout']) {
+    const timers = tracked(); let fetchImpl
+    if (scenario === 'success') fetchImpl = async () => valid
+    else if (scenario === 'exhausted') fetchImpl = async () => publicResponse({ body: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [0, 1, 2] } } })
+    else if (scenario === 'fetch-timeout') fetchImpl = (_url, options) => new Promise((resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('late fetch')), { once: true }))
+    else if (scenario === 'body-timeout') fetchImpl = async () => ({ status: 200, headers: { get: name => name === 'content-type' ? 'application/json' : DATA_CONSTANTS.cacheControl }, arrayBuffer: () => new Promise(() => {}) })
+    else fetchImpl = async () => publicResponse({ body: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [0, 1, 2] } } })
+    const options = { fetchImpl, timer: timers.timer, clearTimer: timers.clearTimer, maxAttempts: 2, maxMs: 20 }
+    const browser = createPlaywrightDataBrowser({ ...options, ...(scenario === 'sleep-timeout' ? { sleep: () => new Promise(() => {}) } : {}) })
+    if (scenario === 'success') await browser.poll({ expected: 1, maxAttempts: 2, maxMs: 100 })
+    else await assert.rejects(browser.poll({ expected: 1, maxAttempts: 2, maxMs: 20 }), /observation timeout/)
+    assert.equal(timers.active.size, 0, scenario)
+  }
+})
+
+test('public poll guards late fetch/body rejections after deadline', async () => {
+  const unhandled = []; const listener = reason => unhandled.push(reason); process.on('unhandledRejection', listener)
+  try {
+    const late = (_url, options) => new Promise((resolve, reject) => { options.signal.addEventListener('abort', () => setTimeout(() => reject(new Error('late fetch')), 5), { once: true }) })
+    await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: late }).poll({ expected: 1, maxAttempts: 1, maxMs: 10 }), /observation timeout/)
+    const response = publicResponse({ body: Buffer.from('{}') }); response.arrayBuffer = () => new Promise((resolve, reject) => setTimeout(() => reject(new Error('late body')), 5))
+    await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: async () => response }).poll({ expected: 1, maxAttempts: 1, maxMs: 10 }), /observation timeout/)
+    await new Promise(resolve => setTimeout(resolve, 20)); assert.deepEqual(unhandled, [])
+  } finally { process.off('unhandledRejection', listener) }
+})
+
+test('public poll never starts an attempt after the overall deadline', async () => {
+  let now = 0; let calls = 0; const mismatch = publicResponse({ body: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [0, 1, 2] } } })
+  await assert.rejects(createPlaywrightDataBrowser({ clock: () => now, fetchImpl: async () => { calls += 1; return mismatch }, sleep: async () => { now = 100 } }).poll({ expected: 1, maxAttempts: 5, maxMs: 50 }), /observation timeout/); assert.equal(calls, 1)
 })
 
 test('low-level Playwright page boundary observes exact UI PUT JSON response', async () => {

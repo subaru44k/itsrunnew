@@ -87,9 +87,16 @@ export async function validateAuthenticatedGetResponse(response, { origin = DATA
   return { document: clone(document), etag, tuple: parsed.tuple }
 }
 function parseSchedule(bytes) {
+  if (!Buffer.isBuffer(bytes) || bytes.length > 32768) fail('invalid schedule')
   let value
   try { value = JSON.parse(Buffer.from(bytes).toString('utf8')) } catch { fail('invalid schedule') }
-  if (!value || value.schemaVersion !== 1 || value.stadium !== 'oda' || value.yearMonth !== '2026-08' || !safeTimestamp(value.updatedAt) || !value.days || typeof value.days !== 'object') fail('invalid schedule')
+  const plain = candidate => candidate !== null && typeof candidate === 'object' && !Array.isArray(candidate) && Object.getPrototypeOf(candidate) === Object.prototype
+  if (!plain(value) || Object.keys(value).sort().join('|') !== 'days|schemaVersion|stadium|updatedAt|yearMonth' || value.schemaVersion !== 1 || value.stadium !== 'oda' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value.yearMonth) || value.yearMonth !== '2026-08' || !safeTimestamp(value.updatedAt) || !plain(value.days) || Object.keys(value.days).length > 31) fail('invalid schedule')
+  const daysInMonth = new Date(Date.UTC(2026, 8, 0)).getUTCDate()
+  for (const [date, tuple] of Object.entries(value.days)) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date); const day = Number(match?.[3])
+    if (!match || match[1] !== '2026' || match[2] !== '08' || day < 1 || day > daysInMonth || new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, day)).getUTCDate() !== day || !Array.isArray(tuple) || tuple.length !== 3 || !Object.keys(tuple).every(key => ['0', '1', '2'].includes(key)) || tuple.some(item => !Number.isInteger(item) || ![0, 1, 2].includes(item))) fail('invalid schedule')
+  }
   const tuple = value.days[DATA_CONSTANTS.date]
   if (!Array.isArray(tuple) || tuple.length !== 3 || tuple.some(item => !Number.isInteger(item) || item < 0 || item > 2)) fail('invalid schedule')
   return { document: value, tuple: tuple[DATA_CONSTANTS.slot] }
@@ -256,9 +263,9 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
         const timeoutId = timer(() => { controller?.abort(); reject(new Error('observation deadline')) }, ms)
         settle(promise).then(resolve, reject).finally(() => { clearTimer(timeoutId) })
       })
-      const readBody = async response => {
+      const readBody = async (response, signal) => {
         const length = Number(response.headers?.get?.('content-length')); if (Number.isFinite(length) && length > 32768) fail('public response too large')
-        if (response.body?.getReader) { const reader = response.body.getReader(); const parts = []; let size = 0; try { for (;;) { const next = await reader.read(); if (next.done) break; const chunk = Buffer.from(next.value); size += chunk.length; if (size > 32768) { await reader.cancel().catch(() => {}); fail('public response too large') } parts.push(chunk) } } finally { reader.releaseLock?.() } return Buffer.concat(parts) }
+        if (response.body?.getReader) { const reader = response.body.getReader({ signal }); let cancelled = false; const cancel = () => { if (!cancelled) { cancelled = true; Promise.resolve(reader.cancel?.()).catch(() => {}) } }; signal?.addEventListener('abort', cancel, { once: true }); const parts = []; let size = 0; try { for (;;) { const next = await reader.read(); if (next.done) break; const chunk = Buffer.from(next.value); size += chunk.length; if (size > 32768) { cancel(); fail('public response too large') } parts.push(chunk) } } finally { signal?.removeEventListener('abort', cancel); reader.releaseLock?.() } return Buffer.concat(parts) }
         if (typeof response.arrayBuffer !== 'function') fail('public response body unavailable'); const bytes = Buffer.from(await response.arrayBuffer()); if (bytes.length > 32768) fail('public response too large'); return bytes
       }
       try {
@@ -268,9 +275,9 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
             const response = await raceDeadline(fetchImpl(url, { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { accept: DATA_CONSTANTS.contentType }, signal: controller.signal }), controller)
             const type = response.headers?.get?.('content-type')?.split(';')[0].trim().toLowerCase(); const cache = response.headers?.get?.('cache-control')?.trim().toLowerCase()
             if (response.status !== 200 || type !== DATA_CONSTANTS.contentType || cache !== DATA_CONSTANTS.cacheControl) fail('public response contract')
-            const body = await raceDeadline(readBody(response), controller); const parsed = parseSchedule(body)
+            const body = await raceDeadline(readBody(response, controller.signal), controller); const parsed = parseSchedule(body)
             if (parsed.tuple === expected) return { tuple: expected, attempts }
-          } catch (error) { if (remaining() <= 0) throw error } finally { controller.abort() }
+          } catch (error) { if (/invalid schedule|public response contract|public response too large|public response body unavailable/.test(error?.message ?? '') || remaining() <= 0) throw error } finally { controller.abort() }
           const delay = Math.min(1000, remaining()); if (delay <= 0) break
           await raceDeadline(sleep(delay), undefined)
         }

@@ -5687,3 +5687,15 @@ they rely on exact request/transport checks and bounded localized UI proofs.
 Focused T16 tests pass (`54/54`); required repository checks were run locally.
 No AWS, network, identity, recovery-material deletion, deployment, or other
 out-of-scope operation was performed.
+
+### T16 UR02/UR03 localized UI wait correction — 2026-08-11
+
+Sol review correction completed locally: the successful-update proof now locates
+the real status role without an accessible-name filter, waits for bounded
+visibility, and accepts only the exact rendered localized strings `Saved.` or
+`保存しました。`. Conflict heading and action controls now use bounded visible
+waits; the action is also required to be enabled and trial-actionable. Deterministic
+tests cover both saved locales, incorrect/missing status text, delayed conflict
+controls, and bounded conflict timeout. Focused data coverage is `56/56` and no
+AWS, network, identity, recovery-material deletion, or other live operation was
+performed.

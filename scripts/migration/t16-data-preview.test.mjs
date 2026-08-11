@@ -348,7 +348,7 @@ test('low-level Playwright page boundary observes exact UI PUT JSON response', a
   let requestListener
   const cell = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, inputValue: async () => '0', selectOption: async value => { assert.equal(value, '1'); cell.inputValue = async () => '1' }, click: async () => {} }
   const save = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async ({ trial } = {}) => { if (!trial) requestListener?.(request) } }
-  const metadata = { waitFor: async () => {}, isVisible: async () => true }; const status = { waitFor: async () => {}, isVisible: async () => true }; const page = { locator: selector => { if (selector === '.admin-metadata') return metadata; assert.equal(selector, '[id="2026-08-09-0"]'); return cell }, on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: role => role === 'status' ? status : role === 'alert' ? alertNone() : save }
+  const metadata = { waitFor: async () => {}, isVisible: async () => true }; const status = { waitFor: async () => {}, isVisible: async () => true, textContent: async () => 'Saved.' }; const page = { locator: selector => { if (selector === '.admin-metadata') return metadata; assert.equal(selector, '[id="2026-08-09-0"]'); return cell }, on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: role => role === 'status' ? status : role === 'alert' ? alertNone() : save }
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
   const baselineDocument = { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
   const result = await browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument }, 1)
@@ -367,6 +367,20 @@ test('low-level browser boundary rejects a second matching PUT', async () => {
   await assert.rejects(browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } } }, 1), /UI PUT contract/)
 })
 
+test('saved status accepts both exact locales and rejects incorrect or missing rendered text', async () => {
+  const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') } })
+  for (const text of ['Saved.', '保存しました。']) {
+    const fixture = submitFixture(); const originalGetByRole = fixture.page.getByRole
+    fixture.page.getByRole = (role, options = {}) => role === 'status' ? { waitFor: async () => {}, textContent: async () => text } : originalGetByRole(role, options)
+    assert.equal((await browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1)).saved, true)
+  }
+  for (const text of ['Saved', '保存しました', null]) {
+    const fixture = submitFixture(); const originalGetByRole = fixture.page.getByRole
+    fixture.page.getByRole = (role, options = {}) => role === 'status' ? (text === null ? {} : { waitFor: async () => {}, textContent: async () => text }) : originalGetByRole(role, options)
+    await assert.rejects(browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1), /saved UI/)
+  }
+})
+
 function submitFixture({ requestOverrides = {}, responseOverrides = {}, responseJson, conflict = false, conflictUi = true, cellOptions = {}, saveOptions = {} } = {}) {
   const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
   const updated = { ...baseline, updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
@@ -375,7 +389,7 @@ function submitFixture({ requestOverrides = {}, responseOverrides = {}, response
   const response = { status: () => conflict ? 409 : (responseOverrides.status ?? 200), url: () => responseOverrides.url ?? `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store', ...responseOverrides.headers }), json: async () => responseJson ?? { document: updated, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' } }
   let requestListener; let saveClicks = 0
   const cellStarted = Date.now(); let cellValue = cellOptions.value ?? '0'; const cellEnabled = () => cellOptions.enableAfter === undefined ? cellOptions.enabled ?? true : Date.now() - cellStarted >= cellOptions.enableAfter; const cell = { waitFor: async () => { if (cellOptions.delay) await new Promise(resolve => setTimeout(resolve, cellOptions.delay)) }, isVisible: async () => cellOptions.visible ?? true, isEnabled: async () => cellEnabled(), inputValue: async () => cellValue, selectOption: async value => { cellValue = value }, click: async ({ timeout = 1000 } = {}) => { const deadline = Date.now() + timeout; while (!cellEnabled() && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 1)); if (!cellEnabled()) throw new Error('not actionable') } }; const saveStarted = Date.now(); const saveEnabled = () => saveOptions.enableAfter === undefined ? saveOptions.enabled ?? true : Date.now() - saveStarted >= saveOptions.enableAfter; const save = { waitFor: async () => { if (saveOptions.delay) await new Promise(resolve => setTimeout(resolve, saveOptions.delay)) }, isVisible: async () => saveOptions.visible ?? true, isEnabled: async () => saveEnabled(), click: async ({ trial = false, timeout = 1000 } = {}) => { const deadline = Date.now() + timeout; while (!saveEnabled() && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 1)); if (!saveEnabled()) throw new Error('not actionable'); if (!trial) { saveClicks += 1; if (requestListener) requestListener(request) } } }
-  const metadata = { waitFor: async () => {}, isVisible: async () => true }; const status = { waitFor: async () => {}, isVisible: async () => true }; const page = { locator: selector => { if (selector === '.admin-metadata') return metadata; assert.equal(selector, '[id="2026-08-09-0"]'); return cellOptions.missing ? {} : cell }, on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async predicate => { responseCount += 1; if (conflict && responseCount === 2) return { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }) }; return response }, getByRole: (role, options = {}) => role === 'status' ? status : role === 'alert' ? alertNone() : role === 'button' && isSaveName(options.name) ? (saveOptions.missing ? {} : save) : ({ click: async () => {}, isVisible: async () => conflictUi }) }
+  const metadata = { waitFor: async () => {}, isVisible: async () => true }; const status = { waitFor: async () => {}, isVisible: async () => true, textContent: async () => 'Saved.' }; const conflictControl = { waitFor: async () => {}, isVisible: async () => conflictUi, isEnabled: async () => conflictUi, click: async () => {} }; const page = { locator: selector => { if (selector === '.admin-metadata') return metadata; assert.equal(selector, '[id="2026-08-09-0"]'); return cellOptions.missing ? {} : cell }, on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async predicate => { responseCount += 1; if (conflict && responseCount === 2) return { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }) }; return response }, getByRole: (role, options = {}) => role === 'status' ? status : role === 'alert' ? alertNone() : role === 'button' && isSaveName(options.name) ? (saveOptions.missing ? {} : save) : conflictControl }
   return { page, baseline, updated, saveClicks: () => saveClicks }
 }
 
@@ -417,10 +431,20 @@ test('low-level stale conflict resolves with one PUT, comparison GET, and locali
   const updated = await browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1); assert.equal(updated.status, 200)
   const conflict = submitFixture({ conflict: true }); let registered
   conflict.page.on = (event, listener) => { if (event === 'request') registered = request => { if (request.method() === 'PUT') puts += 1; listener(request) } }
-  const conflictSave = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async ({ trial } = {}) => { if (!trial) registered?.(conflict.page.requestForTest) } }; conflict.page.getByRole = (role, options) => isSaveName(options.name) ? conflictSave : ({ click: async () => {}, isVisible: async () => true })
+  const conflictSave = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async ({ trial } = {}) => { if (!trial) registered?.(conflict.page.requestForTest) } }; const conflictControl = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async () => {} }; conflict.page.getByRole = (role, options) => isSaveName(options.name) ? conflictSave : conflictControl
   conflict.page.requestForTest = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: fixture.updated.days }) }
   const result = await browser.submit(conflict.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1, true)
   assert.deepEqual(result, { status: 409, cacheControl: 'no-store', conflict: true, puts: 1, retries: 0, tuple: 1 }); assert.equal(puts, 1)
+})
+
+test('conflict heading and action wait boundedly, including delayed success and timeout', async () => {
+  const delayed = submitFixture({ conflict: true }); const originalGetByRole = delayed.page.getByRole
+  const delayedControl = delay => ({ waitFor: async ({ timeout }) => { if (delay > timeout) { await new Promise(resolve => setTimeout(resolve, timeout)); throw new Error('timeout') } await new Promise(resolve => setTimeout(resolve, delay)) }, isVisible: async () => true, isEnabled: async () => true, click: async ({ trial } = {}) => { assert.equal(trial, true) } })
+  delayed.page.getByRole = (role, options = {}) => isSaveName(options.name) ? originalGetByRole(role, options) : delayedControl(5)
+  const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') }, responseTimeout: 30 })
+  const result = await browser.submit(delayed.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: delayed.baseline }, 1, true); assert.equal(result.conflict, true)
+  const timed = submitFixture({ conflict: true }); const timedOriginalGetByRole = timed.page.getByRole; const timeoutControl = delayedControl(40); timed.page.getByRole = (role, options = {}) => isSaveName(options.name) ? timedOriginalGetByRole(role, options) : timeoutControl
+  await assert.rejects(createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') }, responseTimeout: 10 }).submit(timed.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: timed.baseline }, 1, true), /timeout|missing/)
 })
 
 test('low-level launcher/context setup captures two independent authenticated GET baselines', async () => {
@@ -525,7 +549,7 @@ test('submit avoids response body reads and rejects missing conflict controls', 
   const accepted = await browser.submit(timestamp.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: timestamp.baseline }, 1); assert.equal(accepted.status, 200)
   const missing = submitFixture({ conflict: true, conflictUi: false }); const result = submitFixture(); const acceptedAgain = await browser.submit(result.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: result.baseline }, 1); assert.equal(acceptedAgain.status, 200)
   let missingRegistered; missing.page.on = (event, listener) => { if (event === 'request') missingRegistered = listener }; const missingSave = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async ({ trial } = {}) => { if (!trial) missingRegistered?.(missing.page.requestForTest) } }; missing.page.getByRole = (_role, options) => isSaveName(options.name) ? missingSave : ({ click: async () => {}, isVisible: async () => false }); missing.page.requestForTest = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: missing.updated.days }) }
-  await assert.rejects(browser.submit(missing.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: missing.baseline }, 1, true), /conflict UI missing/)
+  await assert.rejects(browser.submit(missing.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: missing.baseline }, 1, true), /conflict heading|conflict UI missing/)
 })
 
 test('whole-document comparison is semantic, not JSON property-order sensitive', () => {

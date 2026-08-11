@@ -5108,3 +5108,17 @@ or write. The current data runner collapses those distinct substages into
 setup-substage/context proof and AWS-free regression tests. No AWS/network/live
 operation, Cognito or S3 mutation, deploy/invalidation, IAM/CloudFormation,
 Firebase, or T17 work is authorized pending Sol review.
+
+### T16 SD01-SD02 setup diagnostic correction complete — 2026-08-11
+
+Added a closed sanitized setup diagnostic boundary carrying only the
+allowlisted substage category (`hosted-ui-redirect`, `form-submission`,
+`manage-return`, `signed-in-sentinel`, or `authenticated-api-response`) and
+the context ordinal (`first` or `second`). Hostile setup errors collapse to
+`operation-failed` without raw error, URL, credential, identity, token, claim,
+DOM, request, response, bucket, or key data. Browser setup wraps each context
+failure, and the coordinator preserves the sanitized pair while retaining
+exactly-once cleanup and zero data-stage activity. Focused data tests: 45/45;
+combined T16 auth/data: 88/88. `npm run check`, `node --check`, and
+`git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
+review.

@@ -68,6 +68,26 @@ export function shouldRemoveRecoveryMaterial({ restoreStatus = 'not-required', r
 }
 const cognitoOperations = new Set(['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user', 'list-users', 'list-users-in-group', 'sts-get-caller-identity'])
 const strongEtag = value => typeof value === 'string' && /^"[0-9a-f]{32,}"$/i.test(value)
+const dataSetupCategories = new Set(['hosted-ui-redirect', 'form-submission', 'manage-return', 'signed-in-sentinel', 'authenticated-api-response', 'operation-failed'])
+const setupContext = value => value === 'second' ? 'second' : 'first'
+const setupCategory = error => {
+  if (dataSetupCategories.has(error?.category)) return error.category
+  const category = typeof error?.category === 'string' ? error.category : ''
+  const message = typeof error?.message === 'string' ? error.message : ''
+  if (category === 'hosted-ui-redirect-timeout' || message === 'hosted-ui-redirect-timeout') return 'hosted-ui-redirect'
+  if (['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed'].includes(category) || ['invalid hosted UI page', 'login control unavailable', 'form driver unavailable'].includes(message)) return 'form-submission'
+  if (category === 'callback-missing' || category === 'manage-timeout' || ['callback unavailable', 'manage return timeout'].includes(message)) return 'manage-return'
+  if (category === 'signed-in-missing' || ['signed-in sentinel unavailable', 'sentinel unavailable'].includes(message)) return 'signed-in-sentinel'
+  if (['api-response-missing', 'api-status-unexpected'].includes(category) || ['authenticated GET contract', 'authenticated GET shape', 'authenticated GET proof'].includes(message)) return 'authenticated-api-response'
+  return 'operation-failed'
+}
+export function createDataSetupError(category, context) {
+  if (!dataSetupCategories.has(category) || !['first', 'second'].includes(context)) fail('invalid setup diagnostic')
+  return Object.freeze({ name: 'DataSetupSubstageError', category, context })
+}
+export function sanitizeDataSetupFailure(error, context = error?.context) {
+  return Object.freeze({ category: setupCategory(error), context: setupContext(context) })
+}
 const safeTimestamp = value => typeof value === 'string' && !Number.isNaN(Date.parse(value)) && value === new Date(value).toISOString()
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const normalizedHeader = (headers, name) => {
@@ -179,7 +199,7 @@ export async function runDataRehearsal(adapters) {
     lastCheckpoint = 'restore'; counts.operations += 1; restoreAttempted = true; counts.restores += 1; restoreStatus = 'started'; const restored = proof('restore', await adapters.restore({ ifMatch: testEtag, versionId: testVersionId, original: recoveryOriginal })); restoreStatus = 'passed'; writePossible = false
     counts.polls += 1; await invoke('public-restored', () => adapters.poll({ expected: DATA_CONSTANTS.before, maxAttempts: 60, maxMs: 70000 }), false); lastCheckpoint = 'cleanup'
   } catch (error) {
-    failureCheckpoint = lastCheckpoint; failure = { checkpoint: lastCheckpoint, category: failureCategory }
+    failureCheckpoint = lastCheckpoint; failure = lastCheckpoint === 'setup' ? { checkpoint: lastCheckpoint, ...sanitizeDataSetupFailure(error) } : { checkpoint: lastCheckpoint, category: failureCategory }
     if (restoreAttempted && restoreStatus === 'started') { restoreStatus = 'failed'; recoveryMaterialRetained = true }
     if (writePossible && !restoreAttempted) {
       lastCheckpoint = 'restore'; restoreAttempted = true; counts.restores += 1; restoreStatus = 'started'
@@ -261,14 +281,15 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
       if (!Number.isFinite(responseTimeout) || responseTimeout <= 0) fail('browser response timeout')
       chromium = await launcher(); contexts = [await chromium.newContext(), await chromium.newContext()]; pages = await Promise.all(contexts.map(context => context.newPage()))
       loaded = []
-      for (const page of pages) {
+      for (const [index, page] of pages.entries()) {
+        const context = index === 0 ? 'first' : 'second'
         let responsePromise
         try {
           responsePromise = page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }, { timeout: responseTimeout })
           Promise.resolve(responsePromise).catch(() => {})
           await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' }); await runBrowserRoleSession(page, { username, password, viewport: 'desktop' }); await page.waitForURL(url => new URL(url).pathname === '/manage'); await awaitSignedInSentinel(page, { viewport: 'desktop' })
           loaded.push(await validateAuthenticatedGetResponse(await responsePromise, { origin }))
-        } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); throw error }
+        } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context) }
       }
       return { contexts: 2 }
     },

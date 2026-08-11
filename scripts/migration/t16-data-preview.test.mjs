@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial, validateRestoreProof, validateProtectedRun, shouldRemoveRecoveryMaterial, createLoadInputFromCapture } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial, validateRestoreProof, validateProtectedRun, shouldRemoveRecoveryMaterial, createLoadInputFromCapture, createDataSetupError, sanitizeDataSetupFailure } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -32,6 +32,26 @@ test('complete rehearsal has one update, one stale conflict, one restore, and cl
   assert.equal(result.counts.writes, 1); assert.equal(result.counts.restores, 1)
   assert.equal(order.indexOf('restore') < order.indexOf('cleanup'), true)
   assert.equal(order.filter(stage => stage === 'stale').length, 1)
+})
+
+test('setup diagnostics preserve every closed substage and context without data operations', async () => {
+  for (const category of ['hosted-ui-redirect', 'form-submission', 'manage-return', 'signed-in-sentinel', 'authenticated-api-response']) {
+    for (const context of ['first', 'second']) {
+      const order = []; const base = adapters({ order }); base.setup = async () => { order.push('setup'); throw createDataSetupError(category, context) }
+      const result = await runDataRehearsal(base)
+      assert.equal(result.status, 'failed'); assert.deepEqual(result.failure, { checkpoint: 'setup', category, context }); assert.deepEqual(order, ['preflight', 'capture', 'setup', 'cleanup'])
+      assert.equal(order.some(stage => ['load', 'update', 'stale', 'restore'].includes(stage)), false); assert.equal(order.filter(stage => stage === 'cleanup').length, 1)
+    }
+  }
+})
+
+test('hostile setup failures collapse to a generic sanitized category', async () => {
+  for (const hostile of [new Error('https://evil.invalid/?password=secret'), { category: 'evil', token: 'secret', body: 'raw' }, 'raw setup failure']) {
+    const base = adapters(); base.setup = async () => { throw hostile }
+    const result = await runDataRehearsal(base)
+    assert.deepEqual(result.failure, { checkpoint: 'setup', category: 'operation-failed', context: 'first' }); assert.doesNotMatch(JSON.stringify(result), /evil\.invalid|password|secret|token|raw setup/)
+  }
+  assert.deepEqual(sanitizeDataSetupFailure({ category: 'form-ambiguous' }, 'second'), { category: 'form-submission', context: 'second' })
 })
 
 test('load input helper returns the exact captured nonconstant ETag', async () => {
@@ -382,7 +402,7 @@ test('setup owns each GET waiter sequentially with finite timeout and no unhandl
 })
 
 test('first or second GET waiter rejection is consumed and cleanup closes all resources once', async () => {
-  for (const rejected of [0, 1]) { let index = 0; let contextCloses = 0; let browserCloses = 0; let unhandled = 0; const onUnhandled = () => { unhandled += 1 }; process.on('unhandledRejection', onUnhandled); const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store' }), json: async () => ({ document: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }, etag: DATA_CONSTANTS.baselineEtag }) }; const pages = [0, 1].map(pageIndex => { const control = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, fill: async () => {}, click: async () => {} }; const form = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, locator: () => control }; return { waitForResponse: () => pageIndex === rejected ? Promise.reject(new Error('waiter')) : Promise.resolve(response), goto: async () => {}, waitForURL: async () => {}, locator: selector => selector.startsWith('form') ? form : control, getByRole: (_role, options) => /Sign out|ログアウト/.test(options.name) ? { waitFor: async () => {} } : { click: async () => {} } } }); const launcher = async () => ({ newContext: async () => ({ newPage: async () => pages[index++], close: async () => { contextCloses += 1 } }), close: async () => { browserCloses += 1 } }); const browser = createPlaywrightDataBrowser({ launcher }); await assert.rejects(browser.setup({ username: 'test', password: 'test' })); await browser.cleanup(); await new Promise(resolve => setImmediate(resolve)); process.off('unhandledRejection', onUnhandled); assert.equal(unhandled, 0); assert.equal(contextCloses, 2); assert.equal(browserCloses, 1) }
+  for (const rejected of [0, 1]) { let index = 0; let contextCloses = 0; let browserCloses = 0; let unhandled = 0; const onUnhandled = () => { unhandled += 1 }; process.on('unhandledRejection', onUnhandled); const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store' }), json: async () => ({ document: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }, etag: DATA_CONSTANTS.baselineEtag }) }; const pages = [0, 1].map(pageIndex => { const control = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, fill: async () => {}, click: async () => {} }; const form = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, locator: () => control }; return { waitForResponse: () => pageIndex === rejected ? Promise.reject(new Error('waiter')) : Promise.resolve(response), goto: async () => {}, waitForURL: async () => {}, locator: selector => selector.startsWith('form') ? form : control, getByRole: (_role, options) => /Sign out|ログアウト/.test(options.name) ? { waitFor: async () => {} } : { click: async () => {} } } }); const launcher = async () => ({ newContext: async () => ({ newPage: async () => pages[index++], close: async () => { contextCloses += 1 } }), close: async () => { browserCloses += 1 } }); const browser = createPlaywrightDataBrowser({ launcher }); let thrown; try { await browser.setup({ username: 'test', password: 'test' }) } catch (error) { thrown = error }; assert.deepEqual(thrown, { name: 'DataSetupSubstageError', category: 'operation-failed', context: rejected === 0 ? 'first' : 'second' }); await browser.cleanup(); await new Promise(resolve => setImmediate(resolve)); process.off('unhandledRejection', onUnhandled); assert.equal(unhandled, 0); assert.equal(contextCloses, 2); assert.equal(browserCloses, 1) }
 })
 
 test('late GET waiter rejection during pending login stays handled and propagates after cleanup', async () => {

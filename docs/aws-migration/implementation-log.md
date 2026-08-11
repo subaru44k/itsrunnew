@@ -5393,3 +5393,21 @@ publish the reviewed template/Lambda asset and update only the fixed-name
 above and `--require-approval never`; do not retry on failure. No IAM/policy,
 other stack/resource, web/data upload, schedule write, identity mutation,
 invalidation, production/DNS, Firebase, CF03, or T17 operation is authorized.
+
+### T16 CM01-CM02 Lambda-only Hosting deployment complete — 2026-08-11
+
+The one authorized deployment from clean commit `169f838` completed with
+CloudFormation `UPDATE_COMPLETE` and no retry. The latest stack events contain
+only `ScheduleApiFunctionA177D4FE` `UPDATE_IN_PROGRESS`/`UPDATE_COMPLETE`
+between stack update start and completion; no other resource changed in this
+deployment. The fixed function `itsrun-preview-schedule-api` is `nodejs24.x`,
+timeout 10, memory 256, with the reviewed bucket environment and unchanged
+execution-role contract; deployed code SHA-256 is the approved Lambda
+`CodeSha256` base64 value `bULXMaVlOAur4m9pqOGwcCCLOU+lRrpTcdVvcESRfe4=`.
+Outputs/resources, alarm, users/admins `0/0`, invalidations `3`, and stack
+status remained unchanged. The exact baseline object remains 501 bytes with
+matching ETag/VersionId/metadata/AES256/SHA-256 and tuple 0; CloudFront returns
+200 with matching hash and cache metadata, API remains 401 with `no-store`,
+and direct S3 remains 403. No schedule/data write, identity mutation,
+invalidation, IAM/policy, other stack, Firebase, CF03, or T17 operation
+occurred. Stop for Sol review.

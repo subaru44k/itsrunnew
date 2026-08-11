@@ -5539,6 +5539,17 @@ fresh-context bounded-retry design. No additional restore retry, invalidation,
 deploy/IAM/CloudFormation, other object/delete/version-delete, production/DNS,
 Firebase, or T17 action is authorized.
 
+### T16 repeated Hosted UI stop and HR01-HR02 authorization
+
+The fresh execution at `da3d7be` stopped safely at `hosted-ui-redirect` in the
+second context before data work; `bf99d0d` records cleanup passed, zero writes/
+restores/polls, zero identities, and the unchanged exact baseline. Together with
+the prior first-context stop, this confirms that further unchanged executions
+are inappropriate. `phase4-t16-hosted-ui-bounded-retry-plan.md` authorizes only
+an in-invocation, fresh-context, maximum-one retry for the exact Hosted UI
+redirect category plus deterministic AWS-free tests. No AWS/network/live or
+T17 operation is authorized pending Sol review.
+
 ### T16 UI-proof CF03 execution stop — 2026-08-11
 
 The single authorized execution from clean `a7d929a` was invoked exactly once

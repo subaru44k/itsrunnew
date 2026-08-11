@@ -5751,3 +5751,21 @@ remain `3`, and the alarm is `OK`. CloudFront remains HTTP 200 with the exact
 body/hash/cache metadata and tuple 0; the API is HTTP 401 with `no-store`, and
 direct S3 is HTTP 403. No rerun, extra restore, recovery-material deletion,
 deployment, invalidation, or other out-of-scope operation was performed.
+
+### T16 corrected CF03 stop Sol diagnosis and SC01-SC02 authorization
+
+Sol confirmed the deployed manage UI intentionally disables all schedule
+selects in the `saved` state: the table remains rendered, while `canEdit` is
+limited to `ready` and `missing`. The helper's post-save reuse of `awaitReady`
+therefore required the exact opposite state and deterministically rejected the
+successful UI after the audited PUT 200. The single conditional restore already
+returned the object to its exact original content and metadata with current
+VersionId `R4ErT.g1nIVo6tcP4KrDX5gen94BwMON`.
+
+`phase4-t16-saved-cell-proof-plan.md` authorizes only the local baseline
+VersionId correction and an exact post-save visible/value-1/disabled assertion,
+with deterministic tests. Pre-save actionability and every API/S3/restore/
+cleanup contract remain unchanged. No AWS/network/live, identity/data,
+recovery-material, deploy/invalidation, IAM/CloudFormation, T17,
+production/DNS, Firebase, historical-data, or dependency action is authorized
+pending Sol review.

@@ -5651,3 +5651,23 @@ exact 501-byte body/hash/tuple with the reviewed cache metadata, invalidations
 remain `3`, and the alarm is `OK`. The API remains 401 with `no-store` and
 direct S3 remains 403. Recovery material is retained; no rerun or manual
 restore was performed.
+
+### T16 bounded-retry stop Sol diagnosis and UR01-UR03 authorization
+
+Sol's read-only CloudWatch review found exactly two authenticated GET 200 audit
+entries followed by exactly one PUT 200 audit entry with an S3 VersionId. No
+stale PUT was reached. The exact post-stop S3 state has a new current VersionId
+but the original body, content-derived ETag, metadata, SHA-256, and tuple 0,
+which proves the helper's one conditional recovery write restored the original
+content. The failed restore classification is a local proof defect: it rejects
+the baseline ETag even though restoring identical bytes is expected to recreate
+that ETag. The update boundary also still relies on a secondary Playwright body
+read after the application consumes the PUT response.
+
+`phase4-t16-ui-response-restore-proof-plan.md` authorizes only local UR01-UR03:
+correct the current baseline VersionId and exact restore invariant, replace
+secondary update/conflict body reads with bounded real UI plus immediate exact
+protected-S3 composition, add deterministic tests, and record the results. No
+AWS/network/live operation, recovery-material deletion, identity, deployment,
+invalidation, IAM/CloudFormation, T17, production/DNS, Firebase, historical-data
+work, or new dependency is authorized pending Sol review.

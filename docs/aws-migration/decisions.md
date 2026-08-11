@@ -2235,6 +2235,51 @@ Rollback/removal:
 
 Keep early capture while callback is client-rendered.
 
+## D056: Recover the initial callback URL from Navigation Timing
+
+Status: accepted
+
+Problem:
+
+CU02 again proved that the browser arrives at `/manage/callback` with both
+`code` and `state`, and that the matching `oidc.` transaction exists, while
+`oidc-client-ts` throws the exact `No state in response` error. Capturing
+`window.location.href` in page setup is still after Nuxt's initial hydration
+and history normalization. A local Chromium proof confirmed that
+`PerformanceNavigationTiming.name` retains the original query-bearing document
+URL after `history.replaceState` removes the query.
+
+Decision:
+
+At the callback page boundary, select a URL only from the current location or
+the single document navigation entry. Accept it only when origin and pathname
+exactly match the configured callback and the OAuth response contains one
+non-empty `state` plus exactly one non-empty `code` or `error`. Prefer the
+current URL when it is valid; otherwise use the validated initial navigation
+URL. Keep the selected string only in the page setup closure, pass it once to
+the existing redirect callback, and never persist, log, render, or include it
+in evidence. Reject cross-origin, wrong-path, fragment, repeated-parameter, and
+ambiguous candidates. Use only standard browser APIs and add no dependency.
+
+Alternatives:
+
+- Store the initial URL in session/local storage or a global: rejected because
+  authorization code material would outlive the immediate callback boundary.
+- Log or probe the actual query values: rejected as sensitive and unnecessary.
+- Continue capturing `window.location.href` earlier in the page lifecycle:
+  rejected because CU02 proved page setup is already too late.
+
+Cost and maintenance effect:
+
+No AWS, dependency, or architecture change. The helper is a small pure boundary
+with deterministic browser coverage.
+
+Rollback/removal:
+
+Keep the validated Navigation Timing fallback while the statically generated
+Nuxt callback route can be normalized before page setup. Remove the temporary
+detailed diagnostic categories with the T16 harness after acceptance.
+
 ## Decision template
 
 Copy for new decisions:

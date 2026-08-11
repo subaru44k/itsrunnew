@@ -4515,3 +4515,20 @@ cache metadata, and SHA-256, and invalidation count 3. No API PUT, S3 write,
 Firestore, IAM, CloudFormation, deployment, production, DNS, Firebase, or
 data rehearsal operation occurred. CU02 is a terminal stop; CF03/T17 remain
 unauthorized.
+
+### Phase 4 T16 CU02 Sol review and Navigation Timing plan
+
+Sol independently verified pool users 0, `admins` membership 0, the unchanged
+501-byte protected object identity, and CloudFront invalidation count 3. CU02's
+sanitized evidence is accepted as a safe terminal stop, not as successful auth
+verification.
+
+The arrival recorder had proved both callback parameters and the matching
+transaction probe had proved the corresponding `oidc.` state, while the exact
+library category remained `state-response-missing`. Source review established
+that page setup can still follow Nuxt's initial history normalization. A local
+Chromium proof showed that the standard document Navigation Timing entry keeps
+the original query-bearing URL after `history.replaceState` removes it. D056
+and `phase4-t16-navigation-url-plan.md` therefore authorize NU01 local
+source/tests only. No AWS write, live auth, deployment, dependency, or data
+operation is authorized in NU01.

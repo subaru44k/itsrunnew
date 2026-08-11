@@ -8,15 +8,15 @@ const proof = {
   capture: { bytes: 501, sha256: DATA_CONSTANTS.baselineSha256, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId },
   setup: { contexts: 2 },
   load: { adminEtag: DATA_CONSTANTS.baselineEtag, staleEtag: DATA_CONSTANTS.baselineEtag, tuple: 0 },
-  update: { status: 200, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'test-version', cacheControl: 'no-store', updatedAt: '2026-08-11T00:00:00.000Z', tuple: 1, puts: 1 },
-  stale: { status: 409, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'test-version', cacheControl: 'no-store', puts: 1, retries: 0, tuple: 1 },
+  update: { status: 200, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'test-version', cacheControl: 'no-store', updatedAt: '2026-08-11T00:00:00.000Z', document: { days: { '2026-08-09': [1, 1, 2] } }, tuple: 1, puts: 1 },
+  stale: { status: 409, etag: '"0123456789abcdef0123456789abcdef"', cacheControl: 'no-store', puts: 1, retries: 0, tuple: 1 },
   restore: { status: 200, etag: '"restored-etag"', versionId: 'restored-version', bytes: 501, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
   cleanup: { users: 0, admins: 0 },
 }
 
 function adapters({ fail = null, order = [] } = {}) {
   const make = stage => async input => { order.push(stage); if (fail === stage) throw new Error('canary'); return proof[stage] }
-  return { preflight: make('preflight'), capture: make('capture'), setup: make('setup'), load: make('load'), update: make('update'), readCurrent: async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId }), stale: make('stale'), poll: async input => { order.push(`poll-${input.expected}`); return { tuple: input.expected, attempts: 1 } }, restore: make('restore'), cleanup: make('cleanup') }
+  return { preflight: make('preflight'), capture: make('capture'), setup: make('setup'), load: make('load'), update: make('update'), readCurrent: async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1 }), stale: make('stale'), poll: async input => { order.push(`poll-${input.expected}`); return { tuple: input.expected, attempts: 1 } }, restore: make('restore'), cleanup: make('cleanup') }
 }
 
 test('accepts only the literal execution flag', async () => {
@@ -88,15 +88,15 @@ test('direct construction uses low-level CLI and independent browser ports', asy
   const baselineDocument = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2], '2026-08-10': [1, 2, 0], '2026-08-11': [2, 0, 1], '2026-08-12': [0, 1, 2], '2026-08-13': [1, 2, 0], '2026-08-14': [2, 0, 1], '2026-08-15': [0, 1, 2] } }
   const baseline = Buffer.from(`${JSON.stringify(baselineDocument, null, 2)}\n`)
   assert.equal(baseline.length, DATA_CONSTANTS.baselineBytes); assert.equal(createHash('sha256').update(baseline).digest('hex'), DATA_CONSTANTS.baselineSha256)
-  const calls = []; let users = 0; let admins = 0; let currentEtag = DATA_CONSTANTS.baselineEtag
+  const calls = []; let users = 0; let admins = 0; let currentEtag = DATA_CONSTANTS.baselineEtag; let currentVersion = DATA_CONSTANTS.baselineVersionId
   const execFile = async (_file, args) => {
     calls.push(args)
     if (args[0] === 'sts') return { stdout: JSON.stringify({ Account: DATA_CONSTANTS.account }), stderr: '' }
-    if (args[1] === 'head-object') return { stdout: JSON.stringify({ ContentLength: 501, ETag: currentEtag, VersionId: currentEtag === DATA_CONSTANTS.baselineEtag ? DATA_CONSTANTS.baselineVersionId : 'new-version', ChecksumSHA256: DATA_CONSTANTS.baselineSha256, ContentType: DATA_CONSTANTS.contentType, CacheControl: DATA_CONSTANTS.cacheControl, ServerSideEncryption: 'AES256' }), stderr: '' }
+    if (args[1] === 'head-object') return { stdout: JSON.stringify({ ContentLength: 501, ETag: currentEtag, VersionId: currentVersion, ChecksumSHA256: DATA_CONSTANTS.baselineSha256, ContentType: DATA_CONSTANTS.contentType, CacheControl: DATA_CONSTANTS.cacheControl, ServerSideEncryption: 'AES256' }), stderr: '' }
     if (args[1] === 'get-bucket-versioning') return { stdout: JSON.stringify({ Status: 'Enabled' }), stderr: '' }
     if (args[1] === 'get-public-access-block') return { stdout: JSON.stringify({ BlockPublicAcls: true, IgnorePublicAcls: true, BlockPublicPolicy: true, RestrictPublicBuckets: true }), stderr: '' }
-    if (args[1] === 'get-object') { await (await import('node:fs/promises')).writeFile(args.at(-1), baseline); return { stdout: '', stderr: '' } }
-    if (args[1] === 'put-object') { currentEtag = '"fedcba9876543210fedcba9876543210"'; return { stdout: JSON.stringify({ ETag: currentEtag, VersionId: 'restore-version' }), stderr: '' } }
+    if (args[1] === 'get-object') { const bytes = currentEtag === proof.update.etag ? Buffer.from(`${JSON.stringify({ ...baselineDocument, days: { ...baselineDocument.days, '2026-08-09': [1, 1, 2] } }, null, 2)}\n`) : baseline; await (await import('node:fs/promises')).writeFile(args.at(-1), bytes); return { stdout: '', stderr: '' } }
+    if (args[1] === 'put-object') { currentEtag = '"fedcba9876543210fedcba9876543210"'; currentVersion = 'restore-version'; return { stdout: JSON.stringify({ ETag: currentEtag, VersionId: currentVersion }), stderr: '' } }
     if (args[1] === 'list-users') return { stdout: JSON.stringify({ Users: Array.from({ length: users }) }), stderr: '' }
     if (args[1] === 'list-users-in-group') return { stdout: JSON.stringify({ Users: Array.from({ length: admins }) }), stderr: '' }
     if (args[1] === 'admin-create-user') { users += 1; return { stdout: JSON.stringify({ User: { Username: 'internal-user' } }), stderr: '' } }
@@ -106,7 +106,7 @@ test('direct construction uses low-level CLI and independent browser ports', asy
     if (args[1] === 'admin-get-user') return { stdout: JSON.stringify({ Username: 'internal-user' }), stderr: '' }
     return { stdout: '', stderr: '' }
   }
-  const browser = { async setup() { return { contexts: 2 } }, async load() { return proof.load }, async update() { return proof.update }, async stale() { return proof.stale }, async poll(input) { return { tuple: input.expected, attempts: 1 } }, async cleanup() { return proof.cleanup } }
+  const browser = { async setup() { return { contexts: 2 } }, async load() { return proof.load }, async update() { currentEtag = proof.update.etag; currentVersion = proof.update.versionId; return proof.update }, async stale() { return proof.stale }, async poll(input) { return { tuple: input.expected, attempts: 1 } }, async cleanup() { return proof.cleanup } }
   const result = await main([EXECUTION_FLAG], { execFile, browser, randomBytesImpl: n => Buffer.alloc(n, 7) })
   assert.equal(result.status, 'success', JSON.stringify(result)); assert.equal(calls.some(args => args[1] === 'get-object' && args.at(-1).startsWith('/')), true)
   assert.equal(calls.some(args => args[1] === 'put-object' && args.includes('--if-match')), true)

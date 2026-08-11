@@ -4710,6 +4710,17 @@ UI API observation, bucket/deadline gates, recovery lifecycle, and self-containe
 low-level tests. These remain local source/test/documentation tasks only; no AWS
 or live rehearsal operation is authorized.
 
+### DC01 Luna exact browser/API correction
+
+Corrected the Playwright boundary to the deployed API contract: authenticated
+GET responses are exactly `document` plus `etag`; update success parses JSON
+`document`/`etag`/`versionId`; stale conflict parses the exact comparison GET
+and no longer invents a VersionId. The coordinator now performs exact current
+S3 coupling after stale before polling or restore. Added low-level request /
+response behavioral coverage and negative contract checks. Focused T16/auth
+tests: 46 passed; `npm run check`, `node --check`, and `git diff --check`
+passed. No AWS/live or later-phase operation occurred. Pending Sol review.
+
 ### CF03R05-R08 Luna second correction
 
 Corrected the direct browser boundary to consume the application's

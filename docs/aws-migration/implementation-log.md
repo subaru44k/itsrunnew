@@ -4393,3 +4393,10 @@ SV02 commit `30377c6` safely returned desktop `callback-other`, cleanup zero,
 unchanged protected data and invalidation count 3, and zero data writes. Source
 review found two exact Logger-thrown state-read errors omitted from D053. D054
 and `phase4-t16-state-read-plan.md` authorize STR01 locally; no AWS/live auth.
+
+### Phase 4 T16 STR01 Sol acceptance and STR02 authorization
+
+Sol reviewed `1b2edf4`; only the two exact Logger state-read constants map to
+fixed categories, near matches remain generic, and caught material is discarded.
+All focused/web/admin/root checks passed. STR02 may push exact SHA, run web-only
+once, verify unchanged inventories, then run auth-only once and stop.

@@ -4651,3 +4651,15 @@ with restoration taking priority after any possible write. Live execution,
 AWS/Cognito mutation, IAM, CloudFormation, deployment, invalidation, Firestore,
 production, DNS, Firebase, CF04, and T17 remain unauthorized until Sol source
 review.
+
+### CF03 Luna local implementation
+
+Implemented the concrete data coordinator and protected S3 operation boundary
+in the uncommitted working tree for Sol source review. Added AWS-free tests for
+the literal execution flag, exact one-update/one-stale/one-restore ordering,
+restoration-first indeterminate-write handling, no pre-write restore, exact
+conditional S3 CLI arguments, and sanitized direct output. No AWS, Cognito,
+API, browser-hosted, deployment, invalidation, Firestore, or production action
+was performed. Focused test: `node --test
+scripts/migration/t16-data-preview.test.mjs` (6 passed). Commit and review are
+pending.

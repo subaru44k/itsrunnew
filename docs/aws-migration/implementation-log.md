@@ -5455,6 +5455,18 @@ failure do not rerun. No extra restore retry, invalidation, deploy/IAM/
 CloudFormation, other object/delete/version-delete, production/DNS, Firebase,
 or T17 operation is authorized.
 
+### T16 repeated body-read diagnosis and UB01-UB02 authorization
+
+The one execution from `30faea9` stopped safely at first-context
+`authenticated-api-response/body-read` with writes/restores 0/0 and cleanup
+passed; `6f317a8` records the unchanged exact baseline and zero identities.
+Immediate body validation did not make Playwright's secondary CDP body read
+reliable, although the API is audited 200 and the app reaches signed-in UI.
+`phase4-t16-ui-baseline-proof-plan.md` replaces only that secondary read with a
+stronger composed proof: exact protected S3 baseline input, exact GET transport,
+rendered baseline UI cell, and later exact UI PUT ETag/full-document delta. No
+AWS/network/live or T17 operation is authorized pending Sol review.
+
 ### T16 cache-corrected CF03 execution stop — 2026-08-11
 
 The one authorized execution from clean commit `30faea9` stopped during setup

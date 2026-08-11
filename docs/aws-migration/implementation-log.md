@@ -5671,3 +5671,19 @@ protected-S3 composition, add deterministic tests, and record the results. No
 AWS/network/live operation, recovery-material deletion, identity, deployment,
 invalidation, IAM/CloudFormation, T17, production/DNS, Firebase, historical-data
 work, or new dependency is authorized pending Sol review.
+
+### T16 UR01-UR03 UI response/restore proof correction — 2026-08-11
+
+Local-only correction completed from authorized start `01a59bc`: the retained
+baseline VersionId is now `BH9YGdC.aioqdL4AR8Po5ggdJ6BmSE.Z`; restoration requires
+the original baseline ETag (distinct from the changed-test ETag), a new
+VersionId, and exact protected readback bytes, metadata, document, and tuple.
+The coordinator now reads and validates the changed protected object immediately
+after the successful UI update, passes that exact identity to stale and performs
+the post-stale protected readback coupling check before public polling.
+Successful and stale UI proofs no longer consume Playwright response bodies;
+they rely on exact request/transport checks and bounded localized UI proofs.
+
+Focused T16 tests pass (`54/54`); required repository checks were run locally.
+No AWS, network, identity, recovery-material deletion, deployment, or other
+out-of-scope operation was performed.

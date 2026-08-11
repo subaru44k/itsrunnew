@@ -5809,3 +5809,21 @@ manually restore on terminal failure. No additional restore, recovery-material
 deletion, deploy/invalidation, IAM/CloudFormation, other S3 object/version/
 delete, production/DNS, Firebase, historical-data, or T17 action is authorized
 in this invocation.
+
+### T16 saved-state-correct CF03 execution stop — 2026-08-11
+
+The one authorized invocation from clean `81870fe` ran exactly once and stopped
+at the stale checkpoint. Its sanitized result was `operations=7`, `writes=1`,
+`restores=1`, `polls=0`, `cleanups=1`, `writeStatus=passed`,
+`staleStatus=started`, `restoreStatus=passed`, and `cleanupStatus=passed`.
+No stale success or test identity was recorded in the sanitized result. The
+single conditional restore completed, identity cleanup returned users/admins
+to `0/0`, and recovery material was not retained. No rerun, manual operation,
+or extra restore was performed.
+
+Read-only post-checks prove the exact 501-byte original body, ETag, metadata,
+AES256 encryption, SHA-256, and tuple 0. The restored current VersionId is
+`kpbPZRFYYVZbVgHdWlBIEYp2DJAmC4vU`. CloudFront remains HTTP 200 with the exact
+body/hash/cache metadata and tuple 0; invalidations remain `3`, alarm is `OK`,
+API is HTTP 401 with `no-store`, and direct S3 is HTTP 403. No recovery-material
+deletion, deployment, invalidation, or other out-of-scope operation occurred.

@@ -5172,3 +5172,14 @@ baseline ETag/VersionId/metadata, SHA-256
 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
 0. The rehearsal is stopped for Sol review; no further live execution is
 authorized by this entry.
+
+### T16 authenticated-response stop diagnosis and RD01-RD02 authorization
+
+Sol's read-only Lambda audit query found exactly one matching GET with status
+200 during the execution recorded at `67a0c80`. Authentication, request
+forwarding, Lambda authorization/read, and the response therefore completed;
+the remaining failure is one of the local validator's URL/header, body, ETag,
+schema, or tuple checks. `phase4-t16-data-response-diagnostic-plan.md`
+authorizes only a closed sanitized response-reason proof and AWS-free tests. No
+AWS/network/live operation, Cognito/S3 mutation, deploy/invalidation,
+IAM/CloudFormation, Firebase, or T17 work is authorized pending Sol review.

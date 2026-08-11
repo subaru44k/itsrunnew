@@ -67,6 +67,20 @@ test('browser setup maps each production boundary to a closed substage and conte
   }
 })
 
+test('authenticated response validation starts before delayed manage and sentinel stages', async () => {
+  const events = []; let pageIndex = 0; let contextCloses = 0; let browserCloses = 0
+  const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
+  const makePage = name => ({ waitForResponse: () => Promise.resolve({ status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store' }), json: async () => { events.push(`${name}:body`); return { document, etag: DATA_CONSTANTS.baselineEtag } } }), goto: async () => {}, waitForURL: async () => { events.push(`${name}:manage-start`); await new Promise(resolve => setTimeout(resolve, 15)); events.push(`${name}:manage-end`) }, locator: () => ({}), getByRole: () => ({}) })
+  const pages = [makePage('first'), makePage('second')]; const launcher = async () => ({ newContext: async () => ({ newPage: async () => pages[pageIndex++], close: async () => { contextCloses += 1 } }), close: async () => { browserCloses += 1 } })
+  const browser = createPlaywrightDataBrowser({ launcher, browserRoleSession: async () => {}, signedInSentinel: async (_page) => { events.push('sentinel-start'); await new Promise(resolve => setTimeout(resolve, 15)); events.push('sentinel-end') } }); await browser.setup({ username: 'opaque', password: 'opaque' }); assert.equal(events.indexOf('first:body') < events.indexOf('first:manage-end'), true); assert.equal(events.indexOf('first:body') >= 0, true); await browser.cleanup(); assert.equal(contextCloses, 2); assert.equal(browserCloses, 1)
+})
+
+test('early setup failure drains late validation rejection without unhandled rejection', async () => {
+  let contextCloses = 0; let browserCloses = 0; let unhandled = 0; const onUnhandled = () => { unhandled += 1 }; process.on('unhandledRejection', onUnhandled)
+  const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store' }), json: () => new Promise((_, reject) => setTimeout(() => reject(new Error('late body')), 10)) }
+  const page = { waitForResponse: () => Promise.resolve(response), goto: async () => {}, waitForURL: async () => { throw new Error('manage failed') }, locator: () => ({}), getByRole: () => ({}) }; const launcher = async () => ({ newContext: async () => ({ newPage: async () => page, close: async () => { contextCloses += 1 } }), close: async () => { browserCloses += 1 } }); const browser = createPlaywrightDataBrowser({ launcher, browserRoleSession: async () => {}, signedInSentinel: async () => {} }); await assert.rejects(browser.setup({ username: 'opaque', password: 'opaque' }), { name: 'DataSetupSubstageError', category: 'manage-return', context: 'first' }); await browser.cleanup(); await new Promise(resolve => setTimeout(resolve, 25)); process.off('unhandledRejection', onUnhandled); assert.equal(unhandled, 0); assert.equal(contextCloses, 2); assert.equal(browserCloses, 1)
+})
+
 test('authenticated response diagnostics preserve only the closed reason and context', async () => {
   const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { [DATA_CONSTANTS.date]: [0, 1, 2] } }
   for (const reason of ['transport-contract', 'response-missing', 'body-read', 'body-shape', 'etag', 'schedule-schema', 'reserved-tuple']) for (const target of [0, 1]) {

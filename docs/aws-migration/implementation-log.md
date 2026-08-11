@@ -5255,3 +5255,16 @@ target with baseline ETag/VersionId/metadata, SHA-256
 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
 0. The rehearsal is stopped for Sol review; no further live execution is
 authorized by this entry.
+
+### T16 IR01-IR02 immediate authenticated-response validation complete — 2026-08-11
+
+The exact authenticated GET waiter now immediately chains the existing
+validator, attaches rejection consumers to both raw and validated promises,
+and awaits the validated result only after manage and signed-in sentinel
+stages. Earlier failures drain both promises. AWS-free tests prove body
+validation begins before delayed manage/sentinel completion, short-lived body
+availability succeeds, and late raw/validation rejection remains unhandled-free
+with exactly-once cleanup and zero data stages. Focused data tests: 49/49;
+combined T16 auth/data tests: 92/92. `npm run check`, `node --check`, and
+`git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
+review.

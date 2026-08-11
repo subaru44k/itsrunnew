@@ -291,18 +291,18 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
       loaded = []
       for (const [index, page] of pages.entries()) {
         const context = index === 0 ? 'first' : 'second'
-        let responsePromise
+        let responsePromise; let validationPromise
         try {
           responsePromise = page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }, { timeout: responseTimeout })
           Promise.resolve(responsePromise).catch(() => {})
+          validationPromise = Promise.resolve(responsePromise).then(response => getResponseValidator(response, { origin }), () => { throw createDataSetupError('authenticated-api-response', context, 'response-missing') })
+          Promise.resolve(validationPromise).catch(() => {})
           await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' })
           try { await browserRoleSession(page, { username, password, viewport: 'desktop' }) } catch (error) { const category = setupCategory(error); throw createDataSetupError(category === 'operation-failed' ? 'form-submission' : category, context) }
           try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: responseTimeout }) } catch { throw createDataSetupError('manage-return', context) }
           try { await signedInSentinel(page, { viewport: 'desktop', timeoutMs: responseTimeout }) } catch { throw createDataSetupError('signed-in-sentinel', context) }
-          let authenticatedResponse
-          try { authenticatedResponse = await responsePromise } catch { throw createDataSetupError('authenticated-api-response', context, 'response-missing') }
-          try { loaded.push(await getResponseValidator(authenticatedResponse, { origin })) } catch (error) { const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError('authenticated-api-response', context, normalized.reason ?? 'transport-contract') }
-        } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context, normalized.reason) }
+          try { loaded.push(await validationPromise) } catch (error) { const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError('authenticated-api-response', context, normalized.reason ?? 'transport-contract') }
+        } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); await Promise.resolve(validationPromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context, normalized.reason) }
       }
       return { contexts: 2 }
     },

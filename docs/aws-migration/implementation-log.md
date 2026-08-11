@@ -4975,10 +4975,12 @@ No further live invocation or AWS operation is authorized pending Sol review.
 
 ### T16 LC01-LC02 local correction complete
 
-The coordinator now retains the exact preflight/capture ETag and invokes load
-once with `{etag: original.etag}`; load output must match it for both pages and
-tuple 0. Added nonconstant captured ETag coverage and missing/mismatched/
-malformed load proof cases, all stopping before update/stale/restore with one
-cleanup. Focused data tests: 41/41; combined T16 data/auth: 84/84.
+The coordinator now retains the exact preflight/capture baseline ETag and
+invokes load once with `{etag: original.etag}`; load output must match it for
+both pages and tuple 0. The exact baseline gates remain enforced; a pure load
+input helper proves nonconstant strong ETag propagation without weakening
+production baseline validation. Added missing/mismatched/malformed load proof
+cases, all stopping before update/stale/restore with one cleanup. Focused data
+tests: 41/41; combined T16 data/auth: 84/84.
 `npm run check`, `node --check`, and `git diff --check` pass. No AWS/network/live
 operation occurred; stop for Sol review.

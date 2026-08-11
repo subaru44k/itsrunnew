@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial, validateRestoreProof, validateProtectedRun, shouldRemoveRecoveryMaterial } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial, validateRestoreProof, validateProtectedRun, shouldRemoveRecoveryMaterial, createLoadInputFromCapture } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -33,8 +33,10 @@ test('complete rehearsal has one update, one stale conflict, one restore, and cl
   assert.equal(order.filter(stage => stage === 'stale').length, 1)
 })
 
-test('load receives the exact captured nonconstant ETag once', async () => {
-  const captured = '"11111111111111111111111111111111"'; const loadArgs = []; const base = adapters({ loadArgs }); base.preflight = async () => ({ ...proof.preflight, etag: captured }); base.capture = async () => ({ ...proof.capture, etag: captured }); base.load = async input => { loadArgs.push(input); assert.deepEqual(input, { etag: captured }); return { adminEtag: captured, staleEtag: captured, tuple: 0 } }; const result = await runDataRehearsal(base); assert.equal(result.status, 'success'); assert.deepEqual(loadArgs, [{ etag: captured }])
+test('load input helper returns the exact captured nonconstant ETag', async () => {
+  const captured = '"11111111111111111111111111111111"'
+  assert.deepEqual(createLoadInputFromCapture({ ...proof.capture, etag: captured }), { etag: captured })
+  for (const bad of [undefined, { ...proof.capture, etag: undefined }, { ...proof.capture, etag: 'weak' }, { ...proof.capture, etag: captured, extra: true }]) assert.throws(() => createLoadInputFromCapture(bad), /load input mismatch/)
 })
 
 test('missing, mismatched, and malformed load proofs stop before update and clean once', async () => {

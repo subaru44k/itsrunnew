@@ -5135,3 +5135,26 @@ leakage, unhandled rejection, or data-stage operation. Focused data tests:
 46/46; combined T16 auth/data: 89/89. `npm run check`, `node --check`, and
 `git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
 review.
+
+### T16 SD01-SD02 Sol acceptance and one diagnosed CF03 execution
+
+Sol independently reviewed the setup diagnostic implementation through
+`f3db8af` and the documentation-only correction `ff21cbd`. Each production
+boundary now maps generic failures to a closed category plus `first`/`second`
+context, earlier failures drain the authenticated GET waiter, and hostile values
+cannot cross the coordinator boundary. Sol reran the focused suite (46/46), the
+combined T16 suite (89/89), `node --check`, and `git diff --check`; Luna's root
+check also passed and the worktree is clean.
+
+The immediate read-only gate reconfirmed account `470447451992`, users/admins
+0/0, invalidation count 3, and the unchanged encrypted 501-byte exact target
+with baseline ETag/VersionId/content metadata and CloudFront SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+
+Exactly one fresh execution of the now-diagnostic committed CF03 executable is
+authorized with the same exact profile/account/region, target, conditional
+one-update/one-stale/one-restore, bounded observation, identity cleanup, and
+stop boundaries recorded above. If setup fails, it must return only the new
+allowlisted substage/context proof and must not be rerun. No restore retry,
+invalidation, IAM/CloudFormation/deploy, other object, delete/version-delete,
+production, DNS, Firebase, or T17 operation is authorized.

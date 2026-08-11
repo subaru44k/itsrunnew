@@ -250,9 +250,10 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
         let responsePromise
         try {
           responsePromise = page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }, { timeout: responseTimeout })
+          Promise.resolve(responsePromise).catch(() => {})
           await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' }); await runBrowserRoleSession(page, { username, password, viewport: 'desktop' }); await page.waitForURL(url => new URL(url).pathname === '/manage'); await awaitSignedInSentinel(page, { viewport: 'desktop' })
           loaded.push(await validateAuthenticatedGetResponse(await responsePromise, { origin }))
-        } catch (error) { await responsePromise?.catch(() => {}); throw error }
+        } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); throw error }
       }
       return { contexts: 2 }
     },

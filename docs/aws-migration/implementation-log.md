@@ -4918,3 +4918,13 @@ identity without entering update/stale/restore stages. The focused data suite
 passes 38/38 and the combined T16 data/auth suite passes 81/81. `npm run check`,
 `node --check`, and `git diff --check` pass. No AWS/network/live operation
 occurred; stop for Sol review.
+
+### T16 LS01 final rejection-handling correction
+
+Attached an immediate consuming sidecar to each authenticated GET waiter while
+preserving the original promise for later timeout/error propagation. Added a
+delayed waiter-rejection regression with login pending across event-loop turns;
+it proves zero unhandled rejections and exactly-once cleanup of all resources.
+The focused data suite passes 39/39 and the combined T16 data/auth suite passes
+82/82. `npm run check`, `node --check`, and `git diff --check` pass. No
+AWS/network/live operation occurred; stop for Sol review.

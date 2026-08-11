@@ -4663,3 +4663,18 @@ API, browser-hosted, deployment, invalidation, Firestore, or production action
 was performed. Focused test: `node --test
 scripts/migration/t16-data-preview.test.mjs` (6 passed). Commit and review are
 pending.
+
+### CF03 Sol source review: correction required
+
+Sol reviewed `a267d7b` and did not authorize live execution. The coordinator
+skeleton has restoration intent, but direct mode has no concrete Playwright or
+Cognito boundary, S3 `get-object` uses invalid destination syntax, preflight
+manufactures non-S3 proof fields, update/stale identities are not coupled, and
+the indeterminate-update recovery lacks a usable observed ETag. Generic cleanup
+would also remove protected original bytes after a failed restore.
+
+`phase4-t16-data-source-review.md` defines CF03R01-CF03R04 to correct concrete
+execution, exact object capture/restore, proof coupling/indeterminate recovery,
+failure tests, and truthful evidence. These are local source/test/documentation
+tasks only. No AWS command, live data rehearsal, Cognito mutation, deployment,
+invalidation, or later phase is authorized.

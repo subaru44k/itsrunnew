@@ -2191,6 +2191,28 @@ Rollback/removal:
 
 Remove detailed categories after T16 closes.
 
+## D054: Classify exact state-read failures thrown by Logger
+
+Status: accepted
+
+Problem:
+
+SV02 remained callback-other because oidc-client `Logger.throw` throws the Error
+before the following null throw. Two exact state-read messages were omitted.
+
+Decision:
+
+Classify only `No state in response` and `No matching state found in storage` as
+fixed constants, discard caught material, then deploy web-only and diagnose once.
+
+Cost and maintenance effect:
+
+No dependency/AWS change.
+
+Rollback/removal:
+
+Remove detailed categories after T16 closes.
+
 ## Decision template
 
 Copy for new decisions:

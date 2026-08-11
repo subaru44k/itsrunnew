@@ -5394,6 +5394,18 @@ above and `--require-approval never`; do not retry on failure. No IAM/policy,
 other stack/resource, web/data upload, schedule write, identity mutation,
 invalidation, production/DNS, Firebase, CF03, or T17 operation is authorized.
 
+### T16 metadata Lambda deployment acceptance and RB01 authorization
+
+The one authorized Lambda-only deployment completed at `e7abad0`; CloudFormation
+is `UPDATE_COMPLETE` and the only resource event was the fixed schedule Lambda
+update. Sol independently verified active Node 24, timeout 10, memory 256,
+successful deployed CodeSha, zero identities, invalidations 3, and the exact
+restored baseline content/ETag/metadata/hash. Because S3 versioning assigned the
+recovery a new current VersionId `K7Bf..b6RWTudXarByS0s53Qi3t7E2d6`, the
+pre-recovery hardcoded VersionId is now stale. `phase4-t16-restored-baseline-plan.md`
+authorizes only the local exact baseline VersionId/test/log correction. No
+AWS/network/live or T17 operation is authorized pending Sol review.
+
 ### T16 CM01-CM02 Lambda-only Hosting deployment complete — 2026-08-11
 
 The one authorized deployment from clean commit `169f838` completed with

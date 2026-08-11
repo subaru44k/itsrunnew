@@ -5498,3 +5498,25 @@ AWS-free focused coverage includes malformed/missing/weak/nonzero baseline,
 transport failures and body-read non-use, independent clones, UI readiness and
 alert handling, exact request divergence, stale conflict, cleanup, and
 unhandled-rejection behavior. Focused T16 data tests pass (51 tests).
+
+### T16 UB01-UB02 Sol acceptance and one UI-proof CF03 execution
+
+Sol independently reviewed UB01-UB02 at `cf9162e` and reran the focused data
+suite (51/51), `node --check`, and `git diff --check`; Luna's combined suite
+(94/94) and root check passed. The composed exact protected-baseline, GET
+transport, rendered-cell, and later PUT ETag/full-document proof is accepted;
+the unreliable secondary Playwright body read is absent without weakening the
+API/data contract.
+
+The immediate read-only gate matched account `470447451992`, Hosting and Lambda
+active/successful with the reviewed CodeSha, users/admins 0/0, invalidation
+count 3, and the exact current 501-byte baseline ETag/VersionId/content/cache/
+encryption/SHA-256 and tuple 0.
+
+Exactly one fresh UI-proof CF03 execution is authorized under the exact
+profile/account/region, target, one successful conditional UI update, one stale
+409 without retry, bounded tuple-1 observation, one conditional exact-original
+restore, bounded tuple-0 observation, and identity cleanup rules above. Do not
+rerun on failure. No extra restore retry, invalidation, deploy/IAM/
+CloudFormation, other object/delete/version-delete, production/DNS, Firebase,
+or T17 operation is authorized.

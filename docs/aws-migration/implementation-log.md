@@ -4323,3 +4323,12 @@ boundary carries only the fixed category and preserves all CET safety rules.
 Focused auth tests passed 43/43, web unit tests passed 68, admin-local
 Playwright passed 46, `npm run check` passed, and `git diff --check` passed.
 No AWS/live auth/deployment or dependency change was made.
+
+### Phase 4 T16 SV01 Sol acceptance and SV02 deployment authorization
+
+Sol reviewed `a7b41c0`. Only the six exact installed-library messages map to
+fixed categories; hostile near-matches remain generic and no caught material is
+emitted. Focused/web/admin suites passed. SV01 is accepted. SV02 may push exact
+SHA and run the web-only workflow once, with no data/IAM/CloudFormation/Cognito
+admin/invalidation. After successful checks and unchanged inventories, auth-only
+may run once and must stop at its typed result.

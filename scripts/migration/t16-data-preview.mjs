@@ -95,7 +95,7 @@ function parseSchedule(bytes) {
   const daysInMonth = new Date(Date.UTC(2026, 8, 0)).getUTCDate()
   for (const [date, tuple] of Object.entries(value.days)) {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date); const day = Number(match?.[3])
-    if (!match || match[1] !== '2026' || match[2] !== '08' || day < 1 || day > daysInMonth || new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, day)).getUTCDate() !== day || !Array.isArray(tuple) || tuple.length !== 3 || !Object.keys(tuple).every(key => ['0', '1', '2'].includes(key)) || tuple.some(item => !Number.isInteger(item) || ![0, 1, 2].includes(item))) fail('invalid schedule')
+    if (!match || match[1] !== '2026' || match[2] !== '08' || day < 1 || day > daysInMonth || new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, day)).getUTCDate() !== day || !Array.isArray(tuple) || tuple.length !== 3 || Object.keys(tuple).length !== 3 || !['0', '1', '2'].every(key => Object.prototype.hasOwnProperty.call(tuple, key)) || tuple.some(item => !Number.isInteger(item) || ![0, 1, 2].includes(item))) fail('invalid schedule')
   }
   const tuple = value.days[DATA_CONSTANTS.date]
   if (!Array.isArray(tuple) || tuple.length !== 3 || tuple.some(item => !Number.isInteger(item) || item < 0 || item > 2)) fail('invalid schedule')

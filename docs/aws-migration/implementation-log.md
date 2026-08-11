@@ -4843,3 +4843,10 @@ pending stream cancellation, active-timer cleanup across every termination
 path, late fetch/body rejection guarding, and a deterministic overall-deadline
 counter. The combined T16 data/auth suite passes 78/78; focused data tests
 pass 35/35. No AWS/network/live operation occurred; stop for Sol review.
+
+### T16 DC03 sparse-tuple correction
+
+The exact parser now requires own tuple indices `0`, `1`, and `2` before
+validating status values, rejecting sparse/null/string tuple cells. Added raw
+JSON polling coverage for the sparse-tuple representation and explicit null
+and string statuses. No AWS/network/live operation occurred.

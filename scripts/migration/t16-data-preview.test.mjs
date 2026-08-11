@@ -217,7 +217,7 @@ test('shared schedule parser rejects every malformed exact-month schema', async 
   const malformed = [
     Buffer.from('{'), Buffer.from(JSON.stringify(null)), Buffer.from(JSON.stringify([])), Buffer.from(JSON.stringify({ ...valid, extra: true })),
     Buffer.from(JSON.stringify({ ...valid, days: { '2026-07-31': [0, 1, 2] } })), Buffer.from(JSON.stringify({ ...valid, days: { '2026-08-32': [0, 1, 2] } })),
-    Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, 1], '2026-08-10': [0, 1, 2] } })), Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, 3, 2], '2026-08-10': [0, 1, 2] } })),
+    Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, 1], '2026-08-10': [0, 1, 2] } })), Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, 3, 2], '2026-08-10': [0, 1, 2] } })), Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, null, 2] } })), Buffer.from(JSON.stringify({ ...valid, days: { [DATA_CONSTANTS.date]: [0, '1', 2] } })),
     Buffer.from(JSON.stringify({ ...valid, days: Object.fromEntries(Array.from({ length: 32 }, (_, index) => [`2026-08-${String(index + 1).padStart(2, '0')}`, [0, 1, 2]])) })),
   ]
   for (const bytes of malformed) { const response = publicResponse({ body: bytes }); await assert.rejects(createPlaywrightDataBrowser({ fetchImpl: async () => response }).poll({ expected: 1, maxAttempts: 1, maxMs: 500 }), /observation timeout/) }

@@ -16,7 +16,7 @@ export const DATA_CONSTANTS = Object.freeze({
   key: 'data/v1/stadiums/oda/availability/2026-08.json',
   date: '2026-08-09', slot: 0, before: 0, after: 1,
   baselineBytes: 501, baselineEtag: '"b2591d35e23ac1b9f2a133f71198b953"',
-  baselineVersionId: 'wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE',
+  baselineVersionId: 'K7Bf..b6RWTudXarByS0s53Qi3t7E2d6',
   baselineSha256: 'ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb',
   contentType: 'application/json', cacheControl: 'public, max-age=0, s-maxage=60',
   apiPath: '/api/v1/stadiums/oda/availability/2026-08',

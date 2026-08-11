@@ -5423,3 +5423,13 @@ matching ETag/VersionId/metadata/AES256/SHA-256 and tuple 0; CloudFront returns
 and direct S3 remains 403. No schedule/data write, identity mutation,
 invalidation, IAM/policy, other stack, Firebase, CF03, or T17 operation
 occurred. Stop for Sol review.
+
+### T16 RB01 restored-baseline VersionId correction complete — 2026-08-11
+
+Updated only `DATA_CONSTANTS.baselineVersionId` to the exact restored current
+VersionId `K7Bf..b6RWTudXarByS0s53Qi3t7E2d6` and added deterministic classifier
+coverage proving the stale pre-recovery VersionId
+`wQ1b5EEu1Qzrw93GyN9_bPNtxwaZ5VAE` is rejected. Focused data tests: 49/49;
+combined T16 auth/data: 92/92; root `npm run check`, `node --check`, and
+`git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
+review.

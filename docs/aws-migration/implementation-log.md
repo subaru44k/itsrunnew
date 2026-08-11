@@ -5520,3 +5520,22 @@ restore, bounded tuple-0 observation, and identity cleanup rules above. Do not
 rerun on failure. No extra restore retry, invalidation, deploy/IAM/
 CloudFormation, other object/delete/version-delete, production/DNS, Firebase,
 or T17 operation is authorized.
+
+### T16 UI-proof CF03 execution stop — 2026-08-11
+
+The single authorized execution from clean `a7d929a` was invoked exactly once
+with the reviewed profile/account/region and stopped safely during first-context
+hosted-UI setup. The sanitized result was `failureCheckpoint=setup`, category
+`hosted-ui-redirect`, context `first`, with operations `4`, writes `0`,
+restores `0`, polls `0`, cleanups `1`, cleanup `passed`, and
+`recoveryMaterialRetained=false`. No UI update, stale request, S3 PutObject,
+retry, or other mutation occurred.
+
+Read-only post-stop checks found users/admins `0/0`, invalidation count `3`,
+and the API 5xx alarm `OK`. The exact S3 current object remains 501 bytes with
+ETag `"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`K7Bf..b6RWTudXarByS0s53Qi3t7E2d6`, `application/json`,
+`public, max-age=0, s-maxage=60`, AES256, tuple 0, and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+CloudFront remained 200 with the exact body/hash/tuple and cache metadata; API
+remained 401 and direct S3 403. No rerun is permitted.

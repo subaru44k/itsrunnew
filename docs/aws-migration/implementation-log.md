@@ -4757,3 +4757,14 @@ headers, timestamps, ETag/VersionId, one PUT, localized conflict UI, and exact
 comparison-document equality. Added low-level negative delta/body contract
 coverage. Focused T16/auth suites: 47 passed; `npm run check`, `node --check`,
 and `git diff --check` passed. No AWS/live or DC02+ operation occurred.
+
+### DC01 final Luna correction
+
+Replaced order-sensitive JSON serialization comparison with semantic deep
+equality, normalized response-header checks, and enforced exact origin/path,
+single PUT, response-body identity, and localized conflict controls at the
+low-level browser boundary. Added a self-contained property-order regression
+test. Focused data tests: `node --test
+scripts/migration/t16-data-preview.test.mjs` (13 passed). `npm run check`,
+`node --check`, and `git diff --check` passed. No AWS/live or DC02/DC03
+operation occurred.

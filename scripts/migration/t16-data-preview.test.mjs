@@ -117,11 +117,28 @@ test('low-level Playwright page boundary observes exact UI PUT JSON response', a
   const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
   const request = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }) }
   const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
-  const page = { locator: () => ({ selectOption: async value => assert.equal(value, '1') }), waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => {} }) }
+  let requestListener
+  const page = { locator: () => ({ selectOption: async value => assert.equal(value, '1') }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => { requestListener?.(request) } }) }
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
   const baselineDocument = { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
   const result = await browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument }, 1)
   assert.equal(result.status, 200); assert.equal(result.versionId, 'version-2'); assert.equal(result.tuple, 1)
+})
+
+test('low-level browser boundary rejects a second matching PUT', async () => {
+  const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
+  const request = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }) }
+  const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
+  let requestListener
+  const page = { locator: () => ({ selectOption: async () => {} }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => {}, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => { requestListener(request); requestListener(request) } }) }
+  const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
+  await assert.rejects(browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } } }, 1), /UI PUT contract/)
+})
+
+test('whole-document comparison is semantic, not JSON property-order sensitive', () => {
+  const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
+  const reordered = { days: { '2026-08-09': [1, 1, 2] }, yearMonth: '2026-08', stadium: 'oda', schemaVersion: 1, updatedAt: '2026-08-11T00:00:00.000Z' }
+  assert.equal(validateOneCellDelta(baseline, reordered, { requireUpdatedAt: true }), reordered)
 })
 
 test('whole-document delta rejects every non-target mutation and stale timestamp', () => {

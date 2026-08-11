@@ -5731,3 +5731,23 @@ manually restore. No extra restore, recovery-material deletion, invalidation,
 deployment, IAM/CloudFormation change, other object/version/delete operation,
 production/DNS, Firebase, historical-data import, or T17 action is authorized
 in this invocation.
+
+### T16 corrected CF03 execution stop — 2026-08-11
+
+The one authorized invocation from clean `6691bf7` ran exactly once with the
+reviewed profile/account/region and stopped at the update checkpoint. Its
+sanitized result was `operations=6`, `writes=0`, `restores=1`, `polls=0`,
+`cleanups=1`, `writeStatus=not-started`, `restoreStatus=passed`, and
+`cleanupStatus=passed`; no successful test VersionId or stale request was
+observed. The single conditional restore completed and no retry or manual
+operation was performed. Recovery material was not retained after successful
+restore and cleanup.
+
+Read-only post-checks prove the exact 501-byte original body, ETag,
+application/json metadata, public cache policy, AES256 encryption, SHA-256,
+and tuple 0. The restored current VersionId is
+`R4ErT.g1nIVo6tcP4KrDX5gen94BwMON`. Users/admins remain `0/0`, invalidations
+remain `3`, and the alarm is `OK`. CloudFront remains HTTP 200 with the exact
+body/hash/cache metadata and tuple 0; the API is HTTP 401 with `no-store`, and
+direct S3 is HTTP 403. No rerun, extra restore, recovery-material deletion,
+deployment, invalidation, or other out-of-scope operation was performed.

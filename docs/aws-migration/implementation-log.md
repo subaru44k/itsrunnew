@@ -5633,3 +5633,21 @@ observations remain bounded. Do not rerun on any terminal failure. No extra
 restore attempt, invalidation, deployment, IAM/CloudFormation change, other S3
 object or version operation, production/DNS, Firebase, historical-data import,
 or T17 action is authorized in this invocation.
+
+### T16 HR01-HR02 bounded-retry CF03 execution stop — 2026-08-11
+
+The single authorized bounded-retry invocation from clean `7620015` was run
+exactly once after all read-only gates matched. It terminated at the update
+checkpoint with sanitized counters `operations=6`, `writes=0`, `restores=1`,
+`polls=0`, `cleanups=1`, `restoreStatus=failed`, `cleanupStatus=passed`, and
+`recoveryMaterialRetained=true`. The update/stale result was typed failure;
+there was no retry outside the committed bounded setup retry. Temporary
+identity cleanup left users/admins at `0/0`.
+
+Read-only post-stop checks show the current S3 object is exact in bytes,
+ETag, content type, cache control, AES256 metadata, SHA-256, and tuple 0; its
+current VersionId is `BH9YGdC.aioqdL4AR8Po5ggdJ6BmSE.Z`. CloudFront remains the
+exact 501-byte body/hash/tuple with the reviewed cache metadata, invalidations
+remain `3`, and the alarm is `OK`. The API remains 401 with `no-store` and
+direct S3 remains 403. Recovery material is retained; no rerun or manual
+restore was performed.

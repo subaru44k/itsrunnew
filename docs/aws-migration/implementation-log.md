@@ -5183,3 +5183,15 @@ schema, or tuple checks. `phase4-t16-data-response-diagnostic-plan.md`
 authorizes only a closed sanitized response-reason proof and AWS-free tests. No
 AWS/network/live operation, Cognito/S3 mutation, deploy/invalidation,
 IAM/CloudFormation, Firebase, or T17 work is authorized pending Sol review.
+
+### T16 RD01-RD02 authenticated-response diagnostic correction complete — 2026-08-11
+
+Added the closed authenticated-response reasons `transport-contract`,
+`response-missing`, `body-read`, `body-shape`, `etag`, `schedule-schema`, and
+`reserved-tuple`. Reasons carry only with `authenticated-api-response`; other
+setup failures retain only category and context. Production-shaped tests cover
+all reasons in both contexts, hostile collapse/no leakage, exact keys, drained
+waiters/no unhandled rejection, exactly-once cleanup, and zero data operations.
+Focused data tests: 47/47; combined T16 auth/data tests: 90/90. `npm run check`,
+`node --check`, and `git diff --check` pass. No AWS/network/live operation
+occurred; stop for Sol review.

@@ -69,6 +69,7 @@ export function shouldRemoveRecoveryMaterial({ restoreStatus = 'not-required', r
 const cognitoOperations = new Set(['admin-create-user', 'admin-set-user-password', 'admin-add-user-to-group', 'admin-get-user', 'admin-remove-user-from-group', 'admin-delete-user', 'list-users', 'list-users-in-group', 'sts-get-caller-identity'])
 const strongEtag = value => typeof value === 'string' && /^"[0-9a-f]{32,}"$/i.test(value)
 const dataSetupCategories = new Set(['hosted-ui-redirect', 'form-submission', 'manage-return', 'signed-in-sentinel', 'authenticated-api-response', 'operation-failed'])
+const responseReasons = new Set(['transport-contract', 'response-missing', 'body-read', 'body-shape', 'etag', 'schedule-schema', 'reserved-tuple'])
 const setupContext = value => value === 'second' ? 'second' : 'first'
 const setupCategory = error => {
   if (dataSetupCategories.has(error?.category)) return error.category
@@ -81,13 +82,16 @@ const setupCategory = error => {
   if (['api-response-missing', 'api-status-unexpected'].includes(category)) return 'authenticated-api-response'
   return 'operation-failed'
 }
-export function createDataSetupError(category, context) {
-  if (!dataSetupCategories.has(category) || !['first', 'second'].includes(context)) fail('invalid setup diagnostic')
-  return Object.freeze({ name: 'DataSetupSubstageError', category, context })
+export function createDataSetupError(category, context, reason) {
+  if (!dataSetupCategories.has(category) || !['first', 'second'].includes(context) || (category === 'authenticated-api-response' && !responseReasons.has(reason)) || (category !== 'authenticated-api-response' && reason !== undefined)) fail('invalid setup diagnostic')
+  return Object.freeze({ name: 'DataSetupSubstageError', category, context, ...(category === 'authenticated-api-response' ? { reason } : {}) })
 }
 export function sanitizeDataSetupFailure(error, context = error?.context) {
-  return Object.freeze({ category: setupCategory(error), context: setupContext(context) })
+  const reason = responseReasons.has(error?.reason) ? error.reason : undefined
+  const category = reason ? 'authenticated-api-response' : setupCategory(error)
+  return Object.freeze({ category, context: setupContext(context), ...(category === 'authenticated-api-response' ? { reason: reason ?? 'transport-contract' } : {}) })
 }
+function responseDiagnostic(reason) { return Object.assign(new Error('authenticated response contract'), { name: 'AuthenticatedResponseDiagnostic', reason }) }
 const safeTimestamp = value => typeof value === 'string' && !Number.isNaN(Date.parse(value)) && value === new Date(value).toISOString()
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const normalizedHeader = (headers, name) => {
@@ -100,10 +104,14 @@ const headerValue = (headers, name) => {
   return typeof entry?.[1] === 'string' ? entry[1].trim() : ''
 }
 export async function validateAuthenticatedGetResponse(response, { origin = DATA_CONSTANTS.apiOrigin } = {}) {
-  const headers = response.headers(); const url = new URL(response.url()); const expected = new URL(origin)
-  if (response.status() !== 200 || url.origin !== expected.origin || url.pathname !== DATA_CONSTANTS.apiPath || normalizedHeader(headers, 'content-type').split(';')[0] !== 'application/json' || normalizedHeader(headers, 'cache-control').split(';')[0] !== 'no-store') fail('authenticated GET contract')
-  const payload = await response.json(); if (Object.keys(payload ?? {}).sort().join('|') !== 'document|etag') fail('authenticated GET shape')
-  const document = payload.document; const etag = payload.etag; const parsed = parseSchedule(Buffer.from(JSON.stringify(document))); if (!strongEtag(etag) || parsed.tuple !== DATA_CONSTANTS.before) fail('authenticated GET proof')
+  if (!response) throw responseDiagnostic('response-missing')
+  let headers; let url; let expected
+  try { headers = response.headers(); url = new URL(response.url()); expected = new URL(origin); if (response.status() !== 200 || url.origin !== expected.origin || url.pathname !== DATA_CONSTANTS.apiPath || normalizedHeader(headers, 'content-type').split(';')[0] !== 'application/json' || normalizedHeader(headers, 'cache-control').split(';')[0] !== 'no-store') throw responseDiagnostic('transport-contract') } catch (error) { if (error?.name === 'AuthenticatedResponseDiagnostic') throw error; throw responseDiagnostic('transport-contract') }
+  let payload; try { payload = await response.json() } catch { throw responseDiagnostic('body-read') }
+  if (Object.keys(payload ?? {}).sort().join('|') !== 'document|etag') throw responseDiagnostic('body-shape')
+  const document = payload.document; const etag = payload.etag; if (!strongEtag(etag)) throw responseDiagnostic('etag')
+  let parsed; try { parsed = parseSchedule(Buffer.from(JSON.stringify(document))) } catch { throw responseDiagnostic('schedule-schema') }
+  if (parsed.tuple !== DATA_CONSTANTS.before) throw responseDiagnostic('reserved-tuple')
   return { document: clone(document), etag, tuple: parsed.tuple }
 }
 function parseSchedule(bytes) {
@@ -291,8 +299,8 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
           try { await browserRoleSession(page, { username, password, viewport: 'desktop' }) } catch (error) { const category = setupCategory(error); throw createDataSetupError(category === 'operation-failed' ? 'form-submission' : category, context) }
           try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: responseTimeout }) } catch { throw createDataSetupError('manage-return', context) }
           try { await signedInSentinel(page, { viewport: 'desktop', timeoutMs: responseTimeout }) } catch { throw createDataSetupError('signed-in-sentinel', context) }
-          try { loaded.push(await getResponseValidator(await responsePromise, { origin })) } catch { throw createDataSetupError('authenticated-api-response', context) }
-        } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context) }
+          try { loaded.push(await getResponseValidator(await responsePromise, { origin })) } catch (error) { const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError('authenticated-api-response', context, normalized.reason ?? 'transport-contract') }
+        } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context, normalized.reason) }
       }
       return { contexts: 2 }
     },

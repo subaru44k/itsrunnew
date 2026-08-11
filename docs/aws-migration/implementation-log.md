@@ -5229,3 +5229,17 @@ observation, identity cleanup, and stop boundaries. If it fails, record only
 the closed checkpoint/category/context/reason and do not rerun. No restore
 retry, invalidation, IAM/CloudFormation/deploy, other object, delete/version
 delete, production, DNS, Firebase, or T17 operation is authorized.
+
+### T16 response-diagnosed CF03 execution stop — 2026-08-11
+
+The one authorized execution from clean commit `abc72ce` stopped during setup
+with the sanitized result `failureCheckpoint=setup`, category
+`authenticated-api-response`, context `first`, reason `body-read`,
+`writes=0`, `restores=0`, `cleanups=1`, and cleanup passed. No retry or manual
+write was performed. Post-stop read-only checks found users/admins `0/0`,
+invalidation count `3`, the API 5xx alarm `OK` with actions enabled, direct S3
+HTTP `403`, API `401` with `no-store`, and the unchanged encrypted 501-byte
+target with baseline ETag/VersionId/metadata, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
+0. The rehearsal is stopped for Sol review; no further live execution is
+authorized by this entry.

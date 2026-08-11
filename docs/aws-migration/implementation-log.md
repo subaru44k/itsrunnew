@@ -4805,3 +4805,16 @@ successful restore/removal and a readback-identity failure: each performs
 exactly one restore PUT, while failure retains material and never removes the
 run or parent. The focused T16 suite passes 27/27. No AWS/live/DC03 operation
 occurred.
+
+### T16 DC02 Sol acceptance and DC03 authorization
+
+Sol independently reviewed DC02 through commit `9cca3c9` and reran the focused
+data suite (27/27). Exact baseline/test/unknown classification, typed recovery,
+post-stale ETag/VersionId/document coupling, one-shot conditional restoration,
+restore readback identity, protected material containment/modes/symlink checks,
+and cleanup retention/removal are covered. The injected concrete adapter proves
+one successful restore removes only its run directory and a mismatched readback
+performs one PUT without retry while retaining recovery material. DC02 is
+accepted. DC03 local source/tests/documentation are authorized exactly as
+specified by `phase4-t16-data-final-correction.md`. AWS/network/live operations
+and preview data writes remain unauthorized pending another Sol review.

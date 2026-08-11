@@ -5782,3 +5782,30 @@ enabled, hidden, missing, and wrong-value failures while retaining pre-save
 actionability coverage. Focused T16 tests pass `56/56`; combined auth/data
 tests pass `99/99`. No AWS, network, live, identity, S3, recovery-material,
 deployment, invalidation, or other out-of-scope operation was performed.
+
+### T16 SC01-SC02 Sol acceptance and one saved-state-correct CF03 execution
+
+Sol independently reviewed `6f9c396` and reran focused data tests 56/56 and
+combined auth/data tests 99/99 plus `node --check` and `git diff --check`. The
+saved-state proof now preserves exact pre-save actionability and separately
+requires the rendered post-save select to be visible, value 1, and disabled,
+which exactly matches the deployed component state. All composed UI/transport/
+protected-S3, stale, public observation, restore, retry, and cleanup boundaries
+remain intact.
+
+The immediate read-only gate again matched account `470447451992`, region
+`ap-northeast-1`, Hosting `UPDATE_COMPLETE`, reviewed Lambda active/successful,
+users/admins `0/0`, invalidations `3`, alarm `OK`, and the exact current
+501-byte baseline ETag/VersionId/content/cache/encryption/SHA-256/tuple 0 with
+VersionId `R4ErT.g1nIVo6tcP4KrDX5gen94BwMON`; CloudFront body/hash/tuple also
+matched.
+
+Exactly one fresh invocation of the committed saved-state-correct CF03 runner
+is authorized under the same exact preview profile/account/region/target and
+mutation boundaries: temporary local user/admin membership, one conditional UI
+tuple update, one stale 409 without retry, one conditional exact-original
+restore, bounded public observations, and identity cleanup. Do not rerun or
+manually restore on terminal failure. No additional restore, recovery-material
+deletion, deploy/invalidation, IAM/CloudFormation, other S3 object/version/
+delete, production/DNS, Firebase, historical-data, or T17 action is authorized
+in this invocation.

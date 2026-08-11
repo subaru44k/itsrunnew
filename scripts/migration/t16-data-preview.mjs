@@ -299,7 +299,9 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
           try { await browserRoleSession(page, { username, password, viewport: 'desktop' }) } catch (error) { const category = setupCategory(error); throw createDataSetupError(category === 'operation-failed' ? 'form-submission' : category, context) }
           try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: responseTimeout }) } catch { throw createDataSetupError('manage-return', context) }
           try { await signedInSentinel(page, { viewport: 'desktop', timeoutMs: responseTimeout }) } catch { throw createDataSetupError('signed-in-sentinel', context) }
-          try { loaded.push(await getResponseValidator(await responsePromise, { origin })) } catch (error) { const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError('authenticated-api-response', context, normalized.reason ?? 'transport-contract') }
+          let authenticatedResponse
+          try { authenticatedResponse = await responsePromise } catch { throw createDataSetupError('authenticated-api-response', context, 'response-missing') }
+          try { loaded.push(await getResponseValidator(authenticatedResponse, { origin })) } catch (error) { const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError('authenticated-api-response', context, normalized.reason ?? 'transport-contract') }
         } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context, normalized.reason) }
       }
       return { contexts: 2 }

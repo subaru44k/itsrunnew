@@ -5195,3 +5195,16 @@ waiters/no unhandled rejection, exactly-once cleanup, and zero data operations.
 Focused data tests: 47/47; combined T16 auth/data tests: 90/90. `npm run check`,
 `node --check`, and `git diff --check` pass. No AWS/network/live operation
 occurred; stop for Sol review.
+
+### T16 RD01 response-waiter reason correction — 2026-08-11
+
+Corrected the authenticated GET setup boundary so a rejected or timed-out
+response waiter is classified as `authenticated-api-response` with reason
+`response-missing` before validation. Actual responses continue through the
+validator and retain only their closed contract reason; hostile validator
+failures remain sanitized as `transport-contract`. First/second waiter tests
+now assert `response-missing`, including delayed rejection with no unhandled
+rejection and exactly-once cleanup. Focused data tests: 47/47; combined T16
+auth/data tests: 90/90. `npm run check`, `node --check`, and
+`git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
+review.

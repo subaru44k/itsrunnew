@@ -966,6 +966,7 @@ Checks: Node 24.18.1; Firestore-focused A+B+C Vitest 35 passed; core unit and
 root npm run check remain to be run before commit. No Firebase/AWS/network/
 credential/data operation or new dependency occurred. T14D+ remain pending Sol
 review.
+
 ```
 
 ### Phase 4 T14E1R07 gcloud ADC empty-account correction
@@ -5120,5 +5121,18 @@ DOM, request, response, bucket, or key data. Browser setup wraps each context
 failure, and the coordinator preserves the sanitized pair while retaining
 exactly-once cleanup and zero data-stage activity. Focused data tests: 45/45;
 combined T16 auth/data: 88/88. `npm run check`, `node --check`, and
+`git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
+review.
+
+### T16 SD01 follow-up boundary correction complete — 2026-08-11
+
+Wrapped each real browser setup boundary explicitly: Hosted UI redirect and
+form submission, manage return, signed-in sentinel, and authenticated GET
+await/validation. Generic timeout and contract failures now map to the exact
+sanitized stage/context, while earlier failures still drain the armed GET
+waiter. Added production-shaped injected browser fakes for every stage and
+both contexts, including generic `TimeoutError`/response failures, with no
+leakage, unhandled rejection, or data-stage operation. Focused data tests:
+46/46; combined T16 auth/data: 89/89. `npm run check`, `node --check`, and
 `git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
 review.

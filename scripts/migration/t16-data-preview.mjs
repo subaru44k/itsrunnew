@@ -75,10 +75,10 @@ const setupCategory = error => {
   const category = typeof error?.category === 'string' ? error.category : ''
   const message = typeof error?.message === 'string' ? error.message : ''
   if (category === 'hosted-ui-redirect-timeout' || message === 'hosted-ui-redirect-timeout') return 'hosted-ui-redirect'
-  if (['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed'].includes(category) || ['invalid hosted UI page', 'login control unavailable', 'form driver unavailable'].includes(message)) return 'form-submission'
-  if (category === 'callback-missing' || category === 'manage-timeout' || ['callback unavailable', 'manage return timeout'].includes(message)) return 'manage-return'
-  if (category === 'signed-in-missing' || ['signed-in sentinel unavailable', 'sentinel unavailable'].includes(message)) return 'signed-in-sentinel'
-  if (['api-response-missing', 'api-status-unexpected'].includes(category) || ['authenticated GET contract', 'authenticated GET shape', 'authenticated GET proof'].includes(message)) return 'authenticated-api-response'
+  if (['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed'].includes(category)) return 'form-submission'
+  if (category === 'callback-missing' || category === 'manage-timeout') return 'manage-return'
+  if (category === 'signed-in-missing') return 'signed-in-sentinel'
+  if (['api-response-missing', 'api-status-unexpected'].includes(category)) return 'authenticated-api-response'
   return 'operation-failed'
 }
 export function createDataSetupError(category, context) {
@@ -264,7 +264,7 @@ async function defaultBrowserLauncher() {
   return chromium.launch({ headless: true })
 }
 
-export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, fetchImpl = globalThis.fetch, responseTimeout = 90000, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout } = {}) {
+export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, fetchImpl = globalThis.fetch, responseTimeout = 90000, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout, browserRoleSession = runBrowserRoleSession, signedInSentinel = awaitSignedInSentinel, getResponseValidator = validateAuthenticatedGetResponse } = {}) {
   let chromium; let contexts = []; let pages = []; let loaded = []; let accepted = null; let cleaned = false
   const awaitReady = async (control, expectedValue, label) => {
     if (!control || typeof control.waitFor !== 'function' || typeof control.isVisible !== 'function' || typeof control.isEnabled !== 'function' || typeof control.click !== 'function') fail(`${label} unavailable`)
@@ -287,8 +287,11 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
         try {
           responsePromise = page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }, { timeout: responseTimeout })
           Promise.resolve(responsePromise).catch(() => {})
-          await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' }); await runBrowserRoleSession(page, { username, password, viewport: 'desktop' }); await page.waitForURL(url => new URL(url).pathname === '/manage'); await awaitSignedInSentinel(page, { viewport: 'desktop' })
-          loaded.push(await validateAuthenticatedGetResponse(await responsePromise, { origin }))
+          await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' })
+          try { await browserRoleSession(page, { username, password, viewport: 'desktop' }) } catch (error) { const category = setupCategory(error); throw createDataSetupError(category === 'operation-failed' ? 'form-submission' : category, context) }
+          try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: responseTimeout }) } catch { throw createDataSetupError('manage-return', context) }
+          try { await signedInSentinel(page, { viewport: 'desktop', timeoutMs: responseTimeout }) } catch { throw createDataSetupError('signed-in-sentinel', context) }
+          try { loaded.push(await getResponseValidator(await responsePromise, { origin })) } catch { throw createDataSetupError('authenticated-api-response', context) }
         } catch (error) { await Promise.resolve(responsePromise).catch(() => {}); const normalized = sanitizeDataSetupFailure(error, context); throw createDataSetupError(normalized.category, normalized.context) }
       }
       return { contexts: 2 }

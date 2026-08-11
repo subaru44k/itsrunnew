@@ -966,6 +966,7 @@ Checks: Node 24.18.1; Firestore-focused A+B+C Vitest 35 passed; core unit and
 root npm run check remain to be run before commit. No Firebase/AWS/network/
 credential/data operation or new dependency occurred. T14D+ remain pending Sol
 review.
+
 ```
 
 ### Phase 4 T14E1R07 gcloud ADC empty-account correction
@@ -5158,3 +5159,16 @@ stop boundaries recorded above. If setup fails, it must return only the new
 allowlisted substage/context proof and must not be rerun. No restore retry,
 invalidation, IAM/CloudFormation/deploy, other object, delete/version-delete,
 production, DNS, Firebase, or T17 operation is authorized.
+
+### T16 diagnosed CF03 rehearsal stop — 2026-08-11
+
+The one authorized execution from clean commit `60cb08e` stopped during setup
+with the sanitized result `failureCheckpoint=setup`, category
+`authenticated-api-response`, context `first`, `writes=0`, `restores=0`, and
+`cleanups=1`; cleanup passed. No retry or manual write was performed. Post-stop
+read-only checks found users/admins `0/0`, invalidation count `3`, the API 5xx
+alarm `OK` with no actions, and the unchanged encrypted 501-byte target with
+baseline ETag/VersionId/metadata, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
+0. The rehearsal is stopped for Sol review; no further live execution is
+authorized by this entry.

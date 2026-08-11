@@ -4693,3 +4693,19 @@ auth/data suites: 45 passed; `npm run check`, `node --check`, and
 deployment, invalidation, Firestore, IAM, CloudFormation, production, DNS,
 Firebase, CF04, or T17 operation occurred. Changes remain local pending commit
 and Sol source review.
+
+### CF03 second Sol source review: further correction required
+
+Sol reviewed `64530bd`; live execution remains unauthorized. The concrete
+browser `load` uses native page fetch without the application's Bearer token,
+and the submit path reads ETag/VersionId from HTTP headers although the deployed
+API returns them in its JSON body. The stale proof is not coupled to an exact S3
+current readback. Unknown indeterminate state does not retain recovery material,
+public polling cannot abort a permanently pending fetch/body, bucket version/
+privacy gates are absent, and the direct test depends on a gitignored local
+fixture that is unavailable in a clean checkout.
+
+CF03R05-CF03R08 in `phase4-t16-data-source-review.md` specify the required real
+UI API observation, bucket/deadline gates, recovery lifecycle, and self-contained
+low-level tests. These remain local source/test/documentation tasks only; no AWS
+or live rehearsal operation is authorized.

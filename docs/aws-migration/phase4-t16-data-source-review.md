@@ -92,3 +92,78 @@ Run the new focused suite, all existing T16 auth/harness suites,
 the corrected commits/tests. Stop clean for Sol source re-review. Do not run
 `--execute-preview-data`, AWS CLI, Cognito, API, S3, deployment, invalidation,
 Firestore, IAM, CloudFormation, production, DNS, Firebase, CF04, or T17.
+
+## Second Sol re-review: CF03R05-CF03R08
+
+Commit `64530bd` corrected the first review's filesystem, CLI, identity, and
+coordinator skeleton issues, but direct browser/API and recovery behavior still
+cannot be executed safely. Complete the following locally before live review.
+
+### CF03R05: observe the real authenticated UI API contract
+
+Do not call native `fetch` from `page.evaluate` for protected API reads; that
+request has no Bearer token. Before each Hosted UI login, install an exact
+same-origin GET response waiter/recorder. After the signed-in sentinel, consume
+the application's authenticated GET response, require 200, application/json,
+`Cache-Control: no-store`, bounded JSON, exact schema/object/tuple, and the ETag
+from the JSON body. Both independent contexts must retain their own exact
+baseline document and ETag.
+
+For context A, observe the exact UI-generated PUT request and response. Require
+one request, exact path, Content-Type, strong `If-Match` baseline, no
+`If-None-Match`, and a JSON body with only schemaVersion/stadium/yearMonth/days,
+no `updatedAt`/unknown field, and exactly the approved one-cell delta. Parse the
+200 JSON response body for `document`, `etag`, and `versionId`; these are not
+HTTP response headers. Require no-store, valid new server timestamp, exact
+one-cell document, strong new ETag, and new VersionId.
+
+For context B, observe exactly one UI PUT 409/no-store and the UI's automatic
+authenticated comparison GET 200/no-store. Require the localized conflict UI,
+one PUT/no retry, and comparison JSON equal to the approved test document/ETag.
+Then perform an exact S3 current read and require its ETag, VersionId, bytes,
+hash, and tuple equal the successful update before public polling or restore.
+
+### CF03R06: complete concrete preflight and bounded public reads
+
+Add exact read-only bucket-versioning and public-access-block operations and
+require versioning `Enabled` plus all four public block booleans true. Keep the
+object-only operation allowlist separate and prohibit listing/deleting. Verify
+the final captured original immediately before identity/browser setup.
+
+Implement CloudFront public reads with a real overall deadline that includes
+each fetch and body read, retry delays, and all attempts. Use AbortController or
+equivalent standard APIs, clear every timer, abort pending requests at the
+deadline, and prevent unhandled rejections. Require 200, application/json,
+expected cache metadata, bounded body, exact schema, and expected tuple. Add
+fake-clock/call-count and permanently-pending fetch/body tests.
+
+### CF03R07: recovery state and material lifecycle
+
+After an indeterminate update, an exact baseline current state may clean the
+original with no restore; an exact approved test state must restore once using
+its observed ETag; an unknown state must set a typed `recovery-required`
+failure, make no speculative restore, set `recoveryMaterialRetained: true`, and
+preserve the original. Preserve material as well after restore/readback failure.
+
+Use a known gitignored operator-recovery parent under `.artifacts/migration`
+with mode 0700 and a unique contained run directory/file at 0700/0600. Fail if
+containment, mode, or symlink checks fail. Generic identity/browser cleanup must
+never remove retained recovery material. Output only the retention boolean,
+not the path or contents. Successful restore or proven baseline-no-write may
+remove the run directory.
+
+### CF03R08: self-contained direct tests
+
+Remove reliance on gitignored pre-existing `.artifacts/preview-seed` content.
+Build the exact 501-byte baseline deterministically inside the test or generate
+it into a new protected temporary directory, and assert its known SHA. Test the
+concrete Playwright boundary through low-level fake launcher/context/page/
+response objects, not only a complete browser adapter replacement. Prove the
+authenticated GET capture, exact UI request/response parsing, conflict+
+comparison sequence, and forbidden-field/delta checks.
+
+Add tests for exact bucket gates, coupled S3 current readback, unknown-state
+retention, known recovery directory modes, hanging fetch/body deadlines/timer
+cleanup, every post-write failure, and exact single restore. Run all checks from
+CF03R04. Update the truthful log and stop clean. The same no-AWS/live-operation
+boundary remains absolute.

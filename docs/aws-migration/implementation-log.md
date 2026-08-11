@@ -4248,3 +4248,14 @@ Hostile-value adapter tests, real Chromium callback-event canaries, focused
 auth tests (43/43), web unit tests (55 passed), admin-local Playwright (46
 passed), `npm run check`, and `git diff --check` all passed. No dependency,
 token persistence, AWS, or live-auth change was made.
+
+### Phase 4 T16 CET01 Sol acceptance and CET02 authorization
+
+Sol reviewed `972273d`. Caught callback values are immediately reduced to five
+fixed categories, the raw value is discarded, and the browser event/harness
+accept only an allowlisted string. Application text and raw preview are
+unchanged; hostile and real-Chromium coverage passed. CET01 is accepted.
+
+CET02 may push the exact reviewed revision and dispatch web-only once. Data,
+CloudFormation, IAM, Cognito administration, and invalidation remain forbidden;
+require workflow success and unchanged inventories before CET03.

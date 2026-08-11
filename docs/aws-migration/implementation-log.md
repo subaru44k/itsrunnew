@@ -4487,3 +4487,31 @@ CloudFront invalidation count remained 3. No data, IAM, CloudFormation,
 invalidation, Cognito administration, Firebase, DNS, or production change was
 made. The one CU02 auth-only verification is authorized under the existing
 cleanup and zero-data-write gates.
+
+### Phase 4 T16 CU02 auth-only verification stop
+
+Starting from `cee55502885d651864d439afd771a98f0b64b9dc` on
+`migration/aws-s3-cloudfront`, Node `v24.18.1`, focused auth/form/harness/
+adapter tests passed 43/43, `npm run check` passed, and `git diff --check`
+passed. Read-only preflight matched account `470447451992`, region
+`ap-northeast-1`, the exact preview pool/resources, pool users 0, admins
+membership 0, one Hosted UI form with three controls, the 501-byte protected
+object baseline (ETag, VersionId, and SHA-256 unchanged), and CloudFront
+invalidation count 3.
+
+The committed auth-only executable ran exactly once with
+`--execute-preview-auth` and exited 1. Its sanitized result was `status: failed`,
+`lastCheckpoint: cleanup`, `failureCheckpoint: admin-form`,
+`roleOutcomes.admin: failed`, `roleOutcomes.non-admin: not-run`,
+`counts: { operations: 4, writes: 0, restores: 0, cleanups: 1 }`,
+`failure: { stage: admin-form, category: state-response-missing, viewport: desktop }`,
+`cleanupStatus: passed`, `cleanupFailure: null`, and
+`restoreStatus: not-required`. The remaining role/viewport proofs were not
+reached; no retry or source fix was made.
+
+Independent post-run readback proved pool users 0, admins membership 0,
+protected object ContentLength 501, the same ETag, VersionId, content type,
+cache metadata, and SHA-256, and invalidation count 3. No API PUT, S3 write,
+Firestore, IAM, CloudFormation, deployment, production, DNS, Firebase, or
+data rehearsal operation occurred. CU02 is a terminal stop; CF03/T17 remain
+unauthorized.

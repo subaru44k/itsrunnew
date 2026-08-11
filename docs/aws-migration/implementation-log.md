@@ -966,7 +966,6 @@ Checks: Node 24.18.1; Firestore-focused A+B+C Vitest 35 passed; core unit and
 root npm run check remain to be run before commit. No Firebase/AWS/network/
 credential/data operation or new dependency occurred. T14D+ remain pending Sol
 review.
-
 ```
 
 ### Phase 4 T14E1R07 gcloud ADC empty-account correction

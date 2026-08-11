@@ -5347,3 +5347,21 @@ Bounded CloudFront proof is HTTP 200 with the same metadata, 501-byte hash,
 and tuple 0. Users/admins are 0/0, invalidations remain 3, and the API 5xx
 alarm is OK. No retry, deletion, CF03 rerun, or other mutation occurred;
 retained recovery material was not deleted. Stop for Sol review.
+
+### T16 CM01-CM02 schedule API cache metadata correction complete — 2026-08-11
+
+Added exact `CacheControl: public, max-age=0, s-maxage=60` to every schedule
+API `PutObject`, preserving `ContentType`, typed `IfMatch`/`IfNoneMatch`, body,
+key, and one-attempt client behavior. The AWS-free adapter test now deep-equals
+the complete match/create SDK inputs and proves no opposite conditional or
+unknown fields are present. Schedule API unit tests: 25/25; infra tests:
+19/19; combined T16 auth/data: 92/92; root `npm run check`, service
+typecheck/build, infra build/synth, `node --check`, and `git diff --check` pass.
+Fresh synth resource graph remains one Lambda, two S3 buckets, one CloudFront
+distribution, one API, one alarm, and the reviewed auth/log resources; the
+Lambda asset key is `970bc21f60630cd3ea83a6e91d49c6894ac03c582f9f592e535e38c84f7a6010.zip`
+and synthesized Hosting template SHA-256 is
+`f2f82af66e1ab16af1f4678fb38e7f1e578d85632f1e412be5541b70f31c9837`. The only
+functional synth diff is the Lambda asset key/content update; no resource
+graph, IAM, or deployment change was made. No AWS/network/live operation
+occurred; stop for Sol deployment review.

@@ -24,10 +24,8 @@ describe('S3 schedule adapter', () => {
     const store = new S3ScheduleStore(client as never, 'bucket')
     await store.put('data/v1/stadiums/oda/availability/2026-01.json', '{}', { kind: 'match', etag: '"old"' })
     await store.put('data/v1/stadiums/oda/availability/2026-02.json', '{}', { kind: 'create' })
-    expect(inputs[0]).toMatchObject({ Bucket: 'bucket', IfMatch: '"old"' })
-    expect(inputs[0]).not.toHaveProperty('ifMatch')
-    expect(inputs[1]).toMatchObject({ Bucket: 'bucket', IfNoneMatch: '*' })
-    expect(inputs[1]).not.toHaveProperty('ifNoneMatch')
+    expect(inputs[0]).toEqual({ Bucket: 'bucket', Key: 'data/v1/stadiums/oda/availability/2026-01.json', Body: '{}', ContentType: 'application/json', CacheControl: 'public, max-age=0, s-maxage=60', IfMatch: '"old"' })
+    expect(inputs[1]).toEqual({ Bucket: 'bucket', Key: 'data/v1/stadiums/oda/availability/2026-02.json', Body: '{}', ContentType: 'application/json', CacheControl: 'public, max-age=0, s-maxage=60', IfNoneMatch: '*' })
   })
   it('bounds streamed bodies even without ContentLength', async () => {
     const exact = fakeStream([new Uint8Array(32 * 1024)])

@@ -39,7 +39,7 @@ export class S3ScheduleStore implements ScheduleStore {
   }
   async put(key: SchedulePath, body: string, condition: WriteCondition) {
     const output = await this.client.send(new PutObjectCommand({
-      Bucket: this.bucketName, Key: key, Body: body, ContentType: 'application/json',
+      Bucket: this.bucketName, Key: key, Body: body, ContentType: 'application/json', CacheControl: 'public, max-age=0, s-maxage=60',
       ...(condition.kind === 'match' ? { IfMatch: condition.etag } : { IfNoneMatch: '*' }),
     }))
     return { etag: output.ETag, versionId: output.VersionId }

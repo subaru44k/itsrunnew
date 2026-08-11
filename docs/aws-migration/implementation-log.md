@@ -4632,3 +4632,22 @@ cache metadata, and SHA-256, and invalidation count 3. No S3/data write,
 Firestore, IAM, CloudFormation, deployment, production, DNS, Firebase, or T17
 operation occurred. NU02 is a terminal stop for Sol review; no retry or source
 fix was made.
+
+### Phase 4 T16 NU02 Sol acceptance and CF03 local authorization
+
+Sol accepted `3399681` after independent read-only verification of account
+`470447451992`, pool users 0, `admins` membership 0, the unchanged protected
+object identity, and CloudFront invalidation count 3. The real local-user Hosted
+UI matrix is complete: desktop/mobile admin GET 200 and desktop/mobile
+non-admin GET 403, with memory-only tokens, no API PUT, and complete identity
+cleanup.
+
+D041 and `phase4-t16-concrete-final-plan.md` CF03 now authorize only the local,
+AWS-free implementation and fake tests for the concrete one-object data
+rehearsal executable. It must remain hard-coded to the exact D029 object and
+cell, perform one conditional UI update, one stale conflict without retry,
+bounded public observation, and one exact conditional original-byte restore,
+with restoration taking priority after any possible write. Live execution,
+AWS/Cognito mutation, IAM, CloudFormation, deployment, invalidation, Firestore,
+production, DNS, Firebase, CF04, and T17 remain unauthorized until Sol source
+review.

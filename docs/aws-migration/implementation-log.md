@@ -5288,3 +5288,19 @@ account, region, target, conditional update/stale/restore, bounded observation,
 identity cleanup, and stop boundaries. It must not be rerun on failure. No
 restore retry, invalidation, IAM/CloudFormation/deploy, other object,
 delete/version-delete, production, DNS, Firebase, or T17 action is authorized.
+
+### T16 immediate-validation CF03 execution stop — 2026-08-11
+
+The one authorized execution from clean commit `b7bf704` stopped at the update
+checkpoint with sanitized category `recovery-required`, `writes=0`,
+`restores=0`, `cleanups=1`, cleanup passed, and
+`recoveryMaterialRetained=true`. No retry or manual restore was performed.
+Read-only post-stop checks found users/admins `0/0`, invalidation count `3`,
+the API 5xx alarm `OK` with actions enabled, direct S3 HTTP `403`, API `401`
+with `no-store`, and a possible update state requiring recovery: 252-byte
+AES256 `application/json` object, ETag
+`"f95b5fa3e287f0b5911b4f517656429e"`, VersionId
+`VnSpdQWZY9IKU.sRz.npUeFLZCt4TAsb`, SHA-256
+`73893d6015b796eb4212237c0a3afcb56d60ddb20224c17c72ff040e4cdd286b`,
+cache metadata absent, and tuple 1. Protected recovery material is retained;
+the rehearsal is stopped for Sol review and must not be rerun.

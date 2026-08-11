@@ -37,6 +37,23 @@ test('callback owns OIDC completion while manage owns restoration', async ({ pag
   await expect(page.getByRole('button', { name: '管理者としてログイン' })).toBeVisible()
 })
 
+test('callback recovers the initial URL once after history normalization', async ({ page }) => {
+  const consoleMessages: string[] = []
+  page.on('console', (message) => consoleMessages.push(message.text()))
+  await page.addInitScript(() => {
+    if (window.location.pathname === '/manage/callback') window.history.replaceState({}, '', '/manage/callback')
+  })
+  await setupCallback(page, 'navigationFallback')
+  await page.goto('/manage/callback?code=code-canary&state=state-canary', { waitUntil: 'domcontentloaded' })
+  await expect(page).toHaveURL(/\/manage$/)
+  await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
+  const browserState = await page.evaluate(() => ({ callback: sessionStorage.getItem('admin-e2e-callback-count'), query: window.location.search, keys: Object.keys(sessionStorage) }))
+  expect(browserState).toMatchObject({ callback: '1', query: '' })
+  expect(browserState.keys.some((key) => /code|state|token|user/i.test(key))).toBe(false)
+  expect(consoleMessages.join('\n')).not.toMatch(/code-canary|state-canary|token|claim/i)
+  await expect(page.locator('body')).not.toContainText(/code-canary|state-canary|token|claim/i)
+})
+
 test('OIDC login uses authorization code + PKCE settings and exact administrator scopes', async ({ page }) => {
   await page.goto('/manage', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: '管理者としてログイン' }).click()
@@ -172,7 +189,7 @@ async function setupCallback(page, mode) {
 for (const callbackCase of ['success', 'callbackFailure', 'hostileReturn']) {
   test(`direct callback ${callbackCase} is deterministic and same-origin`, async ({ page }) => {
     await setupCallback(page, callbackCase)
-    await page.goto('/manage/callback?code=fake&state=fake#fragment', { waitUntil: 'domcontentloaded' })
+    await page.goto('/manage/callback?code=fake&state=fake', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/\/manage$/)
     expect(await page.evaluate(() => ({ callback: sessionStorage.getItem('admin-e2e-callback-count'), cleanup: sessionStorage.getItem('admin-e2e-cleanup-count'), transaction: sessionStorage.getItem('admin-e2e-transaction') }))).toEqual({ callback: '1', cleanup: '1', transaction: null })
     if (callbackCase === 'success') await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()

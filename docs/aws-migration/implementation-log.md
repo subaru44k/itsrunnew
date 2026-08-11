@@ -4532,3 +4532,29 @@ the original query-bearing URL after `history.replaceState` removes it. D056
 and `phase4-t16-navigation-url-plan.md` therefore authorize NU01 local
 source/tests only. No AWS write, live auth, deployment, dependency, or data
 operation is authorized in NU01.
+
+### Phase 4 T16 NU01 Navigation Timing callback URL selector
+
+Starting from `157469855dfc6e1389af155e7b67d1b468bfb39e`, NU01 added a
+dependency-free callback URL selector and browser capture boundary. It accepts
+only the exact origin and `/manage/callback` path, rejects fragments, userinfo,
+malformed/cross-origin/wrong-path/repeated/empty/ambiguous candidates, and
+requires exactly one non-empty `state` plus exactly one non-empty `code` or
+`error`. A valid current URL is preferred; otherwise exactly one valid
+Navigation Timing name is selected. The selector returns only the complete URL;
+individual parameter values are never returned, decoded, logged, persisted,
+rendered, emitted, or placed in evidence. The callback page keeps the selected
+string in its setup closure and passes it once to the existing session callback;
+no raw fallback is passed when validation fails.
+
+Focused web unit tests passed 89 total (including 15 selector cases), the
+admin-local Chromium suite passed 48 across desktop/mobile, `npm run check`
+passed, and `git diff --check` passed. The new Chromium lifecycle proof uses
+history normalization and Navigation Timing fallback, confirms one callback
+consumption, and verifies no sensitive query material reaches DOM, storage,
+console, or test output. PKCE, callback deduplication, transaction cleanup,
+memory-only tokens, navigation, CSP, public behavior, and the raw preview suite
+are unchanged. No AWS/live auth/deployment/IAM/CloudFormation/invalidation,
+data/Firestore, Cognito administration, production, DNS, Firebase, or
+dependency operation occurred. NU01 is complete and stopped for Sol review;
+NU02 remains unauthorized.

@@ -4984,3 +4984,18 @@ cases, all stopping before update/stale/restore with one cleanup. Focused data
 tests: 41/41; combined T16 data/auth: 84/84.
 `npm run check`, `node --check`, and `git diff --check` pass. No AWS/network/live
 operation occurred; stop for Sol review.
+
+### T16 LC01-LC02 Sol acceptance and one load-corrected CF03 execution
+
+Sol reviewed LC01-LC02 through commit `4175984` and reran the focused suite
+(41/41). The coordinator now passes the exact retained capture ETag once and
+keeps the known baseline ETag/VersionId/hash/byte gates unchanged. The fresh
+read-only gate again matched account `470447451992`, users/admins 0/0,
+invalidation count 3, and the exact baseline object identity and SHA-256.
+
+One fresh execution of the load-corrected executable is authorized under the
+same exact profile/account/region, target, one-update/one-stale/one-restore,
+cleanup, and stop boundaries. It must run once only and may not be rerun on
+failure. No restore retry, invalidation, IAM/CloudFormation/deploy, other
+object, delete/version-delete, production, DNS, Firebase, or T17 action is
+authorized.

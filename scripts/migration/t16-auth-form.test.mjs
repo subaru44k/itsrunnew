@@ -3,7 +3,7 @@ import http from 'node:http'
 import test from 'node:test'
 import { chromium } from 'playwright'
 import { driveHostedUiSignIn } from './t16-auth-harness.mjs'
-import { installMatchingTransactionProbe } from './t16-auth-preview.mjs'
+import { installCallbackErrorProbe, installMatchingTransactionProbe } from './t16-auth-preview.mjs'
 
 const fixtureHtml = `<!doctype html><style>
   form[name="cognitoSignInForm"] { display: none; }
@@ -72,4 +72,25 @@ test('real Chromium runs the matching transaction probe before app code without 
     matching: window.__t16MatchingTransactionPresent,
   })), { appObserved: true, matching: true })
   assert.doesNotMatch(await page.content(), /CANARY_STORED_VALUE|code-canary|state-canary|query-canary/)
+})
+
+test('real Chromium callback error probe drops hostile payloads before app code', async t => {
+  const server = http.createServer((_request, response) => {
+    response.writeHead(200, { 'content-type': 'text/html' })
+    response.end(`<script>
+      window.dispatchEvent(new CustomEvent('itsrun:oidc-callback-category', { detail: { category: 'state-malformed', token: 'CANARY_TOKEN' } }))
+      window.dispatchEvent(new CustomEvent('itsrun:oidc-callback-category', { detail: 'state-malformed' }))
+    </script>`)
+  })
+  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve) })
+  t.after(() => server.close())
+  const browser = await chromium.launch({ headless: true })
+  t.after(() => browser.close())
+  const page = await browser.newPage()
+  t.after(() => page.close())
+  const address = server.address(); const origin = `http://127.0.0.1:${address.port}`
+  await installCallbackErrorProbe(page)
+  await page.goto(`${origin}/manage/callback?state=CANARY_STATE`, { waitUntil: 'domcontentloaded' })
+  assert.equal(await page.evaluate(() => window.__t16CallbackErrorCategory), 'state-malformed')
+  assert.doesNotMatch(String(await page.evaluate(() => window.__t16CallbackErrorCategory)), /CANARY_TOKEN|CANARY_STATE/)
 })

@@ -4223,3 +4223,28 @@ type, cache metadata, and SHA-256. CloudFront invalidation count remained 3.
 No API PUT, S3 write, Firestore, IAM, CloudFormation, deployment, production,
 DNS, Firebase, or data rehearsal operation occurred. RDC03 is a terminal stop;
 no retry or further auth-only run is authorized.
+
+### Phase 4 T16 RDC03 Sol acceptance and CET01 authorization
+
+Sol accepted RDC03 at `aaa847e`. The redirect-only callback still reached the
+matching-transaction stop with cleanup zero and unchanged protected data and
+invalidation inventory. D052 and `phase4-t16-callback-error-plan.md` authorize
+CET01 local-only fixed callback exception taxonomy. No AWS/live auth is
+authorized in CET01.
+
+### Phase 4 T16 CET01 callback error taxonomy
+
+CET01 was implemented locally from Sol handoff
+`cea1f85d0ac637a8fc4247f47d241230e0a15f75`. The OIDC adapter classifies caught
+values immediately into only `state-unavailable`, `state-malformed`,
+`invalid-redirect-request-type`, `oauth-response-error`, or `callback-other`.
+Only the exact request-type message is compared; OAuth response fields and all
+other caught values are discarded. A dedicated CustomEvent carries only the
+allowlisted category, and the auth-only pre-document harness captures only
+that category in memory before reducing it to category plus viewport. Generic
+application text and raw preview behavior remain unchanged.
+
+Hostile-value adapter tests, real Chromium callback-event canaries, focused
+auth tests (43/43), web unit tests (55 passed), admin-local Playwright (46
+passed), `npm run check`, and `git diff --check` all passed. No dependency,
+token persistence, AWS, or live-auth change was made.

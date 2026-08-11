@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import * as fsp from 'node:fs/promises'
-import { awaitHostedUiLogin, awaitSignedInSentinel, createBrowserSubstageError, createConcreteAuthAdapters, installMatchingTransactionProbe, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
+import { awaitHostedUiLogin, awaitSignedInSentinel, createBrowserSubstageError, createConcreteAuthAdapters, installCallbackErrorProbe, installMatchingTransactionProbe, main, runAuthCoordinator, runBrowserRoleSession, runDirect, AUTH_CONSTANTS, COGNITO_MUTATING_OPERATIONS } from './t16-auth-preview.mjs'
 
 function fakeRun({ fail = null, getShape = 'top-level' } = {}) {
   const calls = []; const envs = []; const payloads = []; const internal = { admin: 'internal-admin-id', nonAdmin: 'internal-nonadmin-id' }; let users = 0; let admins = 0
@@ -132,13 +132,20 @@ test('browser role integration invokes form driver only after the delayed URL ga
 })
 
 test('browser substage failures retain only exact category and viewport', async () => {
-  const categories = ['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing']
+  const categories = ['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing', 'state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'callback-other']
   for (const [index, category] of categories.entries()) {
     const viewport = index % 2 === 0 ? 'desktop' : 'mobile'
     const result = await runAuthCoordinator({ preflight: async () => ({ target: 'auth', users: 0, admins: 0, region: AUTH_CONSTANTS.region }), setup: async () => ({ users: 2, admins: 1 }), admin: { form: async () => { const error = new Error('canary raw browser error'); error.name = 'BrowserSubstageError'; error.category = category; error.viewport = viewport; throw error } }, cleanup: async () => ({ users: 0, admins: 0 }) })
     assert.deepEqual(result.failure, { stage: 'admin-form', category, viewport }); assert.equal(JSON.stringify(result).includes('canary'), false); assert.equal(JSON.stringify(result).includes('raw browser'), false)
   }
   assert.throws(() => createBrowserSubstageError('canary', 'desktop'), /invalid browser substage/)
+})
+
+test('callback error probe captures only an allowlisted category', async () => {
+  const calls = []
+  await installCallbackErrorProbe({ addInitScript: async (...args) => calls.push(args) })
+  assert.equal(calls.length, 1)
+  assert.doesNotMatch(String(calls[0][0]), /token|password|state=|message|stack/)
 })
 
 test('signed-in sentinel waits for delayed visible hydration and times out safely', async () => {

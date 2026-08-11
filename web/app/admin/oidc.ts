@@ -1,8 +1,19 @@
-import { InMemoryWebStorage, UserManager, WebStorageStateStore, type User } from 'oidc-client-ts'
+import { ErrorResponse, InMemoryWebStorage, UserManager, WebStorageStateStore, type User } from 'oidc-client-ts'
 
 export const ADMIN_SCOPES = 'openid email profile itsrun/schedule.write'
 export const ADMIN_CALLBACK_PATH = '/manage/callback'
 export const ADMIN_LOGOUT_PATH = '/manage'
+export const OIDC_CALLBACK_ERROR_EVENT = 'itsrun:oidc-callback-category'
+export const OIDC_CALLBACK_ERROR_CATEGORIES = ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'callback-other'] as const
+export type OidcCallbackErrorCategory = typeof OIDC_CALLBACK_ERROR_CATEGORIES[number]
+
+export function classifyOidcCallbackError(caught: unknown): OidcCallbackErrorCategory {
+  if (caught == null) return 'state-unavailable'
+  if (caught instanceof SyntaxError) return 'state-malformed'
+  if (caught instanceof Error && caught.message === 'invalid request_type in state') return 'invalid-redirect-request-type'
+  if (caught instanceof ErrorResponse) return 'oauth-response-error'
+  return 'callback-other'
+}
 
 export function isSafeReturnPath(value: unknown): boolean {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || value.includes('\\') || /%2f|%5c|%3a/i.test(value)) return false
@@ -60,9 +71,17 @@ export function createOidcPort(config: OidcConfig, storage: Storage = window.ses
     getUser: () => manager.getUser(),
     signinRedirect: (args) => manager.signinRedirect(args),
     signinCallback: async (url) => {
-      const user = await manager.signinRedirectCallback(url)
-      if (!user) throw new Error('OIDC callback did not produce a user')
-      return user
+      try {
+        const user = await manager.signinRedirectCallback(url)
+        if (!user) throw new Error('OIDC callback did not produce a user')
+        return user
+      } catch (caught) {
+        const category = classifyOidcCallbackError(caught)
+        if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') window.dispatchEvent(new CustomEvent(OIDC_CALLBACK_ERROR_EVENT, { detail: category }))
+        // Deliberately discard the caught value; attaching it would violate the diagnostic boundary.
+        // eslint-disable-next-line preserve-caught-error
+        throw new Error('OIDC callback failed')
+      }
     },
     signoutRedirect: (args) => manager.signoutRedirect(args),
     clearTransactionState: async () => {

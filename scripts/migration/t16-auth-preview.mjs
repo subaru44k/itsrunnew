@@ -22,7 +22,7 @@ export const COGNITO_MUTATING_OPERATIONS = Object.freeze([
 const COGNITO_READ_OPERATIONS = Object.freeze(['list-users', 'list-users-in-group'])
 const operationSet = new Set([...COGNITO_MUTATING_OPERATIONS, ...COGNITO_READ_OPERATIONS])
 const checkpoints = new Set(['preflight', 'setup', 'admin-form', 'admin-callback', 'admin-sentinel', 'non-admin-form', 'non-admin-callback', 'non-admin-sentinel', 'cleanup', 'complete'])
-const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing', 'matching-transaction-missing', 'matching-transaction-present'])
+const browserSubstageCategories = new Set(['form-ambiguous', 'control-missing', 'control-disabled', 'fill-failed', 'click-failed', 'submit-not-observed', 'callback-missing', 'manage-timeout', 'signed-in-missing', 'api-response-missing', 'api-status-unexpected', 'oauth-discovery-missing', 'oauth-discovery-rejected', 'oauth-token-endpoint-missing', 'oauth-token-endpoint-rejected', 'oauth-token-success-session-missing', 'callback-parameters-missing', 'token-request-not-started', 'token-request-failed', 'token-response-rejected', 'token-success-session-missing', 'matching-transaction-missing', 'matching-transaction-present', 'state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'callback-other'])
 const browserViewports = new Set(['desktop', 'mobile'])
 
 export function parseAuthArgs(argv) {
@@ -54,6 +54,17 @@ export async function installMatchingTransactionProbe(page, { origin, pathname =
     if (state) present = Object.prototype.hasOwnProperty.call(sessionStorage, `${keyPrefix}${state}`)
     Object.defineProperty(window, '__t16MatchingTransactionPresent', { value: present, writable: false, configurable: false })
   }, { expectedOrigin: origin, expectedPath: pathname, keyPrefix: prefix })
+}
+
+export async function installCallbackErrorProbe(page) {
+  if (!page || typeof page.addInitScript !== 'function') throw new Error('invalid callback error probe')
+  await page.addInitScript(() => {
+    const allowed = new Set(['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'callback-other'])
+    window.addEventListener('itsrun:oidc-callback-category', event => {
+      const category = event instanceof CustomEvent && typeof event.detail === 'string' && allowed.has(event.detail) ? event.detail : null
+      if (category) Object.defineProperty(window, '__t16CallbackErrorCategory', { value: category, writable: false, configurable: false })
+    })
+  })
 }
 
 function safeFailure(error) {
@@ -139,6 +150,7 @@ async function runRealBrowserRole(role, username, password) {
     const recorder = createSanitizedBrowserRecorder(page)
     try {
       await installMatchingTransactionProbe(page, { origin: new URL(AUTH_CONSTANTS.cloudFrontBase).origin })
+      await installCallbackErrorProbe(page)
       let apiStatus = null
       const onResponse = response => { try { const url = new URL(response.url()); if (url.pathname === AUTH_CONSTANTS.apiPath && response.request().method() === 'GET' && url.origin === new URL(AUTH_CONSTANTS.cloudFrontBase).origin) apiStatus = response.status() } catch {} }
       page.on('response', onResponse)
@@ -151,7 +163,8 @@ async function runRealBrowserRole(role, username, password) {
       try { await page.waitForURL(url => new URL(url).pathname === '/manage', { timeout: 30000 }) } catch { throw createBrowserSubstageError('manage-timeout', viewportName) }
       try { await awaitSignedInSentinel(page, { viewport: viewportName, timeoutMs: 30000 }) } catch (error) {
         if (error?.name === 'BrowserSubstageError' && error.category === 'signed-in-missing') {
-          let category = classifyOAuthStatus(recorder.snapshot().events, { apiPath: AUTH_CONSTANTS.apiPath })
+          const callbackError = await page.evaluate(() => ['state-unavailable', 'state-malformed', 'invalid-redirect-request-type', 'oauth-response-error', 'callback-other'].includes(window.__t16CallbackErrorCategory) ? window.__t16CallbackErrorCategory : null).catch(() => null)
+          let category = callbackError ?? classifyOAuthStatus(recorder.snapshot().events, { apiPath: AUTH_CONSTANTS.apiPath })
           if (category === 'token-request-not-started') {
             const matching = await page.evaluate(() => typeof window.__t16MatchingTransactionPresent === 'boolean' ? window.__t16MatchingTransactionPresent : null).catch(() => null)
             category = matching === true ? 'matching-transaction-present' : 'matching-transaction-missing'

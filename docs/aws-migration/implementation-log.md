@@ -5096,3 +5096,15 @@ count `3`, the API 5xx alarm `OK` with no actions, and the unchanged encrypted
 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
 0. The rehearsal is stopped for Sol review; no further live execution is
 authorized by this entry.
+
+### T16 selector-corrected setup-stop diagnosis and SD01-SD02 authorization
+
+Sol reviewed the safe stop at `ec8130c`. A wider read-only Lambda audit query
+confirmed that the execution produced no authenticated API GET, so it stopped
+inside Hosted UI/form/callback/manage/signed-in setup rather than at data load
+or write. The current data runner collapses those distinct substages into
+`typed-failure`; rerunning it unchanged would not add diagnostic evidence.
+`phase4-t16-data-setup-diagnostic-plan.md` authorizes only a closed, sanitized
+setup-substage/context proof and AWS-free regression tests. No AWS/network/live
+operation, Cognito or S3 mutation, deploy/invalidation, IAM/CloudFormation,
+Firebase, or T17 work is authorized pending Sol review.

@@ -4818,3 +4818,17 @@ performs one PUT without retry while retaining recovery material. DC02 is
 accepted. DC03 local source/tests/documentation are authorized exactly as
 specified by `phase4-t16-data-final-correction.md`. AWS/network/live operations
 and preview data writes remain unauthorized pending another Sol review.
+
+### T16 DC03 local correction complete
+
+Replaced page-evaluated/HTTPS-port public polling with an injected Node-side
+fetch boundary restricted to the exact CloudFront object URL and GET options.
+Polling now uses one monotonic overall deadline across fetch, bounded response
+body reads, retries, and retry delay; aborts each request at deadline or
+attempt completion; bounds Content-Length, streamed, and array-buffer bodies;
+and requires the exact public status, JSON media type, cache-control, parsed
+schema, and expected tuple. Pending fetch/body/sleep, abort, max-attempt,
+timer-cleanup, malformed-response, body-size, and retry-success cases are
+covered without AWS/network access. The focused T16 data/auth suite passes
+73/73; `npm run check`, `node --check`, and `git diff --check` pass. No
+AWS/live/DC04/T17 operation occurred; stop for Sol review.

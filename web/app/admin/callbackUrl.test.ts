@@ -17,6 +17,16 @@ describe('callback URL selection', () => {
     expect(captureCallbackUrl(origin, path, 'https://preview.example/manage/callback', [{ name: initial } as PerformanceNavigationTiming])).toBe(initial)
   })
 
+  it('counts encoded semantic response names without inspecting their values', () => {
+    expect(select(`${origin}${path}?code=x&%73tate=y`)).toBe(`${origin}${path}?code=x&%73tate=y`)
+    expect(select(`${origin}${path}?%63ode=x&state=y`)).toBe(`${origin}${path}?%63ode=x&state=y`)
+    expect(select(`${origin}${path}?%65rror=x&state=y`)).toBe(`${origin}${path}?%65rror=x&state=y`)
+    expect(select(`${origin}${path}?state=x&%73tate=y&code=z`)).toBeUndefined()
+    expect(select(`${origin}${path}?state=x&code=y&%63ode=z`)).toBeUndefined()
+    expect(select(`${origin}${path}?state=x&error=y&%65rror=z`)).toBeUndefined()
+    expect(select(`${origin}${path}?state=x&extra%2Dkey=y&code=z`)).toBe(`${origin}${path}?state=x&extra%2Dkey=y&code=z`)
+  })
+
   it.each([
     ['malformed', 'not a URL'],
     ['cross-origin', `https://evil.example${path}?code=x&state=y`],
@@ -31,6 +41,8 @@ describe('callback URL selection', () => {
     ['repeated code', `${origin}${path}?code=x&code=y&state=z`],
     ['both code and error', `${origin}${path}?code=x&error=y&state=z`],
     ['empty error', `${origin}${path}?error=&state=z`],
+    ['malformed percent-encoded name', `${origin}${path}?state=z&%ZZ=x&code=y`],
+    ['truncated percent-encoded name', `${origin}${path}?state=z&%F=x&code=y`],
   ])('rejects %s candidates', (_label, value) => { expect(select(value)).toBeUndefined() })
 
   it('rejects ambiguous or multiple valid navigation entries', () => {

@@ -4558,3 +4558,18 @@ are unchanged. No AWS/live auth/deployment/IAM/CloudFormation/invalidation,
 data/Firestore, Cognito administration, production, DNS, Firebase, or
 dependency operation occurred. NU01 is complete and stopped for Sol review;
 NU02 remains unauthorized.
+
+### Phase 4 T16 NU01 Sol correction: semantic encoded query names
+
+Sol review identified that the initial raw query-key scan would treat an
+encoded semantic duplicate such as `%73tate` as unrelated. The selector now
+decodes query names only (with `+` handling), rejects malformed percent
+encoding, and counts encoded/mixed `state`, `code`, and `error` names while
+leaving response values opaque and unreturned. Focused tests cover encoded
+names, mixed duplicates, unknown encoded extras, and malformed/truncated names.
+
+Focused web unit tests passed 31/31; admin-local Chromium passed 48/48 across
+desktop/mobile; `npm run check` passed with web 92, core 7, schedule API 25,
+and infra 19 tests; `git diff --check` passed. No callback/session/security
+behavior was weakened and no AWS/live-auth/deploy/data/IAM/CloudFormation/
+invalidation/Cognito/production/DNS/Firebase/T17/dependency operation occurred.

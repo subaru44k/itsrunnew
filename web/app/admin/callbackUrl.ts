@@ -13,7 +13,9 @@ function validCallbackUrl(value: unknown, expectedOrigin: string, expectedPath: 
   const counts = { state: 0, code: 0, error: 0 }
   const nonEmpty = { state: true, code: true, error: true }
   for (const pair of url.search.slice(1).split('&')) {
-    const separator = pair.indexOf('='); const key = separator < 0 ? pair : pair.slice(0, separator)
+    const separator = pair.indexOf('='); const rawKey = separator < 0 ? pair : pair.slice(0, separator)
+    let key: string
+    try { key = decodeURIComponent(rawKey.replaceAll('+', ' ')) } catch { return false }
     if (!(key in counts)) continue
     const name = key as keyof typeof counts; counts[name] += 1
     if (separator < 0 || pair.slice(separator + 1).length === 0) nonEmpty[name] = false

@@ -4259,3 +4259,12 @@ unchanged; hostile and real-Chromium coverage passed. CET01 is accepted.
 CET02 may push the exact reviewed revision and dispatch web-only once. Data,
 CloudFormation, IAM, Cognito administration, and invalidation remain forbidden;
 require workflow success and unchanged inventories before CET03.
+
+### Phase 4 T16 CET02 preview deployment acceptance
+
+Exact-SHA workflow run `31444911264` at `1188d77` passed repository and
+production-browser checks, web-only deployment, and raw preview checks. The
+protected object remained 501 bytes with the same ETag/VersionId and the
+invalidation count remained 3. No data, IAM, CloudFormation, Cognito admin,
+invalidation, Firebase, DNS, or production change occurred. CET02 is accepted;
+CET03 may run auth-only once under all existing exact gates.

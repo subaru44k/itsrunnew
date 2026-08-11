@@ -237,16 +237,23 @@ async function defaultBrowserLauncher() {
   return chromium.launch({ headless: true })
 }
 
-export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, fetchImpl = globalThis.fetch, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout } = {}) {
-  let chromium; let contexts = []; let pages = []; let loaded = []; let accepted = null
+export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher, origin = DATA_CONSTANTS.apiOrigin, fetchImpl = globalThis.fetch, responseTimeout = 90000, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), timer = setTimeout, clearTimer = clearTimeout } = {}) {
+  let chromium; let contexts = []; let pages = []; let loaded = []; let accepted = null; let cleaned = false
   const pageFor = index => { const page = pages[index]; if (!page) fail('browser context unavailable'); return page }
   return {
     async setup({ username, password } = {}) {
       if (typeof username !== 'string' || typeof password !== 'string') fail('browser credentials unavailable')
+      if (!Number.isFinite(responseTimeout) || responseTimeout <= 0) fail('browser response timeout')
       chromium = await launcher(); contexts = [await chromium.newContext(), await chromium.newContext()]; pages = await Promise.all(contexts.map(context => context.newPage()))
-      const getResponses = pages.map(page => page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }))
-      for (const page of pages) { await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' }); await runBrowserRoleSession(page, { username, password, viewport: 'desktop' }); await page.waitForURL(url => new URL(url).pathname === '/manage'); await awaitSignedInSentinel(page, { viewport: 'desktop' }) }
-      loaded = await Promise.all(getResponses.map(response => validateAuthenticatedGetResponse(response, { origin })))
+      loaded = []
+      for (const page of pages) {
+        let responsePromise
+        try {
+          responsePromise = page.waitForResponse(response => { try { const url = new URL(response.url()); return url.origin === new URL(origin).origin && url.pathname === DATA_CONSTANTS.apiPath && response.request().method() === 'GET' } catch { return false } }, { timeout: responseTimeout })
+          await page.goto(`${origin}/manage`, { waitUntil: 'domcontentloaded' }); await runBrowserRoleSession(page, { username, password, viewport: 'desktop' }); await page.waitForURL(url => new URL(url).pathname === '/manage'); await awaitSignedInSentinel(page, { viewport: 'desktop' })
+          loaded.push(await validateAuthenticatedGetResponse(await responsePromise, { origin }))
+        } catch (error) { await responsePromise?.catch(() => {}); throw error }
+      }
       return { contexts: 2 }
     },
     async load({ etag }) { if (typeof etag !== 'string' || loaded.length !== 2 || loaded.some(result => result.etag !== etag)) fail('browser baseline mismatch'); return { adminEtag: loaded[0].etag, staleEtag: loaded[1].etag, tuple: DATA_CONSTANTS.before } },
@@ -284,7 +291,7 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
       } catch { fail('observation timeout') }
       fail('observation timeout')
     },
-    async cleanup() { for (const context of contexts) await context.close().catch(() => {}); await chromium?.close?.().catch?.(() => {}) },
+    async cleanup() { if (cleaned) return; cleaned = true; for (const context of contexts) await context.close().catch(() => {}); await chromium?.close?.().catch?.(() => {}) },
   }
 }
 
@@ -294,12 +301,12 @@ export function createPlaywrightDataBrowser({ launcher = defaultBrowserLauncher,
  * same methods. No request body, URL, token, or browser object crosses the
  * coordinator boundary.
  */
-export function createConcreteDataAdapters({ command, execFile, browser, browserLauncher = defaultBrowserLauncher, fetchImpl = globalThis.fetch, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep, timer = setTimeout, clearTimer = clearTimeout, fs: fsPort, randomBytesImpl = randomBytes } = {}) {
+export function createConcreteDataAdapters({ command, execFile, browser, browserLauncher = defaultBrowserLauncher, fetchImpl = globalThis.fetch, responseTimeout = 90000, clock = () => globalThis.performance?.now?.() ?? Date.now(), sleep, timer = setTimeout, clearTimer = clearTimeout, fs: fsPort, randomBytesImpl = randomBytes } = {}) {
   const fs = fsPort ?? { mkdtemp, chmod, writeFile, readFile, unlink, rm, stat, lstat, mkdir }
   command ??= createProtectedDataCli({ execFile: execFile ?? promisify(nodeExecFile) })
   const run = typeof command === 'function' ? command : command?.run
   if (typeof run !== 'function') fail('invalid protected command')
-  const cognito = makeProtectedCognitoCli({ execFile: execFile ?? promisify(nodeExecFile), fs }); let root; let currentOriginal; let identity; let captureCounter = 0; const browserPort = browser ?? createPlaywrightDataBrowser({ launcher: browserLauncher, fetchImpl, clock, sleep, timer, clearTimer })
+  const cognito = makeProtectedCognitoCli({ execFile: execFile ?? promisify(nodeExecFile), fs }); let root; let currentOriginal; let identity; let captureCounter = 0; const browserPort = browser ?? createPlaywrightDataBrowser({ launcher: browserLauncher, fetchImpl, responseTimeout, clock, sleep, timer, clearTimer })
   const protectedRoot = async () => { if (!root) { const parent = resolve('.artifacts/migration'); await fs.mkdir(parent, { recursive: true, mode: 0o700 }); await fs.chmod(parent, 0o700); const parentInfo = await (fs.lstat ?? fs.stat)(parent); if ((parentInfo.mode & 0o777) !== 0o700 || parentInfo.isSymbolicLink?.()) fail('protected parent mode'); root = await fs.mkdtemp(join(parent, 't16-data-')); await fs.chmod(root, 0o700); const rootInfo = await (fs.lstat ?? fs.stat)(root); if ((rootInfo.mode & 0o777) !== 0o700 || rootInfo.isSymbolicLink?.()) fail('protected run mode') } return root }
   const readObject = async ({ retain = false, allowTest = false } = {}) => {
     const dir = await protectedRoot(); const path = join(dir, `capture-${captureCounter += 1}-${randomBytesImpl(8).toString('hex')}.json`); const child = relative(resolve(dir), resolve(path)); if (!isAbsolute(dir) || child.startsWith('..')) fail('protected path containment')

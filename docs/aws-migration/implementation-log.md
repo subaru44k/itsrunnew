@@ -4906,3 +4906,15 @@ not yet awaited, explaining both the exact-GET stop and abnormal cleanup exit.
 `phase4-t16-data-login-sequencing-plan.md` authorizes only the local LS01-LS02
 sequencing, deadline, unhandled-rejection, and cleanup correction. No second
 live invocation or AWS operation is authorized pending Sol source review.
+
+### T16 LS01-LS02 local correction complete
+
+Per-page authenticated GET waiters now start immediately before that page's
+navigation/login, receive an injectable finite timeout (default 90 seconds),
+and are validated/stored before the next page begins. Rejecting waiters are
+consumed on failure, browser cleanup is idempotent across all created contexts
+and the browser, and concrete setup failure cleanup removes the temporary
+identity without entering update/stale/restore stages. The focused data suite
+passes 38/38 and the combined T16 data/auth suite passes 81/81. `npm run check`,
+`node --check`, and `git diff --check` pass. No AWS/network/live operation
+occurred; stop for Sol review.

@@ -177,7 +177,7 @@ for (const callbackCase of ['success', 'callbackFailure', 'hostileReturn']) {
     expect(await page.evaluate(() => ({ callback: sessionStorage.getItem('admin-e2e-callback-count'), cleanup: sessionStorage.getItem('admin-e2e-cleanup-count'), transaction: sessionStorage.getItem('admin-e2e-transaction') }))).toEqual({ callback: '1', cleanup: '1', transaction: null })
     if (callbackCase === 'success') await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
     if (callbackCase === 'callbackFailure') await expect(page.getByRole('alert')).toContainText('認証を完了できませんでした。')
-    await expect(page.locator('body')).not.toContainText(/fake callback failure|evil\.invalid|admin-e2e-memory-token|claims/i)
+    await expect(page.locator('body')).not.toContainText(/fake callback failure|evil\.invalid|admin-e2e-memory-token|claims|code=fake|state=fake/i)
   })
 }
 

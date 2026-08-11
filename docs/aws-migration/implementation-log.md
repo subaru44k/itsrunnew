@@ -4324,6 +4324,21 @@ Focused auth tests passed 43/43, web unit tests passed 68, admin-local
 Playwright passed 46, `npm run check` passed, and `git diff --check` passed.
 No AWS/live auth/deployment or dependency change was made.
 
+### Phase 4 T16 CU01 callback URL capture
+
+CU01 was implemented locally from Sol handoff
+`4c828b6acbbaf35bafad42f961ce46ebe9added4`. The callback page captures
+`window.location.href` once behind the client guard during setup, before
+mounted/router work, and passes that immutable value to `session.callback` on
+mount. The URL is not persisted, logged, rendered, or included in output.
+The test-only local OIDC port verifies the exact code/state URL reaches the
+callback boundary, while browser assertions verify no callback URL material is
+rendered or persisted.
+
+Web unit tests passed 73, admin-local Playwright passed 46, `npm run check`
+passed, and `git diff --check` passed. All auth/storage contracts remain
+unchanged; no AWS/live auth/deploy or dependency change was made.
+
 ### Phase 4 T16 STR02 state-read auth-only diagnosis stop
 
 Starting from Sol handoff `3a551af963b34a9e760f041f2ebef004af9ab65c`, Node

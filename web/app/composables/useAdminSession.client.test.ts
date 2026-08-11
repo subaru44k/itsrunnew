@@ -78,6 +78,13 @@ describe('browser admin session boundary', () => {
     expect(await session.getAccessToken()).toBe('memory-token')
   })
 
+  it('passes the callback URL captured by the page unchanged to the OIDC port', async () => {
+    const fake = fakePort()
+    const callbackUrl = 'https://preview.example/manage/callback?code=code-canary&state=state-canary#fragment'
+    await createAdminSession({ authority: 'https://issuer', clientId: 'client', oidc: fake.port }).callback(callbackUrl)
+    expect(fake.port.signinCallback).toHaveBeenCalledWith(callbackUrl)
+  })
+
   it.each([
     ['null', (resolve: (value: User | null) => void, _reject: (reason?: unknown) => void) => resolve(null)],
     ['nonnull stale user', (resolve: (value: User | null) => void, _reject: (reason?: unknown) => void) => resolve(fakeUser({ stale: true }))],

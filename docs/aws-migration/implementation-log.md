@@ -26,6 +26,8 @@ Operating system: macOS
 
 ## Task log
 
+| T16-DC01 | complete | pending | focused data test 16 passed; `node --check`; `npm run check`; `git diff --check` | Removed cross-header side effects from normalizedHeader; broadened low-level GET/PUT waiter predicates so malformed events are validated rather than hanging; made stale fake response deterministic. No AWS/live operation. |
+
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
 | T00 | complete | `eaba60c` | `npm run check` | Root workspaces, Node/npm policy, env example and structure check |

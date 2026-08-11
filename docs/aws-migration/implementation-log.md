@@ -5318,3 +5318,18 @@ AES256 `application/json` object, ETag
 `73893d6015b796eb4212237c0a3afcb56d60ddb20224c17c72ff040e4cdd286b`,
 cache metadata absent, and tuple 1. Protected recovery material is retained;
 the rehearsal is stopped for Sol review and must not be rerun.
+
+### T16 MR01-MR02 metadata-loss recovery complete — 2026-08-11
+
+After exact pre-gates, issued exactly one conditional S3 PutObject to the
+reserved key from the retained 0600 capture, using current ETag
+`"f95b5fa3e287f0b5911b4f517656429e"`, exact content/cache metadata, and the
+approved SHA-256 checksum. The operation returned new ETag
+`"b2591d35e23ac1b9f2a133f71198b953"` and VersionId
+`K7Bf..b6RWTudXarByS0s53Qi3t7E2d6`. Read-only S3 proof is 501 bytes, AES256,
+`application/json`, `public, max-age=0, s-maxage=60`, tuple 0, and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+Bounded CloudFront proof is HTTP 200 with the same metadata, 501-byte hash,
+and tuple 0. Users/admins are 0/0, invalidations remain 3, and the API 5xx
+alarm is OK. No retry, deletion, CF03 rerun, or other mutation occurred;
+retained recovery material was not deleted. Stop for Sol review.

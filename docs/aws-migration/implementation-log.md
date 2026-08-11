@@ -5433,3 +5433,24 @@ coverage proving the stale pre-recovery VersionId
 combined T16 auth/data: 92/92; root `npm run check`, `node --check`, and
 `git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
 review.
+
+### T16 RB01 Sol acceptance and one cache-corrected CF03 execution
+
+Sol independently reviewed RB01 at `9dbb3f2` and reran the focused data suite
+(49/49), `node --check`, and `git diff --check`; Luna's combined suite (92/92)
+and root check passed. The exact preflight now names the current restored
+VersionId and rejects the former one without changing any other baseline or
+transaction rule.
+
+The immediate read-only gate matched account `470447451992`, Hosting
+`UPDATE_COMPLETE`, the active/successful reviewed Lambda CodeSha, users/admins
+0/0, invalidation count 3, and the exact 501-byte baseline ETag/current
+VersionId/content/cache/encryption/SHA-256 and tuple 0.
+
+Exactly one fresh cache-corrected CF03 execution is authorized under the exact
+profile/account/region, target, one successful UI conditional update, one stale
+409 without retry, bounded tuple-1 observation, one conditional exact-original
+restore, bounded tuple-0 observation, and identity cleanup rules above. On any
+failure do not rerun. No extra restore retry, invalidation, deploy/IAM/
+CloudFormation, other object/delete/version-delete, production/DNS, Firebase,
+or T17 operation is authorized.

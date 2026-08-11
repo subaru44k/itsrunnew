@@ -4951,3 +4951,14 @@ reviewed source correction; it must still run exactly once and must not be
 rerun on failure. No restore retry, invalidation, IAM/CloudFormation/deploy,
 other object, delete/version-delete, production, DNS, Firebase, or T17 action
 is authorized.
+
+### T16 corrected CF03 live rehearsal stop — 2026-08-11
+
+The one newly authorized invocation from clean commit `f5ed4ea` stopped before
+the data-write boundary at the load checkpoint. Its sanitized result reported
+`writes=0`, `restores=0`, and cleanup passed. Post-stop read-only verification
+found pool users 0, `admins` members 0, invalidation count 3, and the reserved
+object unchanged at 501 bytes with baseline ETag/VersionId/metadata, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and tuple
+0. No retry, restore, invalidation, or other data operation was performed. The
+corrected CF03 rehearsal remains unsuccessful and is stopped for Sol review.

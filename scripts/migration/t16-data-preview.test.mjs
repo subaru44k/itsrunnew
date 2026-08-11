@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -146,16 +146,16 @@ function submitFixture({ requestOverrides = {}, responseOverrides = {}, response
   return { page, baseline, updated }
 }
 
-test('low-level stale conflict observes comparison GET and localized UI', async () => {
-  const fixture = submitFixture()
+test('low-level stale conflict resolves with one PUT, comparison GET, and localized UI', async () => {
+  const fixture = submitFixture(); let puts = 0
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') } })
-  await browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1)
-  const conflict = submitFixture({ conflict: true })
-  conflict.page.getByRole = (role, options) => ({ click: async () => { if (/Save|保存/.test(options.name)) conflict.page._listener?.() }, isVisible: async () => true })
-  // Reuse the accepted update closure while making the stale page emit one PUT.
-  conflict.page.on('request', listener => { conflict.page._listener = () => listener(conflict.page._request) })
-  conflict.page._request = conflict.page._request ?? fixture.page._request
-  await assert.rejects(browser.submit(conflict.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1, true), /conflict UI missing|comparison mismatch|UI PUT contract/)
+  const updated = await browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1); assert.equal(updated.status, 200)
+  const conflict = submitFixture({ conflict: true }); let registered
+  conflict.page.on = (event, listener) => { if (event === 'request') registered = request => { if (request.method() === 'PUT') puts += 1; listener(request) } }
+  conflict.page.getByRole = (role, options) => ({ click: async () => { if (role === 'button' && /Save|保存/.test(options.name)) registered?.(conflict.page.requestForTest) }, isVisible: async () => true })
+  conflict.page.requestForTest = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: fixture.updated.days }) }
+  const result = await browser.submit(conflict.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1, true)
+  assert.deepEqual(result, { status: 409, etag: updated.etag, cacheControl: 'no-store', puts: 1, retries: 0, tuple: 1 }); assert.equal(puts, 1)
 })
 
 test('low-level launcher/context setup captures two independent authenticated GET baselines', async () => {
@@ -176,6 +176,17 @@ test('low-level launcher/context setup captures two independent authenticated GE
   assert.deepEqual(await browser.load({ etag: DATA_CONSTANTS.baselineEtag }), { adminEtag: DATA_CONSTANTS.baselineEtag, staleEtag: DATA_CONSTANTS.baselineEtag, tuple: 0 })
 })
 
+test('authenticated GET validator rejects every malformed baseline contract', async () => {
+  const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
+  const valid = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store' }), json: async () => ({ document, etag: DATA_CONSTANTS.baselineEtag }) }
+  const cases = [
+    ['origin', { url: () => `https://evil.invalid${DATA_CONSTANTS.apiPath}` }], ['path', { url: () => `${DATA_CONSTANTS.apiOrigin}/wrong` }], ['status', { status: () => 204 }],
+    ['content type', { headers: () => ({ 'content-type': 'text/plain', 'cache-control': 'no-store' }) }], ['cache', { headers: () => ({ 'content-type': 'application/json', 'cache-control': 'public' }) }],
+    ['body shape', { json: async () => ({ document, etag: DATA_CONSTANTS.baselineEtag, versionId: 'bad' }) }], ['weak ETag', { json: async () => ({ document, etag: 'W/"weak"' }) }],
+  ]
+  for (const [name, overrides] of cases) await assert.rejects(validateAuthenticatedGetResponse({ ...valid, ...overrides }), /contract|shape|proof/, name)
+})
+
 test('low-level PUT contract negative matrix rejects without hanging', async () => {
   const cases = [
     ['wrong origin', { requestOverrides: { url: 'https://evil.invalid/x' } }],
@@ -191,6 +202,15 @@ test('low-level PUT contract negative matrix rejects without hanging', async () 
     ['empty version', { responseJson: { document: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }, etag: '"0123456789abcdef0123456789abcdef"', versionId: '' } }],
   ]
   for (const [name, options] of cases) { const fixture = submitFixture(options); const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') } }); await assert.rejects(browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1), /contract|etag|timestamp|mismatch/, name) }
+})
+
+test('submit rejects unchanged server timestamp and missing conflict controls', async () => {
+  const timestamp = submitFixture({ responseJson: { document: { ...submitFixture().updated, updatedAt: '2026-01-01T00:00:00.000Z' }, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' } })
+  const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') } })
+  await assert.rejects(browser.submit(timestamp.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: timestamp.baseline }, 1), /timestamp|mismatch/)
+  const missing = submitFixture({ conflict: true, conflictUi: false }); const result = submitFixture(); const accepted = await browser.submit(result.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: result.baseline }, 1); assert.equal(accepted.status, 200)
+  let missingRegistered; missing.page.on = (event, listener) => { if (event === 'request') missingRegistered = listener }; missing.page.getByRole = () => ({ click: async () => missingRegistered?.(missing.page.requestForTest), isVisible: async () => false }); missing.page.requestForTest = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: missing.updated.days }) }
+  await assert.rejects(browser.submit(missing.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: missing.baseline }, 1, true), /conflict UI missing/)
 })
 
 test('whole-document comparison is semantic, not JSON property-order sensitive', () => {

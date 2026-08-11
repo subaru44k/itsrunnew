@@ -26,8 +26,6 @@ Operating system: macOS
 
 ## Task log
 
-| T16-DC01 | complete | pending | focused data test 16 passed; `node --check`; `npm run check`; `git diff --check` | Removed cross-header side effects from normalizedHeader; broadened low-level GET/PUT waiter predicates so malformed events are validated rather than hanging; made stale fake response deterministic. No AWS/live operation. |
-
 | Task | Status | Commit | Checks | Notes |
 | --- | --- | --- | --- | --- |
 | T00 | complete | `eaba60c` | `npm run check` | Root workspaces, Node/npm policy, env example and structure check |
@@ -3836,6 +3834,13 @@ PKCE, API, and no-secret tests remained passing. Focused web unit tests passed
 47/47; root `npm run check` and `git diff --check` passed. No AWS, live auth,
 deployment, invalidation, IAM, API/S3/Firestore write, production, or T17
 operation occurred.
+
+### T16 DC01 final correction
+
+Restored exact API origin/path/method predicates for authenticated GET, PUT,
+and comparison waiters; extracted pure authenticated-GET validation; corrected
+the stateful stale-conflict fake and added deterministic contract negatives.
+Local DC01 correction commit; no AWS/live or DC02/DC03 operation occurred.
 
 ### Phase 4 T16 CO01 Sol acceptance and CO02 authorization
 

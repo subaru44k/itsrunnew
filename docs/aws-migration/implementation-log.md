@@ -5289,6 +5289,20 @@ identity cleanup, and stop boundaries. It must not be rerun on failure. No
 restore retry, invalidation, IAM/CloudFormation/deploy, other object,
 delete/version-delete, production, DNS, Firebase, or T17 action is authorized.
 
+### T16 metadata-loss recovery classification and MR01-MR02 authorization
+
+The execution recorded at `397bf02` reached the update boundary and left a
+possible test object while correctly retaining protected recovery material.
+Sol's independent read-only check exactly matched the recorded 252-byte tuple-1
+object, ETag/VersionId/SHA-256, AES256/application-json metadata, and absent
+Cache-Control. The latest direct-child 0700 recovery run contains two 0600
+501-byte captures with the exact approved baseline SHA-256; capture 2 is the
+coordinator's retained original. `phase4-t16-data-metadata-recovery-plan.md`
+authorizes exactly one If-Match PutObject of that protected original with exact
+content/cache/checksum metadata, followed by read-only proof. No retry, other
+write, delete, invalidation, deploy/IAM/CloudFormation, Firebase, CF03 rerun, or
+T17 action is authorized.
+
 ### T16 immediate-validation CF03 execution stop — 2026-08-11
 
 The one authorized execution from clean commit `b7bf704` stopped at the update

@@ -13,6 +13,7 @@ const proof = {
   restore: { status: 200, etag: '"restored-etag"', versionId: 'restored-version', bytes: 501, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
   cleanup: { users: 0, admins: 0 },
 }
+const isSaveName = name => String(name).includes('Save') || String(name).includes('保存')
 
 function adapters({ fail = null, order = [], restoreArgs = [], loadArgs = [] } = {}) {
   const make = stage => async input => { order.push(stage); if (stage === 'restore') restoreArgs.push(input); if (fail === stage) throw new Error('canary'); return proof[stage] }
@@ -279,7 +280,9 @@ test('low-level Playwright page boundary observes exact UI PUT JSON response', a
   const request = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }) }
   const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
   let requestListener
-  const page = { locator: () => ({ selectOption: async value => assert.equal(value, '1') }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => { requestListener?.(request) } }) }
+  const cell = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, inputValue: async () => '0', selectOption: async value => { assert.equal(value, '1'); cell.inputValue = async () => '1' } }
+  const save = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async () => { requestListener?.(request) } }
+  const page = { locator: selector => { assert.equal(selector, '[id="2026-08-09-0"]'); return cell }, on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => save }
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
   const baselineDocument = { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
   const result = await browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument }, 1)
@@ -291,21 +294,40 @@ test('low-level browser boundary rejects a second matching PUT', async () => {
   const request = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }) }
   const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
   let requestListener
-  const page = { locator: () => ({ selectOption: async () => {} }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => {}, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => { requestListener(request); requestListener(request) } }) }
+  const cell = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, inputValue: async () => '0', selectOption: async () => { cell.inputValue = async () => '1' } }
+  const save = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async () => { requestListener(request); requestListener(request) } }
+  const page = { locator: selector => { assert.equal(selector, '[id="2026-08-09-0"]'); return cell }, on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => {}, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => save }
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
   await assert.rejects(browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } } }, 1), /UI PUT contract/)
 })
 
-function submitFixture({ requestOverrides = {}, responseOverrides = {}, responseJson, conflict = false, conflictUi = true } = {}) {
+function submitFixture({ requestOverrides = {}, responseOverrides = {}, responseJson, conflict = false, conflictUi = true, cellOptions = {}, saveOptions = {} } = {}) {
   const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
   const updated = { ...baseline, updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
   const request = { method: () => 'PUT', url: () => requestOverrides.url ?? `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag, ...requestOverrides.headers }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: updated.days, ...requestOverrides.body }) }
   let responseCount = 0
   const response = { status: () => conflict ? 409 : (responseOverrides.status ?? 200), url: () => responseOverrides.url ?? `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store', ...responseOverrides.headers }), json: async () => responseJson ?? { document: updated, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' } }
-  let requestListener
-  const page = { locator: () => ({ selectOption: async () => {} }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async predicate => { responseCount += 1; if (conflict && responseCount === 2) return { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document: updated, etag: '"0123456789abcdef0123456789abcdef"' }) }; return response }, getByRole: (role, options) => ({ click: async () => { if (role === 'button' && /Save|保存/.test(options.name)) requestListener?.(request) }, isVisible: async () => conflictUi }) }
-  return { page, baseline, updated }
+  let requestListener; let saveClicks = 0
+  let cellValue = cellOptions.value ?? '0'; const cell = { waitFor: async () => { if (cellOptions.delay) await new Promise(resolve => setTimeout(resolve, cellOptions.delay)) }, isVisible: async () => cellOptions.visible ?? true, isEnabled: async () => cellOptions.enabled ?? true, inputValue: async () => cellValue, selectOption: async value => { cellValue = value } }; const save = { waitFor: async () => { if (saveOptions.delay) await new Promise(resolve => setTimeout(resolve, saveOptions.delay)) }, isVisible: async () => saveOptions.visible ?? true, isEnabled: async () => saveOptions.enabled ?? true, click: async () => { saveClicks += 1; if (requestListener) requestListener(request) } }
+  const page = { locator: selector => { assert.equal(selector, '[id="2026-08-09-0"]'); return cellOptions.missing ? {} : cell }, on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async predicate => { responseCount += 1; if (conflict && responseCount === 2) return { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document: updated, etag: '"0123456789abcdef0123456789abcdef"' }) }; return response }, getByRole: (role, options) => role === 'button' && isSaveName(options.name) ? (saveOptions.missing ? {} : save) : ({ click: async () => {}, isVisible: async () => conflictUi }) }
+  return { page, baseline, updated, saveClicks: () => saveClicks }
 }
+
+test('cell and localized Save readiness is bounded and fails before any PUT', async () => {
+  const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') }, responseTimeout: 100 })
+  const delayed = submitFixture({ cellOptions: { delay: 5 }, saveOptions: { delay: 5 } })
+  assert.equal((await browser.submit(delayed.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: delayed.baseline }, 1)).status, 200)
+  for (const cellOptions of [{ missing: true }, { visible: false }, { enabled: false }, { value: '1' }]) {
+    const fixture = submitFixture({ cellOptions })
+    await assert.rejects(browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1), /target cell/)
+    assert.equal(fixture.saveClicks(), 0)
+  }
+  for (const saveOptions of [{ missing: true }, { visible: false }, { enabled: false }]) {
+    const fixture = submitFixture({ saveOptions })
+    await assert.rejects(browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1), /Save control/)
+    assert.equal(fixture.saveClicks(), 0)
+  }
+})
 
 test('low-level stale conflict resolves with one PUT, comparison GET, and localized UI', async () => {
   const fixture = submitFixture(); let puts = 0
@@ -313,7 +335,7 @@ test('low-level stale conflict resolves with one PUT, comparison GET, and locali
   const updated = await browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1); assert.equal(updated.status, 200)
   const conflict = submitFixture({ conflict: true }); let registered
   conflict.page.on = (event, listener) => { if (event === 'request') registered = request => { if (request.method() === 'PUT') puts += 1; listener(request) } }
-  conflict.page.getByRole = (role, options) => ({ click: async () => { if (role === 'button' && /Save|保存/.test(options.name)) registered?.(conflict.page.requestForTest) }, isVisible: async () => true })
+  const conflictSave = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async () => registered?.(conflict.page.requestForTest) }; conflict.page.getByRole = (role, options) => isSaveName(options.name) ? conflictSave : ({ click: async () => {}, isVisible: async () => true })
   conflict.page.requestForTest = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: fixture.updated.days }) }
   const result = await browser.submit(conflict.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1, true)
   assert.deepEqual(result, { status: 409, etag: updated.etag, cacheControl: 'no-store', puts: 1, retries: 0, tuple: 1 }); assert.equal(puts, 1)
@@ -389,7 +411,7 @@ test('submit rejects unchanged server timestamp and missing conflict controls', 
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') } })
   await assert.rejects(browser.submit(timestamp.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: timestamp.baseline }, 1), /timestamp|mismatch/)
   const missing = submitFixture({ conflict: true, conflictUi: false }); const result = submitFixture(); const accepted = await browser.submit(result.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: result.baseline }, 1); assert.equal(accepted.status, 200)
-  let missingRegistered; missing.page.on = (event, listener) => { if (event === 'request') missingRegistered = listener }; missing.page.getByRole = () => ({ click: async () => missingRegistered?.(missing.page.requestForTest), isVisible: async () => false }); missing.page.requestForTest = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: missing.updated.days }) }
+  let missingRegistered; missing.page.on = (event, listener) => { if (event === 'request') missingRegistered = listener }; const missingSave = { waitFor: async () => {}, isVisible: async () => true, isEnabled: async () => true, click: async () => missingRegistered?.(missing.page.requestForTest) }; missing.page.getByRole = (_role, options) => isSaveName(options.name) ? missingSave : ({ click: async () => {}, isVisible: async () => false }); missing.page.requestForTest = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: missing.updated.days }) }
   await assert.rejects(browser.submit(missing.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: missing.baseline }, 1, true), /conflict UI missing/)
 })
 

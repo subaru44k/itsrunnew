@@ -5024,3 +5024,16 @@ CS01-CS02 selector/readiness correction and deterministic regression tests. No
 AWS write, live execution, Cognito mutation, S3 operation, deploy, invalidation,
 IAM/CloudFormation change, Firebase access, or T17 work is authorized pending
 Sol source review.
+
+### T16 CS01-CS02 selector/readiness correction complete — 2026-08-11
+
+Replaced the digit-leading CSS id selector with the exact attribute locator
+`[id="2026-08-09-0"]`. Before any PUT waiter or click, the adapter now requires
+the target cell to become visible and enabled at baseline value `0`, then
+requires the exact localized `Save`/`保存` control to become visible and
+enabled; after selection it verifies value `1`. Deterministic tests cover
+delayed readiness, missing/hidden/disabled/wrong-baseline cells, missing or
+disabled Save controls, exact selector use, and zero PUTs on preflight failure.
+Focused data tests: 42/42; combined T16 auth/data: 85/85. `npm run check`,
+`node --check`, and `git diff --check` pass. No AWS/network/live operation
+occurred; stop for Sol review.

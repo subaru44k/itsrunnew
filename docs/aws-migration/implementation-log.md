@@ -4850,3 +4850,34 @@ The exact parser now requires own tuple indices `0`, `1`, and `2` before
 validating status values, rejecting sparse/null/string tuple cells. Added raw
 JSON polling coverage for the sparse-tuple representation and explicit null
 and string statuses. No AWS/network/live operation occurred.
+
+### T16 DC03 Sol acceptance and one CF03 live rehearsal authorization
+
+Sol independently reviewed DC03 through commit `a2828f3`, reran the combined
+T16 data/auth suite (78/78), the focused data suite (35/35), and the root
+check. The exact schedule schema, bounded Node fetch/body/retry deadline,
+abort/cancel behavior, timer cleanup, late-rejection handling, and exact
+CloudFront response contract are accepted.
+
+The immediate read-only gate used only `AWS_PROFILE=codex-prod`, account
+`470447451992`, and `ap-northeast-1`. Managed policy v7 is default with v3-v7
+retained and its canonical SHA-256 matches the committed candidate
+(`ac05040e2aed3baff41c1d34e49200fb54ce0a208546cf0555ad7d9abbfe43d0`). Hosting
+is `UPDATE_COMPLETE`, GitHub deployment is `CREATE_COMPLETE`, the API 5xx alarm
+is `OK`, pool users and `admins` membership are zero, unauthenticated API is
+401/no-store, direct S3 is 403, invalidation count is three, and the exact Oda
+object remains 501 bytes with baseline ETag/VersionId/metadata and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+Exact-key `s3:PutObject` simulation is allowed and the installed CLI supports
+`--if-match`.
+
+Exactly one direct execution of the committed data executable is authorized
+next. It may create one temporary local Cognito administrator, open two fresh
+desktop admin contexts, perform one successful UI conditional PUT for only
+`2026-08-09[0]` 0 to 1, one stale UI PUT returning 409 without retry, and one
+conditional operator PutObject restoring the exact protected original bytes.
+It must observe tuple 1 then tuple 0 through bounded CloudFront reads, remove
+the membership/user, and prove final zero identity state. No second execution,
+restore retry, invalidation, IAM/CloudFormation/deploy, other object, version
+delete, production, DNS, Firebase, or T17 operation is authorized. Any failure
+must obey the committed recovery/retention stop boundary.

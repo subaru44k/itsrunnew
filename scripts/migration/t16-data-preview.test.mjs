@@ -116,7 +116,7 @@ test('direct construction uses low-level CLI and independent browser ports', asy
 test('low-level Playwright page boundary observes exact UI PUT JSON response', async () => {
   const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
   const request = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }) }
-  const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
+  const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
   let requestListener
   const page = { locator: () => ({ selectOption: async value => assert.equal(value, '1') }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => { requestListener?.(request) } }) }
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
@@ -128,11 +128,69 @@ test('low-level Playwright page boundary observes exact UI PUT JSON response', a
 test('low-level browser boundary rejects a second matching PUT', async () => {
   const document = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
   const request = { method: () => 'PUT', url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: document.days }) }
-  const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
+  const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store' }), json: async () => ({ document, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' }) }
   let requestListener
   const page = { locator: () => ({ selectOption: async () => {} }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => {}, waitForRequest: async () => request, waitForResponse: async () => response, getByRole: () => ({ click: async () => { requestListener(request); requestListener(request) } }) }
   const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('launcher must not be used') } })
   await assert.rejects(browser.submit(page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: { ...document, updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } } }, 1), /UI PUT contract/)
+})
+
+function submitFixture({ requestOverrides = {}, responseOverrides = {}, responseJson, conflict = false, conflictUi = true } = {}) {
+  const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
+  const updated = { ...baseline, updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }
+  const request = { method: () => 'PUT', url: () => requestOverrides.url ?? `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, headers: () => ({ 'content-type': 'application/json', 'if-match': DATA_CONSTANTS.baselineEtag, ...requestOverrides.headers }), postDataJSON: () => ({ schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', days: updated.days, ...requestOverrides.body }) }
+  let responseCount = 0
+  const response = { status: () => conflict && responseCount > 1 ? 409 : (responseOverrides.status ?? 200), url: () => responseOverrides.url ?? `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => request, headers: () => ({ 'content-type': 'application/json', 'cache-control': 'no-store', ...responseOverrides.headers }), json: async () => responseJson ?? { document: updated, etag: '"0123456789abcdef0123456789abcdef"', versionId: 'version-2' } }
+  let requestListener
+  const page = { locator: () => ({ selectOption: async () => {} }), on: (event, listener) => { if (event === 'request') requestListener = listener }, off: () => { requestListener = null }, waitForRequest: async () => request, waitForResponse: async predicate => { responseCount += 1; if (conflict && responseCount === 2) return { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document: updated, etag: '"0123456789abcdef0123456789abcdef"' }) }; return response }, getByRole: (role, options) => ({ click: async () => { if (role === 'button' && /Save|保存/.test(options.name)) requestListener?.(request) }, isVisible: async () => conflictUi }) }
+  return { page, baseline, updated }
+}
+
+test('low-level stale conflict observes comparison GET and localized UI', async () => {
+  const fixture = submitFixture()
+  const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') } })
+  await browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1)
+  const conflict = submitFixture({ conflict: true })
+  conflict.page.getByRole = (role, options) => ({ click: async () => { if (/Save|保存/.test(options.name)) conflict.page._listener?.() }, isVisible: async () => true })
+  // Reuse the accepted update closure while making the stale page emit one PUT.
+  conflict.page.on('request', listener => { conflict.page._listener = () => listener(conflict.page._request) })
+  conflict.page._request = conflict.page._request ?? fixture.page._request
+  await assert.rejects(browser.submit(conflict.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1, true), /conflict UI missing|comparison mismatch|UI PUT contract/)
+})
+
+test('low-level launcher/context setup captures two independent authenticated GET baselines', async () => {
+  const baseline = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2] } }
+  let getCount = 0
+  const makePage = () => {
+    let getResolver
+    const response = { status: () => 200, url: () => `${DATA_CONSTANTS.apiOrigin}${DATA_CONSTANTS.apiPath}`, request: () => ({ method: () => 'GET' }), headers: () => ({ 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }), json: async () => ({ document: { ...baseline, days: { ...baseline.days } }, etag: DATA_CONSTANTS.baselineEtag }) }
+    const control = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, fill: async () => {}, click: async () => {} }
+    const form = { count: async () => 1, isVisible: async () => true, isEnabled: async () => true, locator: () => control }
+    return { waitForResponse: () => response, goto: async () => { getCount += 1 }, waitForURL: async predicate => { for (const url of [`https://${DATA_CONSTANTS.hostedUiDomain}/login`, `${DATA_CONSTANTS.apiOrigin}/manage/callback`, `${DATA_CONSTANTS.apiOrigin}/manage`]) { try { if (predicate(url)) return } catch {} } throw new Error('unexpected URL') }, locator: selector => selector.startsWith('form') ? form : control, getByRole: (_role, options) => /Sign out|ログアウト/.test(options.name) ? { waitFor: async () => {} } : { click: async () => {} } }
+  }
+  const pages = [makePage(), makePage()]
+  const launcher = async () => ({ newContext: async () => ({ newPage: async () => pages.shift(), close: async () => {} }), close: async () => {} })
+  const browser = createPlaywrightDataBrowser({ launcher })
+  assert.deepEqual(await browser.setup({ username: 'test', password: 'test' }), { contexts: 2 })
+  assert.equal(getCount, 2)
+  assert.deepEqual(await browser.load({ etag: DATA_CONSTANTS.baselineEtag }), { adminEtag: DATA_CONSTANTS.baselineEtag, staleEtag: DATA_CONSTANTS.baselineEtag, tuple: 0 })
+})
+
+test('low-level PUT contract negative matrix rejects without hanging', async () => {
+  const cases = [
+    ['wrong origin', { requestOverrides: { url: 'https://evil.invalid/x' } }],
+    ['wrong path', { responseOverrides: { url: `${DATA_CONSTANTS.apiOrigin}/wrong` } }],
+    ['wrong content type', { requestOverrides: { headers: { 'content-type': 'text/plain' } } }],
+    ['wrong if-match', { requestOverrides: { headers: { 'if-match': '"weak"' } } }],
+    ['if-none-match', { requestOverrides: { headers: { 'if-none-match': '*' } } }],
+    ['extra body', { requestOverrides: { body: { extra: true } } }],
+    ['wrong status', { responseOverrides: { status: 201 } }],
+    ['wrong response content type', { responseOverrides: { headers: { 'content-type': 'text/plain' } } }],
+    ['wrong response cache', { responseOverrides: { headers: { 'cache-control': 'public' } } }],
+    ['weak response etag', { responseJson: { document: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }, etag: 'weak', versionId: 'v' } }],
+    ['empty version', { responseJson: { document: { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-08-11T00:00:00.000Z', days: { '2026-08-09': [1, 1, 2] } }, etag: '"0123456789abcdef0123456789abcdef"', versionId: '' } }],
+  ]
+  for (const [name, options] of cases) { const fixture = submitFixture(options); const browser = createPlaywrightDataBrowser({ launcher: async () => { throw new Error('not used') } }); await assert.rejects(browser.submit(fixture.page, { ifMatch: DATA_CONSTANTS.baselineEtag, baselineDocument: fixture.baseline }, 1), /contract|etag|timestamp|mismatch/, name) }
 })
 
 test('whole-document comparison is semantic, not JSON property-order sensitive', () => {

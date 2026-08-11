@@ -37,6 +37,10 @@ const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const normalizedHeader = (headers, name) => {
   const wanted = name.toLowerCase()
   const entry = Object.entries(headers ?? {}).find(([key]) => key.toLowerCase() === wanted)
+  if (wanted === 'cache-control') {
+    const contentType = Object.entries(headers ?? {}).find(([key]) => key.toLowerCase() === 'content-type')?.[1]
+    if (typeof contentType !== 'string' || contentType.trim().toLowerCase().split(';')[0] !== 'application/json') fail('JSON response contract')
+  }
   return typeof entry?.[1] === 'string' ? entry[1].trim().toLowerCase() : ''
 }
 function parseSchedule(bytes) {

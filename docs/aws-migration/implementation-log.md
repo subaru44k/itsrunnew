@@ -4763,8 +4763,10 @@ and `git diff --check` passed. No AWS/live or DC02+ operation occurred.
 Replaced order-sensitive JSON serialization comparison with semantic deep
 equality, normalized response-header checks, and enforced exact origin/path,
 single PUT, response-body identity, and localized conflict controls at the
-low-level browser boundary. Added a self-contained property-order regression
-test. Focused data tests: `node --test
-scripts/migration/t16-data-preview.test.mjs` (13 passed). `npm run check`,
+low-level browser boundary. Added reusable low-level launcher/context/page
+fixtures covering two authenticated GETs, update, stale comparison/conflict
+UI, a second PUT, and table-driven negative request/response contracts.
+Focused data tests: `node --test
+scripts/migration/t16-data-preview.test.mjs` (16 passed). `npm run check`,
 `node --check`, and `git diff --check` passed. No AWS/live or DC02/DC03
 operation occurred.

@@ -4678,3 +4678,18 @@ execution, exact object capture/restore, proof coupling/indeterminate recovery,
 failure tests, and truthful evidence. These are local source/test/documentation
 tasks only. No AWS command, live data rehearsal, Cognito mutation, deployment,
 invalidation, or later phase is authorized.
+
+### CF03R01-R04 Luna correction
+
+Rejected skeleton `a267d7b` was corrected locally for Sol re-review. Direct
+construction now owns protected Cognito CLI input, generated in-memory admin
+credentials, default Playwright Chromium contexts, exact object capture and
+parser/metadata/hash gates, positional `get-object`, coupled update/stale
+proofs, bounded polling, conditional restore readback, fail-closed
+indeterminate recovery, and recovery-material retention after restore failure.
+Added low-level direct-construction coverage and failure tests. Focused T16
+auth/data suites: 45 passed; `npm run check`, `node --check`, and
+`git diff --check` passed. No AWS/live Cognito/API/S3/browser-hosted,
+deployment, invalidation, Firestore, IAM, CloudFormation, production, DNS,
+Firebase, CF04, or T17 operation occurred. Changes remain local pending commit
+and Sol source review.

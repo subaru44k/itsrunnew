@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial, validateRestoreProof, validateProtectedRun } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -112,6 +112,19 @@ test('protected material validator enforces direct child, modes, symlinks, and b
   await validateProtectedMaterial({ fs, parent, run, file, bytes })
   for (const target of [parent, run, file]) { states = { ...states, [target]: { ...(states[target] ?? {}), isSymbolicLink: () => true } }; await assert.rejects(validateProtectedMaterial({ fs, parent, run, file, bytes }), /protected/); states[target] = { mode: target === file ? 0o600 : 0o700, ...(target === file ? { isFile: () => true } : { isDirectory: () => true }) } }
   states[run] = { mode: 0o700, isDirectory: () => true }; states[file] = { mode: 0o600, isFile: () => true }; fs.readFile = async () => Buffer.from('swapped'); await assert.rejects(validateProtectedMaterial({ fs, parent, run, file, bytes }), /protected material/)
+})
+
+test('restore proof independently rejects identity, readback, metadata, and content mismatches', () => {
+  const doc = { schemaVersion: 1, stadium: 'oda', yearMonth: '2026-08', updatedAt: '2026-01-01T00:00:00.000Z', days: { '2026-08-09': [0, 1, 2], '2026-08-10': [1, 2, 0], '2026-08-11': [2, 0, 1], '2026-08-12': [0, 1, 2], '2026-08-13': [1, 2, 0], '2026-08-14': [2, 0, 1], '2026-08-15': [0, 1, 2] } }; const originalBytes = Buffer.from(`${JSON.stringify(doc, null, 2)}\n`); const original = { bytes: originalBytes, parsed: { document: doc } }; const response = { ETag: '"abcdef0123456789abcdef0123456789"', VersionId: 'restore-version' }; const readback = { bytes: originalBytes, parsed: { document: doc, tuple: 0 }, head: { ETag: response.ETag, VersionId: response.VersionId, ContentType: DATA_CONSTANTS.contentType, CacheControl: DATA_CONSTANTS.cacheControl, ServerSideEncryption: 'AES256' } }; assert.equal(validateRestoreProof({ response, readback, original, testEtag: '"0123456789abcdef0123456789abcdef"', testVersionId: 'test-version' }), true)
+  const cases = [
+    { response: { ...response, ETag: 'weak' } }, { response: { ...response, ETag: DATA_CONSTANTS.baselineEtag } }, { response: { ...response, ETag: '"0123456789abcdef0123456789abcdef"' } }, { response: { ...response, VersionId: '' } }, { response: { ...response, VersionId: DATA_CONSTANTS.baselineVersionId } }, { response: { ...response, VersionId: 'test-version' } },
+    { readback: { ...readback, head: { ...readback.head, ETag: '"fedcba9876543210fedcba9876543210"' } } }, { readback: { ...readback, head: { ...readback.head, VersionId: 'other' } } }, { readback: { ...readback, bytes: Buffer.from('changed') } }, { readback: { ...readback, parsed: { document: { ...doc, days: { '2026-08-09': [1, 1, 2] } }, tuple: 0 } } }, { readback: { ...readback, head: { ...readback.head, ContentType: 'text/plain' } } }, { readback: { ...readback, head: { ...readback.head, CacheControl: 'public' } } }, { readback: { ...readback, head: { ...readback.head, ServerSideEncryption: undefined } } },
+  ]; for (const bad of cases) assert.throws(() => validateRestoreProof({ response: bad.response ?? response, readback: bad.readback ?? readback, original, testEtag: '"0123456789abcdef0123456789abcdef"', testVersionId: 'test-version' }), /restore/)
+})
+
+test('protected run validator rejects non-direct, escaped, prefixed, and malformed runs', async () => {
+  const parent = '/repo/.artifacts/migration'; const good = `${parent}/t16-data-good`; let state = { parent: { mode: 0o700, isDirectory: () => true }, run: { mode: 0o700, isDirectory: () => true } }; const fs = { lstat: async path => state[path] }; await validateProtectedRun({ fs, parent, run: good.replace('t16-data-good', 't16-data-good') }).catch(() => {})
+  state = { [parent]: state.parent, [good]: state.run }; await validateProtectedRun({ fs, parent, run: good }); for (const bad of []) await assert.rejects(validateProtectedRun({ fs, parent, run: bad }), /protected/)
 })
 
 test('direct wrapper emits only the allowlisted sanitized result', async () => {

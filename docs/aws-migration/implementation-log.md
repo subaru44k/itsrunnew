@@ -4799,7 +4799,7 @@ Implemented nested public-access-block/versioning gates, strict retained
 baseline/test object validation, coupled ETag/VersionId/document readback,
 conditional restore identity/readback proof, and recovery-material retention
 for unknown or failed post-write states. DC02A compact-current, coordinator,
-and protected-material helper coverage now passes 23 focused tests; the
-exhaustive concrete adapter restore identity/readback and cleanup matrix
-remains before DC02 completion.
+and protected-material helper coverage now passes 25 focused tests; the
+concrete adapter failure integration and exhaustive cleanup-retention matrix
+remain before DC02 completion.
 No AWS/live/DC03 operation occurred.

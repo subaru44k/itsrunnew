@@ -4460,3 +4460,11 @@ STR02 commit `f987677` safely returned desktop `state-response-missing`, while
 the pre-document probe had proved arriving code/state presence. Cleanup and
 inventories were exact. D055 and `phase4-t16-callback-url-plan.md` authorize
 CU01 locally; no AWS/live auth.
+
+### Phase 4 T16 CU01 Sol acceptance and CU02 authorization
+
+Sol reviewed `b285c9c`. The callback URL is captured once during client setup,
+passed unchanged on mount, and never persisted, logged, or rendered. Unit 73,
+admin E2E 46, root check, and diff passed. CU01 is accepted. CU02 may push exact
+SHA and run web-only once, verify inventories, then auth-only once under existing
+cleanup/zero-write gates.

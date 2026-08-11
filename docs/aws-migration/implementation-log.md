@@ -4881,3 +4881,17 @@ the membership/user, and prove final zero identity state. No second execution,
 restore retry, invalidation, IAM/CloudFormation/deploy, other object, version
 delete, production, DNS, Firebase, or T17 operation is authorized. Any failure
 must obey the committed recovery/retention stop boundary.
+
+### T16 CF03 live rehearsal stop — 2026-08-11
+
+From authorized clean commit `e9679d7`, the single invocation of the concrete
+data executable stopped during authenticated browser setup while waiting for
+the exact GET response. The stop occurred before any data PUT or restore
+boundary. Post-stop read-only verification found the reserved object unchanged:
+501 bytes, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, baseline
+ETag/VersionId, and tuple 0. One temporary Cognito identity remained after the
+executable stop; after an STS account recheck it was removed and deleted using
+the authorized cleanup path, leaving pool users 0 and admins 0. No restore,
+retry, invalidation, or other data operation was performed. CF03 is stopped
+for Sol review; no claim of rehearsal success is made.

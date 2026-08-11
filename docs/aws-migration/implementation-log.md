@@ -5365,3 +5365,31 @@ and synthesized Hosting template SHA-256 is
 functional synth diff is the Lambda asset key/content update; no resource
 graph, IAM, or deployment change was made. No AWS/network/live operation
 occurred; stop for Sol deployment review.
+
+### T16 CM01-CM02 Sol acceptance and one Lambda-only deployment authorization
+
+Sol independently reviewed `5d6fdea`, reran schedule-api unit tests (25/25),
+infra tests (19/19), and `git diff --check`. Both conditional PutObject variants
+now have the complete exact SDK input including content type, data cache control,
+typed key/body, and only their intended conditional field.
+
+The read-only deployment review used Node 24, `AWS_PROFILE=codex-prod`, account
+`470447451992`, and `ap-northeast-1`. CDK `diff --no-change-set` reports exactly
+one functional change: `ScheduleApiFunctionA177D4FE.Code.S3Key` from
+`ed27108982d0ef94b6b9baa33135d04d2135dfaa4a365fc28fd6f4ca6cdda087.zip`
+to `970bc21f60630cd3ea83a6e91d49c6894ac03c582f9f592e535e38c84f7a6010.zip`;
+the remaining diff is matching asset metadata. No resource, IAM, configuration,
+API, CloudFront, Cognito, bucket, alarm, or parameter change exists. AWS
+ValidateTemplate accepts the fresh template with only `CAPABILITY_IAM`.
+Hosting is `UPDATE_COMPLETE`; managed policy v7 remains default with v3-v7
+retained and AWS/local canonical SHA-256 both
+`dd4a19a0ada79b4332ebb53245bc830a3d1d675322ea42f9a6011e1e70efaa97`.
+The execution role simulation allows exact-function `lambda:UpdateFunctionCode`
+and `lambda:GetFunction`.
+
+Exactly one standard CDK deployment of `ItsRunPreviewHosting` is authorized to
+publish the reviewed template/Lambda asset and update only the fixed-name
+`itsrun-preview-schedule-api` code. Use only the exact profile/account/region
+above and `--require-approval never`; do not retry on failure. No IAM/policy,
+other stack/resource, web/data upload, schedule write, identity mutation,
+invalidation, production/DNS, Firebase, CF03, or T17 operation is authorized.

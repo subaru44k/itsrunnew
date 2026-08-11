@@ -5050,3 +5050,37 @@ and immediate rejection sidecars; a click-failure regression proves late
 waiters produce no unhandled rejection. Focused data tests: 43/43; combined
 T16 auth/data: 86/86. `npm run check`, `node --check`, and `git diff --check`
 pass. No AWS/network/live operation occurred; stop for Sol review.
+
+### T16 CS01-CS02 Sol acceptance and one selector-corrected CF03 execution
+
+Sol independently reviewed CS01-CS02 through commit `b79d695` plus the
+chronology-only commit `0b3e15c`. The exact attribute locator avoids the
+digit-leading CSS identifier failure; bounded Playwright trial actionability
+now proves the target cell and localized Save control are visible and enabled,
+with exact baseline/selected values before any PUT waiter or click. All PUT,
+response, and comparison waiters have explicit timeouts and immediate rejection
+consumers. Sol reran the focused data suite (43/43), the combined T16 suite
+(86/86), `node --check`, the root check, and `git diff --check`; the worktree is
+clean.
+
+The immediate read-only gate matched account `470447451992`, region
+`ap-northeast-1`, managed policy v7 default with v3-v7 retained, and identical
+AWS/local canonical policy SHA-256
+`dd4a19a0ada79b4332ebb53245bc830a3d1d675322ea42f9a6011e1e70efaa97`.
+Hosting is `UPDATE_COMPLETE`, GitHub deployment is `CREATE_COMPLETE`, the API
+5xx alarm is `OK`, users/admins are 0/0, versioning and all public-access blocks
+are enabled, invalidation count is 3, and the exact target remains the encrypted
+501-byte baseline with its original ETag/VersionId/metadata and CloudFront
+SHA-256 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+
+Exactly one fresh execution of the committed CF03 data rehearsal is authorized
+using only `AWS_PROFILE=codex-prod`, account `470447451992`, and region
+`ap-northeast-1`. It may create one temporary local Cognito administrator, use
+two fresh desktop admin contexts, perform one successful UI conditional PUT for
+only `2026-08-09[0]` from 0 to 1, perform one stale UI PUT that must return 409
+without retry, observe tuple 1 through bounded CloudFront reads, and perform one
+conditional operator PutObject restoring only the exact protected original
+bytes before observing tuple 0 and deleting the temporary identity. It must run
+once and stop on any failure. No second execution, restore retry, invalidation,
+IAM/CloudFormation/deploy, other object, delete/version-delete, production,
+DNS, Firebase, or T17 operation is authorized by this entry.

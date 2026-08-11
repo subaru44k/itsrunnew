@@ -4721,3 +4721,18 @@ recovery-parent handling, and a self-contained deterministic 501-byte fixture.
 Focused data tests pass (9), existing T16 auth/harness tests remain passing,
 and `npm run check`, `node --check`, and `git diff --check` pass. No AWS/live
 operation or later-phase action occurred. Pending Sol source re-review.
+
+### CF03 third Sol source review: final corrections required
+
+Sol reviewed `f82e377`; live execution remains unauthorized. API GET and
+comparison GET are incorrectly required to contain `versionId` although the
+contract returns only `document` and `etag`; stale current S3 identity is still
+not coupled to the successful update; and one-cell validation does not compare
+the rest of the document. The public-access-block response hierarchy is wrong.
+The current AbortController cannot reach `page.evaluate`'s fetch/body, unknown
+state still does not retain original material, and required pending-request/
+body and cleanup tests are absent.
+
+`phase4-t16-data-final-correction.md` defines isolated DC01-DC03 corrections.
+Only DC01 local source/tests are authorized next. No AWS/live operation or
+later milestone is authorized.

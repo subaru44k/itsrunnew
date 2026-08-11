@@ -5208,3 +5208,24 @@ rejection and exactly-once cleanup. Focused data tests: 47/47; combined T16
 auth/data tests: 90/90. `npm run check`, `node --check`, and
 `git diff --check` pass. No AWS/network/live operation occurred; stop for Sol
 review.
+
+### T16 RD01-RD02 Sol acceptance and one response-diagnosed CF03 execution
+
+Sol independently reviewed RD01-RD02 through `c00c6ca` and the waiter correction
+`201d40f`. Actual responses retain only one of the seven closed reasons, while a
+rejected/timed-out waiter is exactly `response-missing`; no observed response or
+raw failure value crosses the boundary. Sol reran the focused suite (47/47),
+`node --check`, and `git diff --check`; Luna's combined suite (90/90) and root
+check passed, and the worktree is clean.
+
+The immediate read-only gate reconfirmed account `470447451992`, users/admins
+0/0, invalidation count 3, and the exact encrypted 501-byte baseline object,
+ETag/VersionId/metadata, and CloudFront SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`.
+
+Exactly one fresh response-diagnosed execution is authorized under the same
+exact CF03 profile/account/region, target, conditional update/stale/restore,
+observation, identity cleanup, and stop boundaries. If it fails, record only
+the closed checkpoint/category/context/reason and do not rerun. No restore
+retry, invalidation, IAM/CloudFormation/deploy, other object, delete/version
+delete, production, DNS, Firebase, or T17 operation is authorized.

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
-import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject } from './t16-data-preview.mjs'
+import { DATA_CONSTANTS, EXECUTION_FLAG, createConcreteDataAdapters, createPlaywrightDataBrowser, main, parseDataArgs, runDataRehearsal, runDirect, safeArgs, safeBucketArgs, createProtectedDataCli, validateOneCellDelta, validateAuthenticatedGetResponse, validateBucketGates, classifyCurrentObject, validateProtectedMaterial } from './t16-data-preview.mjs'
 
 const proof = {
   preflight: { users: 0, admins: 0, bytes: 501, etag: DATA_CONSTANTS.baselineEtag, versionId: DATA_CONSTANTS.baselineVersionId, sha256: DATA_CONSTANTS.baselineSha256, tuple: 0 },
@@ -16,7 +16,7 @@ const proof = {
 
 function adapters({ fail = null, order = [], restoreArgs = [] } = {}) {
   const make = stage => async input => { order.push(stage); if (stage === 'restore') restoreArgs.push(input); if (fail === stage) throw new Error('canary'); return proof[stage] }
-  return { preflight: make('preflight'), capture: make('capture'), setup: make('setup'), load: make('load'), update: make('update'), readCurrent: async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1 }), stale: make('stale'), poll: async input => { order.push(`poll-${input.expected}`); return { tuple: input.expected, attempts: 1 } }, restore: make('restore'), cleanup: make('cleanup') }
+  return { preflight: make('preflight'), capture: make('capture'), setup: make('setup'), load: make('load'), update: make('update'), readCurrent: async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1, document: proof.update.document }), stale: make('stale'), poll: async input => { order.push(`poll-${input.expected}`); return { tuple: input.expected, attempts: 1 } }, restore: make('restore'), cleanup: make('cleanup') }
 }
 
 test('accepts only the literal execution flag', async () => {
@@ -56,6 +56,10 @@ test('indeterminate baseline is fail-closed without restore, while unknown state
 test('indeterminate exact test restores once with observed ETag and VersionId', async () => {
   const order = []; const restoreArgs = []; const base = adapters({ fail: 'update', order, restoreArgs }); base.readCurrent = async () => ({ state: 'test', etag: proof.update.etag, versionId: proof.update.versionId, tuple: 1 }); const result = await runDataRehearsal(base)
   assert.equal(result.restoreStatus, 'passed'); assert.equal(restoreArgs.length, 1); assert.equal(restoreArgs[0].ifMatch, proof.update.etag); assert.equal(restoreArgs[0].versionId, proof.update.versionId)
+})
+
+test('post-stale ETag, VersionId, and document mismatches restore exactly once', async () => {
+  for (const mismatch of ['etag', 'versionId', 'document']) { const order = []; const restoreArgs = []; const base = adapters({ order, restoreArgs }); const originalRead = base.readCurrent; base.readCurrent = async expected => { const current = await originalRead(expected); if (mismatch === 'etag') current.etag = '"badbadbadbadbadbadbadbadbadbadbadb"'; if (mismatch === 'versionId') current.versionId = 'other-version'; if (mismatch === 'document') current.document = { ...proof.update.document, changed: true }; return current }; const result = await runDataRehearsal(base); assert.equal(result.status, 'failed'); assert.equal(result.counts.restores, 1); assert.equal(restoreArgs.length, 1); assert.equal(restoreArgs[0].ifMatch, proof.update.etag); assert.equal(restoreArgs[0].versionId, proof.update.versionId); assert.equal(order.filter(stage => stage === 'restore').length, 1) }
 })
 
 test('restore failure retains recovery material and never retries', async () => {
@@ -101,6 +105,13 @@ test('current-object classifier is exact and fail-closed for every state mismatc
   ]) assert.doesNotThrow(() => assert.deepEqual(classifyCurrentObject(bad, baseline, expectedTest), { state: 'unknown' }))
   assert.deepEqual(classifyCurrentObject({ ...baseline, bytes: Buffer.from(`${JSON.stringify(baselineDocument)} `) }, baseline), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject({ ...baseline, sha256: 'wrong' }, baseline), { state: 'unknown' })
   assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: '"other"', versionId: valid.head.VersionId, document: testDocument }), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: valid.head.ETag, versionId: 'other', document: testDocument }), { state: 'unknown' }); assert.deepEqual(classifyCurrentObject(valid, baseline, { etag: valid.head.ETag, versionId: valid.head.VersionId, document: baselineDocument }), { state: 'unknown' })
+})
+
+test('protected material validator enforces direct child, modes, symlinks, and bytes', async () => {
+  const parent = '/repo/.artifacts/migration'; const run = `${parent}/t16-data-run`; const file = `${run}/capture.json`; const bytes = Buffer.from('original'); let states = { [parent]: { mode: 0o700, isDirectory: () => true }, [run]: { mode: 0o700, isDirectory: () => true }, [file]: { mode: 0o600, isFile: () => true } }; const fs = { lstat: async path => states[path], readFile: async () => bytes }
+  await validateProtectedMaterial({ fs, parent, run, file, bytes })
+  for (const target of [parent, run, file]) { states = { ...states, [target]: { ...(states[target] ?? {}), isSymbolicLink: () => true } }; await assert.rejects(validateProtectedMaterial({ fs, parent, run, file, bytes }), /protected/); states[target] = { mode: target === file ? 0o600 : 0o700, ...(target === file ? { isFile: () => true } : { isDirectory: () => true }) } }
+  states[run] = { mode: 0o700, isDirectory: () => true }; states[file] = { mode: 0o600, isFile: () => true }; fs.readFile = async () => Buffer.from('swapped'); await assert.rejects(validateProtectedMaterial({ fs, parent, run, file, bytes }), /protected material/)
 })
 
 test('direct wrapper emits only the allowlisted sanitized result', async () => {

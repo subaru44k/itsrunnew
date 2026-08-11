@@ -4793,12 +4793,15 @@ source, tests, and documentation are authorized next exactly as specified by
 `phase4-t16-data-final-correction.md`; DC03, AWS/network/live operations, and
 data writes remain unauthorized until separate Sol review.
 
-### T16 DC02 local correction in progress
+### T16 DC02 complete
 
 Implemented nested public-access-block/versioning gates, strict retained
 baseline/test object validation, coupled ETag/VersionId/document readback,
 conditional restore identity/readback proof, and recovery-material retention
-for unknown or failed post-write states. DC02A compact-current, coordinator,
-and protected-material helper coverage now passes 26 focused tests; the
-concrete adapter failure integration remains before DC02 completion.
-No AWS/live/DC03 operation occurred.
+for unknown or failed post-write states. Protected material validation uses
+resolved absolute paths, direct-child run containment, non-symlink checks, and
+required modes. The concrete injected adapter harness now proves both a
+successful restore/removal and a readback-identity failure: each performs
+exactly one restore PUT, while failure retains material and never removes the
+run or parent. The focused T16 suite passes 27/27. No AWS/live/DC03 operation
+occurred.

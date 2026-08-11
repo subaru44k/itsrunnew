@@ -58,9 +58,9 @@ export function validateRestoreProof({ response, readback, original, testEtag, t
   return true
 }
 export async function validateProtectedRun({ fs, parent, run } = {}) {
-  const inspect = fs?.lstat ?? fs?.stat; if (typeof inspect !== 'function' || !isAbsolute(parent) || !isAbsolute(run)) fail('protected path containment')
-  const parentInfo = await inspect(parent); const runInfo = await inspect(run); const child = relative(parent, run)
-  if ((parentInfo.mode & 0o777) !== 0o700 || parentInfo.isSymbolicLink?.() || !parentInfo.isDirectory?.() || (runInfo.mode & 0o777) !== 0o700 || runInfo.isSymbolicLink?.() || !runInfo.isDirectory?.() || !child || child.startsWith('..') || child.includes('/') || !child.startsWith('t16-data-')) fail('protected run mismatch')
+  const inspect = fs?.lstat ?? fs?.stat; if (typeof inspect !== 'function' || !isAbsolute(parent) || !isAbsolute(run)) fail('protected path containment'); const parentPath = resolve(parent); const runPath = resolve(run)
+  const parentInfo = await inspect(parentPath); const runInfo = await inspect(runPath); const child = relative(parentPath, runPath)
+  if ((parentInfo.mode & 0o777) !== 0o700 || parentInfo.isSymbolicLink?.() || !parentInfo.isDirectory?.() || (runInfo.mode & 0o777) !== 0o700 || runInfo.isSymbolicLink?.() || !runInfo.isDirectory?.() || !child || dirname(runPath) !== parentPath || !child.startsWith('t16-data-')) fail('protected run mismatch')
   return true
 }
 export function shouldRemoveRecoveryMaterial({ restoreStatus = 'not-required', restoreAttempted = false, recoveryMaterialRetained = false, cleanupFailed = false } = {}) {

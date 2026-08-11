@@ -4895,3 +4895,14 @@ executable stop; after an STS account recheck it was removed and deleted using
 the authorized cleanup path, leaving pool users 0 and admins 0. No restore,
 retry, invalidation, or other data operation was performed. CF03 is stopped
 for Sol review; no claim of rehearsal success is made.
+
+### T16 CF03 stop diagnosis and LS01-LS02 local authorization
+
+Sol reviewed the sanitized stop at `571782c`. The data and identity end state
+is safe, so no restore is required. The browser adapter pre-armed both pages'
+default response waiters and then authenticated sequentially; the second
+waiter's timeout could elapse during the first login while its rejection was
+not yet awaited, explaining both the exact-GET stop and abnormal cleanup exit.
+`phase4-t16-data-login-sequencing-plan.md` authorizes only the local LS01-LS02
+sequencing, deadline, unhandled-rejection, and cleanup correction. No second
+live invocation or AWS operation is authorized pending Sol source review.

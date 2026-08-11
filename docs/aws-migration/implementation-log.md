@@ -3835,13 +3835,6 @@ PKCE, API, and no-secret tests remained passing. Focused web unit tests passed
 deployment, invalidation, IAM, API/S3/Firestore write, production, or T17
 operation occurred.
 
-### T16 DC01 final correction
-
-Restored exact API origin/path/method predicates for authenticated GET, PUT,
-and comparison waiters; extracted pure authenticated-GET validation; corrected
-the stateful stale-conflict fake and added deterministic contract negatives.
-Local DC01 correction commit; no AWS/live or DC02/DC03 operation occurred.
-
 ### Phase 4 T16 CO01 Sol acceptance and CO02 authorization
 
 Sol reviewed `eefbeba`. The callback page now suppresses only normal session
@@ -4777,3 +4770,13 @@ Focused data tests: `node --test
 scripts/migration/t16-data-preview.test.mjs` (16 passed). `npm run check`,
 `node --check`, and `git diff --check` passed. No AWS/live or DC02/DC03
 operation occurred.
+
+### T16 DC01 final correction
+
+Commit `7d0c0e6` removed cross-header side effects and corrected deterministic
+fake conflict behavior. Commit `a35250e` restored exact browser predicates,
+added pure authenticated-GET validation, stateful stale-conflict coverage,
+and deterministic timestamp/UI negatives; focused data tests passed 18/18,
+with `npm run check`, `node --check`, and `git diff --check` passing. This
+follow-up preserves case-sensitive conditional ETag values and records no
+AWS/live or DC02/DC03 operation.

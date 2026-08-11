@@ -193,6 +193,7 @@ test('low-level PUT contract negative matrix rejects without hanging', async () 
     ['wrong path', { responseOverrides: { url: `${DATA_CONSTANTS.apiOrigin}/wrong` } }],
     ['wrong content type', { requestOverrides: { headers: { 'content-type': 'text/plain' } } }],
     ['wrong if-match', { requestOverrides: { headers: { 'if-match': '"weak"' } } }],
+    ['case-changed if-match', { requestOverrides: { headers: { 'if-match': '"0123456789ABCDEF0123456789ABCDEF"' } } }],
     ['if-none-match', { requestOverrides: { headers: { 'if-none-match': '*' } } }],
     ['extra body', { requestOverrides: { body: { extra: true } } }],
     ['wrong status', { responseOverrides: { status: 201 } }],

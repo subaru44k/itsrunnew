@@ -6200,3 +6200,18 @@ URLs and site metadata for that origin, establish named site/AWS/rollback/admin
 operators, rerun the release gates on the production candidate, and explicitly
 start the seven-day observation window. Firebase remains unchanged as the
 rollback service; its retirement or deletion is not part of this approval.
+
+### Phase 5 post-acceptance dependency audit — 2026-08-13
+
+The branch was pushed at `0da88ad`; push validation run `31674274559` and PR
+validation run `31674465037` both passed. Draft PR #39 targets `master` and
+remains unmerged. GitGuardian returned neutral/skipped. The local recovery tag
+was not pushed.
+
+A fresh production dependency audit then found five fixable entries in the
+current branch: Nuxt/builder, js-yaml, nanoid, and the CDK-bundled
+brace-expansion (four high, one moderate). This is distinct from GitHub's old
+default-branch count. `phase5-security-refresh.md` authorizes only compatible
+updates within existing approved Nuxt/CDK dependency families, lock refresh,
+full regression, and a zero-vulnerability production audit. No external
+operation is authorized in this correction.

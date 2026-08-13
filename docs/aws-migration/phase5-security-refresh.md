@@ -104,3 +104,7 @@ rewrite that bundled package. The generic `npm audit fix` remains outside the
 authorization. S02 full regression was not started after this binding audit
 failure; no override, direct dependency, source/runtime, infrastructure, or
 external operation was performed.
+
+The required `npm ci` completed successfully against the resulting lockfile;
+the subsequent audit reproduced the same one high finding at the bundled
+5.0.8 path. The remaining S02 checks were therefore not run.

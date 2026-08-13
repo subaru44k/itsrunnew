@@ -6250,3 +6250,7 @@ non-zero, so the full S02 regression gate was not started; no audit fix,
 override, direct dependency, source/runtime, infrastructure, or external
 operation was attempted. Final acceptance remains blocked pending approved
 remediation.
+
+The required `npm ci` completed successfully against the S03 lockfile; a
+follow-up `npm audit --omit=dev` reproduced the same one high finding at the
+bundled 5.0.8 path. Remaining S02 checks were not run after this stop.

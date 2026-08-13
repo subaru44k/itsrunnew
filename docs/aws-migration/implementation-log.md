@@ -6664,3 +6664,15 @@ synth workspace path) and exactly one GitHub deploy-stack change: the OIDC
 trust subject changed from the migration branch to `refs/heads/master`.
 No AWS/GitHub settings/PR/merge/workflow dispatch/IAM/CloudFormation,
 Cognito, Firebase, DNS, deployment, or external write occurred.
+
+### PC01 Sol acceptance and production-trust plan — 2026-08-13
+
+Sol independently reviewed `44642fc` and accepts PC01. The source diff changes
+only the explicit branch contract in the workflow/helper/OIDC trust plus
+factual runbook/log wording. The role keeps its single web-only inline policy;
+the selected CloudFront URL and Cognito callback/logout remain unchanged.
+Read-only AWS preflight again matched account `470447451992`, region
+`ap-northeast-1`, default execution policy `v7`, and retained `v3`–`v7`.
+PT01–PT03 define the exact two-action GitHub-role trust permission, protected
+merge, GitHub-stack-only deployment, and production web release. No external
+write occurred in this review.

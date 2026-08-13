@@ -2388,6 +2388,52 @@ Rollback/removal:
 If the data origin later provides reliable path-specific 404 responses, remove
 the 403 mapping after a deployed regression test proves unpublished behavior.
 
+## D059: Lowest-cost production promotion choices
+
+Status: accepted
+
+Problem:
+
+The public replacement now passes the complete deployed parity contract and
+must be promoted without duplicating AWS resources or reintroducing discarded
+Firebase history. Phase 5 PC00 requires exact production-origin,
+administrator, and legacy-entry-point choices.
+
+Decision:
+
+Promote the existing `https://d2via50thoheqm.cloudfront.net` distribution in
+place as the production origin. Do not add a custom hostname, certificate, DNS
+record, or callback/logout URL. Keep the Cognito `admins` group empty at
+cutover. After the new-origin release gate passes and the authenticated current
+Firebase Hosting release/rollback identifier is captured, replace only the two
+legacy Hosting entry points with a reversible redirect to the CloudFront
+origin. Do not read, migrate, overwrite, or delete Firestore data and do not
+delete the Firebase project. The repository owner is the site/rollback
+operator; Codex using the pinned profiles/workflows is the execution operator.
+
+Alternatives:
+
+- A new production AWS stack: rejected because it duplicates recurring cost
+  and already accepted resources.
+- A custom hostname now: rejected because no hostname was supplied and it adds
+  certificate/DNS operations without product benefit.
+- An initial administrator: deferred because public launch does not require
+  one and the group boundary is already verified.
+- Leave legacy Hosting on the old site: rejected because visitors would not be
+  switched to the completed replacement.
+
+Cost and maintenance effect:
+
+No new recurring AWS resource. The only AWS infrastructure change is the exact
+GitHub deploy-role trust transition to `master`; the later Firebase Hosting
+redirect is reversible and leaves Firestore/project state intact.
+
+Rollback/removal:
+
+Restore the captured Firebase Hosting release and retain the CloudFront URL/
+stack unchanged. The default observation window is seven days; Firebase
+retirement remains a separate destructive decision after that window.
+
 ## Decision template
 
 Copy for new decisions:

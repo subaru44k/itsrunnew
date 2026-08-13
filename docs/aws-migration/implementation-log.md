@@ -6623,3 +6623,21 @@ which explains every one of the 12 live failures. D058 accepts a narrow 403/
 remains the origin-access canary. LPR01–LPR03 define the source/test correction
 and one subsequent web-only deployment. No external write occurred during the
 diagnosis.
+
+### Deployed public parity Sol acceptance and PC00 — 2026-08-13
+
+Sol independently inspected `9ada30b` and `13b0956`. Web unit tests passed
+100/100 and the complete repository check passed. The reviewed web build was
+uploaded once by run `31704160045`; its product assertions passed, while its
+only 12 failures were the subsequently corrected strict-locator test defect.
+Without another deployment, the complete direct CloudFront suite then passed
+132/132 across desktop/mobile and ja-JP/en-US, including shell/navigation,
+four stadiums, loaded/unpublished schedules, all pace ranges, the exact 60-row
+record transcript, canonical/alternates, all public/compatibility routes,
+state behavior, operational checks, and unknown paths. No data upload,
+invalidation, IAM, CloudFormation, Cognito, DNS, or Firebase write occurred.
+
+D057 product parity is accepted on the deployed origin. D059 fixes PC00 to the
+lowest-cost in-place CloudFront promotion, empty admins group, and reversible
+legacy Firebase Hosting redirect after its exact rollback release is captured.
+Production source/IAM review may proceed; Firestore history remains discarded.

@@ -5857,3 +5857,30 @@ cover both locales, wrong/empty/missing/hidden headings, and delayed/timeout
 action coverage. Focused T16 tests pass `57/57`; combined auth/data tests pass
 `100/100`. No AWS, network, live, identity, S3, recovery-material, deployment,
 invalidation, or other out-of-scope operation was performed.
+
+### T16 CH01-CH02 Sol acceptance and one localized-conflict CF03 execution
+
+Sol independently reviewed `db3017c` and reran focused data tests 57/57 and
+combined auth/data tests 100/100 plus `node --check` and `git diff --check`.
+The conflict proof uses stable `#conflict-title`, bounded visibility, and exact
+committed Japanese/English text; the localized action remains bounded,
+enabled, and trial-actionable without a click. Exact stale 409, comparison GET,
+post-stale protected S3, public observation, restore, retry, and cleanup
+contracts are unchanged.
+
+The immediate read-only gate matched account `470447451992`, region
+`ap-northeast-1`, Hosting `UPDATE_COMPLETE`, reviewed Lambda active/successful,
+users/admins `0/0`, invalidations `3`, alarm `OK`, and the exact current
+501-byte baseline ETag/VersionId/content/cache/encryption/SHA-256/tuple 0 with
+VersionId `kpbPZRFYYVZbVgHdWlBIEYp2DJAmC4vU`; CloudFront body/hash/tuple also
+matched.
+
+Exactly one fresh invocation of the committed localized-conflict CF03 runner
+is authorized under the exact preview profile/account/region/target and prior
+mutation boundaries: temporary local user/admin membership, one conditional UI
+tuple update, one stale 409 without retry, one conditional exact-original
+restore, bounded public observations, and identity cleanup. Do not rerun or
+manually restore on terminal failure. No additional restore, recovery-material
+deletion, deploy/invalidation, IAM/CloudFormation, other S3 object/version/
+delete, production/DNS, Firebase, historical-data, or T17 action is authorized
+in this invocation.

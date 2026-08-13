@@ -6296,3 +6296,16 @@ unchanged. The upstream build-tool finding is accepted temporarily and remains
 tracked for the first patched aws-cdk-lib release. Phase 5 is technically
 accepted; production cutover still requires an exact production hostname and
 an approved initial Cognito administrator identity.
+
+### Phase 5 production cutover planning — 2026-08-13
+
+Sol converted the remaining cutover conditions into
+`phase5-production-cutover-plan.md`. The lowest-cost path promotes the existing
+CloudFront distribution in place, keeps physical preview-named resources to
+avoid replacement, and changes only the GitHub deployment trust/source to
+`master`. A custom-hostname path remains available but requires an exact FQDN,
+certificate, and DNS ownership. The plan also makes the empty-admin option and
+the legacy Firebase Hosting redirect choice explicit. Historical Firestore
+data remains discarded under D041. No source/runtime, AWS, IAM, Cognito,
+GitHub setting/PR state, DNS, Firebase, deployment, or invalidation operation
+occurred in this planning step.

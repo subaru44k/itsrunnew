@@ -2,6 +2,9 @@
 
 Status: Phase 5 accepted; production cutover inputs remain pending
 
+Production promotion sequencing and the three remaining operator choices are
+defined in [phase5-production-cutover-plan.md](./phase5-production-cutover-plan.md).
+
 Planning baseline: `d6de55e` on `master`
 
 Working branch: `migration/aws-s3-cloudfront`

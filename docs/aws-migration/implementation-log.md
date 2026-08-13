@@ -6254,3 +6254,16 @@ remediation.
 The required `npm ci` completed successfully against the S03 lockfile; a
 follow-up `npm audit --omit=dev` reproduced the same one high finding at the
 bundled 5.0.8 path. Remaining S02 checks were not run after this stop.
+
+### Phase 5 S04 build-only dependency classification authorization — 2026-08-13
+
+Sol confirmed that `aws-cdk-lib@2.264.0` is the latest available release and
+that the remaining vulnerable `brace-expansion@5.0.8` is bundled by CDK rather
+than selected from the repository's normal runtime dependency graph. Because
+`aws-cdk-lib` and `constructs` are used only for assertions and synthesis and
+are absent from the static web and Lambda runtime, S04 authorizes moving those
+unchanged packages to the infra workspace's `devDependencies`. The plan
+requires a zero production audit, a truthful full-audit record of the one
+upstream-blocked build-tool finding, and the complete regression gate. It does
+not authorize overrides, patches, source/infrastructure changes, or external
+operations.

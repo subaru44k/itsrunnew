@@ -108,3 +108,37 @@ external operation was performed.
 The required `npm ci` completed successfully against the resulting lockfile;
 the subsequent audit reproduced the same one high finding at the bundled
 5.0.8 path. The remaining S02 checks were therefore not run.
+
+## S04: classify CDK libraries as build-only dependencies
+
+Sol confirmed that `aws-cdk-lib@2.264.0` is the latest published release and
+that its bundled `brace-expansion@5.0.8` cannot be replaced by npm's normal
+lock resolution. The affected package belongs only to CDK synthesis and is
+not part of the static web or schedule Lambda runtime. Keeping
+`aws-cdk-lib` and `constructs` under the infra workspace's production
+dependencies therefore gives `npm audit --omit=dev` an inaccurate runtime
+boundary.
+
+Move the existing `aws-cdk-lib` and `constructs` entries, without changing
+their versions, from `infra/package.json` `dependencies` to
+`devDependencies`, then regenerate the lockfile using npm. Do not add an
+override, patch the bundled package, add a dependency, or change application
+or infrastructure source. Normal development installs must continue to
+include these packages and CDK tests/synthesis must still pass.
+
+Run the complete S02 gate. In addition, run an unfiltered `npm audit` and
+record its exact result truthfully. Acceptance requires:
+
+- `npm audit --omit=dev` reports zero production/runtime vulnerabilities;
+- the full audit has no finding other than the known high-severity
+  `aws-cdk-lib`-bundled `brace-expansion@5.0.8` finding;
+- `npm ls --all`, infra assertions/synthesis, all unit/build checks, maintained
+  admin E2E, and raw preview E2E pass;
+- the synthesized resource contract and deployed preview remain unchanged.
+
+This is a classification correction, not a claim that the upstream package is
+patched. Record the residual build-tool finding for replacement by the first
+patched `aws-cdk-lib` release. Stop if the production audit remains non-zero,
+the full audit contains any additional finding, npm changes dependency
+versions unexpectedly, or a regression occurs. Do not perform AWS, Firebase,
+deployment, invalidation, DNS, tag, merge, or ready-for-review operations.

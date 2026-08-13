@@ -50,7 +50,7 @@ Operating system: macOS
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
 | T15 | complete; accepted after Sol final review | `a812b41`, `144b025`, `5f67e08`, `023229f` + Sol acceptance below | Web helper 58/58/58; raw preview 88; trigger cleanup; master protection; local T15F; final-doc validation attempt 2 passed | Workflow is dispatch-only, selected action is exact-SHA pinned, data/invalidation/Hosting remain unchanged. |
 | T16 | complete; accepted by Sol | `1bf6a9c`, `a1d42be`, `5dab6dd` | `npm run check`; `npm run test:e2e` 62/62; preview 100/100; final read-only gate | Restored VersionId and operational evidence recorded below; Sol acceptance is recorded in the authorization section. |
-| T17 | complete locally; awaiting final Sol acceptance | `1d4a767`, `196eaea`, `5e6b476`, `b87f421` | `npm ci`; `npm run check`; local E2E 48/48; preview E2E 100/100; P5R01/P5R02 checks; recovery proof; `git diff --check` | Exact 77-path removal, AWS adapter boundary, final PR trigger, clean dependency graph, and immutable-tag recovery are recorded below. |
+| T17 | complete; accepted by Sol | `1d4a767`, `196eaea`, `5e6b476`, `b87f421`, `f0519b3` | `npm ci`; `npm run check`; local E2E 48/48; preview E2E 100/100; P5R01/P5R02 checks; recovery proof; `git diff --check` | Exact 77-path removal, AWS adapter boundary, final PR trigger, clean dependency graph, and immutable-tag recovery accepted in Phase 5. |
 
 ### Phase 4 T16 Sol execution authorization
 
@@ -6185,3 +6185,18 @@ now requires that exact trigger split. Final required checks passed: `npm ci`,
 `npm run check`, maintained E2E 48/48, public preview E2E 100/100,
 `npm ls --all`, and `git diff --check`. No external operation occurred.
 The branch is clean and stopped for final Sol acceptance.
+
+### Phase 5 final Sol acceptance — 2026-08-13
+
+Sol reviewed `b87f421` and `f0519b3`: the S3 adapter move is import-only and
+preserves the fully tested AWS boundary; the validation workflow now checks
+the actual `master` PR target while retaining read-only permissions, pinned
+actions, migration-branch push validation, and all build/browser gates. The
+complete local migration is accepted `go` for GitHub publication and review.
+
+Production cutover remains `go with listed conditions`: select and configure a
+production hostname/certificate/DNS target, update Cognito callback/logout
+URLs and site metadata for that origin, establish named site/AWS/rollback/admin
+operators, rerun the release gates on the production candidate, and explicitly
+start the seven-day observation window. Firebase remains unchanged as the
+rollback service; its retirement or deletion is not part of this approval.

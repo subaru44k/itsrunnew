@@ -95,5 +95,15 @@ updated production/test imports (`b87f421`). Validation pull requests target
 `master`, while push validation remains restricted to
 `migration/aws-s3-cloudfront`; the workflow contract test enforces the split.
 The required local checks and public preview checks passed, with no external
-operation. Final Sol acceptance and any later publishing remain separate
-actions.
+operation.
+
+## Final result
+
+Sol accepts P5R01/P5R02 and the complete local migration. Result: `go` for
+publishing `migration/aws-s3-cloudfront`, running GitHub validation, and opening
+a review PR; `go with listed conditions` for production cutover. The remaining
+cutover conditions are the production origin/certificate/DNS decision,
+origin-specific Cognito and site configuration, named operators, a final
+production-candidate release gate, and explicit observation-window start.
+Firebase stays unchanged for rollback and is not approved for retirement or
+deletion.

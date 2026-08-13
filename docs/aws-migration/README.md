@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 5 corrections complete; final Sol acceptance pending
+Status: Phase 5 technically approved; GitHub validation and production cutover conditions remain
 
 Planning baseline: `d6de55e` on `master`
 

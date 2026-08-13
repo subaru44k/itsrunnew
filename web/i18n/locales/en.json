@@ -1,9 +1,9 @@
 {
   "siteName": "It's Run",
-  "nav": { "home": "Home", "yumenoshima": "Yumenoshima", "komazawa": "Komazawa", "todoroki": "Todoroki", "pace": "Pace", "records": "Nozomi Tanaka records", "menu": "Menu", "tokyo": "Tokyo", "kanagawa": "Kanagawa", "lap": "Lap time", "recordsGroup": "Records" },
+  "nav": { "home": "Home", "oda": "Yoyogi Park Athletic Track", "yumenoshima": "Yumenoshima Athletics Stadium", "komazawa": "Komazawa Olympic Park Athletic Stadium", "todoroki": "Todoroki Athletic Track", "pace": "Marathon", "records": "Nozomi Tanaka", "menu": "Menu", "tokyo": "Tokyo", "kanagawa": "Kanagawa", "lap": "Lap Time", "recordsGroup": "Records" },
   "homeTitle": "Find a place to run",
   "homeDescription": "Check track availability and marathon pace tables.",
-  "footer": "It's Run", "footerContact": "Contact and listing requests (itsrun_page)",
+  "footer": "ItsRun", "footerContact": "Please tweet to {'@'}itsrun_page if you have any requests.",
   "nozomiYears": "Records by year", "yearSuffix": "", "recordDate": "Date", "recordMeet": "Meet",
   "paceTitle": "Marathon pace calculator", "paceDescription": "Check split times for each checkpoint from your goal time.", "paceRange": "Goal time range",
   "scheduleTitle": "Availability",

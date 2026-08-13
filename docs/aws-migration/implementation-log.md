@@ -6468,6 +6468,20 @@ existing state machine and retry behavior. Added unit contract coverage for
 both locales and updated styling. Focused tests and typecheck passed so far;
 build/SEO and final diff checks remain to run. No external operation occurred.
 
+### FPR03 shell correction — 2026-08-13
+
+FPR03 is implemented locally. The header now uses exact retained-tag group and
+item labels, grouped desktop controls with one-open/outside/Escape/focus-return
+behavior, and a temporary mobile drawer with backdrop, brand, complete
+hierarchy, locale action, route close, and deterministic listener cleanup.
+Records links use `/nozomiantena/index` and `/en/nozomiantena/index`; the
+footer uses the exact legacy Twitter destination and localized request copy.
+Focused browser interaction tests passed for desktop groups, mobile drawer
+close/focus behavior, locale-preserving navigation, and shell destinations.
+Snapshots were regenerated for the reviewed shell/content changes. Web
+typecheck, production build/SEO, and diff checks passed. No external operation
+occurred; stop for Sol review.
+
 ### FPR02 Sol correction — 2026-08-13
 
 Corrected schedule symbol mapping: status 0 and null/unpublished use unknown

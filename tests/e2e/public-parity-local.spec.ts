@@ -6,12 +6,54 @@ const path = (route: string) => english() ? `/en${route}` : route
 test('public shell exposes every public destination and locale-safe footer', async ({ page }) => {
   await page.goto(path('/'), { waitUntil: 'networkidle' })
   if (test.info().project.name.includes('mobile')) await page.getByRole('button', { name: english() ? 'Menu' : 'メニュー' }).click()
-  const recordsLabel = english() ? 'Nozomi Tanaka records' : '田中希実の記録'
-  await expect(page.getByRole('navigation')).toContainText(recordsLabel)
-  await page.locator('.nav-group').last().locator('summary').click()
-  await expect(page.getByRole('link', { name: recordsLabel })).toHaveAttribute('href', path('/nozomiantena'))
-  await expect(page.getByRole('link', { name: /itsrun_page/ })).toHaveAttribute('href', 'https://x.com/itsrun_page')
+  const recordsLabel = english() ? 'Nozomi Tanaka' : '田中希実'
+  if (!test.info().project.name.includes('mobile')) await page.locator('.group-trigger').last().click()
+  await expect(page.getByRole('navigation').last()).toContainText(recordsLabel)
+  await expect(page.getByRole('link', { name: recordsLabel })).toHaveAttribute('href', path('/nozomiantena/index'))
+  await expect(page.getByRole('link', { name: /itsrun_page/ })).toHaveAttribute('href', 'https://twitter.com/itsrun_page')
   await expect(page).toHaveScreenshot('public-shell.png', { fullPage: true })
+})
+
+test('desktop groups are exclusive and close on outside click/Escape with focus return', async ({ page }) => {
+  test.skip(test.info().project.name.includes('mobile'))
+  await page.goto(path('/'), { waitUntil: 'networkidle' })
+  const groups = page.locator('.desktop-nav .group-trigger')
+  await groups.nth(0).click()
+  await expect(groups.nth(0)).toHaveAttribute('aria-expanded', 'true')
+  await groups.nth(1).click()
+  await expect(groups.nth(0)).toHaveAttribute('aria-expanded', 'false')
+  await expect(groups.nth(1)).toHaveAttribute('aria-expanded', 'true')
+  await page.locator('.site-main').click({ position: { x: 5, y: 5 } })
+  await expect(groups.nth(1)).toHaveAttribute('aria-expanded', 'false')
+  await groups.nth(2).click()
+  await page.keyboard.press('Escape')
+  await expect(groups.nth(2)).toHaveAttribute('aria-expanded', 'false')
+  await expect(groups.nth(2)).toBeFocused()
+})
+
+test('mobile drawer closes by backdrop, Escape, and route selection with focus return', async ({ page }) => {
+  test.skip(!test.info().project.name.includes('mobile'))
+  await page.goto(path('/'), { waitUntil: 'networkidle' })
+  const menu = page.getByRole('button', { name: english() ? 'Menu' : 'メニュー' })
+  await menu.click()
+  await expect(page.locator('.mobile-drawer')).toBeVisible()
+  await page.locator('.drawer-backdrop').click({ position: { x: 380, y: 5 } })
+  await expect(page.locator('.mobile-drawer')).toBeHidden()
+  await expect(menu).toBeFocused()
+  await menu.click()
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.mobile-drawer')).toBeHidden()
+  await expect(menu).toBeFocused()
+  await menu.click()
+  await page.getByRole('link', { name: english() ? 'Nozomi Tanaka' : '田中希実' }).click()
+  await expect(page).toHaveURL(new RegExp(`${path('/nozomiantena/index')}$`))
+})
+
+test('language action preserves the current corresponding route', async ({ page }) => {
+  await page.goto(path('/yumenoshima'), { waitUntil: 'networkidle' })
+  if (test.info().project.name.includes('mobile')) await page.getByRole('button', { name: english() ? 'Menu' : 'メニュー' }).click()
+  await page.getByRole('link', { name: english() ? '日本語' : 'English' }).click()
+  await expect(page).toHaveURL(new RegExp(english() ? '/yumenoshima$' : '/en/yumenoshima$'))
 })
 
 test('pace feature renders all ranges and both table orientations', async ({ page }) => {
@@ -39,7 +81,7 @@ for (const [slug, route] of [['oda', '/'], ['yumenoshima', '/yumenoshima'], ['ko
   await page.goto(path(route), { waitUntil: 'networkidle' })
   await expect(page.locator('h1')).toBeVisible()
   await expect(page.locator('section[aria-labelledby="schedule-heading"]')).toBeVisible()
-  await expect(page.locator('section[aria-labelledby="access-heading"]')).toBeVisible()
+  await expect(page.locator('#access-heading')).toBeVisible()
   await expect(page.locator('iframe.map')).toHaveCount(1)
   await expect(page).toHaveScreenshot(`stadium-${slug}.png`, { fullPage: true })
 })

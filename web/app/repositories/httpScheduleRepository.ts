@@ -23,7 +23,9 @@ export class HttpScheduleRepository {
       if (error instanceof DOMException && error.name === 'AbortError') throw error
       throw new ScheduleRepositoryError('Unable to load schedule', error, 'network')
     }
-    if (response.status === 404) return null
+    // The private S3 origin surfaces an absent object as 403 through CloudFront;
+    // the typed schedule repository treats only 403/404 as unpublished.
+    if (response.status === 403 || response.status === 404) return null
     if (!response.ok) throw new ScheduleRepositoryError('Schedule request failed', undefined, 'unavailable')
     try { return parseScheduleMonth(await response.json(), { stadium, yearMonth }) } catch (error) { throw new ScheduleRepositoryError('Schedule data is invalid', error, 'invalid') }
   }

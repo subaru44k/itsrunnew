@@ -66,7 +66,13 @@ for (const [slug, stadium] of Object.entries(stadiums)) test(`live ${slug} prese
   await expect(page.locator('h1')).toHaveText(copy[0]); await expect(page.locator('.lead')).toHaveText(copy[1]); await expect(page.locator('#info-heading')).toHaveText(copy[2]); await expect(page.locator('.official-name')).toHaveText(copy[3])
   await expect(page.locator('.stadium-card')).toHaveCount(2); await expect(page.locator('iframe.map')).toHaveAttribute('src', stadium.map)
   await expect(page.locator('[role=alert]')).toHaveCount(0); await expect(page.getByRole('button', { name: /再試行|Retry/ })).toHaveCount(0)
-  await expect(page.locator('.schedule-table')).toContainText(isEnglish() ? /Available|Unavailable|Unknown|Loading/ : /利用可能|利用不可|未公開|読み込み/)
+  if (slug === 'oda') {
+    await expect(page.locator('.schedule-table')).toContainText(isEnglish() ? /Available|Unavailable|Unknown|Loading/ : /利用可能|利用不可|未公開|読み込み/)
+    await expect(page.getByRole('status')).toHaveCount(0)
+  } else {
+    await expect(page.getByRole('status')).toContainText(isEnglish() ? 'Schedule data is being prepared.' : 'スケジュールを準備中です。')
+    await expect(page.locator('.status-symbol')).toContainText('?')
+  }
   if (slug === 'oda') await expect(page.getByRole('link', { name: /年賀|New Year's/ })).toHaveAttribute('href', 'https://newyearscardlottery.link/')
 })
 

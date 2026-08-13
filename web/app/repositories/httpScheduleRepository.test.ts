@@ -28,4 +28,16 @@ describe('HttpScheduleRepository', () => {
     const invalid = new HttpScheduleRepository('/data/v1', vi.fn(async () => new Response('{}', { status: 200 })) as typeof fetch)
     await expect(invalid.getMonth('oda', '2026-07')).rejects.toThrow('invalid')
   })
+
+  it.each([403, 404])('maps public missing status %s to an absent month', async (status) => {
+    const missing = new HttpScheduleRepository('/data/v1', vi.fn(async () => new Response('', { status })) as typeof fetch)
+    await expect(missing.getMonth('oda', '2026-07')).resolves.toBeNull()
+  })
+
+  it('preserves non-absence error boundaries', async () => {
+    for (const status of [401, 500]) {
+      const repository = new HttpScheduleRepository('/data/v1', vi.fn(async () => new Response('', { status })) as typeof fetch)
+      await expect(repository.getMonth('oda', '2026-07')).rejects.toMatchObject({ kind: 'unavailable' })
+    }
+  })
 })

@@ -6586,6 +6586,21 @@ This is an actual deployed parity failure, so LPA03 stops here as required.
 No route interception, fetch replacement, fixture prefetch, retry, masking,
 AWS write, workflow dispatch, invalidation, or web-source change was performed.
 
+### LPR01–LPR03 local correction — 2026-08-13
+
+From clean `dcdcb02`, the typed public `HttpScheduleRepository` now maps only
+HTTP 403 and 404 responses to an absent month; 401, 500, network, malformed,
+and cancellation boundaries remain unchanged. Repository coverage passes 6/6,
+including both absence statuses and preserved non-absence errors. The live
+suite now asserts Oda's loaded schedule separately from the three deployed
+unpublished stadiums, which must expose localized unpublished status without
+an alert or Retry control. No route/network masking, deployment, AWS/GitHub
+write, invalidation, or other external operation occurred. Local `npm run
+check` passed (web 100, core 8, schedule API 25, infra 19, build/SEO), and
+`git diff --check` passed. The already deployed preview was not rerun after
+this source correction; Sol review and separately authorized deployment remain
+required.
+
 ### D058 live schedule diagnosis and recovery plan — 2026-08-13
 
 Sol reproduced the deployed condition by reading the fixed CloudFront data

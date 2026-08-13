@@ -6556,3 +6556,17 @@ the failure source. The parity suite now uses one explicit platform gate for
 visual snapshot calls: Darwin retains the reviewed screenshot comparisons,
 while Linux continues to execute every non-visual assertion without generated
 or tolerant baselines. No raw preview test or AWS operation was changed.
+
+### Live parity deployment diagnosis — 2026-08-13
+
+GitHub Actions run `31702380832` passed validation and completed the authorized
+web-only upload of commit `56e2231`; it did not upload data, invalidate
+CloudFront, or change infrastructure/IAM. Its post-deploy unmodified-browser
+suite then reported 92 passed and 8 failed. All eight failures are the same two
+stale English content markers repeated across desktop/mobile and ja-JP/en-US:
+the deployed pace page contains `Marathon pace calculator` while the test
+looked for case-sensitive `Pace`, and the deployed records page contains
+`Nozomi Tanaka race records` while the test expected obsolete copy. The failure
+output itself shows the full deployed pace tables and 60-row record content.
+No product rollback or further deployment occurred. LPA01–LPA03 define the
+test-only correction and direct live acceptance gate before production cutover.

@@ -5958,3 +5958,25 @@ mutation boundaries. Do not rerun or manually restore on terminal failure. No
 additional restore, recovery-material deletion, deploy/invalidation,
 IAM/CloudFormation, other S3 object/version/delete, production/DNS, Firebase,
 historical-data, or T17 action is authorized in this invocation.
+
+### T16 CA01-CA02 unique-action CF03 execution — 2026-08-13
+
+The one authorized invocation from clean `8a566bc` ran with the exact
+`codex-prod` profile, account `470447451992`, region `ap-northeast-1`, and
+documented preview target. Its sanitized result was
+`operations=8`, `writes=1`, `restores=1`, `cleanups=1`, `polls=2`,
+`writeStatus=passed`, `staleStatus=passed`, `restoreStatus=passed`, and
+`cleanupStatus=passed`. The unique localized rebase action was trial-proven;
+no real action click, retry, manual operation, or recovery-material retention
+occurred.
+
+Read-only post-checks prove the restored current VersionId
+`3o5npTzfeFLHBhieoYRiNHT6kYwnOevs`, exact 501-byte original body, ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, `application/json`, cache policy
+`public, max-age=0, s-maxage=60`, AES256 encryption, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and
+tuple 0. CloudFront returned HTTP 200 with the exact 501-byte body/hash and
+cache metadata. Users/admins are `0/0`, Hosting is `UPDATE_COMPLETE`, the
+reviewed alarm is `OK`, and invalidations remain `3`. No rerun, extra restore,
+recovery-material deletion, deployment, invalidation, or other out-of-scope
+operation occurred. Stop for Sol review.

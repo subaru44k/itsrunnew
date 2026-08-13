@@ -206,3 +206,67 @@ PC03 GitHub merge, PC04 AWS/IAM/deployment operations, optional Cognito user
 administration, optional DNS/certificate work, optional Firebase Hosting
 redirect, and PC05 verification. No repeated approval is needed inside that
 accepted batch unless a stop condition occurs.
+
+## Read-only preflight evidence
+
+Sol completed the non-mutating portions of PC02 against account
+`470447451992` on 2026-08-13:
+
+- STS matched the required account and region;
+- the execution managed policy is default `v7`, with `v3` through `v7`
+  retained; AWS `v7` and the committed policy have the same canonical SHA-256
+  `ac05040e2aed3baff41c1d34e49200fb54ce0a208546cf0555ad7d9abbfe43d0`;
+- after excluding only CDK analytics metadata and the obsolete bootstrap rule,
+  the live GitHub stack template and current synth have the same canonical
+  SHA-256
+  `4dc51d8ffc7e0f1cd1ec8a8f7faff4785569cccf47be289fb1ed34d2db7a4364`;
+- the live role trusts only the exact migration-branch subject and audience,
+  contains only the `PreviewWebDeployment` inline policy, and that policy has
+  only the exact Hosting-stack describe and web-bucket PutObject statements;
+- the live OIDC provider has only `sts.amazonaws.com` as client ID and the
+  expected purpose tag.
+
+CloudFormation drift detection could not inspect the retained IAM resources
+because execution-policy v7 intentionally lacks `iam:GetRole` for the GitHub
+role and `iam:GetOpenIDConnectProvider`. The detection ended `DETECTION_FAILED`;
+it did not mutate the stack or resources. The direct live reads and normalized
+template comparison above establish the relevant baseline without granting
+provider permissions.
+
+The exact lowest-cost branch-trust update needs a policy `v8` candidate that
+adds one statement only:
+
+```json
+{
+  "Sid": "GitHubTrust",
+  "Effect": "Allow",
+  "Action": ["iam:GetRole", "iam:UpdateAssumeRolePolicy"],
+  "Resource": "arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy"
+}
+```
+
+The compact candidate is 6,124 characters, within IAM's 6,144-character
+limit, and its canonical SHA-256 is
+`7c1a4c623e986fb6ad4b7841cdf7e3f2e920e6cfd6887fc4d927972b19b644e0`.
+Policy simulation permits exactly those two actions on that role and denies
+role create/delete/inline-policy changes and all tested OIDC-provider changes.
+Before creating v8, recheck AWS v7 against the committed source. Delete only
+nondefault v3 after proving its canonical SHA-256
+`fd05113d5e7d46ddd6b597e3350c7f72e9ea5181489779ecaaee3f4b4e91ca68`
+matches commit `ad44b5f`; then create v8 as default and retain v4-v8. This exact
+policy/version operation remains protected and unexecuted.
+
+GitHub `master` protection currently requires one approving review, the
+strict `Node 24 validation` check, and applies to administrators; force pushes
+and deletion are disabled. Draft PR #39 is green at `b77a79a` but cannot merge
+until another authorized GitHub reviewer approves it. Protection must not be
+weakened or bypassed.
+
+Both legacy Firebase Hosting origins currently return the same 200 HTML object
+with ETag
+`d4b42dbedacf1144cb42041410beaa08615221a1d3ad688b5465323568f97737`
+and last-modified 2022-08-09. The exact legacy `firebase.json` and project
+mapping are recoverable from the retained legacy tag. Before any redirect,
+the authenticated Firebase release/version identifier and rollback command
+must still be captured; no Firebase CLI or authenticated Firebase operation
+was performed in this preflight.

@@ -6309,3 +6309,24 @@ the legacy Firebase Hosting redirect choice explicit. Historical Firestore
 data remains discarded under D041. No source/runtime, AWS, IAM, Cognito,
 GitHub setting/PR state, DNS, Firebase, deployment, or invalidation operation
 occurred in this planning step.
+
+### Phase 5 production preflight — 2026-08-13
+
+Sol verified the AWS account, default execution-policy v7 and retained
+versions, exact AWS/repository v7 hash, live GitHub role trust and two-action
+web-only inline policy, OIDC provider boundary, and normalized live/synthesized
+GitHub stack template. A CloudFormation drift-detection request ended
+`DETECTION_FAILED` because the execution role lacks `iam:GetRole` for the
+retained GitHub role and `iam:GetOpenIDConnectProvider`; no stack/resource
+mutation occurred. Direct reads proved the relevant live baseline.
+
+The reviewed v8 candidate adds only `iam:GetRole` and
+`iam:UpdateAssumeRolePolicy` on the exact GitHub deployment role. It is 6,124
+compact characters and policy simulation denies role lifecycle/inline-policy
+and OIDC changes. Creating it requires deleting only archived nondefault v3,
+whose AWS hash exactly matches commit `ad44b5f`; neither operation occurred.
+GitHub protection requires one independent approval plus strict green CI and
+cannot be bypassed. Both legacy Firebase origins still serve the identical old
+HTML object; no authenticated Firebase CLI/API call or Firebase mutation was
+performed. Full hashes and exact sequencing are recorded in
+`phase5-production-cutover-plan.md`.

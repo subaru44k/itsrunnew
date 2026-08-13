@@ -221,6 +221,24 @@ and the footer still uses the non-legacy target/copy.
 FPR01–FPR04 in the parity recovery plan is the bounded correction contract.
 Preview deployment and production cutover remain no-go.
 
+## FPR01–FPR04 final local Sol acceptance
+
+Sol accepts the local public parity recovery through `e4448bc`. Independent
+review confirmed the complete 60-row Japanese records projection against a
+test-owned fixture, all four exact legacy stadium locale contracts and map
+URLs, corrected status symbols/text, legacy grouped navigation/footer and
+drawer/disclosure interactions, the three 19-row marathon ranges, and the full
+desktop/mobile × ja/en visual matrix. Representative screenshots were inspected
+for Oda, pace, records, desktop header, and mobile drawer.
+
+The final local gate passed 138 browser tests with 6 expected project-specific
+skips, the complete repository check, zero production audit, dependency tree,
+and diff/worktree checks. This authorizes one web-only deployment of the exact
+reviewed revision to the existing preview through the existing OIDC workflow,
+with no invalidation or data upload. Production/Firebase cutover remains
+stopped until the deployed raw and parity checks pass and Sol inspects the live
+CloudFront result.
+
 ## FPR04 local gate evidence — 2026-08-13
 
 The final local parity assertions now cover the independent 60-row Japanese

@@ -6437,6 +6437,22 @@ as useful progress. No external operation occurred.
 FPR01–FPR04 define the next local correction. Preview deployment and production
 cutover remain stopped.
 
+### FPR final local Sol acceptance — 2026-08-13
+
+Sol reviewed the corrected source and representative maintained screenshots
+through `e4448bc` and accepts local product parity. The records projection is
+independently fixed at all 240 Japanese cells; stadium copy, map sources,
+symbols, navigation, footer, pace tables, desktop/mobile layout, and locale
+matrix satisfy the D057 contract. The final local evidence is 138 passed with
+6 expected project-specific skips, successful full check and dependency tree,
+and zero production audit. Worktree was clean and no external operation had
+occurred at acceptance.
+
+One web-only preview deployment of this reviewed revision via the existing OIDC
+workflow is the next gate. It must not upload data, invalidate CloudFront, or
+change infrastructure/IAM. Production cutover remains stopped pending live
+CloudFront verification and Sol visual review.
+
 ### FPR04 final local parity gate — 2026-08-13
 
 FPR04 local parity coverage is complete from `be49716`. The exact 60-row

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": { "build": "cdk synth", "test:infra": "node --test test/*.test.mjs" },
-  "dependencies": {
+  "devDependencies": {
     "aws-cdk-lib": "^2.264.0",
     "constructs": "^10.8.1"
   }

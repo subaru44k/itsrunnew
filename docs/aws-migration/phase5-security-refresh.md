@@ -4,7 +4,7 @@ Date: 2026-08-13
 Planner/reviewer: Sol  
 Implementer: Luna  
 Branch: `migration/aws-s3-cloudfront`  
-Start commit: `SECURITY_PLAN_COMMIT`
+Committed plan: `5af3db3`
 
 ## Finding
 

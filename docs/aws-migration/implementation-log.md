@@ -5980,3 +5980,19 @@ cache metadata. Users/admins are `0/0`, Hosting is `UPDATE_COMPLETE`, the
 reviewed alarm is `OK`, and invalidations remain `3`. No rerun, extra restore,
 recovery-material deletion, deployment, invalidation, or other out-of-scope
 operation occurred. Stop for Sol review.
+
+### T16 CF03 acceptance and T16E local finalization authorization — 2026-08-13
+
+Sol accepted the successful CF03 result at `fb7367b`: one conditional update,
+one stale conflict, one exact original-byte restore, and cleanup all passed.
+The restored current VersionId is `3o5npTzfeFLHBhieoYRiNHT6kYwnOevs`; the
+body, ETag, SHA-256, cache/content metadata, encryption, and public CloudFront
+view match the accepted 501-byte baseline. Users/admins are `0/0`, Hosting is
+`UPDATE_COMPLETE`, the alarm is `OK`, and invalidations remain `3`.
+
+`phase4-t16-finalization-plan.md` authorizes only local source/test/docs,
+read-only public preview checks, and tightly scoped read-only AWS verification
+to complete T16E. D041 makes historical Firestore export/comparison out of
+scope. No AWS/GitHub write, identity administration, S3 mutation, deployment,
+invalidation, IAM/CloudFormation, Firebase, DNS/production, tag, or T17 removal
+is authorized in this pass.

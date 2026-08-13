@@ -323,6 +323,13 @@ is visible in local parity screenshots without changing or masking
 
 ### PVR05: final local handoff
 
+Implementation handoff: PVR01–PVR04 are committed in `d0562fc` and `22e3f01`.
+The explicit transcript has 60 rows (41/19), the shell matrix has four
+independent locale/device projects, and all four stadium routes plus pace and
+records have unique maintained snapshots. The final local E2E gate passed
+124/124 and the required check/build/audit gates passed. This remains a local
+Sol handoff; no preview or protected external operation occurred.
+
 Run under Node 24:
 
 ```bash

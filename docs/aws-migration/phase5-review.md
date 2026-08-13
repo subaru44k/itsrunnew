@@ -194,3 +194,13 @@ the visual suite covers only desktop Japanese plus mobile English and only Oda.
 `phase5-public-parity-recovery-plan.md` PVR01–PVR05 is the required correction
 contract. Production and preview deployment remain no-go until that contract
 passes independent Sol review.
+
+## PVR01–PVR05 correction handoff
+
+From exact handoff `5d3c2f7`, commits `d0562fc` and `22e3f01` replace inferred
+record expansion with an explicit 60-row transcript, restore grouped shell
+disclosures/mobile overlay and stadium cards/content, and exercise all four
+locale/device projects across all four stadiums, pace, and records. The final
+local E2E gate passed 124/124; `npm run check` passed (93 web, 8 core, 25 API,
+19 infra), production SEO/build passed, and production audit is zero. Preview
+and production remain stopped for Sol's independent visual/content review.

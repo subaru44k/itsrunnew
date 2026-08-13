@@ -6405,4 +6405,7 @@ matrix now has four independent projects (desktop/mobile × ja/en), all four
 stadium routes, pace, records, and unique route/device snapshots; the first
 matrix run passed 28/32 because the disclosure group was initially closed in
 the shell assertion, then the focused four shell tests passed after opening
-the records group. Full regression is still required.
+the records group. The final four-condition combined local E2E gate passed
+124/124 after `npm ci`; `npm audit --omit=dev` found zero vulnerabilities and
+the full `npm run check` passed (web 93, core 8, schedule API 25, infra 19,
+production build/SEO and synth).

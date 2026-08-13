@@ -2280,6 +2280,72 @@ Keep the validated Navigation Timing fallback while the statically generated
 Nuxt callback route can be normalized before page setup. Remove the temporary
 detailed diagnostic categories with the T16 harness after acceptance.
 
+## D057: Restore full public visual and functional parity before cutover
+
+Status: accepted
+
+Problem:
+
+Phase 5 accepted infrastructure, routing, security, administration, and a
+narrow public smoke contract, but that contract did not prove the stated
+product migration goal. Direct comparison with the retained legacy tag and
+live Firebase site found material regressions: the marathon page reduced three
+19-goal tables to four single-goal choices; the records page reduced 60 result
+rows to 44 and translated Japanese content; records disappeared from primary
+navigation; stadium editorial content was summarized; and the established
+indigo/teal shell, cards, tables, responsive drawer, status visuals, and
+content hierarchy were replaced by a materially different minimal layout.
+
+Decision:
+
+Revoke Phase 5 product/cutover acceptance while retaining the accepted AWS and
+security architecture. Restore the complete public content and behavior from
+`legacy-firebase-vue-final-20260813` using Nuxt 4, semantic HTML, plain CSS,
+provider-neutral core functions, and local assets. Preserve the legacy visual
+identity and responsive information architecture closely enough that desktop
+and mobile users do not experience a redesign during the technology migration.
+Accessibility, secure headers, Japan-calendar handling, explicit error states,
+and the Cognito administration improvements remain additive and must not be
+removed to imitate legacy defects.
+
+The parity contract includes the complete responsive navigation (including
+records), full stadium copy and maps, legacy card/table hierarchy, local status
+symbols plus accessible text, three exact marathon goal ranges with 19 rows
+each and desktop/mobile orientations, all 60 Nozomi result rows without
+collapsing events, locale-equivalent headings/content, footer/contact behavior,
+and all established public URLs. No Vuetify, Bootstrap, Stylus, Vuex, Moment,
+Firebase client SDK, AdSense wrapper, icon font, or new runtime dependency may
+return.
+
+Advertising is not silently treated as product parity. Existing migration
+documents already make AdSense conditional on an explicit production business
+requirement and compatible CSP. Preserve the content layout without asserting
+obsolete ad timing; do not enable third-party advertising or widen CSP during
+the parity recovery unless the owner separately confirms advertising remains
+required.
+
+Alternatives:
+
+- Treat route existence and basic text as parity: rejected because the live
+  comparison proves visible features and content are missing.
+- Restore Vuetify/Bootstrap to reproduce screenshots: rejected because that
+  defeats the maintainability objective and is unnecessary with scoped CSS.
+- Continue production promotion and repair later: rejected because it would
+  replace the working legacy product with a known incomplete one.
+
+Cost and maintenance effect:
+
+The public Nuxt components, structured content, CSS, and tests grow, but no new
+runtime package or AWS resource is required. Data-driven tables and shared
+components avoid restoring the old duplicated markup.
+
+Rollback/removal:
+
+Production promotion remains stopped until the D057 parity plan passes local
+and deployed visual/functional review. Reverting D057 would require explicit
+owner approval to accept a redesign or feature removal; infrastructure success
+alone is not sufficient.
+
 ## Decision template
 
 Copy for new decisions:

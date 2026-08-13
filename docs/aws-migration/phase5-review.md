@@ -151,3 +151,18 @@ review. No dependency version, application source, synthesized resource
 contract, AWS state, Firebase state, or deployed preview changed. Phase 5 is
 technically accepted. Production cutover remains conditional on the exact
 production hostname and approved initial Cognito administrator identity.
+
+## D057 acceptance revoked after full-product comparison
+
+The prior final result is revoked for product and cutover purposes. A direct
+live comparison found that the public smoke/SEO suite proved route presence but
+not visual or functional equivalence. The deployed CloudFront build materially
+changes the site appearance and omits or reduces public features: the marathon
+table has four single goals instead of three 19-goal ranges, the records data
+has 44 collapsed/incomplete entries instead of 60 rows and is absent from
+navigation, stadium copy is summarized, and the legacy responsive shell/cards/
+tables/status visuals are not represented.
+
+AWS/security/admin acceptance remains useful evidence, but production
+promotion is `no-go` until D057 and `phase5-public-parity-recovery-plan.md` are
+implemented and independently reviewed locally and on the existing preview.

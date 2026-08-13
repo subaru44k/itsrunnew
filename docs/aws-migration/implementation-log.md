@@ -6330,3 +6330,23 @@ cannot be bypassed. Both legacy Firebase origins still serve the identical old
 HTML object; no authenticated Firebase CLI/API call or Firebase mutation was
 performed. Full hashes and exact sequencing are recorded in
 `phase5-production-cutover-plan.md`.
+
+### D057 public parity failure and Phase 5 reopening — 2026-08-13
+
+The owner correctly reported that the CloudFront site looked materially
+different and appeared to lack marathon laps and records. Sol reproduced the
+issue against both live origins and the retained legacy tag. The pace route
+exists but provides only four single-goal choices instead of three selectable
+19-row ranges; the records route exists but has 44 collapsed/incomplete entries
+instead of 60 rows and is not linked from navigation; Japanese record names
+were translated; full stadium copy and established indigo/teal responsive
+cards/tables/navigation were not preserved. Therefore route/E2E success did
+not prove the product goal.
+
+D057 revokes Phase 5 product/cutover acceptance while preserving the reviewed
+AWS/security work. `phase5-public-parity-recovery-plan.md` defines PR01-PR06
+for exact content, pace, records, responsive shell, stadium presentation, and
+honest visual/functional gates. Production promotion, policy v8, OIDC trust,
+PR merge, AWS deployment, and Firebase redirect remain stopped. No source,
+dependency, AWS, GitHub PR-state, Firebase, DNS, deployment, or invalidation
+operation occurred during this audit and planning step.

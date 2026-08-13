@@ -6156,3 +6156,15 @@ worktree only with `git worktree remove`. The ignored user-owned
 untouched. No AWS, Firebase, GitHub, production, DNS, deployment, invalidation,
 IAM, Cognito, S3, or tag-push operation occurred. T17 is complete locally and
 the branch is stopped clean for Phase 5 Sol review.
+
+### Phase 5 initial Sol review — 2026-08-13
+
+Sol reviewed `5e6b476` against the planning baseline and independently reran
+root checks (web 92/core 7/schedule API 25/infra 19 plus builds), maintained
+admin E2E 48/48, raw preview E2E 100/100, diff checks, dependency/removal
+boundaries, and local-tag recovery. Runtime security, IAM, cache, authorization,
+rollback, and T17 evidence are accepted subject to two local corrections in
+`phase5-review.md`: place the S3 adapter under the documented AWS-specific
+service directory, and make validation PR checks target `master` while keeping
+push validation on the migration branch. No AWS/Firebase/GitHub/production
+operation is authorized by these corrections.

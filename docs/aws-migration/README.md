@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 5 security refresh stopped: approved version update applied, audit remediation pending
+Status: Phase 5 S03 stopped: bundled CDK vulnerability requires approved remediation
 
 Planning baseline: `d6de55e` on `master`
 

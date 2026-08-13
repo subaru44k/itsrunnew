@@ -6237,3 +6237,16 @@ patched 4.3.1, and CDK's `brace-expansion` 5.0.8 where the parent permits
 patched 5.0.9. S03 authorizes only npm's targeted package-lock update for those
 two names and the complete zero-audit regression gate. No override, direct/new
 dependency, broad update, or external operation is authorized.
+
+### Phase 5 S03 targeted transitive lock stop — 2026-08-13
+
+Commit `ac63aad` updated only the targeted lock entries: `js-yaml` 4.3.0 to
+4.3.1 and deduped `brace-expansion` to 5.0.9. `npm audit --omit=dev` still
+reports one high vulnerability at
+`node_modules/aws-cdk-lib/node_modules/brace-expansion`, bundled at 5.0.8 by
+`aws-cdk-lib@2.264.0`. Targeted npm package-lock-only commands could not
+rewrite the bundled instance without widening beyond S03. The audit remains
+non-zero, so the full S02 regression gate was not started; no audit fix,
+override, direct dependency, source/runtime, infrastructure, or external
+operation was attempted. Final acceptance remains blocked pending approved
+remediation.

@@ -116,3 +116,12 @@ The approved S01 versions were applied in `6d04e04`, but the required
 fix is outside the bounded plan, so S02 regression was not started and no
 dependency widening was attempted. Final Phase 5 acceptance is blocked pending
 an explicitly approved remediation.
+
+## S03 dependency correction stop
+
+S03 refreshed `js-yaml` to 4.3.1 and deduped `brace-expansion` to 5.0.9 in
+`ac63aad`, but `npm audit --omit=dev` still reports one high vulnerability at
+the bundled `node_modules/aws-cdk-lib/node_modules/brace-expansion` 5.0.8.
+Targeted lock-only npm updates cannot rewrite that bundled package within the
+approved scope. The full regression gate is stopped pending an approved
+remediation; no widening or external operation occurred.

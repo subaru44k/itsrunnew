@@ -91,3 +91,16 @@ Review the resulting lock diff and exact dependency paths, run `npm ci`, then
 execute the complete S02 audit/regression gate. The audit must be zero. Stop on
 any unrelated direct-package change, unresolved vulnerability, test drift, or
 install inconsistency.
+
+## S03 result and stop condition
+
+Commit `ac63aad` applied the targeted lock refresh: `node_modules/js-yaml` is
+4.3.1 and the deduped `node_modules/brace-expansion` is 5.0.9. The required
+audit still reports one high vulnerability at
+`node_modules/aws-cdk-lib/node_modules/brace-expansion`, which remains bundled
+at 5.0.8 by `aws-cdk-lib@2.264.0`. Targeted npm package-lock-only updates for
+`js-yaml`, `brace-expansion`, and the approved infra workspace could not
+rewrite that bundled package. The generic `npm audit fix` remains outside the
+authorization. S02 full regression was not started after this binding audit
+failure; no override, direct dependency, source/runtime, infrastructure, or
+external operation was performed.

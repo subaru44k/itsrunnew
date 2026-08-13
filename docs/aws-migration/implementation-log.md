@@ -5906,3 +5906,19 @@ manually restore on terminal failure. No additional restore, recovery-material
 deletion, deploy/invalidation, IAM/CloudFormation, other S3 object/version/
 delete, production/DNS, Firebase, historical-data, or T17 action is authorized
 in this invocation.
+
+### T16 localized-conflict execution stop Sol diagnosis and CA01-CA02 authorization
+
+The one execution recorded at `d90d2f3`/`83cac86` reached a Lambda-audited
+stale PUT 409 followed immediately by the comparison GET 200. The API and
+comparison transport are therefore correct. The helper's conflict-action regex
+matches both real rebase and replace buttons in either locale, which violates
+Playwright strict locator uniqueness before the actionability proof. The single
+restore left the exact baseline current at VersionId
+`okeeReQ9zSPKeWWtfb3qyvRC8TYAFM9s`.
+
+`phase4-t16-conflict-action-plan.md` authorizes only a local unique exact-label
+rebase-action proof and deterministic tests. No AWS/network/live,
+identity/data/recovery-material, deploy/invalidation, IAM/CloudFormation,
+dependency, T17, production/DNS, Firebase, or historical-data action is
+authorized pending Sol review.

@@ -5935,3 +5935,26 @@ nonactionable, and timeout action states. Focused T16 tests pass `58/58`;
 combined auth/data tests pass `101/101`. No AWS, network, live, identity,
 S3, recovery-material, deployment, invalidation, or other out-of-scope
 operation was performed.
+
+### T16 CA01-CA02 Sol acceptance and one unique-action CF03 execution
+
+Sol independently reviewed `9602af6` and reran focused data tests 58/58 and
+combined auth/data tests 101/101 plus `node --check` and `git diff --check`.
+Both real conflict buttons are modeled; the exact localized rebase label alone
+must resolve once and is only trial-clicked. The localized heading, stale 409,
+comparison GET, post-stale protected S3, public observation, restore, retry,
+and cleanup contracts remain unchanged.
+
+The immediate read-only gate matched account `470447451992`, region
+`ap-northeast-1`, Hosting `UPDATE_COMPLETE`, reviewed Lambda active/successful,
+users/admins `0/0`, invalidations `3`, alarm `OK`, and the exact current
+501-byte baseline ETag/VersionId/content/cache/encryption/SHA-256/tuple 0 with
+VersionId `okeeReQ9zSPKeWWtfb3qyvRC8TYAFM9s`; CloudFront body/hash/tuple also
+matched.
+
+Exactly one fresh invocation of the committed unique-action CF03 runner is
+authorized under the exact preview profile/account/region/target and prior
+mutation boundaries. Do not rerun or manually restore on terminal failure. No
+additional restore, recovery-material deletion, deploy/invalidation,
+IAM/CloudFormation, other S3 object/version/delete, production/DNS, Firebase,
+historical-data, or T17 action is authorized in this invocation.

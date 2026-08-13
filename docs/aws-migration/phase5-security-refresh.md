@@ -60,3 +60,15 @@ Update `phase5-review.md`, `implementation-log.md`, and README truthfully;
 commit coherent dependency/lock and evidence changes without squashing. Stop
 for Sol review. Do not perform AWS/Firebase/GitHub/deployment/DNS operations,
 change the recovery tag, merge/ready the draft PR, or touch ignored files.
+
+## S01 result and stop condition
+
+Commit `6d04e04` applied only the approved direct updates: Nuxt `^4.5.2`,
+root `aws-cdk` `^2.1136.0`, `aws-cdk-lib` `^2.264.0`, and `constructs`
+`^10.8.1`; npm regenerated the lockfile. The first required audit gate then
+reported two remaining high vulnerabilities: `js-yaml` 4.0.0–4.3.0 and the
+CDK-bundled `brace-expansion` 4.0.0–5.0.8. The audit offered a generic
+`npm audit fix`, which is not authorized because it could widen the bounded
+dependency scope. S02 full regression was not started after this binding stop
+condition. No unrelated direct dependency, runtime/source, infrastructure,
+AWS, Firebase, GitHub, deployment, DNS, tag, or ignored-file change was made.

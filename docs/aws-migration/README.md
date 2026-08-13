@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 5 technically approved; GitHub validation and production cutover conditions remain
+Status: Phase 5 security refresh stopped: approved version update applied, audit remediation pending
 
 Planning baseline: `d6de55e` on `master`
 

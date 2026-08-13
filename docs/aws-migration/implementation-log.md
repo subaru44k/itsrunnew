@@ -6215,3 +6215,15 @@ default-branch count. `phase5-security-refresh.md` authorizes only compatible
 updates within existing approved Nuxt/CDK dependency families, lock refresh,
 full regression, and a zero-vulnerability production audit. No external
 operation is authorized in this correction.
+
+### Phase 5 S01 dependency refresh stop — 2026-08-13
+
+Commit `6d04e04` applied only the approved versions: web Nuxt `^4.5.2`, root
+CDK CLI `^2.1136.0`, infra `aws-cdk-lib` `^2.264.0`, and `constructs`
+`^10.8.1`, with npm-generated lock changes. `npm audit --omit=dev` then
+reported two remaining high vulnerabilities: `js-yaml` 4.0.0–4.3.0 and
+CDK-bundled `brace-expansion` 4.0.0–5.0.8. Because the only offered generic
+fix is outside the bounded authorization, the S02 full gate is stopped and no
+audit fix or widening was attempted. The exact sanitized audit result is
+recorded in `phase5-security-refresh.md`; final acceptance remains blocked on
+an approved remediation.

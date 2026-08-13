@@ -107,3 +107,12 @@ origin-specific Cognito and site configuration, named operators, a final
 production-candidate release gate, and explicit observation-window start.
 Firebase stays unchanged for rollback and is not approved for retirement or
 deletion.
+
+## Dependency security refresh stop
+
+The approved S01 versions were applied in `6d04e04`, but the required
+`npm audit --omit=dev` gate still reports two high vulnerabilities: `js-yaml`
+4.0.0–4.3.0 and CDK-bundled `brace-expansion` 4.0.0–5.0.8. The generic audit
+fix is outside the bounded plan, so S02 regression was not started and no
+dependency widening was attempted. Final Phase 5 acceptance is blocked pending
+an explicitly approved remediation.

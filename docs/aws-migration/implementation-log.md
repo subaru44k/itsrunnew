@@ -6601,6 +6601,17 @@ check` passed (web 100, core 8, schedule API 25, infra 19, build/SEO), and
 this source correction; Sol review and separately authorized deployment remain
 required.
 
+### LPR live test-only correction — 2026-08-13
+
+Run `31704160045` uploaded the reviewed web build once and reported 120 passed
+and 12 failed. The failures were test-only strict-locator failures: the
+unpublished assertion selected all 22 valid `?` status symbols instead of the
+single symbol inside the unpublished `role=status` message. The test now
+asserts exactly one status message and exactly one `?` symbol within it, while
+retaining the no-alert/no-Retry assertions and unmodified-browser rules. The
+run made no invalidation, data upload, infrastructure change, or other AWS
+write. No workflow dispatch or redeploy is authorized for this correction.
+
 ### D058 live schedule diagnosis and recovery plan — 2026-08-13
 
 Sol reproduced the deployed condition by reading the fixed CloudFront data

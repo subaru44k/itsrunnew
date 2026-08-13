@@ -70,8 +70,11 @@ for (const [slug, stadium] of Object.entries(stadiums)) test(`live ${slug} prese
     await expect(page.locator('.schedule-table')).toContainText(isEnglish() ? /Available|Unavailable|Unknown|Loading/ : /利用可能|利用不可|未公開|読み込み/)
     await expect(page.getByRole('status')).toHaveCount(0)
   } else {
-    await expect(page.getByRole('status')).toContainText(isEnglish() ? 'Schedule data is being prepared.' : 'スケジュールを準備中です。')
-    await expect(page.locator('.status-symbol')).toContainText('?')
+    const unpublished = page.getByRole('status')
+    await expect(unpublished).toHaveCount(1)
+    await expect(unpublished).toContainText(isEnglish() ? 'Schedule data is being prepared.' : 'スケジュールを準備中です。')
+    await expect(unpublished.locator('.status-symbol')).toHaveCount(1)
+    await expect(unpublished.locator('.status-symbol')).toHaveText('?')
   }
   if (slug === 'oda') await expect(page.getByRole('link', { name: /年賀|New Year's/ })).toHaveAttribute('href', 'https://newyearscardlottery.link/')
 })

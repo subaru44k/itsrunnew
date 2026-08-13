@@ -6014,3 +6014,20 @@ or masking rerun was performed. T16 is not marked complete and T17 is not
 started. The remaining T16E03 preview/AWS checks are pending Sol review of
 this binding failure; no AWS/GitHub write, Firebase access, DNS/production
 change, or T17 operation occurred.
+
+### T16E stop Sol review and bounded correction authorization — 2026-08-13
+
+Sol reviewed `a1aa56b` and reproduced the Chromium process termination in the
+same legacy suite at a different route (`/komazawa` rather than `/en/`); the
+replacement worker passed all later routes. This rules out a stable route
+failure and identifies the legacy suite's redundant per-success full-page
+capture as the first bounded correction, while retaining all route assertions
+and failure-only artifacts. Sol also found that the operational keyboard check
+does not yet prove both exact week controls, the raw config unnecessarily
+states `retries: 0`, and the runbook lacks two T15 ARNs and exact commands.
+
+`phase4-t16-finalization-correction.md` authorizes only these local test/docs
+corrections, the required local/public tests, and the original tightly scoped
+read-only AWS verification. The prior failure remains recorded. No retry
+configuration, assertion masking, AWS/GitHub write, Firebase, DNS/production,
+identity/data mutation, or T17 removal is authorized.

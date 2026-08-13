@@ -2346,6 +2346,48 @@ and deployed visual/functional review. Reverting D057 would require explicit
 owner approval to accept a redesign or feature removal; infrastructure success
 alone is not sufficient.
 
+## D058: Treat private-origin missing schedule objects as unpublished
+
+Status: accepted
+
+Problem:
+
+The public schedule origin is a private S3 bucket behind CloudFront OAC. S3
+does not reveal object existence to an unauthenticated viewer and CloudFront
+therefore returns 403 for a missing typed schedule object, not the 404 used by
+the local repository contract. The deployed preview has Oda fixtures but no
+historical/current objects for Yumenoshima, Komazawa, or Todoroki, so those
+valid public pages show an unavailable error instead of the intended
+unpublished state. Historical Firebase data is explicitly discarded.
+
+Decision:
+
+For the public, schema-typed `/data/v1/stadiums/<validated-slug>/availability/
+<validated-year-month>.json` repository only, treat both 403 and 404 as an
+absent month and render the localized unpublished state. Continue treating
+401, 5xx, network failures, invalid JSON, and schema mismatches as errors. The
+known Oda fixture remains the live canary for origin access, content, cache
+metadata, and schema, so a broad origin failure is not silently accepted by
+the deployment gate.
+
+Alternatives:
+
+- Upload empty objects for every stadium/month forever: rejected because it
+  creates ongoing operational work and merely emulates absence with data.
+- Configure a distribution-wide 403 response rewrite: rejected because it
+  would weaken diagnostics for unknown assets and unrelated behaviors.
+- Restore discarded Firebase history: rejected by the owner and D041.
+
+Cost and maintenance effect:
+
+One repository status mapping and deterministic tests; no dependency, AWS
+resource, IAM, data migration, or recurring fixture generation is added.
+
+Rollback/removal:
+
+If the data origin later provides reliable path-specific 404 responses, remove
+the 403 mapping after a deployed regression test proves unpublished behavior.
+
 ## Decision template
 
 Copy for new decisions:

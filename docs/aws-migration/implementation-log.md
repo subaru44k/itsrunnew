@@ -6585,3 +6585,15 @@ no alert or Retry state. Oda, shell, pace, records, and SEO assertions passed.
 This is an actual deployed parity failure, so LPA03 stops here as required.
 No route interception, fetch replacement, fixture prefetch, retry, masking,
 AWS write, workflow dispatch, invalidation, or web-source change was performed.
+
+### D058 live schedule diagnosis and recovery plan — 2026-08-13
+
+Sol reproduced the deployed condition by reading the fixed CloudFront data
+paths: Oda 2026-07 and 2026-08 return valid JSON with status 200, while both
+months for Yumenoshima, Komazawa, and Todoroki return S3's private-origin 403
+XML for absent objects. The public repository recognizes only 404 as absent,
+which explains every one of the 12 live failures. D058 accepts a narrow 403/
+404-as-unpublished mapping only at the typed public schedule repository; Oda
+remains the origin-access canary. LPR01–LPR03 define the source/test correction
+and one subsequent web-only deployment. No external write occurred during the
+diagnosis.

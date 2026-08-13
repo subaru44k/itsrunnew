@@ -142,3 +142,17 @@ patched `aws-cdk-lib` release. Stop if the production audit remains non-zero,
 the full audit contains any additional finding, npm changes dependency
 versions unexpectedly, or a regression occurs. Do not perform AWS, Firebase,
 deployment, invalidation, DNS, tag, merge, or ready-for-review operations.
+
+## S04 result
+
+Commit `0970aff` classified the existing `aws-cdk-lib ^2.264.0` and
+`constructs ^10.8.1` entries as infra `devDependencies` without changing
+versions, source, or infrastructure contracts. `npm ci` passed;
+`npm audit --omit=dev` reports zero vulnerabilities. The unfiltered audit has
+exactly one finding: high `brace-expansion@5.0.8` bundled under
+`node_modules/aws-cdk-lib/node_modules/brace-expansion`. This is the known
+upstream build-tool finding authorized by S04.
+
+The complete S02 gate passed: `npm run check` (92 web, 7 core, 25 schedule
+API, 19 infra tests, builds/synth), local E2E 48/48, public preview E2E 100/100,
+`npm ls --all`, and `git diff --check`. No external operation occurred.

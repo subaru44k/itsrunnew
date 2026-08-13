@@ -125,3 +125,13 @@ the bundled `node_modules/aws-cdk-lib/node_modules/brace-expansion` 5.0.8.
 Targeted lock-only npm updates cannot rewrite that bundled package within the
 approved scope. The full regression gate is stopped pending an approved
 remediation; no widening or external operation occurred.
+
+## S04 dependency classification result
+
+S04 passed in `0970aff`: existing CDK packages moved unchanged to infra
+`devDependencies`, `npm audit --omit=dev` is zero, and the full audit contains
+only the authorized upstream bundled `brace-expansion@5.0.8` finding. The
+complete checks passed, including 19 infra assertions/synth, local E2E 48/48,
+and public preview E2E 100/100. No source/runtime/infra contract or external
+operation changed. Final Sol review remains required for the documented
+upstream finding.

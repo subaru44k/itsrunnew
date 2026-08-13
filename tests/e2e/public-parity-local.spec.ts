@@ -25,10 +25,23 @@ test('desktop groups are exclusive and close on outside click/Escape with focus 
   await expect(groups.nth(1)).toHaveAttribute('aria-expanded', 'true')
   await page.locator('.site-main').click({ position: { x: 5, y: 5 } })
   await expect(groups.nth(1)).toHaveAttribute('aria-expanded', 'false')
+  await expect(groups.nth(1)).toBeFocused()
   await groups.nth(2).click()
+  await page.locator('.desktop-nav .group-links a').focus()
   await page.keyboard.press('Escape')
   await expect(groups.nth(2)).toHaveAttribute('aria-expanded', 'false')
   await expect(groups.nth(2)).toBeFocused()
+})
+
+test('desktop locale action stays on the header row after every group', async ({ page }) => {
+  test.skip(test.info().project.name.includes('mobile'))
+  await page.goto(path('/'), { waitUntil: 'networkidle' })
+  const headerBox = await page.locator('.desktop-nav').boundingBox()
+  const localeBox = await page.locator('.desktop-nav .locale-action').boundingBox()
+  const groupsBox = await page.locator('.desktop-nav .nav-groups').boundingBox()
+  expect(headerBox && localeBox && groupsBox).toBeTruthy()
+  expect(localeBox!.y).toBeLessThan(headerBox!.y + headerBox!.height)
+  expect(localeBox!.x).toBeGreaterThan(groupsBox!.x + groupsBox!.width - 1)
 })
 
 test('mobile drawer closes by backdrop, Escape, and route selection with focus return', async ({ page }) => {

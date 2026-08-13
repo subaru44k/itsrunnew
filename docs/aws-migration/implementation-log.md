@@ -4920,6 +4920,16 @@ passes 38/38 and the combined T16 data/auth suite passes 81/81. `npm run check`,
 `node --check`, and `git diff --check` pass. No AWS/network/live operation
 occurred; stop for Sol review.
 
+### FPR03 Sol correction — 2026-08-13
+
+Corrected the desktop header to keep grouped navigation and the green locale
+action in one aligned toolbar row, with the locale action pinned after all
+groups. Disclosure state now retains its trigger and restores focus to it when
+Escape is pressed from a menu link or when an outside pointer closes the menu.
+Browser coverage asserts menu-item Escape focus return and desktop locale
+geometry. Focused typecheck/build/SEO and interaction checks passed; no
+external operation occurred.
+
 ### T16 LS01 final rejection-handling correction
 
 Attached an immediate consuming sidecar to each authenticated GET waiter while

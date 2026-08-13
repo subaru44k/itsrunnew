@@ -72,7 +72,7 @@ describe('T15C preview deployment workflow', () => {
       expect(release).toMatch(/^v\d/);
     }
     expect(text.match(/test \"\$GITHUB_REPOSITORY\" = \"subaru44k\/itsrunnew\"/g)).toHaveLength(2);
-    expect(text.match(/test \"\$GITHUB_REF\" = \"refs\/heads\/migration\/aws-s3-cloudfront\"/g)).toHaveLength(2);
+    expect(text.match(/test \"\$GITHUB_REF\" = \"refs\/heads\/master\"/g)).toHaveLength(2);
     expect(text.match(/ref: \$\{\{ github\.sha \}\}/g)).toHaveLength(2);
     expect(text).toContain('aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0');
   });

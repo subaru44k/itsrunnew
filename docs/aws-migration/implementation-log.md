@@ -6641,3 +6641,26 @@ D057 product parity is accepted on the deployed origin. D059 fixes PC00 to the
 lowest-cost in-place CloudFront promotion, empty admins group, and reversible
 legacy Firebase Hosting redirect after its exact rollback release is captured.
 Production source/IAM review may proceed; Firestore history remains discarded.
+
+### PC01 local release-source correction — 2026-08-13
+
+PC01 was implemented from clean `debdd5d` under Node 24. The explicit deploy
+branch contract now uses `master` consistently in the manual web workflow,
+helper environment guard/tests, and GitHub OIDC trust subject. The workflow
+name and migration runbook now describe the selected existing CloudFront URL
+as the production origin while retaining every physical preview resource
+identifier. Manual dispatch, read-only validation, pinned actions and Node/npm,
+web-only PutObject/stack-read policy, CloudFront URL, Cognito callback/logout
+defaults, and Firebase/Firestore exclusion remain unchanged.
+
+Required gates passed: `npm ci`; `npm audit --omit=dev` reported zero
+vulnerabilities; `npm run check` passed (web 100, core 8, schedule API 25,
+infra 19, build/SEO); local `npm run test:e2e` passed 138 with 6 expected
+skips; `PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run
+test:e2e:preview` passed 132/132; `npm ls --all` completed; and
+`git diff --check` passed. Synthesized comparison showed no Hosting
+resource/property change (only the generated Lambda asset hash differed by
+synth workspace path) and exactly one GitHub deploy-stack change: the OIDC
+trust subject changed from the migration branch to `refs/heads/master`.
+No AWS/GitHub settings/PR/merge/workflow dispatch/IAM/CloudFormation,
+Cognito, Firebase, DNS, deployment, or external write occurred.

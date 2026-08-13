@@ -1,4 +1,4 @@
-name: Deploy preview web
+name: Deploy production web
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
       - name: Verify repository and branch
         run: |
           test "$GITHUB_REPOSITORY" = "subaru44k/itsrunnew"
-          test "$GITHUB_REF" = "refs/heads/migration/aws-s3-cloudfront"
+          test "$GITHUB_REF" = "refs/heads/master"
       - name: Checkout reviewed revision
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -54,7 +54,7 @@ jobs:
       - name: Verify repository and branch
         run: |
           test "$GITHUB_REPOSITORY" = "subaru44k/itsrunnew"
-          test "$GITHUB_REF" = "refs/heads/migration/aws-s3-cloudfront"
+          test "$GITHUB_REF" = "refs/heads/master"
       - name: Checkout reviewed revision
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -91,7 +91,7 @@ jobs:
         env:
           GITHUB_ACTIONS: 'true'
           GITHUB_REPOSITORY: subaru44k/itsrunnew
-          GITHUB_REF: refs/heads/migration/aws-s3-cloudfront
+          GITHUB_REF: refs/heads/master
         run: >-
           node scripts/migration/deploy-web-preview-cli.mjs
           --mode github

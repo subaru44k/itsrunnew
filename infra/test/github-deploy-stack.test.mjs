@@ -32,7 +32,7 @@ test('GitHub deploy stack has only the fixed OIDC provider, role, and outputs', 
     Action: 'sts:AssumeRoleWithWebIdentity',
     Condition: { StringEquals: {
       'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
-      'token.actions.githubusercontent.com:sub': 'repo:subaru44k/itsrunnew:ref:refs/heads/migration/aws-s3-cloudfront',
+      'token.actions.githubusercontent.com:sub': 'repo:subaru44k/itsrunnew:ref:refs/heads/master',
     } },
     Effect: 'Allow',
     Principal: { Federated: { Ref: Object.keys(result.findResources('AWS::IAM::OIDCProvider'))[0] } },
@@ -64,4 +64,3 @@ test('GitHub provider and role outputs are stable references', () => {
   assert.ok(values.some((output) => output.Description === undefined && JSON.stringify(output.Value).includes('GetAtt')))
   assert.ok(values.some((output) => output.Description === undefined && JSON.stringify(output.Value).includes('Arn')))
 })
-

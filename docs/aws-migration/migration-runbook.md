@@ -5,25 +5,25 @@ This is a draft until Phase 5 Sol approval.
 ## Preconditions
 
 - Phase 5 review says go.
-- AWS preview resources are synthesized and reviewed.
-- The preview CloudFront distribution domain passes all public tests; it is not
-  a selected production hostname.
+- The existing CloudFront production origin is synthesized and reviewed.
+- The CloudFront distribution domain passes all public tests and is the
+  selected production origin under D059.
 - Cognito admin and non-admin tests pass.
 - Historical Firebase/Firestore export, comparison, and reconciliation are out
   of scope under D041 and are not a cutover prerequisite.
 - Firebase Hosting, production DNS, and the production hostname remain
   unchanged.
-- The site owner, preview AWS operator, rollback operator, and approved
+- The site owner, AWS release operator, rollback operator, and approved
   Cognito `admins` operator roles are assigned outside Git; credentials remain
   outside chat and source.
 
-## Accepted preview identifiers
+## Accepted production-origin identifiers
 
 - Account `470447451992`, region `ap-northeast-1`.
 - Hosting stack `ItsRunPreviewHosting`; GitHub deployment stack
   `ItsRunPreviewGitHubDeploy`.
-- Distribution `E22K5S8F2NUP6K`, domain
-  `d2via50thoheqm.cloudfront.net` (preview only).
+- Distribution `E22K5S8F2NUP6K`, production origin domain
+  `d2via50thoheqm.cloudfront.net`.
 - Web bucket `itsrun-preview-web-470447451992-ap-northeast-1`; data bucket
   `itsrun-preview-data-470447451992-ap-northeast-1`.
 - API `40xqzug59a`, User Pool `ap-northeast-1_nmj9cP9st`, public client
@@ -38,7 +38,7 @@ This is a draft until Phase 5 Sol approval.
 ## Administrator account operations
 
 Operational responsibilities are role-based: the site owner approves users
-and any cutover; the preview AWS operator executes preview deployment and
+and any cutover; the AWS release operator executes the web release and
 rollback; the rollback operator preserves recovery evidence; and an approved
 Cognito `admins` member performs schedule maintenance. Do not record personal
 credentials, passwords, tokens, or recovery codes in this repository.
@@ -64,16 +64,16 @@ run. The accepted preview seed/current AWS object is the new-stack baseline;
 record its validated bytes, ETag, VersionId, metadata, and hash in sanitized
 evidence only. Do not implement dual writes or access Firebase data.
 
-## Application cutover
+## Application release and cutover
 
-1. Deploy the reviewed web build to the private preview web bucket.
+1. Deploy the reviewed web build to the private web bucket.
 2. Verify hashed assets and HTML cache metadata.
 3. Verify CloudFront extensionless routes.
 4. Run public Playwright smoke tests against the distribution domain.
 5. Run administrator read/update/restore smoke test on a designated future
    date, then restore its original value.
 6. Capture screenshots and response headers.
-7. Do not attach or update production DNS in the preview workflow.
+7. Do not attach or update DNS; D059 selects the existing CloudFront URL.
 8. Monitor CloudFront, API Gateway and Lambda errors.
 9. Keep Firebase Hosting and Firestore available and unchanged.
 
@@ -89,15 +89,15 @@ During the window:
 - Do not delete Firebase resources.
 - Record every issue in `implementation-log.md` or the migration pull request.
 
-## Read-only preview verification
+## Read-only production-origin verification
 
 Use only `AWS_PROFILE=codex-prod`, account `470447451992`, and region
 `ap-northeast-1`. Verify both stack states, the alarm state and action arrays,
 zero pool users and `admins` memberships, S3 public-access blocks and data
 bucket versioning, direct S3 denial, API `401` with `no-store`, CloudFront
 object hash/cache metadata, and the distribution invalidation count. Public
-checks use `https://d2via50thoheqm.cloudfront.net`; this is a preview domain,
-not production DNS.
+checks use `https://d2via50thoheqm.cloudfront.net`, the selected production
+origin. No custom hostname or DNS change is part of D059.
 
 Exact read-only verification commands:
 
@@ -131,7 +131,7 @@ If the new application fails:
 1. Stop administrator updates in the new UI.
 2. If production cutover is ever separately authorized, point DNS back to the
    recorded Firebase target, or restore the previous CloudFront deployment if
-   DNS did not change. This preview runbook does not change DNS.
+   DNS did not change. This runbook does not change DNS.
 3. Confirm public routes and schedules on Firebase.
 4. Preserve any S3 updates made after cutover for separately authorized
    reconciliation. Historical Firebase/Firestore reconciliation is out of
@@ -160,7 +160,7 @@ volume.
 After the observation window and explicit approval:
 
 1. Take a final Firestore export only if separately authorized after the
-   observation window; it is not part of T16 or this preview runbook.
+   observation window; it is not part of T16 or this production-origin runbook.
 2. Store any approved encrypted backups and manifests in the agreed location.
 3. Disable the legacy administrator route only after explicit approval.
 4. Remove Firebase Hosting DNS/custom-domain association only after explicit
@@ -186,7 +186,7 @@ git diff --check
 git status --short
 ```
 
-The preview browser suite must use the real CloudFront domain without request
+The production-origin browser suite must use the real CloudFront domain without request
 routes or response replacement. AWS verification remains read-only and pins
 `AWS_PROFILE=codex-prod`, `AWS_REGION=ap-northeast-1`, and
 `AWS_DEFAULT_REGION=ap-northeast-1`; inspect only the documented stacks,

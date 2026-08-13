@@ -303,7 +303,7 @@ export class GitHubDeployStack extends Stack {
       assumedBy: new iam.FederatedPrincipal(provider.ref, {
         StringEquals: {
           'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
-          'token.actions.githubusercontent.com:sub': 'repo:subaru44k/itsrunnew:ref:refs/heads/migration/aws-s3-cloudfront',
+          'token.actions.githubusercontent.com:sub': 'repo:subaru44k/itsrunnew:ref:refs/heads/master',
         },
       }, 'sts:AssumeRoleWithWebIdentity'),
       inlinePolicies: {

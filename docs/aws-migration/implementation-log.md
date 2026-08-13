@@ -6570,3 +6570,18 @@ looked for case-sensitive `Pace`, and the deployed records page contains
 output itself shows the full deployed pace tables and 60-row record content.
 No product rollback or further deployment occurred. LPA01–LPA03 define the
 test-only correction and direct live acceptance gate before production cutover.
+
+### LPA01–LPA03 live parity stop — 2026-08-13
+
+Corrected only the two stale raw English markers required by LPA01 and added a
+separate unmodified-browser live parity suite selected by the preview config.
+The local focused parity gate passed 36/36. The live suite against the already
+deployed `https://d2via50thoheqm.cloudfront.net` ran 32 tests: 20 passed and
+12 failed. All 12 failures were the same deployed-product condition across
+chromium/mobile × ja/en: Yumenoshima, Komazawa, and Todoroki each rendered one
+`role=alert` during schedule loading/error verification, where LPA02 requires
+no alert or Retry state. Oda, shell, pace, records, and SEO assertions passed.
+
+This is an actual deployed parity failure, so LPA03 stops here as required.
+No route interception, fetch replacement, fixture prefetch, retry, masking,
+AWS write, workflow dispatch, invalidation, or web-source change was performed.

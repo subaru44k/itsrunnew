@@ -14,8 +14,8 @@ const routes = [
   { path: '/en/yumenoshima', content: 'Yumenoshima Athletics Stadium' },
   { path: '/en/komazawa', content: 'Komazawa Olympic Park Athletic Stadium' },
   { path: '/en/todoroki', content: 'Kawasaki Todoroki Stadium' },
-  { path: '/en/pace/marathon', content: 'Pace' },
-  { path: '/en/nozomiantena/index', content: 'Race result of Nozomi Tanaka' },
+  { path: '/en/pace/marathon', content: 'Marathon pace calculator' },
+  { path: '/en/nozomiantena/index', content: 'Nozomi Tanaka race records' },
 ]
 
 function normalized(path: string) {

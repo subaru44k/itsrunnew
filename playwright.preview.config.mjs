@@ -5,7 +5,7 @@ if (!baseURL) throw new Error('PREVIEW_BASE_URL is required for preview E2E test
 
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: /preview-(public-routes|schedule-states|operational)\.spec\.ts/,
+  testMatch: /preview-(public-routes|live-parity|schedule-states|operational)\.spec\.ts/,
   outputDir: '.artifacts/playwright-preview',
   reporter: [['list'], ['html', { outputFolder: '.artifacts/playwright-preview-report', open: 'never' }]],
   use: {

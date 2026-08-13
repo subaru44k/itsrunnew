@@ -5845,3 +5845,15 @@ protected S3, public observation, restore, retry, and cleanup contracts remain
 unchanged. No AWS/network/live, identity/data/recovery-material,
 deploy/invalidation, IAM/CloudFormation, dependency, T17, production/DNS,
 Firebase, or historical-data action is authorized pending Sol review.
+
+### T16 CH01-CH02 localized conflict-heading correction — 2026-08-11
+
+Local-only correction completed from authorized clean `79669ea`: the retained
+baseline VersionId is now `kpbPZRFYYVZbVgHdWlBIEYp2DJAmC4vU`. Conflict proof now
+uses stable `#conflict-title`, bounded visibility, and exact committed Japanese
+or English `admin.conflict` text, while retaining bounded enabled/trial-
+actionable localized rebase/replace proof without clicking. Deterministic tests
+cover both locales, wrong/empty/missing/hidden headings, and delayed/timeout
+action coverage. Focused T16 tests pass `57/57`; combined auth/data tests pass
+`100/100`. No AWS, network, live, identity, S3, recovery-material, deployment,
+invalidation, or other out-of-scope operation was performed.

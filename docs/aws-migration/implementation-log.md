@@ -6400,4 +6400,9 @@ tests passed 93/93 and the Nuxt production build/SEO verification passed.
 
 PVR04/PVR05 final matrix and required full gate remain to be run before this
 handoff is accepted. The raw preview suite and protected external systems were
-untouched; no deployment or production operation is authorized.
+untouched; no deployment or production operation is authorized. The maintained
+matrix now has four independent projects (desktop/mobile × ja/en), all four
+stadium routes, pace, records, and unique route/device snapshots; the first
+matrix run passed 28/32 because the disclosure group was initially closed in
+the shell assertion, then the focused four shell tests passed after opening
+the records group. Full regression is still required.

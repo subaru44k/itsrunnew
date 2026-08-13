@@ -8,6 +8,7 @@ test('public shell exposes every public destination and locale-safe footer', asy
   if (test.info().project.name.includes('mobile')) await page.getByRole('button', { name: english() ? 'Menu' : 'メニュー' }).click()
   const recordsLabel = english() ? 'Nozomi Tanaka records' : '田中希実の記録'
   await expect(page.getByRole('navigation')).toContainText(recordsLabel)
+  await page.locator('.nav-group').last().locator('summary').click()
   await expect(page.getByRole('link', { name: recordsLabel })).toHaveAttribute('href', path('/nozomiantena'))
   await expect(page.getByRole('link', { name: /itsrun_page/ })).toHaveAttribute('href', 'https://x.com/itsrun_page')
   await expect(page).toHaveScreenshot('public-shell.png', { fullPage: true })
@@ -34,11 +35,11 @@ test('records feature preserves sixty rows, anchors, and locale content', async 
   await expect(page).toHaveScreenshot('records.png', { fullPage: true })
 })
 
-test('stadium page keeps editorial and schedule landmarks', async ({ page }) => {
-  await page.goto(path('/'), { waitUntil: 'networkidle' })
+for (const [slug, route] of [['oda', '/'], ['yumenoshima', '/yumenoshima'], ['komazawa', '/komazawa'], ['todoroki', '/todoroki']] as const) test(`stadium ${slug} keeps editorial and schedule landmarks`, async ({ page }) => {
+  await page.goto(path(route), { waitUntil: 'networkidle' })
   await expect(page.locator('h1')).toBeVisible()
   await expect(page.locator('section[aria-labelledby="schedule-heading"]')).toBeVisible()
   await expect(page.locator('section[aria-labelledby="access-heading"]')).toBeVisible()
   await expect(page.locator('iframe.map')).toHaveCount(1)
-  await expect(page).toHaveScreenshot('stadium-oda.png', { fullPage: true })
+  await expect(page).toHaveScreenshot(`stadium-${slug}.png`, { fullPage: true })
 })

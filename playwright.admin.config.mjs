@@ -15,6 +15,8 @@ export default defineConfig({
   },
   projects: [
     { name: 'admin-desktop-ja', use: { ...devices['Desktop Chrome'], locale: 'ja-JP' } },
+    { name: 'admin-desktop-en', use: { ...devices['Desktop Chrome'], locale: 'en-US' } },
+    { name: 'admin-mobile-ja', use: { ...devices['Desktop Chrome'], locale: 'ja-JP', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
     { name: 'admin-mobile-en', use: { ...devices['Desktop Chrome'], locale: 'en-US', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
   ],
 })

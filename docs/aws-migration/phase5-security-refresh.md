@@ -72,3 +72,22 @@ CDK-bundled `brace-expansion` 4.0.0–5.0.8. The audit offered a generic
 dependency scope. S02 full regression was not started after this binding stop
 condition. No unrelated direct dependency, runtime/source, infrastructure,
 AWS, Firebase, GitHub, deployment, DNS, tag, or ignored-file change was made.
+
+## S03: reviewed transitive lock correction
+
+Sol reviewed the stopped lock graph. No override, new direct dependency, or
+major update is required:
+
+- `@rollup/plugin-yaml@4.1.2` permits `js-yaml ^4.1.0`; update only the
+  resolved lock version from 4.3.0 to the patched 4.3.1;
+- `aws-cdk-lib@2.264.0` permits `minimatch ^10.2.5`, which permits
+  `brace-expansion ^5.0.8`; update all affected resolved lock instances to
+  patched 5.0.9 or later within that same major/range.
+
+Use npm's normal targeted transitive update (`npm update ... --package-lock-only`
+or an equivalently bounded npm command). Do not add root `overrides`, direct
+dependencies, force/legacy-peer flags, or update unrelated manifest entries.
+Review the resulting lock diff and exact dependency paths, run `npm ci`, then
+execute the complete S02 audit/regression gate. The audit must be zero. Stop on
+any unrelated direct-package change, unresolved vulnerability, test drift, or
+install inconsistency.

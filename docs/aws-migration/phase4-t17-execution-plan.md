@@ -4,7 +4,7 @@ Date: 2026-08-13
 Planner/reviewer: Sol  
 Implementer: Luna  
 Branch: `migration/aws-s3-cloudfront`  
-Start commit: `T17_PLAN_COMMIT`  
+Start commit: `afcd373`
 Immutable legacy target: `5dab6ddea06fb858c642738f6b029e3d5d09365d`  
 Approved local tag: `legacy-firebase-vue-final-20260813`
 

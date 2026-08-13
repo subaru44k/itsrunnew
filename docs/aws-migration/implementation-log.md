@@ -6091,3 +6091,6 @@ tag `legacy-firebase-vue-final-20260813`, remove only tracked legacy and
 migration-only source/dependencies, prove the clean Nuxt graph and tag recovery,
 and stop for Phase 5 review. No AWS/Firebase/GitHub/production write or ignored
 user-file removal is authorized.
+
+The committed plan is `afcd373`; Luna starts from the following clean plan
+pointer commit after confirming the branch and exact parent.

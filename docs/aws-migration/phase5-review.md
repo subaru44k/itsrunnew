@@ -86,3 +86,14 @@ operation is authorized.
    operator accounts, observation-window start, and rollback operator must be
    confirmed before production DNS changes. Firebase retirement/deletion is a
    later separately authorized destructive operation.
+
+## Final local correction result
+
+P5R01/P5R02 passed locally. The S3 adapter now resides at
+`services/schedule-api/src/aws/s3-store.ts` with unchanged runtime behavior and
+updated production/test imports (`b87f421`). Validation pull requests target
+`master`, while push validation remains restricted to
+`migration/aws-s3-cloudfront`; the workflow contract test enforces the split.
+The required local checks and public preview checks passed, with no external
+operation. Final Sol acceptance and any later publishing remain separate
+actions.

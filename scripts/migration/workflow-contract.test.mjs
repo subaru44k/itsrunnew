@@ -9,10 +9,10 @@ async function workflow(name) {
   return readFile(resolve(root, '.github/workflows', name), 'utf8');
 }
 
-describe('T15A migration validation workflow', () => {
+describe('P5R02 migration validation workflow', () => {
   it('is limited to reviewed triggers and read-only permissions', async () => {
     const text = await workflow('validate-migration.yml');
-    expect(text).toMatch(/pull_request:\s*\n\s+branches:\s*\n\s+- migration\/aws-s3-cloudfront/);
+    expect(text).toMatch(/pull_request:\s*\n\s+branches:\s*\n\s+- master/);
     expect(text).toMatch(/push:\s*\n\s+branches:\s*\n\s+- migration\/aws-s3-cloudfront/);
     expect(text.match(/^permissions:\s*$/gm)).toHaveLength(1);
     expect(text).toMatch(/^permissions:\s*\n\s+contents:\s*read\s*\n\s*\nconcurrency:/m);

@@ -50,7 +50,7 @@ Operating system: macOS
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
 | T15 | complete; accepted after Sol final review | `a812b41`, `144b025`, `5f67e08`, `023229f` + Sol acceptance below | Web helper 58/58/58; raw preview 88; trigger cleanup; master protection; local T15F; final-doc validation attempt 2 passed | Workflow is dispatch-only, selected action is exact-SHA pinned, data/invalidation/Hosting remain unchanged. |
 | T16 | complete; accepted by Sol | `1bf6a9c`, `a1d42be`, `5dab6dd` | `npm run check`; `npm run test:e2e` 62/62; preview 100/100; final read-only gate | Restored VersionId and operational evidence recorded below; Sol acceptance is recorded in the authorization section. |
-| T17 | complete locally; awaiting Phase 5 Sol review | `1d4a767`, `196eaea` | `npm ci`; `npm run check`; local E2E 48/48; preview E2E 100/100; `npm ls --all`; recovery proof; `git diff --check` | Exact 77-path removal, clean dependency graph, and immutable-tag recovery are recorded below. |
+| T17 | complete locally; awaiting final Sol acceptance | `1d4a767`, `196eaea`, `5e6b476`, `b87f421` | `npm ci`; `npm run check`; local E2E 48/48; preview E2E 100/100; P5R01/P5R02 checks; recovery proof; `git diff --check` | Exact 77-path removal, AWS adapter boundary, final PR trigger, clean dependency graph, and immutable-tag recovery are recorded below. |
 
 ### Phase 4 T16 Sol execution authorization
 
@@ -6168,3 +6168,20 @@ rollback, and T17 evidence are accepted subject to two local corrections in
 service directory, and make validation PR checks target `master` while keeping
 push validation on the migration branch. No AWS/Firebase/GitHub/production
 operation is authorized by these corrections.
+
+### Phase 5 P5R01-P5R02 correction pass — 2026-08-13
+
+P5R01 moved the unchanged S3 schedule adapter to
+`services/schedule-api/src/aws/s3-store.ts` and updated the exact production
+and test imports. The schedule API unit suite passed 25/25 and its typecheck
+passed; adapter behavior, SDK inputs, bounded streams, `maxAttempts: 1`, and
+IAM assertions were unchanged. Commit: `b87f421`.
+
+P5R02 changed only the validation workflow pull-request target from the
+migration branch to `master`; the push trigger remains restricted to
+`migration/aws-s3-cloudfront`, with read-only permissions, pinned actions, and
+the existing Node/npm/Chromium checks preserved. The workflow contract test
+now requires that exact trigger split. Final required checks passed: `npm ci`,
+`npm run check`, maintained E2E 48/48, public preview E2E 100/100,
+`npm ls --all`, and `git diff --check`. No external operation occurred.
+The branch is clean and stopped for final Sol acceptance.

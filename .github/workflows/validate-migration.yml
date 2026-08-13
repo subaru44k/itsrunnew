@@ -3,7 +3,7 @@ name: Migration validation
 on:
   pull_request:
     branches:
-      - migration/aws-s3-cloudfront
+      - master
   push:
     branches:
       - migration/aws-s3-cloudfront

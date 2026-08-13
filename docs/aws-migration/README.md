@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 4 T17 implementation in progress; Phase 5 Sol review follows
+Status: Phase 5 corrections complete; final Sol acceptance pending
 
 Planning baseline: `d6de55e` on `master`
 

@@ -50,7 +50,7 @@ Operating system: macOS
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
 | T15 | complete; accepted after Sol final review | `a812b41`, `144b025`, `5f67e08`, `023229f` + Sol acceptance below | Web helper 58/58/58; raw preview 88; trigger cleanup; master protection; local T15F; final-doc validation attempt 2 passed | Workflow is dispatch-only, selected action is exact-SHA pinned, data/invalidation/Hosting remain unchanged. |
 | T16 | complete; accepted by Sol | `1bf6a9c`, `a1d42be`, `5dab6dd` | `npm run check`; `npm run test:e2e` 62/62; preview 100/100; final read-only gate | Restored VersionId and operational evidence recorded below; Sol acceptance is recorded in the authorization section. |
-| T17 | in progress | `1d4a767` | T17A recovery reference passed; T17B removal in progress | Exact local tag and removal boundary accepted; T17C remains. |
+| T17 | complete locally; awaiting Phase 5 Sol review | `1d4a767`, `196eaea` | `npm ci`; `npm run check`; local E2E 48/48; preview E2E 100/100; `npm ls --all`; recovery proof; `git diff --check` | Exact 77-path removal, clean dependency graph, and immutable-tag recovery are recorded below. |
 
 ### Phase 4 T16 Sol execution authorization
 
@@ -6116,3 +6116,43 @@ commits/checks, and T17 as `ready after Sol acceptance`. The existing exact
 pinned read-only verification command block and all historical evidence remain
 unchanged. No runtime/source/test change, AWS/network operation, Firebase or
 T17 action occurred.
+
+### T17B tracked legacy and migration-only removal — 2026-08-13
+
+Commit `196eaea` removes exactly the 77 tracked paths under `itsrunnew/`, the
+obsolete legacy public Playwright surface and capture helpers, the Firestore
+snapshot/export/transform/compare/upload graph and synthetic fixture, and all
+completed `scripts/migration/t16-*` executables/coordinators/tests. The root
+`test:e2e` command now runs only the maintained local admin production-build
+suite; the CloudFront suite remains `test:e2e:preview`. Root
+`firebase-admin` and its lockfile graph were removed, as were the core
+Firestore snapshot export and public export. The workspace checker now fails
+on tracked legacy paths, forbidden direct dependencies, active removed-runtime
+references, or a residual `firebase-admin` lock graph. Current Nuxt,
+provider-neutral migration helpers, sanitized baseline evidence, and
+historical migration documents remain. The ignored user-owned
+`itsrunnew/.DS_Store`, `.firebase/`, `dist/`, and `node_modules/` paths were
+not staged, moved, inspected, or modified.
+
+### T17C clean graph, tests, and recovery proof — 2026-08-13
+
+T17C passed from the T17B tree. `npm ci` completed under Node 24.18.1;
+`npm run check` passed the structure/removal-boundary checker, lint,
+typecheck, 124 unit tests, 19 infrastructure tests, and production builds.
+The maintained local admin suite passed 48/48 with
+`npm run test:e2e`. The required public preview suite passed 100/100 with
+`PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run
+test:e2e:preview`. `npm ls --all` reports only current Nuxt/Vue 3 transitive
+compatibility paths: `vue-router@5.2.0`, `core-js-compat@3.49.0`, and optional
+Stylus entries; no direct legacy dependency or Firebase/Firestore graph
+remains. `git diff --check` passed.
+
+Recovery proof repeated the exact local tag peel to
+`5dab6ddea06fb858c642738f6b029e3d5d09365d`, counted exactly 77 tracked
+`itsrunnew/` paths at that target, confirmed `.firebaserc`, `firebase.json`,
+manifest, public, and source entries, and removed the temporary detached
+worktree only with `git worktree remove`. The ignored user-owned
+`itsrunnew/.DS_Store`, `.firebase/`, `dist/`, and `node_modules/` paths remain
+untouched. No AWS, Firebase, GitHub, production, DNS, deployment, invalidation,
+IAM, Cognito, S3, or tag-push operation occurred. T17 is complete locally and
+the branch is stopped clean for Phase 5 Sol review.

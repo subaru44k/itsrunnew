@@ -2,37 +2,11 @@ import { describe, expect, it } from 'vitest'
 import ja from '../../i18n/locales/ja.json'
 import en from '../../i18n/locales/en.json'
 
-const expected = {
-  ja: {
-    titles: ['織田フィールド 開放日', '夢の島陸上競技場 開放日', '駒沢オリンピック公園陸上競技場 開放日', '等々力陸上競技場 開放日'],
-    introductions: ['織田フィールドの個人利用可能時間は以下の通りです。', '夢の島陸上競技場の個人利用可能時間は以下の通りです。', '駒沢オリンピック公園陸上競技場の個人利用可能時間は以下の通りです。', '等々力陸上競技場の個人利用可能時間は以下の通りです。'],
-    officials: ['代々木公園陸上競技場(織田フィールド)', '夢の島陸上競技場', '駒沢オリンピック公園陸上競技場', '川崎市等々力陸上競技場'],
-    access: [['千代田線代々木公園駅徒歩6分', '山手線原宿駅徒歩15分'], ['りんかい線新木場駅徒歩7分'], ['東京メトロ半蔵門線　駒沢大学駅徒歩15分'], ['南武線武蔵中原駅徒歩15分']],
-    opinionCounts: [4, 3, 0, 2]
-  },
-  en: {
-    titles: ["Yoyogi Park Athletic Track's Availability", "Yumenoshima Athletics Stadium's Availability", "Komazawa Olympic Park Athletic Stadium's Availability", "Todoroki Stadium's Availability"],
-    introductions: ["The following is the Yoyogi Park Athletic Track's open schedule.", "The following is the Yumenoshima Athletics Stadium's open schedule.", "The following is the Komazawa Olympic Park Athletic Stadium's open schedule.", "The following is the Todoroki Stadium's open schedule."],
-    officials: ['Yoyogi Park Atheletic Stadium (Oda Field)', 'Yumenoshima Athletics Stadium', 'Komazawa Olympic Stadium Athletic Stadium', 'Kawasaki Todoroki Stadium'],
-    opinionCounts: [3, 3, 0, 2]
-  }
-} as const
+const expectedJa = {"titles":{"oda":"織田フィールド 開放日","yumenoshima":"夢の島陸上競技場 開放日","komazawa":"駒沢オリンピック公園陸上競技場 開放日","todoroki":"等々力陸上競技場 開放日"},"availability":{"oda":"織田フィールドの個人利用可能時間は以下の通りです。","yumenoshima":"夢の島陸上競技場の個人利用可能時間は以下の通りです。","komazawa":"駒沢オリンピック公園陸上競技場の個人利用可能時間は以下の通りです。","todoroki":"等々力陸上競技場の個人利用可能時間は以下の通りです。"},"infoTitles":{"oda":"織田フィールドの情報","yumenoshima":"夢の島陸上競技場の情報","komazawa":"駒沢オリンピック公園陸上競技場の情報","todoroki":"等々力陸上競技場の情報"},"content":{"oda":{"official":"代々木公園陸上競技場(織田フィールド)","access":["千代田線代々木公園駅徒歩6分","山手線原宿駅徒歩15分"],"contact":"代々木公園サービスセンター（TEL:03-3469-6081）","paragraphs":["原宿駅から徒歩圏内にある競技場。非常に立地がよく、火水金土と21時まで利用可能で、利用料金も無料ということで、該当日の19時以降は仕事帰りの社会人や大学生でごった返す。","人は多いながらも、最低限のマナーは守られているので、あまり事故は起こっていないようだ。ただし、3, 4レーンまで膨らんで走らないといけないような場面にはしょっちゅう遭遇するので、1レーンを集中して走りたい場合は夢の島陸上競技場などをおすすめする。","無料で利用できるだけでなく、更衣室と無料ロッカーがあり、シャワールームまであるという充実の施設だが、利用者数の多さだけがネックなので、個人的には300円くらい徴収すれば人も減って良いのではないかと思う。","練習後はシャワーを浴びて、渋谷や原宿で夕食をとるという、交流にはもってこいな立地も人気を集めている理由ではないかと思う。"]},"yumenoshima":{"official":"夢の島陸上競技場","access":["りんかい線新木場駅徒歩7分"],"contact":"夢の島競技場内 屋外スポーツ施設事務所（TEL:03-3522-0846）","paragraphs":["新木場駅から歩いていける距離にある競技場。夜まで空いているので仕事帰りでも利用可能。","都心からのアクセスが良く。周囲は1.5kmのランニングコースがあり、更衣室もシャワールームもあるので、練習中および練習後の環境は非常に良い。 織田フィールドと比較すると、利用人数は20分の1程度だと思うので、混雑が嫌ならばこちらを日常に使うのも良いと思う。","新木場駅周辺は原宿と比較すると飲食店は少ないので、練習後の楽しみはほどほどという程度だろうか。"]},"komazawa":{"official":"駒沢オリンピック公園陸上競技場","access":["東京メトロ半蔵門線　駒沢大学駅徒歩15分"],"contact":"駒沢オリンピック公園総合運動場　サービス担当（TEL:03-3421-6199）","paragraphs":[]},"todoroki":{"official":"川崎市等々力陸上競技場","access":["南武線武蔵中原駅徒歩15分"],"contact":"","paragraphs":["武蔵中原駅から徒歩15分程度の陸上競技場。メインスタジアムは世界大会も開催されるような立派な施設。すぐ近くにサブトラックもあるので、そちらで気楽に走るのも良い。","川崎フロンターレのメインスタジアムでもあり、サッカーの状況によって利用可能日は不定期になるので、利用可能かどうかはしっかり確認する必要がある。 サブトラックの周囲は1kmくらいの走れる場所があるので、アップはやりやすいが、サブトラックの隣は公園と野球場があるので、時々ボールなり球が飛んでくる。 また、風が強い日は砂埃が舞うので、本気で練習したいならメインスタジアムのほうが良いだろう。"]}}}
+const expectedEn = {"titles":{"oda":"Yoyogi Park Athletic Track's Availability","yumenoshima":"Yumenoshima Athletics Stadium's Availability","komazawa":"Komazawa Olympic Park Athletic Stadium's Availability","todoroki":"Todoroki Stadium's Availability"},"availability":{"oda":"The following is the Yoyogi Park Athletic Track's open schedule.","yumenoshima":"The following is the Yumenoshima Athletics Stadium's open schedule.","komazawa":"The following is the Komazawa Olympic Park Athletic Stadium's open schedule.","todoroki":"The following is the Todoroki Stadium's open schedule."},"infoTitles":{"oda":"About Yoyogi Park Athletic Track","yumenoshima":"About Yumenoshima Athletics Stadium","komazawa":"About Komazawa Olympic Stadium Athletic Stadium","todoroki":"About Todoroki Stadium"},"content":{"oda":{"official":"Yoyogi Park Atheletic Stadium (Oda Field)","access":["From the Yoyogi Park station on Chiyoda Line, 6 minutes walk.","From the Harajuku station on Yamanote Line, 15 minutes walk."],"contact":"Yoyogi Park Service Center（TEL:03-3469-6081）","paragraphs":["Due to its convenient location, price (Free!) and availability, Yoyogi Park Athletic Track is the most popular stadium in Tokyo. Moreover, runners can use dressing rooms, shower rooms, and lockers for free.","Despite there being so much runners, their manners are not so bad. However, if you want to avoid a crowded stadium, I recommend going to the Yumenoshima Athletic stadium.","After the workouts, you can hang out with your frends to Shibuya and Harajuku and have some delicious dinner in the urban city to socialize each other."]},"yumenoshima":{"official":"Yumenoshima Athletics Stadium","access":["From the Shinkiba station on Rinkai Line, 7 minutes walk."],"contact":"The outdoor sports facility office in Yumenoshima Athletics Stadium.（TEL:03-3522-0846）","paragraphs":["A stadium close to the Shinkiba station, open at night, good to run after the work.","It is easy to access from the center of Tokyo and has 1.5 km running course good for the warm up, dressing rooms, and shower rooms. Compared to Yoyogi Park Athletic Track, there are much fewer runners and almost of them have enough experience on the use of tracks, so the manner itself is pretty good. If you are a dedicated runner and need concentration on running, I recommend using here.","The only shortage is there are only a few restaurants, so it is not good to socialize each other."]},"komazawa":{"official":"Komazawa Olympic Stadium Athletic Stadium","access":["From the Komazawa University station on Hanzomon Line, 15 minutes walk."],"contact":"Service department at Komazawa Olympic Park Athletic Stadium（TEL:03-3421-6199）","paragraphs":[]},"todoroki":{"official":"Kawasaki Todoroki Stadium","access":["From the Musashi-nakahara station on Nanbu Line, 15 minutes walk."],"contact":"","paragraphs":["A stadium one takes 15 minutes from the Nakahara station by foot. The main stadium is one of the most marvelous stadiums in Japan and can hold IAAF Athletics Chanpionships. A sub track also have 8 tracks.","It is famous as a home stadium of Kawasaki Frontale (one of major football teams). So, you had better check the availablility before use. The sub track is next to a park and a baseball ground, and sometimes balls fall on the tracks. Also, in windy days, small sandstorm hit the stadium."]}}}
+function projection(locale: typeof ja) { return { titles: locale.stadiumOpenTitles, availability: locale.stadiumAvailability, infoTitles: locale.stadiumInfoTitles, content: locale.stadiumContent } }
 
 describe('legacy stadium content contracts', () => {
-  it('deep-equals all Japanese headings and structured content', () => {
-    expect(Object.values(ja.stadiumOpenTitles)).toEqual(expected.ja.titles)
-    expect(Object.values(ja.stadiumAvailability)).toEqual(expected.ja.introductions)
-    expect(Object.values(ja.stadiumContent).map((v) => v.official)).toEqual(expected.ja.officials)
-    expect(Object.values(ja.stadiumContent).map((v) => v.access)).toEqual(expected.ja.access)
-    expect(Object.values(ja.stadiumContent).map((v) => v.paragraphs.length)).toEqual(expected.ja.opinionCounts)
-  })
-
-  it('deep-equals all English headings/content shape and preserves absent Komazawa opinions', () => {
-    expect(Object.values(en.stadiumOpenTitles)).toEqual(expected.en.titles)
-    expect(Object.values(en.stadiumAvailability)).toEqual(expected.en.introductions)
-    expect(Object.values(en.stadiumContent).map((v) => v.official)).toEqual(expected.en.officials)
-    expect(Object.values(en.stadiumContent).map((v) => v.paragraphs.length)).toEqual(expected.en.opinionCounts)
-    expect(ja.stadiumContent.komazawa.paragraphs).toEqual([])
-    expect(en.stadiumContent.komazawa.paragraphs).toEqual([])
-  })
+  it('deep-equals every Japanese title, access/contact string, and paragraph', () => { expect(projection(ja)).toEqual(expectedJa) })
+  it('deep-equals every English title, access/contact string, and paragraph', () => { expect(projection(en)).toEqual(expectedEn) })
 })

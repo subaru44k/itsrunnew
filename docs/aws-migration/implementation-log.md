@@ -6467,3 +6467,16 @@ localized visible status text, including loading, while preserving the
 existing state machine and retry behavior. Added unit contract coverage for
 both locales and updated styling. Focused tests and typecheck passed so far;
 build/SEO and final diff checks remain to run. No external operation occurred.
+
+### FPR02 Sol correction — 2026-08-13
+
+Corrected schedule symbol mapping: status 0 and null/unpublished use unknown
+`?`, status 1 uses `○`, status 2 uses `×`, and loading uses distinct `◌`.
+Symbols remain aria-hidden beside localized visible text, with deterministic
+unit coverage for every mapping.
+
+Replaced partial stadium assertions with independent retained-tag Japanese and
+English fixtures that deep-compare every title, availability and information
+heading, official name, access/contact string, and editorial paragraph.
+Focused tests, typecheck, production build/SEO verification, and diff checks
+passed. No external operation occurred; stop for Sol review.

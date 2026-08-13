@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
-import { createS3Client, readBodyBounded, S3ScheduleStore } from '../src/s3-store'
+import { createS3Client, readBodyBounded, S3ScheduleStore } from '../src/aws/s3-store'
 
 const body = async function* (chunks: Array<string | Uint8Array>) { for (const chunk of chunks) yield chunk }
 

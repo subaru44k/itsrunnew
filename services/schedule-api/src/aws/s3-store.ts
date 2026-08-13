@@ -1,6 +1,6 @@
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import type { SchedulePath } from '@itsrun/core'
-import type { ScheduleStore, WriteCondition } from './types.js'
+import type { ScheduleStore, WriteCondition } from '../types.js'
 
 const MAX_BYTES = 32 * 1024
 const bucket = () => process.env.DATA_BUCKET_NAME ?? ''

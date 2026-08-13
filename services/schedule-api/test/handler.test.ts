@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createHandler } from '../src/handler'
-import { S3ScheduleStore } from '../src/s3-store'
+import { S3ScheduleStore } from '../src/aws/s3-store'
 import type { ApiEvent, ScheduleStore } from '../src/types'
 
 const good = {

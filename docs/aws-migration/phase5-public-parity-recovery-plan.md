@@ -347,3 +347,94 @@ correction commit. Stop with a clean worktree for Sol screenshot and source
 review. No AWS, preview deployment/invalidation, IAM, CloudFormation, Cognito,
 GitHub PR-state/merge, Firebase, DNS, production, dependency, AdSense, or
 historical-data operation is authorized by PVR01–PVR05.
+
+## Sol rejection of PVR handoff — FPR01–FPR04
+
+Date: 2026-08-13
+
+Sol rejects `d0562fc` through `f8bb9f6` as final parity proof. The four-project
+matrix and separate cards are good progress, but the implementation does not
+meet its own exact-content or interaction contract. Complete FPR01–FPR04 in
+order without squashing.
+
+### FPR01: mechanically exact records model and rendering
+
+The current 60 entries still mix Japanese and English in a single `meet` field,
+omit weekday text from most dates, use inconsistent zero padding, and are not
+in authoritative year/row order. Its unit test checks only a few markers rather
+than the promised complete projection.
+
+Create an explicit locale-aware record type with at least `dateJa`, `dateEn`,
+`meetJa`, `meetEn`, `event`, and `result`. Transcribe the Japanese projection
+mechanically from every `<tbody><tr>` in the retained legacy view. The rendered
+Japanese sequence must match all 60 legacy rows byte-for-byte for date, meet,
+event, and result after expanding HTML rowspans into repeated display values.
+This includes every weekday character and the legacy spelling/punctuation;
+do not normalize dates or invent corrections. Store a complete fixed expected
+60-row Japanese tuple list in tests and deep-equal the actual projection. The
+test must fail if any one of the 240 cells changes, if ordering changes, if any
+slash-combined row appears, or if 2021-06-27 is not exactly two rows.
+
+Render the locale-specific projection. Japanese must contain no English
+substitution where the legacy source has Japanese. English fields may be clear
+translations/transliterations of those exact 60 rows, but must never change
+the Japanese projection. Keep the exact Japanese introductory and heading
+copy already restored.
+
+### FPR02: exact legacy stadium content and presentation contract
+
+Replace every summarized/invented stadium field with the exact retained-tag
+locale values. Model separate `openTitle`, `availabilityIntroduction`,
+`infoTitle`, `officialName`, access lines, contact label/value/telephone, and
+opinion heading/paragraphs. Preserve absent legacy sections as absent; for
+example, do not invent a Komazawa opinion paragraph. Render the schedule card
+with the exact open title and availability introduction, and the information
+card with exact information title and official name before map/access/contact/
+opinions in legacy order.
+
+For Oda, restore exactly the retained legacy announcement text and URL
+`https://newyearscardlottery.link/`; the substituted Tokyo Park URL is not
+parity. Keep `target="_blank"` and `rel="noopener noreferrer"`. Ads remain
+excluded.
+
+Implement familiar dependency-free local status symbols for available,
+unavailable, unknown/unpublished, and loading while retaining visible localized
+text. The symbol must be a separate visual element hidden from assistive
+technology; the localized text remains accessible. Add unit/component
+contracts that deep-equal every legacy locale content object and browser
+assertions for exact headings/introduction, Oda link, card ordering, map source,
+and icon-plus-text presentation.
+
+### FPR03: complete shell behavior and exact legacy labels
+
+Use the exact legacy group and item labels: Tokyo/東京都の競技場 with Oda,
+Yumenoshima, Komazawa; Kanagawa/神奈川県の競技場 with Todoroki; Lap Time/
+ラップタイム with Marathon/マラソン; Records/記録集 with Nozomi Tanaka/
+田中希実. Link the records item to `/nozomiantena/index` (locale-prefixed in
+English) while retaining compatibility/canonical behavior.
+
+Desktop disclosures must close other open groups, close on outside click and
+Escape, and return focus to the triggering summary. The temporary mobile drawer
+must include the brand/logo and the same complete hierarchy, have a backdrop,
+lock neither content permanently nor language action, close on backdrop,
+Escape, route selection, and return focus to the hamburger. Use deterministic
+listener cleanup. Restore the exact localized legacy footer sentence, exact
+`https://twitter.com/itsrun_page` link, and safe external attributes.
+
+Add real browser interaction tests for all behavior above. Do not count visual
+snapshots as interaction assertions.
+
+### FPR04: truthful gate and handoff
+
+Strengthen all four parity projects so every stadium asserts its exact localized
+headings, introductions and key content; records assert the full rendered
+Japanese projection and absence of English substitutions; shell asserts every
+group/item/href and drawer/disclosure behavior; loaded local schedule evidence
+asserts all status symbol/text combinations. Keep the raw preview suite
+unchanged. Regenerate uniquely named visual snapshots only after assertions
+pass, then inspect them for clipped content, missing maps/cards, and mobile
+drawer coverage.
+
+Run the full PVR05 command list under Node 24. Update the log truthfully and
+stop clean for Sol. The same external-operation and dependency prohibitions
+from PVR05 remain in force.

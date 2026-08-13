@@ -206,3 +206,17 @@ local E2E gate passed 124/124; `npm run check` passed (93 web, 8 core, 25 API,
 explicit rows/no-slash contract is green; Sol should verify exact weekday
 punctuation against the retained legacy transcript before acceptance. Preview
 and production remain stopped for Sol's independent visual/content review.
+
+## PVR handoff rejected after exact-content review
+
+Sol rejects the handoff through `f8bb9f6`. The 60-row array still omits weekday
+text on most records and mixes English meet names into Japanese rendering; its
+test does not deep-compare the complete legacy transcript. Oda's legacy
+announcement was replaced with a different URL, English stadium copy remains
+summarized, the exact availability/information headings are not rendered, and
+status symbols were not restored. Shell behavior lacks the required outside
+click/focus-return contract, uses shortened labels and the short records href,
+and the footer still uses the non-legacy target/copy.
+
+FPR01–FPR04 in the parity recovery plan is the bounded correction contract.
+Preview deployment and production cutover remain no-go.

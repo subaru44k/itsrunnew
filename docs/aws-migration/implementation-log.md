@@ -6412,3 +6412,17 @@ production build/SEO and synth). The transcript rows are explicit and no
 runtime slash expansion remains; a final source review should still verify
 weekday punctuation on every legacy date before declaring exact content
 parity accepted.
+
+### D057 PVR handoff Sol rejection — 2026-08-13
+
+Sol compared source and maintained screenshots through `f8bb9f6` with the
+retained legacy tag. The handoff remains rejected: most record dates omit their
+legacy weekday, Japanese rows contain English meet names, and tests do not
+deep-compare all cells; the Oda legacy announcement URL was substituted;
+stadium locale content/headings and status visuals remain incomplete; shell
+labels, records href, footer target/copy, outside-click and focus behavior do
+not meet the plan. The new four-project matrix and card separation are retained
+as useful progress. No external operation occurred.
+
+FPR01–FPR04 define the next local correction. Preview deployment and production
+cutover remain stopped.

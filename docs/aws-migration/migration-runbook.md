@@ -30,6 +30,10 @@ This is a draft until Phase 5 Sol approval.
   `1olddro3tldfinupl52u9dl1j4`.
 - Lambda `itsrun-preview-schedule-api`; alarm
   `itsrun-preview-admin-api-5xx`.
+- GitHub OIDC provider
+  `arn:aws:iam::470447451992:oidc-provider/token.actions.githubusercontent.com`;
+  web-only deploy role
+  `arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy`.
 
 ## Administrator account operations
 
@@ -107,7 +111,7 @@ If the new application fails:
 4. Preserve any S3 updates made after cutover for separately authorized
    reconciliation. Historical Firebase/Firestore reconciliation is out of
    scope under D041.
-6. Preserve logs and version IDs for diagnosis.
+5. Preserve logs and version IDs for diagnosis.
 
 Do not delete S3 versions or overwrite Firestore during emergency rollback.
 
@@ -143,3 +147,23 @@ After the observation window and explicit approval:
 
 Permanent Firebase project deletion is a separate destructive action and
 requires explicit user authorization.
+
+## Final local and browser verification
+
+Run with Node 24 from the clean migration worktree:
+
+```bash
+npm ci
+npm run check
+npm run test:e2e
+PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview
+git diff --check
+git status --short
+```
+
+The preview browser suite must use the real CloudFront domain without request
+routes or response replacement. AWS verification remains read-only and pins
+`AWS_PROFILE=codex-prod`, `AWS_REGION=ap-northeast-1`, and
+`AWS_DEFAULT_REGION=ap-northeast-1`; inspect only the documented stacks,
+alarm, Cognito counts, bucket gates, object metadata, API response headers,
+CloudFront object, and invalidation count.

@@ -6031,3 +6031,34 @@ corrections, the required local/public tests, and the original tightly scoped
 read-only AWS verification. The prior failure remains recorded. No retry
 configuration, assertion masking, AWS/GitHub write, Firebase, DNS/production,
 identity/data mutation, or T17 removal is authorized.
+
+### T16E01-TE02-TE03 finalization accepted locally — 2026-08-13
+
+TE01 corrections completed from clean `305574c`: the legacy smoke suite no
+longer captures success screenshots, the preview config has no explicit retry
+override, and keyboard evidence reaches both exact localized previous/next
+week controls with each focused while visible. Focused legacy E2E passed
+`14/14`; focused raw operational preview passed `12/12`. The full chained
+`npm run test:e2e` passed `62/62` (`14` public and `48` admin), and the full
+raw preview suite passed `100/100` across all configured projects.
+
+TE02 completed the runbook with non-secret preview identifiers, OIDC/deploy
+role ARNs, role-based responsibilities, corrected rollback numbering, exact
+read-only verification scope, final command block, and explicit D041
+historical Firebase/Firestore out-of-scope disposition. `npm ci` and final
+`npm run check` passed; `git diff --check` passed. No retry masking, route
+mocking, AWS/GitHub write, Firebase access, DNS/production change, or T17
+operation occurred.
+
+The final bounded read-only preview gate matched Hosting
+`UPDATE_COMPLETE`, GitHub deployment stack `CREATE_COMPLETE`, alarm `OK` with
+actions disabled by count (`0` actions), Cognito users/admins `0/0`, data
+bucket public-access block all `true`, versioning `Enabled`, direct S3 `403`,
+API `401` with `cache-control: no-store`, and invalidation count `3`. The
+current object remains 501 bytes, ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, VersionId
+`3o5npTzfeFLHBhieoYRiNHT6kYwnOevs`, `application/json`,
+`public, max-age=0, s-maxage=60`, AES256, and SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`; the
+CloudFront body/hash/cache metadata match exactly. T16 is complete locally;
+T17 is ready but not started. Stop for Sol review.

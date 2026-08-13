@@ -49,8 +49,8 @@ Operating system: macOS
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
 | T15 | complete; accepted after Sol final review | `a812b41`, `144b025`, `5f67e08`, `023229f` + Sol acceptance below | Web helper 58/58/58; raw preview 88; trigger cleanup; master protection; local T15F; final-doc validation attempt 2 passed | Workflow is dispatch-only, selected action is exact-SHA pinned, data/invalidation/Hosting remain unchanged. |
-| T16 | complete locally; awaiting Sol acceptance | a1d42be, 1bf6a9c | npm run check; npm run test:e2e 62/62; preview 100/100 | |
-| T17 | ready after Sol acceptance | | not started | |
+| T16 | complete; accepted by Sol | `1bf6a9c`, `a1d42be`, `5dab6dd` | `npm run check`; `npm run test:e2e` 62/62; preview 100/100; final read-only gate | T16A-E accepted; restored VersionId and operational evidence recorded below. |
+| T17 | authorized by Sol plan; not started | | not started | Exact legacy target/tag and removal boundary are defined in `phase4-t17-execution-plan.md`. |
 
 ### Phase 4 T16 Sol execution authorization
 
@@ -6073,3 +6073,21 @@ implementation task table now records T16 as `complete locally; awaiting Sol
 acceptance` with commits/checks and T17 as `ready after Sol acceptance`;
 historical failure and Sol reproduction records remain unchanged. No runtime,
 test, AWS/network, Firebase, DNS, dependency, or T17 change occurred.
+
+### T16 Sol acceptance and T17 authorization — 2026-08-13
+
+Sol independently reviewed `1bf6a9c`, `a1d42be`, and `5dab6dd`. The corrected
+raw operational tests retain unmodified network behavior, prove exact 375px and
+1280px layouts, both localized week controls by keyboard, and accessible
+localized schedule structure. The browser-process failure and its different-
+route reproduction remain recorded; removing only redundant success screenshots
+produced stable focused and full results without retries or masked assertions.
+The runbook now contains the accepted identifiers, responsibilities, D041 data
+disposition, rollback rules, and pinned read-only command contract.
+
+T16 is accepted complete. `phase4-t17-execution-plan.md` authorizes local-only
+T17 from the committed plan: preserve exact commit `5dab6dd` as annotated local
+tag `legacy-firebase-vue-final-20260813`, remove only tracked legacy and
+migration-only source/dependencies, prove the clean Nuxt graph and tag recovery,
+and stop for Phase 5 review. No AWS/Firebase/GitHub/production write or ignored
+user-file removal is authorized.

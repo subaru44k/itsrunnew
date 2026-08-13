@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, japanToday, marathonPace, parseScheduleMonth, parseTime, scheduleMonthPath, schedulePaths, STADIUMS } from './index'
+import { addDays, japanToday, marathonGoals, marathonPace, MARATHON_GOAL_RANGES, parseScheduleMonth, parseTime, scheduleMonthPath, schedulePaths, STADIUMS } from './index'
 
 describe('core schedule contract', () => {
   it('validates a month and rejects unknown fields', () => {
@@ -33,5 +33,13 @@ describe('core schedule contract', () => {
     expect(parseTime(`4'15"`)).toBe(255)
     expect(parseTime(`45"`)).toBe(45)
     expect(() => parseTime(`4:15`)).toThrow()
+  })
+
+  it('exposes the three legacy pace ranges with nineteen goals each', () => {
+    expect(MARATHON_GOAL_RANGES).toHaveLength(3)
+    expect(MARATHON_GOAL_RANGES.map((range) => marathonGoals(range))).toEqual([
+      expect.arrayContaining([7200, 12600]), expect.arrayContaining([12600, 18000]), expect.arrayContaining([18000, 23400]),
+    ])
+    for (const range of MARATHON_GOAL_RANGES) expect(marathonGoals(range)).toHaveLength(19)
   })
 })

@@ -1,4 +1,13 @@
 export const PACE_DISTANCES = [1, 5, 10, 15, 20, 21.098, 25, 30, 35, 40, 42.195] as const
+export const MARATHON_GOAL_RANGES = [
+  { id: '2-3-30', minSeconds: 2 * 3600, maxSeconds: 3.5 * 3600 },
+  { id: '3-30-5', minSeconds: 3.5 * 3600, maxSeconds: 5 * 3600 },
+  { id: '5-6-30', minSeconds: 5 * 3600, maxSeconds: 6.5 * 3600 },
+] as const
+
+export function marathonGoals(range: (typeof MARATHON_GOAL_RANGES)[number]): number[] {
+  return Array.from({ length: 19 }, (_, index) => range.minSeconds + index * 5 * 60)
+}
 
 function timeString(seconds: number): string {
   const total = Math.max(0, Math.floor(seconds))

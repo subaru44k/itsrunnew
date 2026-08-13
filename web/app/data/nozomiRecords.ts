@@ -3,6 +3,14 @@ export interface NozomiRecord { year: number; date: string; meet: string; event:
 // Structured records migrated from the legacy NozomiAntena view. Keeping rows
 // as data makes the table maintainable and avoids repeating markup in a page.
 export const NOZOMI_RECORDS: readonly NozomiRecord[] = [
+  { year: 2020, date: '12/27', meet: '川内杯栗橋関所マラソン', event: '10km', result: '32\'07"' },
+  { year: 2020, date: '12/12', meet: '神戸市長距離記録会', event: '3000m', result: '9\'25"38' },
+  { year: 2020, date: '12/04', meet: '日本選手権', event: '5000m', result: '15\'05"65' },
+  { year: 2020, date: '11/15', meet: '静岡県長距離強化記録会', event: '3000m / 3000m', result: '9\'09"65 / 9\'00"84' },
+  { year: 2020, date: '11/03', meet: 'Denka Athletics Challenge Cup 2020', event: '5000m', result: '15\'22"39' },
+  { year: 2020, date: '10/27', meet: 'ミドルディスタンス・チャレンジ', event: '1500m', result: '4\'10"41' },
+  { year: 2020, date: '10/24', meet: '木南道孝記念陸上競技大会', event: '800m', result: '2\'06"72' },
+  { year: 2020, date: '10/11', meet: 'ナイタートライアルin屋島', event: '5000m', result: '15\'15"76' },
   { year: 2021, date: '12/10', meet: 'Edion Distance Challenge in Kyoto', event: '5000m', result: '15\'04"10' },
   { year: 2021, date: '12/04', meet: 'Nittai Long Distance Meet', event: '5000m', result: '15\'04"83' },
   { year: 2021, date: '11/20', meet: 'Shizuoka Long Distance Record Meeting', event: '3000m', result: '9\'18"29 / 8\'51"77' },
@@ -21,6 +29,7 @@ export const NOZOMI_RECORDS: readonly NozomiRecord[] = [
   { year: 2021, date: '07/14', meet: 'Hokuren Distance Challenge Kitami', event: '5000m', result: '15\'17"93' },
   { year: 2021, date: '07/10', meet: 'Hokuren Distance Challenge Abashiri', event: '3000m', result: '8\'40"84 PB' },
   { year: 2021, date: '06/27', meet: 'Japan National Championships', event: '800m / 5000m', result: '2\'04"47 / 15\'18"25' },
+  { year: 2021, date: '06/27', meet: 'Japan National Championships', event: '5000m', result: '15\'18"25' },
   { year: 2021, date: '06/26', meet: 'Japan National Championships', event: '800m', result: '2\'07"23' },
   { year: 2021, date: '06/25', meet: 'Japan National Championships', event: '1500m', result: '4\'08"39' },
   { year: 2021, date: '06/06', meet: 'Denka Athletics Challenge Cup', event: '1500m', result: '4\'09"06' },
@@ -48,3 +57,19 @@ export const NOZOMI_RECORDS: readonly NozomiRecord[] = [
   { year: 2020, date: '07/08', meet: 'Hokuren Distance Challenge Fukagawa', event: '3000m', result: '8\'41"35' },
   { year: 2020, date: '07/04', meet: 'Hokuren Distance Challenge Shibetsu', event: '1500m', result: '4\'08"68' },
 ]
+
+export function expandedNozomiRecords(locale: string): NozomiRecord[] {
+  const japaneseNames: Record<string, string> = {
+    'Edion Distance Challenge in Kyoto': 'エディオンディスタンスチャレンジ in 京都2021',
+    'Nittai Long Distance Meet': '日体大長距離競技会',
+    'Shizuoka Long Distance Record Meeting': '第5回 静岡県長距離強化記録会',
+    'TWOLAPS Middle Distance Circuit': 'TWOLAPS ミドルディスタンスサーキット',
+    'Tokyo Olympic Games': '東京オリンピック',
+    'Japan National Championships': '日本陸上競技選手権大会',
+  }
+  return NOZOMI_RECORDS.flatMap((record) => {
+    const events = record.event.split(' / ')
+    const results = record.result.split(' / ')
+    return events.map((event, index) => ({ ...record, meet: locale === 'ja' ? (japaneseNames[record.meet] ?? record.meet) : record.meet, event, result: results[index] ?? results[0] ?? '' }))
+  })
+}

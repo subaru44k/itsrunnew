@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { marathonPace } from '@itsrun/core'
+import { MARATHON_GOAL_RANGES, marathonGoals, marathonPace } from '@itsrun/core'
 const { t: $t } = useI18n()
-useSeoMeta({ title: () => $t('nav.pace') })
-const goalSeconds = ref(3 * 60 * 60)
-const goalOptions = [{ label: '3:00:00', seconds: 3 * 60 * 60 }, { label: '3:30:00', seconds: 3.5 * 60 * 60 }, { label: '5:00:00', seconds: 5 * 60 * 60 }, { label: '6:30:00', seconds: 6.5 * 60 * 60 }]
+const selected = ref(0)
+const labels = ['2:00–3:30', '3:30–5:00', '5:00–6:30']
 const distances = ['goal', '1 km', '5 km', '10 km', '15 km', '20 km', 'half', '25 km', '30 km', '35 km', '40 km', 'finish']
-const rows = computed(() => marathonPace(goalSeconds.value).map((time, index) => ({ distance: distances[index], time })))
+const goals = computed(() => marathonGoals(MARATHON_GOAL_RANGES[selected.value] ?? MARATHON_GOAL_RANGES[0]))
+const rows = computed(() => goals.value.map((goal) => ({ goal, times: marathonPace(goal) })))
+useSeoMeta({ title: () => $t('nav.pace'), description: () => $t('paceDescription') })
 </script>
-<template><section class="content"><h1>{{ $t('nav.pace') }}</h1><label for="goal-time">{{ $t('pace.goal') }}</label><select id="goal-time" v-model="goalSeconds"><option v-for="option in goalOptions" :key="option.seconds" :value="option.seconds">{{ option.label }}</option></select><table><thead><tr><th>{{ $t('pace.distance') }}</th><th>{{ $t('pace.time') }}</th></tr></thead><tbody><tr v-for="row in rows" :key="row.distance"><th scope="row">{{ row.distance === 'goal' || row.distance === 'finish' ? $t('pace.goal') : row.distance === 'half' ? $t('pace.half') : row.distance }}</th><td>{{ row.time }}</td></tr></tbody></table></section></template>
+<template><section class="content parity-card pace-page"><h1>{{ $t('paceTitle') }}</h1><p class="lead">{{ $t('paceDescription') }}</p><div class="range-picker" role="group" :aria-label="$t('paceRange')"><button v-for="(label, index) in labels" :key="label" type="button" :aria-pressed="selected === index" @click="selected = index">{{ label }}</button></div><div class="table-wrap desktop-pace"><table class="parity-table pace-table"><thead><tr><th>{{ $t('pace.goal') }}</th><th v-for="distance in distances.slice(1)" :key="distance">{{ distance === 'half' ? $t('pace.half') : distance }}</th></tr></thead><tbody><tr v-for="row in rows" :key="row.goal"><th scope="row">{{ row.times[0] }}</th><td v-for="(time, index) in row.times.slice(1)" :key="index">{{ time }}</td></tr></tbody></table></div><div class="table-wrap mobile-pace"><table class="parity-table pace-table"><thead><tr><th>{{ $t('pace.distance') }}</th><th v-for="row in rows" :key="row.goal">{{ row.times[0] }}</th></tr></thead><tbody><tr v-for="(distance, index) in distances.slice(1)" :key="distance"><th scope="row">{{ distance === 'half' ? $t('pace.half') : distance }}</th><td v-for="row in rows" :key="row.goal">{{ row.times[index + 1] }}</td></tr></tbody></table></div></section></template>

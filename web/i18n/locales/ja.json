@@ -1,9 +1,11 @@
 {
   "siteName": "いつラン",
-  "nav": { "home": "ホーム", "yumenoshima": "夢の島", "komazawa": "駒沢", "todoroki": "等々力", "pace": "ペース" },
+  "nav": { "home": "ホーム", "yumenoshima": "夢の島", "komazawa": "駒沢", "todoroki": "等々力", "pace": "ペース", "records": "田中希実の記録", "menu": "メニュー" },
   "homeTitle": "いつでも走れる場所を探そう",
   "homeDescription": "競技場の利用状況とマラソンペースを確認できます。",
-  "footer": "It's Run",
+  "footer": "It's Run", "footerContact": "お問い合わせ・掲載依頼 @itsrun_page",
+  "nozomiYears": "年度別記録", "yearSuffix": "年", "recordDate": "日付", "recordMeet": "大会名",
+  "paceTitle": "マラソンペース計算", "paceDescription": "目標タイムから各地点の通過タイムを確認できます。", "paceRange": "目標タイムの範囲",
   "scheduleTitle": "利用状況",
   "scheduleComingSoon": "スケジュールを準備中です。",
   "scheduleLoading": "スケジュールを読み込み中です…", "scheduleCaption": "週間の利用状況", "scheduleRetained": "最後に取得できたスケジュールを表示しています。",

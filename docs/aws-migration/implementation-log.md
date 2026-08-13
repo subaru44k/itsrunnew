@@ -6284,3 +6284,15 @@ The complete S02 gate passed: `npm run check` (web 92, core 7, schedule API
 100/100, `npm ls --all`, and `git diff --check`. No source/runtime/infra
 contract or external operation changed. The bundled build-tool finding remains
 upstream-blocked pending the first patched aws-cdk-lib release.
+
+### Phase 5 S04 final Sol acceptance — 2026-08-13
+
+Sol independently reviewed `0970aff` and `e203055`, reproduced the zero
+production audit, confirmed the full audit contains only CDK's bundled
+`brace-expansion@5.0.8` finding, and reran all 19 infra assertions plus CDK
+synthesis. The lockfile changes classify the unchanged CDK graph as
+development-only; application source and synthesized AWS contracts are
+unchanged. The upstream build-tool finding is accepted temporarily and remains
+tracked for the first patched aws-cdk-lib release. Phase 5 is technically
+accepted; production cutover still requires an exact production hostname and
+an approved initial Cognito administrator identity.

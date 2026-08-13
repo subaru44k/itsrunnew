@@ -135,3 +135,19 @@ complete checks passed, including 19 infra assertions/synth, local E2E 48/48,
 and public preview E2E 100/100. No source/runtime/infra contract or external
 operation changed. Final Sol review remains required for the documented
 upstream finding.
+
+## S04 final Sol acceptance
+
+Sol independently reviewed the manifest and lockfile changes and reproduced a
+zero-result `npm audit --omit=dev`. The unfiltered audit contains exactly the
+documented high finding in CDK's bundled `brace-expansion@5.0.8`; the latest
+available `aws-cdk-lib@2.264.0` has no patched bundle. This package is used for
+trusted local/CI synthesis only and is absent from the static web and Lambda
+runtime. The residual risk is accepted temporarily as an upstream-blocked
+build-tool finding and must be rechecked when aws-cdk-lib is upgraded.
+
+Infra assertions passed 19/19 and synthesis completed during the independent
+review. No dependency version, application source, synthesized resource
+contract, AWS state, Firebase state, or deployed preview changed. Phase 5 is
+technically accepted. Production cutover remains conditional on the exact
+production hostname and approved initial Cognito administrator identity.

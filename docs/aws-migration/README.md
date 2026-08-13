@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 5 S04 complete; final Sol acceptance pending upstream CDK finding review
+Status: Phase 5 accepted; production cutover inputs remain pending
 
 Planning baseline: `d6de55e` on `master`
 

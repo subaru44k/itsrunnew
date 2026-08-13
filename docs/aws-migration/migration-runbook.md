@@ -99,6 +99,31 @@ object hash/cache metadata, and the distribution invalidation count. Public
 checks use `https://d2via50thoheqm.cloudfront.net`; this is a preview domain,
 not production DNS.
 
+Exact read-only verification commands:
+
+```bash
+set -eu
+export AWS_PROFILE=codex-prod AWS_REGION=ap-northeast-1 AWS_DEFAULT_REGION=ap-northeast-1
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
+aws sts get-caller-identity --query '{Account:Account}' --output json
+aws cloudformation describe-stacks --stack-name ItsRunPreviewHosting --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' --output json
+aws cloudformation describe-stacks --stack-name ItsRunPreviewGitHubDeploy --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' --output json
+aws cloudwatch describe-alarms --alarm-names itsrun-preview-admin-api-5xx --query 'MetricAlarms[0].{State:StateValue,ActionsEnabled:ActionsEnabled,AlarmActions:AlarmActions,InsufficientDataActions:InsufficientDataActions,OKActions:OKActions}' --output json
+aws cognito-idp list-users --user-pool-id ap-northeast-1_nmj9cP9st --query 'length(Users)' --output text
+aws cognito-idp list-users-in-group --user-pool-id ap-northeast-1_nmj9cP9st --group-name admins --query 'length(Users)' --output text
+aws s3api get-public-access-block --bucket itsrun-preview-data-470447451992-ap-northeast-1 --query PublicAccessBlockConfiguration --output json
+aws s3api get-bucket-versioning --bucket itsrun-preview-data-470447451992-ap-northeast-1 --query Status --output text
+aws s3api head-object --bucket itsrun-preview-data-470447451992-ap-northeast-1 --key data/v1/stadiums/oda/availability/2026-08.json --checksum-mode ENABLED --query '{Bytes:ContentLength,ETag:ETag,VersionId:VersionId,ContentType:ContentType,CacheControl:CacheControl,ServerSideEncryption:ServerSideEncryption,ChecksumSHA256:ChecksumSHA256}' --output json
+test "$(curl -sS -o /dev/null -w '%{http_code}' https://itsrun-preview-data-470447451992-ap-northeast-1.s3.ap-northeast-1.amazonaws.com/data/v1/stadiums/oda/availability/2026-08.json)" = 403
+curl -sS -D "$tmp_dir/api.headers" -o /dev/null -w 'api_status=%{http_code}\n' https://d2via50thoheqm.cloudfront.net/api/v1/stadiums/oda/availability/2026-08
+grep -i '^cache-control: no-store' "$tmp_dir/api.headers"
+curl -fsS -D "$tmp_dir/cloudfront.headers" -o "$tmp_dir/cloudfront.body" https://d2via50thoheqm.cloudfront.net/data/v1/stadiums/oda/availability/2026-08.json
+sha256sum "$tmp_dir/cloudfront.body"
+grep -i -E '^(HTTP/|content-type:|content-length:|cache-control:)' "$tmp_dir/cloudfront.headers"
+aws cloudfront list-invalidations --distribution-id E22K5S8F2NUP6K --query 'length(InvalidationList.Items)' --output text
+```
+
 ## Application rollback
 
 If the new application fails:

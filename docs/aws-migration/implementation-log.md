@@ -49,8 +49,8 @@ Operating system: macOS
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
 | T15 | complete; accepted after Sol final review | `a812b41`, `144b025`, `5f67e08`, `023229f` + Sol acceptance below | Web helper 58/58/58; raw preview 88; trigger cleanup; master protection; local T15F; final-doc validation attempt 2 passed | Workflow is dispatch-only, selected action is exact-SHA pinned, data/invalidation/Hosting remain unchanged. |
-| T16 | ready; depends on accepted T15 | | | |
-| T17 | blocked by T16 | | | |
+| T16 | complete locally; awaiting Sol acceptance | a1d42be, 1bf6a9c | npm run check; npm run test:e2e 62/62; preview 100/100 | |
+| T17 | ready after Sol acceptance | | not started | |
 
 ### Phase 4 T16 Sol execution authorization
 
@@ -6062,3 +6062,14 @@ current object remains 501 bytes, ETag
 `ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`; the
 CloudFront body/hash/cache metadata match exactly. T16 is complete locally;
 T17 is ready but not started. Stop for Sol review.
+
+### T16E TE02 command/status table correction — 2026-08-13
+
+Focused documentation correction from clean `a1d42be`: the runbook now lists
+the exact pinned read-only STS, stack/output, alarm, Cognito-count, S3-gate and
+head-object, direct-S3, API-header, CloudFront hash/header, and invalidation
+commands with safe temporary-file cleanup and no credentials or writes. The
+implementation task table now records T16 as `complete locally; awaiting Sol
+acceptance` with commits/checks and T17 as `ready after Sol acceptance`;
+historical failure and Sol reproduction records remain unchanged. No runtime,
+test, AWS/network, Firebase, DNS, dependency, or T17 change occurred.

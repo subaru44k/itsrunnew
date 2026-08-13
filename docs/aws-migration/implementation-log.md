@@ -6386,3 +6386,18 @@ conditions and only one stadium. No AWS or other external operation occurred.
 
 PVR01–PVR05 in `phase5-public-parity-recovery-plan.md` define the correction
 work. Preview deployment and production cutover remain stopped.
+
+### PVR01–PVR03 correction implementation — 2026-08-13
+
+Starting from Sol's exact clean handoff `5d3c2f7`, PVR01 replaced runtime
+slash expansion with an explicit 60-entry transcript (41 2021 and 19 2020),
+including weekday dates, separate 2021-06-27 rows, Japanese meet names, and
+structural assertions. PVR02 rebuilt the header into four semantic disclosure
+groups with a fixed mobile drawer and deterministic Escape cleanup. PVR03
+restored open-day headings, the Oda announcement, separate schedule and
+information cards, maps, and retained schedule state presentation. Web unit
+tests passed 93/93 and the Nuxt production build/SEO verification passed.
+
+PVR04/PVR05 final matrix and required full gate remain to be run before this
+handoff is accepted. The raw preview suite and protected external systems were
+untouched; no deployment or production operation is authorized.

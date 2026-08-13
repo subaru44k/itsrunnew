@@ -5732,6 +5732,28 @@ deployment, IAM/CloudFormation change, other object/version/delete operation,
 production/DNS, Firebase, historical-data import, or T17 action is authorized
 in this invocation.
 
+### T16 CH01-CH02 localized-conflict CF03 execution stop — 2026-08-13
+
+The one authorized invocation from clean `72c42e9` ran with the exact
+`codex-prod` profile, account `470447451992`, region `ap-northeast-1`, and
+documented preview target. Its sanitized result was
+`operations=7`, `writes=1`, `restores=1`, `cleanups=1`, `polls=0`,
+`writeStatus=passed`, `staleStatus=started`, `restoreStatus=passed`, and
+`cleanupStatus=passed`; the run stopped at the stale checkpoint as intended.
+No stale success or test identity was retained, and no retry or manual
+operation was performed. Recovery material was not retained.
+
+Read-only post-checks prove the restored current VersionId
+`okeeReQ9zSPKeWWtfb3qyvRC8TYAFM9s`, exact 501-byte original body, ETag
+`"b2591d35e23ac1b9f2a133f71198b953"`, `application/json`, cache policy
+`public, max-age=0, s-maxage=60`, AES256 encryption, SHA-256
+`ec0a284d8d237f74bcae683edbd367a9041c0b59f8974e8f5da7e6c6e8c86aeb`, and
+tuple 0. CloudFront returned HTTP 200 with the exact 501-byte body/hash and
+cache metadata. Users/admins are `0/0`, Hosting is `UPDATE_COMPLETE`, the
+reviewed alarm is `OK`, and invalidations remain `3`. No rerun, extra restore,
+recovery-material deletion, deployment, invalidation, or other out-of-scope
+operation occurred. Stop for Sol review.
+
 ### T16 corrected CF03 execution stop — 2026-08-11
 
 The one authorized invocation from clean `6691bf7` ran exactly once with the

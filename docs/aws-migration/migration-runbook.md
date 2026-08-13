@@ -5,15 +5,39 @@ This is a draft until Phase 5 Sol approval.
 ## Preconditions
 
 - Phase 5 review says go.
-- AWS production resources are synthesized and reviewed.
-- CloudFront distribution domain passes all public tests.
+- AWS preview resources are synthesized and reviewed.
+- The preview CloudFront distribution domain passes all public tests; it is not
+  a selected production hostname.
 - Cognito admin and non-admin tests pass.
-- Firestore export and S3 import reports have no unexplained mismatch.
-- Current Firebase deployment/version is recorded.
-- DNS TTL is known and lowered in advance when a custom domain is available.
-- A named operator and rollback operator are available.
+- Historical Firebase/Firestore export, comparison, and reconciliation are out
+  of scope under D041 and are not a cutover prerequisite.
+- Firebase Hosting, production DNS, and the production hostname remain
+  unchanged.
+- The site owner, preview AWS operator, rollback operator, and approved
+  Cognito `admins` operator roles are assigned outside Git; credentials remain
+  outside chat and source.
+
+## Accepted preview identifiers
+
+- Account `470447451992`, region `ap-northeast-1`.
+- Hosting stack `ItsRunPreviewHosting`; GitHub deployment stack
+  `ItsRunPreviewGitHubDeploy`.
+- Distribution `E22K5S8F2NUP6K`, domain
+  `d2via50thoheqm.cloudfront.net` (preview only).
+- Web bucket `itsrun-preview-web-470447451992-ap-northeast-1`; data bucket
+  `itsrun-preview-data-470447451992-ap-northeast-1`.
+- API `40xqzug59a`, User Pool `ap-northeast-1_nmj9cP9st`, public client
+  `1olddro3tldfinupl52u9dl1j4`.
+- Lambda `itsrun-preview-schedule-api`; alarm
+  `itsrun-preview-admin-api-5xx`.
 
 ## Administrator account operations
+
+Operational responsibilities are role-based: the site owner approves users
+and any cutover; the preview AWS operator executes preview deployment and
+rollback; the rollback operator preserves recovery evidence; and an approved
+Cognito `admins` member performs schedule maintenance. Do not record personal
+credentials, passwords, tokens, or recovery codes in this repository.
 
 - Self-service sign-up remains disabled.
 - Create one named local Cognito user for each approved operator; never share
@@ -27,31 +51,25 @@ This is a draft until Phase 5 Sol approval.
   `admins` membership. Do not delete the user until audit and rollback needs
   are resolved.
 
-## Data migration
+## Data and baseline disposition
 
-1. Export Firestore read-only.
-2. Record export timestamp, source project, source counts, date range and
-   SHA-256 manifest.
-3. Transform to monthly JSON using the shared parser.
-4. Compare every source cell with output.
-5. Upload with `If-None-Match: *` to the data bucket.
-6. Read every object back from S3 and compare hashes.
-7. Read representative objects through CloudFront.
-8. Record S3 version IDs.
-
-If legacy updates occur after export, run a delta export immediately before
-cutover. Do not implement dual writes unless Sol approves a concrete need.
+Historical Firebase/Firestore data export, comparison, and reconciliation are
+explicitly superseded by D041. No unexplained migration differences remain
+because historical comparison is out of scope, not because a comparison was
+run. The accepted preview seed/current AWS object is the new-stack baseline;
+record its validated bytes, ETag, VersionId, metadata, and hash in sanitized
+evidence only. Do not implement dual writes or access Firebase data.
 
 ## Application cutover
 
-1. Deploy the reviewed web build to the private web bucket.
+1. Deploy the reviewed web build to the private preview web bucket.
 2. Verify hashed assets and HTML cache metadata.
 3. Verify CloudFront extensionless routes.
 4. Run public Playwright smoke tests against the distribution domain.
 5. Run administrator read/update/restore smoke test on a designated future
    date, then restore its original value.
 6. Capture screenshots and response headers.
-7. Attach or update production DNS only after all checks pass.
+7. Do not attach or update production DNS in the preview workflow.
 8. Monitor CloudFront, API Gateway and Lambda errors.
 9. Keep Firebase Hosting and Firestore available and unchanged.
 
@@ -67,17 +85,28 @@ During the window:
 - Do not delete Firebase resources.
 - Record every issue in `implementation-log.md` or the migration pull request.
 
+## Read-only preview verification
+
+Use only `AWS_PROFILE=codex-prod`, account `470447451992`, and region
+`ap-northeast-1`. Verify both stack states, the alarm state and action arrays,
+zero pool users and `admins` memberships, S3 public-access blocks and data
+bucket versioning, direct S3 denial, API `401` with `no-store`, CloudFront
+object hash/cache metadata, and the distribution invalidation count. Public
+checks use `https://d2via50thoheqm.cloudfront.net`; this is a preview domain,
+not production DNS.
+
 ## Application rollback
 
 If the new application fails:
 
 1. Stop administrator updates in the new UI.
-2. Point DNS back to the recorded Firebase target, or restore the previous
-   CloudFront deployment if DNS did not change.
+2. If production cutover is ever separately authorized, point DNS back to the
+   recorded Firebase target, or restore the previous CloudFront deployment if
+   DNS did not change. This preview runbook does not change DNS.
 3. Confirm public routes and schedules on Firebase.
-4. Export any S3 updates made after cutover.
-5. Reconcile those updates into Firestore manually or with a reviewed reverse
-   migration script before reopening legacy administration.
+4. Preserve any S3 updates made after cutover for separately authorized
+   reconciliation. Historical Firebase/Firestore reconciliation is out of
+   scope under D041.
 6. Preserve logs and version IDs for diagnosis.
 
 Do not delete S3 versions or overwrite Firestore during emergency rollback.
@@ -101,13 +130,16 @@ volume.
 
 After the observation window and explicit approval:
 
-1. Take a final Firestore export.
-2. Store encrypted backups and manifests in the agreed location.
-3. Disable the legacy administrator route.
-4. Remove Firebase Hosting DNS/custom-domain association.
+1. Take a final Firestore export only if separately authorized after the
+   observation window; it is not part of T16 or this preview runbook.
+2. Store any approved encrypted backups and manifests in the agreed location.
+3. Disable the legacy administrator route only after explicit approval.
+4. Remove Firebase Hosting DNS/custom-domain association only after explicit
+   approval.
 5. Confirm no clients use Firebase for at least another agreed interval.
 6. Disable Firebase resources in reversible order.
-7. Delete legacy source and dependencies in T17 or a follow-up pull request.
+7. Delete legacy source and dependencies only in the separately approved T17
+   workflow.
 
 Permanent Firebase project deletion is a separate destructive action and
 requires explicit user authorization.

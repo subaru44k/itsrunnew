@@ -5996,3 +5996,21 @@ to complete T16E. D041 makes historical Firestore export/comparison out of
 scope. No AWS/GitHub write, identity administration, S3 mutation, deployment,
 invalidation, IAM/CloudFormation, Firebase, DNS/production, tag, or T17 removal
 is authorized in this pass.
+
+### T16E01-T16E03 finalization stop — 2026-08-13
+
+The new raw preview operational suite passed all `12/12` tests across
+Japanese/English desktop and mobile contexts, covering 375px/1280px layouts,
+keyboard focus, accessible schedule structure/status text, and localized
+content. `npm ci` completed successfully; `npm run check` passed structure,
+lint, typecheck, unit, infra, and build checks.
+
+The required `npm run test:e2e` then stopped at its first chained suite with
+`13/14` legacy public-route tests passing. The `/en/` case failed before page
+creation with sanitized Playwright infrastructure evidence:
+`browser.newContext: Target page, context or browser has been closed`.
+The admin E2E suite did not run because the chained command stopped. No retry
+or masking rerun was performed. T16 is not marked complete and T17 is not
+started. The remaining T16E03 preview/AWS checks are pending Sol review of
+this binding failure; no AWS/GitHub write, Firebase access, DNS/production
+change, or T17 operation occurred.

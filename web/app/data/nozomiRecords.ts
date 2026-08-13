@@ -1,68 +1,32 @@
-export interface NozomiRecord { year: number; date: string; meet: string; event: string; result: string }
+export interface NozomiRecord {
+  year: number
+  dateJa: string
+  dateEn: string
+  meetJa: string
+  meetEn: string
+  event: string
+  result: string
+}
 
-// Structured records migrated from the legacy NozomiAntena view. Keeping rows
-// as data makes the table maintainable and avoids repeating markup in a page.
-export const NOZOMI_RECORDS: readonly NozomiRecord[] = [
-  { year: 2020, date: '12/27', meet: '川内杯栗橋関所マラソン', event: '10km', result: '32\'07"' },
-  { year: 2020, date: '12/12', meet: '神戸市長距離記録会', event: '3000m', result: '9\'25"38' },
-  { year: 2020, date: '12/04', meet: '日本選手権', event: '5000m', result: '15\'05"65' },
-  { year: 2020, date: '11/15(日)', meet: '静岡県長距離強化記録会', event: '3000m', result: '9\'09"65' },
-  { year: 2020, date: '11/15(日)', meet: '静岡県長距離強化記録会', event: '3000m', result: '9\'00"84' },
-  { year: 2020, date: '11/03', meet: 'Denka Athletics Challenge Cup 2020', event: '5000m', result: '15\'22"39' },
-  { year: 2020, date: '10/27', meet: 'ミドルディスタンス・チャレンジ', event: '1500m', result: '4\'10"41' },
-  { year: 2020, date: '10/24', meet: '木南道孝記念陸上競技大会', event: '800m', result: '2\'06"72' },
-  { year: 2020, date: '10/11', meet: 'ナイタートライアルin屋島', event: '5000m', result: '15\'15"76' },
-  { year: 2021, date: '12/10', meet: 'Edion Distance Challenge in Kyoto', event: '5000m', result: '15\'04"10' },
-  { year: 2021, date: '12/04', meet: 'Nittai Long Distance Meet', event: '5000m', result: '15\'04"83' },
-  { year: 2021, date: '11/20(土)', meet: '第5回 静岡県長距離強化記録会', event: '3000m', result: '9\'18"29' },
-  { year: 2021, date: '11/20(土)', meet: '第5回 静岡県長距離強化記録会', event: '3000m', result: '8\'51"77' },
-  { year: 2021, date: '10/31', meet: 'TWOLAPS Middle Distance Circuit', event: '1000m', result: '2\'39"59' },
-  { year: 2021, date: '10/17', meet: 'Kitakyushu Carnival', event: '800m', result: '2\'06"78' },
-  { year: 2021, date: '10/9(土)', meet: 'ナイタートライアルin屋島', event: '1500m', result: '4\'08"81' },
-  { year: 2021, date: '10/9(土)', meet: 'ナイタートライアルin屋島', event: '3000m', result: '8\'50"47' },
-  { year: 2021, date: '10/9(土)', meet: 'ナイタートライアルin屋島', event: '5000m', result: '15\'55"99' },
-  { year: 2021, date: '10/02', meet: 'Nittai Long Distance Meet', event: '5000m', result: '15\'00"90' },
-  { year: 2021, date: '09/23', meet: 'TWOLAPS Middle Distance Circuit', event: '800m', result: '2\'06"76' },
-  { year: 2021, date: '09/20', meet: 'Nittai Long Distance Meet', event: '800m', result: '2\'02"36' },
-  { year: 2021, date: '08/20', meet: 'TWOLAPS Middle Distance Circuit', event: '1000m', result: '2\'37"72' },
-  { year: 2021, date: '8/6(金)', meet: '東京オリンピック', event: '1500m', result: '3\'59"95' },
-  { year: 2021, date: '8/4(水)', meet: '東京オリンピック', event: '1500m', result: '3\'59"19 PB' },
-  { year: 2021, date: '8/2(月)', meet: '東京オリンピック', event: '1500m', result: '4\'02"33' },
-  { year: 2021, date: '7/30(金)', meet: '東京オリンピック', event: '5000m', result: '14\'59"93' },
-  { year: 2021, date: '07/17', meet: 'Hokuren Distance Challenge Chitose', event: '1500m', result: '4\'04"08' },
-  { year: 2021, date: '07/14', meet: 'Hokuren Distance Challenge Kitami', event: '5000m', result: '15\'17"93' },
-  { year: 2021, date: '07/10', meet: 'Hokuren Distance Challenge Abashiri', event: '3000m', result: '8\'40"84 PB' },
-  { year: 2021, date: '6/27(日)', meet: '日本陸上競技選手権大会', event: '800m', result: '2\'04"47' },
-  { year: 2021, date: '6/27(日)', meet: '日本陸上競技選手権大会', event: '5000m', result: '15\'18"25' },
-  { year: 2021, date: '06/26', meet: 'Japan National Championships', event: '800m', result: '2\'07"23' },
-  { year: 2021, date: '06/25', meet: 'Japan National Championships', event: '1500m', result: '4\'08"39' },
-  { year: 2021, date: '06/06', meet: 'Denka Athletics Challenge Cup', event: '1500m', result: '4\'09"06' },
-  { year: 2021, date: '06/01', meet: 'Kinami Michitaka Memorial', event: '1500m', result: '4\'10"06' },
-  { year: 2021, date: '05/15', meet: 'Chubu Corporate Championships', event: '3000m', result: '8\'58"54' },
-  { year: 2021, date: '05/09', meet: 'READY STEADY TOKYO', event: '1500m', result: '4\'09"10' },
-  { year: 2021, date: '05/03', meet: 'Shizuoka International', event: '800m', result: '2\'03"19' },
-  { year: 2021, date: '04/29', meet: 'Mikio Oda Memorial', event: '5000m', result: '15\'11"82' },
-  { year: 2021, date: '04/25', meet: 'Hyogo Relay Carnival', event: '1500m', result: '4\'10"14' },
-  { year: 2021, date: '4/18(日)', meet: '兵庫陸上競技春季記録会', event: '800m', result: '2\'06"60' },
-  { year: 2021, date: '4/18(日)', meet: '兵庫陸上競技春季記録会', event: '3000m', result: '9\'11"39' },
-  { year: 2021, date: '04/10', meet: 'Kaguri Memorial', event: '1500m', result: '4\'09"31' },
-  { year: 2021, date: '04/04', meet: 'Middle Distance Challenge', event: '1500m', result: '4\'13"09' },
-  { year: 2021, date: '04/03', meet: 'Middle Distance Challenge', event: '3000m', result: '8\'57"27' },
-  { year: 2021, date: '03/29', meet: 'Akashi Spring Athletics', event: '3000m', result: '9\'09"57' },
-  { year: 2021, date: '3/21(日)', meet: '屋外高松UD記録会', event: '800m', result: '2\'09"10' },
-  { year: 2021, date: '3/21(日)', meet: '屋外高松UD記録会', event: '1500m', result: '4\'15"18' },
-  { year: 2021, date: '02/27', meet: 'Japan Cross Country Championships', event: '8km', result: '26\'22"' },
-  { year: 2021, date: '01/17', meet: 'Kyoto Women’s Ekiden Meet', event: '10000m', result: '31\'59"89' },
-  { year: 2020, date: '10/03', meet: 'Japan National Championships', event: '800m', result: '2\'04"76' },
-  { year: 2020, date: '10/02', meet: 'Japan National Championships', event: '1500m', result: '4\'10"21' },
-  { year: 2020, date: '9/15(火)', meet: '神戸市長距離記録会', event: '1500m', result: '4\'12"81' },
-  { year: 2020, date: '9/15(火)', meet: '神戸市長距離記録会', event: '3000m', result: '8\'56"18' },
-  { year: 2020, date: '08/23', meet: 'Seiko Golden Grand Prix Tokyo', event: '1500m', result: '4\'05"27' },
-  { year: 2020, date: '07/18', meet: 'Hokuren Distance Challenge Chitose', event: '3000m', result: '8\'51"49' },
-  { year: 2020, date: '07/15', meet: 'Hokuren Distance Challenge Abashiri', event: '5000m', result: '15\'02"62' },
-  { year: 2020, date: '07/12', meet: 'Hyogo Championships', event: '800m', result: '2\'04"66' },
-  { year: 2020, date: '07/08', meet: 'Hokuren Distance Challenge Fukagawa', event: '3000m', result: '8\'41"35' },
-  { year: 2020, date: '07/04', meet: 'Hokuren Distance Challenge Shibetsu', event: '1500m', result: '4\'08"68' },
+type JapaneseTuple = [year: number, dateJa: string, meetJa: string, event: string, result: string]
+
+// Exact transcript of every legacy <tbody><tr>, in displayed year/row order.
+export const NOZOMI_JA_TUPLES: readonly JapaneseTuple[] = [
+  [2021,'12/10(金)','エディオンディスタンスチャレンジ in 京都2021','5000m','15\'04"10'],[2021,'12/4(土)','日体大長距離競技会','5000m','15\'04"83'],[2021,'11/20(土)','第5回 静岡県長距離強化記録会','3000m','9\'18"29'],[2021,'11/20(土)','第5回 静岡県長距離強化記録会','3000m','8\'51"77'],
+  [2021,'10/31(日)','TWOLAPS ミドルディスタンスサーキット','1000m','2\'39"59'],[2021,'10/17(日)','北九州カーニバル','800m','2\'06"78'],[2021,'10/9(土)','ナイタートライアルin屋島','1500m','4\'08"81'],[2021,'10/9(土)','ナイタートライアルin屋島','3000m','8\'50"47'],[2021,'10/9(土)','ナイタートライアルin屋島','5000m','15\'55"99'],
+  [2021,'10/2(土)','日体大長距離競技会','5000m','15\'00"90'],[2021,'9/23(木)','TWOLAPS ミドルディスタンスサーキット','800m','2\'06"76'],[2021,'9/20(月)','日体大長距離競技会','800m','2\'02"36'],[2021,'8/20(金)','TWOLAPS ミドルディスタンスサーキット','1000m','2\'37"72'],
+  [2021,'8/6(金)','東京オリンピック','1500m','3\'59"95'],[2021,'8/4(水)','東京オリンピック','1500m','3\'59"19 PB'],[2021,'8/2(月)','東京オリンピック','1500m','4\'02"33'],[2021,'7/30(金)','東京オリンピック','5000m','14\'59"93'],
+  [2021,'7/17(土)','ホクレンディスタンスチャレンジ 千歳大会','1500m','4\'04"08'],[2021,'7/14(水)','ホクレンディスタンスチャレンジ 北見大会','5000m','15\'17"93'],[2021,'7/10(土)','ホクレンディスタンスチャレンジ 網走大会','3000m','8\'40"84 PB'],
+  [2021,'6/27(日)','日本陸上競技選手権大会','800m','2\'04"47'],[2021,'6/27(日)','日本陸上競技選手権大会','5000m','15\'18"25'],[2021,'6/26(土)','日本陸上競技選手権大会','800m','2\'07"23'],[2021,'6/25(金)','日本陸上競技選手権大会','1500m','4\'08"39'],
+  [2021,'6/6(日)','Denka Athletics Challenge Cup 2021','1500m','4\'09"06'],[2021,'6/1(火)','木南道孝記念陸上競技大会','1500m','4\'10"06'],[2021,'5/15(土)','中部実業団対抗陸上競技大会','3000m','8\'58"54'],[2021,'5/9(日)','READY STEADY TOKYO','1500m','4\'09"10'],[2021,'5/3(月)','静岡国際陸上競技大会','800m','2\'03"19'],[2021,'4/29(木)','織田幹雄記念国際陸上競技大会','5000m','15\'11"82'],[2021,'4/25(日)','兵庫リレーカーニバル','1500m','4\'10"14'],
+  [2021,'4/18(日)','兵庫陸上競技春季記録会','800m','2\'06"60'],[2021,'4/18(日)','兵庫陸上競技春季記録会','3000m','9\'11"39'],[2021,'4/10(土)','金栗記念選抜陸上中長距離大会','1500m','4\'09"31'],[2021,'4/4(日)','ミドルディスタンス・チャレンジ','1500m','4\'13"09'],[2021,'4/3(土)','ミドルディスタンス・チャレンジ','3000m','8\'57"27'],[2021,'3/29(月)','明石市春季陸上競技大会','3000m','9\'09"57'],[2021,'3/21(日)','屋外高松UD記録会','800m','2\'09"10'],[2021,'3/21(日)','屋外高松UD記録会','1500m','4\'15"18'],[2021,'2/27(土)','日本選手権クロスカントリー競走','8km','26\'22"'],[2021,'1/17(水)','京都女子駅伝 中長距離競技会','10000m','31\'59"89'],
+  [2020,'12/27(日)','川内杯栗橋関所マラソン','10km','32\'07"'],[2020,'12/12(土)','神戸市長距離記録会','3000m','9\'25"38'],[2020,'12/4(金)','日本選手権','5000m','15\'05"65'],[2020,'11/15(日)','静岡県長距離強化記録会','3000m','9\'09"65'],[2020,'11/15(日)','静岡県長距離強化記録会','3000m','9\'00"84'],[2020,'11/3(火)','Denka Athletics Challenge Cup 2020','5000m','15\'22"39'],[2020,'10/27(火)','ミドルディスタンス・チャレンジ','1500m','4\'10"41'],[2020,'10/24(土)','木南道孝記念陸上競技大会','800m','2\'06"72'],[2020,'10/11(日)','ナイタートライアルin屋島','5000m','15\'15"76'],[2020,'10/3(土)','日本陸上競技選手権大会','800m','2\'04"76'],[2020,'10/2(金)','日本陸上競技選手権大会','1500m','4\'10"21'],[2020,'9/15(火)','神戸市長距離記録会','1500m','4\'12"81'],[2020,'9/15(火)','神戸市長距離記録会','3000m','8\'56"18'],[2020,'8/23(日)','セイコーゴールデングランプリ陸上2020東京','1500m','4\'05"27'],[2020,'7/18(土)','ホクレンディスタンスチャレンジ 千歳大会','3000m','8\'51"49'],[2020,'7/15(水)','ホクレンディスタンスチャレンジ 網走大会','5000m','15\'02"62'],[2020,'7/12(日)','兵庫選手権','800m','2\'04"66'],[2020,'7/8(水)','ホクレンディスタンスチャレンジ 深川大会','3000m','8\'41"35'],[2020,'7/4(土)','ホクレンディスタンスチャレンジ 士別大会','1500m','4\'08"68'],
 ]
 
-export function expandedNozomiRecords(_locale: string): NozomiRecord[] { return [...NOZOMI_RECORDS] }
+const weekdayEn: Record<string, string> = { '日': 'Sun', '月': 'Mon', '火': 'Tue', '水': 'Wed', '木': 'Thu', '金': 'Fri', '土': 'Sat' }
+const englishMeet: Record<string, string> = {
+  'エディオンディスタンスチャレンジ in 京都2021': 'Edion Distance Challenge in Kyoto 2021', '日体大長距離競技会': 'Nittai Long Distance Meet', '第5回 静岡県長距離強化記録会': '5th Shizuoka Long Distance Record Meet', 'TWOLAPS ミドルディスタンスサーキット': 'TWOLAPS Middle Distance Circuit', '北九州カーニバル': 'Kitakyushu Carnival', 'ナイタートライアルin屋島': 'Night Trial in Yashima', '東京オリンピック': 'Tokyo Olympics', 'ホクレンディスタンスチャレンジ 千歳大会': 'Hokuren Distance Challenge Chitose', 'ホクレンディスタンスチャレンジ 北見大会': 'Hokuren Distance Challenge Kitami', 'ホクレンディスタンスチャレンジ 網走大会': 'Hokuren Distance Challenge Abashiri', '日本陸上競技選手権大会': 'Japan National Championships', '木南道孝記念陸上競技大会': 'Kinami Michitaka Memorial', '中部実業団対抗陸上競技大会': 'Chubu Corporate Championships', '静岡国際陸上競技大会': 'Shizuoka International', '織田幹雄記念国際陸上競技大会': 'Mikio Oda Memorial', '兵庫リレーカーニバル': 'Hyogo Relay Carnival', '兵庫陸上競技春季記録会': 'Hyogo Spring Record Meet', '金栗記念選抜陸上中長距離大会': 'Kanaguri Memorial', 'ミドルディスタンス・チャレンジ': 'Middle Distance Challenge', '明石市春季陸上競技大会': 'Akashi Spring Athletics', '屋外高松UD記録会': 'Takamatsu UD Outdoor Meet', '日本選手権クロスカントリー競走': 'Japan Cross Country Championships', '京都女子駅伝 中長距離競技会': 'Kyoto Women’s Ekiden Meet', '川内杯栗橋関所マラソン': 'Kawauchi Cup Kurihashi Sekisho Marathon', '神戸市長距離記録会': 'Kobe Long Distance Record Meet', '日本選手権': 'Japan Championships', 'セイコーゴールデングランプリ陸上2020東京': 'Seiko Golden Grand Prix Tokyo', '兵庫選手権': 'Hyogo Championships', 'ホクレンディスタンスチャレンジ 深川大会': 'Hokuren Distance Challenge Fukagawa', 'ホクレンディスタンスチャレンジ 士別大会': 'Hokuren Distance Challenge Shibetsu', 'Denka Athletics Challenge Cup 2021': 'Denka Athletics Challenge Cup 2021', 'Denka Athletics Challenge Cup 2020': 'Denka Athletics Challenge Cup 2020', 'READY STEADY TOKYO': 'READY STEADY TOKYO'
+}
+const toEnglishDate = (date: string) => date.replace(/\((.)\)$/, (_, day: string) => `(${weekdayEn[day] ?? day})`)
+export const NOZOMI_RECORDS: readonly NozomiRecord[] = NOZOMI_JA_TUPLES.map(([year, dateJa, meetJa, event, result]) => ({ year, dateJa, dateEn: toEnglishDate(dateJa), meetJa, meetEn: englishMeet[meetJa] ?? meetJa, event, result }))
+export function expandedNozomiRecords(locale: string): NozomiRecord[] { return [...NOZOMI_RECORDS] }

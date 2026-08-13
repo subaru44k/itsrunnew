@@ -6426,3 +6426,19 @@ as useful progress. No external operation occurred.
 
 FPR01–FPR04 define the next local correction. Preview deployment and production
 cutover remain stopped.
+
+### FPR01 exact records correction — 2026-08-13
+
+FPR01 is implemented locally from the retained legacy `NozomiAntena.vue`.
+`web/app/data/nozomiRecords.ts` now contains an explicit locale-aware record
+type (`dateJa`, `dateEn`, `meetJa`, `meetEn`, `event`, `result`) and a complete
+ordered 60-row Japanese transcript: 41 rows for 2021 followed by 19 rows for
+2020. The two 2021-06-27 events remain separate. The page selects Japanese or
+English date/meet fields without replacing Japanese content on the Japanese
+route; no slash-combined event/result fields are present.
+
+`web/app/data/nozomiRecords.test.ts` deep-compares the complete 240-cell
+Japanese projection, checks year counts, the exact 6/27 pair, row ordering,
+and locale-field separation. Focused unit tests and web typecheck passed.
+No AWS, preview, Firebase, dependency, or external operation occurred. Stop
+for Sol review before FPR02.

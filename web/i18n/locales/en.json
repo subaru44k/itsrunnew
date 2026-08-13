@@ -1,6 +1,6 @@
 {
   "siteName": "It's Run",
-  "nav": { "home": "Home", "yumenoshima": "Yumenoshima", "komazawa": "Komazawa", "todoroki": "Todoroki", "pace": "Pace", "records": "Nozomi Tanaka records", "menu": "Menu" },
+  "nav": { "home": "Home", "yumenoshima": "Yumenoshima", "komazawa": "Komazawa", "todoroki": "Todoroki", "pace": "Pace", "records": "Nozomi Tanaka records", "menu": "Menu", "tokyo": "Tokyo", "kanagawa": "Kanagawa", "lap": "Lap time", "recordsGroup": "Records" },
   "homeTitle": "Find a place to run",
   "homeDescription": "Check track availability and marathon pace tables.",
   "footer": "It's Run", "footerContact": "Contact and listing requests (itsrun_page)",
@@ -17,6 +17,7 @@
   "scheduleNext": "Next week",
   "scheduleDate": "Date",
   "scheduleSlot": "Slot {slot}",
+  "stadiumOpenTitles": { "oda": "Oda Field availability", "yumenoshima": "Yumenoshima availability", "komazawa": "Komazawa availability", "todoroki": "Todoroki availability" }, "stadiumAnnouncement": "Oda Field visitor information", "stadiumAnnouncementUrl": "https://www.tokyo-park.or.jp/park/yoyogi/",
   "stadium": { "oda": "Yoyogi Park Athletic Track", "yumenoshima": "Yumenoshima Athletics Stadium", "komazawa": "Komazawa Olympic Park Athletic Stadium", "todoroki": "Todoroki Athletic Track" },
   "stadiumSections": { "access": "Access", "contact": "Contact", "introduction": "Introduction", "map": "Map", "hours": "Personal use hours" },
   "stadiumContent": {
@@ -25,7 +26,7 @@
     "komazawa": { "official": "Komazawa Olympic Park Athletic Stadium", "access": ["15 minutes from Komazawa-Daigaku station on the Hanzomon Line"], "contact": "Komazawa Olympic Park service desk (TEL: 03-3421-6199)", "paragraphs": ["An athletic stadium in Komazawa Olympic Park."] },
     "todoroki": { "official": "Kawasaki Todoroki Stadium", "access": ["15 minutes from Musashi-Nakahara station on the Nambu Line"], "contact": "Todoroki Athletic Stadium", "paragraphs": ["The main stadium has hosted international athletics competitions.", "Availability changes with football events, so check the schedule before visiting."] }
   },
-  "nozomiTitle": "Race result of Nozomi Tanaka", "nozomiDescription": "Review selected race records.", "event": "Event", "result": "Result",
+  "nozomiTitle": "Nozomi Tanaka race records", "nozomiAffiliation": "A record of dates, events and times from races by Nozomi Tanaka of Toyota Industries Corporation TC.", "nozomiDescription": "Nozomi Tanaka competes frequently at the highest level. This page lists the dates, events and times of her races from the 2020 Hokuren Distance meetings onward.", "nozomiYears": "Browse by year", "yearSuffix": " race records", "recordDate": "Date", "recordMeet": "Meet", "event": "Event", "result": "Time",
   "pace": { "distance": "Distance", "time": "Split time", "goal": "Goal", "half": "Half" },
   "admin": { "title": "Schedule administration", "login": "Sign in as administrator", "logout": "Sign out", "loading": "Checking authentication…", "configError": "The administrator page is not configured.", "authError": "Authentication could not be completed.", "loadError": "The schedule could not be loaded.", "saveError": "The schedule could not be saved.", "forbidden": "You do not have administrator permission for this operation.", "save": "Save", "saving": "Saving…", "saved": "Saved.", "missing": "There is no data for this month. You can create it.", "conflict": "The schedule changed elsewhere. Your draft is preserved below.", "conflictInstruction": "Choose whether to keep your local edits on the latest value or replace them with the latest server value.", "comparisonError": "The latest schedule could not be loaded.", "discard": "Discard changes", "discardConfirm": "Discard unsaved changes?", "replaceConfirm": "Replace local edits with the latest server value?", "rebase": "Keep edits on latest", "replaceLatest": "Replace with latest", "retryLoad": "Retry load", "retrySave": "Retry save", "retryComparison": "Retry latest comparison", "load": "Load", "stadium": "Stadium", "month": "Month", "slot": "Time slot", "status0": "Unknown", "status1": "Available", "status2": "Unavailable", "date": "Date", "retry": "Retry", "latest": "Latest server value", "base": "Base", "local": "Local", "none": "None", "updatedAt": "Server updated at", "error": "The schedule could not be saved." }
 }

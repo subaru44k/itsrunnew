@@ -1,6 +1,6 @@
 {
   "siteName": "いつラン",
-  "nav": { "home": "ホーム", "yumenoshima": "夢の島", "komazawa": "駒沢", "todoroki": "等々力", "pace": "ペース", "records": "田中希実の記録", "menu": "メニュー" },
+  "nav": { "home": "ホーム", "yumenoshima": "夢の島", "komazawa": "駒沢", "todoroki": "等々力", "pace": "ペース", "records": "田中希実の記録", "menu": "メニュー", "tokyo": "東京", "kanagawa": "神奈川", "lap": "ラップタイム", "recordsGroup": "記録" },
   "homeTitle": "いつでも走れる場所を探そう",
   "homeDescription": "競技場の利用状況とマラソンペースを確認できます。",
   "footer": "It's Run", "footerContact": "お問い合わせ・掲載依頼（itsrun_page）",
@@ -17,6 +17,7 @@
   "scheduleNext": "次の週",
   "scheduleDate": "日付",
   "scheduleSlot": "時間帯 {slot}",
+  "stadiumOpenTitles": { "oda": "織田フィールドの利用可能日", "yumenoshima": "夢の島競技場の利用可能日", "komazawa": "駒沢競技場の利用可能日", "todoroki": "等々力競技場の利用可能日" }, "stadiumAnnouncement": "織田フィールド利用案内", "stadiumAnnouncementUrl": "https://www.tokyo-park.or.jp/park/yoyogi/",
   "stadium": { "oda": "織田フィールド", "yumenoshima": "夢の島競技場", "komazawa": "駒沢競技場", "todoroki": "等々力競技場" },
   "stadiumSections": { "access": "アクセス", "contact": "連絡先", "introduction": "施設紹介", "map": "地図", "hours": "個人利用時間" },
   "stadiumContent": {
@@ -25,7 +26,7 @@
     "komazawa": { "official": "駒沢オリンピック公園陸上競技場", "access": ["東京メトロ半蔵門線　駒沢大学駅徒歩15分"], "contact": "駒沢オリンピック公園総合運動場　サービス担当（TEL:03-3421-6199）", "paragraphs": ["駒沢オリンピック公園内の陸上競技場です。"] },
     "todoroki": { "official": "川崎市等々力陸上競技場", "access": ["南武線武蔵中原駅徒歩15分"], "contact": "等々力陸上競技場", "paragraphs": ["武蔵中原駅から徒歩15分程度の陸上競技場。メインスタジアムは世界大会も開催されるような立派な施設。すぐ近くにサブトラックもあるので、そちらで気楽に走るのも良い。", "川崎フロンターレのメインスタジアムでもあり、サッカーの状況によって利用可能日は不定期になるので、利用可能かどうかはしっかり確認する必要がある。サブトラックの周囲は1kmくらいの走れる場所があるので、アップはやりやすいが、サブトラックの隣は公園と野球場があるので、時々ボールなり球が飛んでくる。"] }
   },
-  "nozomiTitle": "田中希実の記録", "nozomiDescription": "大会記録を確認できます。", "event": "種目", "result": "記録",
+  "nozomiTitle": "田中希実選手の記録集", "nozomiAffiliation": "豊田自動織機TC所属の陸上競技選手、田中希実選手の試合の結果として日時、種目、タイムを記載した記録集", "nozomiDescription": "田中希実選手は第一線で活躍する陸上選手としては高頻度で大会に参加するので、いつどの大会に出てどんな結果だったかを日時、種目、タイムのみまとめました。2020年のホクレンディスタンスくらいからの田中希実選手の記録を掲載しています。", "nozomiYears": "各年度へのリンク", "yearSuffix": "年の大会結果・記録", "recordDate": "日付", "recordMeet": "大会名", "event": "種目", "result": "タイム",
   "pace": { "distance": "距離", "time": "通過タイム", "goal": "目標", "half": "ハーフ" },
   "admin": { "title": "管理者スケジュール", "login": "管理者としてログイン", "logout": "ログアウト", "loading": "認証情報を確認中です…", "configError": "管理画面を設定できません。", "authError": "認証を完了できませんでした。", "loadError": "スケジュールを読み込めませんでした。", "saveError": "スケジュールを保存できませんでした。", "forbidden": "管理者権限がないため操作できません。", "save": "保存", "saving": "保存中…", "saved": "保存しました。", "missing": "この月のデータはありません。新規作成できます。", "conflict": "別の更新があるため保存できませんでした。下に最新値を表示しています。", "conflictInstruction": "ローカル編集を維持して最新値へ再適用するか、最新値で置き換えるかを選択してください。", "comparisonError": "最新データを取得できませんでした。", "discard": "変更を破棄", "discardConfirm": "未保存の変更を破棄しますか？", "replaceConfirm": "最新のサーバー値でローカル編集を置き換えますか？", "rebase": "最新値へ再適用して編集を維持", "replaceLatest": "最新値で置き換え", "retryLoad": "読み込みを再試行", "retrySave": "保存を再試行", "retryComparison": "最新値の取得を再試行", "load": "読み込む", "stadium": "競技場", "month": "月", "slot": "時間帯", "status0": "未公開", "status1": "利用可能", "status2": "利用不可", "date": "日付", "retry": "再試行", "latest": "最新のサーバー値", "base": "元の値", "local": "ローカル編集", "none": "なし", "updatedAt": "サーバー更新日時", "error": "保存できませんでした。" }
 }

@@ -242,6 +242,12 @@
       "Action": ["iam:CreateServiceLinkedRole"],
       "Resource": "*",
       "Condition": { "StringEquals": { "iam:AWSServiceName": "cloudfront.amazonaws.com" } }
+    },
+    {
+      "Sid": "GitHubTrust",
+      "Effect": "Allow",
+      "Action": ["iam:GetRole", "iam:UpdateAssumeRolePolicy"],
+      "Resource": "arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy"
     }
   ]
 }

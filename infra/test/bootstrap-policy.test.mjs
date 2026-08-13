@@ -3,12 +3,14 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { createHash } from 'node:crypto'
 
 const policyPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'bootstrap', 'cloudformation-execution-policy.json')
 const policy = JSON.parse(readFileSync(policyPath, 'utf8'))
 const statements = Object.fromEntries(policy.Statement.map((statement) => [statement.Sid, statement]))
 const account = '470447451992'
 const region = 'ap-northeast-1'
+const sorted = (value) => Array.isArray(value) ? value.map(sorted) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, sorted(value[key])])) : value
 
 const statement = (Sid, Action, Resource, Condition) => ({ Sid, Effect: 'Allow', Action, Resource, ...(Condition ? { Condition } : {}) })
 
@@ -128,42 +130,44 @@ const candidateV7Statements = {
 
 test('candidate v7 has the exact reviewed statement contract', () => {
   assert.equal(policy.Version, '2012-10-17')
-  assert.deepEqual(Object.keys(statements).sort(), [
+  const baselineStatements = Object.fromEntries(Object.entries(statements).filter(([sid]) => sid !== 'GitHubTrust'))
+  assert.deepEqual(Object.keys(baselineStatements).sort(), [
     ...Object.keys(candidateV7Statements),
   ].sort())
   for (const [sid, expected] of Object.entries(candidateV7Statements)) {
-    assert.deepEqual(statements[sid], expected, sid)
+    assert.deepEqual(baselineStatements[sid], expected, sid)
   }
 })
 
 test('candidate v7 differs from the committed v6 contract only by compact D026 changes', () => {
-  assert.deepEqual(Object.keys(statements).sort(), Object.keys(candidateV7Statements).sort())
+  const baselineStatements = Object.fromEntries(Object.entries(statements).filter(([sid]) => sid !== 'GitHubTrust'))
+  assert.deepEqual(Object.keys(baselineStatements).sort(), Object.keys(candidateV7Statements).sort())
   assert.deepEqual(Object.keys(committedV6Statements).filter((sid) => !Object.hasOwn(candidateV7Statements, sid)), ['PreviewGitHubOidcProviderLifecycle'])
   assert.deepEqual(Object.keys(candidateV7Statements).filter((sid) => !Object.hasOwn(committedV6Statements, sid)), ['PreviewAdminApi5xxAlarm'])
   for (const sid of Object.keys(committedV6Statements).filter((sid) => sid !== 'PreviewGitHubOidcProviderLifecycle' && sid !== 'PreviewScheduleLambdaRole')) {
-    assert.deepEqual(statements[sid], committedV6Statements[sid], sid)
+    assert.deepEqual(baselineStatements[sid], committedV6Statements[sid], sid)
   }
   for (const [sid, expected] of Object.entries(candidateV5Statements)) {
-    if (sid !== 'PreviewScheduleLambdaRole') assert.deepEqual(statements[sid], expected, sid)
+    if (sid !== 'PreviewScheduleLambdaRole') assert.deepEqual(baselineStatements[sid], expected, sid)
   }
-  assert.deepEqual(statements.PreviewHttpApiStageTags, {
+  assert.deepEqual(baselineStatements.PreviewHttpApiStageTags, {
     Sid: 'PreviewHttpApiStageTags',
     Effect: 'Allow',
     Action: 'apigateway:TagResource',
     Resource: `arn:aws:apigateway:${region}::/apis/*/stages`,
   })
-  assert.equal(statements.PreviewHttpApiStageTags.Action, 'apigateway:TagResource')
-  assert.equal(statements.PreviewHttpApiStageTags.Resource, 'arn:aws:apigateway:ap-northeast-1::/apis/*/stages')
-  assert.deepEqual(statements.PreviewScheduleLambdaRole, candidateV7Statements.PreviewScheduleLambdaRole)
-  assert.equal(statements.PreviewGitHubOidcProviderLifecycle, undefined)
-  assert.deepEqual(statements.PreviewScheduleLambdaRole.Resource,
+  assert.equal(baselineStatements.PreviewHttpApiStageTags.Action, 'apigateway:TagResource')
+  assert.equal(baselineStatements.PreviewHttpApiStageTags.Resource, 'arn:aws:apigateway:ap-northeast-1::/apis/*/stages')
+  assert.deepEqual(baselineStatements.PreviewScheduleLambdaRole, candidateV7Statements.PreviewScheduleLambdaRole)
+  assert.equal(baselineStatements.PreviewGitHubOidcProviderLifecycle, undefined)
+  assert.deepEqual(baselineStatements.PreviewScheduleLambdaRole.Resource,
     `arn:aws:iam::${account}:role/ItsRunPreviewHosting-ScheduleApiRole*`)
-  assert.deepEqual(statements.PreviewAdminApi5xxAlarm, candidateV7Statements.PreviewAdminApi5xxAlarm)
+  assert.deepEqual(baselineStatements.PreviewAdminApi5xxAlarm, candidateV7Statements.PreviewAdminApi5xxAlarm)
 })
 
 test('compact D026 candidate has the exact policy-size budget', () => {
   const nonWhitespace = readFileSync(policyPath, 'utf8').replace(/\s/g, '')
-  assert.equal(nonWhitespace.length, 5954)
+  assert.equal(nonWhitespace.length, 6124)
   assert.ok(nonWhitespace.length <= 6144)
   assert.deepEqual(statements.PreviewScheduleLambdaRole.Action, candidateV4Statements.PreviewScheduleLambdaRole.Action)
   assert.ok(nonWhitespace.length <= 6144)
@@ -224,4 +228,21 @@ test('candidate v7 has no wildcard action or forbidden privilege surface', () =>
     if (resource === '*') continue
     assert.match(resource, new RegExp(`(^arn:aws:[^:]+:${region}:(?:${account})?:)|(^arn:aws:iam::${account}:)|(^arn:aws:s3:::)`), resource)
   }
+})
+
+test('PT01 GitHubTrust is the exact bounded trust update permission', () => {
+  assert.deepEqual(statements.GitHubTrust, {
+    Sid: 'GitHubTrust', Effect: 'Allow',
+    Action: ['iam:GetRole', 'iam:UpdateAssumeRolePolicy'],
+    Resource: `arn:aws:iam::${account}:role/itsrun-preview-github-web-deploy`,
+  })
+  const serialized = JSON.stringify(statements.GitHubTrust)
+  assert.equal(serialized.includes('iam:CreateRole'), false)
+  assert.equal(serialized.includes('iam:DeleteRole'), false)
+  assert.equal(serialized.includes('iam:PutRolePolicy'), false)
+  assert.equal(serialized.includes('iam:DeleteRolePolicy'), false)
+  assert.equal(serialized.includes('iam:CreateOpenIDConnectProvider'), false)
+  assert.equal(serialized.includes('iam:DeleteOpenIDConnectProvider'), false)
+  assert.equal(serialized.includes('"*"'), false)
+  assert.equal(createHash('sha256').update(`${JSON.stringify(sorted(policy), null, 2)}\n`).digest('hex'), '7c1a4c623e986fb6ad4b7841cdf7e3f2e920e6cfd6887fc4d927972b19b644e0')
 })

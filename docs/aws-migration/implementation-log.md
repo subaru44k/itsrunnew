@@ -6642,6 +6642,24 @@ lowest-cost in-place CloudFront promotion, empty admins group, and reversible
 legacy Firebase Hosting redirect after its exact rollback release is captured.
 Production source/IAM review may proceed; Firestore history remains discarded.
 
+### PT01 exact production trust policy source — 2026-08-13
+
+From clean `fada24f`, PT01 adds exactly the reviewed `GitHubTrust` statement to
+`infra/bootstrap/cloudformation-execution-policy.json`: actions
+`iam:GetRole` and `iam:UpdateAssumeRolePolicy`, restricted to
+`arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy`. Semantic
+policy tests prove the exact statement, reject role create/delete and inline
+policy operations, wildcard/OIDC-provider operations, and enforce the 6,144
+character IAM limit. The sorted pretty-canonical policy SHA-256 is
+`7c1a4c623e986fb6ad4b7841cdf7e3f2e920e6cfd6887fc4d927972b19b644e0`; its
+non-whitespace length is 6,124 characters.
+
+Focused policy/infra tests passed 8/8; `npm run check` passed (web 100, core 8,
+schedule API 25, infra 20, build/SEO); `git diff --check` passed; and the
+worktree is clean after commit. No AWS, IAM, CloudFormation, GitHub, Firebase,
+Cognito, DNS, deployment, or external write occurred. PT02 remains stopped
+for Sol review.
+
 ### PC01 local release-source correction — 2026-08-13
 
 PC01 was implemented from clean `debdd5d` under Node 24. The explicit deploy

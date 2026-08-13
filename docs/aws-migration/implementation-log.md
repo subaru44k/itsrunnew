@@ -6453,3 +6453,17 @@ test, and retaining all count/order/6-27/no-slash and locale assertions.
 Focused records unit tests, web typecheck, production build/SEO verification,
 and `git diff --check` passed. No external operation occurred; stop for Sol
 review before FPR02.
+
+### FPR02 stadium content correction — 2026-08-13
+
+FPR02 is implemented locally. The four stadium locale contracts now restore
+the retained legacy open-day titles and availability introductions, exact Oda
+announcement link/text, legacy English/Japanese official names, access and
+editorial paragraphs, and absent Komazawa/Todoroki contact/opinion sections.
+`StadiumPage` renders the schedule and information cards in legacy order with
+the information title, official name, map, access, contact, and opinions.
+`ScheduleTable` now shows separate aria-hidden status symbols alongside
+localized visible status text, including loading, while preserving the
+existing state machine and retry behavior. Added unit contract coverage for
+both locales and updated styling. Focused tests and typecheck passed so far;
+build/SEO and final diff checks remain to run. No external operation occurred.

@@ -438,3 +438,12 @@ drawer coverage.
 Run the full PVR05 command list under Node 24. Update the log truthfully and
 stop clean for Sol. The same external-operation and dependency prohibitions
 from PVR05 remain in force.
+
+### FPR04 local implementation evidence — 2026-08-13
+
+The bounded local gate is implemented from `be49716`: shared test-owned exact
+records fixture, four-project shell/stadium/pace/records/SEO assertions,
+deterministic schedule interception, and regenerated reviewed snapshots. The
+focused parity matrix passed 42 tests with 6 expected skips. The exact Node 24
+full gate and clean-worktree Sol handoff remain required; external operations
+remain stopped.

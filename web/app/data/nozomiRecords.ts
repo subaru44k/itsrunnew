@@ -29,4 +29,4 @@ const englishMeet: Record<string, string> = {
 }
 const toEnglishDate = (date: string) => date.replace(/\((.)\)$/, (_, day: string) => `(${weekdayEn[day] ?? day})`)
 export const NOZOMI_RECORDS: readonly NozomiRecord[] = NOZOMI_JA_TUPLES.map(([year, dateJa, meetJa, event, result]) => ({ year, dateJa, dateEn: toEnglishDate(dateJa), meetJa, meetEn: englishMeet[meetJa] ?? meetJa, event, result }))
-export function expandedNozomiRecords(locale: string): NozomiRecord[] { return [...NOZOMI_RECORDS] }
+export function expandedNozomiRecords(_locale: string): NozomiRecord[] { return [...NOZOMI_RECORDS] }

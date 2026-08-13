@@ -48,7 +48,7 @@ const closeAll = () => { openGroup.value = null; openTrigger.value = null; drawe
 const closeGroup = (restoreFocus = true) => { const trigger = openTrigger.value; openGroup.value = null; openTrigger.value = null; if (restoreFocus) setTimeout(() => trigger?.focus(), 0) }
 const toggleGroup = (index: number, event: MouseEvent) => { if (openGroup.value === index) closeGroup(false); else { openGroup.value = index; openTrigger.value = event.currentTarget as HTMLButtonElement } }
 const closeDrawer = () => { drawerOpen.value = false; nextTick(() => menuButton.value?.focus()) }
-const toggleDrawer = () => { drawerOpen.value ? closeDrawer() : (drawerOpen.value = true) }
+const toggleDrawer = () => { if (drawerOpen.value) closeDrawer(); else drawerOpen.value = true }
 const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { if (drawerOpen.value) closeDrawer(); else closeGroup() } }
 const onPointer = (event: PointerEvent) => { if (openGroup.value !== null && header.value && !header.value.contains(event.target as Node)) closeGroup() }
 onMounted(() => { window.addEventListener('keydown', onKey); document.addEventListener('pointerdown', onPointer) })

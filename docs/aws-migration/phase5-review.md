@@ -220,3 +220,11 @@ and the footer still uses the non-legacy target/copy.
 
 FPR01–FPR04 in the parity recovery plan is the bounded correction contract.
 Preview deployment and production cutover remain no-go.
+
+## FPR04 local gate evidence — 2026-08-13
+
+The final local parity assertions now cover the independent 60-row Japanese
+fixture, all four locale/device projects, exact shell/stadium/pace content,
+intercepted schedule statuses and SEO alternates. The focused matrix passed
+42 tests with 6 expected project skips. The required full Node 24 gate remains
+the handoff condition; no preview or production operation is authorized.

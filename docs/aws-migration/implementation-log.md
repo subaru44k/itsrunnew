@@ -6437,6 +6437,31 @@ as useful progress. No external operation occurred.
 FPR01–FPR04 define the next local correction. Preview deployment and production
 cutover remain stopped.
 
+### FPR04 final local parity gate — 2026-08-13
+
+FPR04 local parity coverage is complete from `be49716`. The exact 60-row
+Japanese transcript is now a test-owned fixture shared by unit and browser
+tests; the rendered Japanese projection deep-compares all 240 cells and checks
+for English substitutions. The four-project desktop/mobile and Japanese/
+English matrix asserts all shell labels and destinations, footer copy and
+target, locale SEO links, three 19-row pace ranges with desktop/mobile
+orientations, exact stadium editorial content/maps/cards, Oda's retained
+announcement URL, and locally intercepted schedule statuses 0/1/2 with
+distinct aria-hidden symbols and localized text. Stadium map URLs were restored
+to their exact retained legacy embed values after the browser assertions exposed
+the prior truncation. Snapshots were regenerated only after these assertions
+passed and were visually inspected for the four stadiums, shell, pace, and
+records across the matrix. Existing raw preview-route coverage was unchanged.
+
+The focused parity suite passed 42 tests (48 scheduled, with 6 expected
+desktop/mobile skips).
+The exact Node 24 gate completed: `npm ci` succeeded, `npm audit --omit=dev`
+reported zero vulnerabilities, `npm run check` passed (web 97, core 8,
+schedule API 25, infra 19, build/SEO), `npm run test:e2e` passed 138 tests
+with 6 expected skips across 144 scheduled tests, `npm ls --all` completed,
+and `git diff --check` passed. No AWS, preview, dependency, Firebase, DNS, or
+external operation occurred.
+
 ### FPR01 exact records correction — 2026-08-13
 
 FPR01 is implemented locally from the retained legacy `NozomiAntena.vue`.

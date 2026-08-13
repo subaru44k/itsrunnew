@@ -6442,3 +6442,14 @@ Japanese projection, checks year counts, the exact 6/27 pair, row ordering,
 and locale-field separation. Focused unit tests and web typecheck passed.
 No AWS, preview, Firebase, dependency, or external operation occurred. Stop
 for Sol review before FPR02.
+
+### FPR01 Sol correction — 2026-08-13
+
+Sol identified that the initial FPR01 deep-equality assertion imported the
+production tuple constant and was therefore tautological. Commit `9cdc998`
+was corrected by moving an independent fixed 60-tuple Japanese transcript
+into the test-owned fixture, removing the production export used only by that
+test, and retaining all count/order/6-27/no-slash and locale assertions.
+Focused records unit tests, web typecheck, production build/SEO verification,
+and `git diff --check` passed. No external operation occurred; stop for Sol
+review before FPR02.

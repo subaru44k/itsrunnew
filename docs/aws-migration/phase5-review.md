@@ -246,3 +246,10 @@ fixture, all four locale/device projects, exact shell/stadium/pace content,
 intercepted schedule statuses and SEO alternates. The focused matrix passed
 42 tests with 6 expected project skips. The required full Node 24 gate remains
 the handoff condition; no preview or production operation is authorized.
+
+### FPR04 CI portability correction — 2026-08-13
+
+Run `31701657768` failed before deploy with 110 passed, 6 skipped, and exactly
+28 Linux-only screenshot-baseline failures. Snapshot calls are now explicitly
+Darwin-gated; all semantic/content/interaction checks continue on Linux. No
+AWS write occurred.

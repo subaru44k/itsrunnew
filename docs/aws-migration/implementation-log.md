@@ -6545,3 +6545,14 @@ English fixtures that deep-compare every title, availability and information
 heading, official name, access/contact string, and editorial paragraph.
 Focused tests, typecheck, production build/SEO verification, and diff checks
 passed. No external operation occurred; stop for Sol review.
+
+### FPR04 CI portability correction — 2026-08-13
+
+The first CI run after `7a568e2` (GitHub Actions run `31701657768`) stopped
+before any deploy job/write. Its local parity job recorded 110 passed, 6
+skipped, and exactly 28 failures, all caused by Linux lacking the maintained
+Darwin screenshot baselines; semantic/content/interaction assertions were not
+the failure source. The parity suite now uses one explicit platform gate for
+visual snapshot calls: Darwin retains the reviewed screenshot comparisons,
+while Linux continues to execute every non-visual assertion without generated
+or tolerant baselines. No raw preview test or AWS operation was changed.

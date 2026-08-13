@@ -6660,6 +6660,24 @@ worktree is clean after commit. No AWS, IAM, CloudFormation, GitHub, Firebase,
 Cognito, DNS, deployment, or external write occurred. PT02 remains stopped
 for Sol review.
 
+### PT02 production trust execution policy v8 — 2026-08-13
+
+Sol accepted `a1809f1` after focused infra tests passed 8/8 and the candidate
+matched the precomputed canonical SHA-256
+`7c1a4c623e986fb6ad4b7841cdf7e3f2e920e6cfd6887fc4d927972b19b644e0`
+at 6,124 non-whitespace characters. Immediately before the write, STS matched
+account `470447451992` and region `ap-northeast-1`; AWS default `v7` exactly
+matched the pre-PT01 committed source with SHA-256
+`ac05040e2aed3baff41c1d34e49200fb54ce0a208546cf0555ad7d9abbfe43d0`.
+Nondefault `v3` exactly matched commit `ad44b5f` with SHA-256
+`fd05113d5e7d46ddd6b597e3350c7f72e9ea5181489779ecaaee3f4b4e91ca68`
+and was deleted solely to respect IAM's five-version limit. Managed policy
+`v8` was created as default and read back equal to the committed source; its
+only statement difference from `v7` is exact `GitHubTrust` access to
+`iam:GetRole` and `iam:UpdateAssumeRolePolicy` on the single deploy role.
+Versions `v4`–`v8` are retained. No role trust, CloudFormation stack,
+deployment, application resource, Cognito, DNS, or Firebase change occurred.
+
 ### PC01 local release-source correction — 2026-08-13
 
 PC01 was implemented from clean `debdd5d` under Node 24. The explicit deploy

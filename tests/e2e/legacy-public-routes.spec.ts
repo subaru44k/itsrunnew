@@ -25,6 +25,5 @@ for (const route of publicRoutes) {
     expect(response?.status(), `Unexpected status for ${route.path}`).toBeLessThan(400)
     await expect(page.locator('#app')).toBeVisible()
     await expect(page).toHaveTitle(route.title)
-    await page.screenshot({ path: testInfo.outputPath('baseline.png'), fullPage: true })
   })
 }

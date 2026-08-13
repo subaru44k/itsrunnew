@@ -19,10 +19,13 @@ test.describe('raw preview operational evidence', () => {
   })
 
   test('keyboard focus reaches primary navigation and both week controls', async ({ page }, testInfo) => {
-    await page.goto(isEnglish(testInfo.project.name) ? '/en/' : '/', { waitUntil: 'networkidle' })
+    const english = isEnglish(testInfo.project.name)
+    const previous = english ? 'Previous week' : '前の週'
+    const next = english ? 'Next week' : '次の週'
+    await page.goto(english ? '/en/' : '/', { waitUntil: 'networkidle' })
     await page.locator('body').focus()
     const focusedLabels: string[] = []
-    let visibleTargetCount = 0
+    const visibleWeekControls = new Set<string>()
     for (let index = 0; index < 40; index += 1) {
       await page.keyboard.press('Tab')
       const focused = await page.evaluate(() => {
@@ -32,11 +35,12 @@ test.describe('raw preview operational evidence', () => {
         return { label: `${element.tagName}:${element.textContent?.trim() || element.getAttribute('aria-label') || ''}`, visible: box.top >= 0 && box.bottom <= window.innerHeight && box.left >= 0 && box.right <= window.innerWidth }
       })
       focusedLabels.push(focused.label)
-      if ((focused.label.startsWith('A:') || (focused.label.includes('BUTTON:') && /週|week/i.test(focused.label))) && focused.visible) visibleTargetCount += 1
+      if (focused.visible && [ `BUTTON:${previous}`, `BUTTON:${next}` ].includes(focused.label)) visibleWeekControls.add(focused.label)
     }
     expect(focusedLabels.some((label) => label.startsWith('A:'))).toBe(true)
-    expect(focusedLabels.some((label) => label.includes('BUTTON:') && /週|week/i.test(label))).toBe(true)
-    expect(visibleTargetCount).toBeGreaterThan(0)
+    expect(focusedLabels).toContain(`BUTTON:${previous}`)
+    expect(focusedLabels).toContain(`BUTTON:${next}`)
+    expect(visibleWeekControls).toEqual(new Set([`BUTTON:${previous}`, `BUTTON:${next}`]))
   })
 
   test('schedule table exposes localized accessible structure and status text', async ({ page }, testInfo) => {

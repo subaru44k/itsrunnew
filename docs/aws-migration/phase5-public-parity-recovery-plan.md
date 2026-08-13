@@ -196,7 +196,7 @@ protected write after Sol accepts local parity.
 ## Implementation result — 2026-08-13
 
 The local PR01–PR06 implementation is recorded in commits `9075190`,
-`daca42c`, `41a351f`, `32bf847`, and the parity-test/docs follow-up. Pace
+`daca42c`, `41a351f`, `32bf847`, `7b7a7f9`, `616fcf7`, and `648f340`. Pace
 contracts prove three ranges × 19 goals with 12 desktop columns and mobile
 transpose; records prove 60 expanded rows (41/19 by year). Maintained local
 Playwright parity coverage runs both configured desktop and mobile locales and

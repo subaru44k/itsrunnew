@@ -6408,4 +6408,7 @@ the shell assertion, then the focused four shell tests passed after opening
 the records group. The final four-condition combined local E2E gate passed
 124/124 after `npm ci`; `npm audit --omit=dev` found zero vulnerabilities and
 the full `npm run check` passed (web 93, core 8, schedule API 25, infra 19,
-production build/SEO and synth).
+production build/SEO and synth). The transcript rows are explicit and no
+runtime slash expansion remains; a final source review should still verify
+weekday punctuation on every legacy date before declaring exact content
+parity accepted.

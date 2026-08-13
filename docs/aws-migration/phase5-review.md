@@ -202,5 +202,7 @@ record expansion with an explicit 60-row transcript, restore grouped shell
 disclosures/mobile overlay and stadium cards/content, and exercise all four
 locale/device projects across all four stadiums, pace, and records. The final
 local E2E gate passed 124/124; `npm run check` passed (93 web, 8 core, 25 API,
-19 infra), production SEO/build passed, and production audit is zero. Preview
+19 infra), production SEO/build passed, and production audit is zero. The
+explicit rows/no-slash contract is green; Sol should verify exact weekday
+punctuation against the retained legacy transcript before acceptance. Preview
 and production remain stopped for Sol's independent visual/content review.

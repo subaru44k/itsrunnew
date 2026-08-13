@@ -6095,6 +6095,19 @@ user-file removal is authorized.
 The committed plan is `afcd373`; Luna starts from the following clean plan
 pointer commit after confirming the branch and exact parent.
 
+### T17A immutable legacy recovery reference — 2026-08-13
+
+From clean `c6e79e6`, branch and Node 24 checks passed. The approved local
+annotated tag `legacy-firebase-vue-final-20260813` peels exactly to
+`5dab6ddea06fb858c642738f6b029e3d5d09365d` and exposes exactly 77 tracked
+`itsrunnew/` paths, including the legacy manifests, `.firebaserc`,
+`firebase.json`, source, and public assets. The ignored user-owned
+`itsrunnew/.DS_Store`, `.firebase/`, `dist/`, and `node_modules/` paths are not
+tracked and were not inspected, staged, moved, or modified. No managed Node 14
+runtime is available; the legacy build was not rerun under unsupported Node 24
+and the immutable tag preserves its exact source and lockfile. The tag was not
+pushed. T17A passed; T17B follows.
+
 ### T17 handoff status correction — 2026-08-13
 
 Focused documentation correction from clean `4261650`: the implementation task

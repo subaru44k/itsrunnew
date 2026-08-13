@@ -226,3 +226,117 @@ Stop without external mutation if any of the following is required:
   invalidation operation;
 - weakening existing schedule/admin/raw-preview tests to accommodate styling;
 - inability to prove all 60 records or all 57 pace goals from the legacy tag.
+
+## Sol rejection of the first local handoff — PVR01–PVR05
+
+Date: 2026-08-13
+
+Sol rejects commits `9075190` through `2dfe051` as proof of D057 parity. They
+are useful partial implementation, but the rendered result and its tests still
+permit material product loss. Complete PVR01–PVR05 in order before any preview
+deployment. Existing good pace work may be retained; do not squash history.
+
+### PVR01: replace inferred records with an exact legacy transcript
+
+`expandedNozomiRecords()` currently expands slash-delimited rows after adding
+already-separated rows. This creates a duplicate third result for 2021-06-27
+and reaches 60 by transformation rather than preserving the 60 authoritative
+legacy rows. Replace it with exactly 60 explicit structured entries transcribed
+in order from
+`legacy-firebase-vue-final-20260813:itsrunnew/src/views/NozomiAntena.vue`:
+
+- 41 entries for 2021 and 19 for 2020, with no runtime slash expansion;
+- exact Japanese display dates including legacy weekday text, meet names,
+  events, results, PB markers, and same-day ordering;
+- locale-equivalent English fields stored beside the Japanese authority rather
+  than translating Japanese routes at runtime;
+- exact Japanese title, affiliation summary, explanatory paragraph, year-link
+  labels, section headings, and column headings from the legacy view;
+- complete English page content that accurately describes the same dataset.
+
+Tests must deep-compare the complete ordered Japanese 60-row projection to a
+fixed expected contract, not merely counts or selected markers. They must
+explicitly prove that 2021-06-27 has exactly two entries and that no event or
+result contains ` / `. Browser tests must verify the full Japanese introductory
+copy and exact per-year counts.
+
+### PVR02: implement the actual responsive shell contract
+
+Replace the flat desktop link list with four labelled groups matching the old
+information architecture: Tokyo, Kanagawa, lap time, and records. Each group
+must expose the exact destination set and localized labels from the legacy
+locale files. On desktop use keyboard-operable disclosure menus; on mobile use
+a temporary overlay drawer with the brand/logo, the same groups, focus return,
+Escape close, outside-click close, and route-close behavior. It must not be an
+inline expansion that pushes page content down.
+
+Show one green action for the opposite locale, preserving the corresponding
+page route. Restore the legacy footer sentence and
+`https://twitter.com/itsrun_page` target with safe external-link attributes.
+Use `/nozomiantena/index` as the legacy navigation destination while keeping
+canonical Nuxt/SEO behavior and all existing compatibility redirects. Remove
+the anonymous global key listener or register and clean it up deterministically.
+
+Component/browser tests must cover every group and destination, desktop
+keyboard operation, mobile overlay semantics, focus restoration, Escape,
+outside click, route close, opposite-locale action, and both records URLs.
+
+### PVR03: restore complete stadium content and card/status presentation
+
+The rendered stadium page remains a flat article and the English copy remains
+summarized. Model and render, for each locale and all four stadiums, the exact
+legacy open-day heading, availability introduction, information heading,
+official name, access/contact lines, and every available opinion paragraph in
+the original order. Use the retained tag's locale JSON as the authority; do not
+rewrite its wording. Restore Oda's announcement and external link from the
+legacy view. Ads remain excluded under D057.
+
+Render the schedule and information areas as visibly separate elevated white
+cards on the gray canvas. Restore the familiar table hierarchy and local visual
+symbols for available, unavailable, unpublished/unknown, and loading states
+using dependency-free local SVG/CSS while retaining visible localized text and
+screen-reader meaning. Maps must remain responsive and use the exact
+per-stadium embed sources already captured in core data. Do not weaken the
+newer schedule state machine, error handling, security, or data source.
+
+Tests must assert the complete locale content contract for every stadium, the
+Oda announcement, card separation, status icon plus text semantics, and map
+source. Representative loaded/error/unpublished browser tests belong only in
+the masked local state suite; the raw preview suite remains unmodified.
+
+### PVR04: use a truthful four-condition visual and functional matrix
+
+The first handoff ran only desktop Japanese and mobile English and captured
+Oda only. Configure the parity suite for all four independent conditions:
+desktop/mobile × ja-JP/en-US. Exercise every stadium route, marathon pace, and
+records in every condition. Keep the 375 px and 1280 px visual baselines for
+shell, all four stadiums, pace, and records; each baseline must have a unique
+project/route identity and be manually inspectable. Do not count duplicated
+captures as coverage.
+
+The production-build suite must assert exact rendered content from PVR01–PVR03,
+three pace ranges × 19 rows and 12 desktop columns, the mobile transpose,
+complete navigation, footer, map, locale switching, canonical/hreflang, and
+compatibility routes. Ensure a deterministic representative schedule fixture
+is visible in local parity screenshots without changing or masking
+`preview-public-routes.spec.ts`.
+
+### PVR05: final local handoff
+
+Run under Node 24:
+
+```bash
+npm ci
+npm audit --omit=dev
+npm run check
+npm run test:e2e
+npm ls --all
+git diff --check
+git status --short
+```
+
+Update `implementation-log.md` truthfully with the rejected evidence and each
+correction commit. Stop with a clean worktree for Sol screenshot and source
+review. No AWS, preview deployment/invalidation, IAM, CloudFormation, Cognito,
+GitHub PR-state/merge, Firebase, DNS, production, dependency, AdSense, or
+historical-data operation is authorized by PVR01–PVR05.

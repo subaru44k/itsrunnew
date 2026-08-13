@@ -181,3 +181,16 @@ Evidence: focused parity Playwright 8/8, existing local admin E2E 48/48,
 synth), and `npm audit --omit=dev` found zero vulnerabilities. No raw preview
 test or deployed resource was changed. This remains pending independent Sol
 review; no-go production status is unchanged.
+
+## D057 first local handoff rejected
+
+Sol's rendered screenshot and source review rejected the first local handoff
+through `2dfe051`. The pace-table restoration is materially useful, but the
+records list contains an artificial duplicate, the desktop shell is a flat
+list instead of grouped menus, the mobile navigation is not a temporary
+drawer, stadium content and status/card presentation remain incomplete, and
+the visual suite covers only desktop Japanese plus mobile English and only Oda.
+
+`phase5-public-parity-recovery-plan.md` PVR01–PVR05 is the required correction
+contract. Production and preview deployment remain no-go until that contract
+passes independent Sol review.

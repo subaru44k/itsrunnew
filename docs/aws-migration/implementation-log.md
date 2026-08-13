@@ -6373,3 +6373,16 @@ final combined local E2E gate passed 56/56 after `npm ci`.
 This is a local Sol handoff only: no AWS, deployment, invalidation, Firebase,
 DNS, GitHub, or production operation occurred. Preview review and independent
 visual comparison remain required before reinstating Phase 5 acceptance.
+
+### D057 first local handoff Sol rejection — 2026-08-13
+
+Sol reviewed the source and all eight maintained screenshots through
+`2dfe051`. The handoff is not accepted as product parity. The records transform
+duplicates 2021-06-27, the shell does not implement the legacy grouped desktop
+menus or temporary mobile drawer, English stadium copy and Oda announcement
+remain incomplete, schedule/information cards and familiar status symbols are
+not restored, and the screenshot suite covers only two of four language/device
+conditions and only one stadium. No AWS or other external operation occurred.
+
+PVR01–PVR05 in `phase5-public-parity-recovery-plan.md` define the correction
+work. Preview deployment and production cutover remain stopped.

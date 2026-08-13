@@ -5922,3 +5922,16 @@ rebase-action proof and deterministic tests. No AWS/network/live,
 identity/data/recovery-material, deploy/invalidation, IAM/CloudFormation,
 dependency, T17, production/DNS, Firebase, or historical-data action is
 authorized pending Sol review.
+
+### T16 CA01-CA02 unique localized conflict-action correction — 2026-08-13
+
+Local-only correction completed from authorized clean `98f5b2f`: the retained
+baseline VersionId is now `okeeReQ9zSPKeWWtfb3qyvRC8TYAFM9s`. Conflict proof
+now selects the exact committed localized rebase label, requires exactly one
+match, and retains bounded visibility, enabled state, and trial actionability
+without a real click. Deterministic fixtures model both Japanese and English
+rebase/replace buttons and reject zero, duplicate, wrong, hidden, disabled,
+nonactionable, and timeout action states. Focused T16 tests pass `58/58`;
+combined auth/data tests pass `101/101`. No AWS, network, live, identity,
+S3, recovery-material, deployment, invalidation, or other out-of-scope
+operation was performed.

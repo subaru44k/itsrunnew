@@ -49,8 +49,8 @@ Operating system: macOS
 | T13 | local implementation/test accepted; preview deployment pending T15 | `77be9c1` | S05 local acceptance: root E2E 58, preview E2E 88, check/build | Preview web reflection requires the separately authorized T15 workflow; no T13 preview deployment occurred. |
 | T14 | complete; accepted after T14F04 protected verification; T15 not started | `98a7536` + protected run evidence below | `npm ci`; core unit 7; migration tests 64; `npm run check`; preview E2E 88; `git diff --check` | T14F01-R06 local runner corrections and the single authorized upload run are recorded chronologically below. No T15 work started. |
 | T15 | complete; accepted after Sol final review | `a812b41`, `144b025`, `5f67e08`, `023229f` + Sol acceptance below | Web helper 58/58/58; raw preview 88; trigger cleanup; master protection; local T15F; final-doc validation attempt 2 passed | Workflow is dispatch-only, selected action is exact-SHA pinned, data/invalidation/Hosting remain unchanged. |
-| T16 | complete locally; awaiting Sol acceptance | `1bf6a9c`, `a1d42be`, `5dab6dd` | `npm run check`; `npm run test:e2e` 62/62; preview 100/100; final read-only gate | Restored VersionId and operational evidence recorded below; pending Sol acceptance. |
-| T17 | ready after Sol acceptance | | not started | Exact legacy target/tag and removal boundary are defined in `phase4-t17-execution-plan.md`; do not start before Sol acceptance. |
+| T16 | complete; accepted by Sol | `1bf6a9c`, `a1d42be`, `5dab6dd` | `npm run check`; `npm run test:e2e` 62/62; preview 100/100; final read-only gate | Restored VersionId and operational evidence recorded below; Sol acceptance is recorded in the authorization section. |
+| T17 | in progress | `1d4a767` | T17A recovery reference passed; T17B removal in progress | Exact local tag and removal boundary accepted; T17C remains. |
 
 ### Phase 4 T16 Sol execution authorization
 

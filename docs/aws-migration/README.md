@@ -1,6 +1,6 @@
 # AWS migration plan
 
-Status: Phase 3 approved; Phase 4 may begin at T10
+Status: Phase 4 T17 implementation in progress; Phase 5 Sol review follows
 
 Planning baseline: `d6de55e` on `master`
 
@@ -70,6 +70,13 @@ When documents disagree, use this precedence:
 6. Existing Vue 2 behavior
 
 Record any approved change in `decisions.md` before implementing it.
+
+The maintained application is the Nuxt workspace under `web/`. The former
+Vue 2/Firebase tree and migration-only Firestore tooling were removed in T17;
+the exact recoverable legacy source remains at local annotated tag
+`legacy-firebase-vue-final-20260813`, peeling to
+`5dab6ddea06fb858c642738f6b029e3d5d09365d`. The tag is not a deployment
+artifact and is not pushed by migration implementation.
 
 ## Definition of done
 

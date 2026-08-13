@@ -18,9 +18,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:infra": "npm run test:infra --workspaces --if-present",
-    "test:e2e": "playwright test --config=playwright.config.mjs && playwright test --config=playwright.admin.config.mjs",
+    "test:e2e": "playwright test --config=playwright.admin.config.mjs",
     "test:e2e:preview": "playwright test --config=playwright.preview.config.mjs",
-    "baseline:browser": "node scripts/migration/capture-browser-baseline.mjs",
     "build": "npm run build --workspaces --if-present",
     "check": "npm run check:structure && npm run lint && npm run typecheck && npm run test:unit && npm run test:infra && npm run build"
   },
@@ -31,7 +30,6 @@
     "aws-cdk": "^2.1134.0",
     "commander": "15.0.0",
     "eslint": "^10.8.0",
-    "firebase-admin": "14.2.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.8"

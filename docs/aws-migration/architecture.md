@@ -30,7 +30,9 @@ Admin browser -> Cognito Hosted UI -> JWT              v
 
 ## Repository layout
 
-Keep the legacy application in place until cutover.
+The maintained application is the Nuxt workspace. The removed legacy
+application remains recoverable from the approved local immutable tag during
+the rollback window; it is not part of the active worktree.
 
 ```text
 /
@@ -44,9 +46,9 @@ Keep the legacy application in place until cutover.
 │   └── schedule-api/            # bare Lambda handlers and S3 adapter
 ├── infra/                       # AWS CDK v2
 ├── scripts/
-│   └── migration/               # Firestore export/transform/compare scripts
+│   └── migration/               # provider-neutral preview and deployment helpers
 ├── docs/aws-migration/
-└── itsrunnew/                   # legacy Vue 2 application, temporary
+└── tests/                       # maintained unit, infra, and preview contracts
 ```
 
 Use npm workspaces. Do not add Turborepo, Nx, pnpm workspace tooling, or a

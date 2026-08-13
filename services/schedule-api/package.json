@@ -1,0 +1,18 @@
+{
+  "name": "@itsrun/schedule-api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test:unit": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node24 --format=esm --outfile=dist/index.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1106.0",
+    "@itsrun/core": "file:../../packages/core"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1"
+  }
+}

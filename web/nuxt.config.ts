@@ -1,0 +1,31 @@
+export default defineNuxtConfig({
+  compatibilityDate: '2025-07-15',
+  devtools: { enabled: false },
+  css: ['~/assets/css/main.css'],
+  modules: ['@nuxtjs/i18n', '@nuxt/eslint'],
+  runtimeConfig: {
+    public: {
+      cognitoAuthority: '',
+      cognitoClientId: '',
+      apiBasePath: '/api/v1',
+    },
+  },
+  ...(process.env.ADMIN_E2E_OUTPUT ? { nitro: { output: { dir: process.env.ADMIN_E2E_OUTPUT } } } : {}),
+  vite: { define: { __ADMIN_E2E__: JSON.stringify(process.env.ADMIN_E2E === 'true') } },
+  i18n: {
+    locales: [
+      { code: 'ja', language: 'ja-JP', file: 'ja.json', name: '日本語' },
+      { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
+    ],
+    defaultLocale: 'ja',
+    strategy: 'prefix_except_default',
+    langDir: 'locales',
+    detectBrowserLanguage: false,
+  },
+  app: {
+    head: {
+      titleTemplate: '%s | いつラン',
+      meta: [{ name: 'description', content: 'ランニング施設の利用状況とペースを確認できます。' }],
+    },
+  },
+})

@@ -1,0 +1,255 @@
+# Phase 5 Sol review
+
+Date: 2026-08-13  
+Reviewer/planner: Sol  
+Reviewed commit: `5e6b476`
+
+## Review scope and accepted evidence
+
+Sol reviewed the full diff from planning baseline `d6de55e`, decisions D001-
+D041, dependency graph, CDK source/assertions/synthesized contracts, Lambda and
+browser authorization boundaries, cache/routing/security headers, T15 CI/OIDC
+evidence, T16 real authorization and rollback evidence, T17 removals, local
+tag recovery, and worktree state.
+
+Sol independently reran:
+
+- `npm run check`: passed (web 92, core 7, schedule API 25, infra 19, builds);
+- `npm run test:e2e`: passed 48/48 maintained admin production-build tests;
+- raw CloudFront preview E2E: passed 100/100;
+- `git diff --check`: passed;
+- removal/dependency/recovery inspections: passed.
+
+The reviewed runtime has private OAC S3 origins, versioned data, bounded
+conditional writes, no Lambda delete/list/broad S3 access, API/CloudFront
+`no-store`, local Cognito users with code + PKCE, memory-only user/token store,
+independent API Gateway and Lambda admin/scope/access-token checks, sanitized
+bounded logs/errors, finite log retention, actionless 5xx alarm, web-only OIDC
+deployment role, and no public-web AWS SDK. Historical Firebase data is
+intentionally out of scope under D041. Production DNS and Firebase resources
+remain unchanged.
+
+T17 removes the tracked Vue 2/Firebase application and direct removal-list
+dependencies. The exact intact 77-path source remains recoverable at local tag
+`legacy-firebase-vue-final-20260813`, peeling to
+`5dab6ddea06fb858c642738f6b029e3d5d09365d`. Ignored local legacy build/cache
+paths remain user-owned and untouched.
+
+## P5R01: enforce provider isolation layout
+
+`architecture.md` requires AWS-specific schedule service code under
+`services/schedule-api/src/aws/`, but `s3-store.ts` is currently in `src/`.
+Move it to `src/aws/s3-store.ts` without changing runtime behavior. Update
+production/test imports and keep all adapter tests, exact SDK input tests,
+bounded-stream tests, `maxAttempts: 1`, and runtime IAM assertions green. Do
+not alter API/data contracts, dependencies, or infrastructure.
+
+## P5R02: validate the actual final PR target
+
+`.github/workflows/validate-migration.yml` currently runs on PRs targeting the
+migration branch. The final PR targets `master`; change only the
+`pull_request.branches` entry to `master`. Keep the push trigger restricted to
+`migration/aws-s3-cloudfront`, permissions read-only, SHA-pinned actions,
+Node/npm pins, checks, Chromium install, and maintained E2E.
+
+Update `scripts/migration/workflow-contract.test.mjs` to require the exact
+final trigger split and retain all security assertions. Update README status,
+T17's table commit list (including `5e6b476`), and implementation log. Preserve
+historical records.
+
+## Required checks
+
+```bash
+npm ci
+npm run check
+npm run test:e2e
+PREVIEW_BASE_URL=https://d2via50thoheqm.cloudfront.net npm run test:e2e:preview
+npm ls --all
+git diff --check
+git status --short
+```
+
+Commit coherent corrections without squashing and stop for final Sol
+acceptance. No AWS/Firebase/GitHub operation, deployment, invalidation, IAM,
+CloudFormation, production/DNS, dependency, legacy-tag change, or ignored-file
+operation is authorized.
+
+## Provisional result
+
+`go with listed conditions`:
+
+1. P5R01-P5R02 and final checks must pass.
+2. Publishing the branch and obtaining a successful GitHub validation run are
+   required before merge.
+3. Production cutover is not authorized by this technical approval. A
+   production hostname/certificate/DNS target, callback/logout URLs, named
+   operator accounts, observation-window start, and rollback operator must be
+   confirmed before production DNS changes. Firebase retirement/deletion is a
+   later separately authorized destructive operation.
+
+## Final local correction result
+
+P5R01/P5R02 passed locally. The S3 adapter now resides at
+`services/schedule-api/src/aws/s3-store.ts` with unchanged runtime behavior and
+updated production/test imports (`b87f421`). Validation pull requests target
+`master`, while push validation remains restricted to
+`migration/aws-s3-cloudfront`; the workflow contract test enforces the split.
+The required local checks and public preview checks passed, with no external
+operation.
+
+## Final result
+
+Sol accepts P5R01/P5R02 and the complete local migration. Result: `go` for
+publishing `migration/aws-s3-cloudfront`, running GitHub validation, and opening
+a review PR; `go with listed conditions` for production cutover. The remaining
+cutover conditions are the production origin/certificate/DNS decision,
+origin-specific Cognito and site configuration, named operators, a final
+production-candidate release gate, and explicit observation-window start.
+Firebase stays unchanged for rollback and is not approved for retirement or
+deletion.
+
+## Dependency security refresh stop
+
+The approved S01 versions were applied in `6d04e04`, but the required
+`npm audit --omit=dev` gate still reports two high vulnerabilities: `js-yaml`
+4.0.0–4.3.0 and CDK-bundled `brace-expansion` 4.0.0–5.0.8. The generic audit
+fix is outside the bounded plan, so S02 regression was not started and no
+dependency widening was attempted. Final Phase 5 acceptance is blocked pending
+an explicitly approved remediation.
+
+## S03 dependency correction stop
+
+S03 refreshed `js-yaml` to 4.3.1 and deduped `brace-expansion` to 5.0.9 in
+`ac63aad`, but `npm audit --omit=dev` still reports one high vulnerability at
+the bundled `node_modules/aws-cdk-lib/node_modules/brace-expansion` 5.0.8.
+Targeted lock-only npm updates cannot rewrite that bundled package within the
+approved scope. The full regression gate is stopped pending an approved
+remediation; no widening or external operation occurred.
+
+## S04 dependency classification result
+
+S04 passed in `0970aff`: existing CDK packages moved unchanged to infra
+`devDependencies`, `npm audit --omit=dev` is zero, and the full audit contains
+only the authorized upstream bundled `brace-expansion@5.0.8` finding. The
+complete checks passed, including 19 infra assertions/synth, local E2E 48/48,
+and public preview E2E 100/100. No source/runtime/infra contract or external
+operation changed. Final Sol review remains required for the documented
+upstream finding.
+
+## S04 final Sol acceptance
+
+Sol independently reviewed the manifest and lockfile changes and reproduced a
+zero-result `npm audit --omit=dev`. The unfiltered audit contains exactly the
+documented high finding in CDK's bundled `brace-expansion@5.0.8`; the latest
+available `aws-cdk-lib@2.264.0` has no patched bundle. This package is used for
+trusted local/CI synthesis only and is absent from the static web and Lambda
+runtime. The residual risk is accepted temporarily as an upstream-blocked
+build-tool finding and must be rechecked when aws-cdk-lib is upgraded.
+
+Infra assertions passed 19/19 and synthesis completed during the independent
+review. No dependency version, application source, synthesized resource
+contract, AWS state, Firebase state, or deployed preview changed. Phase 5 is
+technically accepted. Production cutover remains conditional on the exact
+production hostname and approved initial Cognito administrator identity.
+
+## D057 acceptance revoked after full-product comparison
+
+The prior final result is revoked for product and cutover purposes. A direct
+live comparison found that the public smoke/SEO suite proved route presence but
+not visual or functional equivalence. The deployed CloudFront build materially
+changes the site appearance and omits or reduces public features: the marathon
+table has four single goals instead of three 19-goal ranges, the records data
+has 44 collapsed/incomplete entries instead of 60 rows and is absent from
+navigation, stadium copy is summarized, and the legacy responsive shell/cards/
+tables/status visuals are not represented.
+
+AWS/security/admin acceptance remains useful evidence, but production
+promotion is `no-go` until D057 and `phase5-public-parity-recovery-plan.md` are
+implemented and independently reviewed locally and on the existing preview.
+
+## D057 local implementation handoff
+
+The local recovery milestones are implemented in dependency order. PR04 is
+covered by the data-driven marathon ranges and core tests in `9075190`; PR05
+is covered by the 60-row structured records and locale-aware rendering in the
+same commit; PR02 and PR03 shell/content commits are `daca42c`, `41a351f`, and
+`32bf847`. PR06 adds `tests/e2e/public-parity-local.spec.ts` and maintained
+desktop/mobile snapshots.
+
+Evidence: focused parity Playwright 8/8, existing local admin E2E 48/48,
+`npm run check` passed (web 93, core 8, schedule API 25, infra 19, build and
+synth), and `npm audit --omit=dev` found zero vulnerabilities. No raw preview
+test or deployed resource was changed. This remains pending independent Sol
+review; no-go production status is unchanged.
+
+## D057 first local handoff rejected
+
+Sol's rendered screenshot and source review rejected the first local handoff
+through `2dfe051`. The pace-table restoration is materially useful, but the
+records list contains an artificial duplicate, the desktop shell is a flat
+list instead of grouped menus, the mobile navigation is not a temporary
+drawer, stadium content and status/card presentation remain incomplete, and
+the visual suite covers only desktop Japanese plus mobile English and only Oda.
+
+`phase5-public-parity-recovery-plan.md` PVR01–PVR05 is the required correction
+contract. Production and preview deployment remain no-go until that contract
+passes independent Sol review.
+
+## PVR01–PVR05 correction handoff
+
+From exact handoff `5d3c2f7`, commits `d0562fc` and `22e3f01` replace inferred
+record expansion with an explicit 60-row transcript, restore grouped shell
+disclosures/mobile overlay and stadium cards/content, and exercise all four
+locale/device projects across all four stadiums, pace, and records. The final
+local E2E gate passed 124/124; `npm run check` passed (93 web, 8 core, 25 API,
+19 infra), production SEO/build passed, and production audit is zero. The
+explicit rows/no-slash contract is green; Sol should verify exact weekday
+punctuation against the retained legacy transcript before acceptance. Preview
+and production remain stopped for Sol's independent visual/content review.
+
+## PVR handoff rejected after exact-content review
+
+Sol rejects the handoff through `f8bb9f6`. The 60-row array still omits weekday
+text on most records and mixes English meet names into Japanese rendering; its
+test does not deep-compare the complete legacy transcript. Oda's legacy
+announcement was replaced with a different URL, English stadium copy remains
+summarized, the exact availability/information headings are not rendered, and
+status symbols were not restored. Shell behavior lacks the required outside
+click/focus-return contract, uses shortened labels and the short records href,
+and the footer still uses the non-legacy target/copy.
+
+FPR01–FPR04 in the parity recovery plan is the bounded correction contract.
+Preview deployment and production cutover remain no-go.
+
+## FPR01–FPR04 final local Sol acceptance
+
+Sol accepts the local public parity recovery through `e4448bc`. Independent
+review confirmed the complete 60-row Japanese records projection against a
+test-owned fixture, all four exact legacy stadium locale contracts and map
+URLs, corrected status symbols/text, legacy grouped navigation/footer and
+drawer/disclosure interactions, the three 19-row marathon ranges, and the full
+desktop/mobile × ja/en visual matrix. Representative screenshots were inspected
+for Oda, pace, records, desktop header, and mobile drawer.
+
+The final local gate passed 138 browser tests with 6 expected project-specific
+skips, the complete repository check, zero production audit, dependency tree,
+and diff/worktree checks. This authorizes one web-only deployment of the exact
+reviewed revision to the existing preview through the existing OIDC workflow,
+with no invalidation or data upload. Production/Firebase cutover remains
+stopped until the deployed raw and parity checks pass and Sol inspects the live
+CloudFront result.
+
+## FPR04 local gate evidence — 2026-08-13
+
+The final local parity assertions now cover the independent 60-row Japanese
+fixture, all four locale/device projects, exact shell/stadium/pace content,
+intercepted schedule statuses and SEO alternates. The focused matrix passed
+42 tests with 6 expected project skips. The required full Node 24 gate remains
+the handoff condition; no preview or production operation is authorized.
+
+### FPR04 CI portability correction — 2026-08-13
+
+Run `31701657768` failed before deploy with 110 passed, 6 skipped, and exactly
+28 Linux-only screenshot-baseline failures. Snapshot calls are now explicitly
+Darwin-gated; all semantic/content/interaction checks continue on Linux. No
+AWS write occurred.

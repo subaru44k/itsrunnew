@@ -1,0 +1,19 @@
+{
+  "name": "@itsrun/web",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "nuxt generate",
+    "postbuild": "node ../scripts/migration/verify-generated-seo.mjs --web-dir .output/public",
+    "dev": "nuxt dev",
+    "test:unit": "vitest run",
+    "lint": "nuxt prepare && eslint .",
+    "typecheck": "nuxt prepare && nuxt typecheck"
+  },
+  "dependencies": {
+    "@itsrun/core": "file:../packages/core",
+    "@nuxtjs/i18n": "^10.6.0",
+    "nuxt": "^4.5.2",
+    "oidc-client-ts": "3.5.0"
+  }
+}

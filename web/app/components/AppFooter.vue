@@ -1,0 +1,1 @@
+<template><footer class="site-footer"><a href="https://twitter.com/itsrun_page" target="_blank" rel="noopener noreferrer">{{ $t('footerContact') }}</a><p>{{ $t('footer') }}</p><div class="copyright">© {{ new Date().getFullYear() }} {{ $t('siteName') }}</div></footer></template>

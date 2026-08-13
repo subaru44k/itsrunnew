@@ -1,0 +1,103 @@
+name: Deploy production web
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-web-deploy
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate deployment revision
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Verify repository and branch
+        run: |
+          test "$GITHUB_REPOSITORY" = "subaru44k/itsrunnew"
+          test "$GITHUB_REF" = "refs/heads/master"
+      - name: Checkout reviewed revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+      - name: Set up Node 24.18.1
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.18.1
+          cache: npm
+      - name: Pin npm 11.4.2
+        run: |
+          npm install --global npm@11.4.2
+          test "$(npm --version)" = "11.4.2"
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run repository checks
+        run: npm run check
+      - name: Install Chromium only
+        run: npx playwright install --with-deps chromium
+      - name: Run production-browser checks
+        run: npm run test:e2e
+
+  deploy:
+    name: Deploy preview web
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Verify repository and branch
+        run: |
+          test "$GITHUB_REPOSITORY" = "subaru44k/itsrunnew"
+          test "$GITHUB_REF" = "refs/heads/master"
+      - name: Checkout reviewed revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+      - name: Set up Node 24.18.1
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.18.1
+          cache: npm
+      - name: Pin npm 11.4.2
+        run: |
+          npm install --global npm@11.4.2
+          test "$(npm --version)" = "11.4.2"
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run repository checks
+        run: npm run check
+      - name: Install Chromium only
+        run: npx playwright install --with-deps chromium
+      - name: Build reviewed public preview
+        env:
+          NUXT_PUBLIC_SITE_URL: https://d2via50thoheqm.cloudfront.net
+          NUXT_PUBLIC_API_BASE_PATH: /api/v1
+          NUXT_PUBLIC_COGNITO_AUTHORITY: https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_nmj9cP9st
+          NUXT_PUBLIC_COGNITO_CLIENT_ID: 1olddro3tldfinupl52u9dl1j4
+        run: npm run build --workspace @itsrun/web
+      - name: Configure GitHub OIDC credentials
+        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
+        with:
+          role-to-assume: arn:aws:iam::470447451992:role/itsrun-preview-github-web-deploy
+          aws-region: ap-northeast-1
+          role-session-name: itsrun-preview-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Deploy web-only preview
+        env:
+          GITHUB_ACTIONS: 'true'
+          GITHUB_REPOSITORY: subaru44k/itsrunnew
+          GITHUB_REF: refs/heads/master
+        run: >-
+          node scripts/migration/deploy-web-preview-cli.mjs
+          --mode github
+          --web-dir "${{ github.workspace }}/web/.output/public"
+          --report-dir "${{ github.workspace }}/.artifacts/migration/t15-${{ github.run_id }}-${{ github.run_attempt }}"
+      - name: Run raw preview checks
+        env:
+          PREVIEW_BASE_URL: https://d2via50thoheqm.cloudfront.net
+        run: npm run test:e2e:preview

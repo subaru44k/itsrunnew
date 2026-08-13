@@ -1,0 +1,146 @@
+{
+  "baseUrl": "https://itsrun-aaf42.web.app",
+  "capturedAt": "2026-07-31T04:28:33.552Z",
+  "routes": [
+    {
+      "route": "/",
+      "url": "https://itsrun-aaf42.web.app/",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/index.html",
+      "url": "https://itsrun-aaf42.web.app/index.html",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/yumenoshima",
+      "url": "https://itsrun-aaf42.web.app/yumenoshima",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/komazawa",
+      "url": "https://itsrun-aaf42.web.app/komazawa",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/komazawa_olympic",
+      "url": "https://itsrun-aaf42.web.app/komazawa_olympic",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/todoroki",
+      "url": "https://itsrun-aaf42.web.app/todoroki",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/pace/marathon",
+      "url": "https://itsrun-aaf42.web.app/pace/marathon",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/nozomiantena/index",
+      "url": "https://itsrun-aaf42.web.app/nozomiantena/index",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/en/",
+      "url": "https://itsrun-aaf42.web.app/en/",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/en/yumenoshima",
+      "url": "https://itsrun-aaf42.web.app/en/yumenoshima",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/en/komazawa",
+      "url": "https://itsrun-aaf42.web.app/en/komazawa",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/en/todoroki",
+      "url": "https://itsrun-aaf42.web.app/en/todoroki",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/en/pace/marathon",
+      "url": "https://itsrun-aaf42.web.app/en/pace/marathon",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    },
+    {
+      "route": "/en/nozomiantena/index",
+      "url": "https://itsrun-aaf42.web.app/en/nozomiantena/index",
+      "status": 200,
+      "location": null,
+      "contentType": "text/html; charset=utf-8",
+      "contentSha256": "eb6940c40ba55e41109747394efe80e79c47b2023ab408d94aa6050f29bab78a",
+      "staticTitle": "いつラン",
+      "staticDescription": null
+    }
+  ]
+}

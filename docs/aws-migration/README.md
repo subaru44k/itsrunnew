@@ -1,6 +1,7 @@
 # AWS migration plan
 
-Status: Phase 5 reopened under D057 for public visual and functional parity
+Status: D057 parity implementation complete locally; pending independent Sol
+review and protected preview comparison
 
 Production promotion sequencing and the three remaining operator choices are
 defined in [phase5-production-cutover-plan.md](./phase5-production-cutover-plan.md).

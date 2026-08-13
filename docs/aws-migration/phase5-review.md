@@ -166,3 +166,18 @@ tables/status visuals are not represented.
 AWS/security/admin acceptance remains useful evidence, but production
 promotion is `no-go` until D057 and `phase5-public-parity-recovery-plan.md` are
 implemented and independently reviewed locally and on the existing preview.
+
+## D057 local implementation handoff
+
+The local recovery milestones are implemented in dependency order. PR04 is
+covered by the data-driven marathon ranges and core tests in `9075190`; PR05
+is covered by the 60-row structured records and locale-aware rendering in the
+same commit; PR02 and PR03 shell/content commits are `daca42c`, `41a351f`, and
+`32bf847`. PR06 adds `tests/e2e/public-parity-local.spec.ts` and maintained
+desktop/mobile snapshots.
+
+Evidence: focused parity Playwright 8/8, existing local admin E2E 48/48,
+`npm run check` passed (web 93, core 8, schedule API 25, infra 19, build and
+synth), and `npm audit --omit=dev` found zero vulnerabilities. No raw preview
+test or deployed resource was changed. This remains pending independent Sol
+review; no-go production status is unchanged.

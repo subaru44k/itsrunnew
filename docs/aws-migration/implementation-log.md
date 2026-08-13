@@ -6350,3 +6350,25 @@ honest visual/functional gates. Production promotion, policy v8, OIDC trust,
 PR merge, AWS deployment, and Firebase redirect remain stopped. No source,
 dependency, AWS, GitHub PR-state, Firebase, DNS, deployment, or invalidation
 operation occurred during this audit and planning step.
+
+### D057 PR04–PR06 local parity implementation — 2026-08-13
+
+PR04/PR05/PR06 are implemented locally after the D057 reopening. The pace
+feature now derives three inclusive 19-goal ranges from the dependency-free
+core calculator and renders 12 desktop columns plus the transposed mobile
+table. The records page expands slash-delimited legacy events into exactly 60
+rows (41 in 2021 and 19 in 2020), with locale-aware Japanese legacy meet names
+and English content. Commits are `9075190` (PR01 contracts and pace/records
+data), `daca42c` (PR02 shell), `41a351f` and `32bf847` (PR03 stadium content).
+
+PR06 adds maintained local Playwright parity coverage in
+`tests/e2e/public-parity-local.spec.ts` and eight 375/1280 snapshots for shell,
+pace, records, and Oda. Focused parity coverage passed 8/8 after snapshot
+creation; the existing local admin suite passed 48/48. `npm run check` passed
+with web 93, core 8, schedule API 25, infra 19, build and synth; production
+audit remains zero under `npm audit --omit=dev`. The raw CloudFront preview
+suite was not changed or run as part of this local-only implementation.
+
+This is a local Sol handoff only: no AWS, deployment, invalidation, Firebase,
+DNS, GitHub, or production operation occurred. Preview review and independent
+visual comparison remain required before reinstating Phase 5 acceptance.

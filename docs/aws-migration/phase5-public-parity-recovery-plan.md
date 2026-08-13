@@ -193,6 +193,18 @@ protected write after Sol accepts local parity.
 
 ## Sol review and later deployed proof
 
+## Implementation result — 2026-08-13
+
+The local PR01–PR06 implementation is recorded in commits `9075190`,
+`daca42c`, `41a351f`, `32bf847`, and the parity-test/docs follow-up. Pace
+contracts prove three ranges × 19 goals with 12 desktop columns and mobile
+transpose; records prove 60 expanded rows (41/19 by year). Maintained local
+Playwright parity coverage runs both configured desktop and mobile locales and
+has eight checked-in screenshots for shell, pace, records, and Oda. Local admin
+E2E remains 48/48 and the full check remains green. This evidence is local
+only and does not replace Sol's independent screenshot review or authorize
+preview deployment.
+
 Sol independently inspects every commit and reruns the complete local gate,
 including screenshots at both widths. A local acceptance authorizes only a
 separate request to deploy the reviewed web build to the existing preview

@@ -66,7 +66,22 @@ routes.push(
   { path: '/:pathMatch(.*)*', redirect: '/' },
 );
 
-const router = createRouter({ history: createWebHistory(), routes, scrollBehavior: () => ({ top: 0 }) });
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) return savedPosition;
+    if (to.hash) {
+      return new Promise(resolve => {
+        requestAnimationFrame(() => {
+          const target = document.getElementById(decodeURIComponent(to.hash.slice(1)));
+          resolve(target ? { el: target, top: 64 } : { top: 0 });
+        });
+      });
+    }
+    return { top: 0 };
+  },
+});
 
 router.beforeEach((to) => {
   const locale = to.meta.locale === 'en' ? 'en' : 'ja';

@@ -16,7 +16,7 @@
             <div class="d-none d-sm-block flex-grow-1">
             </div>
           </div>
-          <p class="headline mt-4"><a name="2021">2021年の大会結果・記録</a></p>
+          <p id="2021" class="headline mt-4"><a name="2021">2021年の大会結果・記録</a></p>
           <div class="table-responsive">
             <table class="table table-bordered table-striped">
               <thead>
@@ -258,7 +258,7 @@
                 </tr>
               </tbody>
             </table>
-          <p class="headline mt-4"><a name="2020">2020年の大会結果・記録</a></p>
+          <p id="2020" class="headline mt-4"><a name="2020">2020年の大会結果・記録</a></p>
             <table class="table table-bordered table-striped">
               <thead>
                 <tr>

@@ -39,6 +39,14 @@ try {
       await page.getByText(heading, { exact: true }).waitFor();
     }
 
+    await page.goto(`${baseUrl}/nozomiantena/index`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('link', { name: '2020年の大会結果・記録', exact: true }).first().click();
+    await page.waitForFunction(() => {
+      const target = document.getElementById('2020');
+      const top = target?.getBoundingClientRect().top ?? -1;
+      return location.hash === '#2020' && top >= 48 && top <= 80;
+    });
+
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
     await page.getByText('織田フィールド 開放日', { exact: true }).waitFor();
     await page.close();
@@ -48,7 +56,7 @@ try {
     throw new Error('A Firebase request was detected');
   }
   if (runtimeErrors.length > 0) throw new Error(`Runtime errors detected:\n${runtimeErrors.join('\n')}`);
-  console.log('Smoke test passed for desktop/mobile, public routes, /manage removal, and Firebase isolation.');
+  console.log('Smoke test passed for desktop/mobile, public routes, year anchors, /manage removal, and Firebase isolation.');
 } finally {
   await browser.close();
 }

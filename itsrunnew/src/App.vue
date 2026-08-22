@@ -1,307 +1,97 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-model="drawer"
-      absolute
-      temporary
-    >
+    <v-navigation-drawer v-model="drawer" temporary>
       <v-list class="pt-3 pa-0">
-        <v-list-tile avatar>
-          <v-list-tile-avatar color="teal">
-            <img
-              src="/img/icon.png"
-              alt="Logo"
-            >
-          </v-list-tile-avatar>
-          <v-list-tile-content>
-            <v-list-tile-title>{{ $t('title') }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+        <v-list-item prepend-avatar="/img/icon.png" :title="t('title')" />
       </v-list>
-
-      <v-list class="pt-0" dense>
-        <v-list-group
-          no-action
-          sub-group
-        >
-          <template v-slot:activator>
-            <v-list-tile>
-              <v-list-tile-title>{{ $t('menu.tokyo') }}</v-list-tile-title>
-            </v-list-tile>
+      <v-list density="compact">
+        <v-list-group v-for="group in menuGroups" :key="group.title" :value="group.title">
+          <template #activator="{ props }">
+            <v-list-item v-bind="props" :title="group.title" />
           </template>
-
-          <v-list-tile
-            v-for="item in tokyoMenuItems"
-            :key="item.title"
-            @click="item.route(); drawer = false;"
-          >
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile>
+          <v-list-item
+            v-for="item in group.items"
+            :key="item.path"
+            :title="item.title"
+            @click="navigate(item.path)"
+          />
         </v-list-group>
-
-        <v-list-group
-          no-action
-          sub-group
-        >
-          <template v-slot:activator>
-            <v-list-tile>
-              <v-list-tile-title>{{ $t('menu.kanagawa') }}</v-list-tile-title>
-            </v-list-tile>
-          </template>
-
-          <v-list-tile
-            v-for="item in kanagawaMenuItems"
-            :key="item.title"
-            @click="item.route(); drawer = false;"
-          >
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile>
-        </v-list-group>
-
-        <v-list-group
-          no-action
-          sub-group
-        >
-          <template v-slot:activator>
-            <v-list-tile>
-              <v-list-tile-title>{{ $t('menu.laptime') }}</v-list-tile-title>
-            </v-list-tile>
-          </template>
-
-          <v-list-tile
-            v-for="item in lapTimeItems"
-            :key="item.title"
-            @click="item.route(); drawer = false;"
-          >
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile>
-        </v-list-group>
-        <v-list-group
-          no-action
-          sub-group
-        >
-          <template v-slot:activator>
-            <v-list-tile>
-              <v-list-tile-title>{{ $t('menu.records') }}</v-list-tile-title>
-            </v-list-tile>
-          </template>
-
-          <v-list-tile
-            v-for="item in recordItems"
-            :key="item.title"
-            @click="item.route(); drawer = false;"
-          >
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile>
-        </v-list-group>
-
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar color="indigo" dark="dark" dense>
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"
-      class="hidden-sm-and-up"
-      >
-      </v-toolbar-side-icon>
-      <v-toolbar-title><a class="white--text" @click="goToRootPage">{{ $t("title") }}</a></v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-xs-only">
-        <v-menu offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              flat
-              v-on="on"
-            >
-             {{ $t("menu.tokyo") }} 
-            <v-icon>
-              arrow_drop_down
-            </v-icon>
 
-            </v-btn>
+    <v-app-bar color="indigo" density="compact">
+      <v-app-bar-nav-icon class="d-sm-none" aria-label="メニュー" @click="drawer = !drawer" />
+      <v-toolbar-title class="site-title">
+        <a class="brand-link" href="/" @click.prevent="navigate('')">{{ t('title') }}</a>
+      </v-toolbar-title>
+      <v-spacer />
+      <div class="d-none d-sm-flex align-center fill-height">
+        <v-menu v-for="group in menuGroups" :key="group.title">
+          <template #activator="{ props }">
+            <v-btn v-bind="props" variant="text" append-icon="mdi-menu-down">{{ group.title }}</v-btn>
           </template>
           <v-list>
-            <v-list-tile
-              v-for="item in tokyoMenuItems"
-              :key="item.title"
-              @click="item.route()"
-            >
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-            </v-list-tile>
+            <v-list-item
+              v-for="item in group.items"
+              :key="item.path"
+              :title="item.title"
+              @click="navigate(item.path)"
+            />
           </v-list>
         </v-menu>
-        <v-menu offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              flat
-              v-on="on"
-            >
-              {{ $t("menu.kanagawa") }} 
-            <v-icon>
-              arrow_drop_down
-            </v-icon>
-
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-tile
-              v-for="item in kanagawaMenuItems"
-              :key="item.title"
-              @click="item.route()"
-            >
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
-        <v-menu offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              flat
-              v-on="on"
-            >
-             {{ $t("menu.laptime") }} 
-            <v-icon>
-              arrow_drop_down
-            </v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-tile
-              v-for="item in lapTimeItems"
-              :key="item.title"
-              @click="item.route()"
-            >
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
-        <v-menu offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              flat
-              v-on="on"
-            >
-             {{ $t("menu.records") }} 
-            <v-icon>
-              arrow_drop_down
-            </v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-tile
-              v-for="item in recordItems"
-              :key="item.title"
-              @click="item.route()"
-            >
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
-
-      </v-toolbar-items>
-      <v-btn color="success" @click="changelang()">
-        {{ $t("menu.changelang") }}
+      </div>
+      <v-btn color="success" variant="flat" class="language-button mr-2" @click="changeLanguage">
+        <span class="d-none d-sm-inline">{{ t('menu.changelang') }}</span>
+        <span class="d-sm-none">{{ locale === 'ja' ? 'English' : '日本語' }}</span>
       </v-btn>
+    </v-app-bar>
 
-    </v-toolbar>
+    <v-main>
+      <router-view />
+    </v-main>
 
-    <v-content>
-      <router-view/>
-    </v-content>
-    <v-footer
-      dark
-      height="auto"
-    >
-      <v-card
-        class="flex"
-        flat
-        tile
-      >
-        <v-card-title class="teal">
-          <strong class="subheading">{{ $t("footer_1") }}<a href="https://twitter.com/itsrun_page">{{ $t("footer_2") }}</a>{{ $t("footer_3") }}</strong>
-        </v-card-title>
-
-        <v-card-actions class="grey darken-3 justify-center">
-          &copy;2019 — <strong>{{ $t("title") }}</strong>
-        </v-card-actions>
-      </v-card>
+    <v-footer class="pa-0 d-block">
+      <div class="footer-request">
+        <strong>{{ t('footer_1') }}<a href="https://twitter.com/itsrun_page">{{ t('footer_2') }}</a>{{ t('footer_3') }}</strong>
+      </div>
+      <div class="footer-copyright">&copy;2019 — <strong>{{ t('title') }}</strong></div>
     </v-footer>
   </v-app>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-declare const document: any;
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
 
-@Component({
-  components: {
-  },
-})
-export default class App extends Vue {
-  private drawer: any = null;
-  private fab: boolean = false;
-  private tabs: any = null;
+const drawer = ref(false);
+const route = useRoute();
+const router = useRouter();
+const { t, locale } = useI18n();
 
-  mounted() {
-    const nodeToHide = document.getElementById('beforeload');
-    nodeToHide.parentNode.removeChild(nodeToHide);
-  }
+const menuGroups = computed(() => [
+  { title: t('menu.tokyo'), items: [
+    { title: t('menu.oda'), path: '' },
+    { title: t('menu.yume'), path: 'yumenoshima' },
+    { title: t('menu.komazawa'), path: 'komazawa' },
+  ] },
+  { title: t('menu.kanagawa'), items: [{ title: t('menu.todoroki'), path: 'todoroki' }] },
+  { title: t('menu.laptime'), items: [{ title: t('menu.marathon'), path: 'pace/marathon' }] },
+  { title: t('menu.records'), items: [{ title: t('menu.tanaka'), path: 'nozomiantena/index' }] },
+]);
 
-  get initial() {
-    return this.$t('title').toString().charAt(0).toUpperCase();
-  }
+function localizedPath(path: string, targetLocale = locale.value) {
+  return targetLocale === 'en' ? `/en/${path}` : `/${path}`;
+}
 
-  get tokyoMenuItems() {
-    return [
-      { title: this.$t('menu.oda'), icon: 'dashboard', route: this.goToRootPage, },
-      { title: this.$t('menu.yume'), icon: 'question_answer', route: this.goToYumenoshimaPage, },
-      { title: this.$t('menu.komazawa'), icon: 'question_answer', route: this.goToKomazawaPage, },
-    ];
-  }
+function navigate(path: string) {
+  drawer.value = false;
+  void router.push(localizedPath(path));
+}
 
-  get kanagawaMenuItems() {
-    return [
-      { title: this.$t('menu.todoroki'), icon: 'dashboard', route: this.goToTodorokiPage, },
-    ];
-  }
-
-  get lapTimeItems() {
-    return [
-      { title: this.$t('menu.marathon'), icon: 'dashboard', route: this.goToLapTimePage },
-    ]
-  }
-
-  get recordItems() {
-    return [
-      { title: this.$t('menu.tanaka'), icon: 'dashboard', route: this.goToTanakaPage },
-    ]
-  }
-
-  private changelang() {
-    this.$store.commit('changelang');
-  }
-
-  private goToRootPage() {
-    this.$store.commit('rootPage');
-  }
-
-  private goToYumenoshimaPage() {
-    this.$store.commit('yumenoshimaPage');
-  }
-
-  private goToKomazawaPage() {
-    this.$store.commit('komazawaPage');
-  }
-
-  private goToTodorokiPage() {
-    this.$store.commit('todorokiPage');
-  }
-
-  private goToLapTimePage() {
-    this.$store.commit('lapTimePage');
-  }
-
-  private goToTanakaPage() {
-    this.$store.commit('nozomiPage')
-  }
+function changeLanguage() {
+  const withoutLanguage = route.path.replace(/^\/en\/?/, '').replace(/^\//, '');
+  const nextLocale = locale.value === 'ja' ? 'en' : 'ja';
+  void router.push(localizedPath(withoutLanguage, nextLocale));
 }
 </script>
-

@@ -4,14 +4,19 @@ const baseUrl = process.env.ITSRUN_BASE_URL ?? 'http://127.0.0.1:4173';
 const executablePath = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const browser = await chromium.launch({ executablePath, headless: true });
 const requests = [];
+const runtimeErrors = [];
+const adPattern = /googlesyndication|doubleclick|googletagmanager|google-analytics|googleadservices/i;
 
 try {
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport });
     page.on('request', request => requests.push(request.url()));
+    page.on('pageerror', error => runtimeErrors.push(error.message));
+    await page.route('**/*', route => adPattern.test(route.request().url()) ? route.abort() : route.continue());
 
     await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
     await page.getByText('織田フィールド 開放日', { exact: true }).waitFor();
+    await page.getByText('©2019 — いつラン', { exact: true }).waitFor();
     const noDataIcons = await page.locator('img[alt="no data"]:visible').count();
     if (noDataIcons !== 21) throw new Error(`Expected 21 no-data cells, found ${noDataIcons}`);
 
@@ -20,6 +25,8 @@ try {
 
     await page.goto(`${baseUrl}/en/pace/marathon`, { waitUntil: 'domcontentloaded' });
     await page.getByText('Lap Time for the Marathon', { exact: true }).waitFor();
+    const marathonOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    if (marathonOverflow > 1) throw new Error(`Marathon page overflow at ${viewport.width}px: ${marathonOverflow}px`);
 
     for (const [path, heading] of [
       ['/yumenoshima', '夢の島陸上競技場 開放日'],
@@ -40,6 +47,7 @@ try {
   if (requests.some(url => /firebase|firestore|googleapis\.com\/identitytoolkit/i.test(url))) {
     throw new Error('A Firebase request was detected');
   }
+  if (runtimeErrors.length > 0) throw new Error(`Runtime errors detected:\n${runtimeErrors.join('\n')}`);
   console.log('Smoke test passed for desktop/mobile, public routes, /manage removal, and Firebase isolation.');
 } finally {
   await browser.close();

@@ -50,12 +50,12 @@
       <router-view />
     </v-main>
 
-    <v-footer class="pa-0 d-block">
+    <footer class="site-footer">
       <div class="footer-request">
-        <strong>{{ t('footer_1') }}<a href="https://twitter.com/itsrun_page">{{ t('footer_2') }}</a>{{ t('footer_3') }}</strong>
+        <strong class="subheading">{{ t('footer_1') }}<a href="https://twitter.com/itsrun_page">{{ t('footer_2') }}</a>{{ t('footer_3') }}</strong>
       </div>
       <div class="footer-copyright">&copy;2019 — <strong>{{ t('title') }}</strong></div>
-    </v-footer>
+    </footer>
   </v-app>
 </template>
 

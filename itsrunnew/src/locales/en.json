@@ -2,7 +2,7 @@
   "message": "hello i18n !!",
   "title": "ItsRun",
   "footer_1": "Please tweet to ",
-  "footer_2": "@itsrun_page",
+  "footer_2": "{'@'}itsrun_page",
   "footer_3": " if you have any requests.",
   "menu": {
     "tokyo": "Tokyo",

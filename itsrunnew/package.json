@@ -13,14 +13,19 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:smoke": "node scripts/smoke.mjs",
+    "test:smoke:preview": "node scripts/smoke-preview.mjs",
     "test:visual": "node scripts/visual-compare.mjs",
     "validate:tracks": "node scripts/validate-tracks.mjs",
     "collect:availability": "tsx scripts/availability/collect.ts",
     "collect:availability:range": "tsx scripts/availability/collect-range.ts",
     "lint": "vue-tsc --noEmit",
+    "deploy:preview:content": "bash scripts/deploy-preview.sh",
+    "deployment:summary": "node scripts/deployment-summary.mjs",
     "infra:synth": "npm run build && cdk synth",
     "infra:deploy": "npm run build && cdk deploy --require-approval never --outputs-file cdk-outputs.json",
-    "infra:destroy": "cdk destroy"
+    "infra:destroy": "cdk destroy",
+    "infra:automation:synth": "cdk synth --app \"npx tsx infra/automation-app.ts\"",
+    "infra:automation:deploy": "cdk deploy --app \"npx tsx infra/automation-app.ts\" ItsRunPreviewAutomationStack --require-approval never"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

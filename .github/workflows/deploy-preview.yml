@@ -1,0 +1,82 @@
+name: Deploy Preview
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  schedule:
+    # 05:00 JST. GitHub Actions cron uses UTC.
+    - cron: '0 20 * * *'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: itsrun-preview-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy Preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: itsrunnew
+    env:
+      AWS_REGION: ap-northeast-1
+      PREVIEW_ROLE_ARN: arn:aws:iam::470447451992:role/itsrun-track-preview-deploy
+      PREVIEW_BUCKET: itsrunpreviewstack-sitebucket397a1860-khjbgxk7mmdb
+      PREVIEW_DISTRIBUTION_ID: E2F8WYHWRDA3NS
+      PREVIEW_DOMAIN: d2xryux7a95b54.cloudfront.net
+      PREVIEW_URL: https://d2xryux7a95b54.cloudfront.net
+      CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - name: Check out repository
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: itsrunnew/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Generate fresh availability range
+        run: npm run collect:availability:range
+      - name: Validate Track Dataset
+        run: npm run validate:tracks
+      - name: Run unit tests
+        run: npm test
+      - name: Run lint and type checks
+        run: npm run lint
+      - name: Build static site
+        run: npm run build
+      - name: Run local production smoke
+        run: npm run test:smoke:preview
+      - name: Configure GitHub OIDC credentials
+        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
+        with:
+          role-to-assume: ${{ env.PREVIEW_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: itsrun-preview-${{ github.run_id }}
+      - name: Deploy content and invalidate entry routes
+        id: deploy_content
+        run: npm run deploy:preview:content
+      - name: Verify CloudFront Preview
+        id: cloudfront_smoke
+        env:
+          ITSRUN_BASE_URL: ${{ env.PREVIEW_URL }}
+        run: npm run test:smoke
+      - name: Write deployment summary
+        if: always() && steps.checkout.outcome == 'success'
+        env:
+          DEPLOY_TRIGGER: ${{ github.event_name }}
+          DEPLOYED_COMMIT: ${{ github.sha }}
+          DEPLOY_RESULT: ${{ steps.deploy_content.outcome }}
+          INVALIDATION_ID: ${{ steps.deploy_content.outputs.invalidation_id }}
+          CLOUDFRONT_SMOKE_RESULT: ${{ steps.cloudfront_smoke.outcome }}
+        run: npm run deployment:summary

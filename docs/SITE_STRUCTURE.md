@@ -67,12 +67,18 @@ itsrunnew/
 ├── public/                    favicon、manifest、robots、ads.txt、状態画像
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
+│   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
+│   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
+│   ├── deployment-summary.mjs GitHub Actions run summary生成
+│   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
 │   ├── availability/          HTML/calendar/fixed/PDF collector、range/cache、config、fixture、unit test
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
-    ├── app.ts                 CDKアプリのエントリー
-    └── itsrun-preview-stack.ts S3、CloudFront、静的ファイル配備
+    ├── app.ts                              hosting CDKアプリのエントリー
+    ├── itsrun-preview-stack.ts             S3、CloudFront、静的ファイル配備
+    ├── automation-app.ts                   deploy role専用CDKエントリー
+    └── itsrun-preview-automation-stack.ts  master限定GitHub OIDC role
 
 data/osm/
 ├── tracks.json                    初期範囲のOverpass raw research data
@@ -88,7 +94,8 @@ research/
     └── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
 
 .github/workflows/
-└── node-validation.yml          master向けPRとmaster pushのNode 24検証
+├── node-validation.yml          master向けPRとmaster pushのNode 24検証
+└── deploy-preview.yml           master push・手動・日次のPreview content deploy
 ```
 
 `dist/`、`cdk.out/`、`cdk-outputs.json`は生成物であり、実装の正本ではありません。
@@ -191,6 +198,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 バケットとオブジェクトはスタック削除時に削除される検証用途の設定です。
 
+`ItsRunPreviewAutomationStack` は既存の標準GitHub OIDC providerを参照し、`master` branchの `subaru44k/itsrunnew` workflowだけが引き受けられる `itsrun-track-preview-deploy` roleを作成します。既存migration roleは使用しません。権限はPreview bucketのcontent操作とPreview distributionのread/invalidationに限定し、hosting stackとは独立して管理します。
+
 ## 8. コマンドと検証
 
 すべて `itsrunnew/` で実行します。
@@ -203,6 +212,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
 | `npm run test:smoke` | PC・スマホの全公開ルート、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
+| `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
@@ -210,10 +220,16 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |
 | `npm run infra:deploy` | ビルドして検証スタックへ配備、`cdk-outputs.json`へ出力 |
 | `npm run infra:destroy` | 検証スタックを削除 |
+| `npm run deploy:preview:content` | guard後に既存Preview S3へcontent syncし、targeted invalidationを完了まで待機 |
+| `npm run deployment:summary` | availability範囲・status・deploy結果のActions summaryを生成 |
+| `npm run infra:automation:synth` | GitHub OIDC deploy role専用stackを生成 |
+| `npm run infra:automation:deploy` | hosting stackへ触れずdeploy role専用stackだけを配備 |
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。
 
 `.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。commit済みavailability baselineを使うためlive collector、AWS権限、secretsは必要としません。
+
+`.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、content-only S3 sync、targeted CloudFront invalidation、CloudFront smokeまでを実行します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 
 ビジュアル比較は、広告を無効化した旧版が`ITSRUN_OLD_URL`（既定 `http://127.0.0.1:4172`）、新版が`ITSRUN_NEW_URL`（既定 `http://127.0.0.1:4173`）で起動済みであることが前提です。画像は既定で`/tmp/itsrun-visual-comparison`へ出力されます。全画面高の差は100px以内、フッター高の差は1px以内、横方向のはみ出しは1px以内を合格条件としています。
 

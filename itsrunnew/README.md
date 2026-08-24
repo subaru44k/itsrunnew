@@ -24,6 +24,7 @@ npm run build
 npm run lint
 npm run validate:tracks
 npm run test:smoke
+npm run test:smoke:preview
 ```
 
 `master`向けPull RequestではGitHub Actionsの `Node 24 validation` が、`npm ci`、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行します。CIはcommit済みavailability baselineを使用し、live collectorやAWS credentialsを必要としません。
@@ -42,3 +43,5 @@ npm run infra:deploy
 ```
 
 デプロイ後のURLは `cdk-outputs.json` の `VerificationUrl` で確認できます。プレビュー環境を削除する場合は `npm run infra:destroy` を実行します。
+
+GitHub Actionsはmaster push、手動実行、毎日05:00 JSTにfresh availabilityを生成し、既存Previewへcontent-only deployします。GitHub OIDCの専用role、cache metadata、targeted invalidation、concurrency、failure handlingは [`../docs/PREVIEW_DEPLOYMENT.md`](../docs/PREVIEW_DEPLOYMENT.md) を参照してください。通常deployでCDK hosting stackは更新しません。

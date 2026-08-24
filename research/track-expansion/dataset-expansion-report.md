@@ -1,7 +1,8 @@
 # Track Dataset 33施設拡張レポート
 
-調査・検証日: 2026-08-24（Asia/Tokyo）  
-normalized dataset: [`itsrunnew/src/data/tracks.json`](../../itsrunnew/src/data/tracks.json)  
+調査・検証日: 2026-08-24（Asia/Tokyo）
+
+normalized dataset: [`itsrunnew/src/data/tracks.json`](../../itsrunnew/src/data/tracks.json)
 availability research: [`availability-sources.json`](../availability/availability-sources.json)
 
 ## 結論

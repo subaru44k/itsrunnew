@@ -1,6 +1,6 @@
 # PDF availability collector 実装・live検証
 
-検証日: 2026-08-24（Asia/Tokyo）  
+検証日: 2026-08-24（Asia/Tokyo）
 対象日: 2026-08-24、未来日 2026-08-27
 
 ## 結論

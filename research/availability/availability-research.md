@@ -1,7 +1,8 @@
 # 「今日、個人利用できるトラック」フィージビリティ調査
 
-調査日: 2026-08-24（Asia/Tokyo）  
-対象データ: [`itsrunnew/src/data/tracks.json`](../../itsrunnew/src/data/tracks.json)  
+調査日: 2026-08-24（Asia/Tokyo）
+
+対象データ: [`itsrunnew/src/data/tracks.json`](../../itsrunnew/src/data/tracks.json)
 構造化結果: [`availability-sources.json`](availability-sources.json)
 
 ## 33施設への拡張追補

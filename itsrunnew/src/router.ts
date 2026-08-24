@@ -51,10 +51,10 @@ const pages = {
   },
   tracks: {
     path: 'tracks', component: () => import('./views/TrackSearch.vue'),
-    jaTitle: 'いつラン - 現在地周辺の陸上トラック検索',
-    enTitle: "It's Run - Find running tracks near you",
-    jaDescription: '現在地や石神井公園周辺から、個人利用できる陸上競技場・ランニングトラックを地図で探せます。',
-    enDescription: 'Find verified athletic and running tracks near your location or Shakujii Park.',
+    jaTitle: 'いつラン - 日付から探せる陸上競技場・トラック検索',
+    enTitle: "It's Run - Find a track for your workout date",
+    jaDescription: '利用日を選び、個人利用できそうな陸上競技場・ランニングトラックを地図と一覧から探せます。',
+    enDescription: 'Choose a date and find verified athletic and running tracks that may be available for your workout.',
   },
 } as const;
 
@@ -95,8 +95,14 @@ router.beforeEach((to) => {
   i18n.global.locale.value = locale;
   useAppStore().setLocale(locale);
   document.documentElement.lang = locale;
-  document.title = String(to.meta.title ?? 'いつラン');
-  document.querySelector('meta[name="description"]')?.setAttribute('content', String(to.meta.description ?? 'いつラン'));
+  const title = String(to.meta.title ?? 'いつラン');
+  const description = String(to.meta.description ?? 'いつラン');
+  document.title = title;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+  document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
 });
 
 export default router;

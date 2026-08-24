@@ -15,8 +15,12 @@ Gitリポジトリのルートはこの文書の親ディレクトリです。�
 - Pinia 3
 - Vue I18n 11
 - Day.js
+- Leaflet 1.9 + OpenStreetMap tiles
+- PDF.js (`pdfjs-dist`) 6（availability collectorの座標付き文字抽出。ブラウザbundleには含めない）
 - VitestおよびPlaywright Core
 - AWS CDK 2（S3 + CloudFrontの検証環境）
+
+開発・build・collector実行には Node.js 22.13.0 以上とnpmを使用します。
 
 Firebase SDK、データベース、認証、APIサーバーはありません。生成物は静的ファイルだけです。
 
@@ -47,6 +51,9 @@ itsrunnew/
 │   ├── App.vue                共通シェル、メニュー、言語切替、フッター
 │   ├── router.ts              全ルート、SEOメタ情報、言語、ハッシュスクロール
 │   ├── store.ts               Pinia状態、日付生成、情報なしスケジュール、ペース選択
+│   ├── data/tracks.json       公式情報で検証済みの公開用Track Dataset
+│   ├── data/availability.json 単日debug・後方互換用availability dataset
+│   ├── data/availability/    manifestと今日から31日分のdate-specific JSON
 │   ├── styles.css             全体CSSと旧サイト再現用のVuetify 4補正
 │   ├── i18n.ts                日本語・英語のVue I18n設定
 │   ├── locales/               ja.json / en.json
@@ -55,15 +62,30 @@ itsrunnew/
 │   │   ├── AdsDisplay.vue     AdSenseスロットとスクリプト読み込み
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
 │   │   └── laptime/           PC・スマホ用マラソンペース表
-│   ├── model/                 ペース表の計算モデル
+│   ├── model/                 ペース表の計算モデル、トラック型・距離・経路URL
 │   └── plugins/vuetify.ts     Vuetifyテーマとアイコン設定
 ├── public/                    favicon、manifest、robots、ads.txt、状態画像
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
+│   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
+│   ├── availability/          HTML/calendar/fixed/PDF collector、range/cache、config、fixture、unit test
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
     ├── app.ts                 CDKアプリのエントリー
     └── itsrun-preview-stack.ts S3、CloudFront、静的ファイル配備
+
+data/osm/
+├── tracks.json                    初期範囲のOverpass raw research data
+└── expansion-candidates.json      拡張範囲で選別・clusterしたOSM/Nominatim evidence
+
+research/
+├── availability/
+│   ├── availability-sources.json  Track Dataset全33施設のavailability source調査データ
+│   ├── availability-research.md   「今日利用可能」機能の調査と拡張追補
+│   ├── pdf-collector-validation.md PDF collectorのlive比較・format・coverage
+│   └── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
+└── track-expansion/
+    └── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
 ```
 
 `dist/`、`cdk.out/`、`cdk-outputs.json`は生成物であり、実装の正本ではありません。
@@ -92,6 +114,7 @@ itsrunnew/
 | `/todoroki` | `/en/todoroki` | `Todoroki.vue` | 等々力陸上競技場 |
 | `/pace/marathon` | `/en/pace/marathon` | `LapTime.vue` | マラソンのペース表 |
 | `/nozomiantena/index` | `/en/nozomiantena/index` | `NozomiAntena.vue` | 田中希実選手の記録集 |
+| `/tracks` | `/en/tracks` | `TrackSearch.vue` | 現在地周辺の陸上トラック検索 |
 
 互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa` です。それ以外の未知パス（削除済みの `/manage`を含む）は `/` へリダイレクトされます。
 
@@ -128,6 +151,18 @@ itsrunnew/
 
 `NozomiAntena.vue`は大会記録を静的HTMLテーブルとして保持します。2021年・2020年の年別アンカーもこのファイルにあります。本文は翻訳ファイルではなく、現状は日本語で直接記述されています。
 
+### 陸上トラック検索
+
+`TrackSearch.vue` は新規独立ページです。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は現在地marker・地図移動・Haversine直線距離順、拒否・取得不能・timeout時は石神井公園中心の地図を維持します。
+
+施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。静的な個人利用資格との複合filterや3択dropdownは設けません。routing API、backend、リアルタイムOverpass/JAAF/施設検索はありません。
+
+availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、PDF text extractionを再利用します。structured HTML 3施設、calendar HTML 3施設、固定規則9施設、PDF 8施設の計23施設を安全な自動判定対象とし、世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
+
+調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在33施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、両raw fileのOSM ID、30〜50件目標、単日および31日manifest全件のavailability trackId/date一致を検証します。
+
+availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に33施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
+
 ### 広告
 
 `AdsDisplay.vue`はGoogle AdSenseスクリプトを必要時に一度だけ読み込み、各スロットを初期化します。広告ブロッカーや未承認の検証ドメインでの失敗は握りつぶします。これはFirebaseやサイトデータ取得とは無関係です。レイアウト比較では広告の自動挿入による変形を避けるため、広告・解析通信と広告要素を遮断します。
@@ -161,11 +196,14 @@ itsrunnew/
 |---|---|
 | `npm run dev` | Vite開発サーバー |
 | `npm run build` | `vue-tsc --noEmit`後に本番ビルド |
-| `npm test` | Piniaのローカル日付生成・週送り単体テスト |
+| `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
 | `npm run test:smoke` | PC・スマホの全公開ルート、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
+| `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
+| `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
+| `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋日別availability JSONを生成 |
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |
 | `npm run infra:deploy` | ビルドして検証スタックへ配備、`cdk-outputs.json`へ出力 |
 | `npm run infra:destroy` | 検証スタックを削除 |
@@ -179,6 +217,9 @@ itsrunnew/
 | 変更内容 | 主な実装 | 同時に確認・更新するもの |
 |---|---|---|
 | ページやURLの追加・削除 | `src/router.ts`, `src/views/` | `App.vue`のメニュー、locale、smoke、visual、この文書 |
+| トラック施設データ | `src/data/tracks.json`, `src/model/tracks.ts` | `TRACK_DATA.md`、validate、unit、smoke、この文書 |
+| availability調査・将来の取得方式 | `../research/availability/` | Track Datasetの全ID、公式source、`unknown`の意味、この文書 |
+| availability collector・schema・UI | `scripts/availability/`, `src/data/availability.json`, `src/model/availability.ts`, `src/views/TrackSearch.vue` | `AVAILABILITY.md`、unit、smoke、README、この文書 |
 | 共通ヘッダー・フッター | `src/App.vue`, `src/styles.css` | locale、smoke、visual、この文書 |
 | 競技場ページ | 対応するView、schedule components | locale、公開画像、smoke、visual、この文書 |
 | スケジュール挙動 | `src/store.ts`, `components/schedule/` | `store.test.ts`、smoke、Firebase非依存の記述、この文書 |

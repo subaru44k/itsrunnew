@@ -128,7 +128,7 @@ research/
 
 互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa` です。それ以外の未知パス（削除済みの `/manage`を含む）は `/` へリダイレクトされます。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、descriptionメタタグを更新します。記録集の `#2021` と `#2020` は実要素のIDであり、`scrollBehavior`が固定ヘッダーを避けてスクロールします。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、OGP/Twitterのtitle・descriptionメタタグを更新します。共通HTMLにはfavicon、apple-touch-icon、theme color、基本OGPを持ちます。正式ドメイン未設定のPreview段階ではcanonical URLやsitemapを固定しません。記録集の `#2021` と `#2020` は実要素のIDであり、`scrollBehavior`が固定ヘッダーを避けてスクロールします。
 
 ## 6. ページと機能
 
@@ -165,7 +165,7 @@ research/
 
 `TrackSearch.vue` は新規独立ページです。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は現在地marker・地図移動・Haversine直線距離順、拒否・取得不能・timeout時は石神井公園中心の地図を維持します。
 
-施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。静的な個人利用資格との複合filterや3択dropdownは設けません。routing API、backend、リアルタイムOverpass/JAAF/施設検索はありません。
+施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや3択dropdownは設けません。routing API、backend、リアルタイムOverpass/JAAF/施設検索はありません。
 
 availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、PDF text extractionを再利用します。structured HTML 3施設、calendar HTML 3施設、固定規則9施設、PDF 8施設の計23施設を安全な自動判定対象とし、世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 

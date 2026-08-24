@@ -4,10 +4,10 @@
       <div>
         <p class="track-eyebrow">{{ isEnglish ? 'TRACK FINDER' : 'TRACK FINDER' }}</p>
         <h1>{{ isEnglish ? 'Find a track near you' : '近くで走れるトラックを探す' }}</h1>
-        <p>{{ isEnglish ? 'Search verified athletic tracks around Shakujii Park on an OpenStreetMap map.' : '石神井公園周辺の、公式情報で確認した陸上競技場・ランニングトラックを地図から探せます。' }}</p>
+        <p>{{ isEnglish ? 'Choose a date and find promising tracks for your workout.' : '利用日を選び、練習できそうな競技場・トラックを探せます。' }}</p>
       </div>
-      <v-btn color="indigo" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
-        {{ isEnglish ? 'Use my location' : '現在地を表示' }}
+      <v-btn class="hero-location-btn" color="white" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
+        {{ isEnglish ? 'Find near me' : '現在地から探す' }}
       </v-btn>
     </header>
 
@@ -35,25 +35,25 @@
       <p v-if="dateMessage" class="date-message" role="status">{{ dateMessage }}</p>
     </section>
 
-    <section class="track-controls" aria-label="検索条件">
+    <section class="track-controls" :aria-label="isEnglish ? 'Map display and availability legend' : '地図表示と利用状況の凡例'">
       <v-switch v-model="showUnavailable" color="red-darken-2" density="compact" hide-details
         :label="showUnavailableLabel" />
-      <span>{{ visibleTracks.length }}{{ isEnglish ? ' facilities' : '施設' }}</span>
-      <span class="marker-legend"><i class="legend-dot today-available" />{{ availabilityLabelForStatus('available') }}</span>
-      <span class="marker-legend"><i class="legend-dot today-partial" />{{ availabilityLabelForStatus('partially_available') }}</span>
-      <span class="marker-legend"><i class="legend-dot today-unknown" />{{ availabilityLabelForStatus('unknown') }}</span>
-      <span class="marker-legend"><i class="legend-dot today-unavailable" />{{ availabilityLabelForStatus('unavailable') }}</span>
+      <strong class="result-count">{{ visibleTracks.length }}{{ isEnglish ? ' facilities' : '施設' }}</strong>
+      <span class="marker-legend"><i class="legend-dot today-available" />{{ availabilityStatusName('available') }}</span>
+      <span class="marker-legend"><i class="legend-dot today-partial" />{{ availabilityStatusName('partially_available') }}</span>
+      <span class="marker-legend"><i class="legend-dot today-unknown" />{{ availabilityStatusName('unknown') }}</span>
+      <span class="marker-legend"><i class="legend-dot today-unavailable" />{{ availabilityStatusName('unavailable') }}</span>
     </section>
 
     <div :class="['track-layout', { 'has-detail': selectedTrack }]">
-      <section class="map-panel" aria-label="陸上トラック地図">
+      <section class="map-panel" :aria-label="isEnglish ? 'Athletic track map' : '陸上トラック地図'">
         <div ref="mapElement" id="track-map" class="track-map" />
       </section>
 
       <aside v-if="selectedTrack" ref="detailElement" class="detail-card" aria-live="polite">
         <div class="detail-heading">
           <div>
-            <span :class="['status-badge', statusClass(selectedTrack)]">{{ statusLabel(selectedTrack) }}</span>
+            <span :class="['status-badge', statusClass(selectedTrack)]"><v-icon :icon="statusIcon(selectedAvailability.status)" size="14" aria-hidden="true" />{{ statusLabel(selectedTrack) }}</span>
             <h2>{{ localizedName(selectedTrack) }}</h2>
           </div>
           <v-btn icon="mdi-close" variant="text" size="small" :aria-label="isEnglish ? 'Close details' : '詳細を閉じる'" @click="selectedTrack = null" />
@@ -91,14 +91,25 @@
     <section class="facility-section">
       <h2>{{ isEnglish ? 'Facilities' : '施設一覧' }}</h2>
       <p class="dataset-note">{{ datasetNote }}</p>
-      <div class="facility-grid">
-        <button v-for="item in sortedTracks" :key="item.track.id" type="button" class="facility-card" @click="selectTrack(item.track)">
-          <span :class="['availability-badge', availabilityClass(item.availability)]">{{ availabilityLabel(item.availability) }}</span>
+      <div v-if="sortedTracks.length" class="facility-grid">
+        <button v-for="item in sortedTracks" :key="item.track.id" type="button"
+          :class="['facility-card', { 'is-selected': selectedTrack?.id === item.track.id }]"
+          :aria-pressed="selectedTrack?.id === item.track.id" :aria-label="facilityCardAriaLabel(item.track, item.availability)"
+          @click="selectTrack(item.track)">
+          <span :class="['availability-badge', availabilityClass(item.availability)]"><v-icon :icon="statusIcon(item.availability.status)" size="14" aria-hidden="true" />{{ availabilityLabel(item.availability) }}</span>
           <strong>{{ localizedName(item.track) }}</strong>
-          <span v-if="item.availability.status === 'unknown'" class="availability-hint">{{ availabilityDescription(item.availability) }}</span>
+          <span v-if="item.availability.status === 'unknown'" class="availability-hint">{{ availabilityCardHint(item.availability) }}</span>
           <span>{{ summary(item.track) }}</span>
           <span v-if="item.distance != null" class="facility-distance">{{ formatDistance(item.distance) }}</span>
+          <span class="card-chevron" aria-hidden="true"><v-icon icon="mdi-chevron-right" size="20" /></span>
         </button>
+      </div>
+      <div v-else class="no-results" role="status">
+        <strong>{{ isEnglish ? 'No candidates for this date.' : 'この日の候補が見つかりませんでした。' }}</strong>
+        <p>{{ isEnglish ? 'Try another date or include unavailable facilities.' : '日付を変えるか、利用不可の施設も表示してみてください。' }}</p>
+        <v-btn v-if="!showUnavailable" color="indigo" variant="outlined" @click="showUnavailable = true">
+          {{ isEnglish ? 'Show all facilities' : '全施設を表示' }}
+        </v-btn>
       </div>
     </section>
 
@@ -188,8 +199,8 @@ const showUnavailableLabel = computed(() => isEnglish.value
   ? `Show facilities unavailable on ${selectedDateShortLabel.value.toLowerCase()}`
   : `${selectedDateShortLabel.value}利用不可の施設も表示`);
 const datasetNote = computed(() => isEnglish.value
-  ? `${selectedDateShortLabel.value}’s status was generated before the static build. “Needs confirmation” remains a useful candidate.`
-  : `${selectedDateShortLabel.value}の状況は静的サイトのbuild前に生成しています。「要確認」も有力候補として残しています。訪問前に公式情報をご確認ください。`);
+  ? 'Based on official sources. Schedules can change, so check before visiting. “Needs confirmation” does not mean unavailable.'
+  : '公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。');
 
 watch(() => route.query.date, async value => {
   const normalized = normalizeSelectedDate(value, today);
@@ -263,10 +274,11 @@ function onDateInput(event: Event) {
   chooseDate((event.target as HTMLInputElement).value);
 }
 
-function selectTrack(track: TrackFacility) {
+async function selectTrack(track: TrackFacility) {
   selectedTrack.value = track;
   map?.flyTo([track.location.latitude, track.location.longitude], Math.max(map.getZoom(), 14));
-  nextTick(() => detailElement.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  await nextTick();
+  detailElement.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function requestLocation() {
@@ -335,6 +347,13 @@ function summary(track: TrackFacility) {
   return [track.track.lengthMeters ? `${track.track.lengthMeters}m` : null, track.track.surface ? surfaceLabel(track.track.surface) : null, statusLabel(track), track.individualUse.spikesAllowed === true ? (isEnglish.value ? 'Spikes allowed' : 'スパイク可') : null, track.individualUse.feeYen === 0 ? (isEnglish.value ? 'Free' : '無料') : null].filter(Boolean).join('・');
 }
 
+function statusIcon(status: AvailabilityStatus) {
+  return {
+    available: 'mdi-check-circle', partially_available: 'mdi-clock-outline',
+    unknown: 'mdi-help-circle-outline', unavailable: 'mdi-close-circle',
+  }[status];
+}
+
 function availabilityClass(availability: TrackAvailability) { return `availability--${availability.status.replace('_', '-')}`; }
 function availabilityLabelForStatus(status: AvailabilityStatus) {
   const statusText: Record<AvailabilityStatus, [string, string]> = {
@@ -346,6 +365,13 @@ function availabilityLabelForStatus(status: AvailabilityStatus) {
     : status === 'unknown' ? `${selectedDateShortLabel.value}は要確認` : `${selectedDateShortLabel.value}${statusText[status][0]}`;
 }
 function availabilityLabel(availability: TrackAvailability) { return availabilityLabelForStatus(availability.status); }
+function availabilityStatusName(status: AvailabilityStatus) {
+  const labels: Record<AvailabilityStatus, [string, string]> = {
+    available: ['利用可能', 'Available'], partially_available: ['一部利用可能', 'Partly available'],
+    unknown: ['要確認', 'Needs confirmation'], unavailable: ['利用不可', 'Unavailable'],
+  };
+  return labels[status][isEnglish.value ? 1 : 0];
+}
 function unknownReasonLabel(reason: UnknownReason | null) {
   const labels: Record<UnknownReason, [string, string]> = {
     web_schedule_unavailable: [`${selectedDateShortLabel.value}の予定はWebでは公開されていません。`, `The schedule for ${selectedDateShortLabel.value.toLowerCase()} is not published online.`],
@@ -370,6 +396,18 @@ function availabilityDescription(availability: TrackAvailability) {
   if (availability.status === 'partially_available') return isEnglish.value ? 'Only the official periods or areas below are confirmed.' : '下記の時間帯・利用範囲のみ公式情報で確認できています。';
   if (availability.status === 'unavailable') return isEnglish.value ? `An official closure or unavailable notice applies on ${selectedDateShortLabel.value.toLowerCase()}.` : `公式情報で${selectedDateShortLabel.value}の休場・利用休止を確認しています。`;
   return isEnglish.value ? `Official information confirms individual use on ${selectedDateShortLabel.value.toLowerCase()}.` : `公式情報から${selectedDateShortLabel.value}の個人利用枠を確認できています。`;
+}
+function availabilityCardHint(availability: TrackAvailability) {
+  const reason = availability.unknownReason;
+  if (reason === 'web_schedule_unavailable' || reason === 'phone_confirmation_required') return isEnglish.value ? 'Schedule not published online' : '予定はWeb未公開';
+  if (reason === 'outside_published_period' || reason === 'schedule_not_published') return isEnglish.value ? 'Schedule not published yet' : '予定はまだ未公開';
+  if (reason === 'reservation_system_unsupported') return isEnglish.value ? 'Check the booking system' : '予約システムで要確認';
+  if (reason === 'unsupported_pdf_graphics' || reason === 'unsupported_source_type') return isEnglish.value ? 'Check the official schedule' : '公式予定表で要確認';
+  if (reason === 'source_stale' || reason === 'fetch_failed' || reason === 'parse_failed' || reason === 'extraction_failed' || reason === 'invalid_content_type' || reason === 'source_changed') return isEnglish.value ? 'Latest schedule unavailable' : '最新予定を確認できません';
+  return isEnglish.value ? 'Opening needs confirmation' : '開放状況は要確認';
+}
+function facilityCardAriaLabel(track: TrackFacility, availability: TrackAvailability) {
+  return `${localizedName(track)}、${availabilityLabel(availability)}、${isEnglish.value ? 'open details and directions' : '詳細と行き方を表示'}`;
 }
 function scopeLabel(scope: TrackAvailability['periods'][number]['scope']) {
   const labels = {
@@ -396,8 +434,8 @@ function freshnessLabel(availability: TrackAvailability) {
   const checked = new Date(availability.freshness.checkedAt);
   const formatted = new Intl.DateTimeFormat(isEnglish.value ? 'en-US' : 'ja-JP', { timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(checked);
   return availability.freshness.fetchedAt
-    ? (isEnglish.value ? `Official source checked ${formatted}` : `${formatted} 公式情報確認`)
-    : (isEnglish.value ? `Status prepared ${formatted}` : `${formatted} 要確認情報を生成`);
+    ? (isEnglish.value ? `Official source checked: ${formatted}` : `公式情報の最終確認：${formatted}`)
+    : (isEnglish.value ? `Status prepared: ${formatted}` : `要確認情報の生成：${formatted}`);
 }
 function availabilityActionUrl(track: TrackFacility) { return selectedDateAvailability(track).source.url || track.urls.schedule || track.urls.individualUse || track.urls.official; }
 function availabilityActionLabel(availability: TrackAvailability) {
@@ -411,6 +449,7 @@ function availabilityActionLabel(availability: TrackAvailability) {
 .track-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 24px; margin-bottom: 16px; color: white; background: linear-gradient(135deg, #283593, #00897b); border-radius: 12px; }
 .track-hero h1 { margin: 2px 0 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.2; }
 .track-hero p { max-width: 720px; margin: 0; }
+.hero-location-btn { min-height: 44px; color: #283593 !important; font-weight: 700; }
 .track-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; opacity: .85; }
 .track-controls { display: flex; min-height: 52px; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 6px 14px; margin-bottom: 12px; border: 1px solid #d9dce8; border-radius: 10px; background: white; }
 .track-controls .v-switch { flex: 0 1 auto; }
@@ -418,8 +457,10 @@ function availabilityActionLabel(availability: TrackAvailability) {
 .date-control-heading { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
 .date-control-heading span { color: #666; font-size: 13px; }
 .date-shortcuts { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 8px; }
+.date-shortcuts .v-btn { min-height: 40px; }
 .native-date-field { display: flex; min-width: 180px; color: #555; font-size: 12px; flex-direction: column; gap: 2px; }
 .native-date-field input { min-height: 36px; padding: 5px 9px; color: #222; border: 1px solid #9da3b4; border-radius: 5px; background: white; font: inherit; font-size: 14px; }
+.native-date-field input:focus-visible { border-color: #3f51b5; outline: 3px solid rgba(63, 81, 181, .22); outline-offset: 1px; }
 .date-message { margin: 8px 0 0; color: #8a4b00; }
 .marker-legend { display: inline-flex; align-items: center; gap: 6px; color: #555; font-size: 13px; }
 .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -436,12 +477,12 @@ function availabilityActionLabel(availability: TrackAvailability) {
 .today-availability strong { display: block; font-size: 17px; }.today-availability p { margin: 5px 0; }.today-availability small { color: #555; }
 .availability-date { display: block; margin-bottom: 3px; color: #555; font-size: 12px; }
 .availability-periods { padding-left: 20px; margin: 7px 0; }
-.availability-badge { display: inline-flex; width: fit-content; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+.availability-badge { display: inline-flex; width: fit-content; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; }
 .availability--available { color: #00695c; border-color: #00897b; background: #e0f2f1; }
 .availability--partially-available { color: #7a4d00; border-color: #f9a825; background: #fff8e1; }
 .availability--unknown { color: #455a64; border-color: #78909c; background: #eceff1; }
 .availability--unavailable { color: #8e1717; border-color: #c62828; background: #ffebee; }
-.status-badge { display: inline-flex; width: fit-content; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.status-badge { display: inline-flex; width: fit-content; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
 .status-badge.is-available { color: #00695c; background: #e0f2f1; }.status-badge.is-other { color: #9a4b00; background: #fff3e0; }
 .track-facts { margin: 0; border-top: 1px solid #eceef3; }
 .track-facts div { display: grid; grid-template-columns: 92px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px solid #eceef3; }
@@ -449,12 +490,17 @@ function availabilityActionLabel(availability: TrackAvailability) {
 .track-note { padding: 10px; margin: 12px 0; color: #8a4b00; background: #fff8e1; border-radius: 6px; }
 .official-warning { margin: 14px 0; color: #555; font-size: 13px; }
 .detail-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.detail-actions .v-btn { min-height: 40px; }
 .facility-section { margin-top: 28px; }.facility-section h2 { font-size: 24px; }.dataset-note { color: #666; }
 .facility-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.facility-card { display: flex; min-width: 0; padding: 14px; text-align: left; color: inherit; border: 1px solid #d9dce8; border-radius: 9px; background: white; cursor: pointer; flex-direction: column; gap: 5px; }
+.facility-card { position: relative; display: flex; min-width: 0; padding: 14px 36px 14px 14px; text-align: left; color: inherit; border: 1px solid #d9dce8; border-radius: 9px; background: white; cursor: pointer; flex-direction: column; gap: 5px; }
 .facility-card:hover, .facility-card:focus-visible { border-color: #3f51b5; box-shadow: 0 3px 12px rgba(24, 39, 90, .1); outline: none; }
+.facility-card.is-selected { border-color: #3f51b5; background: #f7f8ff; box-shadow: 0 0 0 1px #3f51b5; }
 .facility-card strong { font-size: 16px; }.facility-card > span:not(.status-badge):not(.availability-badge) { color: #666; }.facility-distance { color: #283593 !important; font-weight: 700; }
 .facility-card .availability-badge { color: inherit; }.availability-hint { font-size: 12px; line-height: 1.45; }
+.facility-card .card-chevron { position: absolute; top: 50%; right: 10px; color: #303f9f !important; transform: translateY(-50%); }
+.no-results { padding: 28px 20px; text-align: center; border: 1px dashed #9da3b4; border-radius: 10px; background: #fafbff; }
+.no-results p { margin: 6px 0 14px; color: #555; }
 .map-credit { margin: 20px 0 0; color: #666; font-size: 12px; }
 :global(.track-marker-shell), :global(.current-location-shell) { background: transparent; border: 0; }
 :global(.track-marker) { display: block; width: 26px; height: 26px; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 7px rgba(0,0,0,.42); }
@@ -464,7 +510,8 @@ function availabilityActionLabel(availability: TrackAvailability) {
   .track-search-page { padding: 12px 10px 28px; }
   .track-hero { align-items: stretch; padding: 18px; flex-direction: column; }
   .track-hero .v-btn { align-self: flex-start; }
-  .track-controls { align-items: stretch; flex-direction: column; }
+  .track-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 8px 12px; padding-block: 10px; }
+  .track-controls .v-switch, .track-controls .result-count { grid-column: 1 / -1; }
   .date-control-heading { align-items: flex-start; flex-direction: column; }
   .date-shortcuts .v-btn { flex: 1 1 calc(25% - 8px); }
   .native-date-field { width: 100%; }

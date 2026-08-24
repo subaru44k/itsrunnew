@@ -86,6 +86,9 @@ research/
 │   └── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
 └── track-expansion/
     └── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
+
+.github/workflows/
+└── node-validation.yml          master向けPRとmaster pushのNode 24検証
 ```
 
 `dist/`、`cdk.out/`、`cdk-outputs.json`は生成物であり、実装の正本ではありません。
@@ -209,6 +212,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run infra:destroy` | 検証スタックを削除 |
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。
+
+`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。commit済みavailability baselineを使うためlive collector、AWS権限、secretsは必要としません。
 
 ビジュアル比較は、広告を無効化した旧版が`ITSRUN_OLD_URL`（既定 `http://127.0.0.1:4172`）、新版が`ITSRUN_NEW_URL`（既定 `http://127.0.0.1:4173`）で起動済みであることが前提です。画像は既定で`/tmp/itsrun-visual-comparison`へ出力されます。全画面高の差は100px以内、フッター高の差は1px以内、横方向のはみ出しは1px以内を合格条件としています。
 

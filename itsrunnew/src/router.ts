@@ -49,6 +49,13 @@ const pages = {
     jaDescription: '田中希実選手の出場大会の結果をまとめた記録集。',
     enDescription: 'Race results of Japanese runner Nozomi Tanaka.',
   },
+  tracks: {
+    path: 'tracks', component: () => import('./views/TrackSearch.vue'),
+    jaTitle: 'いつラン - 現在地周辺の陸上トラック検索',
+    enTitle: "It's Run - Find running tracks near you",
+    jaDescription: '現在地や石神井公園周辺から、個人利用できる陸上競技場・ランニングトラックを地図で探せます。',
+    enDescription: 'Find verified athletic and running tracks near your location or Shakujii Park.',
+  },
 } as const;
 
 const routes: RouteRecordRaw[] = [];

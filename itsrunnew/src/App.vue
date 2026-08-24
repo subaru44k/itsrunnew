@@ -76,6 +76,7 @@ const menuGroups = computed(() => [
     { title: t('menu.komazawa'), path: 'komazawa' },
   ] },
   { title: t('menu.kanagawa'), items: [{ title: t('menu.todoroki'), path: 'todoroki' }] },
+  { title: t('menu.find'), items: [{ title: t('menu.tracks'), path: 'tracks' }] },
   { title: t('menu.laptime'), items: [{ title: t('menu.marathon'), path: 'pace/marathon' }] },
   { title: t('menu.records'), items: [{ title: t('menu.tanaka'), path: 'nozomiantena/index' }] },
 ]);

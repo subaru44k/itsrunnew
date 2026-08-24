@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "generatedAt": "2026-08-24T00:00:00+09:00",
+  "license": "OpenStreetMap data is available under ODbL; © OpenStreetMap contributors",
+  "purpose": "Selected OSM/Nominatim candidate objects used to extend the verified facility dataset. Objects are discovery evidence, not proof of individual use.",
+  "queries": [
+    "Overpass: nwr[leisure=track] in Tokyo/southern Saitama bounding boxes; out tags center",
+    "Nominatim: named public facility lookup for identity and map position"
+  ],
+  "elements": [
+    { "type": "node", "id": 11436145817, "lat": 35.648596, "lon": 139.824936, "tags": { "name": "夢の島競技場" }, "researchRole": "facility-label" },
+    { "type": "relation", "id": 15433740, "center": { "lat": 35.5942181, "lon": 139.7538249 }, "tags": { "leisure": "track", "sport": "running" }, "researchRole": "facility-cluster" },
+    { "type": "way", "id": 1208475194, "center": { "lat": 35.5947813, "lon": 139.7539391 }, "tags": { "leisure": "track", "sport": "athletics" }, "researchRole": "track-component" },
+    { "type": "way", "id": 1208475195, "center": { "lat": 35.5936039, "lon": 139.7537364 }, "tags": { "leisure": "track", "sport": "athletics" }, "researchRole": "track-component" },
+    { "type": "way", "id": 1208475196, "center": { "lat": 35.5942545, "lon": 139.7534443 }, "tags": { "leisure": "track", "sport": "athletics" }, "researchRole": "track-component" },
+    { "type": "way", "id": 1208475199, "center": { "lat": 35.5941641, "lon": 139.7544195 }, "tags": { "leisure": "track", "sport": "athletics" }, "researchRole": "track-component" },
+    { "type": "way", "id": 1475091687, "center": { "lat": 35.8006737, "lon": 139.7689809 }, "tags": { "leisure": "track", "name": "舎人公園陸上競技場" }, "researchRole": "facility" },
+    { "type": "way", "id": 71265989, "center": { "lat": 35.6552212, "lon": 139.8525983 }, "tags": { "leisure": "track", "name": "江戸川区陸上競技場" }, "researchRole": "facility" },
+    { "type": "relation", "id": 10811179, "center": { "lat": 35.6551708, "lon": 139.8525741 }, "tags": { "leisure": "track" }, "researchRole": "facility-cluster" },
+    { "type": "way", "id": 55340546, "center": { "lat": 35.7368649, "lon": 139.8621509 }, "tags": { "name": "総合スポーツセンター" }, "researchRole": "facility-boundary" },
+    { "type": "way", "id": 340558365, "center": { "lat": 35.6772991, "lon": 139.4752954 }, "tags": { "leisure": "track", "name": "府中市民陸上競技場" }, "researchRole": "facility" },
+    { "type": "way", "id": 127199314, "center": { "lat": 35.822102, "lon": 139.7117276 }, "tags": { "name": "青木町公園総合運動場" }, "researchRole": "facility-boundary" },
+    { "type": "node", "id": 10983485458, "lat": 35.8413536, "lon": 139.8626465, "tags": { "name": "セナリオハウスフィールド三郷" }, "researchRole": "facility-label" },
+    { "type": "node", "id": 12298306038, "lat": 35.9137837, "lon": 139.7539204, "tags": { "name": "しらこばと運動公園競技場" }, "researchRole": "facility-label" },
+    { "type": "way", "id": 191902250, "center": { "lat": 35.8715047, "lon": 139.6658876 }, "tags": { "name": "駒場スタジアム" }, "researchRole": "facility" },
+    { "type": "relation", "id": 3069509, "center": { "lat": 35.9689521, "lon": 139.601019 }, "tags": { "leisure": "track" }, "researchRole": "facility-cluster" },
+    { "type": "way", "id": 122638782, "center": { "lat": 35.9670326, "lon": 139.6019495 }, "tags": { "leisure": "track", "sport": "running" }, "researchRole": "track-component" },
+    { "type": "way", "id": 95490725, "center": { "lat": 35.619386, "lon": 139.3700981 }, "tags": { "leisure": "track", "name": "上柚木公園陸上競技場" }, "researchRole": "facility" },
+    { "type": "relation", "id": 8067875, "center": { "lat": 35.6522421, "lon": 139.3244489 }, "tags": { "leisure": "track", "name": "陸上競技場" }, "researchRole": "facility-cluster" },
+    { "type": "way", "id": 231315844, "center": { "lat": 35.6522684, "lon": 139.3244621 }, "tags": { "leisure": "track" }, "researchRole": "track-component" },
+    { "type": "way", "id": 226079975, "center": { "lat": 35.7309359, "lon": 139.3002453 }, "tags": { "leisure": "track" }, "researchRole": "facility" },
+    { "type": "way", "id": 165198729, "center": { "lat": 35.7341448, "lon": 139.4219135 }, "tags": { "leisure": "track" }, "researchRole": "facility" }
+  ]
+}

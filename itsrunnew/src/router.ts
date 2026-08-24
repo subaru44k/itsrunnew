@@ -1,161 +1,102 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import i18n from './i18n';
+import { useAppStore } from './store';
 import OdaField from './views/OdaField.vue';
 import Yumenoshima from './views/Yumenoshima.vue';
 import Komazawa from './views/Komazawa.vue';
 import Todoroki from './views/Todoroki.vue';
-import i18n from './i18n';
 
-Vue.use(Router);
+const pages = {
+  oda: {
+    path: '', component: OdaField,
+    jaTitle: 'いつラン - 織田フィールドを個人利用する人のための利用時間確認ページ',
+    enTitle: "It's Run - Check the availability of the Yoyogi Park Athletic Track",
+    jaDescription: '織田フィールド(代々木公園陸上競技場)等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
+    enDescription: "The available dates and times at Yoyogi Park Athletic Stadium (Oda Field) can be checked on this page.",
+  },
+  yumenoshima: {
+    path: 'yumenoshima', component: Yumenoshima,
+    jaTitle: 'いつラン - 夢の島陸上競技場を個人利用する人のための利用時間確認ページ',
+    enTitle: "It's Run - Check the availability of Yumenoshima Athletics Stadium",
+    jaDescription: '夢の島陸上競技場の開放日・利用可能時間を確認できます。',
+    enDescription: 'The available dates and times at Yumenoshima Athletics Stadium can be checked on this page.',
+  },
+  komazawa: {
+    path: 'komazawa', component: Komazawa,
+    jaTitle: 'いつラン - 駒沢オリンピック公園陸上競技場を個人利用する人のための利用時間確認ページ',
+    enTitle: "It's Run - Check the availability of Komazawa Olympic Park Athletic Stadium",
+    jaDescription: '駒沢オリンピック公園陸上競技場の開放日・利用可能時間を確認できます。',
+    enDescription: 'The available dates and times at Komazawa Olympic Park Athletic Stadium can be checked on this page.',
+  },
+  todoroki: {
+    path: 'todoroki', component: Todoroki,
+    jaTitle: 'いつラン - 等々力陸上競技場を個人利用する人のための利用時間確認ページ',
+    enTitle: "It's Run - Check the availability of Kawasaki Todoroki Stadium",
+    jaDescription: '等々力陸上競技場の開放日・利用可能時間を確認できます。',
+    enDescription: 'The available dates and times at Kawasaki Todoroki Stadium can be checked on this page.',
+  },
+  marathon: {
+    path: 'pace/marathon', component: () => import('./views/LapTime.vue'),
+    jaTitle: 'いつラン - マラソンのペース表。5kmごとのラップタイム表記。',
+    enTitle: "It's Run - Marathon pace and lap-time table",
+    jaDescription: 'マラソンの5kmごとのラップタイムがひと目で分かります。',
+    enDescription: 'Marathon lap times at each 5 km from two to six and a half hours.',
+  },
+  nozomi: {
+    path: 'nozomiantena/index', component: () => import('./views/NozomiAntena.vue'),
+    jaTitle: '陸上 田中希実選手の記録集 - 大会出場日、種目、タイム等の結果まとめ',
+    enTitle: 'Race results of Nozomi Tanaka',
+    jaDescription: '田中希実選手の出場大会の結果をまとめた記録集。',
+    enDescription: 'Race results of Japanese runner Nozomi Tanaka.',
+  },
+  tracks: {
+    path: 'tracks', component: () => import('./views/TrackSearch.vue'),
+    jaTitle: 'いつラン - 現在地周辺の陸上トラック検索',
+    enTitle: "It's Run - Find running tracks near you",
+    jaDescription: '現在地や石神井公園周辺から、個人利用できる陸上競技場・ランニングトラックを地図で探せます。',
+    enDescription: 'Find verified athletic and running tracks near your location or Shakujii Park.',
+  },
+} as const;
 
-const router = new Router({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/',
-      name: 'oda',
-      component: OdaField,
-      meta: {
-        title: 'いつラン - 織田フィールドを個人利用する人のための利用時間確認ページ',
-        description: '織田フィールド(代々木公園陸上競技場)等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
-      },
-    },
-    {
-      path: '/index.html',
-      redirect: '/',
-    },
-    {
-      path: '/yumenoshima',
-      name: 'yumenoshima',
-      component: Yumenoshima,
-      meta: {
-        title: 'いつラン - 夢の島陸上競技場を個人利用する人のための利用時間確認ページ',
-        description: '夢の島陸上競技場等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
-      },
-    },
-    {
-      path: '/komazawa',
-      name: 'komazawa',
-      component: Komazawa,
-      meta: {
-        title: 'いつラン - 駒沢オリンピック公園陸上競技場を個人利用する人のための利用時間確認ページ',
-        description: '駒沢オリンピック公園陸上競技場等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
-      },
-    },
-    {
-      path: '/komazawa_olympic',
-      redirect: '/komazawa',
-    },
-    {
-      path: '/todoroki',
-      name: 'todoroki',
-      component: Todoroki,
-      meta: {
-        title: 'いつラン - 等々力陸上競技場を個人利用する人のための利用時間確認ページ',
-        description: '等々力陸上競技場等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
-      },
-    },
-    {
-      path: '/manage',
-      name: 'manage',
-      meta: {
-        title: 'いつラン - 管理画面',
-        description: '管理画面',
-      },
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "manage" */ './views/Manage.vue'),
-    },
-    {
-      path: '/pace/marathon',
-      name: 'marathon',
-      meta: {
-        title: 'いつラン - マラソンのペース表。5kmごとのラップタイム表記。',
-        description: 'マラソンの5kmごとのラップタイムがひと目で分かります。サブスリー、サブフォー、サブファイブ、2時間の世界記録まで。スマートフォン対応。',
-      },
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
-    },
-    {
-      path: '/nozomiantena/index',
-      name: 'nozomiantena',
-      meta: {
-        title: '陸上 田中希実選手(豊田自動織機TC)の記録集 - 大会出場日、種目、タイム等の結果まとめ',
-        description: '豊田自動織機TCに所属する陸上選手、田中希実さんの出場大会の結果をまとめた記録集。日付、出場種目、タイムを一覧で。',
-      },
-      component: () => import(/* webpackChunkName: "nozomiantena" */ './views/NozomiAntena.vue'),
-    },
-    {
-      path: '/:lang/',
-      component: OdaField,
-      meta: {
-        title: 'It\'s Run - Check the availability of the Yoyogi Park Athletic Track. The site for runners to check stadium\'s availability',
-        description: 'The available dates and times at Yoyogi Park Athletic Stadium (Oda Field) can be checked in this web page.',
-      },
-    },
-    {
-      path: '/:lang/yumenoshima',
-      component: Yumenoshima,
-      meta: {
-        title: 'It\'s Run - Check the availability of Yumenoshima Athletics Stadium. The site for runners to check stadium\'s availability',
-        description: 'The available dates and times at Yumenoshima Athletics Stadium can be checked in this web page.',
-      },
-    },
-    {
-      path: '/:lang/komazawa',
-      component: Komazawa,
-      meta: {
-        title: 'It\'s Run - Check the availability of Komazawa Olympic Park Athletic Stadium. The site for runners to check stadium\'s availability',
-        description: 'The available dates and times at Komazawa Olympic Park Athletic Stadium can be checked in this web page.',
-      },
-    },
-    {
-      path: '/:lang/todoroki',
-      component: Todoroki,
-      meta: {
-        title: 'It\'s Run - Check the availability of Kawasaki Todoroki Stadium. The site for runners to check stadium\'s availability',
-        description: 'The available dates and times at Kawasaki Todoroki Stadium can be checked in this web page.',
-      },
-    },
-    {
-      path: '/:lang/pace/marathon',
-      meta: {
-        title: 'It\'s Run - The pace list for the marathon. The lap times are described in each 5km.',
-        description: 'The lap times for the marathon. Support variety of paces from 2 hours(World record) to 6.5 hours.',
-      },
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "laptime" */ './views/LapTime.vue'),
-    },
-    {
-      path: '/:lang/nozomiantena/index',
-      name: 'nozomiantena',
-      meta: {
-        title: 'Race result of Nozomi Tanaka',
-        description: 'Race results of a Japanese runner Nozomi Tanaka',
-      },
-      component: () => import(/* webpackChunkName: "nozomiantena" */ './views/NozomiAntena.vue'),
-    },
-  ],
+const routes: RouteRecordRaw[] = [];
+for (const [key, page] of Object.entries(pages)) {
+  const jaPath = page.path ? `/${page.path}` : '/';
+  const enPath = page.path ? `/en/${page.path}` : '/en/';
+  routes.push(
+    { path: jaPath, name: `${key}-ja`, component: page.component, meta: { locale: 'ja', title: page.jaTitle, description: page.jaDescription } },
+    { path: enPath, name: `${key}-en`, component: page.component, meta: { locale: 'en', title: page.enTitle, description: page.enDescription } },
+  );
+}
+routes.push(
+  { path: '/index.html', redirect: '/' },
+  { path: '/komazawa_olympic', redirect: '/komazawa' },
+  { path: '/:pathMatch(.*)*', redirect: '/' },
+);
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) return savedPosition;
+    if (to.hash) {
+      return new Promise(resolve => {
+        requestAnimationFrame(() => {
+          const target = document.getElementById(decodeURIComponent(to.hash.slice(1)));
+          resolve(target ? { el: target, top: 64 } : { top: 0 });
+        });
+      });
+    }
+    return { top: 0 };
+  },
 });
 
-router.beforeEach((to, from, next) => {
-  document.title = to.meta.title;
-  let desc = document.head.querySelector('meta[name=description]');
-  if (desc !== null) {
-    desc.setAttribute('content', to.meta.description);
-  }
-  if (to.params.lang !== undefined) {
-    i18n.locale = to.params.lang;
-  } else {
-    i18n.locale = 'ja';
-  }
-  next();
+router.beforeEach((to) => {
+  const locale = to.meta.locale === 'en' ? 'en' : 'ja';
+  i18n.global.locale.value = locale;
+  useAppStore().setLocale(locale);
+  document.documentElement.lang = locale;
+  document.title = String(to.meta.title ?? 'いつラン');
+  document.querySelector('meta[name="description"]')?.setAttribute('content', String(to.meta.description ?? 'いつラン'));
 });
 
 export default router;

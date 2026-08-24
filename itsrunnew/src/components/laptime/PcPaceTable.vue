@@ -289,22 +289,10 @@
 </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component';
-import TimeContainer from '../../model/TimeContainer';
+<script setup lang="ts">
+import { computed } from 'vue';
 import LapTimeCalculator from '../../model/LapTimeCalculator';
-
-@Component
-export default class PcPaceTable extends Vue {
-
-    get lapTimeList() {
-        const times: TimeContainer[] = this.$store.state.targetTimes;
-        const lapTimeList: string[][] = [];
-        times.forEach(time => {
-            lapTimeList.push((new LapTimeCalculator(time)).getLapTime());
-        })
-        return lapTimeList;
-    }
-}
+import { useAppStore } from '@/store';
+const store = useAppStore();
+const lapTimeList = computed(() => store.targetTimes.map(time => new LapTimeCalculator(time).getLapTime()));
 </script>

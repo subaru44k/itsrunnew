@@ -1,32 +1,13 @@
 <template>
-  <v-container pb-0>
-    <v-layout justify-center row wrap>
-      <v-flex shrink>
-        <div>
-          <v-btn color="primary" fab small class="headline" @click="previous()">
-            &lt;
-          </v-btn>
-          <v-btn color="primary" fab small class="headline" @click="next()">
-            &gt;
-          </v-btn>
-        </div>
-      </v-flex>
-    </v-layout>
+  <v-container class="pb-0">
+    <div class="d-flex justify-center ga-2">
+      <v-btn color="primary" icon="mdi-chevron-left" size="small" aria-label="Previous week" @click="store.previousWeek" />
+      <v-btn color="primary" icon="mdi-chevron-right" size="small" aria-label="Next week" @click="store.nextWeek" />
+    </div>
   </v-container>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-
-@Component({
-})
-export default class Pagination extends Vue {
-    previous() {
-        this.$store.dispatch('previousWeekEvent');
-    }
-    next() {
-        this.$store.dispatch('nextWeekEvent');
-    }
-}
+<script setup lang="ts">
+import { useAppStore } from '@/store';
+const store = useAppStore();
 </script>

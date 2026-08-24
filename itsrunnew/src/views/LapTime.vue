@@ -1,56 +1,45 @@
 <template>
   <v-container>
-    <v-layout justify-center row wrap>
-      <v-flex>
+    <div class="d-flex justify-center flex-wrap">
+      <div class="flex-grow-1">
         <v-card class="mb-3">
           <v-container>
             <p class="display-1">{{ $t('pacetable.marathon_title') }}</p>
-            <v-layout justify-center>
-              <v-flex>
+            <div class="d-flex justify-center">
+              <div class="flex-grow-1">
                 <v-select
                 :items="items"
                 :label="$t('pacetable.personal_goal')"
                 v-model="targetTime"
                 ></v-select>
-              </v-flex>
-            </v-layout>
-            <v-layout>
-              <v-flex hidden-sm-and-up>
+              </div>
+            </div>
+            <div class="d-flex">
+              <div class="d-sm-none flex-grow-1">
                 <PhonePaceTable></PhonePaceTable>
-              </v-flex>
-              <v-flex hidden-xs-only>
+              </div>
+              <div class="d-none d-sm-block flex-grow-1">
                 <PcPaceTable></PcPaceTable>
-              </v-flex>
-            </v-layout>
+              </div>
+            </div>
           </v-container>
         </v-card>
-      </v-flex>
-    </v-layout>
+      </div>
+    </div>
   </v-container>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import PhonePaceTable from '@/components/laptime/PhonePaceTable.vue';
 import PcPaceTable from '@/components/laptime/PcPaceTable.vue';
-
-@Component({
-  components: {
-    PhonePaceTable,
-    PcPaceTable,
-  },
-})
-export default class OdaField extends Vue {
-  get items(): string[] {
-    return [this.$t('pacetable.from_2hours').toString(), this.$t('pacetable.from_3hourshalf').toString(), this.$t('pacetable.from_5hours').toString()]
-  }
-
-  get targetTime() {
-    return this.items[this.$store.state.targetTimeIndex];
-  }
-
-  set targetTime(value) {
-    this.$store.dispatch('changeTargetTime', this.items.indexOf(value));
-  }
-}
+import { useAppStore } from '@/store';
+const store = useAppStore();
+const { t } = useI18n();
+const items = computed(() => [t('pacetable.from_2hours'), t('pacetable.from_3hourshalf'), t('pacetable.from_5hours')]);
+const targetTime = computed({
+  get: () => items.value[store.targetTimeIndex],
+  set: (value: string) => store.changeTargetTime(items.value.indexOf(value)),
+});
 </script>

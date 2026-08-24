@@ -1,0 +1,758 @@
+{
+  "schemaVersion": 1,
+  "dataset": {
+    "path": "itsrunnew/src/data/tracks.json",
+    "trackCount": 33
+  },
+  "research": {
+    "verifiedAt": "2026-08-24",
+    "timezone": "Asia/Tokyo",
+    "scope": "All facilities in the current normalized Track Dataset",
+    "officialWebAvailabilityFoundCount": 30,
+    "classificationCounts": {
+      "structured_html": 4,
+      "calendar_html": 3,
+      "weekly_notice": 0,
+      "fixed_schedule": 9,
+      "pdf": 9,
+      "reservation_system": 5,
+      "phone_only": 2,
+      "no_schedule_found": 1
+    },
+    "automationCounts": {
+      "yes": 18,
+      "probably": 5,
+      "difficult": 7,
+      "no": 3
+    },
+    "implementationCoverage": {
+      "currentCollectors": 23,
+      "smallCollectorExtension": 0,
+      "newlySupported": 8,
+      "guardedUnknown": 2,
+      "pdfSupported": 8,
+      "pdfGuardedUnknown": 1,
+      "pdfRequired": 1,
+      "reservationSystemRequired": 5,
+      "manualOrUnknown": 3
+    },
+    "futureDateAssessment": {
+      "futureDatesSupported": 26,
+      "futureRangeLimited": 0,
+      "todayOnly": 4,
+      "unknown": 3
+    }
+  },
+  "facilities": [
+    {
+      "trackId": "nerima-general-sports-park",
+      "name": "練馬総合運動場公園 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "pdf",
+        "url": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/20260821souun_kaihoujoukyou.pdf",
+        "discoveryUrl": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html",
+        "granularity": "reservation_slot",
+        "updateFrequency": "twice_weekly",
+        "updateNote": "直近1週間分を毎週火曜日・金曜日に更新すると公式ページに記載",
+        "urlStability": "dated_url_discovered_from_stable_page"
+      },
+      "automation": {
+        "feasibility": "yes",
+        "reason": "安定ページから直近1週間PDFを発見し、座標付き3枠parserで明示されたトラック優先時間だけを判定できる",
+        "implementation": { "status": "supported", "parser": "nerima-weekly-slots", "version": "1.0.0", "discovery": "latest_pdf_discovery" }
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "published_slots_only",
+        "rule": "PDFで陸上トラック優先利用時間と明示された枠のみ、陸上練習可能としてavailableにできる。人工芝優先枠は陸上競技の練習不可で、外周の軽いジョギングと同一視しない",
+        "absenceMeaning": "空欄や予定の不在を個人利用可と推測しない"
+      },
+      "pdfInspection": {
+        "textBased": true,
+        "scannedImage": false,
+        "pageCount": 1,
+        "layout": "日付行と9:00-12:00、12:00-15:00、15:00-18:00の3列表",
+        "latestDocumentDiscovery": "安定した施設ページ上の『直近1週間分』リンクをたどる",
+        "machineExtraction": "likely_with_layout_aware_parser"
+      },
+      "specialCases": [
+        "一般開放でも混雑時は人数・利用時間制限あり",
+        "12:00-15:00の人工芝優先時間は陸上競技の練習不可",
+        "6月・7月は第3枠の終了時刻が異なる",
+        "予定変更あり"
+      ],
+      "sources": [
+        "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html",
+        "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/kakuninnhouhou_kaihoujoukyou.pdf",
+        "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/riyouhouhou_kyougijoukojin.pdf"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "hikarigaoka-park-track",
+      "name": "光が丘公園 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "structured_html",
+        "url": "https://www.tokyo-park.or.jp/park/hikarigaoka/news/2026/trackfield_2026_8_1.html",
+        "discoveryUrl": "https://www.tokyo-park.or.jp/park/hikarigaoka/news/",
+        "granularity": "time_range",
+        "updateFrequency": "monthly",
+        "updateNote": "通常は月ごとの一般開放・貸切予定をHTML表で掲載。2026年8月以降は改修閉鎖告知を掲載",
+        "urlStability": "monthly_article_discovered_from_news_index"
+      },
+      "automation": {
+        "feasibility": "yes",
+        "reason": "月間HTML表と一般開放の意味が明記され、改修等の全期間閉鎖もHTML告知から判定できる"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "full_month_when_notice_is_current",
+        "rule": "貸切時間以外と定期開放日は一般開放。貸切日は表の午前・午後・全日区分を除外し、改修告知期間はunavailable",
+        "absenceMeaning": "月間記事が発見できない場合はunknown。大会記事がないことだけではavailableにしない"
+      },
+      "specialCases": [
+        "2026年8月から年度末まで改修工事で一般・貸切利用不可",
+        "芝刈り・整備日",
+        "急な貸切・予定変更"
+      ],
+      "sources": [
+        "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/",
+        "https://www.tokyo-park.or.jp/park/hikarigaoka/news/2026/trackfield_2026_7.html"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "oizumi-chuo-park-track",
+      "name": "大泉中央公園 競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "fixed_schedule",
+        "url": "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/",
+        "discoveryUrl": null,
+        "granularity": "time_range",
+        "updateFrequency": "fixed",
+        "updateNote": "毎週水曜・第1日曜・第3土曜を一般開放、毎月第2・第4火曜午後を整備と掲載",
+        "urlStability": "stable"
+      },
+      "automation": {
+        "feasibility": "probably",
+        "reason": "定期一般開放日は高信頼で算出できるが、それ以外の日の貸切状況はWeb公開されず一日全体を確定できない"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "fixed_opening_dates_only",
+        "rule": "定期一般開放日はavailable。その他は貸切がなければ一般利用可能だが、貸切一覧がないためunknown",
+        "absenceMeaning": "Web上に貸切予定がないことをavailableと解釈しない"
+      },
+      "specialCases": [
+        "第2・第4火曜午後は整備",
+        "年末年始休場",
+        "管理上の都合や天候による変更"
+      ],
+      "sources": [
+        "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "johoku-chuo-park-track",
+      "name": "城北中央公園 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.tokyo-park.or.jp/park/johoku-chuo/facility/",
+        "discoveryUrl": "https://www.tokyo-park.or.jp/park/johoku-chuo/news/",
+        "granularity": "unknown",
+        "updateFrequency": "unknown",
+        "updateNote": "公式案内は貸切のない日の一般開放を説明するが、利用不可日は競技場入口掲示またはサービスセンター確認",
+        "urlStability": "stable_rules_only"
+      },
+      "automation": {
+        "feasibility": "no",
+        "reason": "日別の貸切・整備予定が公式Webに掲載されず、現地掲示または電話確認が必要"
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "none_online",
+        "rule": "貸切のない日は一般開放という原則だけでは、当日の貸切有無を判定できない",
+        "absenceMeaning": "ニュースに利用不可告知がないことはavailableを意味しない"
+      },
+      "specialCases": [
+        "貸切利用",
+        "芝刈り・整備",
+        "入口掲示による当日案内"
+      ],
+      "sources": [
+        "https://www.tokyo-park.or.jp/park/johoku-chuo/news/2025/park_info_20.html"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "akatsuka-park-track",
+      "name": "赤塚公園 競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "fixed_schedule",
+        "url": "https://www.tokyo-park.or.jp/park/akatsuka/facility/",
+        "discoveryUrl": null,
+        "granularity": "full_day",
+        "updateFrequency": "fixed",
+        "updateNote": "毎週水曜・第1日曜・第3土曜は貸切不可の一般開放日",
+        "urlStability": "stable"
+      },
+      "automation": {
+        "feasibility": "probably",
+        "reason": "定期一般開放日は算出できるが、それ以外の貸切状況と臨時整備をWebだけでは取得できない"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "fixed_opening_dates_only",
+        "rule": "貸切不可と明記された定期一般開放日をavailableにできる。その他は貸切がなければ利用可だがunknownとする",
+        "absenceMeaning": "予定記事がないことをavailableと解釈しない"
+      },
+      "specialCases": [
+        "整備等で定期日でも変更の可能性",
+        "年末年始休場",
+        "貸切利用"
+      ],
+      "sources": [],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "musashino-athletic-track",
+      "name": "武蔵野陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "structured_html",
+        "url": "https://www.musashino.or.jp/sports/kaihou/index.html",
+        "discoveryUrl": null,
+        "granularity": "reservation_slot",
+        "updateFrequency": "daily",
+        "updateNote": "当日の開放状況を2時間枠ごとのHTML表で掲載。月間PDFも別ページに掲載",
+        "urlStability": "stable"
+      },
+      "automation": {
+        "feasibility": "yes",
+        "reason": "安定URLのHTML表にA開放・B開放・貸切が時間枠単位で表示される。表示対象日が本日かの検証は必須"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "displayed_date",
+        "rule": "Aはトラックとジョギングコースが利用可能、Bはジョギングコースのみ、貸切と×は陸上トラック利用不可。Bを通常のトラック利用可に集約しない",
+        "absenceMeaning": "ページの日付が本日でない、値が未定、解析不能ならunknown"
+      },
+      "pdfInspection": {
+        "secondaryUrl": "https://www.musashino.or.jp/_res/projects/default_project/_page_/001/002/996/202608ri.pdf",
+        "textBased": true,
+        "scannedImage": false,
+        "pageCount": 1,
+        "layout": "日付行と5つの2時間枠、A・(A)・B・×の表",
+        "latestDocumentDiscovery": "https://www.musashino.or.jp/sports/1001575/1002996.html",
+        "machineExtraction": "likely_with_layout_aware_parser"
+      },
+      "specialCases": [
+        "(A)は前日夜までに団体予約がなければA開放",
+        "Bは外周ジョギングのみ",
+        "雷・台風・大気汚染等で当日中止",
+        "月間PDFは変更され得るため当日HTMLを優先"
+      ],
+      "sources": [
+        "https://www.musashino.or.jp/sports/1001575/1002996.html",
+        "https://www.musashino.or.jp/sports/1001575/1001577.html"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "inokashira-park-track",
+      "name": "井の頭恩賜公園 競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "fixed_schedule",
+        "url": "https://www.kensetsu.metro.tokyo.lg.jp/jimusho/seibuk/inokashira/shinsei",
+        "discoveryUrl": "https://www.kensetsu.metro.tokyo.lg.jp/jimusho/seibuk/inokashira/sisetu",
+        "granularity": "full_day",
+        "updateFrequency": "fixed",
+        "updateNote": "貸切申請可能日を第2・第4日曜と水曜に限定。その他の日は原則一般利用",
+        "urlStability": "stable"
+      },
+      "automation": {
+        "feasibility": "probably",
+        "reason": "貸切申請不可日は一般利用と判定可能だが、貸切可能日の予約有無はWeb公開されず、行政利用等の例外もある"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "non_reservable_dates_only",
+        "rule": "貸切申請可能日以外は一般利用可能。水曜・第2・第4日曜は予約状況が不明なためunknown",
+        "absenceMeaning": "貸切可能日にWeb告知がないことをavailableと解釈しない"
+      },
+      "specialCases": [
+        "東京都・公園管理者の利用",
+        "年末年始",
+        "貸切申請は窓口・郵送等で予約一覧は非公開",
+        "天候・管理上の臨時閉鎖"
+      ],
+      "sources": [
+        "https://www.reiki.metro.tokyo.lg.jp/reiki/reiki_honbun/g101RG00001485.html"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "toda-sports-center-track",
+      "name": "戸田市スポーツセンター 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "pdf",
+        "url": "https://toda-zaidan.org/wp-content/uploads/2026.080-1.pdf",
+        "discoveryUrl": "https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/#schedule",
+        "granularity": "time_range",
+        "updateFrequency": "monthly",
+        "updateNote": "当月・翌月の行事予定表PDFを掲載",
+        "urlStability": "opaque_monthly_url_discovered_from_stable_page"
+      },
+      "automation": {
+        "feasibility": "yes",
+        "reason": "安定ページから対象月PDFを発見し、陸上競技場の行事枠と夏季個人利用欄だけを座標付きで判定できる",
+        "implementation": { "status": "supported", "parser": "toda-monthly-events", "version": "1.0.0", "discovery": "monthly_pdf_discovery" }
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "published_month",
+        "rule": "陸上競技場の専用利用時間と休場を除外し、公式の『専用利用時を除き個人利用可』ルールと組み合わせる。夏季17:00-18:00欄の○は明示的な個人利用枠",
+        "absenceMeaning": "PDF自体が未取得・期限切れならunknown。別施設のイベントを陸上競技場の閉鎖と誤認しない"
+      },
+      "pdfInspection": {
+        "textBased": true,
+        "scannedImage": false,
+        "pageCount": 1,
+        "layout": "日付、団体名・大会名、施設名、人数、時間と陸上競技場17:00-18:00欄の表",
+        "latestDocumentDiscovery": "安定した行事予定表ページの当月・翌月リンクをたどる",
+        "machineExtraction": "likely_but_column_association_requires_layout_parser"
+      },
+      "specialCases": [
+        "休場日",
+        "専用利用イベント",
+        "夏季延長時間は別欄",
+        "予定表作成後の変更"
+      ],
+      "sources": [
+        "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/",
+        "https://toda-zaidan.org/wp-content/uploads/2026.0902.pdf"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "asaka-chuo-park-track",
+      "name": "朝霞中央公園陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "fixed_schedule",
+        "url": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html",
+        "discoveryUrl": null,
+        "granularity": "time_range",
+        "updateFrequency": "fixed",
+        "updateNote": "曜日・週番号・時間帯ごとの陸上個人無料開放ルールと、年度PDFの日付表を掲載",
+        "urlStability": "stable_rules_with_annual_pdf"
+      },
+      "automation": {
+        "feasibility": "probably",
+        "reason": "固定ルールと年度日程PDFから計画枠を算出できるが、利用資格、球技との交代、当日変更・天候中止を扱う必要がある"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "scheduled_free_opening_slots_only",
+        "rule": "年度日程に含まれる火曜・土曜のうち『陸上』割当時間だけをavailableにする。対象は市内在住・在勤・在学者に限定し、一般ユーザー全員への可とはしない",
+        "absenceMeaning": "大会予定の不在、または予約システムの空きだけでは個人利用可としない"
+      },
+      "pdfInspection": {
+        "secondaryUrl": "https://www.city.asaka.lg.jp/uploaded/attachment/109151.pdf",
+        "textBased": true,
+        "scannedImage": false,
+        "pageCount": 1,
+        "layout": "年度の月別日付表と火曜・土曜の時間帯別種目割当",
+        "latestDocumentDiscovery": "安定した施設ページ上の年度日程リンクをたどる",
+        "machineExtraction": "possible_but_calendar_columns_need_layout_parser"
+      },
+      "specialCases": [
+        "市内在住・在勤・在学者限定",
+        "陸上と球技で時間帯を交代",
+        "大会等で中止",
+        "台風・雪等で中止",
+        "空き時間の有料個人利用は当日申請"
+      ],
+      "sources": [
+        "https://www.city.asaka.lg.jp/uploaded/attachment/109151.pdf",
+        "https://www.city.asaka.lg.jp/site/kyoiku/unyoukaitei-rikujoukyougijou-kozinkaihou.html"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "niiza-general-sports-park-track",
+      "name": "新座市総合運動公園 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "reservation_system",
+        "url": "https://k5.p-kashikan.jp/niiza-city/index.php",
+        "discoveryUrl": "https://www.city.niiza.lg.jp/soshiki/44/kokyoyoyakusystem.html",
+        "granularity": "reservation_slot",
+        "updateFrequency": "realtime",
+        "updateNote": "空き状況はログインなしで閲覧可能。予約は登録が必要",
+        "urlStability": "stateful_post_navigation"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "公開HTMLで施設・日付を指定できるが、状態を持つPOST操作、利用規約確認、専用枠の空きと当日個人利用の意味結合、天候確認が必要"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "candidate_periods_requiring_facility_rule",
+        "rule": "総合運動公園の『陸上競技場（専用）』が空きで、かつ公式の『専用利用がない場合に共用利用可能』ルールを満たす枠を候補にできる。ただし現地の利用可否保証ではない",
+        "absenceMeaning": "予約枠の空きだけを無条件の個人利用可と表示しない"
+      },
+      "reservationSystemInspection": {
+        "publiclyViewable": true,
+        "loginRequiredForViewing": false,
+        "loginRequiredForBooking": true,
+        "javascriptHeavy": false,
+        "facilityAndDateAddressing": "公開フォームのPOST値で総合運動公園 ShisetsuCode=013 と日付を選択。安定した共有用deep linkは未確認",
+        "apiObserved": false,
+        "termsNote": "利用規約に自動取得の明示規定は見つからないが、不正アクセスは禁止。実装前に運営者確認、低頻度取得、キャッシュ、識別可能なUser-Agent等を検討",
+        "availabilitySemantics": "空きは専用予約枠の空き。市の共用利用ルールと結合して初めて個人利用候補になる"
+      },
+      "specialCases": [
+        "雨天・グラウンド状態で当日利用不可",
+        "休館・保守",
+        "予約済みでも一部レーン開放の有無は不明",
+        "システム変更・セッション切れ"
+      ],
+      "sources": [
+        "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html",
+        "https://k5.p-kashikan.jp/niiza-city/index.php?op=tos"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "yoyogi-park-athletic-track",
+      "name": "代々木公園陸上競技場（織田フィールド）",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "fixed_schedule",
+        "url": "https://www.tokyo-park.or.jp/park/yoyogi/facility/",
+        "discoveryUrl": "https://www.tokyo-park.or.jp/park/yoyogi/news/",
+        "granularity": "time_range",
+        "updateFrequency": "fixed",
+        "updateNote": "定期一般開放時間を施設ページに掲載し、長期閉鎖等をニュースで上書き",
+        "urlStability": "stable_rules_with_news_overlays"
+      },
+      "automation": {
+        "feasibility": "probably",
+        "reason": "定期枠と現在の長期閉鎖は算出できるが、貸切のない追加枠、臨時変更、工事延長をニュースから継続監視する必要がある"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "fixed_opening_dates_with_closure_overlays",
+        "rule": "定期一般開放枠をavailableとし、工事・整備・休場告知を優先してunavailableにする。貸切のない時間という条件だけの枠は予約状況がなければunknown",
+        "absenceMeaning": "ニュースに大会情報がないことをavailableと解釈しない"
+      },
+      "specialCases": [
+        "2026年7月1日から11月30日まで公認更新工事で利用休止",
+        "第1・第3金曜の日中整備",
+        "年末年始",
+        "天候・災害・工事延長",
+        "夜間のみの定期開放日"
+      ],
+      "sources": [
+        "https://www.tokyo-park.or.jp/park/yoyogi/news/2026/park_info_73.html"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "tokyo-metropolitan-gymnasium-track",
+      "name": "東京体育館 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "calendar_html",
+        "url": "https://www.tef.or.jp/tmg/opening.html",
+        "discoveryUrl": null,
+        "granularity": "reservation_slot",
+        "updateFrequency": "realtime",
+        "updateNote": "日付を指定すると50m各コース等を1時間枠ごとのHTML表で表示",
+        "urlStability": "stable_post_form"
+      },
+      "automation": {
+        "feasibility": "yes",
+        "reason": "ログイン不要の安定URLへ和文日付をPOSTすると、一般開放・貸切・休館等がサーバー生成HTML表で返る"
+      },
+      "semantics": {
+        "canInferAvailable": true,
+        "coverage": "selected_date",
+        "rule": "陸上競技場の各コースについて○一般開放の連続時間をavailable、貸切・休館日・閉館をunavailableとして集約する。利用したい種目・コースのscopeを保持する",
+        "absenceMeaning": "表が欠落、対象日が一致しない、全コースの意味が不明な場合はunknown"
+      },
+      "specialCases": [
+        "コースごとに状態が異なる可能性",
+        "臨時休館・貸切",
+        "利用時間は曜日で異なる",
+        "当日変更"
+      ],
+      "sources": [
+        "https://www.tef.or.jp/tmg/stadium/",
+        "https://www.tef.or.jp/tmg/closure.html"
+      ],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "koto-yumenoshima-athletic-stadium",
+      "name": "江東区夢の島競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://yoyaku.koto-sports.net/", "discoveryUrl": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html", "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "貸切予約状況と施設案内を確認", "urlStability": "external_booking_system" },
+      "automation": { "feasibility": "difficult", "reason": "団体貸切枠の空きと個人利用への切替を結合する必要がある" },
+      "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "個人利用と明示された枠だけavailable。予約枠の空きだけでは判定しない", "absenceMeaning": "貸切予定がないことを個人利用可とみなさない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["団体貸切", "臨時休場", "当日変更"],
+      "sources": ["https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html", "https://yoyaku.koto-sports.net/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "komazawa-olympic-park-track",
+      "name": "駒沢オリンピック公園総合運動場 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "calendar_html", "url": "https://www.tef.or.jp/kopgp/opening.html", "discoveryUrl": "https://www.tef.or.jp/kopgp/stadium/", "granularity": "morning_afternoon_evening", "updateFrequency": "daily", "updateNote": "日付指定の一般開放表", "urlStability": "stable_form" },
+      "automation": { "feasibility": "yes", "reason": "HTML表が一般開放・貸切・整備を時間帯別に明示する", "implementation": { "status": "supported", "parser": "tef-calendar-komazawa", "version": "1.0.0", "discovery": "selected_date_form" } },
+      "semantics": { "canInferAvailable": true, "coverage": "selected_date", "rule": "一般開放と明示された枠のみavailable、貸切・整備はunavailable", "absenceMeaning": "表取得失敗はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["3～8レーンのみ", "スパイク不可", "トレーニングルーム利用条件"],
+      "sources": ["https://www.tef.or.jp/kopgp/stadium/", "https://www.tef.or.jp/kopgp/opening.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "setagaya-general-sports-track",
+      "name": "世田谷区立総合運動場 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "structured_html", "url": "https://www.se-sports.or.jp/news/10334/", "discoveryUrl": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/", "granularity": "time_range", "updateFrequency": "daily", "updateNote": "当日の確定個人開放を毎朝8時頃までに掲載", "urlStability": "stable_notice_page" },
+      "automation": { "feasibility": "difficult", "reason": "案内ページは当日朝の公式Web・公式X掲載を説明するが、安定した日付別HTML取得元を確認できない", "implementation": { "status": "guarded_unknown", "parser": "unsupported-source-guard", "version": "1.0.0", "discovery": "official_x_or_manual" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_slots_only", "rule": "個人開放と掲載された枠だけavailable", "absenceMeaning": "けやきネットの空きだけでは個人開放とみなさない" },
+      "dateSearch": "today_only",
+      "specialCases": ["当日朝に確定", "天候・点検", "第4土曜でもイベント時は不可"],
+      "sources": ["https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/", "https://www.se-sports.or.jp/news/10334/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "oi-central-seaside-park-track",
+      "name": "大井スポーツセンター 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "fixed_schedule", "url": "https://tokyo-south-seaside-parks.com/sports-athletics/", "discoveryUrl": null, "granularity": "time_range", "updateFrequency": "fixed", "updateNote": "第1・第3木曜の一般有料開放", "urlStability": "stable_rules_page" },
+      "automation": { "feasibility": "yes", "reason": "公式の第1・第3木曜ルールを固定日として算出し、例外可能性を警告として保持する", "implementation": { "status": "supported", "parser": "oi-first-third-thursday", "version": "1.0.0", "discovery": "stable_rules_page" } },
+      "semantics": { "canInferAvailable": true, "coverage": "fixed_opening_dates_only", "rule": "第1・第3木曜の9～17時だけavailable候補", "absenceMeaning": "それ以外の日はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["大会利用", "年末年始", "臨時変更"],
+      "sources": ["https://tokyo-south-seaside-parks.com/sports-athletics/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "toneri-park-athletic-track",
+      "name": "舎人公園 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "fixed_schedule", "url": "https://www.tokyo-park.or.jp/park/toneri/facility/index.html#park96", "discoveryUrl": "https://www.tokyo-park.or.jp/park/toneri/news/", "granularity": "time_range", "updateFrequency": "fixed", "updateNote": "毎週水曜・第1日曜・第3土曜の9～21時を公式施設ページに掲載。追加日は公式Xで発信", "urlStability": "stable_rules_page" },
+      "automation": { "feasibility": "yes", "reason": "公式施設ページの固定一般開放日を算出可能。追加開放は自動判定対象外", "implementation": { "status": "supported", "parser": "toneri-fixed-opening-days", "version": "1.0.0", "discovery": "stable_rules_page" } },
+      "semantics": { "canInferAvailable": true, "coverage": "fixed_opening_dates_only", "rule": "毎週水曜・第1日曜・第3土曜の9～21時のみavailable", "absenceMeaning": "固定日以外や追加投稿を取得できない場合はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["貸切追加", "年末年始", "全天候用スパイクのみ"],
+      "sources": ["https://www.tokyo-park.or.jp/park/toneri/facility/index.html#park96", "https://www.tokyo-park.or.jp/park/toneri/news/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "edogawa-athletic-stadium",
+      "name": "スピアーズえどりくフィールド（江戸川区陸上競技場）",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "calendar_html", "url": "https://www.edogawa-3field.jp/athletics/konzatsuguid/", "discoveryUrl": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html", "granularity": "time_range", "updateFrequency": "daily", "updateNote": "当日から7日分の一般・専用利用を3時間帯で掲載", "urlStability": "stable_weekly_table" },
+      "automation": { "feasibility": "yes", "reason": "指定管理者のサーバー生成HTML表から7日分の一般・専用利用を時間帯別に抽出可能", "implementation": { "status": "supported", "parser": "edogawa-seven-day-table", "version": "1.0.0", "discovery": "stable_weekly_table" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_week", "rule": "一般と明示された枠をavailable、専用と明示された枠をunavailable", "absenceMeaning": "対象日欠落や表更新遅延はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["大会利用", "臨時休館", "車いす専用一般利用"],
+      "sources": ["https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html", "https://www.edogawa-3field.jp/athletics/konzatsuguid/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "okudo-sports-center-track",
+      "name": "奥戸総合スポーツセンター 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "fixed_schedule", "url": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html", "discoveryUrl": null, "granularity": "time_range", "updateFrequency": "fixed", "updateNote": "月・水・金の個人利用規則", "urlStability": "stable_rules_page" },
+      "automation": { "feasibility": "yes", "reason": "公式の月・水・金ルールを固定日として算出し、事業・大会・グラウンド不良の例外可能性を警告として保持する", "implementation": { "status": "supported", "parser": "okudo-monday-wednesday-friday", "version": "1.0.0", "discovery": "stable_rules_page" } },
+      "semantics": { "canInferAvailable": true, "coverage": "fixed_opening_dates_only", "rule": "公式の固定個人利用枠のみavailable", "absenceMeaning": "他曜日に予約がないことを推測しない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["事業・大会", "グラウンド不良", "第4水曜休場"],
+      "sources": ["https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "shingashi-athletic-track",
+      "name": "板橋区立新河岸陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "discoveryUrl": "https://www.shisetsu-tds.jp/tokyo-itabashi-shingashi-rikujou/", "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "施設利用管理システムで貸切状況を照会", "urlStability": "external_booking_system" },
+      "automation": { "feasibility": "difficult", "reason": "貸切がない場合の個人利用規則と予約枠の意味を結合する必要" },
+      "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "貸切なしを確認できた枠だけ個人利用候補", "absenceMeaning": "システム空き表示だけでは確定しない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["年末年始", "器具貸出なし", "団体占有不可"],
+      "sources": ["https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "arakawa-todabashi-athletic-track",
+      "name": "板橋区立荒川戸田橋陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "discoveryUrl": null, "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "施設利用管理システムで貸切状況を照会", "urlStability": "external_booking_system" },
+      "automation": { "feasibility": "difficult", "reason": "河川敷施設の貸切と個人利用可否、天候・グラウンド状態の確認が必要" },
+      "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "貸切なしと公式に確認できる枠だけ候補", "absenceMeaning": "空き枠を無条件のavailableにしない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["増水・雨天", "グラウンド不良", "年末年始"],
+      "sources": ["https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "fuchu-citizen-athletic-track",
+      "name": "府中市民陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.files/reiwa8nennkarennda.pdf", "discoveryUrl": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html", "granularity": "morning_afternoon_evening", "updateFrequency": "yearly", "updateNote": "年度カレンダーと予約状況への導線", "urlStability": "pdf_discovered_from_stable_page" },
+      "automation": { "feasibility": "difficult", "reason": "PDF本文はtext-basedだが日別の○・◇・×はベクター図形でtext extractionに現れないため、現collectorは安全にunknownを返す", "implementation": { "status": "guarded_unknown", "parser": "fuchu-vector-calendar-guard", "version": "1.0.0", "discovery": "annual_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_calendar", "rule": "一般公開日・時間と明示された枠のみavailable", "absenceMeaning": "貸切予約がないことを取得できない場合はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["公開日変更", "貸切予約", "臨時休場"],
+      "sources": ["https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "wadabori-park-first-track",
+      "name": "和田堀公園 第一競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://www.tokyo-park.or.jp/park/wadabori/news/", "discoveryUrl": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "granularity": "morning_afternoon_evening", "updateFrequency": "monthly", "updateNote": "月間競技場予定表", "urlStability": "dated_pdf_from_news_index" },
+      "automation": { "feasibility": "yes", "reason": "news indexから対象月記事とPDFを発見し、凡例に基づき午前・午後を抽出可能", "implementation": { "status": "supported", "parser": "wadabori-half-day-first", "version": "1.0.0", "discovery": "monthly_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_month", "rule": "一般開放および空白日のトラック利用可という凡例を解析", "absenceMeaning": "PDF未取得時はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["金曜午前整備", "貸切", "予定変更"],
+      "sources": ["https://www.tokyo-park.or.jp/park/wadabori/facility/", "https://www.tokyo-park.or.jp/park/wadabori/news/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "wadabori-park-seibiyama-track",
+      "name": "和田堀公園 第二競技場（済美山運動場）",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://www.tokyo-park.or.jp/park/wadabori/news/", "discoveryUrl": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "granularity": "morning_afternoon_evening", "updateFrequency": "monthly", "updateNote": "月間競技場予定表", "urlStability": "dated_pdf_from_news_index" },
+      "automation": { "feasibility": "yes", "reason": "第1競技場と共有するformat parserへ第2競技場固有の空欄凡例を設定して抽出可能", "implementation": { "status": "supported", "parser": "wadabori-half-day-second", "version": "1.0.0", "discovery": "monthly_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_month", "rule": "一般開放・貸切・整備・空白日の凡例を第2競技場だけに適用", "absenceMeaning": "第1競技場の列と混同しない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["月曜整備", "大会優先で開放日変更", "夜間利用不可"],
+      "sources": ["https://www.tokyo-park.or.jp/park/wadabori/facility/", "https://www.tokyo-park.or.jp/park/wadabori/news/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "kawaguchi-aoki-park-track",
+      "name": "川口市青木町公園総合運動場 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://kawaspo.jp/pages/24/", "discoveryUrl": null, "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "施設予約と管理事務所確認", "urlStability": "booking_system_link" },
+      "automation": { "feasibility": "difficult", "reason": "共用・個人枠と専用予約の意味を確認する必要" },
+      "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "共用または個人利用と明示された枠のみavailable", "absenceMeaning": "空き予約枠を個人利用可としない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["大会", "市外利用時間の配慮", "投てき時の制限"],
+      "sources": ["https://kawaspo.jp/pages/24/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "misato-senario-house-field",
+      "name": "セナリオハウスフィールド三郷",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://www.misato-hall.com/secure/4855/88-22.pdf", "discoveryUrl": "https://www.misato-hall.com/module/3299.htm", "granularity": "morning_afternoon_evening", "updateFrequency": "monthly", "updateNote": "月別予約状況を公式ページから公開", "urlStability": "monthly_document_from_stable_page" },
+      "automation": { "feasibility": "yes", "reason": "対象月PDFから専用・共用の3区分を抽出し、共用だけをavailable、予約可能な空欄をunknownにできる", "implementation": { "status": "supported", "parser": "misato-three-slot-reservation", "version": "1.0.0", "discovery": "monthly_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_month", "rule": "共用利用と明示された時間だけavailable", "absenceMeaning": "予約表の空欄をavailableとみなさない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["10日前まで専用予約追加可能", "熱中症警戒", "1レーン使用不可"],
+      "sources": ["https://www.misato-hall.com/module/3299.htm", "https://www.misato-hall.com/secure/4855/88-22.pdf"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "koshigaya-shirakobato-track",
+      "name": "越谷市立しらこばと運動公園競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "structured_html", "url": "https://kouen-kyougijyou.kosi-kanri.com/", "discoveryUrl": null, "granularity": "time_range", "updateFrequency": "daily", "updateNote": "トップページに本日の使用状況と個人利用可能時間を掲載", "urlStability": "stable_homepage" },
+      "automation": { "feasibility": "yes", "reason": "日時・専用予定・個人利用可能時間がHTML本文に明示", "implementation": { "status": "supported", "parser": "koshigaya-today-status", "version": "1.0.0", "discovery": "stable_homepage" } },
+      "semantics": { "canInferAvailable": true, "coverage": "today", "rule": "個人利用できますと明示された時間だけavailable", "absenceMeaning": "個人利用記載がない場合はunknown" },
+      "dateSearch": "today_only",
+      "specialCases": ["当日8時台更新", "大会", "中学生以下の付添い"],
+      "sources": ["https://kouen-kyougijyou.kosi-kanri.com/"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "saitama-komaba-stadium-track",
+      "name": "さいたま市駒場運動公園競技場（浦和駒場スタジアム）",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": { "type": "phone_only", "url": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html", "discoveryUrl": null, "granularity": "unknown", "updateFrequency": "unknown", "updateNote": "日別個人利用予定は公式Webで確認できず管理事務所確認", "urlStability": "stable_facility_page" },
+      "automation": { "feasibility": "no", "reason": "公開Webから日別個人利用可否を確定できない" },
+      "semantics": { "canInferAvailable": false, "coverage": "none", "rule": "管理事務所で確認", "absenceMeaning": "イベント予定の不在をavailableにしない" },
+      "dateSearch": "unknown",
+      "specialCases": ["サッカー利用", "大会", "グラウンド不良"],
+      "sources": ["https://www.city.saitama.lg.jp/004/006/003/003/p033423.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "ageo-athletic-stadium",
+      "name": "上尾運動公園 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html", "discoveryUrl": null, "granularity": "time_range", "updateFrequency": "monthly", "updateNote": "当月・翌月の個人利用日予定表PDF", "urlStability": "monthly_pdf_from_stable_page" },
+      "automation": { "feasibility": "yes", "reason": "安定ページから対象月の個人利用日予定表を発見し、明示された日と時間だけを抽出可能", "implementation": { "status": "supported", "parser": "ageo-individual-use-list", "version": "1.0.0", "discovery": "monthly_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_months", "rule": "個人利用日予定表の明示時間だけavailable", "absenceMeaning": "占有予備日の空きは管理室確認なしにavailableにしない" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["占有予備日", "県内外料金", "中学生以下は帯同必要"],
+      "sources": ["https://www.parks.or.jp/saitamasuijo/guide/006/006231.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "kamiyugi-park-athletic-stadium",
+      "name": "上柚木公園陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://kamiyugi-park.jp/wp/wp-content/uploads/2026/08/2ed3e2579058a0ccecb8392ae2fff84f-2.pdf", "discoveryUrl": "https://kamiyugi-park.jp/facility/athletics-stadium/", "granularity": "morning_afternoon_evening", "updateFrequency": "multi_month", "updateNote": "施設ページから複数月一般開放予定PDFを掲載", "urlStability": "latest_pdf_from_stable_page" },
+      "automation": { "feasibility": "yes", "reason": "施設ページから対象年の複数月PDFを発見し、○・貸切・整備を3区分で抽出可能", "implementation": { "status": "supported", "parser": "kamiyugi-multi-month-matrix", "version": "1.0.0", "discovery": "latest_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_months", "rule": "○をavailable、貸切・整備をunavailableとして抽出", "absenceMeaning": "凡例で意味が確定しないダッシュ・空欄はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["夜間開放日", "熱中症対応", "貸切"],
+      "sources": ["https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html", "https://kamiyugi-park.jp/facility/athletics-stadium/", "https://kamiyugi-park.jp/wp/wp-content/uploads/2026/08/2ed3e2579058a0ccecb8392ae2fff84f-2.pdf"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "hachioji-fujimori-athletic-stadium",
+      "name": "東京フットボールセンター八王子富士森競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html", "discoveryUrl": null, "granularity": "time_range", "updateFrequency": "monthly", "updateNote": "一般開放予定表と月別詳細PDF", "urlStability": "pdf_from_stable_facility_page" },
+      "automation": { "feasibility": "yes", "reason": "安定ページの複数月一般開放PDFから対象月列を選択し、○・貸切・地域開放を抽出可能", "implementation": { "status": "supported", "parser": "fujimori-multi-month-matrix", "version": "1.0.0", "discovery": "latest_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "published_months", "rule": "一般開放・地域開放と明示された枠だけavailable", "absenceMeaning": "固定地域開放も大会による変更を優先" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["地域開放変更", "第1レーン要申請", "雨天時の跳躍制限"],
+      "sources": ["https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "akirudai-park-athletic-track",
+      "name": "秋留台公園 陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "fixed_schedule", "url": "https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html", "discoveryUrl": "https://www.tokyo-park.or.jp/park/akirudai/facility/", "granularity": "full_day", "updateFrequency": "fixed", "updateNote": "毎週水曜・第1日曜・第3土曜の一般公開を公式記事に掲載", "urlStability": "stable_rules_article" },
+      "automation": { "feasibility": "yes", "reason": "公式記事の固定一般公開日を算出可能。臨時変更は警告として保持する", "implementation": { "status": "supported", "parser": "akirudai-fixed-opening-days", "version": "1.0.0", "discovery": "stable_rules_article" } },
+      "semantics": { "canInferAvailable": true, "coverage": "fixed_opening_dates_only", "rule": "毎週水曜・第1日曜・第3土曜のみavailable", "absenceMeaning": "固定日以外や臨時変更情報を取得できない場合はunknown" },
+      "dateSearch": "future_dates_supported",
+      "specialCases": ["貸切追加", "芝生保護", "工事・天候"],
+      "sources": ["https://www.tokyo-park.or.jp/park/akirudai/facility/", "https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html"],
+      "verifiedAt": "2026-08-24"
+    },
+    {
+      "trackId": "higashiyamato-minami-park-track",
+      "name": "東大和南公園 運動広場トラック",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": { "type": "no_schedule_found", "url": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/news/", "discoveryUrl": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/", "granularity": "unknown", "updateFrequency": "unknown", "updateNote": "開放施設だが日別予定表はなし", "urlStability": "stable_news_index" },
+      "automation": { "feasibility": "no", "reason": "常設開放施設の臨時閉鎖を網羅する日別sourceがない" },
+      "semantics": { "canInferAvailable": false, "coverage": "none", "rule": "公式閉鎖告知がある場合だけunavailable。通常日は要確認", "absenceMeaning": "閉鎖告知がないことを当日availableの保証にしない" },
+      "dateSearch": "unknown",
+      "specialCases": ["工事", "公園管理上の閉鎖", "天候"],
+      "sources": ["https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/", "https://www.tokyo-park.or.jp/park/higashiyamato-minami/news/"],
+      "verifiedAt": "2026-08-24"
+    }
+  ]
+}

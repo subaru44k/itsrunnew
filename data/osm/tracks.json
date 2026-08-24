@@ -1,0 +1,1650 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-08-24T00:54:01Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 2609493934,
+  "lat": 35.7844911,
+  "lon": 139.6555718,
+  "tags": {
+    "leisure": "track",
+    "name": "陸上競技場",
+    "name:en": "Track & Field"
+  }
+},
+{
+  "type": "node",
+  "id": 12458853898,
+  "lat": 35.6864049,
+  "lon": 139.6355054,
+  "tags": {
+    "leisure": "track",
+    "name": "bicycle track for kids"
+  }
+},
+{
+  "type": "way",
+  "id": 59608916,
+  "center": {
+    "lat": 35.7329557,
+    "lon": 139.5037186
+  },
+  "tags": {
+    "leisure": "track",
+    "name": "丸井グラウンド",
+    "sport": "multi"
+  }
+},
+{
+  "type": "way",
+  "id": 95936011,
+  "center": {
+    "lat": 35.6692120,
+    "lon": 139.7313484
+  },
+  "tags": {
+    "leisure": "track",
+    "lit": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 98180512,
+  "center": {
+    "lat": 35.7041022,
+    "lon": 139.7021136
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 98180519,
+  "center": {
+    "lat": 35.7039288,
+    "lon": 139.7021922
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 98180528,
+  "center": {
+    "lat": 35.7037667,
+    "lon": 139.7020859
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 98180546,
+  "center": {
+    "lat": 35.7079266,
+    "lon": 139.6998813
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "Bing"
+  }
+},
+{
+  "type": "way",
+  "id": 98180562,
+  "center": {
+    "lat": 35.7040633,
+    "lon": 139.7023461
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 100606663,
+  "center": {
+    "lat": 35.8745683,
+    "lon": 139.5834471
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "Bing"
+  }
+},
+{
+  "type": "way",
+  "id": 105817712,
+  "center": {
+    "lat": 35.7555774,
+    "lon": 139.6729297
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 105819870,
+  "center": {
+    "lat": 35.7917462,
+    "lon": 139.5951043
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 135514214,
+  "center": {
+    "lat": 35.6538997,
+    "lon": 139.6859792
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "Bing,2007-04",
+    "sport": "multi"
+  }
+},
+{
+  "type": "way",
+  "id": 150587442,
+  "center": {
+    "lat": 35.8237009,
+    "lon": 139.6332794
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "Bing"
+  }
+},
+{
+  "type": "way",
+  "id": 150791777,
+  "center": {
+    "lat": 35.7980905,
+    "lon": 139.6713609
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 155529613,
+  "center": {
+    "lat": 35.6625886,
+    "lon": 139.4856916
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 182680209,
+  "center": {
+    "lat": 35.7144546,
+    "lon": 139.5762079
+  },
+  "tags": {
+    "leisure": "track",
+    "surface": "sand"
+  }
+},
+{
+  "type": "way",
+  "id": 182693922,
+  "center": {
+    "lat": 35.7146495,
+    "lon": 139.5741492
+  },
+  "tags": {
+    "layer": "-1",
+    "leisure": "track",
+    "surface": "cobblestone",
+    "width": "10"
+  }
+},
+{
+  "type": "way",
+  "id": 182798181,
+  "center": {
+    "lat": 35.7146497,
+    "lon": 139.5741489
+  },
+  "tags": {
+    "layer": "-1",
+    "leisure": "track",
+    "surface": "paved"
+  }
+},
+{
+  "type": "way",
+  "id": 184566532,
+  "center": {
+    "lat": 35.6930648,
+    "lon": 139.4618721
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "Bing"
+  }
+},
+{
+  "type": "way",
+  "id": 186908338,
+  "center": {
+    "lat": 35.7170071,
+    "lon": 139.5468039
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 186908339,
+  "center": {
+    "lat": 35.7170071,
+    "lon": 139.5470891
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 186908340,
+  "center": {
+    "lat": 35.7167005,
+    "lon": 139.5464077
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 192598980,
+  "center": {
+    "lat": 35.6421519,
+    "lon": 139.6331248
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "bing",
+    "sport": "multi"
+  }
+},
+{
+  "type": "way",
+  "id": 207324794,
+  "center": {
+    "lat": 35.8605629,
+    "lon": 139.6067824
+  },
+  "tags": {
+    "leisure": "track",
+    "name": "陸上競技場",
+    "name:en": "Track and Field"
+  }
+},
+{
+  "type": "way",
+  "id": 207553129,
+  "center": {
+    "lat": 35.6438675,
+    "lon": 139.6752236
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 210033070,
+  "center": {
+    "lat": 35.7456898,
+    "lon": 139.6540102
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "Bing,2010-01"
+  }
+},
+{
+  "type": "way",
+  "id": 234874367,
+  "center": {
+    "lat": 35.7752928,
+    "lon": 139.5986240
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 234874368,
+  "center": {
+    "lat": 35.7754071,
+    "lon": 139.5979472
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 234874369,
+  "center": {
+    "lat": 35.7756509,
+    "lon": 139.5987515
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 255183579,
+  "center": {
+    "lat": 35.7846886,
+    "lon": 139.6556314
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 381694984,
+  "center": {
+    "lat": 35.6726753,
+    "lon": 139.5208166
+  },
+  "tags": {
+    "area": "no",
+    "leisure": "track",
+    "lit": "no",
+    "sport": "running",
+    "surface": "rubber"
+  }
+},
+{
+  "type": "way",
+  "id": 467736633,
+  "center": {
+    "lat": 35.6257492,
+    "lon": 139.6015387
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 530912331,
+  "center": {
+    "lat": 35.6429184,
+    "lon": 139.5337468
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 562110863,
+  "center": {
+    "lat": 35.6851475,
+    "lon": 139.6479918
+  },
+  "tags": {
+    "lanes": "6",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 566666106,
+  "center": {
+    "lat": 35.6627154,
+    "lon": 139.4807064
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 566666107,
+  "center": {
+    "lat": 35.6614322,
+    "lon": 139.4810672
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 566666108,
+  "center": {
+    "lat": 35.6609238,
+    "lon": 139.4817106
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 566666116,
+  "center": {
+    "lat": 35.6625747,
+    "lon": 139.4857049
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 566666123,
+  "center": {
+    "lat": 35.6625724,
+    "lon": 139.4857779
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 566911961,
+  "center": {
+    "lat": 35.8579174,
+    "lon": 139.6710319
+  },
+  "tags": {
+    "bicycle": "permissive",
+    "foot": "permissive",
+    "leisure": "track",
+    "sport": "horse_racing;running",
+    "surface": "dirt"
+  }
+},
+{
+  "type": "way",
+  "id": 568392664,
+  "center": {
+    "lat": 35.7074837,
+    "lon": 139.4930827
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 568392667,
+  "center": {
+    "lat": 35.7075501,
+    "lon": 139.4923340
+  },
+  "tags": {
+    "leisure": "track",
+    "source": "GSImaps/ort",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 632670701,
+  "center": {
+    "lat": 35.6184012,
+    "lon": 139.6072289
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 648567291,
+  "center": {
+    "lat": 35.6251995,
+    "lon": 139.6595782
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "name": "チリリン広場",
+    "sport": "cycling"
+  }
+},
+{
+  "type": "way",
+  "id": 689111944,
+  "center": {
+    "lat": 35.6923404,
+    "lon": 139.6111129
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 689180015,
+  "center": {
+    "lat": 35.7556471,
+    "lon": 139.6728829
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 702065901,
+  "center": {
+    "lat": 35.7081866,
+    "lon": 139.7003327
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 702236101,
+  "center": {
+    "lat": 35.7126937,
+    "lon": 139.6892412
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 702236102,
+  "center": {
+    "lat": 35.7126353,
+    "lon": 139.6890211
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 702236103,
+  "center": {
+    "lat": 35.7127502,
+    "lon": 139.6894634
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 702236105,
+  "center": {
+    "lat": 35.7127225,
+    "lon": 139.6892110
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 721102015,
+  "center": {
+    "lat": 35.7735218,
+    "lon": 139.5100666
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 721102016,
+  "center": {
+    "lat": 35.7734881,
+    "lon": 139.5097575
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 721319384,
+  "center": {
+    "lat": 35.7640720,
+    "lon": 139.7135887
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 721319385,
+  "center": {
+    "lat": 35.7640793,
+    "lon": 139.7138070
+  },
+  "tags": {
+    "leisure": "track",
+    "surface": "ground"
+  }
+},
+{
+  "type": "way",
+  "id": 721319386,
+  "center": {
+    "lat": 35.7643698,
+    "lon": 139.7136850
+  },
+  "tags": {
+    "leisure": "track",
+    "surface": "ground"
+  }
+},
+{
+  "type": "way",
+  "id": 853270086,
+  "center": {
+    "lat": 35.6925788,
+    "lon": 139.5732944
+  },
+  "tags": {
+    "leisure": "track",
+    "lit": "yes",
+    "sport": "athletics; running",
+    "surface": "clay"
+  }
+},
+{
+  "type": "way",
+  "id": 863163752,
+  "center": {
+    "lat": 35.7111975,
+    "lon": 139.7146788
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 863163753,
+  "center": {
+    "lat": 35.7112281,
+    "lon": 139.7147356
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 990251710,
+  "center": {
+    "lat": 35.6632619,
+    "lon": 139.6979620
+  },
+  "tags": {
+    "access": "private",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 990251711,
+  "center": {
+    "lat": 35.6632678,
+    "lon": 139.6980944
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 990251712,
+  "center": {
+    "lat": 35.6631098,
+    "lon": 139.6982680
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1040431214,
+  "center": {
+    "lat": 35.7500354,
+    "lon": 139.7234373
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1076210966,
+  "center": {
+    "lat": 35.7182379,
+    "lon": 139.7486977
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1076210967,
+  "center": {
+    "lat": 35.7184314,
+    "lon": 139.7486892
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1123894068,
+  "center": {
+    "lat": 35.6823140,
+    "lon": 139.5229011
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1208932132,
+  "center": {
+    "lat": 35.7291759,
+    "lon": 139.7448784
+  },
+  "tags": {
+    "athletics": "long_jump",
+    "leisure": "track",
+    "sport": "athletics",
+    "surface": "clay"
+  }
+},
+{
+  "type": "way",
+  "id": 1300179411,
+  "center": {
+    "lat": 35.7451165,
+    "lon": 139.6541717
+  },
+  "tags": {
+    "lanes": "3",
+    "leisure": "track",
+    "sport": "athletics"
+  }
+},
+{
+  "type": "way",
+  "id": 1339456863,
+  "center": {
+    "lat": 35.7281137,
+    "lon": 139.7218273
+  },
+  "tags": {
+    "leisure": "track",
+    "level": "4",
+    "name": "天空のランニングコース",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1346873900,
+  "center": {
+    "lat": 35.7712412,
+    "lon": 139.7098352
+  },
+  "tags": {
+    "lanes": "6",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1347757331,
+  "center": {
+    "lat": 35.7554164,
+    "lon": 139.7233592
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1347757332,
+  "center": {
+    "lat": 35.7554529,
+    "lon": 139.7238237
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1347757333,
+  "center": {
+    "lat": 35.7552982,
+    "lon": 139.7236085
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1348136866,
+  "center": {
+    "lat": 35.6327745,
+    "lon": 139.6143210
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1351216612,
+  "center": {
+    "lat": 35.6361649,
+    "lon": 139.6324141
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "horse_racing"
+  }
+},
+{
+  "type": "way",
+  "id": 1359638735,
+  "center": {
+    "lat": 35.7382057,
+    "lon": 139.7432079
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1359638736,
+  "center": {
+    "lat": 35.7381042,
+    "lon": 139.7432126
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1359638737,
+  "center": {
+    "lat": 35.7383942,
+    "lon": 139.7431275
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1359638738,
+  "center": {
+    "lat": 35.7382252,
+    "lon": 139.7430024
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1359638739,
+  "center": {
+    "lat": 35.7382513,
+    "lon": 139.7431719
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1369416052,
+  "center": {
+    "lat": 35.6624803,
+    "lon": 139.4877193
+  },
+  "tags": {
+    "leisure": "track"
+  }
+},
+{
+  "type": "way",
+  "id": 1426167544,
+  "center": {
+    "lat": 35.6658124,
+    "lon": 139.4834563
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "name": "パドック",
+    "sport": "horse_racing"
+  }
+},
+{
+  "type": "way",
+  "id": 1466169135,
+  "center": {
+    "lat": 35.6617104,
+    "lon": 139.6860656
+  },
+  "tags": {
+    "lanes": "7",
+    "leisure": "track",
+    "name": "第一グラウンド",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "way",
+  "id": 1466169136,
+  "center": {
+    "lat": 35.6614672,
+    "lon": 139.6854384
+  },
+  "tags": {
+    "leisure": "track",
+    "name": "第一グランド",
+    "sport": "multi"
+  }
+},
+{
+  "type": "way",
+  "id": 1466169140,
+  "center": {
+    "lat": 35.6617130,
+    "lon": 139.6860772
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1506290575,
+  "center": {
+    "lat": 35.7169607,
+    "lon": 139.5946883
+  },
+  "tags": {
+    "covered": "no",
+    "indoor": "no",
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1507285468,
+  "center": {
+    "lat": 35.7574748,
+    "lon": 139.7441000
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1507285472,
+  "center": {
+    "lat": 35.7429846,
+    "lon": 139.7693034
+  },
+  "tags": {
+    "covered": "no",
+    "indoor": "no",
+    "lanes": "5",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1509287556,
+  "center": {
+    "lat": 35.8042625,
+    "lon": 139.5971550
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1509287557,
+  "center": {
+    "lat": 35.8039509,
+    "lon": 139.5971554
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1509287558,
+  "center": {
+    "lat": 35.8071234,
+    "lon": 139.5860543
+  },
+  "tags": {
+    "lanes": "8",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1509287559,
+  "center": {
+    "lat": 35.8050649,
+    "lon": 139.5850481
+  },
+  "tags": {
+    "lanes": "5",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1509287560,
+  "center": {
+    "lat": 35.8048529,
+    "lon": 139.5851005
+  },
+  "tags": {
+    "lanes": "5",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1509287561,
+  "center": {
+    "lat": 35.8049685,
+    "lon": 139.5847842
+  },
+  "tags": {
+    "lanes": "4",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1509639930,
+  "center": {
+    "lat": 35.7250238,
+    "lon": 139.4507459
+  },
+  "tags": {
+    "lanes": "2",
+    "leisure": "track",
+    "sport": "athletics"
+  }
+},
+{
+  "type": "way",
+  "id": 1509639931,
+  "center": {
+    "lat": 35.7252443,
+    "lon": 139.4507012
+  },
+  "tags": {
+    "lanes": "2",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1512259191,
+  "center": {
+    "lat": 35.6299927,
+    "lon": 139.6114952
+  },
+  "tags": {
+    "lanes": "3",
+    "leisure": "track",
+    "sport": "athletics"
+  }
+},
+{
+  "type": "way",
+  "id": 1517891711,
+  "center": {
+    "lat": 35.7212308,
+    "lon": 139.4868868
+  },
+  "tags": {
+    "access": "private",
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "way",
+  "id": 1550053852,
+  "center": {
+    "lat": 35.7159489,
+    "lon": 139.6617897
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running"
+  }
+},
+{
+  "type": "relation",
+  "id": 2067459,
+  "center": {
+    "lat": 35.6785723,
+    "lon": 139.7120871
+  },
+  "tags": {
+    "addr:block_number": "17",
+    "addr:city": "渋谷区",
+    "addr:housenumber": "1",
+    "addr:neighbourhood": "千駄ヶ谷一丁目",
+    "addr:postcode": "151-0051",
+    "addr:province": "東京都",
+    "leisure": "track",
+    "name": "東京体育館陸上競技場",
+    "surface": "tartan",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3069510,
+  "center": {
+    "lat": 35.8221619,
+    "lon": 139.7129438
+  },
+  "tags": {
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3077595,
+  "center": {
+    "lat": 35.6255821,
+    "lon": 139.6636012
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3417169,
+  "center": {
+    "lat": 35.7845285,
+    "lon": 139.6556320
+  },
+  "tags": {
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 4163249,
+  "center": {
+    "lat": 35.6631014,
+    "lon": 139.6316013
+  },
+  "tags": {
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 5410485,
+  "center": {
+    "lat": 35.6971910,
+    "lon": 139.5715306
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8031286,
+  "center": {
+    "lat": 35.6851398,
+    "lon": 139.6480331
+  },
+  "tags": {
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8080944,
+  "center": {
+    "lat": 35.6625899,
+    "lon": 139.4853032
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "horse_racing",
+    "surface": "grass",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8080945,
+  "center": {
+    "lat": 35.6625837,
+    "lon": 139.4857063
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "horse_racing",
+    "surface": "dirt",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8080946,
+  "center": {
+    "lat": 35.6625730,
+    "lon": 139.4857654
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "horse_racing",
+    "surface": "grass",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8083196,
+  "center": {
+    "lat": 35.8579364,
+    "lon": 139.6710278
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "horse_racing",
+    "surface": "dirt",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8111856,
+  "center": {
+    "lat": 35.7174383,
+    "lon": 139.5683215
+  },
+  "tags": {
+    "area": "yes",
+    "est_width": "3.0m〜5.5m",
+    "leisure": "track",
+    "source": "YahooJapan/ALPSMAP",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8154653,
+  "center": {
+    "lat": 35.6937507,
+    "lon": 139.6886656
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8255580,
+  "center": {
+    "lat": 35.7669400,
+    "lon": 139.6333003
+  },
+  "tags": {
+    "leisure": "track",
+    "note": "estimated",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 9307390,
+  "center": {
+    "lat": 35.7763797,
+    "lon": 139.6739548
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 9458775,
+  "center": {
+    "lat": 35.6297183,
+    "lon": 139.6110685
+  },
+  "tags": {
+    "lanes": "8",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 9767270,
+  "center": {
+    "lat": 35.6766857,
+    "lon": 139.5896942
+  },
+  "tags": {
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 13308856,
+  "center": {
+    "lat": 35.6652780,
+    "lon": 139.5232115
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 14865345,
+  "center": {
+    "lat": 35.7281888,
+    "lon": 139.7028854
+  },
+  "tags": {
+    "colour": "blue",
+    "leisure": "track",
+    "surface": "tartan",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 14873773,
+  "center": {
+    "lat": 35.7162670,
+    "lon": 139.7137915
+  },
+  "tags": {
+    "access": "private",
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 14873775,
+  "center": {
+    "lat": 35.7206238,
+    "lon": 139.7100134
+  },
+  "tags": {
+    "access": "private",
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 15332481,
+  "center": {
+    "lat": 35.6695226,
+    "lon": 139.5207927
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17439139,
+  "center": {
+    "lat": 35.7408032,
+    "lon": 139.4436530
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17573365,
+  "center": {
+    "lat": 35.6670345,
+    "lon": 139.6940224
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "athletics",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 18550855,
+  "center": {
+    "lat": 35.6361649,
+    "lon": 139.6324141
+  },
+  "tags": {
+    "area": "yes",
+    "leisure": "track",
+    "name": "周回走路",
+    "sport": "horse_racing",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 18893696,
+  "center": {
+    "lat": 35.7696179,
+    "lon": 139.4469517
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "cycling",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 18984146,
+  "center": {
+    "lat": 35.6627137,
+    "lon": 139.5943699
+  },
+  "tags": {
+    "leisure": "track",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 19158340,
+  "center": {
+    "lat": 35.8550256,
+    "lon": 139.5860588
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 19289735,
+  "center": {
+    "lat": 35.6620104,
+    "lon": 139.6163763
+  },
+  "tags": {
+    "leisure": "track",
+    "sport": "running",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 19901286,
+  "center": {
+    "lat": 35.8205646,
+    "lon": 139.6658224
+  },
+  "tags": {
+    "lanes": "6",
+    "leisure": "track",
+    "length": "300",
+    "name": "陸上競技場",
+    "opening_hours": "09:00-17:00",
+    "sport": "athletics",
+    "type": "multipolygon",
+    "website": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/"
+  }
+}
+
+  ]
+}

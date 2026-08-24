@@ -1,7 +1,7 @@
 import TimeContainer from "./TimeContainer";
 
 export default class LapTimeCalculator {
-    constructor(private goalTime: TimeContainer) {}
+    constructor(private goalTime: Pick<TimeContainer, 'getSeconds' | 'getTimeString'>) {}
 
     public getLapTime() {
         const goalSeconds = this.goalTime.getSeconds();

@@ -1,41 +1,19 @@
 <template>
   <v-container>
-    <v-layout
-      wrap
-    >
-      <v-flex grow>
-        <table class="table table-bordered">
-          <tbody>
-            <tr><td></td><td class="title">{{ timeSlots[0] }}</td><td class="title">{{ timeSlots[1] }}</td><td class="title">{{ timeSlots[2] }}</td></tr>
-            <OneDaySchedule v-for="(date, index) in dates" v-bind:key="index" v-bind:date="date" v-bind:onedaystatus="statuses[index]"/>
-          </tbody>
-        </table>
-      </v-flex>
-    </v-layout>
+    <table class="table table-bordered">
+      <tbody>
+        <tr><td /><td v-for="slot in store.timeRange" :key="slot" class="title">{{ slot }}</td></tr>
+        <tr v-for="(date, index) in store.dateList" :key="date">
+          <td class="title">{{ date }}</td>
+          <ConditionalStatus v-for="column in 3" :key="column" :condstatus="store.statusArray[index][column - 1]" />
+        </tr>
+      </tbody>
+    </table>
   </v-container>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component';
-import OneDaySchedule from '@/components/schedule/pc/OneDaySchedule.vue';
-
-@Component({
-  components: {
-    OneDaySchedule,
-  },
-})
-export default class PcScheduleTable extends Vue {
-  get timeSlots() {
-    return this.$store.state.timeRange;
-  }
-
-  get dates() {
-    return this.$store.state.dateList;
-  }
-
-  get statuses() {
-    return this.$store.state.statusArray;
-  }
-}
+<script setup lang="ts">
+import { useAppStore } from '@/store';
+import ConditionalStatus from '@/components/schedule/ConditionalStatus.vue';
+const store = useAppStore();
 </script>

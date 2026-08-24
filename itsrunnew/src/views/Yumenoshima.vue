@@ -1,34 +1,33 @@
 <template>
   <v-container>
-    <v-layout justify-center row wrap>
-      <v-flex>
+    <div class="d-flex justify-center flex-wrap">
+      <div class="flex-grow-1">
         <p class="display-1">{{ $t("yume.open_title") }}</p>
         <p class="headline">{{ $t("yume.available") }}</p>
-        <Adsense v-if="rendered" style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
-        </Adsense>
+        <AdsDisplay slot="6879016191" />
         <v-card class="mt-3 mb-3">
           <Pagination></Pagination>
-          <v-layout>
-            <v-flex hidden-sm-and-up>
+          <div class="d-flex">
+            <div class="d-sm-none flex-grow-1">
               <SpScheduleTable></SpScheduleTable>
-            </v-flex>
-            <v-flex hidden-xs-only>
+            </div>
+            <div class="d-none d-sm-block flex-grow-1">
               <PcScheduleTable></PcScheduleTable>
-            </v-flex>
-          </v-layout>
+            </div>
+          </div>
         </v-card>
         <v-card class="mb-3">
           <v-container>
             <p class="display-1">{{ $t("yume.info_title") }}</p>
             <p class="headline">{{ $t("yume.official_name") }}</p>
-            <v-layout v-if="rendered" justify-center row>
-              <v-flex hidden-sm-and-up shrink>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3242.198853620734!2d139.82042951502805!3d35.6474720394305!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188830ec82b0eb%3A0x38e551d88d939e11!2z44CSMTM2LTAwODEg5p2x5Lqs6YO95rGf5p2x5Yy65aSi44Gu5bO277yR5LiB55uu77yR4oiS77yS!5e0!3m2!1sja!2sjp!4v1527175702727" width="330" height="300" frameborder="0" style="border:0" allowfullscreen=""></iframe>
-              </v-flex>
-              <v-flex hidden-xs-only shrink>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3242.198853620734!2d139.82042951502805!3d35.6474720394305!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188830ec82b0eb%3A0x38e551d88d939e11!2z44CSMTM2LTAwODEg5p2x5Lqs6YO95rGf5p2x5Yy65aSi44Gu5bO277yR5LiB55uu77yR4oiS77yS!5e0!3m2!1sja!2sjp!4v1527175702727" width="800" height="600" frameborder="0" style="border:0" allowfullscreen=""></iframe>
-              </v-flex>
-            </v-layout>
+            <div v-if="rendered" class="d-flex justify-center">
+              <div class="d-sm-none flex-shrink-0">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3242.198853620734!2d139.82042951502805!3d35.6474720394305!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188830ec82b0eb%3A0x38e551d88d939e11!2z44CSMTM2LTAwODEg5p2x5Lqs6YO95rGf5p2x5Yy65aSi44Gu5bO277yR5LiB55uu77yR4oiS77yS!5e0!3m2!1sja!2sjp!4v1527175702727" width="330" height="300" class="map-frame" loading="lazy" allowfullscreen></iframe>
+              </div>
+              <div class="d-none d-sm-block flex-shrink-0">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3242.198853620734!2d139.82042951502805!3d35.6474720394305!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188830ec82b0eb%3A0x38e551d88d939e11!2z44CSMTM2LTAwODEg5p2x5Lqs6YO95rGf5p2x5Yy65aSi44Gu5bO277yR5LiB55uu77yR4oiS77yS!5e0!3m2!1sja!2sjp!4v1527175702727" width="800" height="600" class="map-frame" loading="lazy" allowfullscreen></iframe>
+              </div>
+            </div>
             <div class="headline mt-3 mb-2">{{ $t("yume.access_title") }}</div>
             <div class="subheading">{{ $t("yume.access_1") }}</div>
             <div class="headline mt-3 mb-2">{{ $t("yume.contact") }}</div>
@@ -44,33 +43,16 @@
             </div>
           </v-container>
         </v-card>
-        <Adsense v-if="rendered" style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6031307376" data-ad-format="auto" data-full-width-responsive="true">
-        </Adsense>
-      </v-flex>
-    </v-layout>
+        <AdsDisplay slot="6031307376" />
+      </div>
+    </div>
   </v-container>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import PcScheduleTable from '@/components/schedule/pc/PcScheduleTable.vue'; // @ is an alias to /src
-import SpScheduleTable from '@/components/schedule/sp/SpScheduleTable.vue'; // @ is an alias to /src
+<script setup lang="ts">
+import PcScheduleTable from '@/components/schedule/pc/PcScheduleTable.vue';
+import SpScheduleTable from '@/components/schedule/sp/SpScheduleTable.vue';
 import Pagination from '@/components/schedule/Pagination.vue';
-
-@Component({
-  components: {
-    SpScheduleTable,
-    PcScheduleTable,
-    Pagination,
-  },
-})
-export default class OdaField extends Vue {
-  private rendered: boolean = false;
-  mounted() {
-    this.$store.commit('changeStadiumId', 'VFurPbbeejEbtu1JNTzF');
-    this.$store.dispatch('retrieveScheduleData').then(() => {
-      this.rendered = true;
-    });
-  }
-}
+import AdsDisplay from '@/components/AdsDisplay.vue';
+const rendered = true;
 </script>

@@ -2,7 +2,7 @@
   "message": "hello i18n !!",
   "title": "ItsRun",
   "footer_1": "Please tweet to ",
-  "footer_2": "@itsrun_page",
+  "footer_2": "{'@'}itsrun_page",
   "footer_3": " if you have any requests.",
   "menu": {
     "tokyo": "Tokyo",
@@ -11,6 +11,8 @@
     "komazawa": "Komazawa Olympic Park Athletic Stadium",
     "kanagawa": "Kanagawa",
     "todoroki": "Todoroki Athletic Track",
+    "find": "Track Finder",
+    "tracks": "Find Nearby Tracks",
     "laptime": "Lap Time",
     "marathon": "Marathon",
     "changelang": "日本語ページへ",

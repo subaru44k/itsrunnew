@@ -1,23 +1,22 @@
 <template>
   <v-container>
-    <v-layout justify-center row wrap>
-      <v-flex>
+    <div class="d-flex justify-center flex-wrap">
+      <div class="flex-grow-1">
         <v-card class="mt-3 mb-3 p-3">
           <p class="display-1">田中希実選手の記録集</p>
           <p class="title">豊田自動織機TC所属の陸上競技選手、田中希実選手の試合の結果として日時、種目、タイムを記載した記録集</p>
           <p class="body-2">田中希実選手は第一線で活躍する陸上選手としては高頻度で大会に参加するので、いつどの大会に出てどんな結果だったかを日時、種目、タイムのみまとめました。2020年のホクレンディスタンスくらいからの田中希実選手の記録を掲載しています。</p>
-          <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6879016191" data-ad-format="auto" data-full-width-responsive="true">
-          </Adsense>
+          <AdsDisplay slot="6879016191" />
           <p class="headline">各年度へのリンク</p>
           <div><a href="#2021">2021年の大会結果・記録</a></div>
           <div><a href="#2020">2020年の大会結果・記録</a></div>
-          <v-layout>
-            <v-flex hidden-sm-and-up>
-            </v-flex>
-            <v-flex hidden-xs-only>
-            </v-flex>
-          </v-layout>
-          <p class="headline mt-4"><a name="2021">2021年の大会結果・記録</a></p>
+          <div class="d-flex">
+            <div class="d-sm-none flex-grow-1">
+            </div>
+            <div class="d-none d-sm-block flex-grow-1">
+            </div>
+          </div>
+          <p id="2021" class="headline mt-4"><a name="2021">2021年の大会結果・記録</a></p>
           <div class="table-responsive">
             <table class="table table-bordered table-striped">
               <thead>
@@ -259,7 +258,7 @@
                 </tr>
               </tbody>
             </table>
-          <p class="headline mt-4"><a name="2020">2020年の大会結果・記録</a></p>
+          <p id="2020" class="headline mt-4"><a name="2020">2020年の大会結果・記録</a></p>
             <table class="table table-bordered table-striped">
               <thead>
                 <tr>
@@ -384,18 +383,12 @@
 
           </div>
         </v-card>
-        <Adsense style="display:block" data-ad-client="ca-pub-7941378059940304" data-ad-slot="6031307376" data-ad-format="auto" data-full-width-responsive="true">
-        </Adsense>
-      </v-flex>
-    </v-layout>
+        <AdsDisplay slot="6031307376" />
+      </div>
+    </div>
   </v-container>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-
-@Component({
-})
-export default class NozomiAntena extends Vue {
-}
+<script setup lang="ts">
+import AdsDisplay from '@/components/AdsDisplay.vue';
 </script>

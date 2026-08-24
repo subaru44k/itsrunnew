@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 
 const port = process.env.ITSRUN_PREVIEW_PORT ?? '4173';
 const baseUrl = `http://127.0.0.1:${port}`;
-const preview = spawn('npm', ['run', 'preview', '--', '--host', '127.0.0.1', '--port', port, '--strictPort'], {
+const preview = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--host', '127.0.0.1', '--port', port, '--strictPort'], {
   env: process.env,
   stdio: ['ignore', 'pipe', 'pipe'],
 });

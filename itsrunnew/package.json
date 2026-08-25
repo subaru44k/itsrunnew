@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "serve": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "node scripts/generate-public-pages.mjs && vue-tsc --noEmit && vite build && node scripts/generate-track-route-shells.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:smoke": "node scripts/smoke.mjs",

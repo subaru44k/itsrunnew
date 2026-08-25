@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import type { AvailabilityPeriod, TrackAvailability, UnknownReason } from '../../src/model/availability';
 import { expansionFallbackSources, PARSER_VERSION, sourceUrls } from './config';
 import { createPdfCollector, PdfCollectorError, pdfSourceConfigs } from './pdf';
+import { tracks } from '../../src/model/tracks';
 
 type FetchLike = typeof fetch;
 type PublicationFormat = 'structured_html' | 'calendar_html' | 'weekly_notice' | 'fixed_schedule' | 'pdf' | 'reservation_system' | 'phone_only' | 'no_schedule_found';
@@ -538,7 +539,21 @@ export async function collectAvailability(date: string, options: { now?: Date; f
       warnings: ['Availability source researched; facility-specific collector is not implemented in the dataset expansion phase.'],
     })),
   ];
-  return [...supported, ...unsupported].sort((a, b) => a.trackId.localeCompare(b.trackId));
+  const represented = new Set([...supported, ...unsupported].map(item => item.trackId));
+  const researchedButUnsupported = tracks
+    .filter(track => !represented.has(track.id))
+    .map(track => unknownRecord({
+      trackId: track.id,
+      date,
+      now: context.now,
+      unknownReason: 'web_schedule_unavailable',
+      url: track.urls.schedule ?? track.urls.individualUse ?? track.urls.official,
+      publicationFormat: 'no_schedule_found',
+      collector: 'official-source-manual-confirmation',
+      confidence: 'low',
+      warnings: ['Facility identity is verified; date-specific availability is not automated yet.'],
+    }));
+  return [...supported, ...unsupported, ...researchedButUnsupported].sort((a, b) => a.trackId.localeCompare(b.trackId));
 }
 
 export const fixedCollectorConfigs = fixedConfigs;

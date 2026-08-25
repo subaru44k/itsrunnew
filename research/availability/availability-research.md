@@ -5,6 +5,12 @@
 対象データ: [`itsrunnew/src/data/tracks.json`](../../itsrunnew/src/data/tracks.json)
 構造化結果: [`availability-sources.json`](availability-sources.json)
 
+## 51施設への品質優先拡張追補
+
+2026-08-25に神奈川・千葉・埼玉の公式一次情報を確認できた18施設を追加し、Track Datasetは51施設になった。新規施設についても `availability-sources.json` に公式source、公開形式、将来日対応、automation feasibilityを記録した。既存collectorで意味まで安全に確定できる施設数は23のままであり、coverageは23/51（45.1%）である。未対応の新規施設は共通fallbackにより `unknown` となり、情報欠落を利用不可とは解釈しない。
+
+施設・属性・地域の集計と追加一覧は [`../track-expansion/phase2-expansion-report.md`](../track-expansion/phase2-expansion-report.md) を参照する。以下の33施設・12施設の節は当時の調査履歴として残す。
+
 ## 33施設への拡張追補
 
 Track Datasetは2026-08-24に12施設から33施設へ拡張した。最新の施設別source of truthは `availability-sources.json`、拡張時のcoverage・pipeline評価は [`../track-expansion/dataset-expansion-report.md`](../track-expansion/dataset-expansion-report.md) である。

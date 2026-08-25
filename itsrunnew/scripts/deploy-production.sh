@@ -54,7 +54,9 @@ aws s3 cp dist/service-worker.js "s3://$PRODUCTION_BUCKET/service-worker.js" \
 
 invalidation_id="$(aws cloudfront create-invalidation \
   --distribution-id "$PRODUCTION_DISTRIBUTION_ID" \
-  --paths '/' '/index.html' '/service-worker.js' '/en/' '/tracks' '/en/tracks' '/oda-field' '/en/oda-field' \
+  --paths '/' '/index.html' '/service-worker.js' '/en/' '/tracks' '/en/tracks' \
+    '/tracks/guide' '/en/tracks/guide' '/tracks/*' '/en/tracks/*' \
+    '/oda-field' '/en/oda-field' \
   --query Invalidation.Id \
   --output text)"
 aws cloudfront wait invalidation-completed --distribution-id "$PRODUCTION_DISTRIBUTION_ID" --id "$invalidation_id"

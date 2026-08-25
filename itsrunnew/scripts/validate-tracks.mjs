@@ -60,7 +60,7 @@ for (const date of availabilityManifest.dates) {
   for (const id of rangeIds) if (!ids.has(id)) errors.push(`${date}: ${id} has no Track Dataset facility`);
 }
 
-if (tracks.length < 30 || tracks.length > 50) errors.push(`expected 30-50 normalized facilities, found ${tracks.length}`);
+if (tracks.length < 50 || tracks.length > 150) errors.push(`expected 50-150 normalized facilities, found ${tracks.length}`);
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exitCode = 1;

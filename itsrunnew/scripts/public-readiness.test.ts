@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import tracks from '../src/data/tracks.json';
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const index = read('../index.html');
@@ -28,10 +29,12 @@ describe('public launch readiness', () => {
   it('exposes an absolute sitemap without alias or date-query duplication', () => {
     expect(robots).toContain('Sitemap: https://itsrun.info/sitemap.xml');
     const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-    expect(locations).toHaveLength(18);
+    expect(locations).toHaveLength(20 + tracks.length * 2);
     expect(new Set(locations).size).toBe(locations.length);
     expect(locations).toContain('https://itsrun.info/');
     expect(locations).toContain('https://itsrun.info/en/privacy');
+    expect(locations).toContain(`https://itsrun.info/tracks/${tracks[0].id}`);
+    expect(locations).toContain(`https://itsrun.info/en/tracks/${tracks[0].id}`);
     expect(locations).not.toContain('https://itsrun.info/tracks');
     expect(locations.every(location => !location.includes('?'))).toBe(true);
   });

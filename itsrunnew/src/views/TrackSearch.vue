@@ -6,9 +6,6 @@
         <h1>{{ isEnglish ? 'Find a track near you' : '近くで走れるトラックを探す' }}</h1>
         <p>{{ isEnglish ? 'Choose a date and find promising tracks for your workout.' : '利用日を選び、練習できそうな競技場・トラックを探せます。' }}</p>
       </div>
-      <v-btn class="hero-location-btn" color="white" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
-        {{ isEnglish ? 'Find near me' : '現在地から探す' }}
-      </v-btn>
     </header>
 
     <v-alert v-if="locationMessage" :type="locationError ? 'warning' : 'success'" variant="tonal" class="mb-3" closable>
@@ -47,6 +44,19 @@
 
     <div :class="['track-layout', { 'has-detail': selectedTrack }]">
       <section class="map-panel" :aria-label="isEnglish ? 'Athletic track map' : '陸上トラック地図'">
+        <div class="map-tools">
+          <strong>{{ isEnglish ? 'Search origin' : '検索の基準地点' }}</strong>
+          <v-btn size="small" :variant="referencePointSource === 'current' ? 'flat' : 'outlined'" color="indigo" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
+            {{ isEnglish ? 'Use current location' : '現在地を使う' }}
+          </v-btn>
+          <v-btn size="small" :color="selectingPoint ? 'indigo' : undefined" :variant="selectingPoint ? 'flat' : 'outlined'" prepend-icon="mdi-map-marker-plus" @click="togglePointSelection">
+            {{ selectingPoint ? (isEnglish ? 'Tap a point on the map' : '地図上の地点をタップ') : (isEnglish ? 'Choose a map point' : '地図から基準地点を選ぶ') }}
+          </v-btn>
+          <v-btn v-if="distanceOrigin" size="small" variant="text" prepend-icon="mdi-close" @click="clearReferencePoint">
+            {{ isEnglish ? 'Clear reference point' : '基準地点を解除' }}
+          </v-btn>
+          <span v-if="distanceOrigin">{{ referencePointLabel }}</span>
+        </div>
         <div ref="mapElement" id="track-map" class="track-map" />
       </section>
 
@@ -56,7 +66,7 @@
             <span :class="['status-badge', statusClass(selectedTrack)]"><v-icon :icon="statusIcon(selectedAvailability.status)" size="14" aria-hidden="true" />{{ statusLabel(selectedTrack) }}</span>
             <h2>{{ localizedName(selectedTrack) }}</h2>
           </div>
-          <v-btn icon="mdi-close" variant="text" size="small" :aria-label="isEnglish ? 'Close details' : '詳細を閉じる'" @click="selectedTrack = null" />
+          <v-btn icon="mdi-close" variant="text" size="small" :aria-label="isEnglish ? 'Close details' : '詳細を閉じる'" @click="closeSelectedTrack" />
         </div>
         <p class="track-address">{{ selectedTrack.location.address }}</p>
         <section :class="['today-availability', availabilityClass(selectedAvailability)]">
@@ -81,28 +91,54 @@
         <p v-if="selectedTrack.individualUse.note" class="track-note">{{ selectedTrack.individualUse.note }}</p>
         <p class="official-warning">{{ isEnglish ? 'Conditions may change. Check the official website before visiting.' : '利用条件は変わることがあります。お出かけ前に公式サイトをご確認ください。' }}</p>
         <div class="detail-actions">
+          <v-btn class="detail-action action-detail" color="blue-grey-darken-3" variant="flat" prepend-icon="mdi-information-outline" :to="detailRoute(selectedTrack)">{{ isEnglish ? 'Facility page' : '施設ページ' }}</v-btn>
           <v-btn v-if="availabilityActionUrl(selectedTrack)" class="detail-action action-schedule" color="amber-lighten-4" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityActionUrl(selectedTrack)" target="_blank" rel="noopener" @click="trackOutbound('availability_source_click', selectedTrack)">{{ availabilityActionLabel(selectedAvailability) }}</v-btn>
           <v-btn class="detail-action action-official" color="indigo" variant="flat" prepend-icon="mdi-open-in-new" :href="selectedTrack.urls.official" target="_blank" rel="noopener" @click="trackOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
-          <v-btn class="detail-action action-directions" color="teal-darken-2" variant="outlined" prepend-icon="mdi-directions" :href="directionsUrl(selectedTrack, currentLocation)" target="_blank" rel="noopener" @click="trackOutbound('directions_click', selectedTrack)">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
+          <v-btn class="detail-action action-directions" color="teal-darken-2" variant="outlined" prepend-icon="mdi-directions" :href="directionsUrl(selectedTrack, distanceOrigin)" target="_blank" rel="noopener" @click="trackOutbound('directions_click', selectedTrack)">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
         </div>
       </aside>
     </div>
 
     <section class="facility-section">
-      <h2>{{ isEnglish ? 'Facilities' : '施設一覧' }}</h2>
+      <div class="facility-heading">
+        <div><h2>{{ isEnglish ? 'Facilities' : '施設一覧' }}</h2><p>{{ listModeLabel }}</p></div>
+        <strong>{{ visibleTracks.length }}{{ isEnglish ? ' facilities' : '施設' }}</strong>
+      </div>
       <p class="dataset-note">{{ datasetNote }}</p>
-      <div v-if="sortedTracks.length" class="facility-grid">
-        <button v-for="item in sortedTracks" :key="item.track.id" type="button"
-          :class="['facility-card', { 'is-selected': selectedTrack?.id === item.track.id }]"
-          :aria-pressed="selectedTrack?.id === item.track.id" :aria-label="facilityCardAriaLabel(item.track, item.availability)"
-          @click="selectTrack(item.track, 'list')">
-          <span :class="['availability-badge', availabilityClass(item.availability)]"><v-icon :icon="statusIcon(item.availability.status)" size="14" aria-hidden="true" />{{ availabilityLabel(item.availability) }}</span>
-          <strong>{{ localizedName(item.track) }}</strong>
-          <span v-if="item.availability.status === 'unknown'" class="availability-hint">{{ availabilityCardHint(item.availability) }}</span>
-          <span>{{ summary(item.track) }}</span>
-          <span v-if="item.distance != null" class="facility-distance">{{ formatDistance(item.distance) }}</span>
-          <span class="card-chevron" aria-hidden="true"><v-icon icon="mdi-chevron-right" size="20" /></span>
-        </button>
+      <div v-if="sortedTracks.length && distanceOrigin" class="distance-results">
+        <article v-for="item in distanceListItems" :key="item.track.id" :class="['facility-row', { 'is-selected': selectedTrack?.id === item.track.id }]">
+          <button type="button" :aria-pressed="selectedTrack?.id === item.track.id" :aria-label="facilityCardAriaLabel(item.track, item.availability)" @click="selectTrack(item.track, 'list')">
+            <span :class="['availability-badge', availabilityClass(item.availability)]"><v-icon :icon="statusIcon(item.availability.status)" size="14" />{{ availabilityLabel(item.availability) }}</span>
+            <span class="facility-main"><strong>{{ localizedName(item.track) }}</strong><small>{{ compactSummary(item.track) }}</small></span>
+            <strong class="facility-distance">{{ formatDistance(item.distance!) }}</strong>
+            <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
+          </button>
+          <router-link :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></router-link>
+        </article>
+        <v-btn v-if="distanceListLimit < sortedTracks.length" class="load-more" variant="outlined" color="indigo" @click="distanceListLimit += 12">
+          {{ isEnglish ? 'Show more facilities' : 'さらに施設を表示' }}
+        </v-btn>
+      </div>
+      <div v-else-if="sortedTracks.length" class="prefecture-groups">
+        <section v-for="group in prefectureGroups" :key="group.name" class="prefecture-group">
+          <button type="button" class="prefecture-toggle" :aria-expanded="expandedPrefectures.includes(group.name)" @click="togglePrefecture(group)">
+            <span><strong>{{ localizedPrefecture(group.name) }}</strong><small>{{ group.items.length }}{{ isEnglish ? ' facilities' : '施設' }}</small></span>
+            <v-icon :icon="expandedPrefectures.includes(group.name) ? 'mdi-chevron-up' : 'mdi-chevron-down'" />
+          </button>
+          <div v-if="expandedPrefectures.includes(group.name)" class="prefecture-results">
+            <article v-for="item in group.items.slice(0, prefectureLimit(group.name))" :key="item.track.id" :class="['facility-row', { 'is-selected': selectedTrack?.id === item.track.id }]">
+              <button type="button" :aria-pressed="selectedTrack?.id === item.track.id" :aria-label="facilityCardAriaLabel(item.track, item.availability)" @click="selectTrack(item.track, 'list')">
+                <span :class="['availability-badge', availabilityClass(item.availability)]"><v-icon :icon="statusIcon(item.availability.status)" size="14" />{{ availabilityLabel(item.availability) }}</span>
+                <span class="facility-main"><strong>{{ localizedName(item.track) }}</strong><small>{{ compactSummary(item.track) }}</small></span>
+                <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
+              </button>
+              <router-link :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></router-link>
+            </article>
+            <v-btn v-if="prefectureLimit(group.name) < group.items.length" class="load-more" variant="text" color="indigo" @click="showMorePrefecture(group.name)">
+              {{ isEnglish ? 'Show more in this prefecture' : 'この都道府県をさらに表示' }}
+            </v-btn>
+          </div>
+        </section>
       </div>
       <div v-else class="no-results" role="status">
         <strong>{{ isEnglish ? 'No candidates for this date.' : 'この日の候補が見つかりませんでした。' }}</strong>
@@ -114,6 +150,7 @@
     </section>
 
     <p class="map-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL)</p>
+    <p class="guide-link"><router-link :to="isEnglish ? '/en/tracks/guide' : '/tracks/guide'">{{ isEnglish ? 'How to use availability and choose a track' : '利用状況の見方・トラック選びのヒント' }}</router-link></p>
   </v-container>
 </template>
 
@@ -123,7 +160,7 @@ import L, { type Map as LeafletMap, type LayerGroup, type Marker } from 'leaflet
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { directionsUrl, distanceKm, tracks, type TrackFacility } from '../model/tracks';
+import { directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
 import {
   availabilityDataset,
   availabilityForTrack,
@@ -162,8 +199,13 @@ const pageLoadedAt = new Date();
 const locating = ref(false);
 const locationMessage = ref('');
 const locationError = ref(false);
-const currentLocation = ref<{ latitude: number; longitude: number } | null>(null);
+const distanceOrigin = ref<{ latitude: number; longitude: number } | null>(null);
+const referencePointSource = ref<'current' | 'map' | null>(null);
+const selectingPoint = ref(false);
 const selectedTrack = ref<TrackFacility | null>(null);
+const distanceListLimit = ref(12);
+const expandedPrefectures = ref<string[]>(['東京都']);
+const prefectureListLimits = ref<Record<string, number>>({ 東京都: 12 });
 const mapElement = ref<HTMLElement | null>(null);
 const detailElement = ref<HTMLElement | null>(null);
 let map: LeafletMap | null = null;
@@ -175,11 +217,28 @@ const availabilityByTrack = computed(() => new Map(tracks.map(track => [track.id
 const selectedDateAvailability = (track: TrackFacility) => availabilityByTrack.value.get(track.id) ?? availabilityForTrack(track.id, selectedDate.value, pageLoadedAt, selectedDataset.value);
 const visibleTracks = computed(() => tracks.filter(track => isAvailabilityCandidate(selectedDateAvailability(track).status, showUnavailable.value)));
 const sortedTracks = computed(() => visibleTracks.value
-  .map(track => ({ track, availability: selectedDateAvailability(track), distance: currentLocation.value ? distanceKm(currentLocation.value, track.location) : null }))
+  .map(track => ({ track, availability: selectedDateAvailability(track), distance: distanceOrigin.value ? distanceKm(distanceOrigin.value, track.location) : null }))
   .sort((a, b) => a.distance == null || b.distance == null ? a.track.name.ja.localeCompare(b.track.name.ja, 'ja') : a.distance - b.distance));
-const selectedDistance = computed(() => selectedTrack.value && currentLocation.value
-  ? distanceKm(currentLocation.value, selectedTrack.value.location)
+const selectedDistance = computed(() => selectedTrack.value && distanceOrigin.value
+  ? distanceKm(distanceOrigin.value, selectedTrack.value.location)
   : null);
+const distanceListItems = computed(() => {
+  const first = sortedTracks.value.slice(0, distanceListLimit.value);
+  const selected = sortedTracks.value.find(item => item.track.id === selectedTrack.value?.id);
+  return selected && !first.some(item => item.track.id === selected.track.id) ? [...first, selected] : first;
+});
+const prefectureGroups = computed(() => {
+  const grouped = new Map<string, typeof sortedTracks.value>();
+  for (const item of sortedTracks.value) {
+    const name = prefectureName(item.track.location.address);
+    grouped.set(name, [...(grouped.get(name) ?? []), item]);
+  }
+  const order = ['東京都', '埼玉県', '神奈川県', '千葉県'];
+  return [...grouped].map(([name, items]) => ({ name, items })).sort((a, b) => {
+    const ai = order.indexOf(a.name); const bi = order.indexOf(b.name);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi) || a.name.localeCompare(b.name, 'ja');
+  });
+});
 const selectedAvailability = computed(() => selectedTrack.value ? selectedDateAvailability(selectedTrack.value) : availabilityForTrack('', selectedDate.value, pageLoadedAt, selectedDataset.value));
 const selectedDateShortLabel = computed(() => {
   if (selectedDate.value === today) return isEnglish.value ? 'Today' : '本日';
@@ -202,6 +261,18 @@ const showUnavailableLabel = computed(() => isEnglish.value
 const datasetNote = computed(() => isEnglish.value
   ? 'Based on official sources. Schedules can change, so check before visiting. “Needs confirmation” does not mean unavailable.'
   : '公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。');
+const referencePointLabel = computed(() => referencePointSource.value === 'current'
+  ? (isEnglish.value ? 'Sorted from your current location' : '現在地から近い順')
+  : (isEnglish.value ? 'Sorted from the selected map point' : '選択地点から近い順'));
+const listModeLabel = computed(() => distanceOrigin.value
+  ? referencePointLabel.value
+  : (isEnglish.value ? 'Grouped by prefecture' : '都道府県別に表示'));
+
+const initialCoordinates = parseCoordinates(route.query.lat, route.query.lng);
+if (initialCoordinates) {
+  distanceOrigin.value = initialCoordinates;
+  referencePointSource.value = 'map';
+}
 
 watch(() => route.query.date, async value => {
   const normalized = normalizeSelectedDate(value, today);
@@ -217,33 +288,73 @@ onMounted(() => {
   map = L.map(mapElement.value, { zoomControl: true }).setView([SHAKUJII_PARK.latitude, SHAKUJII_PARK.longitude], 12);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
+    className: 'muted-map-tiles',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
+  map.on('click', event => {
+    if (!selectingPoint.value) return;
+    setReferencePoint({ latitude: event.latlng.lat, longitude: event.latlng.lng }, 'map', true);
+  });
+  map.on('zoomend', renderMarkers);
   renderMarkers();
+  if (initialCoordinates) setReferencePoint(initialCoordinates, 'map', false);
+  const focused = trackById(route.query.track);
+  if (focused) void selectTrack(focused, 'map', false, false);
   nextTick(() => map?.invalidateSize());
 });
 
 onBeforeUnmount(() => map?.remove());
 watch(visibleTracks, tracksNow => {
   renderMarkers();
-  if (selectedTrack.value && !tracksNow.some(track => track.id === selectedTrack.value?.id)) selectedTrack.value = null;
+  if (selectedTrack.value && !tracksNow.some(track => track.id === selectedTrack.value?.id)) closeSelectedTrack();
+});
+watch(() => route.query.track, value => {
+  const focused = trackById(value);
+  if (focused && focused.id !== selectedTrack.value?.id && map) void selectTrack(focused, 'map', false, false);
+  if (!focused && selectedTrack.value) selectedTrack.value = null;
 });
 watch(showUnavailable, value => trackProductEvent('show_unavailable_change', { enabled: value, selected_date: selectedDate.value }));
 
 function renderMarkers() {
   if (!map || !markerLayer) return;
   markerLayer.clearLayers();
-  for (const track of visibleTracks.value) {
+  const selected = selectedTrack.value;
+  const candidates = visibleTracks.value.filter(track => track.id !== selected?.id);
+  const groups = new Map<string, TrackFacility[]>();
+  const zoom = map.getZoom();
+  for (const track of candidates) {
+    const point = map.project([track.location.latitude, track.location.longitude], zoom);
+    const key = zoom <= 12 ? `${Math.floor(point.x / 150)}:${Math.floor(point.y / 150)}` : track.id;
+    groups.set(key, [...(groups.get(key) ?? []), track]);
+  }
+  for (const group of groups.values()) {
+    if (group.length > 1) addClusterMarker(group);
+    else addTrackMarker(group[0]);
+  }
+  if (selected && visibleTracks.value.some(track => track.id === selected.id)) addTrackMarker(selected, true);
+}
+
+function addTrackMarker(track: TrackFacility, selected = false) {
+  if (!map || !markerLayer) return;
     const availability = selectedDateAvailability(track);
     const icon = L.divIcon({
       className: 'track-marker-shell',
-      html: `<span class="track-marker track-marker--${availability.status}" aria-hidden="true"></span>`,
-      iconSize: [30, 30], iconAnchor: [15, 15],
+      html: `<span class="track-marker track-marker--${availability.status}${selected ? ' track-marker--selected' : ''}" aria-hidden="true"></span>`,
+      iconSize: selected ? [36, 36] : [30, 30], iconAnchor: selected ? [18, 18] : [15, 15],
     });
     L.marker([track.location.latitude, track.location.longitude], { icon, title: localizedName(track) })
       .on('click', () => selectTrack(track, 'map')).addTo(markerLayer);
-  }
+}
+
+function addClusterMarker(group: TrackFacility[]) {
+  if (!map || !markerLayer) return;
+  const latitude = group.reduce((sum, track) => sum + track.location.latitude, 0) / group.length;
+  const longitude = group.reduce((sum, track) => sum + track.location.longitude, 0) / group.length;
+  const icon = L.divIcon({ className: 'track-cluster-shell', html: `<span class="track-cluster">${group.length}</span>`, iconSize: [38, 38], iconAnchor: [19, 19] });
+  L.marker([latitude, longitude], { icon, title: isEnglish.value ? `${group.length} facilities` : `${group.length}施設` })
+    .on('click', () => map?.fitBounds(L.latLngBounds(group.map(track => [track.location.latitude, track.location.longitude])), { padding: [30, 30], maxZoom: 14 }))
+    .addTo(markerLayer);
 }
 
 async function loadDate(date: string) {
@@ -277,12 +388,27 @@ function onDateInput(event: Event) {
   chooseDate((event.target as HTMLInputElement).value, 'native_date_input');
 }
 
-async function selectTrack(track: TrackFacility, source: 'map' | 'list') {
+async function selectTrack(track: TrackFacility, source: 'map' | 'list', updateUrl = true, scroll = true) {
   selectedTrack.value = track;
+  if (!distanceOrigin.value) {
+    const prefecture = prefectureName(track.location.address);
+    if (!expandedPrefectures.value.includes(prefecture)) expandedPrefectures.value = [...expandedPrefectures.value, prefecture];
+    const index = prefectureGroups.value.find(group => group.name === prefecture)?.items.findIndex(item => item.track.id === track.id) ?? -1;
+    if (index >= prefectureLimit(prefecture)) prefectureListLimits.value = { ...prefectureListLimits.value, [prefecture]: index + 1 };
+  }
   trackProductEvent('facility_select', { track_id: track.id, source, selected_date: selectedDate.value });
   map?.flyTo([track.location.latitude, track.location.longitude], Math.max(map.getZoom(), 14));
+  renderMarkers();
+  if (updateUrl) await router.replace({ path: route.path, query: { ...route.query, track: track.id } });
   await nextTick();
-  detailElement.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (scroll) detailElement.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeSelectedTrack() {
+  selectedTrack.value = null;
+  renderMarkers();
+  const query = { ...route.query }; delete query.track;
+  void router.replace({ path: route.path, query });
 }
 
 function requestLocation() {
@@ -296,17 +422,17 @@ function requestLocation() {
   navigator.geolocation.getCurrentPosition(position => {
     locating.value = false;
     locationError.value = false;
-    currentLocation.value = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+    distanceOrigin.value = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+    referencePointSource.value = 'current';
+    distanceListLimit.value = 12;
     locationMessage.value = isEnglish.value ? 'Location found. Facilities are sorted by straight-line distance.' : '現在地を取得しました。施設一覧を直線距離順に並べました。';
     trackProductEvent('use_location_result', { result: 'success' });
     if (map) {
-      locationMarker?.remove();
-      locationMarker = L.marker([position.coords.latitude, position.coords.longitude], {
-        icon: L.divIcon({ className: 'current-location-shell', html: '<span class="current-location-dot"></span>', iconSize: [24, 24], iconAnchor: [12, 12] }),
-        title: isEnglish.value ? 'Current location' : '現在地',
-      }).addTo(map);
+      renderReferenceMarker();
       map.setView([position.coords.latitude, position.coords.longitude], 13);
     }
+    const query = { ...route.query }; delete query.lat; delete query.lng;
+    void router.replace({ path: route.path, query });
   }, error => {
     locating.value = false;
     const messages: Record<number, string> = {
@@ -317,6 +443,81 @@ function requestLocation() {
     showLocationError(messages[error.code] ?? messages[2]);
     trackProductEvent('use_location_result', { result: error.code === 1 ? 'denied' : error.code === 3 ? 'timeout' : 'unavailable' });
   }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+}
+
+function parseCoordinates(latitude: unknown, longitude: unknown) {
+  const lat = typeof latitude === 'string' ? Number(latitude) : NaN;
+  const lng = typeof longitude === 'string' ? Number(longitude) : NaN;
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat >= 20 && lat <= 50 && lng >= 120 && lng <= 150
+    ? { latitude: lat, longitude: lng } : null;
+}
+
+function prefectureName(address: string) {
+  return address.match(/^(東京都|北海道|大阪府|京都府|.{2,3}県)/)?.[1] ?? (isEnglish.value ? 'Other' : 'その他');
+}
+
+function localizedPrefecture(name: string) {
+  if (!isEnglish.value) return name;
+  return ({ 東京都: 'Tokyo', 埼玉県: 'Saitama', 神奈川県: 'Kanagawa', 千葉県: 'Chiba', 北海道: 'Hokkaido', 大阪府: 'Osaka', 京都府: 'Kyoto', その他: 'Other' } as Record<string, string>)[name] ?? name.replace(/[都道府県]$/, '');
+}
+
+function togglePrefecture(group: { name: string; items: Array<{ track: TrackFacility }> }) {
+  const expanded = expandedPrefectures.value.includes(group.name);
+  expandedPrefectures.value = expanded ? expandedPrefectures.value.filter(name => name !== group.name) : [...expandedPrefectures.value, group.name];
+  if (!expanded && !prefectureListLimits.value[group.name]) prefectureListLimits.value = { ...prefectureListLimits.value, [group.name]: 12 };
+  if (!expanded && map && group.items.length) {
+    map.fitBounds(L.latLngBounds(group.items.map(item => [item.track.location.latitude, item.track.location.longitude])), { padding: [28, 28], maxZoom: 12 });
+  }
+}
+
+function prefectureLimit(name: string) { return prefectureListLimits.value[name] ?? 12; }
+function showMorePrefecture(name: string) { prefectureListLimits.value = { ...prefectureListLimits.value, [name]: prefectureLimit(name) + 12 }; }
+
+function detailRoute(track: TrackFacility) {
+  return {
+    path: trackDetailPath(track, locale.value),
+    query: { date: selectedDate.value, lat: route.query.lat, lng: route.query.lng },
+  };
+}
+
+function togglePointSelection() {
+  selectingPoint.value = !selectingPoint.value;
+  locationMessage.value = selectingPoint.value
+    ? (isEnglish.value ? 'Tap the map to choose the point used for distance sorting.' : '距離順の基準にしたい地点を地図上でタップしてください。') : '';
+  locationError.value = false;
+}
+
+function setReferencePoint(point: { latitude: number; longitude: number }, source: 'current' | 'map', updateUrl: boolean) {
+  distanceOrigin.value = point;
+  referencePointSource.value = source;
+  distanceListLimit.value = 12;
+  selectingPoint.value = false;
+  locationMessage.value = source === 'map'
+    ? (isEnglish.value ? 'Facilities are sorted from the selected point.' : '選択した地点から近い順に並べました。') : locationMessage.value;
+  renderReferenceMarker();
+  if (updateUrl) void router.replace({ path: route.path, query: { ...route.query, lat: point.latitude.toFixed(5), lng: point.longitude.toFixed(5) } });
+}
+
+function renderReferenceMarker() {
+  if (!map || !distanceOrigin.value) return;
+  locationMarker?.remove();
+  locationMarker = L.marker([distanceOrigin.value.latitude, distanceOrigin.value.longitude], {
+    icon: L.divIcon({ className: 'current-location-shell', html: '<span class="search-origin-dot"></span>', iconSize: [24, 24], iconAnchor: [12, 12] }),
+    title: referencePointSource.value === 'map' ? (isEnglish.value ? 'Selected point' : '選択地点') : (isEnglish.value ? 'Current location' : '現在地'),
+  }).addTo(map);
+}
+
+function clearReferencePoint() {
+  distanceOrigin.value = null;
+  referencePointSource.value = null;
+  selectingPoint.value = false;
+  locationMarker?.remove();
+  locationMarker = null;
+  locationMessage.value = '';
+  const query = { ...route.query };
+  delete query.lat;
+  delete query.lng;
+  void router.replace({ path: route.path, query });
 }
 
 function showLocationError(message: string) {
@@ -352,6 +553,14 @@ function formatDistance(distance: number) { return distance < 1 ? `${Math.round(
 function latestVerifiedAt(track: TrackFacility) { return [...track.sources].map(source => source.verifiedAt).sort().at(-1) ?? '—'; }
 function summary(track: TrackFacility) {
   return [track.track.lengthMeters ? `${track.track.lengthMeters}m` : null, track.track.surface ? surfaceLabel(track.track.surface) : null, statusLabel(track), track.individualUse.spikesAllowed === true ? (isEnglish.value ? 'Spikes allowed' : 'スパイク可') : null, track.individualUse.feeYen === 0 ? (isEnglish.value ? 'Free' : '無料') : null].filter(Boolean).join('・');
+}
+function compactSummary(track: TrackFacility) {
+  return [
+    track.track.lengthMeters ? `${track.track.lengthMeters}m` : null,
+    track.track.surface ? surfaceLabel(track.track.surface) : null,
+    track.individualUse.spikesAllowed === true ? (isEnglish.value ? 'Spikes allowed' : 'スパイク可') : null,
+    track.individualUse.spikesAllowed == null ? (isEnglish.value ? 'Spikes unconfirmed' : 'スパイク未確認') : null,
+  ].filter(Boolean).join('・');
 }
 
 function statusIcon(status: AvailabilityStatus) {
@@ -459,7 +668,6 @@ function trackOutbound(eventName: string, track: TrackFacility) {
 .track-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 24px; margin-bottom: 16px; color: white; background: linear-gradient(135deg, #283593, #00897b); border-radius: 12px; }
 .track-hero h1 { margin: 2px 0 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.2; }
 .track-hero p { max-width: 720px; margin: 0; }
-.hero-location-btn { min-height: 44px; color: #283593 !important; font-weight: 700; }
 .track-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; opacity: .85; }
 .track-controls { display: flex; min-height: 52px; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 6px 14px; margin-bottom: 12px; border: 1px solid #d9dce8; border-radius: 10px; background: white; }
 .track-controls .v-switch { flex: 0 1 auto; }
@@ -478,6 +686,8 @@ function trackOutbound(eventName: string, track: TrackFacility) {
 .track-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
 .track-layout.has-detail { grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); }
 .map-panel { overflow: hidden; border: 1px solid #d9dce8; border-radius: 12px; background: #eef1f5; }
+.map-tools { display: flex; min-height: 52px; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding: 8px 10px; background: white; border-bottom: 1px solid #d9dce8; }
+.map-tools strong { margin-right: 4px; font-size: 13px; }.map-tools span { color: #555; font-size: 12px; }
 .track-map { width: 100%; height: min(64vh, 610px); min-height: 480px; z-index: 0; }
 .detail-card { padding: 20px; scroll-margin-top: 64px; border: 1px solid #d9dce8; border-radius: 12px; background: white; box-shadow: 0 6px 24px rgba(24, 39, 90, .09); }
 .detail-heading { display: flex; justify-content: space-between; gap: 12px; }
@@ -504,21 +714,31 @@ function trackOutbound(eventName: string, track: TrackFacility) {
 .detail-actions .action-schedule { color: #4e342e !important; border: 1px solid #d99000; }
 .detail-actions .action-official { color: #fff !important; }
 .detail-actions .action-directions { color: #00695c !important; border-color: #00695c !important; }
-.facility-section { margin-top: 28px; }.facility-section h2 { font-size: 24px; }.dataset-note { color: #666; }
-.facility-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.facility-card { position: relative; display: flex; min-width: 0; padding: 14px 36px 14px 14px; text-align: left; color: inherit; border: 1px solid #d9dce8; border-radius: 9px; background: white; cursor: pointer; flex-direction: column; gap: 5px; }
-.facility-card:hover, .facility-card:focus-visible { border-color: #3f51b5; box-shadow: 0 3px 12px rgba(24, 39, 90, .1); outline: none; }
-.facility-card.is-selected { border-color: #3f51b5; background: #f7f8ff; box-shadow: 0 0 0 1px #3f51b5; }
-.facility-card strong { font-size: 16px; }.facility-card > span:not(.status-badge):not(.availability-badge) { color: #666; }.facility-distance { color: #283593 !important; font-weight: 700; }
-.facility-card .availability-badge { color: inherit; }.availability-hint { font-size: 12px; line-height: 1.45; }
-.facility-card .card-chevron { position: absolute; top: 50%; right: 10px; color: #303f9f !important; transform: translateY(-50%); }
+.detail-actions .action-detail { color: #fff !important; }
+.facility-section { margin-top: 28px; }.facility-section h2 { margin: 0; font-size: 24px; }.dataset-note { color: #666; }
+.facility-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; }.facility-heading p { margin: 3px 0 0; color: #555; font-size: 13px; }
+.distance-results,.prefecture-results { display: flex; flex-direction: column; gap: 7px; }
+.facility-row { display: grid; grid-template-columns: minmax(0,1fr) auto; overflow: hidden; border: 1px solid #d9dce8; border-radius: 9px; background: white; }
+.facility-row > button { display: grid; grid-template-columns: auto minmax(180px,1fr) auto auto; align-items: center; gap: 10px; min-width: 0; min-height: 64px; padding: 9px 12px; color: inherit; text-align: left; border: 0; background: transparent; cursor: pointer; }
+.facility-row > a { display: flex; min-width: 82px; min-height: 44px; align-items: center; justify-content: center; gap: 2px; padding: 8px 11px; color: #303f9f; border-left: 1px solid #eceef3; font-size: 13px; font-weight: 700; text-decoration: none; }
+.facility-row:hover,.facility-row:focus-within { border-color: #3f51b5; box-shadow: 0 3px 12px rgba(24,39,90,.1); }.facility-row.is-selected { border-color:#3f51b5;background:#f7f8ff;box-shadow:0 0 0 1px #3f51b5; }
+.facility-main { display: flex; min-width: 0; flex-direction: column; gap: 2px; }.facility-main strong { overflow: hidden; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }.facility-main small { overflow: hidden; color: #666; text-overflow: ellipsis; white-space: nowrap; }
+.facility-distance { color: #283593; white-space: nowrap; }.map-action { display: inline-flex; align-items: center; gap: 2px; color: #303f9f; font-size: 13px; font-weight: 700; }
+.load-more { align-self: center; min-height: 44px; margin-top: 10px; }
+.prefecture-groups { display: flex; flex-direction: column; gap: 9px; }.prefecture-group { overflow: hidden; border: 1px solid #d9dce8; border-radius: 10px; background: #f8f9fc; }
+.prefecture-toggle { display: flex; width: 100%; min-height: 56px; align-items: center; justify-content: space-between; padding: 10px 14px; color: #222; border: 0; background: transparent; cursor: pointer; }.prefecture-toggle > span { display: flex; align-items: baseline; gap: 10px; }.prefecture-toggle strong { font-size: 17px; }.prefecture-toggle small { color: #666; }
+.prefecture-results { padding: 0 8px 8px; }.prefecture-results .facility-row { background: white; }
 .no-results { padding: 28px 20px; text-align: center; border: 1px dashed #9da3b4; border-radius: 10px; background: #fafbff; }
 .no-results p { margin: 6px 0 14px; color: #555; }
 .map-credit { margin: 20px 0 0; color: #666; font-size: 12px; }
-:global(.track-marker-shell), :global(.current-location-shell) { background: transparent; border: 0; }
+:global(.track-marker-shell), :global(.current-location-shell), :global(.track-cluster-shell) { background: transparent; border: 0; }
+:global(.muted-map-tiles) { filter: grayscale(.1) saturate(.82) contrast(.96) brightness(1.03); }
 :global(.track-marker) { display: block; width: 26px; height: 26px; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 7px rgba(0,0,0,.42); }
 :global(.track-marker--available) { background: #00897b; }:global(.track-marker--partially_available) { background: #f9a825; }:global(.track-marker--unknown) { background: #78909c; }:global(.track-marker--unavailable) { background: #c62828; }
-:global(.current-location-dot) { display: block; width: 22px; height: 22px; border: 5px solid white; border-radius: 50%; background: #1976d2; box-shadow: 0 0 0 2px #1976d2, 0 2px 7px rgba(0,0,0,.35); }
+:global(.track-marker--selected) { width: 32px; height: 32px; border-width: 5px; box-shadow: 0 0 0 3px #283593,0 3px 10px rgba(0,0,0,.45); }
+:global(.search-origin-dot) { display: block; width: 22px; height: 22px; border: 5px solid white; border-radius: 50%; background: #3949ab; box-shadow: 0 0 0 3px #3949ab,0 2px 8px rgba(0,0,0,.4); }
+:global(.track-cluster) { display: flex; width: 38px; height: 38px; align-items: center; justify-content: center; color: white; border: 4px solid white; border-radius: 50%; background: #37474f; box-shadow: 0 2px 9px rgba(0,0,0,.4); font-size: 13px; font-weight: 800; }
+.guide-link { text-align: right; font-size: 13px; }
 @media (max-width: 799px) {
   .track-search-page { padding: 12px 10px 28px; }
   .track-hero { align-items: stretch; padding: 18px; flex-direction: column; }
@@ -530,7 +750,7 @@ function trackOutbound(eventName: string, track: TrackFacility) {
   .native-date-field { width: 100%; }
   .track-layout, .track-layout.has-detail { grid-template-columns: 1fr; }
   .track-map { height: 52vh; min-height: 360px; }
-  .facility-grid { grid-template-columns: 1fr; }
+  .facility-row > button { grid-template-columns: auto minmax(0,1fr) auto; gap: 8px; }.facility-row .facility-distance { grid-column: 2; }.facility-row .map-action { grid-column: 3; grid-row: 1 / span 2; }.facility-row > a { min-width: 70px; padding-inline: 7px; }
   .detail-card { padding: 16px; }
 }
 </style>

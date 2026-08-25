@@ -24,6 +24,14 @@ export interface TrackFacility {
 
 export const tracks = rawTracks as TrackFacility[];
 
+export function trackById(id: unknown) {
+  return typeof id === 'string' ? tracks.find(track => track.id === id) ?? null : null;
+}
+
+export function trackDetailPath(track: TrackFacility, locale: string) {
+  return `${locale === 'en' ? '/en' : ''}/tracks/${track.id}`;
+}
+
 export function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }) {
   const radians = (degrees: number) => degrees * Math.PI / 180;
   const earthRadiusKm = 6371;

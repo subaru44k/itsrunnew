@@ -4,7 +4,7 @@ import { directionsUrl, distanceKm, tracks } from './tracks';
 describe('track dataset utilities', () => {
   it('has unique IDs and required provenance', () => {
     expect(tracks.length).toBeGreaterThanOrEqual(30);
-    expect(tracks.length).toBeLessThanOrEqual(50);
+    expect(tracks.length).toBeLessThanOrEqual(150);
     expect(new Set(tracks.map(track => track.id)).size).toBe(tracks.length);
     for (const track of tracks) {
       expect(track.urls.official).toMatch(/^https:\/\//);

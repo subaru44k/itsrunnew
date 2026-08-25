@@ -1,434 +1,2527 @@
 [
   {
     "id": "nerima-general-sports-park",
-    "name": { "ja": "練馬総合運動場公園 陸上競技場", "en": "Nerima General Sports Park Athletic Track" },
-    "location": { "latitude": 35.7454, "longitude": 139.6541, "address": "東京都練馬区練馬2丁目29番10号" },
-    "track": { "lengthMeters": 400, "lanes": null, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": "4L" },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "一般開放時", "openingHours": "一般開放日程を確認", "spikesAllowed": true, "note": null },
-    "urls": { "official": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html", "individualUse": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/riyouhouhou_kyougijoukojin.pdf", "schedule": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html" },
-    "externalIds": { "jaaf": "134309", "osm": ["way/1300179411", "way/210033070"] },
+    "name": {
+      "ja": "練馬総合運動場公園 陸上競技場",
+      "en": "Nerima General Sports Park Athletic Track"
+    },
+    "location": {
+      "latitude": 35.7454,
+      "longitude": 139.6541,
+      "address": "東京都練馬区練馬2丁目29番10号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": null,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": "4L"
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "一般開放時",
+      "openingHours": "一般開放日程を確認",
+      "spikesAllowed": true,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html",
+      "individualUse": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/riyouhouhou_kyougijoukojin.pdf",
+      "schedule": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html"
+    },
+    "externalIds": {
+      "jaaf": "134309",
+      "osm": [
+        "way/1300179411",
+        "way/210033070"
+      ]
+    },
     "sources": [
-      { "url": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "hikarigaoka-park-track",
-    "name": { "ja": "光が丘公園 陸上競技場", "en": "Hikarigaoka Park Athletic Track" },
-    "location": { "latitude": 35.76694, "longitude": 139.6333, "address": "東京都練馬区光が丘4丁目1番1号" },
-    "track": { "lengthMeters": 400, "lanes": null, "surface": "dirt" },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "一般開放時", "openingHours": "一般開放予定を確認", "spikesAllowed": null, "note": "2026年8月から年度末まで改修工事予定。指定日の利用可否はavailabilityで判定" },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/", "individualUse": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/", "schedule": "https://www.tokyo-park.or.jp/park/hikarigaoka/news/" },
-    "externalIds": { "jaaf": null, "osm": ["relation/8255580"] },
-    "sources": [{ "url": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "光が丘公園 陸上競技場",
+      "en": "Hikarigaoka Park Athletic Track"
+    },
+    "location": {
+      "latitude": 35.76694,
+      "longitude": 139.6333,
+      "address": "東京都練馬区光が丘4丁目1番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": null,
+      "surface": "dirt"
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "一般開放時",
+      "openingHours": "一般開放予定を確認",
+      "spikesAllowed": null,
+      "note": "2026年8月から年度末まで改修工事予定。指定日の利用可否はavailabilityで判定"
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/",
+      "schedule": "https://www.tokyo-park.or.jp/park/hikarigaoka/news/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "relation/8255580"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "oizumi-chuo-park-track",
-    "name": { "ja": "大泉中央公園 競技場", "en": "Oizumi Chuo Park Athletic Track" },
-    "location": { "latitude": 35.7754, "longitude": 139.5984, "address": "東京都練馬区大泉学園町9丁目4番3号" },
-    "track": { "lengthMeters": 400, "lanes": 6, "surface": "all-weather" },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "貸切のない時間", "openingHours": "貸切予約がない日・時間帯", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/oizumi-chuo/", "individualUse": "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/", "schedule": null },
-    "externalIds": { "jaaf": null, "osm": ["way/234874367", "way/234874368", "way/234874369"] },
-    "sources": [{ "url": "https://www.tokyo-park.or.jp/park/oizumi-chuo/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "大泉中央公園 競技場",
+      "en": "Oizumi Chuo Park Athletic Track"
+    },
+    "location": {
+      "latitude": 35.7754,
+      "longitude": 139.5984,
+      "address": "東京都練馬区大泉学園町9丁目4番3号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 6,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "貸切のない時間",
+      "openingHours": "貸切予約がない日・時間帯",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/oizumi-chuo/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "way/234874367",
+        "way/234874368",
+        "way/234874369"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.tokyo-park.or.jp/park/oizumi-chuo/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "johoku-chuo-park-track",
-    "name": { "ja": "城北中央公園 陸上競技場", "en": "Johoku Chuo Park Athletic Track" },
-    "location": { "latitude": 35.75561, "longitude": 139.67291, "address": "東京都練馬区氷川台1丁目3番1号" },
-    "track": { "lengthMeters": 400, "lanes": null, "surface": "dirt" },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "貸切のない時間", "openingHours": "貸切のない日は一般開放", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/johoku-chuo/", "individualUse": "https://www.tokyo-park.or.jp/park/johoku-chuo/facility/", "schedule": "https://www.tokyo-park.or.jp/park/johoku-chuo/news/" },
-    "externalIds": { "jaaf": null, "osm": ["way/105817712", "way/689180015"] },
-    "sources": [{ "url": "https://www.tokyo-park.or.jp/park/johoku-chuo/facility/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "城北中央公園 陸上競技場",
+      "en": "Johoku Chuo Park Athletic Track"
+    },
+    "location": {
+      "latitude": 35.75561,
+      "longitude": 139.67291,
+      "address": "東京都練馬区氷川台1丁目3番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": null,
+      "surface": "dirt"
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "貸切のない時間",
+      "openingHours": "貸切のない日は一般開放",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/johoku-chuo/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/johoku-chuo/facility/",
+      "schedule": "https://www.tokyo-park.or.jp/park/johoku-chuo/news/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "way/105817712",
+        "way/689180015"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.tokyo-park.or.jp/park/johoku-chuo/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "akatsuka-park-track",
-    "name": { "ja": "赤塚公園 競技場", "en": "Akatsuka Park Track" },
-    "location": { "latitude": 35.78453, "longitude": 139.65563, "address": "東京都板橋区高島平3丁目1番" },
-    "track": { "lengthMeters": 300, "lanes": null, "surface": null },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "定期一般開放・貸切のない時間", "openingHours": "毎週水曜・第1日曜・第3土曜ほか", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/akatsuka/", "individualUse": "https://www.tokyo-park.or.jp/park/akatsuka/facility/", "schedule": null },
-    "externalIds": { "jaaf": null, "osm": ["node/2609493934", "relation/3417169", "way/255183579"] },
+    "name": {
+      "ja": "赤塚公園 競技場",
+      "en": "Akatsuka Park Track"
+    },
+    "location": {
+      "latitude": 35.78453,
+      "longitude": 139.65563,
+      "address": "東京都板橋区高島平3丁目1番"
+    },
+    "track": {
+      "lengthMeters": 300,
+      "lanes": null,
+      "surface": null
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "定期一般開放・貸切のない時間",
+      "openingHours": "毎週水曜・第1日曜・第3土曜ほか",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/akatsuka/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/akatsuka/facility/",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "node/2609493934",
+        "relation/3417169",
+        "way/255183579"
+      ]
+    },
     "sources": [
-      { "url": "https://www.tokyo-park.or.jp/park/akatsuka/facility/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.sports-tokyo-info.metro.tokyo.lg.jp/seisaku/sports_facility_r4/data/sports_facility_r05_01.pdf", "type": "official", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.tokyo-park.or.jp/park/akatsuka/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.sports-tokyo-info.metro.tokyo.lg.jp/seisaku/sports_facility_r4/data/sports_facility_r05_01.pdf",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "musashino-athletic-track",
-    "name": { "ja": "武蔵野陸上競技場", "en": "Musashino Athletic Track" },
-    "location": { "latitude": 35.71745, "longitude": 139.56839, "address": "東京都武蔵野市吉祥寺北町5丁目11番20号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": 100, "feeUnit": "大人3時間（中学生以下無料）", "openingHours": "個人開放予定を確認", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.musashino.or.jp/sports/1001550/1001570.html", "individualUse": "https://www.musashino.or.jp/sports/1001550/1001570.html", "schedule": "https://www.musashino.or.jp/sports/kaihou/index.html" },
-    "externalIds": { "jaaf": "133180", "osm": ["relation/8111856"] },
+    "name": {
+      "ja": "武蔵野陸上競技場",
+      "en": "Musashino Athletic Track"
+    },
+    "location": {
+      "latitude": 35.71745,
+      "longitude": 139.56839,
+      "address": "東京都武蔵野市吉祥寺北町5丁目11番20号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 100,
+      "feeUnit": "大人3時間（中学生以下無料）",
+      "openingHours": "個人開放予定を確認",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.musashino.or.jp/sports/1001550/1001570.html",
+      "individualUse": "https://www.musashino.or.jp/sports/1001550/1001570.html",
+      "schedule": "https://www.musashino.or.jp/sports/kaihou/index.html"
+    },
+    "externalIds": {
+      "jaaf": "133180",
+      "osm": [
+        "relation/8111856"
+      ]
+    },
     "sources": [
-      { "url": "https://www.musashino.or.jp/sports/1001550/1001570.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.musashino.or.jp/sports/1001550/1001570.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "inokashira-park-track",
-    "name": { "ja": "井の頭恩賜公園 競技場", "en": "Inokashira Park Athletic Field" },
-    "location": { "latitude": 35.69258, "longitude": 139.57329, "address": "東京都三鷹市下連雀1丁目1番" },
-    "track": { "lengthMeters": 400, "lanes": null, "surface": "dirt" },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "貸切のない時間", "openingHours": "貸切のない日に個人利用可能", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/inokashira/", "individualUse": "https://www.tokyo-park.or.jp/park/inokashira/facility/", "schedule": null },
-    "externalIds": { "jaaf": null, "osm": ["way/853270086"] },
+    "name": {
+      "ja": "井の頭恩賜公園 競技場",
+      "en": "Inokashira Park Athletic Field"
+    },
+    "location": {
+      "latitude": 35.69258,
+      "longitude": 139.57329,
+      "address": "東京都三鷹市下連雀1丁目1番"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": null,
+      "surface": "dirt"
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "貸切のない時間",
+      "openingHours": "貸切のない日に個人利用可能",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/inokashira/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/inokashira/facility/",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "way/853270086"
+      ]
+    },
     "sources": [
-      { "url": "https://www.tokyo-park.or.jp/park/inokashira/facility/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.sports-tokyo-info.metro.tokyo.lg.jp/seisaku/sports_facility_r4/data/sports_facility_r05_01.pdf", "type": "official", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.tokyo-park.or.jp/park/inokashira/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.sports-tokyo-info.metro.tokyo.lg.jp/seisaku/sports_facility_r4/data/sports_facility_r05_01.pdf",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "toda-sports-center-track",
-    "name": { "ja": "戸田市スポーツセンター 陸上競技場", "en": "Toda Sports Center Athletic Track" },
-    "location": { "latitude": 35.82056, "longitude": 139.66582, "address": "埼玉県戸田市新曽1286番地" },
-    "track": { "lengthMeters": 300, "lanes": 6, "surface": null },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "個人利用時", "openingHours": "9:00～17:00（専用利用時を除く）", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/", "individualUse": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/", "schedule": null },
-    "externalIds": { "jaaf": null, "osm": ["relation/19901286"] },
-    "sources": [{ "url": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "戸田市スポーツセンター 陸上競技場",
+      "en": "Toda Sports Center Athletic Track"
+    },
+    "location": {
+      "latitude": 35.82056,
+      "longitude": 139.66582,
+      "address": "埼玉県戸田市新曽1286番地"
+    },
+    "track": {
+      "lengthMeters": 300,
+      "lanes": 6,
+      "surface": null
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "個人利用時",
+      "openingHours": "9:00～17:00（専用利用時を除く）",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/",
+      "individualUse": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "relation/19901286"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "asaka-chuo-park-track",
-    "name": { "ja": "朝霞中央公園陸上競技場", "en": "Asaka Chuo Park Athletic Track" },
-    "location": { "latitude": 35.79167, "longitude": 139.595, "address": "埼玉県朝霞市青葉台1丁目9番1号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 150, "feeUnit": "市内一般・午前枠（枠・居住地で変動）", "openingHours": "空き時間または市内在住等向け無料開放", "spikesAllowed": null, "note": "市外料金は一般料金の倍額" },
-    "urls": { "official": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html", "individualUse": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html", "schedule": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html" },
-    "externalIds": { "jaaf": null, "osm": ["way/105819870"] },
-    "sources": [{ "url": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "朝霞中央公園陸上競技場",
+      "en": "Asaka Chuo Park Athletic Track"
+    },
+    "location": {
+      "latitude": 35.79167,
+      "longitude": 139.595,
+      "address": "埼玉県朝霞市青葉台1丁目9番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 150,
+      "feeUnit": "市内一般・午前枠（枠・居住地で変動）",
+      "openingHours": "空き時間または市内在住等向け無料開放",
+      "spikesAllowed": null,
+      "note": "市外料金は一般料金の倍額"
+    },
+    "urls": {
+      "official": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html",
+      "individualUse": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html",
+      "schedule": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "way/105819870"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "niiza-general-sports-park-track",
-    "name": { "ja": "新座市総合運動公園 陸上競技場", "en": "Niiza General Sports Park Athletic Track" },
-    "location": { "latitude": 35.78389, "longitude": 139.55, "address": "埼玉県新座市本多2丁目8番16号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "専用利用がない場合に共用利用可能", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html", "individualUse": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html", "schedule": null },
-    "externalIds": { "jaaf": "113180", "osm": [] },
+    "name": {
+      "ja": "新座市総合運動公園 陸上競技場",
+      "en": "Niiza General Sports Park Athletic Track"
+    },
+    "location": {
+      "latitude": 35.78389,
+      "longitude": 139.55,
+      "address": "埼玉県新座市本多2丁目8番16号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": "専用利用がない場合に共用利用可能",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html",
+      "individualUse": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": "113180",
+      "osm": []
+    },
     "sources": [
-      { "url": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "yoyogi-park-athletic-track",
-    "name": { "ja": "代々木公園陸上競技場（織田フィールド）", "en": "Yoyogi Park Athletic Track (Oda Field)" },
-    "location": { "latitude": 35.6669, "longitude": 139.6941, "address": "東京都渋谷区神南2丁目3番" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": null, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "一般開放時", "openingHours": "一般開放予定を確認", "spikesAllowed": null, "note": "2025年度JAAF一覧の公認期間終了後の現況は未確認" },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/yoyogi/", "individualUse": "https://www.tokyo-park.or.jp/park/yoyogi/facility/", "schedule": "https://www.tokyo-park.or.jp/park/yoyogi/news/" },
-    "externalIds": { "jaaf": "133040", "osm": ["relation/17573365"] },
+    "name": {
+      "ja": "代々木公園陸上競技場（織田フィールド）",
+      "en": "Yoyogi Park Athletic Track (Oda Field)"
+    },
+    "location": {
+      "latitude": 35.6669,
+      "longitude": 139.6941,
+      "address": "東京都渋谷区神南2丁目3番"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "一般開放時",
+      "openingHours": "一般開放予定を確認",
+      "spikesAllowed": null,
+      "note": "2025年度JAAF一覧の公認期間終了後の現況は未確認"
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/yoyogi/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/yoyogi/facility/",
+      "schedule": "https://www.tokyo-park.or.jp/park/yoyogi/news/"
+    },
+    "externalIds": {
+      "jaaf": "133040",
+      "osm": [
+        "relation/17573365"
+      ]
+    },
     "sources": [
-      { "url": "https://www.tokyo-park.or.jp/park/yoyogi/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.tokyo-park.or.jp/park/yoyogi/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "tokyo-metropolitan-gymnasium-track",
-    "name": { "ja": "東京体育館 陸上競技場", "en": "Tokyo Metropolitan Gymnasium Athletic Track" },
-    "location": { "latitude": 35.67857, "longitude": 139.71209, "address": "東京都渋谷区千駄ヶ谷1丁目17番1号" },
-    "track": { "lengthMeters": 200, "lanes": null, "surface": "all-weather" },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 200, "feeUnit": "一般2時間", "openingHours": "平日9:00～23:00、土曜～22:00、日祝～21:00", "spikesAllowed": null, "note": "小学生以上。臨時休館・貸切情報を確認" },
-    "urls": { "official": "https://www.tef.or.jp/tmg/stadium/", "individualUse": "https://www.tef.or.jp/tmg/stadium/", "schedule": "https://www.tef.or.jp/news/" },
-    "externalIds": { "jaaf": null, "osm": ["relation/2067459"] },
-    "sources": [{ "url": "https://www.tef.or.jp/tmg/stadium/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "東京体育館 陸上競技場",
+      "en": "Tokyo Metropolitan Gymnasium Athletic Track"
+    },
+    "location": {
+      "latitude": 35.67857,
+      "longitude": 139.71209,
+      "address": "東京都渋谷区千駄ヶ谷1丁目17番1号"
+    },
+    "track": {
+      "lengthMeters": 200,
+      "lanes": null,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "一般2時間",
+      "openingHours": "平日9:00～23:00、土曜～22:00、日祝～21:00",
+      "spikesAllowed": null,
+      "note": "小学生以上。臨時休館・貸切情報を確認"
+    },
+    "urls": {
+      "official": "https://www.tef.or.jp/tmg/stadium/",
+      "individualUse": "https://www.tef.or.jp/tmg/stadium/",
+      "schedule": "https://www.tef.or.jp/news/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "relation/2067459"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.tef.or.jp/tmg/stadium/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "koto-yumenoshima-athletic-stadium",
-    "name": { "ja": "江東区夢の島競技場", "en": "Koto Yumenoshima Athletic Stadium" },
-    "location": { "latitude": 35.648596, "longitude": 139.824936, "address": "東京都江東区夢の島1丁目1番2号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 2 },
-    "individualUse": { "status": "available", "feeYen": 450, "feeUnit": "一般・全日", "openingHours": "9:00～21:00（貸切時を除く）", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html", "individualUse": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html", "schedule": "https://yoyaku.koto-sports.net/" },
-    "externalIds": { "jaaf": "132070", "osm": ["node/11436145817"] },
+    "name": {
+      "ja": "江東区夢の島競技場",
+      "en": "Koto Yumenoshima Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.648596,
+      "longitude": 139.824936,
+      "address": "東京都江東区夢の島1丁目1番2号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 2
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 450,
+      "feeUnit": "一般・全日",
+      "openingHours": "9:00～21:00（貸切時を除く）",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
+      "individualUse": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
+      "schedule": "https://yoyaku.koto-sports.net/"
+    },
+    "externalIds": {
+      "jaaf": "132070",
+      "osm": [
+        "node/11436145817"
+      ]
+    },
     "sources": [
-      { "url": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "komazawa-olympic-park-track",
-    "name": { "ja": "駒沢オリンピック公園総合運動場 陸上競技場", "en": "Komazawa Olympic Park Athletic Stadium" },
-    "location": { "latitude": 35.625582, "longitude": 139.663601, "address": "東京都世田谷区駒沢公園1番1号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": null, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 500, "feeUnit": "一般2時間（トレーニングルーム利用を含む）", "openingHours": "一般開放日の9:00～17:00", "spikesAllowed": false, "note": "3～8レーンのみ。2025年JAAF一覧の公認期間終了後の現況は未確認" },
-    "urls": { "official": "https://www.tef.or.jp/kopgp/stadium/", "individualUse": "https://www.tef.or.jp/kopgp/stadium/?no=tab2", "schedule": "https://www.tef.or.jp/kopgp/opening.html" },
-    "externalIds": { "jaaf": "132090", "osm": ["relation/3077595"] },
+    "name": {
+      "ja": "駒沢オリンピック公園総合運動場 陸上競技場",
+      "en": "Komazawa Olympic Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.625582,
+      "longitude": 139.663601,
+      "address": "東京都世田谷区駒沢公園1番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 500,
+      "feeUnit": "一般2時間（トレーニングルーム利用を含む）",
+      "openingHours": "一般開放日の9:00～17:00",
+      "spikesAllowed": false,
+      "note": "3～8レーンのみ。2025年JAAF一覧の公認期間終了後の現況は未確認"
+    },
+    "urls": {
+      "official": "https://www.tef.or.jp/kopgp/stadium/",
+      "individualUse": "https://www.tef.or.jp/kopgp/stadium/?no=tab2",
+      "schedule": "https://www.tef.or.jp/kopgp/opening.html"
+    },
+    "externalIds": {
+      "jaaf": "132090",
+      "osm": [
+        "relation/3077595"
+      ]
+    },
     "sources": [
-      { "url": "https://www.tef.or.jp/kopgp/stadium/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.tef.or.jp/kopgp/stadium/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "setagaya-general-sports-track",
-    "name": { "ja": "世田谷区立総合運動場 陸上競技場", "en": "Setagaya General Sports Ground Athletic Stadium" },
-    "location": { "latitude": 35.629718, "longitude": 139.611069, "address": "東京都世田谷区大蔵4丁目6番1号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": 450, "feeUnit": "平日一般・9:00～12:00", "openingHours": "第4土曜ほか、団体利用がない時間", "spikesAllowed": null, "note": "曜日・時間帯で料金が異なる" },
-    "urls": { "official": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/", "individualUse": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/", "schedule": "https://www.se-sports.or.jp/news/10334/" },
-    "externalIds": { "jaaf": "133060", "osm": ["relation/9458775", "way/1512259191"] },
+    "name": {
+      "ja": "世田谷区立総合運動場 陸上競技場",
+      "en": "Setagaya General Sports Ground Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.629718,
+      "longitude": 139.611069,
+      "address": "東京都世田谷区大蔵4丁目6番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 450,
+      "feeUnit": "平日一般・9:00～12:00",
+      "openingHours": "第4土曜ほか、団体利用がない時間",
+      "spikesAllowed": null,
+      "note": "曜日・時間帯で料金が異なる"
+    },
+    "urls": {
+      "official": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/",
+      "individualUse": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/",
+      "schedule": "https://www.se-sports.or.jp/news/10334/"
+    },
+    "externalIds": {
+      "jaaf": "133060",
+      "osm": [
+        "relation/9458775",
+        "way/1512259191"
+      ]
+    },
     "sources": [
-      { "url": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "oi-central-seaside-park-track",
-    "name": { "ja": "大井スポーツセンター 陸上競技場", "en": "Oi Sports Center Athletic Stadium" },
-    "location": { "latitude": 35.594218, "longitude": 139.753825, "address": "東京都品川区八潮4丁目1番19号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": 290, "feeUnit": "一般・午前（午後340円）", "openingHours": "第1・第3木曜 9:00～17:00", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://tokyo-south-seaside-parks.com/sports-athletics/", "individualUse": "https://tokyo-south-seaside-parks.com/sports-athletics/", "schedule": "https://tokyo-south-seaside-parks.com/sports-athletics/" },
-    "externalIds": { "jaaf": "133080", "osm": ["relation/15433740", "way/1208475194", "way/1208475195", "way/1208475196", "way/1208475199"] },
+    "name": {
+      "ja": "大井スポーツセンター 陸上競技場",
+      "en": "Oi Sports Center Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.594218,
+      "longitude": 139.753825,
+      "address": "東京都品川区八潮4丁目1番19号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 290,
+      "feeUnit": "一般・午前（午後340円）",
+      "openingHours": "第1・第3木曜 9:00～17:00",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://tokyo-south-seaside-parks.com/sports-athletics/",
+      "individualUse": "https://tokyo-south-seaside-parks.com/sports-athletics/",
+      "schedule": "https://tokyo-south-seaside-parks.com/sports-athletics/"
+    },
+    "externalIds": {
+      "jaaf": "133080",
+      "osm": [
+        "relation/15433740",
+        "way/1208475194",
+        "way/1208475195",
+        "way/1208475196",
+        "way/1208475199"
+      ]
+    },
     "sources": [
-      { "url": "https://tokyo-south-seaside-parks.com/sports-athletics/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://tokyo-south-seaside-parks.com/sports-athletics/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "toneri-park-athletic-track",
-    "name": { "ja": "舎人公園 陸上競技場", "en": "Toneri Park Athletic Stadium" },
-    "location": { "latitude": 35.800674, "longitude": 139.768981, "address": "東京都足立区舎人公園1番1号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "一般個人利用", "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～21:00", "spikesAllowed": true, "note": "全天候用スパイクのみ使用可" },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/toneri/facility/", "individualUse": "https://www.tokyo-park.or.jp/park/toneri/facility/", "schedule": "https://www.tokyo-park.or.jp/park/toneri/news/" },
-    "externalIds": { "jaaf": "133170", "osm": ["way/1475091687"] },
+    "name": {
+      "ja": "舎人公園 陸上競技場",
+      "en": "Toneri Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.800674,
+      "longitude": 139.768981,
+      "address": "東京都足立区舎人公園1番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "一般個人利用",
+      "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～21:00",
+      "spikesAllowed": true,
+      "note": "全天候用スパイクのみ使用可"
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/toneri/facility/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/toneri/facility/",
+      "schedule": "https://www.tokyo-park.or.jp/park/toneri/news/"
+    },
+    "externalIds": {
+      "jaaf": "133170",
+      "osm": [
+        "way/1475091687"
+      ]
+    },
     "sources": [
-      { "url": "https://www.tokyo-park.or.jp/park/toneri/facility/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.tokyo-park.or.jp/park/toneri/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "edogawa-athletic-stadium",
-    "name": { "ja": "スピアーズえどりくフィールド（江戸川区陸上競技場）", "en": "Spears Edoriku Field" },
-    "location": { "latitude": 35.655221, "longitude": 139.852598, "address": "東京都江戸川区清新町2丁目1番1号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "一般公開時間帯", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html", "individualUse": "https://www.city.edogawa.tokyo.jp/e028/sports/sports/parasports/dekirusengen/dekirusengen/rikujo.html", "schedule": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html" },
-    "externalIds": { "jaaf": "133250", "osm": ["way/71265989", "relation/10811179"] },
+    "name": {
+      "ja": "スピアーズえどりくフィールド（江戸川区陸上競技場）",
+      "en": "Spears Edoriku Field"
+    },
+    "location": {
+      "latitude": 35.655221,
+      "longitude": 139.852598,
+      "address": "東京都江戸川区清新町2丁目1番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": "一般公開時間帯",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html",
+      "individualUse": "https://www.city.edogawa.tokyo.jp/e028/sports/sports/parasports/dekirusengen/dekirusengen/rikujo.html",
+      "schedule": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html"
+    },
+    "externalIds": {
+      "jaaf": "133250",
+      "osm": [
+        "way/71265989",
+        "relation/10811179"
+      ]
+    },
     "sources": [
-      { "url": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "okudo-sports-center-track",
-    "name": { "ja": "奥戸総合スポーツセンター 陸上競技場", "en": "Okudo General Sports Center Athletic Stadium" },
-    "location": { "latitude": 35.736865, "longitude": 139.862151, "address": "東京都葛飾区奥戸7丁目17番1号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": "4L" },
-    "individualUse": { "status": "available", "feeYen": 300, "feeUnit": "高校生以上2時間", "openingHours": "月・水・金 9:00～21:00ほか", "spikesAllowed": null, "note": "金属・セラミック金具付きスパイクは不可" },
-    "urls": { "official": "https://www2.city.katsushika.lg.jp/institution/1030225/1000098/1006941/1017969.html", "individualUse": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html", "schedule": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html" },
-    "externalIds": { "jaaf": "134179", "osm": ["way/55340546"] },
+    "name": {
+      "ja": "奥戸総合スポーツセンター 陸上競技場",
+      "en": "Okudo General Sports Center Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.736865,
+      "longitude": 139.862151,
+      "address": "東京都葛飾区奥戸7丁目17番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": "4L"
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 300,
+      "feeUnit": "高校生以上2時間",
+      "openingHours": "月・水・金 9:00～21:00ほか",
+      "spikesAllowed": null,
+      "note": "金属・セラミック金具付きスパイクは不可"
+    },
+    "urls": {
+      "official": "https://www2.city.katsushika.lg.jp/institution/1030225/1000098/1006941/1017969.html",
+      "individualUse": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html",
+      "schedule": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html"
+    },
+    "externalIds": {
+      "jaaf": "134179",
+      "osm": [
+        "way/55340546"
+      ]
+    },
     "sources": [
-      { "url": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "shingashi-athletic-track",
-    "name": { "ja": "板橋区立新河岸陸上競技場", "en": "Itabashi Shingashi Athletic Track" },
-    "location": { "latitude": 35.792576, "longitude": 139.661096, "address": "東京都板橋区新河岸3丁目1番3号" },
-    "track": { "lengthMeters": 250, "lanes": 7, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": "4L" },
-    "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "貸切利用がない時間", "spikesAllowed": null, "note": "個人利用時は器具貸出なし" },
-    "urls": { "official": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "individualUse": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "schedule": "https://www.shisetsu-tds.jp/tokyo-itabashi-shingashi-rikujou/" },
-    "externalIds": { "jaaf": "134189", "osm": [] },
+    "name": {
+      "ja": "板橋区立新河岸陸上競技場",
+      "en": "Itabashi Shingashi Athletic Track"
+    },
+    "location": {
+      "latitude": 35.792576,
+      "longitude": 139.661096,
+      "address": "東京都板橋区新河岸3丁目1番3号"
+    },
+    "track": {
+      "lengthMeters": 250,
+      "lanes": 7,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": "4L"
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": "貸切利用がない時間",
+      "spikesAllowed": null,
+      "note": "個人利用時は器具貸出なし"
+    },
+    "urls": {
+      "official": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html",
+      "individualUse": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html",
+      "schedule": "https://www.shisetsu-tds.jp/tokyo-itabashi-shingashi-rikujou/"
+    },
+    "externalIds": {
+      "jaaf": "134189",
+      "osm": []
+    },
     "sources": [
-      { "url": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "arakawa-todabashi-athletic-track",
-    "name": { "ja": "板橋区立荒川戸田橋陸上競技場", "en": "Itabashi Arakawa Todabashi Athletic Track" },
-    "location": { "latitude": 35.794838, "longitude": 139.675074, "address": "東京都板橋区舟渡4丁目7番先" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": null },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "貸切利用がない時間", "spikesAllowed": null, "note": "個人利用時は占有・団体利用不可" },
-    "urls": { "official": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "individualUse": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "schedule": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html" },
-    "externalIds": { "jaaf": null, "osm": ["way/150791777"] },
-    "sources": [{ "url": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "板橋区立荒川戸田橋陸上競技場",
+      "en": "Itabashi Arakawa Todabashi Athletic Track"
+    },
+    "location": {
+      "latitude": 35.794838,
+      "longitude": 139.675074,
+      "address": "東京都板橋区舟渡4丁目7番先"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": null
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": "貸切利用がない時間",
+      "spikesAllowed": null,
+      "note": "個人利用時は占有・団体利用不可"
+    },
+    "urls": {
+      "official": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html",
+      "individualUse": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html",
+      "schedule": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "way/150791777"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "fuchu-citizen-athletic-track",
-    "name": { "ja": "府中市民陸上競技場", "en": "Fuchu Citizen Athletic Stadium" },
-    "location": { "latitude": 35.677299, "longitude": 139.475295, "address": "東京都府中市寿町2丁目20番地" },
-    "track": { "lengthMeters": 300, "lanes": null, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": "4L" },
-    "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "一般公開日および貸切予約がない時間", "spikesAllowed": null, "note": "市外料金は市内料金の倍額" },
-    "urls": { "official": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html", "individualUse": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html", "schedule": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html" },
-    "externalIds": { "jaaf": "134209", "osm": ["way/340558365"] },
+    "name": {
+      "ja": "府中市民陸上競技場",
+      "en": "Fuchu Citizen Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.677299,
+      "longitude": 139.475295,
+      "address": "東京都府中市寿町2丁目20番地"
+    },
+    "track": {
+      "lengthMeters": 300,
+      "lanes": null,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": "4L"
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": "一般公開日および貸切予約がない時間",
+      "spikesAllowed": null,
+      "note": "市外料金は市内料金の倍額"
+    },
+    "urls": {
+      "official": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html",
+      "individualUse": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html",
+      "schedule": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html"
+    },
+    "externalIds": {
+      "jaaf": "134209",
+      "osm": [
+        "way/340558365"
+      ]
+    },
     "sources": [
-      { "url": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "wadabori-park-first-track",
-    "name": { "ja": "和田堀公園 第一競技場", "en": "Wadabori Park First Athletic Field" },
-    "location": { "latitude": 35.684335, "longitude": 139.642039, "address": "東京都杉並区大宮2丁目26番" },
-    "track": { "lengthMeters": 300, "lanes": null, "surface": "dirt" },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "一般開放時", "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～17:00", "spikesAllowed": null, "note": "金曜午前は整備日" },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "individualUse": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "schedule": "https://www.tokyo-park.or.jp/park/wadabori/news/" },
-    "externalIds": { "jaaf": null, "osm": [] },
-    "sources": [{ "url": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "和田堀公園 第一競技場",
+      "en": "Wadabori Park First Athletic Field"
+    },
+    "location": {
+      "latitude": 35.684335,
+      "longitude": 139.642039,
+      "address": "東京都杉並区大宮2丁目26番"
+    },
+    "track": {
+      "lengthMeters": 300,
+      "lanes": null,
+      "surface": "dirt"
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "一般開放時",
+      "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～17:00",
+      "spikesAllowed": null,
+      "note": "金曜午前は整備日"
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/wadabori/facility/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/wadabori/facility/",
+      "schedule": "https://www.tokyo-park.or.jp/park/wadabori/news/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.tokyo-park.or.jp/park/wadabori/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "wadabori-park-seibiyama-track",
-    "name": { "ja": "和田堀公園 第二競技場（済美山運動場）", "en": "Wadabori Park Seibiyama Athletic Field" },
-    "location": { "latitude": 35.68514, "longitude": 139.648033, "address": "東京都杉並区堀ノ内1丁目15番" },
-    "track": { "lengthMeters": 400, "lanes": 6, "surface": null },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "一般開放時", "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～17:00", "spikesAllowed": null, "note": "月曜は整備日" },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "individualUse": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "schedule": "https://www.tokyo-park.or.jp/park/wadabori/news/" },
-    "externalIds": { "jaaf": null, "osm": ["relation/8031286", "way/562110863"] },
-    "sources": [{ "url": "https://www.tokyo-park.or.jp/park/wadabori/facility/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "和田堀公園 第二競技場（済美山運動場）",
+      "en": "Wadabori Park Seibiyama Athletic Field"
+    },
+    "location": {
+      "latitude": 35.68514,
+      "longitude": 139.648033,
+      "address": "東京都杉並区堀ノ内1丁目15番"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 6,
+      "surface": null
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "一般開放時",
+      "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～17:00",
+      "spikesAllowed": null,
+      "note": "月曜は整備日"
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/wadabori/facility/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/wadabori/facility/",
+      "schedule": "https://www.tokyo-park.or.jp/park/wadabori/news/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "relation/8031286",
+        "way/562110863"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.tokyo-park.or.jp/park/wadabori/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
   },
   {
     "id": "kawaguchi-aoki-park-track",
-    "name": { "ja": "川口市青木町公園総合運動場 陸上競技場", "en": "Kawaguchi Aoki Park Athletic Stadium" },
-    "location": { "latitude": 35.822102, "longitude": 139.711728, "address": "埼玉県川口市西青木4丁目8番1号" },
-    "track": { "lengthMeters": 400, "lanes": null, "surface": null },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": 110, "feeUnit": "一般2時間", "openingHours": "共用・個人利用時間", "spikesAllowed": null, "note": "市外利用者は土日祝の午前利用を控える案内あり" },
-    "urls": { "official": "https://kawaspo.jp/pages/24/", "individualUse": "https://kawaspo.jp/pages/24/", "schedule": "https://kawaspo.jp/pages/24/" },
-    "externalIds": { "jaaf": "113150", "osm": ["way/127199314"] },
+    "name": {
+      "ja": "川口市青木町公園総合運動場 陸上競技場",
+      "en": "Kawaguchi Aoki Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.822102,
+      "longitude": 139.711728,
+      "address": "埼玉県川口市西青木4丁目8番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": null,
+      "surface": null
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 110,
+      "feeUnit": "一般2時間",
+      "openingHours": "共用・個人利用時間",
+      "spikesAllowed": null,
+      "note": "市外利用者は土日祝の午前利用を控える案内あり"
+    },
+    "urls": {
+      "official": "https://kawaspo.jp/pages/24/",
+      "individualUse": "https://kawaspo.jp/pages/24/",
+      "schedule": "https://kawaspo.jp/pages/24/"
+    },
+    "externalIds": {
+      "jaaf": "113150",
+      "osm": [
+        "way/127199314"
+      ]
+    },
     "sources": [
-      { "url": "https://kawaspo.jp/pages/24/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://kawaspo.jp/pages/24/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "misato-senario-house-field",
-    "name": { "ja": "セナリオハウスフィールド三郷", "en": "Senario House Field Misato" },
-    "location": { "latitude": 35.841354, "longitude": 139.862647, "address": "埼玉県三郷市泉3丁目4番地" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": 200, "feeUnit": "市内一般・午前", "openingHours": "共用利用日 9:00～21:00", "spikesAllowed": null, "note": "市外は基本料金の倍額。共用時は1レーン使用不可" },
-    "urls": { "official": "https://misato-hall.com/rikujyo/", "individualUse": "https://www.misato-hall.com/2095.htm", "schedule": "https://misato-hall.com/rikujyo/" },
-    "externalIds": { "jaaf": "113160", "osm": ["node/10983485458"] },
+    "name": {
+      "ja": "セナリオハウスフィールド三郷",
+      "en": "Senario House Field Misato"
+    },
+    "location": {
+      "latitude": 35.841354,
+      "longitude": 139.862647,
+      "address": "埼玉県三郷市泉3丁目4番地"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "市内一般・午前",
+      "openingHours": "共用利用日 9:00～21:00",
+      "spikesAllowed": null,
+      "note": "市外は基本料金の倍額。共用時は1レーン使用不可"
+    },
+    "urls": {
+      "official": "https://misato-hall.com/rikujyo/",
+      "individualUse": "https://www.misato-hall.com/2095.htm",
+      "schedule": "https://misato-hall.com/rikujyo/"
+    },
+    "externalIds": {
+      "jaaf": "113160",
+      "osm": [
+        "node/10983485458"
+      ]
+    },
     "sources": [
-      { "url": "https://www.misato-hall.com/2095.htm", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.misato-hall.com/2095.htm",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "koshigaya-shirakobato-track",
-    "name": { "ja": "越谷市立しらこばと運動公園競技場", "en": "Koshigaya Shirakobato Athletic Stadium" },
-    "location": { "latitude": 35.913784, "longitude": 139.75392, "address": "埼玉県越谷市小曽川729番地1" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "公式サイトの本日利用状況を確認", "spikesAllowed": null, "note": "中学生以下は成人の付添いが必要" },
-    "urls": { "official": "https://kouen-kyougijyou.kosi-kanri.com/", "individualUse": "https://kouen-kyougijyou.kosi-kanri.com/", "schedule": "https://kouen-kyougijyou.kosi-kanri.com/" },
-    "externalIds": { "jaaf": "113170", "osm": ["node/12298306038"] },
+    "name": {
+      "ja": "越谷市立しらこばと運動公園競技場",
+      "en": "Koshigaya Shirakobato Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.913784,
+      "longitude": 139.75392,
+      "address": "埼玉県越谷市小曽川729番地1"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": "公式サイトの本日利用状況を確認",
+      "spikesAllowed": null,
+      "note": "中学生以下は成人の付添いが必要"
+    },
+    "urls": {
+      "official": "https://kouen-kyougijyou.kosi-kanri.com/",
+      "individualUse": "https://kouen-kyougijyou.kosi-kanri.com/",
+      "schedule": "https://kouen-kyougijyou.kosi-kanri.com/"
+    },
+    "externalIds": {
+      "jaaf": "113170",
+      "osm": [
+        "node/12298306038"
+      ]
+    },
     "sources": [
-      { "url": "https://kouen-kyougijyou.kosi-kanri.com/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://kouen-kyougijyou.kosi-kanri.com/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "saitama-komaba-stadium-track",
-    "name": { "ja": "さいたま市駒場運動公園競技場（浦和駒場スタジアム）", "en": "Saitama Komaba Stadium Athletic Track" },
-    "location": { "latitude": 35.871505, "longitude": 139.665888, "address": "埼玉県さいたま市浦和区駒場2丁目1番1号" },
-    "track": { "lengthMeters": 400, "lanes": null, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": "4L" },
-    "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "競技場へ当日確認", "spikesAllowed": null, "note": "大会・サッカー利用時は利用不可" },
-    "urls": { "official": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html", "individualUse": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html", "schedule": null },
-    "externalIds": { "jaaf": "114109", "osm": ["way/191902250"] },
+    "name": {
+      "ja": "さいたま市駒場運動公園競技場（浦和駒場スタジアム）",
+      "en": "Saitama Komaba Stadium Athletic Track"
+    },
+    "location": {
+      "latitude": 35.871505,
+      "longitude": 139.665888,
+      "address": "埼玉県さいたま市浦和区駒場2丁目1番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": null,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": "4L"
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": "競技場へ当日確認",
+      "spikesAllowed": null,
+      "note": "大会・サッカー利用時は利用不可"
+    },
+    "urls": {
+      "official": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html",
+      "individualUse": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": "114109",
+      "osm": [
+        "way/191902250"
+      ]
+    },
     "sources": [
-      { "url": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "ageo-athletic-stadium",
-    "name": { "ja": "上尾運動公園 陸上競技場", "en": "Ageo Sports Park Athletic Stadium" },
-    "location": { "latitude": 35.968952, "longitude": 139.601019, "address": "埼玉県上尾市愛宕3丁目28番30号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": null, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 210, "feeUnit": "県内一般・4時間", "openingHours": "月別個人利用予定を確認", "spikesAllowed": true, "note": "2025年JAAF一覧の公認期間終了後の現況は未確認。1レーンはスパイク不可" },
-    "urls": { "official": "https://www.parks.or.jp/saitamasuijo/guide/000/000017.html", "individualUse": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html", "schedule": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html" },
-    "externalIds": { "jaaf": "112040", "osm": ["relation/3069509", "way/122638782"] },
+    "name": {
+      "ja": "上尾運動公園 陸上競技場",
+      "en": "Ageo Sports Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.968952,
+      "longitude": 139.601019,
+      "address": "埼玉県上尾市愛宕3丁目28番30号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 210,
+      "feeUnit": "県内一般・4時間",
+      "openingHours": "月別個人利用予定を確認",
+      "spikesAllowed": true,
+      "note": "2025年JAAF一覧の公認期間終了後の現況は未確認。1レーンはスパイク不可"
+    },
+    "urls": {
+      "official": "https://www.parks.or.jp/saitamasuijo/guide/000/000017.html",
+      "individualUse": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html",
+      "schedule": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html"
+    },
+    "externalIds": {
+      "jaaf": "112040",
+      "osm": [
+        "relation/3069509",
+        "way/122638782"
+      ]
+    },
     "sources": [
-      { "url": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "kamiyugi-park-athletic-stadium",
-    "name": { "ja": "上柚木公園陸上競技場", "en": "Kamiyugi Park Athletic Stadium" },
-    "location": { "latitude": 35.619386, "longitude": 139.370098, "address": "東京都八王子市上柚木2丁目40番1号" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 2 },
-    "individualUse": { "status": "available", "feeYen": 200, "feeUnit": "大人1回", "openingHours": "一般開放日の8:45～16:45（夜間開放日あり）", "spikesAllowed": null, "note": null },
-    "urls": { "official": "https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html", "individualUse": "https://kamiyugi-park.jp/guide/price/", "schedule": "https://kamiyugi-park.jp/" },
-    "externalIds": { "jaaf": "132080", "osm": ["way/95490725"] },
+    "name": {
+      "ja": "上柚木公園陸上競技場",
+      "en": "Kamiyugi Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.619386,
+      "longitude": 139.370098,
+      "address": "東京都八王子市上柚木2丁目40番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 2
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "大人1回",
+      "openingHours": "一般開放日の8:45～16:45（夜間開放日あり）",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html",
+      "individualUse": "https://kamiyugi-park.jp/guide/price/",
+      "schedule": "https://kamiyugi-park.jp/"
+    },
+    "externalIds": {
+      "jaaf": "132080",
+      "osm": [
+        "way/95490725"
+      ]
+    },
     "sources": [
-      { "url": "https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "hachioji-fujimori-athletic-stadium",
-    "name": { "ja": "東京フットボールセンター八王子富士森競技場", "en": "Tokyo Football Center Hachioji Fujimori Stadium" },
-    "location": { "latitude": 35.652242, "longitude": 139.324449, "address": "東京都八王子市台町2丁目2番" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": "4L" },
-    "individualUse": { "status": "available", "feeYen": 200, "feeUnit": "大人1回", "openingHours": "一般開放予定表を確認（地域開放時間あり）", "spikesAllowed": null, "note": "第1レーン利用は申請が必要" },
-    "urls": { "official": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html", "individualUse": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html", "schedule": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html" },
-    "externalIds": { "jaaf": "134319", "osm": ["relation/8067875", "way/231315844"] },
+    "name": {
+      "ja": "東京フットボールセンター八王子富士森競技場",
+      "en": "Tokyo Football Center Hachioji Fujimori Stadium"
+    },
+    "location": {
+      "latitude": 35.652242,
+      "longitude": 139.324449,
+      "address": "東京都八王子市台町2丁目2番"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": "4L"
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "大人1回",
+      "openingHours": "一般開放予定表を確認（地域開放時間あり）",
+      "spikesAllowed": null,
+      "note": "第1レーン利用は申請が必要"
+    },
+    "urls": {
+      "official": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html",
+      "individualUse": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html",
+      "schedule": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html"
+    },
+    "externalIds": {
+      "jaaf": "134319",
+      "osm": [
+        "relation/8067875",
+        "way/231315844"
+      ]
+    },
     "sources": [
-      { "url": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "akirudai-park-athletic-track",
-    "name": { "ja": "秋留台公園 陸上競技場", "en": "Akirudai Park Athletic Stadium" },
-    "location": { "latitude": 35.730936, "longitude": 139.300245, "address": "東京都あきる野市二宮673番地1" },
-    "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
-    "certification": { "jaafCertified": true, "jaafClass": 3 },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "一般公開時", "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～17:00", "spikesAllowed": null, "note": "一般公開時は用具を使用しない陸上練習に限る" },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/akirudai/facility/", "individualUse": "https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html", "schedule": "https://www.tokyo-park.or.jp/park/akirudai/news/" },
-    "externalIds": { "jaaf": "133190", "osm": ["way/226079975"] },
+    "name": {
+      "ja": "秋留台公園 陸上競技場",
+      "en": "Akirudai Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.730936,
+      "longitude": 139.300245,
+      "address": "東京都あきる野市二宮673番地1"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "一般公開時",
+      "openingHours": "水曜・第1日曜・第3土曜ほか 9:00～17:00",
+      "spikesAllowed": null,
+      "note": "一般公開時は用具を使用しない陸上練習に限る"
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/akirudai/facility/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html",
+      "schedule": "https://www.tokyo-park.or.jp/park/akirudai/news/"
+    },
+    "externalIds": {
+      "jaaf": "133190",
+      "osm": [
+        "way/226079975"
+      ]
+    },
     "sources": [
-      { "url": "https://www.tokyo-park.or.jp/park/akirudai/facility/", "type": "official", "verifiedAt": "2026-08-24" },
-      { "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf", "type": "jaaf-candidate", "verifiedAt": "2026-08-24" }
+      {
+        "url": "https://www.tokyo-park.or.jp/park/akirudai/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-24"
+      }
     ]
   },
   {
     "id": "higashiyamato-minami-park-track",
-    "name": { "ja": "東大和南公園 運動広場トラック", "en": "Higashiyamato Minami Park Running Track" },
-    "location": { "latitude": 35.734145, "longitude": 139.421914, "address": "東京都東大和市桜が丘2丁目・3丁目" },
-    "track": { "lengthMeters": 400, "lanes": null, "surface": null },
-    "certification": { "jaafCertified": false, "jaafClass": null },
-    "individualUse": { "status": "available", "feeYen": 0, "feeUnit": "開放施設", "openingHours": "公園開園中", "spikesAllowed": null, "note": "陸上競技場ではなく運動広場の400mトラック" },
-    "urls": { "official": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/", "individualUse": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/", "schedule": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/news/" },
-    "externalIds": { "jaaf": null, "osm": ["way/165198729"] },
-    "sources": [{ "url": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/", "type": "official", "verifiedAt": "2026-08-24" }]
+    "name": {
+      "ja": "東大和南公園 運動広場トラック",
+      "en": "Higashiyamato Minami Park Running Track"
+    },
+    "location": {
+      "latitude": 35.734145,
+      "longitude": 139.421914,
+      "address": "東京都東大和市桜が丘2丁目・3丁目"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": null,
+      "surface": null
+    },
+    "certification": {
+      "jaafCertified": false,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "開放施設",
+      "openingHours": "公園開園中",
+      "spikesAllowed": null,
+      "note": "陸上競技場ではなく運動広場の400mトラック"
+    },
+    "urls": {
+      "official": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/",
+      "individualUse": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/",
+      "schedule": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/news/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": [
+        "way/165198729"
+      ]
+    },
+    "sources": [
+      {
+        "url": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/",
+        "type": "official",
+        "verifiedAt": "2026-08-24"
+      }
+    ]
+  },
+  {
+    "id": "mitsuzawa-park-athletic-stadium",
+    "name": {
+      "ja": "三ツ沢公園陸上競技場",
+      "en": "Mitsuzawa Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.4700289,
+      "longitude": 139.6015357,
+      "address": "神奈川県横浜市神奈川区三ツ沢西町3番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 2
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "1回",
+      "openingHours": "個人利用日を公式案内で確認",
+      "spikesAllowed": null,
+      "note": "大会・貸切等がない個人利用日のみ"
+    },
+    "urls": {
+      "official": "https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/midori-koen/koen/koen/sport/mituzawa.html",
+      "individualUse": "https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/midori-koen/koen/koen/sport/mituzawa.html",
+      "schedule": "https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/midori-koen/koen/koen/sport/mituzawa.html"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/midori-koen/koen/koen/sport/mituzawa.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "nissan-stadium-track",
+    "name": {
+      "ja": "日産スタジアム 陸上トラック",
+      "en": "Nissan Stadium Athletics Track"
+    },
+    "location": {
+      "latitude": 35.5099882,
+      "longitude": 139.6063825,
+      "address": "神奈川県横浜市港北区小机町3300"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 9,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 1
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "個人利用日",
+      "openingHours": "公式のトラック個人利用日程を確認",
+      "spikesAllowed": true,
+      "note": "事前申込制。利用できるレーン・種目に制限あり"
+    },
+    "urls": {
+      "official": "https://www.nissan-stadium.jp/",
+      "individualUse": "https://www.nissan-stadium.jp/sp/track/index.php",
+      "schedule": "https://www.nissan-stadium.jp/sp/track/index.php"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.nissan-stadium.jp/",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.nissan-stadium.jp/sp/track/index.php",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "aoba-no-mori-athletic-stadium",
+    "name": {
+      "ja": "青葉の森スポーツプラザ 陸上競技場",
+      "en": "Aoba no Mori Sports Plaza Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.5950454,
+      "longitude": 140.1451769,
+      "address": "千葉県千葉市中央区青葉町654"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": "2時間",
+      "openingHours": "大会等がない日の当日受付",
+      "spikesAllowed": null,
+      "note": "大会等で個人使用が中止となる場合あり"
+    },
+    "urls": {
+      "official": "https://www.city.chiba.jp/toshi/koenryokuchi/kanri/aobanomorisupo-tupuraza.html",
+      "individualUse": "https://www.city.chiba.jp/toshi/koenryokuchi/kanri/aobanomorisupo-tupuraza.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.chiba.jp/toshi/koenryokuchi/kanri/aobanomorisupo-tupuraza.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "chiba-general-sports-center-track",
+    "name": {
+      "ja": "千葉県総合スポーツセンター 陸上競技場",
+      "en": "Chiba General Sports Center Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.6478798,
+      "longitude": 140.1201006,
+      "address": "千葉県千葉市稲毛区天台町323"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 9,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 1
+    },
+    "individualUse": {
+      "status": "unknown",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": null,
+      "spikesAllowed": null,
+      "note": "公式施設情報で施設は確認済み。個人利用条件は要確認"
+    },
+    "urls": {
+      "official": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html",
+      "individualUse": null,
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "funabashi-athletic-stadium",
+    "name": {
+      "ja": "船橋市運動公園 陸上競技場",
+      "en": "Funabashi Sports Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.7306957,
+      "longitude": 139.9965853,
+      "address": "千葉県船橋市夏見台6丁目4番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 280,
+      "feeUnit": "2時間（一般）",
+      "openingHours": "9:00〜17:00、当日受付",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.funabashi.lg.jp/funabashistyle/jp/003/p042318.html",
+      "individualUse": "https://www.city.funabashi.lg.jp/gakushu/006/p032792.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.funabashi.lg.jp/funabashistyle/jp/003/p042318.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.city.funabashi.lg.jp/gakushu/006/p032792.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "matsudo-sports-park-track",
+    "name": {
+      "ja": "松戸運動公園 陸上競技場",
+      "en": "Matsudo Sports Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.7963494,
+      "longitude": 139.9252817,
+      "address": "千葉県松戸市上本郷4434"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 220,
+      "feeUnit": "2時間（一般）",
+      "openingHours": "一般開放日は予約不要",
+      "spikesAllowed": null,
+      "note": "投てきは専用利用時のみ"
+    },
+    "urls": {
+      "official": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html",
+      "individualUse": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/ryoukin/undoukouen.html",
+      "schedule": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/ryoukin/undoukouen.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "urayasu-athletic-stadium",
+    "name": {
+      "ja": "ブリオベッカ浦安競技場",
+      "en": "Briobecca Urayasu Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.6276343,
+      "longitude": 139.8923807,
+      "address": "千葉県浦安市舞浜2番地27"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 260,
+      "feeUnit": "1時間から（一般）",
+      "openingHours": "指定された個人使用時間帯、登録が必要",
+      "spikesAllowed": null,
+      "note": "フィールドの個人使用設定はなし"
+    },
+    "urls": {
+      "official": "https://www.city.urayasu.lg.jp/shisetsu/sports/1008738.html",
+      "individualUse": "https://www.city.urayasu.lg.jp/shisetsu/sports/1008738.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.urayasu.lg.jp/shisetsu/sports/1008738.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "kashiwanoha-park-athletic-stadium",
+    "name": {
+      "ja": "柏の葉公園総合競技場",
+      "en": "Kashiwanoha Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.8936,
+      "longitude": 139.9382,
+      "address": "千葉県柏市柏の葉4丁目1番"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 9,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 2
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": "共同利用",
+      "openingHours": "共同利用は17時まで。利用予定を確認",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/kashiwanoha/",
+      "individualUse": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/documents/parkguide.pdf",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/kashiwanoha/",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/documents/parkguide.pdf",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "iwana-koide-athletic-stadium",
+    "name": {
+      "ja": "岩名運動公園 小出義雄記念陸上競技場",
+      "en": "Iwana Sports Park Yoshio Koide Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.7404258,
+      "longitude": 140.2239727,
+      "address": "千葉県佐倉市岩名753"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": "利用区分による",
+      "openingHours": "個人利用日・夜間開放を公式案内で確認",
+      "spikesAllowed": null,
+      "note": "夜間開放は曜日・季節による"
+    },
+    "urls": {
+      "official": "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
+      "individualUse": "https://www.iwana.shiteikanri-sakura.jp/iwa/",
+      "schedule": "https://www.iwana.shiteikanri-sakura.jp/iwa/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.iwana.shiteikanri-sakura.jp/iwa/",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "kawagoe-sports-park-track",
+    "name": {
+      "ja": "川越運動公園 陸上競技場",
+      "en": "Kawagoe Sports Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.9290651,
+      "longitude": 139.5280735,
+      "address": "埼玉県川越市下老袋388番地1"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "一般・市内料金",
+      "openingHours": "個人利用可能。利用予定を確認",
+      "spikesAllowed": null,
+      "note": "市外料金は異なる"
+    },
+    "urls": {
+      "official": "https://www.city.kawagoe.saitama.jp/kurashi/sports/1003244/1003246.html",
+      "individualUse": "https://www.city.kawagoe.saitama.jp/reiki_int/reiki_honbun/e302RG00000908.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.kawagoe.saitama.jp/kurashi/sports/1003244/1003246.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.city.kawagoe.saitama.jp/reiki_int/reiki_honbun/e302RG00000908.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "kumagaya-sports-culture-park-track",
+    "name": {
+      "ja": "熊谷スポーツ文化公園 陸上競技場",
+      "en": "Kumagaya Sports Culture Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 36.1638755,
+      "longitude": 139.4109265,
+      "address": "埼玉県熊谷市上川上300"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 9,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 1
+    },
+    "individualUse": {
+      "status": "unknown",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": null,
+      "spikesAllowed": null,
+      "note": "公式施設情報で施設は確認済み。個人利用条件は要確認"
+    },
+    "urls": {
+      "official": "https://www.parks.or.jp/kumagaya/",
+      "individualUse": null,
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.parks.or.jp/kumagaya/",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "higashimatsuyama-athletic-stadium",
+    "name": {
+      "ja": "東松山陸上競技場",
+      "en": "Higashimatsuyama Athletic Stadium"
+    },
+    "location": {
+      "latitude": 36.0530773,
+      "longitude": 139.4133817,
+      "address": "埼玉県東松山市松山1481"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "unknown",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": null,
+      "spikesAllowed": null,
+      "note": "公式県施設案内で施設は確認済み。個人利用条件は要確認"
+    },
+    "urls": {
+      "official": "https://www.pref.saitama.lg.jp/spo-navi/shisetsu/higashimatsuyama/track-and-field.html",
+      "individualUse": null,
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.pref.saitama.lg.jp/spo-navi/shisetsu/higashimatsuyama/track-and-field.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "sagamihara-gion-stadium-track",
+    "name": {
+      "ja": "相模原ギオンスタジアム",
+      "en": "Sagamihara Gion Stadium"
+    },
+    "location": {
+      "latitude": 35.5272548,
+      "longitude": 139.386312,
+      "address": "神奈川県相模原市南区下溝4169"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 2
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": null,
+      "feeUnit": "一般使用日",
+      "openingHours": "陸上個人利用日を公式案内で確認",
+      "spikesAllowed": null,
+      "note": "日程変更の場合あり"
+    },
+    "urls": {
+      "official": "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
+      "individualUse": "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
+      "schedule": "https://www.asamizo-stadium.jpn.org/"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "lemon-gas-stadium-hiratsuka-track",
+    "name": {
+      "ja": "レモンガススタジアム平塚",
+      "en": "Lemon Gas Stadium Hiratsuka"
+    },
+    "location": {
+      "latitude": 35.3436618,
+      "longitude": 139.3411363,
+      "address": "神奈川県平塚市大原1番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 2
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 0,
+      "feeUnit": "共用利用",
+      "openingHours": "専用利用がない共用利用時間",
+      "spikesAllowed": null,
+      "note": "年度会員制度あり。2026年12月頃から改修予定"
+    },
+    "urls": {
+      "official": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+      "individualUse": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+      "schedule": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html"
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "yamato-sports-center-track",
+    "name": {
+      "ja": "大和スポーツセンター 競技場",
+      "en": "Yamato Sports Center Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.4749948,
+      "longitude": 139.45706,
+      "address": "神奈川県大和市上草柳1丁目1番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 3
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "共用利用・大人",
+      "openingHours": "大会等がない個人開放時",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.yamato.lg.jp/gyosei/yamatoshiinfo/kokyoshisetsu/sports/13930.html",
+      "individualUse": "https://www.city.yamato.lg.jp/gyosei/soshik/10/yokuarushitsumon_kaitoshu/12403.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.yamato.lg.jp/gyosei/yamatoshiinfo/kokyoshisetsu/sports/13930.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.city.yamato.lg.jp/gyosei/soshik/10/yokuarushitsumon_kaitoshu/12403.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "iriyamazu-park-athletic-stadium",
+    "name": {
+      "ja": "不入斗公園陸上競技場",
+      "en": "Iriyamazu Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.2678339,
+      "longitude": 139.6656089,
+      "address": "神奈川県横須賀市不入斗町1丁目2番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 100,
+      "feeUnit": "一般1人（2026年4月以降）",
+      "openingHours": "利用予定を施設で確認",
+      "spikesAllowed": null,
+      "note": null
+    },
+    "urls": {
+      "official": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
+      "individualUse": "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "happe-park-athletic-stadium",
+    "name": {
+      "ja": "八部公園陸上競技場",
+      "en": "Happe Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.3252156,
+      "longitude": 139.4642887,
+      "address": "神奈川県藤沢市鵠沼海岸6丁目12番1号"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": null,
+      "jaafClass": null
+    },
+    "individualUse": {
+      "status": "unknown",
+      "feeYen": null,
+      "feeUnit": null,
+      "openingHours": null,
+      "spikesAllowed": null,
+      "note": "公式施設情報で施設は確認済み。個人利用条件は要確認"
+    },
+    "urls": {
+      "official": "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
+      "individualUse": null,
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
+  },
+  {
+    "id": "ogino-sports-park-track",
+    "name": {
+      "ja": "荻野運動公園競技場",
+      "en": "Ogino Sports Park Athletic Stadium"
+    },
+    "location": {
+      "latitude": 35.4809413,
+      "longitude": 139.3208617,
+      "address": "神奈川県厚木市中荻野1500"
+    },
+    "track": {
+      "lengthMeters": 400,
+      "lanes": 8,
+      "surface": "all-weather"
+    },
+    "certification": {
+      "jaafCertified": true,
+      "jaafClass": 2
+    },
+    "individualUse": {
+      "status": "available",
+      "feeYen": 200,
+      "feeUnit": "共用利用1回",
+      "openingHours": "共用使用日に当日受付",
+      "spikesAllowed": null,
+      "note": "年間利用制度あり"
+    },
+    "urls": {
+      "official": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
+      "individualUse": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
+      "schedule": null
+    },
+    "externalIds": {
+      "jaaf": null,
+      "osm": []
+    },
+    "sources": [
+      {
+        "url": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
+        "type": "official",
+        "verifiedAt": "2026-08-25"
+      }
+    ]
   }
 ]

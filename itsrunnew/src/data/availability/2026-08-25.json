@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "date": "2026-08-25",
   "timezone": "Asia/Tokyo",
-  "generatedAt": "2026-08-24T08:11:40.113Z",
+  "generatedAt": "2026-08-25T06:17:37.557Z",
   "facilities": [
     {
       "trackId": "ageo-athletic-stadium",
@@ -20,9 +20,9 @@
         "documentId": "att_0000056.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -52,9 +52,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -82,9 +82,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -96,6 +96,38 @@
       },
       "warnings": [
         "追加開放・貸切状況は公式Xまたは電話確認"
+      ]
+    },
+    {
+      "trackId": "aoba-no-mori-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.chiba.jp/toshi/koenryokuchi/kanri/aobanomorisupo-tupuraza.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -115,8 +147,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -158,9 +190,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -173,6 +205,38 @@
       "warnings": [
         "市内在住・在勤・在学者限定",
         "大会・天候で中止の可能性あり"
+      ]
+    },
+    {
+      "trackId": "chiba-general-sports-center-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -220,16 +284,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
       "evidence": {
         "collector": "edogawa-weekly-table",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:ac627beea732b8262066ad6c0537b56bd5bb49a10a74025b92b823739a980f7e",
+        "sourceHash": "sha256:b23163d1cdcf884e3de7c1d98d882c44d5e9e6aa9cfe44add51dd6252e10390e",
         "confidence": "high"
       },
       "warnings": [
@@ -253,9 +317,9 @@
         "documentId": "reiwa8nennkarennda.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -267,6 +331,38 @@
       },
       "warnings": [
         "日別statusがtextではなくvector図形のため、安全な判定対象外"
+      ]
+    },
+    {
+      "trackId": "funabashi-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.funabashi.lg.jp/gakushu/006/p032792.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -336,9 +432,9 @@
         "documentId": "generalopen0819.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -351,6 +447,70 @@
       "warnings": [
         "当日変更の可能性あり",
         "早朝地域開放規則とPDF変更欄を結合"
+      ]
+    },
+    {
+      "trackId": "happe-park-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "higashimatsuyama-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.pref.saitama.lg.jp/spo-navi/shisetsu/higashimatsuyama/track-and-field.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -370,8 +530,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -412,9 +572,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -453,20 +613,84 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
       "evidence": {
         "collector": "inokashira-fixed",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:907ba429b2dbccbdf9b381ebb64f069b6bb19289e29f275e48f55ad30ef36b15",
+        "sourceHash": "sha256:635b9a48e2e2135479a9e5b43c2bb2e650500f7f9e4563b4228fa7134a4792ea",
         "confidence": "medium"
       },
       "warnings": [
         "公的行事・管理都合による変更の可能性あり"
+      ]
+    },
+    {
+      "trackId": "iriyamazu-park-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "iwana-koide-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.iwana.shiteikanri-sakura.jp/iwa/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -486,8 +710,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -546,9 +770,9 @@
         "documentId": "2ed3e2579058a0ccecb8392ae2fff84f-2.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -561,6 +785,70 @@
       "warnings": [
         "○だけを一般開放と判定",
         "予定変更があるため利用日当日の公式確認を推奨"
+      ]
+    },
+    {
+      "trackId": "kashiwanoha-park-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/documents/parkguide.pdf",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "kawagoe-sports-park-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.kawagoe.saitama.jp/reiki_int/reiki_honbun/e302RG00000908.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -580,8 +868,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -632,9 +920,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -653,9 +941,18 @@
       "trackId": "koshigaya-shirakobato-track",
       "date": "2026-08-25",
       "timezone": "Asia/Tokyo",
-      "status": "unknown",
-      "periods": [],
-      "unknownReason": "outside_published_period",
+      "status": "partially_available",
+      "periods": [
+        {
+          "from": "09:00",
+          "to": "17:00",
+          "status": "available",
+          "scope": "full_track",
+          "eligibility": "public",
+          "conditions": []
+        }
+      ],
+      "unknownReason": null,
       "source": {
         "url": "https://kouen-kyougijyou.kosi-kanri.com/",
         "landingPageUrl": null,
@@ -665,19 +962,22 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
       "evidence": {
         "collector": "koshigaya-today-status",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:acbfeb258cda20c94e04b8d00481aa13b7cd549f6ff2e280d25b2f6cd72c03b0",
-        "confidence": "medium"
+        "sourceHash": "sha256:8d70c077023bfc270c5dca80478644d190bf5e2cf781d892e3ca0e101c4e94df",
+        "confidence": "high"
       },
-      "warnings": []
+      "warnings": [
+        "公式の当日更新情報",
+        "天候による当日変更の可能性あり"
+      ]
     },
     {
       "trackId": "koto-yumenoshima-athletic-stadium",
@@ -696,8 +996,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -709,6 +1009,102 @@
       },
       "warnings": [
         "Availability source researched; facility-specific collector is not implemented in the dataset expansion phase."
+      ]
+    },
+    {
+      "trackId": "kumagaya-sports-culture-park-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.parks.or.jp/kumagaya/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "lemon-gas-stadium-hiratsuka-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "matsudo-sports-park-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -758,9 +1154,9 @@
         "documentId": "88-22.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -776,12 +1172,85 @@
       ]
     },
     {
-      "trackId": "musashino-athletic-track",
+      "trackId": "mitsuzawa-park-athletic-stadium",
       "date": "2026-08-25",
       "timezone": "Asia/Tokyo",
       "status": "unknown",
       "periods": [],
-      "unknownReason": "outside_published_period",
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/midori-koen/koen/koen/sport/mituzawa.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "musashino-athletic-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "available",
+      "periods": [
+        {
+          "from": "09:00",
+          "to": "11:00",
+          "status": "available",
+          "scope": "track_and_jogging_course",
+          "eligibility": "public",
+          "conditions": []
+        },
+        {
+          "from": "11:00",
+          "to": "13:00",
+          "status": "available",
+          "scope": "track_and_jogging_course",
+          "eligibility": "public",
+          "conditions": []
+        },
+        {
+          "from": "13:00",
+          "to": "15:00",
+          "status": "available",
+          "scope": "track_and_jogging_course",
+          "eligibility": "public",
+          "conditions": []
+        },
+        {
+          "from": "15:00",
+          "to": "17:00",
+          "status": "available",
+          "scope": "track_and_jogging_course",
+          "eligibility": "public",
+          "conditions": []
+        },
+        {
+          "from": "17:00",
+          "to": "19:00",
+          "status": "available",
+          "scope": "track_and_jogging_course",
+          "eligibility": "public",
+          "conditions": []
+        }
+      ],
+      "unknownReason": null,
       "source": {
         "url": "https://www.musashino.or.jp/sports/kaihou/index.html",
         "landingPageUrl": null,
@@ -791,19 +1260,22 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
       "evidence": {
         "collector": "musashino-html",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:ad27915be980a6c1f528e3519a524a9f5649b1aa939d201d639fe99dd6239326",
-        "confidence": "medium"
+        "sourceHash": "sha256:70ec007e4125b295d93c116ec549fdcd59cab89c6254360e283e28982d71671d",
+        "confidence": "high"
       },
-      "warnings": []
+      "warnings": [
+        "当日変更・天候中止の可能性あり",
+        "Bは外周ジョギングのみ"
+      ]
     },
     {
       "trackId": "nerima-general-sports-park",
@@ -844,24 +1316,24 @@
       ],
       "unknownReason": "insufficient_information",
       "source": {
-        "url": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/20260821souun_kaihoujoukyou.pdf",
+        "url": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/20260825souun_kaihoujoukyou.pdf",
         "landingPageUrl": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html",
         "type": "official",
         "publicationFormat": "pdf",
-        "publishedAt": "2026-08-21",
-        "documentId": "20260821souun_kaihoujoukyou.pdf"
+        "publishedAt": "2026-08-25",
+        "documentId": "20260825souun_kaihoujoukyou.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
       "evidence": {
         "collector": "nerima-weekly-slots",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:f51a6192a2599f4aa6b84d3eebe41e00ac6a0bda796ba07b624fced88dd5a100",
+        "sourceHash": "sha256:0d75adc570855b92a506cccc1f85b1b138f59ac620517459cf4ac33bd08bd6c5",
         "confidence": "high"
       },
       "warnings": [
@@ -886,8 +1358,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -898,6 +1370,70 @@
         "confidence": "medium"
       },
       "warnings": []
+    },
+    {
+      "trackId": "nissan-stadium-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.nissan-stadium.jp/sp/track/index.php",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "ogino-sports-park-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
     },
     {
       "trackId": "oi-central-seaside-park-track",
@@ -915,16 +1451,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
       "evidence": {
         "collector": "oi-first-third-thursday-fixed",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:42a45d02ab2953b9c8f6105dab9838b40b69ca44dcfa380c5d780d085b874d97",
+        "sourceHash": "sha256:d431a641356d06492e8735c9de48ac80247a25ebc3f23fc8da34a1219fb3cd63",
         "confidence": "medium"
       },
       "warnings": []
@@ -945,9 +1481,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -975,9 +1511,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -989,6 +1525,38 @@
       },
       "warnings": [
         "他曜日は3日前時点の貸切有無を電話確認"
+      ]
+    },
+    {
+      "trackId": "sagamihara-gion-stadium-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.asamizo-stadium.jpn.org/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -1008,8 +1576,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1040,8 +1608,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1072,8 +1640,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1103,9 +1671,9 @@
         "documentId": "2026.080-1.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1276,9 +1844,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1309,9 +1877,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1323,6 +1891,38 @@
       },
       "warnings": [
         "公式Xの追加個人利用日はcollector対象外"
+      ]
+    },
+    {
+      "trackId": "urayasu-athletic-stadium",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.urayasu.lg.jp/shisetsu/sports/1008738.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -1362,9 +1962,9 @@
         "documentId": "%E7%AC%AC%E4%B8%80%E7%AB%B6%E6%8A%80%E5%A0%B48%E6%9C%88%E5%88%86%E5%A4%89%E6%9B%B4.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1417,9 +2017,9 @@
         "documentId": "%E7%AC%AC%E4%BA%8C%E7%AB%B6%E6%8A%80%E5%A0%B48%E6%9C%88%E5%88%86_1.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },
@@ -1433,6 +2033,38 @@
         "PDF凡例が空欄を開放と明示",
         "12:00〜13:00は判定対象外",
         "予定変更の可能性あり"
+      ]
+    },
+    {
+      "trackId": "yamato-sports-center-track",
+      "date": "2026-08-25",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.yamato.lg.jp/gyosei/soshik/10/yokuarushitsumon_kaitoshu/12403.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
+        "validForDate": "2026-08-25",
+        "expiresAt": "2026-08-25T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -1462,9 +2094,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-24T08:11:40.113Z",
-        "parsedAt": "2026-08-24T08:11:40.113Z",
-        "checkedAt": "2026-08-24T08:11:40.113Z",
+        "fetchedAt": "2026-08-25T06:17:37.557Z",
+        "parsedAt": "2026-08-25T06:17:37.557Z",
+        "checkedAt": "2026-08-25T06:17:37.557Z",
         "validForDate": "2026-08-25",
         "expiresAt": "2026-08-25T15:00:00.000Z"
       },

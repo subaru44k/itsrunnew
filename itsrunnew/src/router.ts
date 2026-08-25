@@ -8,6 +8,9 @@ import Todoroki from './views/Todoroki.vue';
 import About from './views/About.vue';
 import Privacy from './views/Privacy.vue';
 import NotFound from './views/NotFound.vue';
+import TrackDetail from './views/TrackDetail.vue';
+import TrackGuide from './views/TrackGuide.vue';
+import { trackById } from './model/tracks';
 import { isPublicProductionRuntime, PUBLIC_SITE_ORIGIN } from './services/deployment';
 
 const SITE_ORIGIN = PUBLIC_SITE_ORIGIN;
@@ -65,10 +68,17 @@ const pages = {
   },
   about: {
     path: 'about', component: About,
-    jaTitle: 'いつランについて - 掲載情報と利用状況の見方',
-    enTitle: 'About ItsRun - Track data and availability statuses',
-    jaDescription: 'いつランの掲載範囲、公式情報の扱い、利用可能・要確認などの表示について説明します。',
-    enDescription: 'Learn what ItsRun covers, how official sources are used, and what each availability status means.',
+    jaTitle: 'いつランについて - サイトのコンテンツと運営方針',
+    enTitle: 'About ItsRun - Content and editorial policy',
+    jaDescription: 'いつランのトラック検索、競技場情報、ラップタイム、記録集と運営方針を説明します。',
+    enDescription: 'Learn about ItsRun’s track finder, venue guides, pace tools, records, and editorial policy.',
+  },
+  trackGuide: {
+    path: 'tracks/guide', component: TrackGuide,
+    jaTitle: 'トラック検索の使い方 - 利用状況・距離・施設情報の見方',
+    enTitle: 'How to use Track Finder - Availability, distance and facility details',
+    jaDescription: '日付、検索の基準地点、利用可能・要確認などの表示とトラック条件の見方を説明します。',
+    enDescription: 'How to select a date and search origin, read availability, and compare track facilities.',
   },
   privacy: {
     path: 'privacy', component: Privacy,
@@ -89,6 +99,8 @@ for (const [key, page] of Object.entries(pages)) {
   );
 }
 routes.push(
+  { path: '/tracks/:trackId', name: 'track-detail-ja', component: TrackDetail, meta: { locale: 'ja' } },
+  { path: '/en/tracks/:trackId', name: 'track-detail-en', component: TrackDetail, meta: { locale: 'en' } },
   { path: '/tracks', redirect: to => ({ path: '/', query: to.query, hash: to.hash }) },
   { path: '/en/tracks', redirect: to => ({ path: '/en/', query: to.query, hash: to.hash }) },
   { path: '/index.html', redirect: '/' },
@@ -120,9 +132,15 @@ router.beforeEach((to) => {
   i18n.global.locale.value = locale;
   useAppStore().setLocale(locale);
   document.documentElement.lang = locale;
-  const title = String(to.meta.title ?? 'いつラン');
-  const description = String(to.meta.description ?? 'いつラン');
-  const canonicalPath = String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
+  const detailTrack = trackById(to.params.trackId);
+  if (to.params.trackId && !detailTrack) return locale === 'en' ? '/en/' : '/';
+  const title = detailTrack
+    ? (locale === 'en' ? `${detailTrack.name.en} availability and track details - ItsRun` : `${detailTrack.name.ja}の利用予定・トラック情報 - いつラン`)
+    : String(to.meta.title ?? 'いつラン');
+  const description = detailTrack
+    ? (locale === 'en' ? `Check ${detailTrack.name.en}'s date-specific availability, track details, official links and directions.` : `${detailTrack.name.ja}の指定日ごとの利用状況、トラック情報、公式案内、経路を確認できます。`)
+    : String(to.meta.description ?? 'いつラン');
+  const canonicalPath = detailTrack ? `${locale === 'en' ? '/en' : ''}/tracks/${detailTrack.id}` : String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
   const publicProduction = isPublicProductionRuntime();
   document.title = title;
@@ -137,9 +155,11 @@ router.beforeEach((to) => {
   document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
   document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', SOCIAL_IMAGE);
   document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonicalUrl);
-  document.querySelector('link[rel="alternate"][hreflang="ja"]')?.setAttribute('href', `${SITE_ORIGIN}${String(to.meta.alternateJa ?? '/')}`);
-  document.querySelector('link[rel="alternate"][hreflang="en"]')?.setAttribute('href', `${SITE_ORIGIN}${String(to.meta.alternateEn ?? '/en/')}`);
-  document.querySelector('link[rel="alternate"][hreflang="x-default"]')?.setAttribute('href', `${SITE_ORIGIN}${String(to.meta.alternateJa ?? '/')}`);
+  const alternateJa = detailTrack ? `/tracks/${detailTrack.id}` : String(to.meta.alternateJa ?? '/');
+  const alternateEn = detailTrack ? `/en/tracks/${detailTrack.id}` : String(to.meta.alternateEn ?? '/en/');
+  document.querySelector('link[rel="alternate"][hreflang="ja"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateJa}`);
+  document.querySelector('link[rel="alternate"][hreflang="en"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateEn}`);
+  document.querySelector('link[rel="alternate"][hreflang="x-default"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateJa}`);
 });
 
 export default router;

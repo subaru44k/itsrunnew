@@ -1,6 +1,6 @@
 # Production deployment
 
-`https://itsrun.info/` を旧Firebase HostingからAWSへ安全に移す手順です。ProductionはPreviewとは別の、保持設定を持つprivate S3 + CloudFrontで配信します。広告はGoogle CMP設定が完了するまで無効です。
+`https://itsrun.info/` をAWSで運用する手順です。ProductionはPreviewとは別の、保持設定を持つprivate S3 + CloudFrontで配信します。Google CMP設定済みのProduction buildではAdSenseを有効化します。
 
 2026-08-25にRoute 53委任、ACM certificate、CloudFront alternate domain、A/AAAA Aliasの切替まで完了しました。以下のstaged rolloutは再構築・監査・rollback時の手順として保持します。現在の配信経路とresource IDは [`PRODUCTION_DOMAIN.md`](PRODUCTION_DOMAIN.md) が正本です。
 
@@ -9,7 +9,7 @@
 - Production bucketはversioning有効、CloudFormation削除時もretainする。
 - Production CloudFront default domainにはHTTP `X-Robots-Tag: noindex, nofollow`を付け、ブラウザruntimeもnoindex・GA4無効にする。
 - `itsrun.info` だけがindex・同意後GA4の対象になる。
-- `VITE_ADSENSE_ENABLED=false`を維持する。
+- Production workflowでは`VITE_ADSENSE_ENABLED=true`、Previewでは`false`を維持する。
 - content deploy roleはProduction bucketとdistribution以外を変更できない。
 - DNS切替までFirebase Hostingを削除・切断しない。
 
@@ -24,12 +24,12 @@
 
 ## Build and cache behavior
 
-Production workflowはfresh 31-day availability、Track Dataset validation、unit test、lint、build、local smokeを終えてからOIDC credentialsを取得します。広告は無効です。
+Production workflowはfresh 31-day availability、Track Dataset validation、unit test、lint、build、local smokeを終えてからOIDC credentialsを取得します。Production buildはGoogle CMPを伴う広告を有効にします。
 
 - `index.html`: `no-cache`
 - hashed `assets/`: `public,max-age=31536000,immutable`
 - その他: `public,max-age=300`
-- invalidation: `/`, `/index.html`, `/en/`, `/tracks`, `/en/tracks`, `/oda-field`, `/en/oda-field`
+- invalidation: `/`, `/index.html`, `/en/`, Track Searchの入口・ガイド・施設詳細、`/oda-field`, `/en/oda-field`
 
 ## Staged rollout
 

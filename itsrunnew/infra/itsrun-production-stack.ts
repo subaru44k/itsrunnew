@@ -19,6 +19,7 @@ const applicationRoutes = [
   '/pace/marathon', '/en/pace/marathon',
   '/nozomiantena/index', '/en/nozomiantena/index',
   '/about', '/en/about',
+  '/tracks/guide', '/en/tracks/guide',
   '/privacy', '/en/privacy',
 ];
 
@@ -55,7 +56,14 @@ function handler(event) {
   };
   if (aliases[request.uri]) return redirect(aliases[request.uri], request.querystring);
   var routes = ${JSON.stringify(applicationRoutes)};
-  if (routes.indexOf(request.uri) !== -1) request.uri = '/index.html';
+  if (routes.indexOf(request.uri) !== -1) {
+    request.uri = '/index.html';
+    return request;
+  }
+  if (/^\\/(en\\/)?tracks\\/[a-z0-9-]+\\/?$/.test(request.uri)) {
+    request.uri = request.uri.replace(/\\\/$/, '') + '/index.html';
+    return request;
+  }
   return request;
 }`;
 }

@@ -30,6 +30,7 @@ describe('ItsRunProductionStack', () => {
     const functions = JSON.stringify(template.findResources('AWS::CloudFront::Function'));
     expect(functions).toContain("'/tracks': '/'");
     expect(functions).toContain("request.uri = '/index.html'");
+    expect(functions).toContain("tracks\\\\/[a-z0-9-]+");
     expect(functions).toContain("x-robots-tag");
   }, 20_000);
 

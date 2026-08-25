@@ -75,8 +75,10 @@ try {
       ['/en/oda-field', "Yoyogi Park Athletic Track's Availability"],
       ['/en/', 'Find a track near you'],
       ['/about', 'いつランについて'],
+      ['/tracks/guide', 'トラック検索の使い方'],
       ['/privacy', 'プライバシーポリシー'],
       ['/en/about', 'About ItsRun'],
+      ['/en/tracks/guide', 'How to find a workout track'],
       ['/en/privacy', 'Privacy policy'],
     ]) {
       await page.goto(`${baseUrl}${path}`, { waitUntil: 'domcontentloaded' });
@@ -90,30 +92,27 @@ try {
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     await page.getByText('公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。', { exact: true }).waitFor();
     if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== 'いつラン - 日付から探せる陸上競技場・トラック検索') throw new Error('Track Search OGP title did not update');
-    await page.locator('#track-map .track-marker').first().waitFor();
-    const initialMarkers = await page.locator('#track-map .track-marker').count();
-    if (initialMarkers !== todayCounts.candidates) throw new Error(`Expected ${todayCounts.candidates} candidate track markers, found ${initialMarkers}`);
-    await page.locator('.facility-card .availability--available').first().waitFor();
-    await page.locator('.facility-card .availability--partially-available').first().waitFor();
-    if (await page.locator('.facility-card .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities were unexpectedly removed from candidate results');
-    if (await page.locator('.facility-card .availability--unavailable').count() !== 0) throw new Error('Candidate filter should hide explicitly unavailable facilities');
+    await page.locator('#track-map .track-cluster, #track-map .track-marker').first().waitFor();
+    const mapFacilityCount = () => page.locator('#track-map').evaluate(element => [...element.querySelectorAll('.track-marker')].length + [...element.querySelectorAll('.track-cluster')].reduce((sum, cluster) => sum + Number(cluster.textContent), 0));
+    if (await mapFacilityCount() !== todayCounts.candidates) throw new Error('Clustered map did not represent every candidate facility');
+    for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
+    await page.locator('.facility-row .availability--available').first().waitFor();
+    await page.locator('.facility-row .availability--partially-available').first().waitFor();
+    if (await page.locator('.facility-row .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities were unexpectedly removed from candidate results');
+    if (await page.locator('.facility-row .availability--unavailable').count() !== 0) throw new Error('Candidate filter should hide explicitly unavailable facilities');
 
     await page.getByLabel('本日利用不可の施設も表示').check();
-    await page.waitForFunction(expected => document.querySelectorAll('#track-map .track-marker').length === expected, trackDataset.length);
-    if (await page.locator('.facility-card .availability--unavailable').count() !== todayCounts.unavailable) throw new Error('Unavailable switch did not show unavailable facilities');
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length);
+    if (await page.locator('.facility-row .availability--unavailable').count() !== todayCounts.unavailable) throw new Error('Unavailable switch did not show unavailable facilities');
     await page.getByLabel('本日利用不可の施設も表示').uncheck();
-    await page.waitForFunction(expected => document.querySelectorAll('#track-map .track-marker').length === expected, todayCounts.candidates);
-    if (await page.locator('.facility-card .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities disappeared when unavailable facilities were hidden');
-    const selectedCard = page.locator('.facility-card').filter({ hasText: '戸田市スポーツセンター 陸上競技場' });
-    await selectedCard.click();
-    if (await selectedCard.getAttribute('aria-pressed') !== 'true') throw new Error('Selected facility card state is not exposed');
-    await page.waitForFunction(() => {
-      const detail = document.querySelector('.detail-card');
-      const top = detail?.getBoundingClientRect().top ?? -1;
-      return top >= 40 && top <= 110;
-    });
-    const detailTop = await page.locator('.detail-card').evaluate(element => element.getBoundingClientRect().top);
-    if (detailTop < 40 || detailTop > 110) throw new Error(`Facility detail was not brought into view: ${detailTop}px`);
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, todayCounts.candidates);
+    if (await page.locator('.facility-row .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities disappeared when unavailable facilities were hidden');
+    const selectedCard = page.locator('.facility-row').filter({ hasText: '戸田市スポーツセンター 陸上競技場' });
+    const selectedCardButton = selectedCard.locator('button');
+    await selectedCardButton.click();
+    if (await selectedCardButton.getAttribute('aria-pressed') !== 'true') throw new Error('Selected facility card state is not exposed');
+    await page.locator('.detail-card').waitFor({ state: 'visible' });
     await page.getByText('本日は要確認', { exact: true }).last().waitFor();
     const pdfScheduleLink = page.getByRole('link', { name: '確認方法を見る', exact: true });
     await pdfScheduleLink.waitFor();
@@ -129,16 +128,31 @@ try {
     if (!actionStyles.some(action => action.className.includes('action-schedule') && action.color === 'rgb(78, 52, 46)')) throw new Error('Schedule action contrast styling is missing');
     if (!actionStyles.some(action => action.className.includes('action-official') && action.color === 'rgb(255, 255, 255)')) throw new Error('Official-site action contrast styling is missing');
     if (!actionStyles.some(action => action.className.includes('action-directions') && action.color === 'rgb(0, 105, 92)')) throw new Error('Directions action contrast styling is missing');
-    await page.getByRole('button', { name: '現在地から探す', exact: true }).click();
+    await page.getByRole('link', { name: '施設ページ', exact: true }).click();
+    await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
+    if (!new URL(page.url()).pathname.includes('/tracks/toda-sports-center-track')) throw new Error('Facility detail URL is not stable');
+    await page.getByRole('link', { name: '地図でこの施設を見る', exact: true }).click();
+    await page.waitForFunction(() => new URL(location.href).searchParams.get('track') === 'toda-sports-center-track');
+    await page.locator('#track-map .track-marker--selected').waitFor();
+    if (await page.locator('.map-tools').getByRole('button', { name: '現在地を使う', exact: true }).count() !== 1) throw new Error('Search-origin controls are not grouped above the map');
+    await page.getByRole('button', { name: '地図から基準地点を選ぶ', exact: true }).click();
+    await page.locator('#track-map').click({ position: { x: 160, y: 160 } });
+    await page.waitForFunction(() => new URL(location.href).searchParams.has('lat') && new URL(location.href).searchParams.has('lng'));
+    await page.getByText('選択した地点から近い順に並べました。', { exact: true }).waitFor();
+    await page.getByRole('button', { name: '基準地点を解除', exact: true }).click();
+    await page.waitForFunction(() => !new URL(location.href).searchParams.has('lat') && !new URL(location.href).searchParams.has('lng'));
+    await page.getByRole('button', { name: '現在地を使う', exact: true }).click();
     await page.getByText(/現在地の利用が許可されませんでした|現在地を取得できません/).waitFor();
+    for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
 
     await page.getByRole('button', { name: '明日', exact: true }).click();
     await waitForSelectedDate(page, tomorrow);
-    await page.waitForFunction(expected => document.querySelectorAll('#track-map .track-marker').length === expected, tomorrowCounts.candidates);
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, tomorrowCounts.candidates);
     await page.getByText('明日利用可能', { exact: true }).first().waitFor();
-    if (await page.locator('.facility-card .availability--unknown').count() !== tomorrowCounts.unknown) throw new Error('Future unknown facilities were unexpectedly removed');
+    if (await page.locator('.facility-row .availability--unknown').count() !== tomorrowCounts.unknown) throw new Error('Future unknown facilities were unexpectedly removed');
     await page.getByLabel('明日利用不可の施設も表示').check();
-    if (await page.locator('.facility-card .availability--unavailable').count() !== tomorrowCounts.unavailable) throw new Error('Selected-date unavailable filter did not update');
+    if (await page.locator('.facility-row .availability--unavailable').count() !== tomorrowCounts.unavailable) throw new Error('Selected-date unavailable filter did not update');
 
     await page.getByRole('button', { name: '土曜', exact: true }).click();
     await waitForSelectedDate(page, saturday);

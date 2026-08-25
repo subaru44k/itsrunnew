@@ -56,4 +56,6 @@ Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false
 
 ProductionはPreviewとは別の、versioning・retain有効のprivate S3 + CloudFrontとして段階的に構築します。最初はCloudFront default domainでnoindex・GA4無効の確認を行い、Route 53へ既存DNS recordを複製・委任してから`us-east-1` ACM certificateとCloudFrontの`itsrun.info` alternate domainを追加します。最後に旧Firebase Aを先に削除せず、Route 53のA/AAAAをCloudFront Aliasへ原子的に切り替えます。
 
-Production workflowはfresh availabilityと全検証を実行してcontentだけを配備します。Google CMP設定後の別変更までAdSenseを読み込みません。コマンド、OIDC role、GitHub variables、DNS切替、旧Firebaseへのrollbackは [`../docs/PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md) を参照してください。
+Production workflowはfresh availabilityと全検証を実行してcontentだけを配備し、Google CMPを伴うAdSenseを読み込みます。コマンド、OIDC role、GitHub variables、DNS切替、旧Firebaseへのrollbackは [`../docs/PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md) を参照してください。
+
+`public/service-worker.js`は旧Firebase版のoffline cacheを削除して登録解除する移行専用ファイルです。新サイトのoffline cacheではありません。既存利用者を旧画面に残さないため、移行期間中は`no-cache`で配備します。

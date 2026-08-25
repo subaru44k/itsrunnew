@@ -12,6 +12,7 @@ const deployment = read('../src/services/deployment.ts');
 const ads = read('../src/components/AdsDisplay.vue');
 const router = read('../src/router.ts');
 const privacy = read('../src/views/Privacy.vue');
+const serviceWorker = read('../public/service-worker.js');
 
 describe('public launch readiness', () => {
   it('publishes canonical, multilingual, and social metadata without Universal Analytics', () => {
@@ -56,5 +57,12 @@ describe('public launch readiness', () => {
     expect(router).toContain("path: '/en/tracks', redirect:");
     expect(router).toContain("noindex: true");
     expect(router).toContain('isPublicProductionRuntime()');
+  });
+
+  it('retires the legacy Firebase service worker and cached application', () => {
+    expect(serviceWorker).toContain('caches.keys()');
+    expect(serviceWorker).toContain('self.registration.unregister()');
+    expect(serviceWorker).toContain('client.navigate(client.url)');
+    expect(serviceWorker).not.toContain('cache.addAll');
   });
 });

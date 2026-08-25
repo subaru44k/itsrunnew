@@ -28,14 +28,14 @@ Vue Routerはroute遷移時にtitle、description、canonical、hreflang、OGP�
 3. AdSense
    - 初回公開では広告を無効のままにし、正式URLでPrivacyを確認してからGoogle認定CMPを設定する。
    - 再開前にsite approval、ads.txt、privacy policy、Google認定CMP、Consent Mode、mobile CLSを確認する。
-4. Production hosting
-   - Preview stackをそのままproduction化せず、保持・versioning・rollbackを備えたproduction resourceを用意する。
-   - CloudFront用certificate、custom domain、cache/security policyを確認する。
-   - Previewのdefault domainは引き続き検索対象外にする。
+4. Production hosting（2026-08-25完了）
+   - Preview stackとは別に、保持・versioning・rollbackを備えたProduction resourceを構築済み。
+   - Route 53、ACM certificate、CloudFront custom domain、cache/security policyを確認済み。
+   - PreviewとProduction default domainは引き続き検索対象外。
 
-## 配信層で未実装の事項
+## Production配信層で実装済みの事項
 
-現在のSPA fallbackは、既知routeの直接アクセスを成立させる一方、HTTP上ではclient-side redirectやsoft 404になります。正式公開用CloudFrontでは、旧URLの301と未知URLの404をedgeまたは静的hosting設定で扱ってください。候補には次が含まれます。
+Production CloudFrontは、既知routeをSPA entryへrewriteし、次の旧URLをHTTP 301、未知URLを静的`404.html`のHTTP 404として処理します。
 
 - `/tracks` → `/`
 - `/en/tracks` → `/en/`
@@ -43,7 +43,7 @@ Vue Routerはroute遷移時にtitle、description、canonical、hreflang、OGP�
 - `/komazawa_olympic` → `/komazawa`
 - Search Consoleで確認した旧URL
 
-Social crawlerへroute別metadataを確実に渡す必要がある場合は、公開routeごとの静的HTML shell／prerenderとCloudFront rewriteをproduction hostingに組み込みます。現在も各routeのブラウザ表示と検索engineのJavaScript renderingではroute別metadataへ更新されますが、初期HTMLのOGPはサイト共通です。
+Social crawlerへroute別metadataを確実に渡す必要がある場合の静的HTML shell／prerenderは将来候補です。現在も各routeのブラウザ表示と検索engineのJavaScript renderingではroute別metadataへ更新されますが、初期HTMLのOGPはサイト共通です。
 
 ## 公開直前・直後の確認
 

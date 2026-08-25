@@ -2,6 +2,8 @@
 
 `https://itsrun.info/` を旧Firebase HostingからAWSへ安全に移す手順です。ProductionはPreviewとは別の、保持設定を持つprivate S3 + CloudFrontで配信します。広告はGoogle CMP設定が完了するまで無効です。
 
+2026-08-25にRoute 53委任、ACM certificate、CloudFront alternate domain、A/AAAA Aliasの切替まで完了しました。以下のstaged rolloutは再構築・監査・rollback時の手順として保持します。現在の配信経路とresource IDは [`PRODUCTION_DOMAIN.md`](PRODUCTION_DOMAIN.md) が正本です。
+
 ## Safety boundary
 
 - Production bucketはversioning有効、CloudFormation削除時もretainする。
@@ -58,6 +60,8 @@ Route 53委任後、`us-east-1` certificateを発行する。
 ```sh
 ITSRUN_PRODUCTION_HOSTED_ZONE_ID=... npm run infra:production:certificate:deploy
 ```
+
+現環境の`us-east-1`はCDK bootstrapしていないため、2026-08-25の実切替では不要なIAM/bucketを増やさず、ACM APIでcertificateを作成してRoute 53へvalidation CNAMEをUPSERTしました。現在の証明書を置き換える目的で上記CDK commandを実行しないでください。ACM自動更新のためvalidation CNAMEを削除しません。
 
 発行済みARNを指定してhosting stackを更新すると、既存distributionへalternate domainが追加される。この時点ではDNSは旧Firebase Aのままなので公開経路は変わらない。
 

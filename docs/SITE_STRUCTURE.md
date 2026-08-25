@@ -66,7 +66,7 @@ itsrunnew/
 │   ├── model/                 ペース表の計算モデル、トラック型・距離・経路URL
 │   ├── services/              同意状態、GA4の遅延loadと同意済みevent
 │   └── plugins/vuetify.ts     Vuetifyテーマとアイコン設定
-├── public/                    favicon、manifest、robots、ads.txt、状態画像
+├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
@@ -188,6 +188,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 ### 広告
 
 `services/advertising.ts`は `VITE_ADSENSE_ENABLED=true` の場合だけ、全route共通でGoogle AdSenseタグを読み込みます。`AdsDisplay.vue`は共通serviceが準備できた後だけ既存広告枠を初期化します。これによりホームのTrack SearchではGoogle CMPとAdSense Auto adsを利用でき、織田フィールド・夢の島・駒沢・等々力・田中希実記録集には従来の明示的な上下広告枠も残ります。Production workflowはtrue、Preview workflowはfalseです。`ads.txt`とpublisher IDを維持し、AdSense管理画面で`itsrun.info`の確認、欧州規制メッセージ1件、米国州規制メッセージ1件の設定・公開が完了しています。
+
+`public/service-worker.js`は新しいoffline機能ではなく、旧Firebase/Vue CLI版が利用者のブラウザへ登録したservice workerとCache Storageを除去する移行専用tombstoneです。activate時に旧cacheを削除し、登録解除後に既存windowをnetworkから再読込します。content deployではこのファイルを`no-cache`で配備し、CloudFront invalidationにも明示的に含めます。移行期間中は削除しません。
 
 ### プライバシーとアクセス解析
 

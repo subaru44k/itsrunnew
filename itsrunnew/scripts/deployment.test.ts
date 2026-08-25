@@ -26,7 +26,8 @@ describe('Preview deployment contract', () => {
     expect(deployScript).toContain("public,max-age=31536000,immutable");
     expect(deployScript).toContain("public,max-age=300");
     expect(deployScript).toContain("--cache-control 'no-cache'");
-    expect(deployScript).toContain("--paths '/' '/index.html' '/en/' '/tracks' '/en/tracks' '/oda-field' '/en/oda-field'");
+    expect(deployScript).toContain('dist/service-worker.js');
+    expect(deployScript).toContain("--paths '/' '/index.html' '/service-worker.js' '/en/' '/tracks' '/en/tracks' '/oda-field' '/en/oda-field'");
     expect(deployScript).not.toContain("--paths '/*'");
   });
 });

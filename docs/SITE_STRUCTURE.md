@@ -218,7 +218,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `ItsRunPreviewAutomationStack` は既存の標準GitHub OIDC providerを参照し、`master` branchの `subaru44k/itsrunnew` workflowだけが引き受けられる `itsrun-track-preview-deploy` roleを作成します。既存migration roleは使用しません。権限はPreview bucketのcontent操作とPreview distributionのread/invalidationに限定し、hosting stackとは独立して管理します。
 
-正式配信用のCDK定義はPreviewと分離しています。`ItsRunProductionStack`はversioningとretainを有効にしたprivate S3、CloudFront OAC、既知routeのSPA rewrite、旧URLのHTTP 301、未知URLの実HTTP 404を定義します。初回はcustom domainなしで作成し、default domainをnoindex・GA4無効のまま検証できます。Route 53委任と`us-east-1` ACM発行後にcertificate ARNとHosted Zone IDを渡した更新だけが`itsrun.info` aliasとA/AAAAを追加します。切替順序・rollback・repository variablesは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) が正本です。広告はCMP完了までfalseです。
+正式配信用のCDK定義はPreviewと分離しています。`ItsRunProductionStack`はversioningとretainを有効にしたprivate S3、CloudFront OAC、既知routeのSPA rewrite、旧URLのHTTP 301、未知URLの実HTTP 404を定義します。初回はcustom domainなしで作成し、default domainをnoindex・GA4無効のまま検証できます。Route 53委任と`us-east-1` ACM発行後にdomainとcertificate ARNを渡す更新でCloudFrontへ`itsrun.info`を追加し、DNSは旧Firebase AからCloudFront Aliasへ別の原子的changeで切り替えます。旧Aを先に削除しない切替順序・rollback・repository variablesは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) が正本です。広告はCMP完了までfalseです。
 
 ## 8. コマンドと検証
 

@@ -13,7 +13,7 @@
 
 ## Repository components
 
-- `infra/itsrun-production-stack.ts`: retained S3、CloudFront、OAC、既知route rewrite、旧URL 301、実HTTP 404。証明書・Hosted Zoneを渡した更新時だけ`itsrun.info` aliasとA/AAAAを追加する。
+- `infra/itsrun-production-stack.ts`: retained S3、CloudFront、OAC、既知route rewrite、旧URL 301、実HTTP 404。証明書を渡した更新時だけCloudFrontへ`itsrun.info` alternate domainを追加する。DNS recordは切替作業で別管理し、旧Aを先に削除しない。
 - `infra/itsrun-production-dns-stack.ts`: `itsrun.info` public Hosted Zone。既存recordを複製する前に委任してはいけない。
 - `infra/itsrun-production-certificate-stack.ts`: 委任済みHosted Zoneで検証する`us-east-1` ACM certificate。
 - `infra/itsrun-production-automation-stack.ts`: protected masterだけを信頼するcontent-only GitHub OIDC role。
@@ -59,14 +59,15 @@ Route 53委任後、`us-east-1` certificateを発行する。
 ITSRUN_PRODUCTION_HOSTED_ZONE_ID=... npm run infra:production:certificate:deploy
 ```
 
-発行済みARNとHosted Zoneを指定してhosting stackを更新すると、既存distributionへaliasとA/AAAA recordが追加される。
+発行済みARNを指定してhosting stackを更新すると、既存distributionへalternate domainが追加される。この時点ではDNSは旧Firebase Aのままなので公開経路は変わらない。
 
 ```sh
 ITSRUN_PRODUCTION_DOMAIN=itsrun.info \
 ITSRUN_PRODUCTION_CERTIFICATE_ARN=... \
-ITSRUN_PRODUCTION_HOSTED_ZONE_ID=... \
 npm run infra:production:deploy
 ```
+
+CloudFrontの更新が`Deployed`になり、default domainと`Host: itsrun.info`で証明書・routeを確認した後、Route 53のapex AをCloudFront aliasへUPSERTし、AAAA aliasを同じchange batchで追加する。既存Firebase Aを先にDELETEしてはいけない。TXTと`_acme-challenge`は移行確認が終わるまで保持する。
 
 ### 4. Cutover verification
 
@@ -76,7 +77,7 @@ npm run infra:production:deploy
 - 同意前GA4なし、同意後GA4あり、広告なし
 - cache metadata、CloudFront errors、availability daily run
 
-問題時はRoute 53 apex A/AAAAを旧Firebase向けrecordへ戻す。十分な安定期間を取るまでFirebase custom domainを切断しない。
+問題時はRoute 53 apex Aを旧Firebaseの2 addressへUPSERTし、CloudFront向けAAAAを削除する。十分な安定期間を取るまでFirebase custom domainを切断しない。
 
 ## GitHub repository variables
 

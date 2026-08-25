@@ -11,5 +11,4 @@ new ItsRunProductionStack(app, 'ItsRunProductionStack', {
   description: 'Production S3 and CloudFront hosting for ItsRun',
   domainName: process.env.ITSRUN_PRODUCTION_DOMAIN,
   certificateArn: process.env.ITSRUN_PRODUCTION_CERTIFICATE_ARN,
-  hostedZoneId: process.env.ITSRUN_PRODUCTION_HOSTED_ZONE_ID,
 });

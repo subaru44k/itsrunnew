@@ -129,8 +129,8 @@ try {
     if (!actionStyles.some(action => action.className.includes('action-official') && action.color === 'rgb(255, 255, 255)')) throw new Error('Official-site action contrast styling is missing');
     if (!actionStyles.some(action => action.className.includes('action-directions') && action.color === 'rgb(0, 105, 92)')) throw new Error('Directions action contrast styling is missing');
     await page.getByRole('link', { name: '施設ページ', exact: true }).click();
+    await page.waitForURL(url => url.pathname === '/tracks/toda-sports-center-track');
     await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
-    if (!new URL(page.url()).pathname.includes('/tracks/toda-sports-center-track')) throw new Error('Facility detail URL is not stable');
     await page.getByRole('link', { name: '地図でこの施設を見る', exact: true }).click();
     await page.waitForFunction(() => new URL(location.href).searchParams.get('track') === 'toda-sports-center-track');
     await page.locator('#track-map .track-marker--selected').waitFor();

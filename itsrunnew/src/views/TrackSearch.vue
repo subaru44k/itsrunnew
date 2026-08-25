@@ -21,10 +21,10 @@
         <span>{{ dateRangeLabel }}</span>
       </div>
       <div class="date-shortcuts">
-        <v-btn size="small" :variant="selectedDate === today ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(today)">{{ isEnglish ? 'Today' : '今日' }}</v-btn>
-        <v-btn size="small" :variant="selectedDate === tomorrow ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(tomorrow)">{{ isEnglish ? 'Tomorrow' : '明日' }}</v-btn>
-        <v-btn size="small" :variant="selectedDate === saturday ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(saturday)">{{ isEnglish ? 'Sat' : '土曜' }}</v-btn>
-        <v-btn size="small" :variant="selectedDate === sunday ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(sunday)">{{ isEnglish ? 'Sun' : '日曜' }}</v-btn>
+        <v-btn size="small" :variant="selectedDate === today ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(today, 'today')">{{ isEnglish ? 'Today' : '今日' }}</v-btn>
+        <v-btn size="small" :variant="selectedDate === tomorrow ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(tomorrow, 'tomorrow')">{{ isEnglish ? 'Tomorrow' : '明日' }}</v-btn>
+        <v-btn size="small" :variant="selectedDate === saturday ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(saturday, 'saturday')">{{ isEnglish ? 'Sat' : '土曜' }}</v-btn>
+        <v-btn size="small" :variant="selectedDate === sunday ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(sunday, 'sunday')">{{ isEnglish ? 'Sun' : '日曜' }}</v-btn>
         <label class="native-date-field">
           <span>{{ isEnglish ? 'Choose a date' : '日付を選ぶ' }}</span>
           <input :value="selectedDate" type="date" :min="availabilityManifest.startDate" :max="availabilityManifest.endDate"
@@ -81,9 +81,9 @@
         <p v-if="selectedTrack.individualUse.note" class="track-note">{{ selectedTrack.individualUse.note }}</p>
         <p class="official-warning">{{ isEnglish ? 'Conditions may change. Check the official website before visiting.' : '利用条件は変わることがあります。お出かけ前に公式サイトをご確認ください。' }}</p>
         <div class="detail-actions">
-          <v-btn v-if="availabilityActionUrl(selectedTrack)" class="detail-action action-schedule" color="amber-lighten-4" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityActionUrl(selectedTrack)" target="_blank" rel="noopener">{{ availabilityActionLabel(selectedAvailability) }}</v-btn>
-          <v-btn class="detail-action action-official" color="indigo" variant="flat" prepend-icon="mdi-open-in-new" :href="selectedTrack.urls.official" target="_blank" rel="noopener">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
-          <v-btn class="detail-action action-directions" color="teal-darken-2" variant="outlined" prepend-icon="mdi-directions" :href="directionsUrl(selectedTrack, currentLocation)" target="_blank" rel="noopener">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
+          <v-btn v-if="availabilityActionUrl(selectedTrack)" class="detail-action action-schedule" color="amber-lighten-4" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityActionUrl(selectedTrack)" target="_blank" rel="noopener" @click="trackOutbound('availability_source_click', selectedTrack)">{{ availabilityActionLabel(selectedAvailability) }}</v-btn>
+          <v-btn class="detail-action action-official" color="indigo" variant="flat" prepend-icon="mdi-open-in-new" :href="selectedTrack.urls.official" target="_blank" rel="noopener" @click="trackOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
+          <v-btn class="detail-action action-directions" color="teal-darken-2" variant="outlined" prepend-icon="mdi-directions" :href="directionsUrl(selectedTrack, currentLocation)" target="_blank" rel="noopener" @click="trackOutbound('directions_click', selectedTrack)">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
         </div>
       </aside>
     </div>
@@ -95,7 +95,7 @@
         <button v-for="item in sortedTracks" :key="item.track.id" type="button"
           :class="['facility-card', { 'is-selected': selectedTrack?.id === item.track.id }]"
           :aria-pressed="selectedTrack?.id === item.track.id" :aria-label="facilityCardAriaLabel(item.track, item.availability)"
-          @click="selectTrack(item.track)">
+          @click="selectTrack(item.track, 'list')">
           <span :class="['availability-badge', availabilityClass(item.availability)]"><v-icon :icon="statusIcon(item.availability.status)" size="14" aria-hidden="true" />{{ availabilityLabel(item.availability) }}</span>
           <strong>{{ localizedName(item.track) }}</strong>
           <span v-if="item.availability.status === 'unknown'" class="availability-hint">{{ availabilityCardHint(item.availability) }}</span>
@@ -142,6 +142,7 @@ import {
   nextWeekdayDate,
   normalizeSelectedDate,
 } from '../model/availability-range';
+import { trackProductEvent } from '../services/analytics';
 
 const SHAKUJII_PARK = { latitude: 35.7433, longitude: 139.5969 };
 const { locale } = useI18n();
@@ -228,6 +229,7 @@ watch(visibleTracks, tracksNow => {
   renderMarkers();
   if (selectedTrack.value && !tracksNow.some(track => track.id === selectedTrack.value?.id)) selectedTrack.value = null;
 });
+watch(showUnavailable, value => trackProductEvent('show_unavailable_change', { enabled: value, selected_date: selectedDate.value }));
 
 function renderMarkers() {
   if (!map || !markerLayer) return;
@@ -240,7 +242,7 @@ function renderMarkers() {
       iconSize: [30, 30], iconAnchor: [15, 15],
     });
     L.marker([track.location.latitude, track.location.longitude], { icon, title: localizedName(track) })
-      .on('click', () => selectTrack(track)).addTo(markerLayer);
+      .on('click', () => selectTrack(track, 'map')).addTo(markerLayer);
   }
 }
 
@@ -262,26 +264,29 @@ async function loadDate(date: string) {
   }
 }
 
-function chooseDate(date: string) {
+function chooseDate(date: string, source = 'date_input') {
   if (!isGeneratedDate(date)) {
     dateMessage.value = isEnglish.value ? 'Choose a date in the searchable range.' : '検索可能期間内の日付を選んでください。';
     return;
   }
+  trackProductEvent('date_select', { source, selected_date: date });
   router.replace({ path: route.path, query: { ...route.query, date } });
 }
 
 function onDateInput(event: Event) {
-  chooseDate((event.target as HTMLInputElement).value);
+  chooseDate((event.target as HTMLInputElement).value, 'native_date_input');
 }
 
-async function selectTrack(track: TrackFacility) {
+async function selectTrack(track: TrackFacility, source: 'map' | 'list') {
   selectedTrack.value = track;
+  trackProductEvent('facility_select', { track_id: track.id, source, selected_date: selectedDate.value });
   map?.flyTo([track.location.latitude, track.location.longitude], Math.max(map.getZoom(), 14));
   await nextTick();
   detailElement.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function requestLocation() {
+  trackProductEvent('use_location', { action: 'request' });
   if (!navigator.geolocation) {
     showLocationError(isEnglish.value ? 'Geolocation is unavailable. Showing Shakujii Park instead.' : 'このブラウザでは現在地を取得できません。石神井公園周辺を表示します。');
     return;
@@ -293,6 +298,7 @@ function requestLocation() {
     locationError.value = false;
     currentLocation.value = { latitude: position.coords.latitude, longitude: position.coords.longitude };
     locationMessage.value = isEnglish.value ? 'Location found. Facilities are sorted by straight-line distance.' : '現在地を取得しました。施設一覧を直線距離順に並べました。';
+    trackProductEvent('use_location_result', { result: 'success' });
     if (map) {
       locationMarker?.remove();
       locationMarker = L.marker([position.coords.latitude, position.coords.longitude], {
@@ -309,6 +315,7 @@ function requestLocation() {
       3: isEnglish.value ? 'Location request timed out. Showing Shakujii Park instead.' : '現在地の取得がタイムアウトしました。石神井公園周辺を表示します。',
     };
     showLocationError(messages[error.code] ?? messages[2]);
+    trackProductEvent('use_location_result', { result: error.code === 1 ? 'denied' : error.code === 3 ? 'timeout' : 'unavailable' });
   }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
 }
 
@@ -441,6 +448,9 @@ function availabilityActionUrl(track: TrackFacility) { return selectedDateAvaila
 function availabilityActionLabel(availability: TrackAvailability) {
   if (availability.status === 'unknown') return isEnglish.value ? 'How to confirm' : '確認方法を見る';
   return isEnglish.value ? `${selectedDateShortLabel.value} schedule` : `${selectedDateShortLabel.value}の予定`;
+}
+function trackOutbound(eventName: string, track: TrackFacility) {
+  trackProductEvent(eventName, { track_id: track.id, selected_date: selectedDate.value });
 }
 </script>
 

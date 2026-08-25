@@ -32,6 +32,8 @@ jobs:
       PREVIEW_DISTRIBUTION_ID: E2F8WYHWRDA3NS
       PREVIEW_DOMAIN: d2xryux7a95b54.cloudfront.net
       PREVIEW_URL: https://d2xryux7a95b54.cloudfront.net
+      VITE_DEPLOY_TARGET: preview
+      VITE_ADSENSE_ENABLED: 'false'
       CHROME_PATH: /usr/bin/google-chrome
     steps:
       - name: Check out repository

@@ -4,6 +4,12 @@
   "footer_1": "Please tweet to ",
   "footer_2": "{'@'}itsrun_page",
   "footer_3": " if you have any requests.",
+  "footer_links": {
+    "label": "Site information",
+    "about": "About",
+    "privacy": "Privacy",
+    "analytics": "Analytics settings"
+  },
   "menu": {
     "tokyo": "Tokyo",
     "oda": "Yoyogi Park Athletic Track",

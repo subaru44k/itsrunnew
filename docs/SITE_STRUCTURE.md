@@ -59,10 +59,12 @@ itsrunnew/
 │   ├── locales/               ja.json / en.json
 │   ├── views/                 ルート単位のページ
 │   ├── components/
-│   │   ├── AdsDisplay.vue     AdSenseスロットとスクリプト読み込み
+│   │   ├── AdsDisplay.vue     環境flagで無効化したAdSenseスロット
+│   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
 │   │   └── laptime/           PC・スマホ用マラソンペース表
 │   ├── model/                 ペース表の計算モデル、トラック型・距離・経路URL
+│   ├── services/              同意状態、GA4の遅延loadと同意済みevent
 │   └── plugins/vuetify.ts     Vuetifyテーマとアイコン設定
 ├── public/                    favicon、manifest、robots、ads.txt、状態画像
 ├── scripts/
@@ -120,17 +122,19 @@ research/
 | 日本語 | 英語 | View | 用途 |
 |---|---|---|---|
 | `/` | `/en/` | `TrackSearch.vue` | 陸上トラック検索（ホーム） |
-| `/tracks` | `/en/tracks` | `TrackSearch.vue` | Track Searchの共有・後方互換alias |
+| `/tracks` | `/en/tracks` | redirect | queryを維持してTrack Searchホームへ移動する互換URL |
 | `/oda-field` | `/en/oda-field` | `OdaField.vue` | 織田フィールド |
 | `/yumenoshima` | `/en/yumenoshima` | `Yumenoshima.vue` | 夢の島陸上競技場 |
 | `/komazawa` | `/en/komazawa` | `Komazawa.vue` | 駒沢オリンピック公園陸上競技場 |
 | `/todoroki` | `/en/todoroki` | `Todoroki.vue` | 等々力陸上競技場 |
 | `/pace/marathon` | `/en/pace/marathon` | `LapTime.vue` | マラソンのペース表 |
 | `/nozomiantena/index` | `/en/nozomiantena/index` | `NozomiAntena.vue` | 田中希実選手の記録集 |
+| `/about` | `/en/about` | `About.vue` | 掲載範囲、状態表示、公式情報と訂正窓口 |
+| `/privacy` | `/en/privacy` | `Privacy.vue` | GA4、現在地、広告、外部サービスの取扱い |
 
-`/tracks` と `/en/tracks` はURLを維持したままホームと同じTrack Searchを表示します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa` です。それ以外の未知パス（削除済みの `/manage`を含む）はTrack Searchホーム `/` へリダイレクトされます。
+`/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。CloudFrontのSPA fallbackではHTTP status自体は200のため、正式公開時のedge 301/404は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) の残作業です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、OGP/Twitterのtitle・descriptionメタタグを更新します。共通HTMLにはfavicon、apple-touch-icon、theme color、基本OGPを持ちます。正式ドメイン未設定のPreview段階ではcanonical URLやsitemapを固定しません。記録集の `#2021` と `#2020` は実要素のIDであり、`scrollBehavior`が固定ヘッダーを避けてスクロールします。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、`public/sitemap.xml`はcanonical 18 URLだけを掲載します。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集の `#2021` と `#2020` は実要素のIDであり、`scrollBehavior`が固定ヘッダーを避けてスクロールします。
 
 ## 6. ページと機能
 
@@ -177,7 +181,11 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ### 広告
 
-`AdsDisplay.vue`はGoogle AdSenseスクリプトを必要時に一度だけ読み込み、各スロットを初期化します。広告ブロッカーや未承認の検証ドメインでの失敗は握りつぶします。これはFirebaseやサイトデータ取得とは無関係です。レイアウト比較では広告の自動挿入による変形を避けるため、広告・解析通信と広告要素を遮断します。
+`AdsDisplay.vue`は `VITE_ADSENSE_ENABLED=true` の場合だけGoogle AdSenseスクリプトを読み込みます。正式公開初日は広告を停止する方針で、Preview workflowも明示的にfalseとします。`ads.txt`は将来の再開に備えて維持します。再開前にはprivacy policyとGoogle認定CMPを再確認します。
+
+### プライバシーとアクセス解析
+
+`PrivacyConsent.vue`は初回に日本語・英語の選択肢を表示し、同意状態をlocalStorageへ保存します。拒否してもサイト機能は変わらず、フッターから再設定できます。`services/analytics.ts`は正式buildで同意後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。Preview buildは同意後もGA4を読み込みません。page viewはqueryを除いたcanonical path単位とし、Track Searchの主要操作eventを送ります。Geolocationの緯度経度は送信しません。
 
 ## 7. AWS検証環境
 
@@ -199,6 +207,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 - 独自ドメイン、Route 53、ACM証明書は構成しない。本番ドメインには触れない。
 
 バケットとオブジェクトはスタック削除時に削除される検証用途の設定です。
+
+本番domain `itsrun.info` は現在、お名前.com DNSから旧Firebase Hosting project `itsrun-aaf42` へ向いており、このPreview CloudFrontとは未接続です。確認済みのDNS record、Firebaseとの対応、正式切替時の確認箇所とrollback方針は [`PRODUCTION_DOMAIN.md`](PRODUCTION_DOMAIN.md) に記録しています。本番切替ではこのメモを確認し、Preview content deployとDNS/custom-domain移行を別作業として扱ってください。
 
 `ItsRunPreviewAutomationStack` は既存の標準GitHub OIDC providerを参照し、`master` branchの `subaru44k/itsrunnew` workflowだけが引き受けられる `itsrun-track-preview-deploy` roleを作成します。既存migration roleは使用しません。権限はPreview bucketのcontent操作とPreview distributionのread/invalidationに限定し、hosting stackとは独立して管理します。
 
@@ -232,6 +242,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 `.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。commit済みavailability baselineを使うためlive collector、AWS権限、secretsは必要としません。
 
 `.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、content-only S3 sync、targeted CloudFront invalidation、CloudFront smokeまでを実行します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
+
+正式公開前のSEO、Search Console、GA4、広告停止、Privacy、HTTP redirect/404、運用確認は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照します。
 
 ビジュアル比較は、広告を無効化した旧版が`ITSRUN_OLD_URL`（既定 `http://127.0.0.1:4172`）、新版が`ITSRUN_NEW_URL`（既定 `http://127.0.0.1:4173`）で起動済みであることが前提です。画像は既定で`/tmp/itsrun-visual-comparison`へ出力されます。全画面高の差は100px以内、フッター高の差は1px以内、横方向のはみ出しは1px以内を合格条件としています。
 

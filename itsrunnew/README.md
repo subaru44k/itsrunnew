@@ -2,7 +2,9 @@
 
 ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify 4で構成し、Firebaseやその他のバックエンドには接続しません。競技場スケジュールは日付をブラウザ内で生成し、各時間帯を「情報なし」として表示します。
 
-ホーム `/`（英語版 `/en/`）では、東京23区・東京都近隣部・埼玉の検証済み33施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` も同じ検索を表示します。織田フィールドの従来ページは `/oda-field`（英語版 `/en/oda-field`）です。現在地、直線距離、今日から31日分の日付指定availability、利用不可表示switch、施設詳細、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
+ホーム `/`（英語版 `/en/`）では、東京23区・東京都近隣部・埼玉の検証済み33施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` は日付queryを維持してホームへ移動します。織田フィールドの従来ページは `/oda-field`（英語版 `/en/oda-field`）です。現在地、直線距離、今日から31日分の日付指定availability、利用不可表示switch、施設詳細、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
+
+正式URLは `https://itsrun.info` です。sitemap、canonical、日英hreflang、OGP、About、Privacyを備え、Preview buildはnoindexにします。GA4は利用者が同意した後だけ読み込み、現在地座標は送信しません。AdSenseは `VITE_ADSENSE_ENABLED=true` を明示しない限り無効です。公開前の管理画面・配信層の確認は [`../docs/PUBLIC_LAUNCH.md`](../docs/PUBLIC_LAUNCH.md) を参照してください。
 
 開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md) を参照してください。
 
@@ -37,6 +39,8 @@ npm run test:smoke:preview
 
 AWS CDKが、公開アクセスを遮断したS3バケットとOrigin Access Control付きCloudFront Distributionを作成します。独自ドメインやRoute 53は構成しません。
 
+本番domain `itsrun.info` は現時点では旧Firebase Hostingから配信されており、このPreviewとは接続されていません。将来の切替で確認するDNS、Firebase project、CloudFront/ACM、rollback項目は [`../docs/PRODUCTION_DOMAIN.md`](../docs/PRODUCTION_DOMAIN.md) を参照してください。
+
 ```sh
 npm run infra:synth
 npm run infra:deploy
@@ -45,3 +49,5 @@ npm run infra:deploy
 デプロイ後のURLは `cdk-outputs.json` の `VerificationUrl` で確認できます。プレビュー環境を削除する場合は `npm run infra:destroy` を実行します。
 
 GitHub Actionsはmaster push、手動実行、毎日05:00 JSTにfresh availabilityを生成し、既存Previewへcontent-only deployします。GitHub OIDCの専用role、cache metadata、targeted invalidation、concurrency、failure handlingは [`../docs/PREVIEW_DEPLOYMENT.md`](../docs/PREVIEW_DEPLOYMENT.md) を参照してください。通常deployでCDK hosting stackは更新しません。
+
+Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false` を使用します。正式buildでは `VITE_DEPLOY_TARGET` を設定せず、検索indexを許可します。広告を再開するまでは `VITE_ADSENSE_ENABLED` も設定しません。

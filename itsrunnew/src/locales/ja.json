@@ -4,6 +4,12 @@
   "footer_1": "ウェブサイトの要望は、",
   "footer_2": "{'@'}itsrun_page",
   "footer_3": "までどうぞ",
+  "footer_links": {
+    "label": "サイト情報",
+    "about": "このサイトについて",
+    "privacy": "プライバシー",
+    "analytics": "アクセス解析の設定"
+  },
   "menu": {
     "tokyo": "東京都の競技場",
     "oda": "織田フィールド",

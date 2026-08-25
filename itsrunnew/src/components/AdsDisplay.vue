@@ -1,5 +1,6 @@
 <template>
   <ins
+    v-if="adsenseEnabled"
     class="adsbygoogle"
     style="display:block"
     data-ad-client="ca-pub-7941378059940304"
@@ -12,7 +13,9 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 defineProps<{ slot: string }>();
+const adsenseEnabled = import.meta.env.VITE_ADSENSE_ENABLED === 'true';
 onMounted(() => {
+  if (!adsenseEnabled) return;
   if (!document.querySelector('script[data-itsrun-adsense]')) {
     const script = document.createElement('script');
     script.async = true;

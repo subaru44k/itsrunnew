@@ -53,9 +53,15 @@
     <footer class="site-footer">
       <div class="footer-request">
         <strong class="subheading">{{ t('footer_1') }}<a href="https://twitter.com/itsrun_page">{{ t('footer_2') }}</a>{{ t('footer_3') }}</strong>
+        <nav class="footer-links" :aria-label="t('footer_links.label')">
+          <router-link :to="localizedPath('about')">{{ t('footer_links.about') }}</router-link>
+          <router-link :to="localizedPath('privacy')">{{ t('footer_links.privacy') }}</router-link>
+          <button type="button" @click="openPrivacySettings">{{ t('footer_links.analytics') }}</button>
+        </nav>
       </div>
       <div class="footer-copyright">&copy;2019 — <strong>{{ t('title') }}</strong></div>
     </footer>
+    <PrivacyConsent />
   </v-app>
 </template>
 
@@ -63,6 +69,8 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import PrivacyConsent from '@/components/PrivacyConsent.vue';
+import { openPrivacySettings } from '@/services/privacy-consent';
 
 const drawer = ref(false);
 const route = useRoute();

@@ -7,7 +7,7 @@ const outputDirectory = process.env.ITSRUN_VISUAL_OUTPUT ?? '/tmp/itsrun-visual-
 const executablePath = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const adPattern = /googlesyndication|doubleclick|googletagmanager|google-analytics|googleadservices/i;
 const targets = [
-  { name: 'home', path: '/', readyText: '織田フィールド 開放日' },
+  { name: 'oda-field', path: '/oda-field', readyText: '織田フィールド 開放日' },
   { name: 'yumenoshima', path: '/yumenoshima', readyText: '夢の島陸上競技場 開放日' },
   { name: 'komazawa', path: '/komazawa', readyText: '駒沢オリンピック公園陸上競技場 開放日' },
   { name: 'todoroki', path: '/todoroki', readyText: '等々力陸上競技場 開放日' },

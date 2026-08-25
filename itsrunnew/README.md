@@ -2,7 +2,7 @@
 
 ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify 4で構成し、Firebaseやその他のバックエンドには接続しません。競技場スケジュールは日付をブラウザ内で生成し、各時間帯を「情報なし」として表示します。
 
-既存の競技場・ペース・記録ページに加え、`/tracks`（英語版 `/en/tracks`）で東京23区・東京都近隣部・埼玉の検証済み33施設をOpenStreetMap上から探せます。現在地、直線距離、今日から31日分の日付指定availability、利用不可表示switch、施設詳細、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
+ホーム `/`（英語版 `/en/`）では、東京23区・東京都近隣部・埼玉の検証済み33施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` も同じ検索を表示します。織田フィールドの従来ページは `/oda-field`（英語版 `/en/oda-field`）です。現在地、直線距離、今日から31日分の日付指定availability、利用不可表示switch、施設詳細、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
 
 開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md) を参照してください。
 

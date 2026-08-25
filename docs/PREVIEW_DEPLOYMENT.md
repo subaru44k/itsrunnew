@@ -35,7 +35,7 @@ npm run infra:automation:deploy
 - hashed `assets/`: `public,max-age=31536000,immutable`
 - `index.html`: `no-cache`
 - S3 sync: current `dist/`にない旧objectを削除
-- targeted invalidation: `/`, `/index.html`, `/tracks`, `/en/tracks`
+- targeted invalidation: `/`, `/index.html`, `/en/`, `/tracks`, `/en/tracks`, `/oda-field`, `/en/oda-field`
 
 invalidation完了後、workflowはCloudFront URLに対して既存のdesktop/mobile smokeを実行します。run summaryにはtrigger、commit、availability range、track数、status集計、S3/invalidation/smoke結果を記録します。
 

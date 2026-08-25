@@ -8,7 +8,7 @@ import Todoroki from './views/Todoroki.vue';
 
 const pages = {
   oda: {
-    path: '', component: OdaField,
+    path: 'oda-field', component: OdaField,
     jaTitle: 'いつラン - 織田フィールドを個人利用する人のための利用時間確認ページ',
     enTitle: "It's Run - Check the availability of the Yoyogi Park Athletic Track",
     jaDescription: '織田フィールド(代々木公園陸上競技場)等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
@@ -50,7 +50,7 @@ const pages = {
     enDescription: 'Race results of Japanese runner Nozomi Tanaka.',
   },
   tracks: {
-    path: 'tracks', component: () => import('./views/TrackSearch.vue'),
+    path: '', component: () => import('./views/TrackSearch.vue'),
     jaTitle: 'いつラン - 日付から探せる陸上競技場・トラック検索',
     enTitle: "It's Run - Find a track for your workout date",
     jaDescription: '利用日を選び、個人利用できそうな陸上競技場・ランニングトラックを地図と一覧から探せます。',
@@ -62,9 +62,11 @@ const routes: RouteRecordRaw[] = [];
 for (const [key, page] of Object.entries(pages)) {
   const jaPath = page.path ? `/${page.path}` : '/';
   const enPath = page.path ? `/en/${page.path}` : '/en/';
+  const jaAlias = key === 'tracks' ? '/tracks' : undefined;
+  const enAlias = key === 'tracks' ? '/en/tracks' : undefined;
   routes.push(
-    { path: jaPath, name: `${key}-ja`, component: page.component, meta: { locale: 'ja', title: page.jaTitle, description: page.jaDescription } },
-    { path: enPath, name: `${key}-en`, component: page.component, meta: { locale: 'en', title: page.enTitle, description: page.enDescription } },
+    { path: jaPath, ...(jaAlias ? { alias: jaAlias } : {}), name: `${key}-ja`, component: page.component, meta: { locale: 'ja', title: page.jaTitle, description: page.jaDescription } },
+    { path: enPath, ...(enAlias ? { alias: enAlias } : {}), name: `${key}-en`, component: page.component, meta: { locale: 'en', title: page.enTitle, description: page.enDescription } },
   );
 }
 routes.push(

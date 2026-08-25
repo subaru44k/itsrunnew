@@ -81,9 +81,9 @@
         <p v-if="selectedTrack.individualUse.note" class="track-note">{{ selectedTrack.individualUse.note }}</p>
         <p class="official-warning">{{ isEnglish ? 'Conditions may change. Check the official website before visiting.' : '利用条件は変わることがあります。お出かけ前に公式サイトをご確認ください。' }}</p>
         <div class="detail-actions">
-          <v-btn v-if="availabilityActionUrl(selectedTrack)" color="amber-darken-3" variant="flat" :href="availabilityActionUrl(selectedTrack)" target="_blank" rel="noopener">{{ availabilityActionLabel(selectedAvailability) }}</v-btn>
-          <v-btn color="indigo" variant="flat" :href="selectedTrack.urls.official" target="_blank" rel="noopener">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
-          <v-btn color="teal" variant="outlined" :href="directionsUrl(selectedTrack, currentLocation)" target="_blank" rel="noopener">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
+          <v-btn v-if="availabilityActionUrl(selectedTrack)" class="detail-action action-schedule" color="amber-lighten-4" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityActionUrl(selectedTrack)" target="_blank" rel="noopener">{{ availabilityActionLabel(selectedAvailability) }}</v-btn>
+          <v-btn class="detail-action action-official" color="indigo" variant="flat" prepend-icon="mdi-open-in-new" :href="selectedTrack.urls.official" target="_blank" rel="noopener">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
+          <v-btn class="detail-action action-directions" color="teal-darken-2" variant="outlined" prepend-icon="mdi-directions" :href="directionsUrl(selectedTrack, currentLocation)" target="_blank" rel="noopener">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
         </div>
       </aside>
     </div>
@@ -205,7 +205,7 @@ const datasetNote = computed(() => isEnglish.value
 watch(() => route.query.date, async value => {
   const normalized = normalizeSelectedDate(value, today);
   if (value !== normalized) {
-    await router.replace({ query: { ...route.query, date: normalized } });
+    await router.replace({ path: route.path, query: { ...route.query, date: normalized } });
     return;
   }
   await loadDate(normalized);
@@ -267,7 +267,7 @@ function chooseDate(date: string) {
     dateMessage.value = isEnglish.value ? 'Choose a date in the searchable range.' : '検索可能期間内の日付を選んでください。';
     return;
   }
-  router.replace({ query: { ...route.query, date } });
+  router.replace({ path: route.path, query: { ...route.query, date } });
 }
 
 function onDateInput(event: Event) {
@@ -490,7 +490,10 @@ function availabilityActionLabel(availability: TrackAvailability) {
 .track-note { padding: 10px; margin: 12px 0; color: #8a4b00; background: #fff8e1; border-radius: 6px; }
 .official-warning { margin: 14px 0; color: #555; font-size: 13px; }
 .detail-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.detail-actions .v-btn { min-height: 40px; }
+.detail-actions .v-btn { min-height: 44px; flex: 1 1 100%; }
+.detail-actions .action-schedule { color: #4e342e !important; border: 1px solid #d99000; }
+.detail-actions .action-official { color: #fff !important; }
+.detail-actions .action-directions { color: #00695c !important; border-color: #00695c !important; }
 .facility-section { margin-top: 28px; }.facility-section h2 { font-size: 24px; }.dataset-note { color: #666; }
 .facility-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .facility-card { position: relative; display: flex; min-width: 0; padding: 14px 36px 14px 14px; text-align: left; color: inherit; border: 1px solid #d9dce8; border-radius: 9px; background: white; cursor: pointer; flex-direction: column; gap: 5px; }

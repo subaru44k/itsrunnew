@@ -13,7 +13,8 @@
       <p>Your browser asks permission before location access. Coordinates are used in the browser to calculate straight-line distances and move the map. ItsRun does not send or store those coordinates on its own server.</p>
 
       <h2>Advertising</h2>
-      <p>Advertising is currently disabled. The site retains its AdSense publisher record and ads.txt file, but does not load advertising scripts or ad units. This policy and consent controls will be reviewed before advertising is enabled.</p>
+      <p>Advertising is currently disabled. When enabled, ItsRun plans to use Google AdSense. Google and its advertising partners may use cookies or similar technologies and process device, browser, approximate location, and interaction information to select, deliver, and measure personalized or non-personalized advertising.</p>
+      <p>Google's consent management platform (CMP) manages advertising and cookie choices where applicable. It is separate from the ItsRun analytics preference above. After advertising is enabled, you can revisit advertising consent from “Privacy and cookie settings” in the footer. See <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">how Google uses information from sites that use its services</a> and <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a>.</p>
 
       <h2>External services and links</h2>
       <p>The map uses OpenStreetMap tiles. Official facility pages and Google Maps directions open as external services and are governed by their respective policies.</p>
@@ -36,7 +37,8 @@
       <p>現在地は利用者がブラウザ上で許可した場合のみ取得します。緯度・経度はブラウザ内で直線距離の計算と地図移動に利用し、いつラン独自のサーバーへ送信・保存しません。</p>
 
       <h2>広告</h2>
-      <p>現在、広告配信は停止しています。AdSenseのサイト登録とads.txtは維持していますが、広告スクリプトおよび広告枠は読み込みません。広告を再開する場合は、本方針と同意管理をあらためて確認・更新します。</p>
+      <p>現在、広告配信は停止しています。再開後はGoogle AdSenseを利用する予定です。Googleおよび広告配信事業者は、パーソナライズ広告または非パーソナライズ広告の選定、配信、効果測定のため、Cookie等の技術を使用し、端末・ブラウザ情報、IPアドレスから推定されるおおよその地域、操作情報等を取り扱う場合があります。</p>
+      <p>広告・Cookieに関する選択が必要な地域では、Googleの同意管理プラットフォーム（CMP）を使用します。この選択は、上記のいつラン独自のアクセス解析設定とは別に管理されます。広告再開後はフッターの「プライバシーとCookieの設定」から広告の同意内容を再確認・変更できます。Googleによる情報の利用については、<a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleのサービスを使用するサイトやアプリから収集した情報の利用</a>および<a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Googleプライバシーポリシー</a>をご確認ください。</p>
 
       <h2>外部サービス・外部リンク</h2>
       <p>地図にはOpenStreetMapのタイルを使用します。施設公式サイトやGoogle Mapsの経路検索は外部サービスとして開き、それぞれのサービスの方針が適用されます。</p>

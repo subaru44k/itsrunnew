@@ -6,6 +6,8 @@ const index = read('../index.html');
 const robots = read('../public/robots.txt');
 const sitemap = read('../public/sitemap.xml');
 const analytics = read('../src/services/analytics.ts');
+const advertising = read('../src/services/advertising.ts');
+const main = read('../src/main.ts');
 const deployment = read('../src/services/deployment.ts');
 const ads = read('../src/components/AdsDisplay.vue');
 const router = read('../src/router.ts');
@@ -40,8 +42,13 @@ describe('public launch readiness', () => {
     expect(deployment).toContain('window.location.origin === PUBLIC_SITE_ORIGIN');
     expect(analytics).toContain("analytics_storage: 'granted'");
     expect(analytics).toContain("ad_storage: 'denied'");
-    expect(ads).toContain("import.meta.env.VITE_ADSENSE_ENABLED === 'true'");
+    expect(advertising).toContain("import.meta.env.VITE_ADSENSE_ENABLED === 'true'");
+    expect(advertising).toContain('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    expect(advertising).toContain('googlefc.callbackQueue.push');
+    expect(main).toContain('if (value !== null) initializeAdvertising()');
+    expect(ads).toContain('advertisingReady');
     expect(privacy).toContain('現在、広告配信は停止しています。');
+    expect(privacy).toContain('Googleの同意管理プラットフォーム（CMP）');
   });
 
   it('canonicalizes Track Search aliases and marks unknown routes noindex', () => {

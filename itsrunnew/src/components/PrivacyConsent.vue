@@ -23,11 +23,11 @@ const showPrompt = computed(() => analyticsConsent.value === null || privacySett
 const privacyPath = computed(() => isEnglish.value ? '/en/privacy' : '/privacy');
 const copy = computed(() => isEnglish.value ? {
   title: 'Analytics preferences',
-  message: 'ItsRun uses Google Analytics only with your permission to improve the track finder. Advertising is currently disabled.',
+  message: 'Choose whether ItsRun may use Google Analytics to improve the track finder. Advertising choices are managed separately by Google’s consent message when advertising is enabled.',
   details: 'Privacy details', accept: 'Allow analytics', decline: 'Decline', close: 'Close',
 } : {
   title: 'アクセス解析の設定',
-  message: 'いつランは、トラック検索の改善を目的に、同意いただいた場合のみGoogle Analyticsを使用します。広告は現在停止しています。',
+  message: 'トラック検索の改善にGoogle Analyticsを利用してよいか選択してください。広告再開後の広告・Cookieの選択は、Googleの同意メッセージで別に管理します。',
   details: 'プライバシー詳細', accept: '解析に同意する', decline: '同意しない', close: '閉じる',
 });
 

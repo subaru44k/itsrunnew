@@ -8,7 +8,8 @@
     "label": "サイト情報",
     "about": "このサイトについて",
     "privacy": "プライバシー",
-    "analytics": "アクセス解析の設定"
+    "analytics": "アクセス解析の設定",
+    "advertising": "プライバシーとCookieの設定"
   },
   "menu": {
     "tokyo": "東京都の競技場",

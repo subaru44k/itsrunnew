@@ -24,8 +24,12 @@ const statusCounts = dataset => {
     unknown: statuses.filter(status => status === 'unknown').length,
   };
 };
-const today = availabilityManifest.startDate;
-const tomorrow = availabilityManifest.dates[1];
+const tokyoToday = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+}).format(new Date());
+const today = availabilityManifest.dates.includes(tokyoToday) ? tokyoToday : availabilityManifest.startDate;
+const todayIndex = availabilityManifest.dates.indexOf(today);
+const tomorrow = availabilityManifest.dates[Math.min(todayIndex + 1, availabilityManifest.dates.length - 1)];
 const saturday = availabilityManifest.dates.find(date => new Date(`${date}T12:00:00+09:00`).getUTCDay() === 6);
 const todayCounts = statusCounts(datasetForDate(today));
 const tomorrowCounts = statusCounts(datasetForDate(tomorrow));

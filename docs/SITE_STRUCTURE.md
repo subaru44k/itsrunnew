@@ -200,7 +200,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `PrivacyConsent.vue`はアクセス解析だけの選択肢を初回に日本語・英語で表示し、同意状態をlocalStorageへ保存します。拒否してもサイト機能は変わらず、フッターから再設定できます。広告を再開したbuildでは、解析への同意・拒否のどちらかが選ばれた後にAdSenseタグを初期化するため、サイト独自の解析画面とGoogle CMPを同時に重ねません。広告の選択はGoogle CMPへ分離し、フッターの「プライバシーとCookieの設定」からGoogle公式のrevocation flowを開けます。Google CMP側の「analytics purposes」はサイト独自の解析同意と二重管理にしないためOFFを維持します。
 
-`services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、Track Searchの主要操作eventを送ります。Geolocationの緯度経度は送信しません。Privacyページは広告停止中であることに加え、再開後にAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPを利用する予定と、Googleの関連方針への導線を日英で説明します。
+`services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、日付・施設・検索基準・公式確認・経路などのTrack Search主要操作eventを固定schemaで送ります。Geolocationの緯度経度、住所、自由入力文字列は送信せず、送信直前にもprivate parameter名を除外します。event一覧とGA4管理画面でのcustom dimension/key event候補は [`ANALYTICS.md`](ANALYTICS.md) が正本です。PrivacyページはAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPとGoogleの関連方針への導線を日英で説明します。
 
 ## 7. AWS検証環境
 

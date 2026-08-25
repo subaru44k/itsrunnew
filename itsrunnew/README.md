@@ -60,4 +60,6 @@ ProductionはPreviewとは別の、versioning・retain有効のprivate S3 + Clou
 
 Production workflowはfresh availabilityと全検証を実行してcontentだけを配備し、Google CMPを伴うAdSenseを読み込みます。コマンド、OIDC role、GitHub variables、DNS切替、旧Firebaseへのrollbackは [`../docs/PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md) を参照してください。
 
+GA4は正式domainでアクセス解析へ同意した場合だけ読み込みます。Track Searchの操作event、privacy boundary、GA4管理画面で登録するcustom dimension/key event候補は [`../docs/ANALYTICS.md`](../docs/ANALYTICS.md) を参照してください。緯度・経度、住所、自由入力文字列は送信しません。
+
 `public/service-worker.js`は旧Firebase版のoffline cacheを削除して登録解除する移行専用ファイルです。新サイトのoffline cacheではありません。既存利用者を旧画面に残さないため、移行期間中は`no-cache`で配備します。

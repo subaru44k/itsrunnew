@@ -10,7 +10,7 @@
         <h1>{{ localizedName(track) }}</h1>
         <p>{{ track.location.address }}</p>
       </div>
-      <v-btn color="white" class="back-search" prepend-icon="mdi-map-search" :to="searchPath">
+      <v-btn color="white" class="back-search" prepend-icon="mdi-map-search" :to="searchPath" @click="trackDetailEvent('view_on_map_click')">
         {{ isEnglish ? 'View this facility on map' : '地図でこの施設を見る' }}
       </v-btn>
     </header>
@@ -18,8 +18,8 @@
     <section class="date-panel" :aria-label="isEnglish ? 'Use date' : '利用日'">
       <strong>{{ isEnglish ? 'Use date' : '利用日' }}</strong>
       <div class="date-actions">
-        <v-btn size="small" :variant="selectedDate === today ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(today)">{{ isEnglish ? 'Today' : '今日' }}</v-btn>
-        <v-btn size="small" :variant="selectedDate === tomorrow ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(tomorrow)">{{ isEnglish ? 'Tomorrow' : '明日' }}</v-btn>
+        <v-btn size="small" :variant="selectedDate === today ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(today, 'today')">{{ isEnglish ? 'Today' : '今日' }}</v-btn>
+        <v-btn size="small" :variant="selectedDate === tomorrow ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(tomorrow, 'tomorrow')">{{ isEnglish ? 'Tomorrow' : '明日' }}</v-btn>
         <label><span>{{ isEnglish ? 'Choose date' : '日付を選ぶ' }}</span><input :value="selectedDate" type="date" :min="availabilityManifest.startDate" :max="availabilityManifest.endDate" @change="onDateInput" /></label>
       </div>
     </section>
@@ -53,16 +53,16 @@
           <h2>{{ isEnglish ? 'Check before visiting' : '利用前に確認' }}</h2>
           <p>{{ isEnglish ? 'Schedules and rules can change. Please confirm the latest information from the facility.' : '予定や利用条件は変更されることがあります。お出かけ前に施設の最新情報をご確認ください。' }}</p>
           <div class="primary-actions">
-            <v-btn v-if="availabilityUrl" color="amber-lighten-4" class="schedule-action" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityUrl" target="_blank" rel="noopener">{{ isEnglish ? 'View schedule' : '利用予定を見る' }}</v-btn>
-            <v-btn color="indigo" variant="flat" class="white-text" prepend-icon="mdi-open-in-new" :href="track.urls.official" target="_blank" rel="noopener">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
-            <v-btn color="teal-darken-2" variant="outlined" class="directions-action" prepend-icon="mdi-directions" :href="directionsUrl(track)" target="_blank" rel="noopener">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
+            <v-btn v-if="availabilityUrl" color="amber-lighten-4" class="schedule-action" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityUrl" target="_blank" rel="noopener" @click="trackDetailEvent('availability_source_click')">{{ isEnglish ? 'View schedule' : '利用予定を見る' }}</v-btn>
+            <v-btn color="indigo" variant="flat" class="white-text" prepend-icon="mdi-open-in-new" :href="track.urls.official" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click')">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
+            <v-btn color="teal-darken-2" variant="outlined" class="directions-action" prepend-icon="mdi-directions" :href="directionsUrl(track)" target="_blank" rel="noopener" @click="trackDetailEvent('directions_click')">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
           </div>
         </section>
       </main>
 
       <aside class="related-section">
         <h2>{{ isEnglish ? 'Nearby tracks' : '近くのトラック' }}</h2>
-        <router-link v-for="item in related" :key="item.track.id" :to="trackDetailPath(item.track, locale)">
+        <router-link v-for="item in related" :key="item.track.id" :to="trackDetailPath(item.track, locale)" @click="trackRelatedFacility(item.track)">
           <strong>{{ localizedName(item.track) }}</strong><span>{{ item.distance.toFixed(1) }} km</span>
         </router-link>
       </aside>
@@ -77,6 +77,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { availabilityDataset, availabilityForTrack, localDateKey, type AvailabilityDataset } from '../model/availability';
 import { addDateOnlyDays, availabilityManifest, loadAvailabilityDate, normalizeSelectedDate } from '../model/availability-range';
 import { directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
+import { trackProductEvent, type ProductEventName, type ProductEventParameters } from '../services/analytics';
 
 const route = useRoute();
 const router = useRouter();
@@ -93,15 +94,42 @@ const searchPath = computed(() => ({
 }));
 const availability = computed(() => track.value ? availabilityForTrack(track.value.id, selectedDate.value, new Date(), dataset.value) : null);
 const related = computed(() => !track.value ? [] : tracks.filter(item => item.id !== track.value?.id).map(item => ({ track: item, distance: distanceKm(track.value!.location, item.location) })).sort((a, b) => a.distance - b.distance).slice(0, 5));
+let lastDetailView = '';
 
 watch(() => route.query.date, async value => {
   selectedDate.value = normalizeSelectedDate(value, today);
   try { dataset.value = await loadAvailabilityDate(selectedDate.value); } catch { dataset.value = availabilityDataset; }
 }, { immediate: true });
+watch([() => track.value?.id, selectedDate, () => dataset.value.date, () => availability.value?.status], ([trackId, date, datasetDate, status]) => {
+  if (!trackId || !status || datasetDate !== date) return;
+  const key = `${trackId}|${date}`;
+  if (key === lastDetailView) return;
+  lastDetailView = key;
+  trackDetailEvent('facility_detail_view', { availability_status: status });
+}, { immediate: true });
 
 function localizedName(item: TrackFacility) { return isEnglish.value ? item.name.en : item.name.ja; }
-function chooseDate(date: string) { void router.replace({ query: { ...route.query, date } }); }
+function chooseDate(date: string, source = 'native_date_input') {
+  trackDetailEvent('date_select', { source, selected_date: date });
+  void router.replace({ query: { ...route.query, date } });
+}
 function onDateInput(event: Event) { chooseDate((event.target as HTMLInputElement).value); }
+function trackDetailEvent(name: ProductEventName, parameters: ProductEventParameters = {}) {
+  trackProductEvent(name, {
+    locale: isEnglish.value ? 'en' : 'ja',
+    selected_date: selectedDate.value,
+    track_id: track.value?.id,
+    ...parameters,
+  });
+}
+function trackRelatedFacility(item: TrackFacility) {
+  trackProductEvent('facility_select', {
+    locale: isEnglish.value ? 'en' : 'ja',
+    selected_date: selectedDate.value,
+    track_id: item.id,
+    source: 'related_facility',
+  });
+}
 function value(input: number | null, suffix = '') { return input == null ? (isEnglish.value ? 'Not confirmed' : '未確認') : `${input}${suffix}`; }
 const selectedDateLabel = computed(() => new Intl.DateTimeFormat(isEnglish.value ? 'en-US' : 'ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date(`${selectedDate.value}T12:00:00+09:00`)));
 const availabilityClass = computed(() => `availability--${availability.value?.status.replace('_', '-') ?? 'unknown'}`);

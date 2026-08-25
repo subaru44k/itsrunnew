@@ -179,7 +179,7 @@ import {
   nextWeekdayDate,
   normalizeSelectedDate,
 } from '../model/availability-range';
-import { trackProductEvent } from '../services/analytics';
+import { trackProductEvent, type ProductEventName, type ProductEventParameters } from '../services/analytics';
 
 const SHAKUJII_PARK = { latitude: 35.7433, longitude: 139.5969 };
 const { locale } = useI18n();
@@ -314,7 +314,15 @@ watch(() => route.query.track, value => {
   if (focused && focused.id !== selectedTrack.value?.id && map) void selectTrack(focused, 'map', false, false);
   if (!focused && selectedTrack.value) selectedTrack.value = null;
 });
-watch(showUnavailable, value => trackProductEvent('show_unavailable_change', { enabled: value, selected_date: selectedDate.value }));
+watch(showUnavailable, value => trackSearchEvent('show_unavailable_change', { enabled: value }));
+let lastNoResultsKey = '';
+watch([availabilityLoading, () => visibleTracks.value.length, selectedDate, showUnavailable], ([loading, count, date, includeUnavailable]) => {
+  if (loading || count !== 0) return;
+  const key = `${date}|${includeUnavailable}`;
+  if (key === lastNoResultsKey) return;
+  lastNoResultsKey = key;
+  trackSearchEvent('no_results', { include_unavailable: includeUnavailable });
+});
 
 function renderMarkers() {
   if (!map || !markerLayer) return;
@@ -380,7 +388,7 @@ function chooseDate(date: string, source = 'date_input') {
     dateMessage.value = isEnglish.value ? 'Choose a date in the searchable range.' : '検索可能期間内の日付を選んでください。';
     return;
   }
-  trackProductEvent('date_select', { source, selected_date: date });
+  trackSearchEvent('date_select', { source, selected_date: date });
   router.replace({ path: route.path, query: { ...route.query, date } });
 }
 
@@ -396,7 +404,7 @@ async function selectTrack(track: TrackFacility, source: 'map' | 'list', updateU
     const index = prefectureGroups.value.find(group => group.name === prefecture)?.items.findIndex(item => item.track.id === track.id) ?? -1;
     if (index >= prefectureLimit(prefecture)) prefectureListLimits.value = { ...prefectureListLimits.value, [prefecture]: index + 1 };
   }
-  trackProductEvent('facility_select', { track_id: track.id, source, selected_date: selectedDate.value });
+  trackSearchEvent('facility_select', { track_id: track.id, source, availability_status: selectedDateAvailability(track).status });
   map?.flyTo([track.location.latitude, track.location.longitude], Math.max(map.getZoom(), 14));
   renderMarkers();
   if (updateUrl) await router.replace({ path: route.path, query: { ...route.query, track: track.id } });
@@ -412,8 +420,9 @@ function closeSelectedTrack() {
 }
 
 function requestLocation() {
-  trackProductEvent('use_location', { action: 'request' });
+  trackSearchEvent('use_location', { action: 'request' });
   if (!navigator.geolocation) {
+    trackSearchEvent('use_location_result', { result: 'unsupported' });
     showLocationError(isEnglish.value ? 'Geolocation is unavailable. Showing Shakujii Park instead.' : 'このブラウザでは現在地を取得できません。石神井公園周辺を表示します。');
     return;
   }
@@ -426,7 +435,8 @@ function requestLocation() {
     referencePointSource.value = 'current';
     distanceListLimit.value = 12;
     locationMessage.value = isEnglish.value ? 'Location found. Facilities are sorted by straight-line distance.' : '現在地を取得しました。施設一覧を直線距離順に並べました。';
-    trackProductEvent('use_location_result', { result: 'success' });
+    trackSearchEvent('use_location_result', { result: 'success' });
+    trackSearchEvent('search_origin_select', { origin_type: 'current' });
     if (map) {
       renderReferenceMarker();
       map.setView([position.coords.latitude, position.coords.longitude], 13);
@@ -441,7 +451,7 @@ function requestLocation() {
       3: isEnglish.value ? 'Location request timed out. Showing Shakujii Park instead.' : '現在地の取得がタイムアウトしました。石神井公園周辺を表示します。',
     };
     showLocationError(messages[error.code] ?? messages[2]);
-    trackProductEvent('use_location_result', { result: error.code === 1 ? 'denied' : error.code === 3 ? 'timeout' : 'unavailable' });
+    trackSearchEvent('use_location_result', { result: error.code === 1 ? 'denied' : error.code === 3 ? 'timeout' : 'unavailable' });
   }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
 }
 
@@ -464,6 +474,7 @@ function localizedPrefecture(name: string) {
 function togglePrefecture(group: { name: string; items: Array<{ track: TrackFacility }> }) {
   const expanded = expandedPrefectures.value.includes(group.name);
   expandedPrefectures.value = expanded ? expandedPrefectures.value.filter(name => name !== group.name) : [...expandedPrefectures.value, group.name];
+  trackSearchEvent('prefecture_toggle', { prefecture: group.name, expanded: !expanded });
   if (!expanded && !prefectureListLimits.value[group.name]) prefectureListLimits.value = { ...prefectureListLimits.value, [group.name]: 12 };
   if (!expanded && map && group.items.length) {
     map.fitBounds(L.latLngBounds(group.items.map(item => [item.track.location.latitude, item.track.location.longitude])), { padding: [28, 28], maxZoom: 12 });
@@ -495,6 +506,7 @@ function setReferencePoint(point: { latitude: number; longitude: number }, sourc
   locationMessage.value = source === 'map'
     ? (isEnglish.value ? 'Facilities are sorted from the selected point.' : '選択した地点から近い順に並べました。') : locationMessage.value;
   renderReferenceMarker();
+  if (updateUrl) trackSearchEvent('search_origin_select', { origin_type: source });
   if (updateUrl) void router.replace({ path: route.path, query: { ...route.query, lat: point.latitude.toFixed(5), lng: point.longitude.toFixed(5) } });
 }
 
@@ -508,6 +520,7 @@ function renderReferenceMarker() {
 }
 
 function clearReferencePoint() {
+  if (referencePointSource.value) trackSearchEvent('search_origin_clear', { origin_type: referencePointSource.value });
   distanceOrigin.value = null;
   referencePointSource.value = null;
   selectingPoint.value = false;
@@ -658,8 +671,16 @@ function availabilityActionLabel(availability: TrackAvailability) {
   if (availability.status === 'unknown') return isEnglish.value ? 'How to confirm' : '確認方法を見る';
   return isEnglish.value ? `${selectedDateShortLabel.value} schedule` : `${selectedDateShortLabel.value}の予定`;
 }
-function trackOutbound(eventName: string, track: TrackFacility) {
-  trackProductEvent(eventName, { track_id: track.id, selected_date: selectedDate.value });
+function trackOutbound(eventName: 'availability_source_click' | 'official_site_click' | 'directions_click', track: TrackFacility) {
+  trackSearchEvent(eventName, { track_id: track.id, availability_status: selectedDateAvailability(track).status });
+}
+
+function trackSearchEvent(name: ProductEventName, parameters: ProductEventParameters = {}) {
+  trackProductEvent(name, {
+    locale: isEnglish.value ? 'en' : 'ja',
+    selected_date: selectedDate.value,
+    ...parameters,
+  });
 }
 </script>
 

@@ -2,6 +2,26 @@ import { isPublicProductionRuntime } from './deployment';
 
 const MEASUREMENT_ID = 'G-YNLS7KQXYW';
 
+export const productEventNames = [
+  'date_select',
+  'facility_select',
+  'facility_detail_view',
+  'view_on_map_click',
+  'use_location',
+  'use_location_result',
+  'search_origin_select',
+  'search_origin_clear',
+  'show_unavailable_change',
+  'prefecture_toggle',
+  'no_results',
+  'availability_source_click',
+  'official_site_click',
+  'directions_click',
+] as const;
+
+export type ProductEventName = typeof productEventNames[number];
+export type ProductEventParameters = Record<string, string | number | boolean | null | undefined>;
+
 type Gtag = (...args: unknown[]) => void;
 type AnalyticsWindow = Window & {
   dataLayer?: unknown[];
@@ -78,7 +98,13 @@ export function trackPageView(path: string, title: string) {
   });
 }
 
-export function trackProductEvent(name: string, parameters: Record<string, string | number | boolean> = {}) {
+const privateParameterNames = /^(?:lat|lng|latitude|longitude|address|query|search_query)$/i;
+
+export function safeProductEventParameters(parameters: ProductEventParameters) {
+  return Object.fromEntries(Object.entries(parameters).filter(([name, value]) => !privateParameterNames.test(name) && value != null));
+}
+
+export function trackProductEvent(name: ProductEventName, parameters: ProductEventParameters = {}) {
   if (!analyticsAllowed) return;
-  ensureGtag()('event', name, parameters);
+  ensureGtag()('event', name, safeProductEventParameters(parameters));
 }

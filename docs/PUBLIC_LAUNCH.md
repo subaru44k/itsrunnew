@@ -9,7 +9,7 @@
 - `/tracks` → `/`、`/en/tracks` → `/en/` のclient-side互換redirect。日付queryは維持する。
 - About、Privacy、日本語・英語の各ページと、利用者向け404画面。
 - GA4 `G-YNLS7KQXYW`。初期状態ではGoogle tagを取得せず、利用者がアクセス解析へ同意した後だけ読み込む。拒否しても全機能を利用でき、フッターから選択を変更できる。
-- 広告は `VITE_ADSENSE_ENABLED=true` を明示しない限り読み込まない。正式URLのAdSense確認とGoogle CMPの設定・公開は完了しているが、広告枠とmobile CLSを見直す別変更まで無効を維持する。`ads.txt`は維持する。
+- Productionは `VITE_ADSENSE_ENABLED=true`、Previewはfalse。正式URLのAdSense確認、Google CMPの欧州規制・米国州規制メッセージ公開、Privacy整備後に再開する。`ads.txt`は維持する。
 - Preview buildは `VITE_DEPLOY_TARGET=preview` により全routeを `noindex,nofollow` とし、同意後もGA4を読み込まない。正式buildではこの値を設定しない。
 - OGP画像 `public/img/itsrun-og.jpg`。
 
@@ -26,10 +26,10 @@ Vue Routerはroute遷移時にtitle、description、canonical、hreflang、OGP�
    - 公開後に `https://itsrun.info/sitemap.xml` を送信し、主要URLをURL検査する。
    - 旧サイトの上位URLと被リンクを確認し、必要なHTTP 301 mappingを決める。
 3. AdSense
-   - `itsrun.info`のサイト確認とGoogle CMPの設定・公開は完了。PrivacyもAdSense再開時の情報取扱いを記載済み。
+   - `itsrun.info`のサイト確認、Google CMPの欧州規制メッセージ1件・米国州規制メッセージ1件の公開、Privacy整備は完了。
    - 広告同意はGoogle CMP、GA4同意はサイト内UIで分離するため、Google CMPのConsent Mode設定で「analytics purposes」をOFFにして二重管理を避ける。
-   - 再開前にsite approval／配信可能status、`ads.txt`、Auto ads設定、既存広告枠、mobile CLS、CMPの地域別previewを最終確認する。
-   - 確認後、PreviewはfalseのままProduction workflowの `VITE_ADSENSE_ENABLED` だけをtrueへ変更し、PR・Production deploy・正式URL実機確認を行う。
+   - Productionだけ広告を有効化する。Track Searchには固定枠を追加せずAuto adsへ任せ、既存施設・記録ページの上下広告枠を維持する。
+   - deploy後にsite approval／配信status、Auto adsの実配置、mobile CLS、CMPの地域別表示を継続確認する。
 4. Production hosting（2026-08-25完了）
    - Preview stackとは別に、保持・versioning・rollbackを備えたProduction resourceを構築済み。
    - Route 53、ACM certificate、CloudFront custom domain、cache/security policyを確認済み。

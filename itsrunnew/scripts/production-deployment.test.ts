@@ -19,7 +19,8 @@ describe('Production deployment contract', () => {
     expect(workflow.indexOf('Configure GitHub OIDC credentials')).toBeGreaterThan(workflow.indexOf('Run local production smoke'));
     expect(workflow).not.toMatch(/AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY/);
     expect(workflow).toContain('VITE_DEPLOY_TARGET: production');
-    expect(workflow).toContain("VITE_ADSENSE_ENABLED: 'false'");
+    expect(workflow).toContain("VITE_ADSENSE_ENABLED: 'true'");
+    expect(workflow).toContain('Build static site with advertising and Google CMP');
     expect(workflow).toContain("ITSRUN_EXPECT_EDGE_ROUTING: 'true'");
   });
 

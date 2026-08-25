@@ -34,7 +34,7 @@ jobs:
       PRODUCTION_DOMAIN: ${{ vars.ITSRUN_PRODUCTION_DOMAIN }}
       PRODUCTION_URL: ${{ vars.ITSRUN_PRODUCTION_URL }}
       VITE_DEPLOY_TARGET: production
-      VITE_ADSENSE_ENABLED: 'false'
+      VITE_ADSENSE_ENABLED: 'true'
       CHROME_PATH: /usr/bin/google-chrome
     steps:
       - name: Check out repository
@@ -56,7 +56,7 @@ jobs:
         run: npm test
       - name: Run lint and type checks
         run: npm run lint
-      - name: Build static site without advertising
+      - name: Build static site with advertising and Google CMP
         run: npm run build
       - name: Run local production smoke
         run: npm run test:smoke:preview

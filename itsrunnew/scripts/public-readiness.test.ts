@@ -35,7 +35,7 @@ describe('public launch readiness', () => {
     expect(locations.every(location => !location.includes('?'))).toBe(true);
   });
 
-  it('loads GA4 only after consent and keeps advertising disabled by default', () => {
+  it('loads GA4 only after consent and gates advertising behind the build flag', () => {
     expect(analytics).toContain("const MEASUREMENT_ID = 'G-YNLS7KQXYW'");
     expect(analytics).toContain('isPublicProductionRuntime()');
     expect(deployment).toContain("VITE_DEPLOY_TARGET !== 'preview'");
@@ -47,7 +47,7 @@ describe('public launch readiness', () => {
     expect(advertising).toContain('googlefc.callbackQueue.push');
     expect(main).toContain('if (value !== null) initializeAdvertising()');
     expect(ads).toContain('advertisingReady');
-    expect(privacy).toContain('現在、広告配信は停止しています。');
+    expect(privacy).toContain('いつランではGoogle AdSenseを利用します。');
     expect(privacy).toContain('Googleの同意管理プラットフォーム（CMP）');
   });
 

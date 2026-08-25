@@ -113,7 +113,7 @@ routes.push(
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior(to, _from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition;
     if (to.hash) {
       return new Promise(resolve => {
@@ -123,6 +123,10 @@ const router = createRouter({
         });
       });
     }
+    // Query parameters hold the selected date, facility and search origin.
+    // Preserve the current position so the initiating component can focus the
+    // relevant UI without racing a router-level jump back to the page top.
+    if (to.path === from.path) return false;
     return { top: 0 };
   },
 });

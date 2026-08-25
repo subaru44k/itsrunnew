@@ -8,8 +8,9 @@ import Todoroki from './views/Todoroki.vue';
 import About from './views/About.vue';
 import Privacy from './views/Privacy.vue';
 import NotFound from './views/NotFound.vue';
+import { isPublicProductionRuntime, PUBLIC_SITE_ORIGIN } from './services/deployment';
 
-const SITE_ORIGIN = 'https://itsrun.info';
+const SITE_ORIGIN = PUBLIC_SITE_ORIGIN;
 const SOCIAL_IMAGE = `${SITE_ORIGIN}/img/itsrun-og.jpg`;
 
 const pages = {
@@ -123,10 +124,10 @@ router.beforeEach((to) => {
   const description = String(to.meta.description ?? 'いつラン');
   const canonicalPath = String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
-  const preview = import.meta.env.VITE_DEPLOY_TARGET === 'preview';
+  const publicProduction = isPublicProductionRuntime();
   document.title = title;
   document.querySelector('meta[name="description"]')?.setAttribute('content', description);
-  document.querySelector('meta[name="robots"]')?.setAttribute('content', preview || to.meta.noindex ? 'noindex,nofollow' : 'index,follow');
+  document.querySelector('meta[name="robots"]')?.setAttribute('content', !publicProduction || to.meta.noindex ? 'noindex,nofollow' : 'index,follow');
   document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
   document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
   document.querySelector('meta[property="og:locale"]')?.setAttribute('content', locale === 'en' ? 'en_US' : 'ja_JP');

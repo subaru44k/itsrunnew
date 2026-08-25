@@ -71,6 +71,7 @@ itsrunnew/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
 │   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
+│   ├── deploy-production.sh   Production対象をguardしたS3 syncとinvalidation
 │   ├── deployment-summary.mjs GitHub Actions run summary生成
 │   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
@@ -80,7 +81,11 @@ itsrunnew/
     ├── app.ts                              hosting CDKアプリのエントリー
     ├── itsrun-preview-stack.ts             S3、CloudFront、静的ファイル配備
     ├── automation-app.ts                   deploy role専用CDKエントリー
-    └── itsrun-preview-automation-stack.ts  master限定GitHub OIDC role
+    ├── itsrun-preview-automation-stack.ts  master限定Preview GitHub OIDC role
+    ├── itsrun-production-stack.ts          retained S3、CloudFront、route/404、任意の正式domain
+    ├── itsrun-production-dns-stack.ts      Route 53 public Hosted Zone
+    ├── itsrun-production-certificate-stack.ts us-east-1 ACM certificate
+    └── itsrun-production-automation-stack.ts master限定Production GitHub OIDC role
 
 data/osm/
 ├── tracks.json                    初期範囲のOverpass raw research data
@@ -97,7 +102,8 @@ research/
 
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
-└── deploy-preview.yml           master push・手動・日次のPreview content deploy
+├── deploy-preview.yml           master push・手動・日次のPreview content deploy
+└── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
 ```
 
 `dist/`、`cdk.out/`、`cdk-outputs.json`は生成物であり、実装の正本ではありません。
@@ -185,7 +191,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ### プライバシーとアクセス解析
 
-`PrivacyConsent.vue`は初回に日本語・英語の選択肢を表示し、同意状態をlocalStorageへ保存します。拒否してもサイト機能は変わらず、フッターから再設定できます。`services/analytics.ts`は正式buildで同意後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。Preview buildは同意後もGA4を読み込みません。page viewはqueryを除いたcanonical path単位とし、Track Searchの主要操作eventを送ります。Geolocationの緯度経度は送信しません。
+`PrivacyConsent.vue`は初回に日本語・英語の選択肢を表示し、同意状態をlocalStorageへ保存します。拒否してもサイト機能は変わらず、フッターから再設定できます。`services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、同意後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、Track Searchの主要操作eventを送ります。Geolocationの緯度経度は送信しません。
 
 ## 7. AWS検証環境
 
@@ -212,6 +218,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `ItsRunPreviewAutomationStack` は既存の標準GitHub OIDC providerを参照し、`master` branchの `subaru44k/itsrunnew` workflowだけが引き受けられる `itsrun-track-preview-deploy` roleを作成します。既存migration roleは使用しません。権限はPreview bucketのcontent操作とPreview distributionのread/invalidationに限定し、hosting stackとは独立して管理します。
 
+正式配信用のCDK定義はPreviewと分離しています。`ItsRunProductionStack`はversioningとretainを有効にしたprivate S3、CloudFront OAC、既知routeのSPA rewrite、旧URLのHTTP 301、未知URLの実HTTP 404を定義します。初回はcustom domainなしで作成し、default domainをnoindex・GA4無効のまま検証できます。Route 53委任と`us-east-1` ACM発行後にcertificate ARNとHosted Zone IDを渡した更新だけが`itsrun.info` aliasとA/AAAAを追加します。切替順序・rollback・repository variablesは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) が正本です。広告はCMP完了までfalseです。
+
 ## 8. コマンドと検証
 
 すべて `itsrunnew/` で実行します。
@@ -233,15 +241,22 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run infra:deploy` | ビルドして検証スタックへ配備、`cdk-outputs.json`へ出力 |
 | `npm run infra:destroy` | 検証スタックを削除 |
 | `npm run deploy:preview:content` | guard後に既存Preview S3へcontent syncし、targeted invalidationを完了まで待機 |
+| `npm run deploy:production:content` | Productionのaccount/tag/origin/aliasをguardしてcontent syncとtargeted invalidationを行う |
 | `npm run deployment:summary` | availability範囲・status・deploy結果のActions summaryを生成 |
 | `npm run infra:automation:synth` | GitHub OIDC deploy role専用stackを生成 |
 | `npm run infra:automation:deploy` | hosting stackへ触れずdeploy role専用stackだけを配備 |
+| `npm run infra:production:deploy` | retained Production S3/CloudFrontを作成・更新する |
+| `npm run infra:production:dns:deploy` | 委任前のProduction Hosted Zoneを作成する |
+| `npm run infra:production:certificate:deploy` | 委任済みzoneでus-east-1 certificateを発行する |
+| `npm run infra:production:automation:deploy` | Production content-only OIDC roleを作成する |
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。
 
 `.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。commit済みavailability baselineを使うためlive collector、AWS権限、secretsは必要としません。
 
 `.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、content-only S3 sync、targeted CloudFront invalidation、CloudFront smokeまでを実行します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
+
+`.github/workflows/deploy-production.yml`は同じ安全な生成・検証・content-only deployをProduction専用role/targetで行います。`PRODUCTION_DEPLOY_ENABLED=true`になるまで全triggerでskipし、広告はfalseです。master push・手動・毎日05:30 JSTを持ち、Production全体でconcurrencyを1つにします。
 
 正式公開前のSEO、Search Console、GA4、広告停止、Privacy、HTTP redirect/404、運用確認は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照します。
 

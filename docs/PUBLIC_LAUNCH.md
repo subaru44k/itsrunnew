@@ -9,7 +9,7 @@
 - `/tracks` → `/`、`/en/tracks` → `/en/` のclient-side互換redirect。日付queryは維持する。
 - About、Privacy、日本語・英語の各ページと、利用者向け404画面。
 - GA4 `G-YNLS7KQXYW`。初期状態ではGoogle tagを取得せず、利用者がアクセス解析へ同意した後だけ読み込む。拒否しても全機能を利用でき、フッターから選択を変更できる。
-- 広告は `VITE_ADSENSE_ENABLED=true` を明示しない限り読み込まない。正式公開初日は無効とし、`ads.txt`だけを維持する。
+- 広告は `VITE_ADSENSE_ENABLED=true` を明示しない限り読み込まない。正式公開初日は無効とし、正式URLでPrivacy/CMPを設定した後に別変更で再開する。`ads.txt`は維持する。
 - Preview buildは `VITE_DEPLOY_TARGET=preview` により全routeを `noindex,nofollow` とし、同意後もGA4を読み込まない。正式buildではこの値を設定しない。
 - OGP画像 `public/img/itsrun-og.jpg`。
 
@@ -26,7 +26,7 @@ Vue Routerはroute遷移時にtitle、description、canonical、hreflang、OGP�
    - 公開後に `https://itsrun.info/sitemap.xml` を送信し、主要URLをURL検査する。
    - 旧サイトの上位URLと被リンクを確認し、必要なHTTP 301 mappingを決める。
 3. AdSense
-   - 初回公開では広告を無効のままにする。
+   - 初回公開では広告を無効のままにし、正式URLでPrivacyを確認してからGoogle認定CMPを設定する。
    - 再開前にsite approval、ads.txt、privacy policy、Google認定CMP、Consent Mode、mobile CLSを確認する。
 4. Production hosting
    - Preview stackをそのままproduction化せず、保持・versioning・rollbackを備えたproduction resourceを用意する。

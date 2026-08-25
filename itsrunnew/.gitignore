@@ -4,6 +4,10 @@ node_modules
 /.firebase
 /cdk.out
 /cdk-outputs.json
+/production-outputs.json
+/production-dns-outputs.json
+/production-certificate-outputs.json
+/production-automation-outputs.json
 
 # local env files
 .env.local

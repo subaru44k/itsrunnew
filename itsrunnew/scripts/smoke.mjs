@@ -95,6 +95,14 @@ try {
     await page.locator('#track-map .track-cluster, #track-map .track-marker').first().waitFor();
     const mapFacilityCount = () => page.locator('#track-map').evaluate(element => [...element.querySelectorAll('.track-marker')].length + [...element.querySelectorAll('.track-cluster')].reduce((sum, cluster) => sum + Number(cluster.textContent), 0));
     if (await mapFacilityCount() !== todayCounts.candidates) throw new Error('Clustered map did not represent every candidate facility');
+    await page.locator('#track-map .track-marker').first().click();
+    await page.locator('.detail-card').waitFor({ state: 'visible' });
+    await page.waitForFunction(() => {
+      const top = document.querySelector('.detail-card')?.getBoundingClientRect().top;
+      return typeof top === 'number' && top >= 48 && top <= 96;
+    });
+    await page.getByRole('button', { name: '詳細を閉じる', exact: true }).click();
+    await page.locator('.detail-card').waitFor({ state: 'detached' });
     for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
     while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
     await page.locator('.facility-row .availability--available').first().waitFor();

@@ -18,6 +18,8 @@ describe('Preview deployment contract', () => {
     expect(workflow).toContain('aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8');
     expect(workflow.indexOf('Configure GitHub OIDC credentials')).toBeGreaterThan(workflow.indexOf('Run local production smoke'));
     expect(workflow).not.toMatch(/AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY/);
+    expect(workflow).toContain('VITE_DEPLOY_TARGET: preview');
+    expect(workflow).toContain("VITE_ADSENSE_ENABLED: 'false'");
   });
 
   it('preserves cache metadata and invalidates only entry routes', () => {

@@ -33,6 +33,11 @@ a:hover { text-decoration: underline; }
 .site-footer { width: 100%; flex: none; }
 .footer-request { width: 100%; padding: 16px; color: white; background: #009688; }
 .footer-request a { color: #1976d2; }
+.footer-request > .subheading a { color: white; text-decoration: underline; }
+.footer-links { display: flex; margin-top: 10px; flex-wrap: wrap; gap: 8px 18px; }
+.footer-links a, .footer-links button { padding: 2px 0; color: white; text-decoration: underline; }
+.footer-links button { border: 0; background: transparent; cursor: pointer; font: inherit; }
+.footer-links a:focus-visible, .footer-links button:focus-visible { outline: 2px solid white; outline-offset: 3px; }
 .footer-copyright { width: 100%; padding: 8px; text-align: center; color: white; background: #424242; }
 .map-frame { display: block; border: 0; max-width: 100%; }
 .schedule-mobile { table-layout: fixed; }

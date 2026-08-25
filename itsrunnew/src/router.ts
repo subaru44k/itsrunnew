@@ -5,6 +5,12 @@ import OdaField from './views/OdaField.vue';
 import Yumenoshima from './views/Yumenoshima.vue';
 import Komazawa from './views/Komazawa.vue';
 import Todoroki from './views/Todoroki.vue';
+import About from './views/About.vue';
+import Privacy from './views/Privacy.vue';
+import NotFound from './views/NotFound.vue';
+
+const SITE_ORIGIN = 'https://itsrun.info';
+const SOCIAL_IMAGE = `${SITE_ORIGIN}/img/itsrun-og.jpg`;
 
 const pages = {
   oda: {
@@ -56,23 +62,39 @@ const pages = {
     jaDescription: '利用日を選び、個人利用できそうな陸上競技場・ランニングトラックを地図と一覧から探せます。',
     enDescription: 'Choose a date and find verified athletic and running tracks that may be available for your workout.',
   },
+  about: {
+    path: 'about', component: About,
+    jaTitle: 'いつランについて - 掲載情報と利用状況の見方',
+    enTitle: 'About ItsRun - Track data and availability statuses',
+    jaDescription: 'いつランの掲載範囲、公式情報の扱い、利用可能・要確認などの表示について説明します。',
+    enDescription: 'Learn what ItsRun covers, how official sources are used, and what each availability status means.',
+  },
+  privacy: {
+    path: 'privacy', component: Privacy,
+    jaTitle: 'プライバシーポリシー - いつラン',
+    enTitle: 'Privacy policy - ItsRun',
+    jaDescription: 'いつランにおけるGoogle Analytics、現在地情報、外部サービス等の取扱いを説明します。',
+    enDescription: 'How ItsRun handles Google Analytics, browser geolocation, and external services.',
+  },
 } as const;
 
 const routes: RouteRecordRaw[] = [];
 for (const [key, page] of Object.entries(pages)) {
   const jaPath = page.path ? `/${page.path}` : '/';
   const enPath = page.path ? `/en/${page.path}` : '/en/';
-  const jaAlias = key === 'tracks' ? '/tracks' : undefined;
-  const enAlias = key === 'tracks' ? '/en/tracks' : undefined;
   routes.push(
-    { path: jaPath, ...(jaAlias ? { alias: jaAlias } : {}), name: `${key}-ja`, component: page.component, meta: { locale: 'ja', title: page.jaTitle, description: page.jaDescription } },
-    { path: enPath, ...(enAlias ? { alias: enAlias } : {}), name: `${key}-en`, component: page.component, meta: { locale: 'en', title: page.enTitle, description: page.enDescription } },
+    { path: jaPath, name: `${key}-ja`, component: page.component, meta: { locale: 'ja', title: page.jaTitle, description: page.jaDescription, canonicalPath: jaPath, alternateJa: jaPath, alternateEn: enPath } },
+    { path: enPath, name: `${key}-en`, component: page.component, meta: { locale: 'en', title: page.enTitle, description: page.enDescription, canonicalPath: enPath, alternateJa: jaPath, alternateEn: enPath } },
   );
 }
 routes.push(
+  { path: '/tracks', redirect: to => ({ path: '/', query: to.query, hash: to.hash }) },
+  { path: '/en/tracks', redirect: to => ({ path: '/en/', query: to.query, hash: to.hash }) },
   { path: '/index.html', redirect: '/' },
   { path: '/komazawa_olympic', redirect: '/komazawa' },
-  { path: '/:pathMatch(.*)*', redirect: '/' },
+  { path: '/manage', redirect: '/' },
+  { path: '/en/:pathMatch(.*)*', component: NotFound, meta: { locale: 'en', title: 'Page not found - ItsRun', description: 'The requested page could not be found.', canonicalPath: '/en/', alternateJa: '/', alternateEn: '/en/', noindex: true } },
+  { path: '/:pathMatch(.*)*', component: NotFound, meta: { locale: 'ja', title: 'ページが見つかりません - いつラン', description: 'お探しのページは見つかりませんでした。', canonicalPath: '/', alternateJa: '/', alternateEn: '/en/', noindex: true } },
 );
 
 const router = createRouter({
@@ -99,12 +121,24 @@ router.beforeEach((to) => {
   document.documentElement.lang = locale;
   const title = String(to.meta.title ?? 'いつラン');
   const description = String(to.meta.description ?? 'いつラン');
+  const canonicalPath = String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
+  const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
+  const preview = import.meta.env.VITE_DEPLOY_TARGET === 'preview';
   document.title = title;
   document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+  document.querySelector('meta[name="robots"]')?.setAttribute('content', preview || to.meta.noindex ? 'noindex,nofollow' : 'index,follow');
   document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
   document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+  document.querySelector('meta[property="og:locale"]')?.setAttribute('content', locale === 'en' ? 'en_US' : 'ja_JP');
+  document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonicalUrl);
+  document.querySelector('meta[property="og:image"]')?.setAttribute('content', SOCIAL_IMAGE);
   document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
   document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
+  document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', SOCIAL_IMAGE);
+  document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonicalUrl);
+  document.querySelector('link[rel="alternate"][hreflang="ja"]')?.setAttribute('href', `${SITE_ORIGIN}${String(to.meta.alternateJa ?? '/')}`);
+  document.querySelector('link[rel="alternate"][hreflang="en"]')?.setAttribute('href', `${SITE_ORIGIN}${String(to.meta.alternateEn ?? '/en/')}`);
+  document.querySelector('link[rel="alternate"][hreflang="x-default"]')?.setAttribute('href', `${SITE_ORIGIN}${String(to.meta.alternateJa ?? '/')}`);
 });
 
 export default router;

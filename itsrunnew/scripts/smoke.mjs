@@ -31,11 +31,17 @@ try {
     page.on('request', request => requests.push(request.url()));
     page.on('pageerror', error => runtimeErrors.push(error.message));
     await page.route('**/*', route => adPattern.test(route.request().url()) ? route.abort() : route.continue());
+    const analyticsRequestsBeforeConsent = requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length;
 
     await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    const previewBuild = (await page.locator('meta[name="robots"]').getAttribute('content')) === 'noindex,nofollow';
+    await page.getByRole('dialog', { name: 'アクセス解析の設定' }).waitFor();
+    if (requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length !== analyticsRequestsBeforeConsent) throw new Error('GA4 loaded before analytics consent');
+    await page.getByRole('button', { name: '同意しない', exact: true }).click();
     await page.locator('#track-map .track-marker').first().waitFor();
     await page.getByText('©2019 — いつラン', { exact: true }).waitFor();
+    if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== 'https://itsrun.info/') throw new Error('Home canonical URL is incorrect');
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (overflow > 1) throw new Error(`Horizontal overflow at ${viewport.width}px: ${overflow}px`);
@@ -58,6 +64,10 @@ try {
       ['/nozomiantena/index', '田中希実選手の記録集'],
       ['/en/oda-field', "Yoyogi Park Athletic Track's Availability"],
       ['/en/', 'Find a track near you'],
+      ['/about', 'いつランについて'],
+      ['/privacy', 'プライバシーポリシー'],
+      ['/en/about', 'About ItsRun'],
+      ['/en/privacy', 'Privacy policy'],
     ]) {
       await page.goto(`${baseUrl}${path}`, { waitUntil: 'domcontentloaded' });
       await page.getByText(heading, { exact: true }).waitFor();
@@ -65,6 +75,7 @@ try {
 
     await page.goto(`${baseUrl}/tracks`, { waitUntil: 'domcontentloaded' });
     await waitForSelectedDate(page, today);
+    if (new URL(page.url()).pathname !== '/') throw new Error('/tracks did not canonicalize to the home route');
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     await page.getByText('公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。', { exact: true }).waitFor();
     if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== 'いつラン - 日付から探せる陸上競技場・トラック検索') throw new Error('Track Search OGP title did not update');
@@ -139,6 +150,7 @@ try {
     await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
     await page.getByText('Based on official sources. Schedules can change, so check before visiting. “Needs confirmation” does not mean unavailable.', { exact: true }).waitFor();
     await page.getByText('Tomorrow available', { exact: true }).first().waitFor();
+    if (new URL(page.url()).pathname !== '/en/') throw new Error('/en/tracks did not canonicalize to the English home route');
 
     await page.goto(`${baseUrl}/en/?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
     await waitForSelectedDate(page, tomorrow);
@@ -154,6 +166,22 @@ try {
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    await page.goto(`${baseUrl}/not-a-real-page`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: 'ページが見つかりません', exact: true }).waitFor();
+    if ((await page.locator('meta[name="robots"]').getAttribute('content')) !== 'noindex,nofollow') throw new Error('Unknown route is not marked noindex');
+    await page.goto(`${baseUrl}/privacy`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: 'アクセス解析の設定', exact: true }).click();
+    await page.getByRole('dialog', { name: 'アクセス解析の設定' }).waitFor();
+    if (previewBuild) {
+      const beforeAccept = requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length;
+      await page.getByRole('button', { name: '解析に同意する', exact: true }).click();
+      await page.waitForTimeout(250);
+      if (requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length !== beforeAccept) throw new Error('Preview build loaded GA4 after consent');
+    } else {
+      const analyticsRequest = page.waitForRequest(request => request.url().includes('googletagmanager.com/gtag/js'));
+      await page.getByRole('button', { name: '解析に同意する', exact: true }).click();
+      await analyticsRequest;
+    }
     await page.close();
   }
 

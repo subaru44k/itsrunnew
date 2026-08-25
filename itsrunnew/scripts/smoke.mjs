@@ -23,6 +23,7 @@ const tomorrow = availabilityManifest.dates[1];
 const saturday = availabilityManifest.dates.find(date => new Date(`${date}T12:00:00+09:00`).getUTCDay() === 6);
 const todayCounts = statusCounts(datasetForDate(today));
 const tomorrowCounts = statusCounts(datasetForDate(tomorrow));
+const waitForSelectedDate = (page, date) => page.waitForFunction(expected => new URL(location.href).searchParams.get('date') === expected, date);
 
 try {
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
@@ -32,13 +33,18 @@ try {
     await page.route('**/*', route => adPattern.test(route.request().url()) ? route.abort() : route.continue());
 
     await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
-    await page.getByText('織田フィールド 開放日', { exact: true }).waitFor();
+    await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    await page.locator('#track-map .track-marker').first().waitFor();
     await page.getByText('©2019 — いつラン', { exact: true }).waitFor();
-    const noDataIcons = await page.locator('img[alt="no data"]:visible').count();
-    if (noDataIcons !== 21) throw new Error(`Expected 21 no-data cells, found ${noDataIcons}`);
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (overflow > 1) throw new Error(`Horizontal overflow at ${viewport.width}px: ${overflow}px`);
+
+    await page.goto(`${baseUrl}/oda-field`, { waitUntil: 'domcontentloaded' });
+    await page.getByText('織田フィールド 開放日', { exact: true }).waitFor();
+    const noDataIcons = await page.locator('img[alt="no data"]:visible').count();
+    if (noDataIcons !== 21) throw new Error(`Expected 21 no-data cells, found ${noDataIcons}`);
+    if (await page.locator('a[href*="newyearscardlottery"]').count() !== 0) throw new Error('Removed postcard lottery promotion is still visible');
 
     await page.goto(`${baseUrl}/en/pace/marathon`, { waitUntil: 'domcontentloaded' });
     await page.getByText('Lap Time for the Marathon', { exact: true }).waitFor();
@@ -50,14 +56,15 @@ try {
       ['/komazawa', '駒沢オリンピック公園陸上競技場 開放日'],
       ['/todoroki', '等々力陸上競技場 開放日'],
       ['/nozomiantena/index', '田中希実選手の記録集'],
-      ['/en/', "Yoyogi Park Athletic Track's Availability"],
+      ['/en/oda-field', "Yoyogi Park Athletic Track's Availability"],
+      ['/en/', 'Find a track near you'],
     ]) {
       await page.goto(`${baseUrl}${path}`, { waitUntil: 'domcontentloaded' });
       await page.getByText(heading, { exact: true }).waitFor();
     }
 
     await page.goto(`${baseUrl}/tracks`, { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(url => url.searchParams.get('date') === today);
+    await waitForSelectedDate(page, today);
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     await page.getByText('公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。', { exact: true }).waitFor();
     if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== 'いつラン - 日付から探せる陸上競技場・トラック検索') throw new Error('Track Search OGP title did not update');
@@ -92,11 +99,19 @@ try {
     await page.getByRole('link', { name: '公式サイト', exact: true }).waitFor();
     const directionsHref = await page.getByRole('link', { name: '経路を見る', exact: true }).getAttribute('href');
     if (!directionsHref?.includes('google.com/maps/dir/?api=1') || !directionsHref.includes('destination=')) throw new Error('Invalid directions URL');
+    const actionStyles = await page.locator('.detail-actions .v-btn').evaluateAll(buttons => buttons.map(button => {
+      const style = getComputedStyle(button);
+      return { className: button.className, color: style.color, height: button.getBoundingClientRect().height };
+    }));
+    if (actionStyles.some(action => action.height < 44)) throw new Error('Track detail action touch target is below 44px');
+    if (!actionStyles.some(action => action.className.includes('action-schedule') && action.color === 'rgb(78, 52, 46)')) throw new Error('Schedule action contrast styling is missing');
+    if (!actionStyles.some(action => action.className.includes('action-official') && action.color === 'rgb(255, 255, 255)')) throw new Error('Official-site action contrast styling is missing');
+    if (!actionStyles.some(action => action.className.includes('action-directions') && action.color === 'rgb(0, 105, 92)')) throw new Error('Directions action contrast styling is missing');
     await page.getByRole('button', { name: '現在地から探す', exact: true }).click();
     await page.getByText(/現在地の利用が許可されませんでした|現在地を取得できません/).waitFor();
 
     await page.getByRole('button', { name: '明日', exact: true }).click();
-    await page.waitForURL(url => url.searchParams.get('date') === tomorrow);
+    await waitForSelectedDate(page, tomorrow);
     await page.waitForFunction(expected => document.querySelectorAll('#track-map .track-marker').length === expected, tomorrowCounts.candidates);
     await page.getByText('明日利用可能', { exact: true }).first().waitFor();
     if (await page.locator('.facility-card .availability--unknown').count() !== tomorrowCounts.unknown) throw new Error('Future unknown facilities were unexpectedly removed');
@@ -104,26 +119,30 @@ try {
     if (await page.locator('.facility-card .availability--unavailable').count() !== tomorrowCounts.unavailable) throw new Error('Selected-date unavailable filter did not update');
 
     await page.getByRole('button', { name: '土曜', exact: true }).click();
-    await page.waitForURL(url => url.searchParams.get('date') === saturday);
+    await waitForSelectedDate(page, saturday);
 
     const selectedFuture = availabilityManifest.dates[7];
     await page.getByLabel('利用日を選ぶ').fill(selectedFuture);
     await page.getByLabel('利用日を選ぶ').dispatchEvent('change');
-    await page.waitForURL(url => url.searchParams.get('date') === selectedFuture);
+    await waitForSelectedDate(page, selectedFuture);
     if (await page.getByLabel('利用日を選ぶ').inputValue() !== selectedFuture) throw new Error('Native date selection did not update the selected date');
     const tracksOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (tracksOverflow > 1) throw new Error(`Track page overflow at ${viewport.width}px: ${tracksOverflow}px`);
 
     await page.goto(`${baseUrl}/tracks?date=invalid`, { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(url => url.searchParams.get('date') === today);
+    await waitForSelectedDate(page, today);
     await page.getByLabel('利用日を選ぶ').waitFor();
     await page.goto(`${baseUrl}/tracks?date=2099-01-01`, { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(url => url.searchParams.get('date') === today);
+    await waitForSelectedDate(page, today);
 
     await page.goto(`${baseUrl}/en/tracks?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
     await page.getByText('Based on official sources. Schedules can change, so check before visiting. “Needs confirmation” does not mean unavailable.', { exact: true }).waitFor();
     await page.getByText('Tomorrow available', { exact: true }).first().waitFor();
+
+    await page.goto(`${baseUrl}/en/?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
+    await waitForSelectedDate(page, tomorrow);
+    await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
 
     await page.goto(`${baseUrl}/nozomiantena/index`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: '2020年の大会結果・記録', exact: true }).first().click();
@@ -134,7 +153,7 @@ try {
     });
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
-    await page.getByText('織田フィールド 開放日', { exact: true }).waitFor();
+    await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     await page.close();
   }
 

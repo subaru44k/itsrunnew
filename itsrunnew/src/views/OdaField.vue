@@ -2,8 +2,6 @@
   <v-container>
     <div class="d-flex justify-center flex-wrap">
       <div class="flex-grow-1">
-        <p class="h3"><a href="https://newyearscardlottery.link/" target="_blank" rel="noopener noreferrer">お年玉付き年賀はがきの当選確認サイト</a>を作りました！</p>
-        <p class="h5">スマホで年賀状の写真を撮るだけで、年賀状が当選しているか複数枚同時に確認できます。登録不要で写真をとるだけなので、是非試してみてください。</p>
         <p class="display-1">{{ $t("oda.open_title") }}</p>
         <p class="headline">{{ $t("oda.available") }}</p>
         <AdsDisplay slot="6879016191" />

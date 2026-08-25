@@ -71,12 +71,12 @@ const { t, locale } = useI18n();
 
 const menuGroups = computed(() => [
   { title: t('menu.tokyo'), items: [
-    { title: t('menu.oda'), path: '' },
+    { title: t('menu.oda'), path: 'oda-field' },
     { title: t('menu.yume'), path: 'yumenoshima' },
     { title: t('menu.komazawa'), path: 'komazawa' },
   ] },
   { title: t('menu.kanagawa'), items: [{ title: t('menu.todoroki'), path: 'todoroki' }] },
-  { title: t('menu.find'), items: [{ title: t('menu.tracks'), path: 'tracks' }] },
+  { title: t('menu.find'), items: [{ title: t('menu.tracks'), path: '' }] },
   { title: t('menu.laptime'), items: [{ title: t('menu.marathon'), path: 'pace/marathon' }] },
   { title: t('menu.records'), items: [{ title: t('menu.tanaka'), path: 'nozomiantena/index' }] },
 ]);

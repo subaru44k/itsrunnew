@@ -48,7 +48,7 @@ aws s3 cp dist/index.html "s3://$PREVIEW_BUCKET/index.html" \
 
 invalidation_id="$(aws cloudfront create-invalidation \
   --distribution-id "$PREVIEW_DISTRIBUTION_ID" \
-  --paths '/' '/index.html' '/tracks' '/en/tracks' \
+  --paths '/' '/index.html' '/en/' '/tracks' '/en/tracks' '/oda-field' '/en/oda-field' \
   --query Invalidation.Id \
   --output text)"
 aws cloudfront wait invalidation-completed --distribution-id "$PREVIEW_DISTRIBUTION_ID" --id "$invalidation_id"

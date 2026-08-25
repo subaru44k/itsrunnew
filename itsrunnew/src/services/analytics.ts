@@ -1,5 +1,6 @@
+import { isPublicProductionRuntime } from './deployment';
+
 const MEASUREMENT_ID = 'G-YNLS7KQXYW';
-const ANALYTICS_ENABLED = import.meta.env.VITE_DEPLOY_TARGET !== 'preview';
 
 type Gtag = (...args: unknown[]) => void;
 type AnalyticsWindow = Window & {
@@ -52,8 +53,9 @@ function clearAnalyticsCookies() {
 }
 
 export function updateAnalyticsConsent(granted: boolean) {
-  analyticsAllowed = granted && ANALYTICS_ENABLED;
-  if (!ANALYTICS_ENABLED) return;
+  const analyticsEnabled = isPublicProductionRuntime();
+  analyticsAllowed = granted && analyticsEnabled;
+  if (!analyticsEnabled) return;
   if (granted) {
     loadAnalytics();
     ensureGtag()('consent', 'update', { analytics_storage: 'granted' });

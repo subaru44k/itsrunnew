@@ -6,6 +6,7 @@ const index = read('../index.html');
 const robots = read('../public/robots.txt');
 const sitemap = read('../public/sitemap.xml');
 const analytics = read('../src/services/analytics.ts');
+const deployment = read('../src/services/deployment.ts');
 const ads = read('../src/components/AdsDisplay.vue');
 const router = read('../src/router.ts');
 const privacy = read('../src/views/Privacy.vue');
@@ -34,7 +35,9 @@ describe('public launch readiness', () => {
 
   it('loads GA4 only after consent and keeps advertising disabled by default', () => {
     expect(analytics).toContain("const MEASUREMENT_ID = 'G-YNLS7KQXYW'");
-    expect(analytics).toContain("VITE_DEPLOY_TARGET !== 'preview'");
+    expect(analytics).toContain('isPublicProductionRuntime()');
+    expect(deployment).toContain("VITE_DEPLOY_TARGET !== 'preview'");
+    expect(deployment).toContain('window.location.origin === PUBLIC_SITE_ORIGIN');
     expect(analytics).toContain("analytics_storage: 'granted'");
     expect(analytics).toContain("ad_storage: 'denied'");
     expect(ads).toContain("import.meta.env.VITE_ADSENSE_ENABLED === 'true'");
@@ -45,6 +48,6 @@ describe('public launch readiness', () => {
     expect(router).toContain("path: '/tracks', redirect:");
     expect(router).toContain("path: '/en/tracks', redirect:");
     expect(router).toContain("noindex: true");
-    expect(router).toContain("VITE_DEPLOY_TARGET === 'preview'");
+    expect(router).toContain('isPublicProductionRuntime()');
   });
 });

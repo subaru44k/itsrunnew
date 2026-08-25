@@ -9,7 +9,9 @@ for (const date of manifest.dates) {
   for (const facility of dataset.facilities) counts[facility.status] += 1;
 }
 
-const summary = `## ItsRun Preview deployment
+const environment = process.env.DEPLOY_ENVIRONMENT ?? 'Preview';
+const defaultUrl = process.env.PREVIEW_URL ?? 'https://d2xryux7a95b54.cloudfront.net';
+const summary = `## ItsRun ${environment} deployment
 
 | Item | Result |
 |---|---|
@@ -21,7 +23,7 @@ const summary = `## ItsRun Preview deployment
 | S3 deployment | ${process.env.DEPLOY_RESULT ?? 'not run'} |
 | CloudFront invalidation | ${process.env.INVALIDATION_ID || 'not created'} |
 | CloudFront smoke | ${process.env.CLOUDFRONT_SMOKE_RESULT ?? 'not run'} |
-| Preview | ${process.env.PREVIEW_URL ?? 'https://d2xryux7a95b54.cloudfront.net'} |
+| URL | ${process.env.DEPLOY_URL ?? defaultUrl} |
 `;
 
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);

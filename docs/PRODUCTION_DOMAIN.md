@@ -4,6 +4,8 @@
 
 検索・GA4・Privacy・広告停止・Search Console等の公開品質チェックは [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照してください。
 
+Production AWSの段階的な構築、default-domain検証、Route 53委任、certificate、content workflowは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) を参照してください。repositoryにはProduction定義がありますが、この記録時点ではAWS resourceとDNS切替は未実施です。
+
 ## 現在の配信経路
 
 ```text

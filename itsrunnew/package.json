@@ -20,12 +20,21 @@
     "collect:availability:range": "tsx scripts/availability/collect-range.ts",
     "lint": "vue-tsc --noEmit",
     "deploy:preview:content": "bash scripts/deploy-preview.sh",
+    "deploy:production:content": "bash scripts/deploy-production.sh",
     "deployment:summary": "node scripts/deployment-summary.mjs",
     "infra:synth": "npm run build && cdk synth",
     "infra:deploy": "npm run build && cdk deploy --require-approval never --outputs-file cdk-outputs.json",
     "infra:destroy": "cdk destroy",
     "infra:automation:synth": "cdk synth --app \"npx tsx infra/automation-app.ts\"",
-    "infra:automation:deploy": "cdk deploy --app \"npx tsx infra/automation-app.ts\" ItsRunPreviewAutomationStack --require-approval never"
+    "infra:automation:deploy": "cdk deploy --app \"npx tsx infra/automation-app.ts\" ItsRunPreviewAutomationStack --require-approval never",
+    "infra:production:synth": "cdk synth --app \"npx tsx infra/production-app.ts\" ItsRunProductionStack",
+    "infra:production:deploy": "cdk deploy --app \"npx tsx infra/production-app.ts\" ItsRunProductionStack --require-approval never --outputs-file production-outputs.json",
+    "infra:production:dns:synth": "cdk synth --app \"npx tsx infra/production-dns-app.ts\" ItsRunProductionDnsStack",
+    "infra:production:dns:deploy": "cdk deploy --app \"npx tsx infra/production-dns-app.ts\" ItsRunProductionDnsStack --require-approval never --outputs-file production-dns-outputs.json",
+    "infra:production:certificate:synth": "cdk synth --app \"npx tsx infra/production-certificate-app.ts\" ItsRunProductionCertificateStack",
+    "infra:production:certificate:deploy": "cdk deploy --app \"npx tsx infra/production-certificate-app.ts\" ItsRunProductionCertificateStack --require-approval never --outputs-file production-certificate-outputs.json",
+    "infra:production:automation:synth": "cdk synth --app \"npx tsx infra/production-automation-app.ts\" ItsRunProductionAutomationStack",
+    "infra:production:automation:deploy": "cdk deploy --app \"npx tsx infra/production-automation-app.ts\" ItsRunProductionAutomationStack --require-approval never --outputs-file production-automation-outputs.json"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

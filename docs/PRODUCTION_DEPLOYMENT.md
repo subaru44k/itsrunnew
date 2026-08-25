@@ -1,0 +1,92 @@
+# Production deployment
+
+`https://itsrun.info/` を旧Firebase HostingからAWSへ安全に移す手順です。ProductionはPreviewとは別の、保持設定を持つprivate S3 + CloudFrontで配信します。広告はGoogle CMP設定が完了するまで無効です。
+
+## Safety boundary
+
+- Production bucketはversioning有効、CloudFormation削除時もretainする。
+- Production CloudFront default domainにはHTTP `X-Robots-Tag: noindex, nofollow`を付け、ブラウザruntimeもnoindex・GA4無効にする。
+- `itsrun.info` だけがindex・同意後GA4の対象になる。
+- `VITE_ADSENSE_ENABLED=false`を維持する。
+- content deploy roleはProduction bucketとdistribution以外を変更できない。
+- DNS切替までFirebase Hostingを削除・切断しない。
+
+## Repository components
+
+- `infra/itsrun-production-stack.ts`: retained S3、CloudFront、OAC、既知route rewrite、旧URL 301、実HTTP 404。証明書・Hosted Zoneを渡した更新時だけ`itsrun.info` aliasとA/AAAAを追加する。
+- `infra/itsrun-production-dns-stack.ts`: `itsrun.info` public Hosted Zone。既存recordを複製する前に委任してはいけない。
+- `infra/itsrun-production-certificate-stack.ts`: 委任済みHosted Zoneで検証する`us-east-1` ACM certificate。
+- `infra/itsrun-production-automation-stack.ts`: protected masterだけを信頼するcontent-only GitHub OIDC role。
+- `scripts/deploy-production.sh`: account、tag、origin、aliasをguardするS3 syncとtargeted invalidation。
+- `.github/workflows/deploy-production.yml`: master、手動、05:30 JST。repository variable `PRODUCTION_DEPLOY_ENABLED=true`になるまでjobは実行しない。
+
+## Build and cache behavior
+
+Production workflowはfresh 31-day availability、Track Dataset validation、unit test、lint、build、local smokeを終えてからOIDC credentialsを取得します。広告は無効です。
+
+- `index.html`: `no-cache`
+- hashed `assets/`: `public,max-age=31536000,immutable`
+- その他: `public,max-age=300`
+- invalidation: `/`, `/index.html`, `/en/`, `/tracks`, `/en/tracks`, `/oda-field`, `/en/oda-field`
+
+## Staged rollout
+
+### 1. Default-domain hosting
+
+```sh
+npm run infra:production:synth
+npm run infra:production:deploy
+```
+
+出力されたbucketとdistributionを使ってautomation stackを作り、GitHub repository variablesを設定する。最初のcontent deployとCloudFront smokeはdefault domainで行う。default domainはnoindexかつGA4無効であることを確認する。
+
+### 2. DNS inventory and Hosted Zone
+
+お名前.comからA、AAAA、CNAME、MX、TXT、CAAと利用中subdomainをexportし、rollback用に保存する。次でHosted Zoneを作成できるが、全recordを複製するまでお名前.comのnameserverを変更しない。
+
+```sh
+npm run infra:production:dns:synth
+npm run infra:production:dns:deploy
+```
+
+旧Firebaseのapex A recordも新Hosted Zoneへ一度複製すれば、nameserver委任だけを先行しても配信先は変わらない。複数resolverでFirebaseへの到達を確認する。
+
+### 3. Certificate and alias
+
+Route 53委任後、`us-east-1` certificateを発行する。
+
+```sh
+ITSRUN_PRODUCTION_HOSTED_ZONE_ID=... npm run infra:production:certificate:deploy
+```
+
+発行済みARNとHosted Zoneを指定してhosting stackを更新すると、既存distributionへaliasとA/AAAA recordが追加される。
+
+```sh
+ITSRUN_PRODUCTION_DOMAIN=itsrun.info \
+ITSRUN_PRODUCTION_CERTIFICATE_ARN=... \
+ITSRUN_PRODUCTION_HOSTED_ZONE_ID=... \
+npm run infra:production:deploy
+```
+
+### 4. Cutover verification
+
+- certificate、`/`、`/en/`、全既知route、旧URL 301、未知URL 404
+- 33 tracks、future date、unknown保持、公式・経路link
+- `robots.txt`、`sitemap.xml`、canonical、OGP、`ads.txt`
+- 同意前GA4なし、同意後GA4あり、広告なし
+- cache metadata、CloudFront errors、availability daily run
+
+問題時はRoute 53 apex A/AAAAを旧Firebase向けrecordへ戻す。十分な安定期間を取るまでFirebase custom domainを切断しない。
+
+## GitHub repository variables
+
+Production hostingとautomation stackの作成後、次を設定する。
+
+- `PRODUCTION_DEPLOY_ENABLED`: `true`（default-domain smokeの準備が整うまでは未設定）
+- `ITSRUN_PRODUCTION_ROLE_ARN`
+- `ITSRUN_PRODUCTION_BUCKET`
+- `ITSRUN_PRODUCTION_DISTRIBUTION_ID`
+- `ITSRUN_PRODUCTION_DOMAIN`: 最初はCloudFront default domain、切替後は`itsrun.info`
+- `ITSRUN_PRODUCTION_URL`: 上記domainのHTTPS URL
+
+long-lived AWS keyやAWS secretは登録しない。

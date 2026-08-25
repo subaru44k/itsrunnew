@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const baseUrl = process.env.ITSRUN_BASE_URL ?? 'http://127.0.0.1:4173';
 const executablePath = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const expectEdgeRouting = process.env.ITSRUN_EXPECT_EDGE_ROUTING === 'true';
 const browser = await chromium.launch({ executablePath, headless: true });
 const requests = [];
 const runtimeErrors = [];
@@ -73,7 +74,8 @@ try {
       await page.getByText(heading, { exact: true }).waitFor();
     }
 
-    await page.goto(`${baseUrl}/tracks`, { waitUntil: 'domcontentloaded' });
+    const tracksResponse = await page.goto(`${baseUrl}/tracks`, { waitUntil: 'domcontentloaded' });
+    if (expectEdgeRouting && !tracksResponse?.request().redirectedFrom()) throw new Error('/tracks did not return an edge redirect');
     await waitForSelectedDate(page, today);
     if (new URL(page.url()).pathname !== '/') throw new Error('/tracks did not canonicalize to the home route');
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
@@ -166,7 +168,8 @@ try {
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
-    await page.goto(`${baseUrl}/not-a-real-page`, { waitUntil: 'domcontentloaded' });
+    const notFoundResponse = await page.goto(`${baseUrl}/not-a-real-page`, { waitUntil: 'domcontentloaded' });
+    if (expectEdgeRouting && notFoundResponse?.status() !== 404) throw new Error(`Unknown route returned HTTP ${notFoundResponse?.status()} instead of 404`);
     await page.getByRole('heading', { name: 'ページが見つかりません', exact: true }).waitFor();
     if ((await page.locator('meta[name="robots"]').getAttribute('content')) !== 'noindex,nofollow') throw new Error('Unknown route is not marked noindex');
     await page.goto(`${baseUrl}/privacy`, { waitUntil: 'domcontentloaded' });

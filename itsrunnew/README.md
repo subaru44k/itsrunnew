@@ -54,6 +54,6 @@ Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false
 
 ## AWS本番環境
 
-ProductionはPreviewとは別の、versioning・retain有効のprivate S3 + CloudFrontとして段階的に構築します。最初はCloudFront default domainでnoindex・GA4無効の確認を行い、Route 53へ既存DNS recordを複製・委任してから`us-east-1` ACM certificateと`itsrun.info` aliasを追加します。
+ProductionはPreviewとは別の、versioning・retain有効のprivate S3 + CloudFrontとして段階的に構築します。最初はCloudFront default domainでnoindex・GA4無効の確認を行い、Route 53へ既存DNS recordを複製・委任してから`us-east-1` ACM certificateとCloudFrontの`itsrun.info` alternate domainを追加します。最後に旧Firebase Aを先に削除せず、Route 53のA/AAAAをCloudFront Aliasへ原子的に切り替えます。
 
 Production workflowはfresh availabilityと全検証を実行してcontentだけを配備します。Google CMP設定後の別変更までAdSenseを読み込みません。コマンド、OIDC role、GitHub variables、DNS切替、旧Firebaseへのrollbackは [`../docs/PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md) を参照してください。

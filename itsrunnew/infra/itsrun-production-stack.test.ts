@@ -33,19 +33,18 @@ describe('ItsRunProductionStack', () => {
     expect(functions).toContain("x-robots-tag");
   }, 20_000);
 
-  it('attaches the apex alias only when certificate and hosted zone are supplied together', () => {
+  it('attaches the custom domain only when a certificate is supplied with it', () => {
     const app = new App();
     const stack = new ItsRunProductionStack(app, 'TestProductionDomain', {
       env: environment,
       domainName: 'itsrun.info',
       certificateArn: 'arn:aws:acm:us-east-1:470447451992:certificate/00000000-0000-0000-0000-000000000000',
-      hostedZoneId: 'Z0123456789EXAMPLE',
     });
     const template = Template.fromStack(stack);
     template.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: Match.objectLike({ Aliases: ['itsrun.info'] }),
     });
-    template.resourceCountIs('AWS::Route53::RecordSet', 2);
+    template.resourceCountIs('AWS::Route53::RecordSet', 0);
   });
 
   it('rejects incomplete domain configuration', () => {

@@ -57,6 +57,9 @@
           <router-link :to="localizedPath('about')">{{ t('footer_links.about') }}</router-link>
           <router-link :to="localizedPath('privacy')">{{ t('footer_links.privacy') }}</router-link>
           <button type="button" @click="openPrivacySettings">{{ t('footer_links.analytics') }}</button>
+          <button v-if="advertisingReady" type="button" @click="openGooglePrivacySettings">
+            {{ t('footer_links.advertising') }}
+          </button>
         </nav>
       </div>
       <div class="footer-copyright">&copy;2019 — <strong>{{ t('title') }}</strong></div>
@@ -71,6 +74,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import PrivacyConsent from '@/components/PrivacyConsent.vue';
 import { openPrivacySettings } from '@/services/privacy-consent';
+import { advertisingReady, openGooglePrivacySettings } from '@/services/advertising';
 
 const drawer = ref(false);
 const route = useRoute();

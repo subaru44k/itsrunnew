@@ -59,7 +59,7 @@ itsrunnew/
 │   ├── locales/               ja.json / en.json
 │   ├── views/                 ルート単位のページ
 │   ├── components/
-│   │   ├── AdsDisplay.vue     環境flagで無効化したAdSenseスロット
+│   │   ├── AdsDisplay.vue     共通広告serviceの準備後に表示するAdSenseスロット
 │   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
 │   │   └── laptime/           PC・スマホ用マラソンペース表
@@ -187,11 +187,13 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ### 広告
 
-`AdsDisplay.vue`は `VITE_ADSENSE_ENABLED=true` の場合だけGoogle AdSenseスクリプトを読み込みます。正式公開初日は広告を停止する方針で、Preview workflowも明示的にfalseとします。`ads.txt`は将来の再開に備えて維持します。再開前にはprivacy policyとGoogle認定CMPを再確認します。
+`services/advertising.ts`は `VITE_ADSENSE_ENABLED=true` の場合だけ、全route共通でGoogle AdSenseタグを読み込みます。`AdsDisplay.vue`は共通serviceが準備できた後だけ既存広告枠を初期化します。これによりホームのTrack SearchでもGoogle CMPとAdSense Auto adsを利用でき、一部の旧施設ページには従来の明示的な広告枠も残ります。現在はPreview・Production workflowとも明示的にfalseで、広告スクリプトも広告枠も読み込みません。`ads.txt`とpublisher IDは再開に備えて維持します。AdSense管理画面で`itsrun.info`の確認とGoogle CMPの設定・公開は完了しています。
 
 ### プライバシーとアクセス解析
 
-`PrivacyConsent.vue`は初回に日本語・英語の選択肢を表示し、同意状態をlocalStorageへ保存します。拒否してもサイト機能は変わらず、フッターから再設定できます。`services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、同意後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、Track Searchの主要操作eventを送ります。Geolocationの緯度経度は送信しません。
+`PrivacyConsent.vue`はアクセス解析だけの選択肢を初回に日本語・英語で表示し、同意状態をlocalStorageへ保存します。拒否してもサイト機能は変わらず、フッターから再設定できます。広告を再開したbuildでは、解析への同意・拒否のどちらかが選ばれた後にAdSenseタグを初期化するため、サイト独自の解析画面とGoogle CMPを同時に重ねません。広告の選択はGoogle CMPへ分離し、フッターの「プライバシーとCookieの設定」からGoogle公式のrevocation flowを開けます。Google CMP側の「analytics purposes」はサイト独自の解析同意と二重管理にしないためOFFを維持します。
+
+`services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、Track Searchの主要操作eventを送ります。Geolocationの緯度経度は送信しません。Privacyページは広告停止中であることに加え、再開後にAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPを利用する予定と、Googleの関連方針への導線を日英で説明します。
 
 ## 7. AWS検証環境
 
@@ -218,7 +220,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `ItsRunPreviewAutomationStack` は既存の標準GitHub OIDC providerを参照し、`master` branchの `subaru44k/itsrunnew` workflowだけが引き受けられる `itsrun-track-preview-deploy` roleを作成します。既存migration roleは使用しません。権限はPreview bucketのcontent操作とPreview distributionのread/invalidationに限定し、hosting stackとは独立して管理します。
 
-正式配信用のCDK定義はPreviewと分離しています。`ItsRunProductionStack`はversioningとretainを有効にしたprivate S3、CloudFront OAC、既知routeのSPA rewrite、旧URLのHTTP 301、未知URLの実HTTP 404を定義します。初回はcustom domainなしで作成し、default domainをnoindex・GA4無効のまま検証できます。Route 53委任と`us-east-1` ACM発行後にdomainとcertificate ARNを渡す更新でCloudFrontへ`itsrun.info`を追加し、DNSは旧Firebase AからCloudFront Aliasへ別の原子的changeで切り替えます。旧Aを先に削除しない切替順序・rollback・repository variablesは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) が正本です。広告はCMP完了までfalseです。
+正式配信用のCDK定義はPreviewと分離しています。`ItsRunProductionStack`はversioningとretainを有効にしたprivate S3、CloudFront OAC、既知routeのSPA rewrite、旧URLのHTTP 301、未知URLの実HTTP 404を定義します。初回はcustom domainなしで作成し、default domainをnoindex・GA4無効のまま検証できます。Route 53委任と`us-east-1` ACM発行後にdomainとcertificate ARNを渡す更新でCloudFrontへ`itsrun.info`を追加し、DNSは旧Firebase AからCloudFront Aliasへ別の原子的changeで切り替えます。旧Aを先に削除しない切替順序・rollback・repository variablesは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) が正本です。Google CMPは設定・公開済みですが、広告は広告枠・mobile CLS・管理画面設定を再確認する別変更までfalseです。
 
 ## 8. コマンドと検証
 

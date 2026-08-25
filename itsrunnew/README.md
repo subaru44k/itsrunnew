@@ -4,7 +4,7 @@ ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify
 
 ホーム `/`（英語版 `/en/`）では、東京23区・東京都近隣部・埼玉の検証済み33施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` は日付queryを維持してホームへ移動します。織田フィールドの従来ページは `/oda-field`（英語版 `/en/oda-field`）です。現在地、直線距離、今日から31日分の日付指定availability、利用不可表示switch、施設詳細、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
 
-正式URLは `https://itsrun.info` です。sitemap、canonical、日英hreflang、OGP、About、Privacyを備え、PreviewとProduction CloudFront default domainはnoindexにします。GA4は正式domain上で利用者が同意した後だけ読み込み、現在地座標は送信しません。AdSenseは `VITE_ADSENSE_ENABLED=true` を明示しない限り無効です。公開前の管理画面・配信層の確認は [`../docs/PUBLIC_LAUNCH.md`](../docs/PUBLIC_LAUNCH.md) を参照してください。
+正式URLは `https://itsrun.info` です。sitemap、canonical、日英hreflang、OGP、About、Privacyを備え、PreviewとProduction CloudFront default domainはnoindexにします。GA4は正式domain上で利用者が同意した後だけ読み込み、現在地座標は送信しません。AdSenseは `VITE_ADSENSE_ENABLED=true` を明示しない限り無効です。Google CMPはAdSense管理画面で設定済みですが、広告再開は別変更で行います。公開前の管理画面・配信層の確認は [`../docs/PUBLIC_LAUNCH.md`](../docs/PUBLIC_LAUNCH.md) を参照してください。
 
 開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md) を参照してください。
 
@@ -50,7 +50,7 @@ npm run infra:deploy
 
 GitHub Actionsはmaster push、手動実行、毎日05:00 JSTにfresh availabilityを生成し、既存Previewへcontent-only deployします。GitHub OIDCの専用role、cache metadata、targeted invalidation、concurrency、failure handlingは [`../docs/PREVIEW_DEPLOYMENT.md`](../docs/PREVIEW_DEPLOYMENT.md) を参照してください。通常deployでCDK hosting stackは更新しません。
 
-Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false` を使用します。広告を再開するまではProduction workflowも `VITE_ADSENSE_ENABLED=false` を明示します。
+Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false` を使用します。広告を再開するまではProduction workflowも `VITE_ADSENSE_ENABLED=false` を明示します。再開時はProductionだけをtrueへ変更し、アクセス解析の選択後に全route共通のAdSenseタグを読み込みます。広告・Cookieの選択はGoogle CMP、アクセス解析の選択はサイト内UIがそれぞれ担当し、両画面は同時に表示しません。
 
 ## AWS本番環境
 

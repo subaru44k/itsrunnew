@@ -1,91 +1,79 @@
 # Production domain handover
 
-`itsrun.info` をPreview版へ切り替える前に確認するための現状メモです。2026-08-25時点のread-only調査結果であり、この文書の作成時にはDNS、Firebase、AWSの設定を変更していません。
+`https://itsrun.info/` の正式配信経路、移行記録、rollback手順です。2026-08-25に旧Firebase HostingからAWS Productionへ無停止で切り替えました。
 
-検索・GA4・Privacy・広告停止・Search Console等の公開品質チェックは [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照してください。
-
-Production AWSの段階的な構築、default-domain検証、Route 53委任、certificate、content workflowは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) を参照してください。repositoryにはProduction定義がありますが、この記録時点ではAWS resourceとDNS切替は未実施です。
+検索・GA4・Privacy・広告停止・Search Console等の公開品質チェックは [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md)、content更新とautomationは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) を参照してください。
 
 ## 現在の配信経路
 
 ```text
 https://itsrun.info/
-  -> お名前.com DNS（01.dnsv.jp〜04.dnsv.jp）
-  -> A: 151.101.1.195 / 151.101.65.195
-  -> Firebase Hosting project: itsrun-aaf42
-  -> 2022-08-09に更新された旧build
+  -> Route 53 Hosted Zone Z03544833P5RRB2UBCDH7
+  -> apex A / AAAA Alias
+  -> CloudFront E3O62QVPUO8DZ1
+     (dukd79dlhtmkc.cloudfront.net)
+  -> private, versioned Production S3 bucket
 ```
 
-確認できた根拠:
+- CloudFront alternate domainは`itsrun.info`、certificateは`us-east-1` ACMのDNS検証済み証明書。
+- default CloudFront domainは引き続き`X-Robots-Tag: noindex, nofollow`、正式domainだけがindex・同意後GA4の対象。
+- Production S3/CloudFrontはPreview stackから分離され、content workflowだけが日次更新する。
+- AdSenseはGoogle CMP完了まで無効。
 
-- `itsrun.info` の権威NSは `01.dnsv.jp`〜`04.dnsv.jp` で、Route 53の `awsdns-*` ではない。
-- apexのAレコードは `151.101.1.195` と `151.101.65.195`。
-- HTTP responseにFirebase Hosting由来の `x-fh-requested-host` がある。
-- `itsrun.info`、`itsrun-aaf42.web.app`、`itsrun-aaf42.firebaseapp.com` のHTMLは同一サイズ・ETag・SHA-256だった。
-- TLS証明書はGoogle Trust Services発行で、SANに `itsrun.info` が含まれる。
-- Git履歴上の旧 `itsrunnew/.firebaserc` はdefault projectを `itsrun-aaf42` としていた。旧 `firebase.json` は `dist/`、SPA rewrite、cache headerを設定していた。
-- Firebase custom domainの対応付け自体はrepositoryの `firebase.json` ではなくFirebase Console側のHosting設定に保持される。
-- `www.itsrun.info` のDNS recordは確認できなかった。
+## Route 53委任とrecord
 
-## 現在のAWS Previewとの関係
-
-現在の新buildは次のisolated Previewで公開している。
+お名前.comの委任先は次のRoute 53 NSへ変更済みです。
 
 ```text
-https://d2xryux7a95b54.cloudfront.net
-  -> CloudFront distribution E2F8WYHWRDA3NS
-  -> private S3 origin
+ns-893.awsdns-47.net
+ns-1257.awsdns-29.org
+ns-289.awsdns-36.com
+ns-1886.awsdns-43.co.uk
 ```
 
-- Preview distributionのaliasesは0件。
-- CloudFront default certificateを使用している。
-- `itsrun.info` のRoute 53 hosted zoneは、調査時に使用したAWS accountでは見つからなかった。
-- したがって、`itsrun.info` は現時点でPreview CloudFrontへ接続されていない。
-- Preview stackへproduction domain、Route 53、ACMを追加する変更はまだ行っていない。
+移行前にお名前.comのzone exportを取得し、次をRoute 53へ複製しました。
 
-## 本番切替で確認・変更する場所
+- apex A: 旧Firebaseの2 address（委任切替中だけ維持し、現在はCloudFront Alias）
+- apex TXT: Google所有権確認record
+- `_acme-challenge` TXT: 旧Firebase certificate用record
 
-切替はcontent deployとは別作業として扱う。最低限、次の管理画面・設定を確認する。
+ACMの自動更新に必要なDNS validation CNAMEもRoute 53に保持します。SOA/NSはRoute 53生成値を使用し、コメントアウト済みの旧Aは移行していません。MX、CAA、`www` recordはありませんでした。zone export原本はrepositoryへcommitせず、rollback資料として保管します。
 
-1. お名前.com Navi
-   - `itsrun.info` の契約・管理権限
-   - 現在のNSとA/TXT/CAA record
-   - TTLと、apexをCloudFrontへ向ける方法
-2. Firebase Console / project `itsrun-aaf42` / Hosting
-   - `itsrun.info` custom domainの接続状態
-   - 旧Hostingをいつ切り離すか
-   - Firebaseによる証明書更新との競合がないか
-3. AWS
-   - `us-east-1` のACM certificate（CloudFront用）
-   - CloudFront alternate domain name `itsrun.info`
-   - production用cache policy、SPA fallback、security headers
-   - Preview stackをそのままproduction化するか、production stackを分離するか
+## 2026-08-25 migration record
 
-お名前.com DNSを維持する場合、zone apexをCloudFrontへ向けられるrecord形式を事前に確認する。対応できない場合は、Route 53等へDNS hostingを移す設計が必要になる。移行方式を決める前に現在のA recordを削除しない。
+1. retained Production S3 + CloudFrontをdefault domainで作成し、content deployとdesktop/mobile smokeを完了。
+2. Route 53 Hosted Zoneへ旧A/TXTを完全一致で複製。
+3. お名前.comのNSをRoute 53へ変更。親`.info` zoneと複数resolverで委任を確認。
+4. `us-east-1` ACM certificateを作成し、Route 53 DNS validationで`ISSUED`を確認。
+5. CloudFrontへcertificateと`itsrun.info` alternate domainを追加し、`Deployed`を確認。
+6. CloudFront edgeへ正式Host/TLSで直接アクセスし、routes、robots、sitemap、404、noindex境界を確認。
+7. Route 53のapex AをCloudFront AliasへUPSERTし、AAAA Aliasを同じchange batchで追加。
 
-## 推奨する切替順序
+旧Firebase Aを先に削除せず、A/AAAAを原子的に切り替えました。resolverの旧A cacheが残る間は旧Firebaseと新CloudFrontが併存するため、切替中もサイトを停止しません。
 
-1. 新CloudFront側でcustom domainと証明書を設定し、default domainで最終smokeを通す。
-2. DNS TTLを考慮し、Firebaseを残したままDNSだけを新配信先へ切り替える。
-3. `https://itsrun.info/` でTrack Search、英語版、日付指定、assets、availabilityを確認する。
-4. DNS resolverを複数使い、期待する配信先へ収束したことを確認する。
-5. 十分なrollback期間を取った後にFirebase custom domainや旧Hostingの扱いを決める。
+切替直後にローカルOSの旧A cacheが残る場合は、DNS cacheを強制削除せず、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`付きのsmokeで正式Host/TLSをCloudFrontへ固定して検証できます。通常運用ではこの指定を使用せず、公開resolverの収束も別途確認します。
 
-切替直後に問題があった場合は、旧Firebase A recordへ戻せるよう、変更前のrecord値とFirebase Hosting状態を記録しておく。
+## Rollback
 
-## 切替後の確認項目
+問題時はFirebase custom domainを残したまま、Route 53で次を同じchange batchにします。
 
-- apex `itsrun.info` のA/ALIAS解決先
-- HTTPS証明書のSAN、issuer、有効期限
-- `/`、`/tracks`、`/en/`、`/oda-field`、未来日query
-- Track Searchの33施設、availability date chunks、unknown保持
-- `index.html` の短期cacheとhash assetの長期cache
-- CloudFront logs/metricsとFirebase側へのtraffic減少
-- `www.itsrun.info` を使用するか、apexへredirectするか
-- robots、sitemap、canonical、OGPの正式ドメイン反映
+1. apex Aを移行前のFirebase 2 addressへUPSERT。
+2. CloudFront向けapex AAAA AliasをDELETE。
+
+移行前の正確なrecord値は保管したzone exportを正本とします。十分な安定期間を取るまでFirebase Hosting project `itsrun-aaf42` のcustom domainや旧buildを削除しません。CloudFront/S3 stack、Route 53 Hosted Zone、ACM certificateもrollback確認期間中は削除しません。
+
+## 切替後の運用確認
+
+- `https://itsrun.info/`、`/en/`、施設route、未来日query、旧URL 301、未知URL 404
+- 33 tracks、availability chunks、unknown保持、公式・経路link
+- `robots.txt`、`sitemap.xml`、canonical、OGP、`ads.txt`
+- 同意前GA4なし、同意後GA4あり、広告なし
+- CloudFront cache、5xx、certificate expiry、自動更新用CNAME
+- Production GitHub Actionsの日次availability生成とCloudFront smoke
+- Search Console sitemap、GA4 Realtime、Google CMPと広告再開の別判断
 
 ## 参考
 
 - Firebase Hosting custom domain: https://firebase.google.com/docs/hosting/custom-domain
-- お名前.com DNS record設定: https://help.onamae.com/answer/7878
 - AWS Route 53 NS/SOA: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/SOA-NSrecords.html
+- AWS CloudFront alternate domain: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/CNAMEs.html

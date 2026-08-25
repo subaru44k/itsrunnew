@@ -39,7 +39,7 @@ npm run test:smoke:preview
 
 AWS CDKが、公開アクセスを遮断したS3バケットとOrigin Access Control付きCloudFront Distributionを作成します。独自ドメインやRoute 53は構成しません。
 
-本番domain `itsrun.info` は現時点では旧Firebase Hostingから配信されており、このPreviewとは接続されていません。将来の切替で確認するDNS、Firebase project、CloudFront/ACM、rollback項目は [`../docs/PRODUCTION_DOMAIN.md`](../docs/PRODUCTION_DOMAIN.md) を参照してください。
+本番domain `itsrun.info` はRoute 53のA/AAAA Aliasから、Previewとは別のProduction CloudFrontで配信します。旧Firebase HostingはDNS rollback確認期間のため残しています。DNS、certificate、CloudFront、移行記録とrollback項目は [`../docs/PRODUCTION_DOMAIN.md`](../docs/PRODUCTION_DOMAIN.md) を参照してください。
 
 ```sh
 npm run infra:synth

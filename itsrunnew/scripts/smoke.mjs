@@ -4,7 +4,12 @@ import { readFileSync } from 'node:fs';
 const baseUrl = process.env.ITSRUN_BASE_URL ?? 'http://127.0.0.1:4173';
 const executablePath = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const expectEdgeRouting = process.env.ITSRUN_EXPECT_EDGE_ROUTING === 'true';
-const browser = await chromium.launch({ executablePath, headless: true });
+const hostResolverRule = process.env.ITSRUN_HOST_RESOLVER_RULE;
+const browser = await chromium.launch({
+  executablePath,
+  headless: true,
+  args: hostResolverRule ? [`--host-resolver-rules=${hostResolverRule}`] : [],
+});
 const requests = [];
 const runtimeErrors = [];
 const adPattern = /googlesyndication|doubleclick|googletagmanager|google-analytics|googleadservices/i;

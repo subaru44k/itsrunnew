@@ -214,7 +214,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 バケットとオブジェクトはスタック削除時に削除される検証用途の設定です。
 
-本番domain `itsrun.info` は現在、お名前.com DNSから旧Firebase Hosting project `itsrun-aaf42` へ向いており、このPreview CloudFrontとは未接続です。確認済みのDNS record、Firebaseとの対応、正式切替時の確認箇所とrollback方針は [`PRODUCTION_DOMAIN.md`](PRODUCTION_DOMAIN.md) に記録しています。本番切替ではこのメモを確認し、Preview content deployとDNS/custom-domain移行を別作業として扱ってください。
+本番domain `itsrun.info` はRoute 53のA/AAAA Aliasから、Previewとは別のProduction CloudFrontへ配信します。2026-08-25に旧Firebase Hostingから無停止で切り替え、旧FirebaseはDNS rollback確認期間のため残しています。現在のDNS record、certificate、CloudFront、切替記録とrollback方針は [`PRODUCTION_DOMAIN.md`](PRODUCTION_DOMAIN.md) に記録しています。
 
 `ItsRunPreviewAutomationStack` は既存の標準GitHub OIDC providerを参照し、`master` branchの `subaru44k/itsrunnew` workflowだけが引き受けられる `itsrun-track-preview-deploy` roleを作成します。既存migration roleは使用しません。権限はPreview bucketのcontent操作とPreview distributionのread/invalidationに限定し、hosting stackとは独立して管理します。
 
@@ -250,7 +250,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run infra:production:certificate:deploy` | 委任済みzoneでus-east-1 certificateを発行する |
 | `npm run infra:production:automation:deploy` | Production content-only OIDC roleを作成する |
 
-スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。
+スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
 `.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。commit済みavailability baselineを使うためlive collector、AWS権限、secretsは必要としません。
 

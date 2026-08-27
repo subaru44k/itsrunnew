@@ -2,14 +2,15 @@
   "schemaVersion": 1,
   "auditedAt": "2026-08-27",
   "scope": {
-    "candidatesReviewed": 70,
-    "publishedAfterAudit": 69,
+    "candidatesReviewed": 90,
+    "publishedAfterAudit": 89,
     "excluded": 1,
     "cohorts": {
       "initial-12": 12,
       "12-to-33": 21,
       "33-to-51": 18,
-      "2026-08-kanto-completeness-audit": 19
+      "2026-08-kanto-completeness-audit": 19,
+      "2026-08-kansai-public-tracks": 20
     }
   },
   "policy": {
@@ -19,14 +20,17 @@
     "spikesAreNiceToHave": true
   },
   "liveSourceReview": {
-    "uniqueUrlsChecked": 145,
+    "uniqueUrlsChecked": 187,
     "method": "single respectful GET per unique official/research URL with low concurrency; semantic changes manually checked on primary official pages",
     "brokenOrGuardedPublicUrlsRemoved": [
       "https://misato-hall.com/rikujyo/",
       "https://www.iwana.shiteikanri-sakura.jp/iwa/",
       "https://www.asamizo-stadium.jpn.org/",
       "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf",
-      "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html"
+      "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
+      "https://hirakata-taikyo.org/sc/field_schedule.htm",
+      "https://sakai-espa.com/topics/kanaoka/kyouyou.files/202512.pdf",
+      "https://www.city.suita.osaka.jp/_res/projects/default_project/_page_/001/013/468/hirogare06.pdf"
     ]
   },
   "records": [
@@ -1641,6 +1645,86 @@
       "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/2282881", "verifiedAt": "2026-08-27" },
       "individualUse": { "status": "available", "sourceUrl": "https://shisetsu.mizuno.jp/m-7507-0001/guide", "verifiedAt": "2026-08-27" },
       "availability": { "type": "reservation_system", "sourceUrl": "https://shisetsu.mizuno.jp/m-7507-0001/guide", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "osaka-kanaoka-park-athletics-stadium", "name": "金岡公園陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.sakai.lg.jp/yoyakuanai/bunrui/sports/kanaokarikujo.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/352202109", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.sakai.lg.jp/reiki/reiki_honbun/s000RG00000462.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "no_schedule_found", "sourceUrl": "https://www.city.sakai.lg.jp/yoyakuanai/bunrui/sports/kanaokarikujo.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "旧月別共用案内は404のため除去し、安定した施設ページを確認導線として保持"
+    },
+    {
+      "trackId": "expo70-commemorative-stadium", "name": "万博記念競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.expo70-park.jp/sports/facility/arena/", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/686373518", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.expo70-park.jp/sports/facility/arena/", "verifiedAt": "2026-08-27" }, "availability": { "type": "pdf", "sourceUrl": "https://www.expo70-park.jp/sports/facility/arena/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "hattori-ryokuchi-athletics-stadium", "name": "服部緑地陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://hattori-ryokuchi.com/guide/sports/", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/495444728", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://hattori-ryokuchi.com/faq/", "verifiedAt": "2026-08-27" }, "availability": { "type": "weekly_notice", "sourceUrl": "https://hattori-ryokuchi.com/guide/sports/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "hirakata-athletics-stadium", "name": "たまゆら陸上競技場（枚方市立陸上競技場）", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.hirakata.osaka.jp/0000005130.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/1063648607", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://shisetsu.mizuno.jp/mss-7292/guide", "verifiedAt": "2026-08-27" }, "availability": { "type": "fixed_schedule", "sourceUrl": "https://shisetsu.mizuno.jp/mss-7292/guide", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "旧指定管理者の予定表は404のため除去。現指定管理者の個人供用時間を保持"
+    },
+    {
+      "trackId": "takatsuki-athletics-stadium", "name": "高槻市立陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.takatsuki.osaka.jp/soshiki/61/4495.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/229734660", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.takatsuki.osaka.jp/uploaded/attachment/59195.pdf", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.takatsuki.osaka.jp/soshiki/61/4495.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "suita-general-sports-ground", "name": "吹田市立総合運動場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.suita.osaka.jp/shisei/shisetsu/1019118/1020470.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/783226424", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.suita.osaka.jp/bunka/1018347/1021077/1037323.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://playground.suita-shisetsu.com/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "旧広報PDFの404を除去し、現行料金150円の公式ページへ更新"
+    },
+    {
+      "trackId": "neyagawa-park-athletics-stadium", "name": "寝屋川公園陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://neyagawa.osaka-park.or.jp/1287", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "official_map_manual", "sourceUrl": "https://neyagawa.osaka-park.or.jp/guide", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://neyagawa.osaka-park.or.jp/1287", "verifiedAt": "2026-08-27" }, "availability": { "type": "structured_html", "sourceUrl": "https://neyagawa.osaka-park.or.jp/?N=A", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "路面は公式文言未確認のためnull"
+    },
+    {
+      "trackId": "miki-disaster-prevention-second-athletics-stadium", "name": "兵庫県立三木総合防災公園 第2陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.hyogo-park.or.jp/mikisougou/contents/sisetsu/sports.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/7966626", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.hyogo-park.or.jp/mikisougou/contents/sisetsu/sports.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://www.hyogo-park.or.jp/yoyaku/setumei/site", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "共同利用制度がある第2競技場のみ掲載"
+    },
+    {
+      "trackId": "himeji-athletics-stadium", "name": "ウインク陸上競技場（姫路市立陸上競技場）", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://himeji-machishin.jp/sports/shisetsu/hime-riku/", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/2335804", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://himeji-machishin.jp/sports/shisetsu/hime-riku/ryokin/", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://himeji-machishin.jp/sports/shisetsu/hime-riku/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "amagasaki-memorial-park-athletics-stadium", "name": "ベイコム陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.aspf.or.jp/park/stadium.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/94120114", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://aspf.or.jp/park/docs/yoyaku_rikujo_kojin.pdf", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://www.aspf.or.jp/park/stadium.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "kakogawa-athletics-stadium", "name": "SHOWAグループ陸上競技場（加古川運動公園陸上競技場）", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.kakogawa-sports.jp/facilities/field/index.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/296892600", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.kakogawa-sports.jp/facilities/field/index.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.kakogawa.lg.jp/soshikikarasagasu/shiminbu/wellnesssuishinka/sports_facilities/1416286981343.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "akashi-park-athletics-stadium", "name": "きしろスタジアム（明石公園陸上競技場）", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://hyogo-akashipark.jp/aboutpark/sport/", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/196418170", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://hyogo-akashipark.jp/aboutpark/sport/", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://www.hyogo-park.or.jp/yoyaku/setumei/site", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "ono-kibou-no-oka-athletics-stadium", "name": "小野希望の丘陸上競技場 アレオ", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://cityono.jp/index.php?pid=areo", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "address_geocode_verified", "sourceUrl": "https://cityono.jp/index.php?pid=areo", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://cityono.jp/index.php?pid=areo", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://cityono.jp/index.php?pid=areo", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "予約systemの－は個人利用可能な場合もある"
+    },
+    {
+      "trackId": "taishi-general-park-athletics-stadium", "name": "丸尾建築総合公園陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.town.hyogo-taishi.lg.jp/shisetsu/5753.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/159457799", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.town.hyogo-taishi.lg.jp/soshikikarasagasu/tyouminntaiikukan/sougoukouennriyou/7776.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "phone_only", "sourceUrl": "https://www.town.hyogo-taishi.lg.jp/soshikikarasagasu/tyouminntaiikukan/sougoukouennriyou/7776.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "takebishi-stadium-kyoto", "name": "たけびしスタジアム京都", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/2141113", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.kyoto-sports.or.jp/wp-content/uploads/2023/03/70b294765118a03b92902e24380cc241.pdf", "verifiedAt": "2026-08-27" }, "availability": { "type": "calendar_html", "sourceUrl": "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "nishikyogoku-auxiliary-athletics-stadium", "name": "東寺ハウジングフィールド西京極", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.kyoto-sports.or.jp/public_html/wp-content/uploads/2023/02/toji%20housing%20field%20ryokin.pdf", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/2139518", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.kyoto-sports.or.jp/public_html/wp-content/uploads/2023/02/toji%20housing%20field%20ryokin.pdf", "verifiedAt": "2026-08-27" }, "availability": { "type": "calendar_html", "sourceUrl": "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "独立した補助競技場"
+    },
+    {
+      "trackId": "yamashiro-general-sports-park-athletics-stadium", "name": "京都府立山城総合運動公園陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.kyoto-park.jp/%E9%81%8B%E5%8B%95%E6%96%BD%E8%A8%AD/", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/497574263", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.kyoto-park.jp/application/", "verifiedAt": "2026-08-27" }, "availability": { "type": "weekly_notice", "sourceUrl": "https://www.kyoto-park.jp/news/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "tanba-natural-sports-park-athletics-stadium", "name": "京都府立丹波自然運動公園陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.kyoto-tanbapark.or.jp/sports/page02.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/449029006", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.kyoto-tanbapark.or.jp/sports/page02.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "reservation_system", "sourceUrl": "https://www.kyoto-tanbapark.or.jp/sports/page02.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "kameoka-sports-park-stadium", "name": "亀岡運動公園競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.kameoka.kyoto.jp/soshiki/33/3776.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/6974589", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.kameoka.kyoto.jp/soshiki/33/3781.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "phone_only", "sourceUrl": "https://park-kameoka.jp/facility/k-stadiam", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "kyotango-hagoromo-athletics-stadium", "name": "京丹後はごろも陸上競技場", "cohort": "2026-08-kansai-public-tracks", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html", "verifiedAt": "2026-08-27" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/1149663658", "verifiedAt": "2026-08-27" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html", "verifiedAt": "2026-08-27" }, "availability": { "type": "no_schedule_found", "sourceUrl": "https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
     }
   ]
 }

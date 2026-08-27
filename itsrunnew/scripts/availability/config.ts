@@ -38,7 +38,7 @@ export const expansionFallbackSources = [
   { trackId: 'wadabori-park-first-track', url: 'https://www.tokyo-park.or.jp/park/wadabori/news/', publicationFormat: 'pdf', unknownReason: 'unsupported_source_type' },
   { trackId: 'wadabori-park-seibiyama-track', url: 'https://www.tokyo-park.or.jp/park/wadabori/news/', publicationFormat: 'pdf', unknownReason: 'unsupported_source_type' },
   { trackId: 'kawaguchi-aoki-park-track', url: 'https://kawaspo.jp/pages/24/', publicationFormat: 'reservation_system', unknownReason: 'reservation_system_unsupported' },
-  { trackId: 'misato-senario-house-field', url: 'https://misato-hall.com/rikujyo/', publicationFormat: 'pdf', unknownReason: 'unsupported_source_type' },
+  { trackId: 'misato-senario-house-field', url: 'https://www.misato-hall.com/module/3299.htm', publicationFormat: 'pdf', unknownReason: 'unsupported_source_type' },
   { trackId: 'koshigaya-shirakobato-track', url: 'https://kouen-kyougijyou.kosi-kanri.com/', publicationFormat: 'structured_html', unknownReason: 'unsupported_source_type' },
   { trackId: 'saitama-komaba-stadium-track', url: 'https://www.city.saitama.lg.jp/004/006/003/003/p033423.html', publicationFormat: 'phone_only', unknownReason: 'phone_confirmation_required' },
   { trackId: 'ageo-athletic-stadium', url: 'https://www.parks.or.jp/saitamasuijo/guide/006/006231.html', publicationFormat: 'pdf', unknownReason: 'unsupported_source_type' },

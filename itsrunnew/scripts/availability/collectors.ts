@@ -542,17 +542,30 @@ export async function collectAvailability(date: string, options: { now?: Date; f
   const represented = new Set([...supported, ...unsupported].map(item => item.trackId));
   const researchedButUnsupported = tracks
     .filter(track => !represented.has(track.id))
-    .map(track => unknownRecord({
-      trackId: track.id,
-      date,
-      now: context.now,
-      unknownReason: 'web_schedule_unavailable',
-      url: track.urls.schedule ?? track.urls.individualUse ?? track.urls.official,
-      publicationFormat: 'no_schedule_found',
-      collector: 'official-source-manual-confirmation',
-      confidence: 'low',
-      warnings: ['Facility identity is verified; date-specific availability is not automated yet.'],
-    }));
+    .map(track => track.individualUse.status === 'unavailable'
+      ? makeRecord({
+        trackId: track.id,
+        date,
+        now: context.now,
+        status: 'unavailable',
+        periods: [unavailablePeriod(null, null, ['individual_use_unavailable'])],
+        url: track.urls.individualUse ?? track.urls.official,
+        publicationFormat: 'no_schedule_found',
+        collector: 'static-individual-use-eligibility',
+        confidence: 'high',
+        warnings: ['Official static facility rules explicitly do not accept individual use.'],
+      })
+      : unknownRecord({
+        trackId: track.id,
+        date,
+        now: context.now,
+        unknownReason: 'web_schedule_unavailable',
+        url: track.urls.schedule ?? track.urls.individualUse ?? track.urls.official,
+        publicationFormat: 'no_schedule_found',
+        collector: 'official-source-manual-confirmation',
+        confidence: 'low',
+        warnings: ['Facility identity is verified; date-specific availability is not automated yet.'],
+      }));
   return [...supported, ...unsupported, ...researchedButUnsupported].sort((a, b) => a.trackId.localeCompare(b.trackId));
 }
 

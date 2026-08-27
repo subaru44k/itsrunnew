@@ -95,13 +95,17 @@ data/osm/
 
 research/
 ├── availability/
-│   ├── availability-sources.json  Track Dataset全51施設のavailability source調査データ
+│   ├── availability-sources.json  Track Dataset全50施設のavailability source調査データ
 │   ├── availability-research.md   「今日利用可能」機能の調査と拡張追補
 │   ├── pdf-collector-validation.md PDF collectorのlive比較・format・coverage
 │   └── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
 └── track-expansion/
     ├── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
-    └── phase2-expansion-report.md  51施設への品質優先拡張
+    ├── phase2-expansion-report.md  51候補への品質優先拡張（現在50施設）
+    ├── current-51-audit.md         全51候補の遡及品質監査
+    └── track-source-audit.json     施設別のsource監査台帳
+
+docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの施設追加品質ゲート
 
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
@@ -182,13 +186,17 @@ research/
 
 `TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。tileは低彩度表示とし、zoom 12以下では近接markerをcluster化します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順、拒否・取得不能・timeout時は石神井公園中心の地図を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有できます。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。一覧とmap detailからstable IDの施設詳細へ移動でき、`TrackDetail.vue` は選択日availability、仕様、公式導線と近隣5施設を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離し、詳細ページの「地図でこの施設を見る」から地図中央・選択状態を復元します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
 
+Track Searchの中心価値は、指定日に近くで集中して走れる環境を見つけられることです。施設情報を公式サイトなしで完全に把握できることは目標にせず、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と公式確認導線を優先します。スパイク可否、料金、細かな条件は補助情報であり、網羅率の目標にしません。変化し得る条件を古い静的値で断定せず、確認不能ならunknownを保ちます。調査・更新時の具体的な優先順位は [`TRACK_DATA.md`](TRACK_DATA.md) を正本とします。
+
 施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや3択dropdownは設けません。routing API、backend、リアルタイムOverpass/JAAF/施設検索はありません。
 
-availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、PDF text extractionを再利用します。structured HTML 3施設、calendar HTML 3施設、固定規則9施設、PDF 8施設の計23施設を安全な自動判定対象とし、世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
+availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、PDF text extractionを再利用します。structured HTML 3施設、calendar HTML 3施設、固定規則9施設、PDF 8施設の計23施設を安全な自動判定対象とし、世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。staticな個人利用不可が公式規則で明示された施設だけは、日程欠落ではなく資格そのものを根拠に日別 `unavailable` を生成します。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 
-調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在51施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、raw fileのOSM ID、50〜150件の運用範囲、単日および31日manifest全件のavailability trackId/date一致を検証します。
+調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在50施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、raw fileのOSM ID、50〜150件の運用範囲、availability research・施設別監査台帳のID/件数、broken public URLの再混入、単日および31日manifest全件のavailability trackId/date一致を検証します。
 
-availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に51施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
+新規施設と既存施設の再調査では [`TRACK_EXPANSION_PLAYBOOK.md`](TRACK_EXPANSION_PLAYBOOK.md) を使用します。施設を直接normalized datasetへ追加せず、discovery sourceとverification sourceを分離し、施設単位のevidence worksheet、個人利用status、availability source分類をreviewしてから公開します。施設掲載とcollector対応は別の品質ゲートであり、collector未対応は理由付きunknownとして保持します。初期12、12→33、33→51の全cohortを遡及監査対象とし、料金・スパイクの網羅よりavailability、位置、トラック長、路面、公式確認導線を優先します。
+
+availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に50施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
 
 ### 広告
 
@@ -276,7 +284,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | 変更内容 | 主な実装 | 同時に確認・更新するもの |
 |---|---|---|
 | ページやURLの追加・削除 | `src/router.ts`, `src/views/` | `App.vue`のメニュー、locale、smoke、visual、この文書 |
-| トラック施設データ | `src/data/tracks.json`, `src/model/tracks.ts` | `TRACK_DATA.md`、validate、unit、smoke、この文書 |
+| トラック施設データ | `src/data/tracks.json`, `src/model/tracks.ts` | `TRACK_DATA.md`、`TRACK_EXPANSION_PLAYBOOK.md`、validate、unit、smoke、この文書 |
 | availability調査・将来の取得方式 | `../research/availability/` | Track Datasetの全ID、公式source、`unknown`の意味、この文書 |
 | availability collector・schema・UI | `scripts/availability/`, `src/data/availability.json`, `src/model/availability.ts`, `src/views/TrackSearch.vue` | `AVAILABILITY.md`、unit、smoke、README、この文書 |
 | 共通ヘッダー・フッター | `src/App.vue`, `src/styles.css` | locale、smoke、visual、この文書 |

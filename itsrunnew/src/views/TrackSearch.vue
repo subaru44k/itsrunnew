@@ -544,6 +544,7 @@ function statusClass(track: TrackFacility) { return track.individualUse.status =
 function statusLabel(track: TrackFacility) {
   if (track.individualUse.status === 'available') return isEnglish.value ? 'Individual use' : '個人利用可';
   if (track.individualUse.status === 'temporarily-unavailable') return isEnglish.value ? 'Temporarily closed' : '一時休止中';
+  if (track.individualUse.status === 'unavailable') return isEnglish.value ? 'No individual use' : '個人利用不可';
   return isEnglish.value ? 'Check status' : '利用要確認';
 }
 function certificationLabel(track: TrackFacility) {

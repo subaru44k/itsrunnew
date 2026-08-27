@@ -2,19 +2,19 @@
   "schemaVersion": 1,
   "dataset": {
     "path": "itsrunnew/src/data/tracks.json",
-    "trackCount": 51
+    "trackCount": 50
   },
   "research": {
-    "verifiedAt": "2026-08-25",
+    "verifiedAt": "2026-08-27",
     "timezone": "Asia/Tokyo",
     "scope": "All facilities in the current normalized Track Dataset",
-    "officialWebAvailabilityFoundCount": 40,
+    "officialWebAvailabilityFoundCount": 39,
     "classificationCounts": {
       "pdf": 10,
       "structured_html": 6,
       "fixed_schedule": 10,
       "phone_only": 3,
-      "reservation_system": 9,
+      "reservation_system": 8,
       "calendar_html": 5,
       "no_schedule_found": 8
     },
@@ -22,7 +22,7 @@
       "yes": 18,
       "probably": 11,
       "no": 11,
-      "difficult": 11
+      "difficult": 10
     },
     "implementationCoverage": {
       "currentCollectors": 23,
@@ -33,13 +33,14 @@
       "pdfGuardedUnknown": 1,
       "pdfRequired": 1,
       "reservationSystemRequired": 5,
-      "manualOrUnknown": 28
+      "manualOrUnknown": 27
     },
     "futureDateAssessment": {
       "futureDatesSupported": 26,
       "futureRangeLimited": 6,
       "todayOnly": 4,
-      "unknown": 14
+      "unknown": 13,
+      "notAssessed": 1
     }
   },
   "facilities": [
@@ -108,7 +109,13 @@
       },
       "automation": {
         "feasibility": "yes",
-        "reason": "月間HTML表と一般開放の意味が明記され、改修等の全期間閉鎖もHTML告知から判定できる"
+        "reason": "月間HTML表と一般開放の意味が明記され、改修等の全期間閉鎖もHTML告知から判定できる",
+        "implementation": {
+          "status": "supported",
+          "parser": "hikarigaoka-html",
+          "version": "1.0.0",
+          "discovery": "stable_html_page"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -142,7 +149,13 @@
       },
       "automation": {
         "feasibility": "probably",
-        "reason": "定期一般開放日は高信頼で算出できるが、それ以外の日の貸切状況はWeb公開されず一日全体を確定できない"
+        "reason": "定期一般開放日は高信頼で算出できるが、それ以外の日の貸切状況はWeb公開されず一日全体を確定できない",
+        "implementation": {
+          "status": "supported",
+          "parser": "oizumi-fixed",
+          "version": "1.0.0",
+          "discovery": "fixed_rule"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -208,7 +221,13 @@
       },
       "automation": {
         "feasibility": "probably",
-        "reason": "定期一般開放日は算出できるが、それ以外の貸切状況と臨時整備をWebだけでは取得できない"
+        "reason": "定期一般開放日は算出できるが、それ以外の貸切状況と臨時整備をWebだけでは取得できない",
+        "implementation": {
+          "status": "supported",
+          "parser": "akatsuka-fixed",
+          "version": "1.0.0",
+          "discovery": "fixed_rule"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -239,7 +258,13 @@
       },
       "automation": {
         "feasibility": "yes",
-        "reason": "安定URLのHTML表にA開放・B開放・貸切が時間枠単位で表示される。表示対象日が本日かの検証は必須"
+        "reason": "安定URLのHTML表にA開放・B開放・貸切が時間枠単位で表示される。表示対象日が本日かの検証は必須",
+        "implementation": {
+          "status": "supported",
+          "parser": "musashino-html",
+          "version": "1.0.0",
+          "discovery": "stable_html_page"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -283,7 +308,13 @@
       },
       "automation": {
         "feasibility": "probably",
-        "reason": "貸切申請不可日は一般利用と判定可能だが、貸切可能日の予約有無はWeb公開されず、行政利用等の例外もある"
+        "reason": "貸切申請不可日は一般利用と判定可能だが、貸切可能日の予約有無はWeb公開されず、行政利用等の例外もある",
+        "implementation": {
+          "status": "supported",
+          "parser": "inokashira-fixed",
+          "version": "1.0.0",
+          "discovery": "fixed_rule"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -366,7 +397,13 @@
       },
       "automation": {
         "feasibility": "probably",
-        "reason": "固定ルールと年度日程PDFから計画枠を算出できるが、利用資格、球技との交代、当日変更・天候中止を扱う必要がある"
+        "reason": "固定ルールと年度日程PDFから計画枠を算出できるが、利用資格、球技との交代、当日変更・天候中止を扱う必要がある",
+        "implementation": {
+          "status": "supported",
+          "parser": "asaka-fixed",
+          "version": "1.0.0",
+          "discovery": "fixed_rule"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -456,7 +493,13 @@
       },
       "automation": {
         "feasibility": "probably",
-        "reason": "定期枠と現在の長期閉鎖は算出できるが、貸切のない追加枠、臨時変更、工事延長をニュースから継続監視する必要がある"
+        "reason": "定期枠と現在の長期閉鎖は算出できるが、貸切のない追加枠、臨時変更、工事延長をニュースから継続監視する必要がある",
+        "implementation": {
+          "status": "supported",
+          "parser": "yoyogi-fixed",
+          "version": "1.0.0",
+          "discovery": "fixed_rule"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -491,7 +534,13 @@
       },
       "automation": {
         "feasibility": "yes",
-        "reason": "ログイン不要の安定URLへ和文日付をPOSTすると、一般開放・貸切・休館等がサーバー生成HTML表で返る"
+        "reason": "ログイン不要の安定URLへ和文日付をPOSTすると、一般開放・貸切・休館等がサーバー生成HTML表で返る",
+        "implementation": {
+          "status": "supported",
+          "parser": "tokyo-gymnasium-calendar",
+          "version": "1.0.0",
+          "discovery": "date_post"
+        }
       },
       "semantics": {
         "canInferAvailable": true,
@@ -1439,22 +1488,23 @@
       },
       "automation": {
         "feasibility": "no",
-        "reason": "安全な日別自動判定sourceを未確認"
+        "reason": "主競技場は公式案内で専用利用のみ。個人共同利用は別施設の第2陸上競技場で実施"
       },
       "semantics": {
         "canInferAvailable": false,
         "coverage": "none",
-        "rule": "format-specific collector実装まではunknown。公式に明示された個人利用枠だけをavailableとする",
+        "rule": "主競技場のindividual useは明示的にunavailable。日別予定の不在から追加の判定はしない",
         "absenceMeaning": "予定の不在をavailableまたはunavailableと解釈しない"
       },
       "dateSearch": "unknown",
       "specialCases": [
-        "大会・貸切・臨時休場は公式情報で要確認"
+        "個人共同利用を探す場合は第2陸上競技場を確認"
       ],
       "sources": [
-        "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html"
+        "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html",
+        "https://www.cue-net.or.jp/kouen/sportscenter/annai/stadium.html"
       ],
-      "verifiedAt": "2026-08-25"
+      "verifiedAt": "2026-08-27"
     },
     {
       "trackId": "funabashi-athletic-stadium",
@@ -1593,11 +1643,11 @@
       "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": {
         "type": "fixed_schedule",
-        "url": "https://www.iwana.shiteikanri-sakura.jp/iwa/",
+        "url": "https://www.city.sakura.lg.jp/material/files/group/33/kyugijo_4.pdf",
         "discoveryUrl": "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
         "granularity": "date_or_period",
         "updateFrequency": "unknown",
-        "updateNote": "Phase 2 expansionで公式sourceを確認。format-specific collectorは未実装",
+        "updateNote": "佐倉市公式案内で個人利用・夜間開放の固定条件を確認。指定管理者サイトは証明書不整合のため公開導線に使用しない",
         "urlStability": "stable_official_page"
       },
       "automation": {
@@ -1616,9 +1666,9 @@
       ],
       "sources": [
         "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
-        "https://www.iwana.shiteikanri-sakura.jp/iwa/"
+        "https://www.city.sakura.lg.jp/material/files/group/33/kyugijo_4.pdf"
       ],
-      "verifiedAt": "2026-08-25"
+      "verifiedAt": "2026-08-27"
     },
     {
       "trackId": "kawagoe-sports-park-track",
@@ -1723,11 +1773,11 @@
       "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": {
         "type": "calendar_html",
-        "url": "https://www.asamizo-stadium.jpn.org/",
+        "url": "https://asamizo-stadium.jpn.org/",
         "discoveryUrl": "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
         "granularity": "date_or_period",
         "updateFrequency": "unknown",
-        "updateNote": "Phase 2 expansionで公式sourceを確認。format-specific collectorは未実装",
+        "updateNote": "相模原市公式FAQから指定管理者calendarを確認。自動取得は現在403、公開画面のschedule導線は安全のため非表示",
         "urlStability": "stable_official_page"
       },
       "automation": {
@@ -1746,9 +1796,9 @@
       ],
       "sources": [
         "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
-        "https://www.asamizo-stadium.jpn.org/"
+        "https://asamizo-stadium.jpn.org/"
       ],
-      "verifiedAt": "2026-08-25"
+      "verifiedAt": "2026-08-27"
     },
     {
       "trackId": "lemon-gas-stadium-hiratsuka-track",
@@ -1756,11 +1806,11 @@
       "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": {
         "type": "structured_html",
-        "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+        "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html",
         "discoveryUrl": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
         "granularity": "date_or_period",
         "updateFrequency": "unknown",
-        "updateNote": "Phase 2 expansionで公式sourceを確認。format-specific collectorは未実装",
+        "updateNote": "月別予定ページを公式サイトで更新。共用可能時間と料金体系は別々に確認する",
         "urlStability": "stable_official_page"
       },
       "automation": {
@@ -1778,9 +1828,10 @@
         "大会・貸切・臨時休場は公式情報で要確認"
       ],
       "sources": [
-        "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html"
+        "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+        "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html"
       ],
-      "verifiedAt": "2026-08-25"
+      "verifiedAt": "2026-08-27"
     },
     {
       "trackId": "yamato-sports-center-track",
@@ -1818,47 +1869,14 @@
     {
       "trackId": "iriyamazu-park-athletic-stadium",
       "name": "不入斗公園陸上競技場",
-      "availabilityInformationExistsOnOfficialWeb": true,
-      "availabilitySource": {
-        "type": "reservation_system",
-        "url": "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf",
-        "discoveryUrl": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
-        "granularity": "unknown",
-        "updateFrequency": "unknown",
-        "updateNote": "Phase 2 expansionで公式sourceを確認。format-specific collectorは未実装",
-        "urlStability": "stable_official_page"
-      },
-      "automation": {
-        "feasibility": "difficult",
-        "reason": "安全な日別自動判定sourceを未確認"
-      },
-      "semantics": {
-        "canInferAvailable": false,
-        "coverage": "none",
-        "rule": "format-specific collector実装まではunknown。公式に明示された個人利用枠だけをavailableとする",
-        "absenceMeaning": "予定の不在をavailableまたはunavailableと解釈しない"
-      },
-      "dateSearch": "unknown",
-      "specialCases": [
-        "大会・貸切・臨時休場は公式情報で要確認"
-      ],
-      "sources": [
-        "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
-        "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf"
-      ],
-      "verifiedAt": "2026-08-25"
-    },
-    {
-      "trackId": "happe-park-athletic-stadium",
-      "name": "八部公園陸上競技場",
       "availabilityInformationExistsOnOfficialWeb": false,
       "availabilitySource": {
         "type": "no_schedule_found",
-        "url": "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
-        "discoveryUrl": "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
+        "url": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
+        "discoveryUrl": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
         "granularity": "unknown",
         "updateFrequency": "unknown",
-        "updateNote": "Phase 2 expansionで公式sourceを確認。format-specific collectorは未実装",
+        "updateNote": "施設ページで個人利用条件と現行料金を確認したが、安定した日別予定sourceは未確認",
         "urlStability": "stable_official_page"
       },
       "automation": {
@@ -1876,9 +1894,9 @@
         "大会・貸切・臨時休場は公式情報で要確認"
       ],
       "sources": [
-        "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html"
+        "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html"
       ],
-      "verifiedAt": "2026-08-25"
+      "verifiedAt": "2026-08-27"
     },
     {
       "trackId": "ogino-sports-park-track",

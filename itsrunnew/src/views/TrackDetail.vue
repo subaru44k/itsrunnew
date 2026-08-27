@@ -138,6 +138,7 @@ const statusLabel = computed(() => ({ available: ["利用可能", 'Available'], 
 const statusDescription = computed(() => {
   if (!availability.value || availability.value.status === 'unknown') return isEnglish.value ? 'The selected date cannot be confirmed online. Check the official source.' : '選択日の状況をWebだけでは確定できません。公式情報をご確認ください。';
   if (availability.value.status === 'partially_available') return isEnglish.value ? 'Only the periods below are confirmed.' : '下記の時間帯のみ利用可能と確認できています。';
+  if (availability.value.status === 'unavailable' && track.value?.individualUse.status === 'unavailable') return isEnglish.value ? 'Official facility rules do not accept individual use.' : '公式の施設規則で個人利用を受け付けていません。';
   if (availability.value.status === 'unavailable') return isEnglish.value ? 'An official closure or unavailable notice applies.' : '公式情報で休場・利用休止を確認しています。';
   return isEnglish.value ? 'Official information confirms an individual-use period.' : '公式情報から個人利用枠を確認できています。';
 });
@@ -148,7 +149,12 @@ const surfaceLabel = computed(() => {
   return labels[track.value?.track.surface ?? '']?.[isEnglish.value ? 1 : 0] ?? (isEnglish.value ? 'Not confirmed' : '未確認');
 });
 const certificationLabel = computed(() => track.value?.certification.jaafCertified === true ? `${track.value.certification.jaafClass}${isEnglish.value ? ' class' : '種公認'}` : track.value?.certification.jaafCertified === false ? (isEnglish.value ? 'Not certified' : '非公認') : (isEnglish.value ? 'Not confirmed' : '未確認'));
-const individualUseLabel = computed(() => track.value?.individualUse.status === 'available' ? (isEnglish.value ? 'Available' : '利用可') : (isEnglish.value ? 'Needs confirmation' : '要確認'));
+const individualUseLabel = computed(() => {
+  if (track.value?.individualUse.status === 'available') return isEnglish.value ? 'Available' : '利用可';
+  if (track.value?.individualUse.status === 'unavailable') return isEnglish.value ? 'Not available' : '利用不可';
+  if (track.value?.individualUse.status === 'temporarily-unavailable') return isEnglish.value ? 'Temporarily closed' : '一時休止中';
+  return isEnglish.value ? 'Needs confirmation' : '要確認';
+});
 const spikesLabel = computed(() => track.value?.individualUse.spikesAllowed === true ? (isEnglish.value ? 'Allowed' : '利用可') : track.value?.individualUse.spikesAllowed === false ? (isEnglish.value ? 'Not allowed' : '利用不可') : (isEnglish.value ? 'Not confirmed' : '未確認'));
 const feeLabel = computed(() => track.value?.individualUse.feeYen == null ? (isEnglish.value ? 'Check official site' : '公式サイトで確認') : track.value.individualUse.feeYen === 0 ? (isEnglish.value ? 'Free' : '無料') : `¥${track.value.individualUse.feeYen.toLocaleString()}${track.value.individualUse.feeUnit ? ` / ${track.value.individualUse.feeUnit}` : ''}`);
 const latestVerifiedAt = computed(() => track.value ? track.value.sources.map(source => source.verifiedAt).sort().at(-1) ?? '—' : '—');

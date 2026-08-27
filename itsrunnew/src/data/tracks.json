@@ -1290,9 +1290,9 @@
       "note": "市外は基本料金の倍額。共用時は1レーン使用不可"
     },
     "urls": {
-      "official": "https://misato-hall.com/rikujyo/",
+      "official": "https://www.misato-hall.com/2095.htm",
       "individualUse": "https://www.misato-hall.com/2095.htm",
-      "schedule": "https://misato-hall.com/rikujyo/"
+      "schedule": "https://www.misato-hall.com/module/3299.htm"
     },
     "externalIds": {
       "jaaf": "113160",
@@ -1821,8 +1821,8 @@
       "en": "Chiba General Sports Center Athletic Stadium"
     },
     "location": {
-      "latitude": 35.6478798,
-      "longitude": 140.1201006,
+      "latitude": 35.6464079,
+      "longitude": 140.1194272,
       "address": "千葉県千葉市稲毛区天台町323"
     },
     "track": {
@@ -1835,16 +1835,16 @@
       "jaafClass": 1
     },
     "individualUse": {
-      "status": "unknown",
+      "status": "unavailable",
       "feeYen": null,
       "feeUnit": null,
       "openingHours": null,
       "spikesAllowed": null,
-      "note": "公式施設情報で施設は確認済み。個人利用条件は要確認"
+      "note": "公式案内では専用利用のみ。個人共同利用は第2陸上競技場トラックで実施"
     },
     "urls": {
       "official": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html",
-      "individualUse": null,
+      "individualUse": "https://www.cue-net.or.jp/kouen/sportscenter/annai/stadium.html",
       "schedule": null
     },
     "externalIds": {
@@ -1856,6 +1856,16 @@
         "url": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html",
         "type": "official",
         "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.cue-net.or.jp/kouen/sportscenter/annai/stadium.html",
+        "type": "official",
+        "verifiedAt": "2026-08-27"
+      },
+      {
+        "url": "https://www.cue-net.or.jp/kouen/sportscenter/map/index.html",
+        "type": "official",
+        "verifiedAt": "2026-08-27"
       }
     ]
   },
@@ -1916,8 +1926,8 @@
       "en": "Matsudo Sports Park Athletic Stadium"
     },
     "location": {
-      "latitude": 35.7963494,
-      "longitude": 139.9252817,
+      "latitude": 35.7969444,
+      "longitude": 139.9263889,
       "address": "千葉県松戸市上本郷4434"
     },
     "track": {
@@ -1956,6 +1966,11 @@
         "url": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/ryoukin/undoukouen.html",
         "type": "official",
         "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.pref.chiba.lg.jp/bousaik/press/2025/documents/12_matsudoundoukouen.pdf",
+        "type": "official",
+        "verifiedAt": "2026-08-27"
       }
     ]
   },
@@ -2011,8 +2026,8 @@
       "en": "Kashiwanoha Park Athletic Stadium"
     },
     "location": {
-      "latitude": 35.8936,
-      "longitude": 139.9382,
+      "latitude": 35.8977944,
+      "longitude": 139.9362528,
       "address": "千葉県柏市柏の葉4丁目1番"
     },
     "track": {
@@ -2051,6 +2066,11 @@
         "url": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/documents/parkguide.pdf",
         "type": "official",
         "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.pref.chiba.lg.jp/bousaik/press/2025/documents/21_kashiwanoha.pdf",
+        "type": "official",
+        "verifiedAt": "2026-08-27"
       }
     ]
   },
@@ -2084,8 +2104,8 @@
     },
     "urls": {
       "official": "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
-      "individualUse": "https://www.iwana.shiteikanri-sakura.jp/iwa/",
-      "schedule": "https://www.iwana.shiteikanri-sakura.jp/iwa/"
+      "individualUse": "https://www.city.sakura.lg.jp/material/files/group/33/kyugijo_4.pdf",
+      "schedule": null
     },
     "externalIds": {
       "jaaf": null,
@@ -2098,9 +2118,9 @@
         "verifiedAt": "2026-08-25"
       },
       {
-        "url": "https://www.iwana.shiteikanri-sakura.jp/iwa/",
+        "url": "https://www.city.sakura.lg.jp/material/files/group/33/kyugijo_4.pdf",
         "type": "official",
-        "verifiedAt": "2026-08-25"
+        "verifiedAt": "2026-08-27"
       }
     ]
   },
@@ -2275,7 +2295,7 @@
     "urls": {
       "official": "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
       "individualUse": "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
-      "schedule": "https://www.asamizo-stadium.jpn.org/"
+      "schedule": null
     },
     "externalIds": {
       "jaaf": null,
@@ -2311,16 +2331,16 @@
     },
     "individualUse": {
       "status": "available",
-      "feeYen": 0,
-      "feeUnit": "共用利用",
+      "feeYen": null,
+      "feeUnit": "共用利用（時間帯・利用形態による）",
       "openingHours": "専用利用がない共用利用時間",
       "spikesAllowed": null,
-      "note": "年度会員制度あり。2026年12月頃から改修予定"
+      "note": "12:00〜13:00は無料。その他は団体利用料または年度会員料。2026年12月頃から改修予定"
     },
     "urls": {
       "official": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
       "individualUse": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
-      "schedule": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html"
+      "schedule": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html"
     },
     "externalIds": {
       "jaaf": null,
@@ -2331,6 +2351,11 @@
         "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
         "type": "official",
         "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html",
+        "type": "official",
+        "verifiedAt": "2026-08-27"
       }
     ]
   },
@@ -2406,15 +2431,15 @@
     },
     "individualUse": {
       "status": "available",
-      "feeYen": 100,
-      "feeUnit": "一般1人（2026年4月以降）",
+      "feeYen": 200,
+      "feeUnit": "一般1人・市内（2026年4月以降）",
       "openingHours": "利用予定を施設で確認",
       "spikesAllowed": null,
       "note": null
     },
     "urls": {
       "official": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
-      "individualUse": "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf",
+      "individualUse": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
       "schedule": null
     },
     "externalIds": {
@@ -2424,56 +2449,6 @@
     "sources": [
       {
         "url": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
-        "type": "official",
-        "verifiedAt": "2026-08-25"
-      },
-      {
-        "url": "https://www.city.yokosuka.kanagawa.jp/5560/kouen/documents/documents/kouen-shisethu.pdf",
-        "type": "official",
-        "verifiedAt": "2026-08-25"
-      }
-    ]
-  },
-  {
-    "id": "happe-park-athletic-stadium",
-    "name": {
-      "ja": "八部公園陸上競技場",
-      "en": "Happe Park Athletic Stadium"
-    },
-    "location": {
-      "latitude": 35.3252156,
-      "longitude": 139.4642887,
-      "address": "神奈川県藤沢市鵠沼海岸6丁目12番1号"
-    },
-    "track": {
-      "lengthMeters": 400,
-      "lanes": 8,
-      "surface": "all-weather"
-    },
-    "certification": {
-      "jaafCertified": null,
-      "jaafClass": null
-    },
-    "individualUse": {
-      "status": "unknown",
-      "feeYen": null,
-      "feeUnit": null,
-      "openingHours": null,
-      "spikesAllowed": null,
-      "note": "公式施設情報で施設は確認済み。個人利用条件は要確認"
-    },
-    "urls": {
-      "official": "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
-      "individualUse": null,
-      "schedule": null
-    },
-    "externalIds": {
-      "jaaf": null,
-      "osm": []
-    },
-    "sources": [
-      {
-        "url": "https://www.city.fujisawa.kanagawa.jp/sports/shisetsu/sports/happe.html",
         "type": "official",
         "verifiedAt": "2026-08-25"
       }

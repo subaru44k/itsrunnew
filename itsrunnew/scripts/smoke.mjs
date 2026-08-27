@@ -113,6 +113,9 @@ try {
     await page.getByLabel('本日利用不可の施設も表示').check();
     await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length);
     if (await page.locator('.facility-row .availability--unavailable').count() !== todayCounts.unavailable) throw new Error('Unavailable switch did not show unavailable facilities');
+    await page.locator('.facility-row').filter({ hasText: '千葉県総合スポーツセンター 陸上競技場' }).locator('button').click();
+    await page.locator('.detail-card').getByText('個人利用不可', { exact: true }).waitFor();
+    await page.getByRole('button', { name: '詳細を閉じる', exact: true }).click();
     await page.getByLabel('本日利用不可の施設も表示').uncheck();
     await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, todayCounts.candidates);
     if (await page.locator('.facility-row .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities disappeared when unavailable facilities were hidden');

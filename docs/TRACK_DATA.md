@@ -1,5 +1,19 @@
 # 陸上トラックデータの調査・更新
 
+## プロダクト価値とデータの優先順位
+
+Track Searchの中心価値は、施設情報を網羅的に転載することではなく、ユーザーが指定日に近くで集中して走れる環境を見つけられることです。特に、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と、最終判断に使える公式情報への導線を優先します。
+
+スパイク可否、料金、細かな利用条件は候補を決めた後に利用者が公式情報で確認できる補助情報であり、網羅率の目標にはしません。施設追加時に現行の公式情報から明確に確認できた場合は記録しますが、記載がないことから許可・禁止を推測せず `null` を維持します。変更され得る条件を古い静的値のまま断定するより、正しい `unknown` と公式確認導線を提示することを優先します。
+
+データ調査・実装の優先順位は次のとおりです。
+
+1. 日付別availability sourceとcollectorの鮮度・安全性
+2. 個人利用可能性、利用可能時間、公式予定への確認導線
+3. 正確な位置、トラック長、路面
+4. レーン数
+5. 料金、細かな利用条件、スパイク可否
+
 ## 役割とデータフロー
 
 陸上トラック検索は、調査処理とWeb表示を分離した静的機能です。
@@ -20,6 +34,7 @@ JAAF一覧は転載元データとしてではなく、公認施設候補の発�
 - 型・距離・Directions URL: `src/model/tracks.ts`
 - raw/normalized検証: `scripts/validate-tracks.mjs`
 - 拡張coverage report: `../research/track-expansion/dataset-expansion-report.md`
+- 施設別source監査台帳: `../research/track-expansion/track-source-audit.json`
 
 ## schema
 
@@ -29,6 +44,8 @@ JAAF一覧は転載元データとしてではなく、公認施設候補の発�
 
 ## 更新手順
 
+施設追加時のsource選定、候補cluster、evidence worksheet、公開・collectorの品質ゲート、PR分割、既存施設の遡及監査は [`TRACK_EXPANSION_PLAYBOOK.md`](TRACK_EXPANSION_PLAYBOOK.md) を正本とします。以下は日常的な更新の要約です。
+
 1. `../data/osm/tracks.json` と必要範囲のOverpass結果を候補として確認し、競馬・自転車・privateを除外する。採用候補のOSM evidenceは `expansion-candidates.json` に保存する。無名・sport未設定objectも位置と周辺施設から候補として確認する。
 2. 近接するway/relation、補助走路等を施設単位にclusterし、既存のJAAF候補と重複確認する。
 3. 自治体または施設公式サイトで名称、住所、仕様、個人利用条件を確認する。確認不能値は推測しない。
@@ -37,9 +54,9 @@ JAAF一覧は転載元データとしてではなく、公認施設候補の発�
 
 ## MVP調査範囲と品質上の制限
 
-2026-08-25時点で51施設を掲載しています。内訳は東京25、埼玉11、神奈川8、千葉7です。JAAF公認確認済み29、非公認確認済み12、公認状態unknown 10です。個人利用は47施設で公式根拠を確認し、明示的な根拠を確認できない4施設は `unknown` のまま掲載しています。日ごとの開放を保証する意味ではありません。
+2026-08-27時点で50施設を掲載しています。内訳は東京25、埼玉11、神奈川7、千葉7です。JAAF公認確認済み29、非公認確認済み12、公認状態unknown 9です。個人利用は47施設で公式根拠を確認し、主競技場が専用利用のみの1施設は `unavailable`、根拠を確定できない2施設は `unknown` としています。日ごとの開放を保証する意味ではありません。
 
-45施設が400m、41施設が全天候です。非公認でも実用的な公園track、土track、250m・300m trackを含めました。学校等で一般利用根拠を確認できない候補は掲載していません。料金は代表枠だけを記す場合があり、spike可否は公式根拠を確認できた値だけを表示するため、多くの施設でunknownです。33施設時点の詳細集計は [拡張レポート](../research/track-expansion/dataset-expansion-report.md)、今回追加した18施設と品質判断は [Phase 2レポート](../research/track-expansion/phase2-expansion-report.md) にあります。
+44施設が400m、40施設が全天候です。非公認でも実用的な公園track、土track、250m・300m trackを含めました。学校等で一般利用根拠を確認できない候補は掲載していません。料金は代表枠だけを記す場合があり、spike可否は公式根拠を確認できた値だけを表示するため、多くの施設でunknownです。33施設時点の詳細集計は [拡張レポート](../research/track-expansion/dataset-expansion-report.md)、51候補の追加履歴は [Phase 2レポート](../research/track-expansion/phase2-expansion-report.md)、遡及監査と補正は [監査レポート](../research/track-expansion/current-51-audit.md) にあります。
 
 候補抽出とvalidatorはautomatic寄りですが、同一施設へのcluster、公式page発見、個人利用条件・料金・spikeの意味確認はsemi-automaticからmanualです。全国展開時の最大のbottleneckは、公式情報の所在と「空き・貸切なし・一般開放」の意味を人が確認する工程です。
 

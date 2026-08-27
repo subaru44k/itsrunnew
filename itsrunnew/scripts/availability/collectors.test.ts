@@ -128,6 +128,11 @@ describe('availability collectors', () => {
     expect(firstThursday.find(item => item.trackId === 'oi-central-seaside-park-track')).toMatchObject({ status: 'partially_available' });
     expect(monday.find(item => item.trackId === 'oi-central-seaside-park-track')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
     expect(monday.find(item => item.trackId === 'setagaya-general-sports-track')).toMatchObject({ status: 'unknown', unknownReason: 'unsupported_source_type' });
+    expect(monday.find(item => item.trackId === 'chiba-general-sports-center-track')).toMatchObject({
+      status: 'unavailable',
+      unknownReason: null,
+      evidence: { collector: 'static-individual-use-eligibility' },
+    });
   });
 
   it('distinguishes fetch and parse failures and keeps both unknown', async () => {

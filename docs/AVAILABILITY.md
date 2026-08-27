@@ -45,7 +45,7 @@ range生成先は `src/data/availability/manifest.json` と日付別 `YYYY-MM-DD
 
 ## 複数日datasetとcache
 
-manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。Viteは日付JSONを別chunkとしてbuildし、Track Searchは選択日のchunkだけを遅延loadします。51施設×31日を初期bundleへ含めません。
+manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。Viteは日付JSONを別chunkとしてbuildし、Track Searchは選択日のchunkだけを遅延loadします。50施設×31日を初期bundleへ含めません。
 
 range collectorは同一method・URL・request bodyをprocess内でcacheします。同じlanding page、fixed rule HTML、weekly HTML、月間PDFは再取得せず、同一PDFのtext extractionもsource hash単位で再利用します。TEFのような日付指定POSTはbodyが日ごとに異なるため各日1回だけ取得します。2026-08-24から31日のlive実行ではcache hit 390回、実HTTP 98回でした。retryや並列burstは行いません。
 
@@ -77,9 +77,11 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `pdf` | 上柚木公園 | 施設ページから複数月PDFを発見し、3区分の○・貸切・整備を解析 |
 | `pdf` | 府中市民陸上競技場 | 日別記号がvector図形のためguarded unknown |
 
-51施設中23施設（45.1%）を安全な自動判定対象にしています。内訳はstructured HTML 3、calendar HTML 3、固定規則9、PDF 8です。今回の18施設追加ではcollector対応数を水増しせず、日付sourceの意味を未確認の施設は共通fallbackで `unknown` にします。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式Web・公式X確認という運用までは確認できるものの、安定した日付別HTML取得元がないためguarded unknownです。
+50施設中23施設（46.0%）を安全な自動判定対象にしています。内訳はstructured HTML 3、calendar HTML 3、固定規則9、PDF 8です。今回の拡張候補ではcollector対応数を水増しせず、日付sourceの意味を未確認の施設は共通fallbackで `unknown` にします。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式Web・公式X確認という運用までは確認できるものの、安定した日付別HTML取得元がないためguarded unknownです。
 
 未対応施設もdatasetとUIから除外しません。
+
+ただしstaticな `individualUse.status = unavailable` を公式に確認した施設は、日別予定が未自動化でも「要確認」へ戻さず、全日 `unavailable` を生成します。日程情報の欠落を根拠にするのではなく、個人利用を受け付けないという施設規則そのものをnegative evidenceとして使います。
 
 - 府中: `unsupported_pdf_graphics`。text-based PDFだが日別○・◇・×がvector図形。
 - 世田谷: `unsupported_source_type`。当日の確定個人開放は公式案内・公式Xで手動確認し、予約枠の空きを個人開放と推測しない。
@@ -102,7 +104,7 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 
 ## normalized schema
 
-トップレベルは `schemaVersion`、対象 `date`、`timezone`、`generatedAt`、Track Dataset全施設（現在51施設）の `facilities` を持ちます。各recordは次を持ちます。
+トップレベルは `schemaVersion`、対象 `date`、`timezone`、`generatedAt`、Track Dataset全施設（現在50施設）の `facilities` を持ちます。各recordは次を持ちます。
 
 - identity: `trackId`, `date`, `timezone`
 - result: `status`, `periods`, `unknownReason`
@@ -169,6 +171,6 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 
 ## 次の段階
 
-現collectorは23/51（45.1%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開は引き続きunknownです。
+現collectorは23/50（46.0%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開は引き続きunknownです。
 
 新座予約システムは、規約・低頻度アクセス・cache・「空き」の意味を確認するまで実装しません。城北中央は公式Web日程が提供されない限りmanual confirmationを維持します。

@@ -7,11 +7,15 @@ const osmPath = resolve(appRoot, '../data/osm/tracks.json');
 const expansionOsmPath = resolve(appRoot, '../data/osm/expansion-candidates.json');
 const availabilityPath = resolve(appRoot, 'src/data/availability.json');
 const availabilityRangePath = resolve(appRoot, 'src/data/availability');
+const availabilityResearchPath = resolve(appRoot, '../research/availability/availability-sources.json');
+const sourceAuditPath = resolve(appRoot, '../research/track-expansion/track-source-audit.json');
 const tracks = JSON.parse(await readFile(normalizedPath, 'utf8'));
 const osm = JSON.parse(await readFile(osmPath, 'utf8'));
 const expansionOsm = JSON.parse(await readFile(expansionOsmPath, 'utf8'));
 const availability = JSON.parse(await readFile(availabilityPath, 'utf8'));
 const availabilityManifest = JSON.parse(await readFile(resolve(availabilityRangePath, 'manifest.json'), 'utf8'));
+const availabilityResearch = JSON.parse(await readFile(availabilityResearchPath, 'utf8'));
+const sourceAudit = JSON.parse(await readFile(sourceAuditPath, 'utf8'));
 const errors = [];
 const ids = new Set();
 const baselineIds = new Set([
@@ -35,6 +39,32 @@ for (const [index, track] of tracks.entries()) {
   }
 }
 for (const id of baselineIds) if (!ids.has(id)) errors.push(`${id}: existing baseline facility was removed`);
+
+const researchIds = new Set(availabilityResearch.facilities.map(item => item.trackId));
+if (availabilityResearch.dataset.trackCount !== tracks.length) errors.push('availability research trackCount does not match Track Dataset');
+for (const id of ids) if (!researchIds.has(id)) errors.push(`${id}: availability research record is missing`);
+for (const id of researchIds) if (!ids.has(id)) errors.push(`${id}: availability research record has no Track Dataset facility`);
+const classifiedResearchCount = Object.values(availabilityResearch.research.classificationCounts).reduce((sum, count) => sum + count, 0);
+if (classifiedResearchCount !== tracks.length) errors.push('availability research classification counts do not match Track Dataset');
+const implementedResearchCount = availabilityResearch.facilities.filter(item => item.automation?.implementation?.status === 'supported').length;
+if (implementedResearchCount !== availabilityResearch.research.implementationCoverage.currentCollectors) errors.push('availability research implementation metadata does not match current collector count');
+
+const auditIds = new Set();
+const includedAuditIds = new Set();
+for (const record of sourceAudit.records) {
+  if (!record.trackId || auditIds.has(record.trackId)) errors.push(`${record.trackId ?? 'audit row'}: source audit ID is missing or duplicated`);
+  auditIds.add(record.trackId);
+  if (!/^https:\/\//.test(record.identity?.sourceUrl ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(record.identity?.verifiedAt ?? '')) errors.push(`${record.trackId}: source audit identity evidence is invalid`);
+  if (!/^https:\/\//.test(record.coordinates?.sourceUrl ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(record.coordinates?.verifiedAt ?? '')) errors.push(`${record.trackId}: source audit coordinate evidence is invalid`);
+  if (!['include', 'exclude'].includes(record.decision)) errors.push(`${record.trackId}: source audit decision is invalid`);
+  if (record.decision === 'include') includedAuditIds.add(record.trackId);
+  if (record.decision === 'exclude' && ids.has(record.trackId)) errors.push(`${record.trackId}: excluded source audit candidate remains in Track Dataset`);
+}
+for (const id of ids) if (!includedAuditIds.has(id)) errors.push(`${id}: included source audit record is missing`);
+for (const id of includedAuditIds) if (!ids.has(id)) errors.push(`${id}: included source audit record has no Track Dataset facility`);
+if (sourceAudit.scope.publishedAfterAudit !== tracks.length || sourceAudit.scope.candidatesReviewed !== sourceAudit.records.length) errors.push('source audit scope counts do not match its records or Track Dataset');
+const publicUrls = new Set(tracks.flatMap(track => [track.urls?.official, track.urls?.individualUse, track.urls?.schedule, ...(track.sources ?? []).map(source => source.url)].filter(Boolean)));
+for (const url of sourceAudit.liveSourceReview.brokenOrGuardedPublicUrlsRemoved ?? []) if (publicUrls.has(url)) errors.push(`${url}: guarded or broken URL remains in public Track Dataset`);
 
 const candidates = osm.elements.filter(element => element.tags?.leisure === 'track');
 const excludedByTags = candidates.filter(element => {

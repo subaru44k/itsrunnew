@@ -6,6 +6,15 @@ Before investigating or changing this repository, read [`docs/SITE_STRUCTURE.md`
 
 The Git repository root contains the application in `itsrunnew/`. Run application, test, and CDK commands from that directory unless a command explicitly says otherwise.
 
+## Distinguish the checkout from the published service
+
+This repository commonly has old feature branches and additional worktrees. The active checkout is therefore not, by itself, evidence of what is currently published.
+
+- For questions about the checked-out implementation, use the files in the active revision and state the branch or revision when it matters.
+- For questions about the current public service, first identify the production deployment revision. If deployment evidence is unavailable, compare the active revision with `origin/master` and clearly label the result instead of treating an arbitrary feature branch as production.
+- For facility counts, derive the number and regional breakdown from `itsrunnew/src/data/tracks.json` at that identified revision. Do not infer the current count from historical expansion reports, roadmap wording such as `33→51`, or availability files.
+- If the checkout and published revision differ, report both explicitly. Do not describe stale checkout data as the current public dataset.
+
 ## Keep the structure documentation synchronized
 
 Whenever a change affects any of the following, update `docs/SITE_STRUCTURE.md` in the same change:

@@ -6,6 +6,8 @@
 
 Gitリポジトリのルートはこの文書の親ディレクトリです。実際のWebアプリとCDKコードは `itsrunnew/` 以下にあります。npm、Vite、テスト、CDKの各コマンドは原則として `itsrunnew/` で実行します。
 
+このリポジトリには、公開後も古いfeature branchや複数のworktreeが残ることがあります。そのため、現在checkoutされているファイルをそのまま「公開中の状態」とみなしません。checkout中の実装を調べる場合はそのrevisionの `itsrunnew/src/data/tracks.json` を正本とし、公開中サービスについて調べる場合はproduction deploymentのrevisionを先に特定します。deploymentの証拠を確認できない場合は少なくとも `origin/master` と比較し、どのrevisionの件数かを明示します。施設数はhistorical report、`33→51` のような拡張履歴、availability生成物から推測せず、対象revisionの `tracks.json` の配列長と住所から算出します。
+
 主要技術は次のとおりです。
 
 - Vue 3.5 + Composition API + TypeScript

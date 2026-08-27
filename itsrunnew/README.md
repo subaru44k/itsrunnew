@@ -2,7 +2,7 @@
 
 ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify 4で構成し、Firebaseやその他のバックエンドには接続しません。競技場スケジュールは日付をブラウザ内で生成し、各時間帯を「情報なし」として表示します。
 
-ホーム `/`（英語版 `/en/`）では、東京・埼玉・神奈川・千葉の検証済み69施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` は日付queryを維持してホームへ移動します。各施設には共有可能な `/tracks/:trackId`（英語版 `/en/tracks/:trackId`）詳細ページがあり、織田フィールドの従来ページは `/oda-field` です。現在地または地図上で指定した地点からの直線距離、今日から31日分の日付指定availability、利用不可表示switch、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
+ホーム `/`（英語版 `/en/`）では、東京・埼玉・神奈川・千葉・大阪・兵庫・京都の検証済み89施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` は日付queryを維持してホームへ移動します。各施設には共有可能な `/tracks/:trackId`（英語版 `/en/tracks/:trackId`）詳細ページがあり、織田フィールドの従来ページは `/oda-field` です。現在地または地図上で指定した地点からの直線距離、今日から31日分の日付指定availability、利用不可表示switch、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
 
 検索の基準地点は「現在地」と「地図上で指定」を同じUI・markerで扱います。基準地点がない一覧は都道府県別、設定後は距離順で12件ずつ表示し、広域地図では近接markerをcluster化します。単一markerの選択時は地図を施設へ寄せたうえで、固定headerに隠れない位置へ詳細cardをscroll表示します。施設詳細からは `track` queryで対象施設を地図中央・選択状態へ戻し、距離基準とは分離します。検索専用ガイドは `/tracks/guide`（英語版 `/en/tracks/guide`）です。
 

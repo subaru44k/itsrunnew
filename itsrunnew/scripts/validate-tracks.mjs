@@ -31,7 +31,7 @@ for (const [index, track] of tracks.entries()) {
   if (!track.id || ids.has(track.id)) errors.push(`${label}: stable ID is missing or duplicated`);
   ids.add(track.id);
   if (!track.name?.ja || !Number.isFinite(track.location?.latitude) || !Number.isFinite(track.location?.longitude)) errors.push(`${label}: name or coordinates are missing`);
-  if (track.location?.latitude < 35 || track.location?.latitude > 37 || track.location?.longitude < 138 || track.location?.longitude > 141) errors.push(`${label}: coordinates are outside the supported region`);
+  if (track.location?.latitude < 24 || track.location?.latitude > 46 || track.location?.longitude < 122 || track.location?.longitude > 146) errors.push(`${label}: coordinates are outside Japan's supported bounds`);
   if (!/^https:\/\//.test(track.urls?.official ?? '')) errors.push(`${label}: official URL must use HTTPS`);
   if (!Array.isArray(track.sources) || track.sources.length === 0) errors.push(`${label}: source provenance is missing`);
   for (const source of track.sources ?? []) {

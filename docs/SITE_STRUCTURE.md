@@ -97,7 +97,7 @@ data/osm/
 
 research/
 ├── availability/
-│   ├── availability-sources.json  Track Dataset全89施設のavailability source調査データ
+│   ├── availability-sources.json  Track Dataset全109施設のavailability source調査データ
 │   ├── availability-research.md   「今日利用可能」機能の調査と拡張追補
 │   ├── pdf-collector-validation.md PDF collectorのlive比較・format・coverage
 │   └── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
@@ -195,11 +195,11 @@ Track Searchの中心価値は、指定日に近くで集中して走れる環�
 
 availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、PDF text extractionを再利用します。structured HTML 3施設、calendar HTML 3施設、固定規則9施設、PDF 8施設の計23施設を安全な自動判定対象とし、世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。staticな個人利用不可が公式規則で明示された施設だけは、日程欠落ではなく資格そのものを根拠に日別 `unavailable` を生成します。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 
-調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在89施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、raw fileのOSM ID、50〜150件の運用範囲、availability research・施設別監査台帳のID/件数、broken public URLの再混入、単日および31日manifest全件のavailability trackId/date一致を検証します。
+調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在109施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、raw fileのOSM ID、50〜150件の運用範囲、availability research・施設別監査台帳のID/件数、broken public URLの再混入、単日および31日manifest全件のavailability trackId/date一致を検証します。
 
 新規施設と既存施設の再調査では [`TRACK_EXPANSION_PLAYBOOK.md`](TRACK_EXPANSION_PLAYBOOK.md) を使用します。施設を直接normalized datasetへ追加せず、discovery sourceとverification sourceを分離し、施設単位のevidence worksheet、個人利用status、availability source分類をreviewしてから公開します。施設掲載とcollector対応は別の品質ゲートであり、collector未対応は理由付きunknownとして保持します。初期12、12→33、33→51の全cohortを遡及監査対象とし、料金・スパイクの網羅よりavailability、位置、トラック長、路面、公式確認導線を優先します。
 
-availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に89施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
+availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に109施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
 
 ### 広告
 

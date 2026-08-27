@@ -2,28 +2,28 @@
   "schemaVersion": 1,
   "dataset": {
     "path": "itsrunnew/src/data/tracks.json",
-    "trackCount": 89
+    "trackCount": 109
   },
   "research": {
-    "verifiedAt": "2026-08-27",
+    "verifiedAt": "2026-08-28",
     "timezone": "Asia/Tokyo",
     "scope": "All facilities in the current normalized Track Dataset",
-    "officialWebAvailabilityFoundCount": 76,
+    "officialWebAvailabilityFoundCount": 94,
     "classificationCounts": {
-      "pdf": 14,
+      "pdf": 15,
       "structured_html": 8,
       "fixed_schedule": 11,
-      "phone_only": 5,
-      "reservation_system": 27,
-      "calendar_html": 9,
-      "no_schedule_found": 10,
-      "weekly_notice": 5
+      "phone_only": 8,
+      "reservation_system": 36,
+      "calendar_html": 12,
+      "no_schedule_found": 12,
+      "weekly_notice": 7
     },
     "automationCounts": {
       "yes": 18,
-      "probably": 27,
-      "no": 15,
-      "difficult": 29
+      "probably": 33,
+      "no": 20,
+      "difficult": 38
     },
     "implementationCoverage": {
       "currentCollectors": 23,
@@ -32,15 +32,15 @@
       "guardedUnknown": 2,
       "pdfSupported": 8,
       "pdfGuardedUnknown": 1,
-      "pdfRequired": 1,
-      "reservationSystemRequired": 24,
-      "manualOrUnknown": 66
+      "pdfRequired": 2,
+      "reservationSystemRequired": 33,
+      "manualOrUnknown": 86
     },
     "futureDateAssessment": {
-      "futureDatesSupported": 49,
-      "futureRangeLimited": 17,
+      "futureDatesSupported": 61,
+      "futureRangeLimited": 20,
       "todayOnly": 5,
-      "unknown": 17,
+      "unknown": 22,
       "notAssessed": 1
     }
   },
@@ -2144,6 +2144,106 @@
       "trackId": "kyotango-hagoromo-athletics-stadium", "name": "京丹後はごろも陸上競技場", "availabilityInformationExistsOnOfficialWeb": false,
       "availabilitySource": { "type": "no_schedule_found", "url": "https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html", "discoveryUrl": "https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html", "granularity": "none", "updateFrequency": "unknown", "updateNote": "個人利用制度はあるが安定した日付別予定を確認できない", "urlStability": "stable_facility_page" },
       "automation": { "feasibility": "no", "reason": "日付別availability sourceなし" }, "semantics": { "canInferAvailable": false, "coverage": "static_eligibility_only", "rule": "施設へ確認した場合だけavailable", "absenceMeaning": "予定表なしをunavailableとしない" }, "dateSearch": "unknown", "specialCases": ["専用利用・季節営業時間・市外料金"], "sources": ["https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html"], "verifiedAt": "2026-08-27"
+    },
+    {
+      "trackId": "hiroshima-koiki-park-auxiliary-stadium", "name": "広島広域公園補助競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "calendar_html", "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2", "discoveryUrl": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki", "granularity": "day", "updateFrequency": "monthly", "updateNote": "補助競技場の個人利用予定を掲載", "urlStability": "stable_facility_page" },
+      "automation": { "feasibility": "probably", "reason": "補助競技場の個人利用と明示された日だけを抽出するparserが必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_days", "rule": "補助競技場の個人利用日だけavailable", "absenceMeaning": "予定なしをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・整備・季節営業時間"], "sources": ["https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "fukuyama-tsuken-rose-stadium", "name": "福山通運ローズスタジアム（竹ケ端運動公園陸上競技場）", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "phone_only", "url": "https://www.city.fukuyama.hiroshima.jp/soshiki/sports/4739.html", "discoveryUrl": null, "granularity": "none", "updateFrequency": "on_demand", "updateNote": "当日に空き状況を電話確認", "urlStability": "stable_official_page" },
+      "automation": { "feasibility": "no", "reason": "日付別Web予定なし" }, "semantics": { "canInferAvailable": false, "coverage": "manual_confirmation", "rule": "施設確認時だけavailable", "absenceMeaning": "予定不掲載をunavailableとしない" }, "dateSearch": "unknown", "specialCases": ["大会・芝管理"], "sources": ["https://www.city.fukuyama.hiroshima.jp/soshiki/sports/4739.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "bingo-sports-park-athletic-stadium", "name": "広島県立びんご運動公園陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "calendar_html", "url": "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033", "discoveryUrl": "https://bingo-sportspark.com/guide.html", "granularity": "day", "updateFrequency": "monthly", "updateNote": "月間個人利用予定を掲載", "urlStability": "stable_calendar_index" },
+      "automation": { "feasibility": "probably", "reason": "対象月と個人利用日の明示を検証するparserが必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_days", "rule": "個人利用日だけavailable", "absenceMeaning": "空欄をavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・予定変更"], "sources": ["https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "higashihiroshima-sports-park-athletic-stadium", "name": "東広島運動公園陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://ppp.seika-spc.co.jp/h-hiroshima/", "discoveryUrl": "https://ppp.seika-spc.co.jp/h-hiroshima/wp-content/uploads/riyoukitei.pdf", "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "専用利用がない場合の当日個人受付", "urlStability": "stable_facility_page" },
+      "automation": { "feasibility": "difficult", "reason": "専用予約空きだけでは当日の個人受付可否を確定できない" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "個人利用可能と施設が確認した枠だけavailable", "absenceMeaning": "予約空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・整備"], "sources": ["https://ppp.seika-spc.co.jp/h-hiroshima/"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "kure-general-sports-center-athletic-stadium", "name": "呉市総合スポーツセンター陸上競技場", "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": { "type": "no_schedule_found", "url": "https://www.city.kure.lg.jp/soshiki/43/saihaichi.html", "discoveryUrl": null, "granularity": "none", "updateFrequency": "unknown", "updateNote": "利用制度と継続期間は確認できるが日付別予定なし", "urlStability": "stable_official_page" },
+      "automation": { "feasibility": "no", "reason": "日付別availability sourceなし" }, "semantics": { "canInferAvailable": false, "coverage": "static_eligibility_only", "rule": "施設確認時だけavailable", "absenceMeaning": "予定表なしをunavailableとしない" }, "dateSearch": "unknown", "specialCases": ["移転再配置・大会"], "sources": ["https://www.city.kure.lg.jp/soshiki/43/saihaichi.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "ishin-centennial-park-auxiliary-stadium", "name": "維新百年記念公園補助陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "weekly_notice", "url": "https://www.ishin100.com/main/", "discoveryUrl": "https://www.ishin100.com/main/info_mirasta_kojin_20260817/", "granularity": "day", "updateFrequency": "irregular", "updateNote": "補助競技場の個人利用告知を掲載", "urlStability": "dated_notice_from_stable_index" },
+      "automation": { "feasibility": "probably", "reason": "主競技場と補助競技場を分離して告知対象日を検証する必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_notice", "rule": "補助競技場の個人利用と明示された日だけavailable", "absenceMeaning": "告知なしをunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["大会・専用利用"], "sources": ["https://www.ishin100.com/main/"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "shunan-city-athletic-stadium", "name": "周南市陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.shunan-srt.jp/", "discoveryUrl": "https://www.city.shunan.lg.jp/soshiki/16/140189.html", "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "リニューアル後の施設案内と予約状況", "urlStability": "stable_manager_page" },
+      "automation": { "feasibility": "difficult", "reason": "予約空きと個人利用可否の結合規則が未確認" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "個人利用可と確認できた枠だけavailable", "absenceMeaning": "空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・整備"], "sources": ["https://www.city.shunan.lg.jp/soshiki/16/140189.html", "https://www.shunan-srt.jp/"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "saving-athletic-stadium", "name": "セービング陸上競技場（下関市営下関陸上競技場）", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "calendar_html", "url": "https://s-kanrikousha.com/undoutop.html", "discoveryUrl": "https://www.city.shimonoseki.lg.jp/soshiki/66/3779.html", "granularity": "time_slot", "updateFrequency": "monthly", "updateNote": "専用使用予定を掲載", "urlStability": "stable_manager_page" },
+      "automation": { "feasibility": "probably", "reason": "専用使用時間と個人利用可否の明示を安全に結合するparserが必要" }, "semantics": { "canInferAvailable": false, "coverage": "event_schedule", "rule": "個人利用可と明示された枠だけavailable", "absenceMeaning": "専用予定なしだけではavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・臨時休場"], "sources": ["https://s-kanrikousha.com/undoutop.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "hofu-sports-center-athletic-stadium", "name": "キリンレモンスタジアム陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://hofu-spc.com/", "discoveryUrl": "https://hofu-spc.com/guide/fee-athleticfield/", "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "専用利用状況と個人料金を案内", "urlStability": "stable_manager_page" },
+      "automation": { "feasibility": "difficult", "reason": "予約空きだけで個人利用を確定できない" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "施設確認時だけavailable", "absenceMeaning": "空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・整備"], "sources": ["https://hofu-spc.com/"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "onda-sports-park-athletic-stadium", "name": "恩田スポーツパーク陸上競技場", "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": { "type": "no_schedule_found", "url": "https://www.city.ube.yamaguchi.jp/koukyouannai/bunkakyouiku/taiikushisetsu/1009960.html", "discoveryUrl": null, "granularity": "none", "updateFrequency": "unknown", "updateNote": "一般利用制度はあるが日付別予定なし", "urlStability": "stable_official_page" },
+      "automation": { "feasibility": "no", "reason": "日付別availability sourceなし" }, "semantics": { "canInferAvailable": false, "coverage": "static_eligibility_only", "rule": "現地または施設確認時だけavailable", "absenceMeaning": "予定なしをunavailableとしない" }, "dateSearch": "unknown", "specialCases": ["大会・天候"], "sources": ["https://www.city.ube.yamaguchi.jp/koukyouannai/bunkakyouiku/taiikushisetsu/1009960.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "toyohashi-city-athletic-stadium", "name": "豊橋市陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.city.toyohashi.lg.jp/5228.htm", "discoveryUrl": null, "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "施設案内と予約状況を参照", "urlStability": "stable_official_page" },
+      "automation": { "feasibility": "difficult", "reason": "専用予約空きと個人利用可否を同義にできない" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "個人利用可能と確認できた枠だけavailable", "absenceMeaning": "空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・休場"], "sources": ["https://www.city.toyohashi.lg.jp/5228.htm"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "okazaki-ryuhoku-stadium", "name": "マルヤス岡崎龍北スタジアム", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "weekly_notice", "url": "https://www.ryuhoku-sf.jp/calender/", "discoveryUrl": "https://www.ryuhoku-sf.jp/shisetsu/stadium.html", "granularity": "time_slot", "updateFrequency": "weekly", "updateNote": "週間予定で個人利用可能時間を案内", "urlStability": "stable_calendar_page" },
+      "automation": { "feasibility": "probably", "reason": "対象週と個人利用可能表示を検証するparserが必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用可能と明示された枠だけavailable", "absenceMeaning": "空欄をavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["大会・予定変更"], "sources": ["https://www.ryuhoku-sf.jp/calender/"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "wave-stadium-kariya", "name": "ウェーブスタジアム刈谷", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.city.kariya.lg.jp/shisetsu/sports_park/wavestadium/1005553.html", "discoveryUrl": "https://wing-kariya.jp/", "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "個人受付と大会閉鎖を公式ページに掲載", "urlStability": "stable_official_page" },
+      "automation": { "feasibility": "difficult", "reason": "予約枠に加え期間閉鎖を優先する施設固有判定が必要" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots_and_closure_notice", "rule": "閉鎖期間外で個人利用可と確認した枠だけavailable", "absenceMeaning": "空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["2026年11月30日まで入口閉鎖・水曜休館"], "sources": ["https://www.city.kariya.lg.jp/shisetsu/sports_park/wavestadium/1005553.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "handa-piyolog-sports-park-athletic-stadium", "name": "半田ぴよログスポーツパーク陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.e-shisetsu.e-aichi.jp/user/facilities.jsp?bcd=A6006", "discoveryUrl": "https://www.city.handa.lg.jp/bunka/sports/1002825/1002831/1002833.html", "granularity": "time_slot", "updateFrequency": "daily", "updateNote": "本日の予定と期間休止を掲載", "urlStability": "external_booking_system" },
+      "automation": { "feasibility": "difficult", "reason": "today-only予約表示と期間休止を結合する必要" }, "semantics": { "canInferAvailable": false, "coverage": "today_schedule_and_closure_notice", "rule": "個人利用可能と確認できた枠だけavailable", "absenceMeaning": "予定なしをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["2026年9月7日〜30日利用休止・夜間個人利用曜日"], "sources": ["https://www.city.handa.lg.jp/bunka/sports/1002825/1002831/1002833.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "shinshiro-general-park-athletic-stadium", "name": "新城総合公園陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.aichi-koen.com/shinshiro/shinshiro-shisetsu/rikujoukyougijou/", "discoveryUrl": null, "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "予約制の個人利用を案内", "urlStability": "stable_facility_page" },
+      "automation": { "feasibility": "difficult", "reason": "予約空きだけで利用可を確定できない" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "予約成立または施設確認時だけavailable", "absenceMeaning": "空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・天候"], "sources": ["https://www.aichi-koen.com/shinshiro/shinshiro-shisetsu/rikujoukyougijou/"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "hakata-no-mori-auxiliary-athletic-stadium", "name": "博多の森補助競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "pdf", "url": "https://www.midorimachi.jp/whatsnew/detail.php?id=768", "discoveryUrl": "https://www.midorimachi.jp/park/detail.php?code=205003", "granularity": "day", "updateFrequency": "monthly", "updateNote": "個人利用日を月間予定PDFで案内", "urlStability": "dated_document_from_stable_notice" },
+      "automation": { "feasibility": "probably", "reason": "対象月PDFと補助競技場の個人利用日を検証するparserが必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_days", "rule": "補助競技場の個人利用日だけavailable", "absenceMeaning": "空欄をavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["大会・予定変更"], "sources": ["https://www.midorimachi.jp/whatsnew/detail.php?id=768"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "honjo-athletic-stadium", "name": "黒崎播磨陸上競技場 in HONJO（本城陸上競技場）", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://honjo-park.com/", "discoveryUrl": "https://honjo-park.com/fa_rikujo.html", "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "施設予定と個人料金を案内", "urlStability": "stable_manager_page" },
+      "automation": { "feasibility": "difficult", "reason": "専用利用空きと個人利用可否を同義にできない" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "施設確認時だけavailable", "absenceMeaning": "空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・芝管理"], "sources": ["https://honjo-park.com/fa_rikujo.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "sayagatani-athletic-stadium", "name": "鞘ケ谷競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "reservation_system", "url": "https://www.city.kitakyushu.lg.jp/contents/924_00833.html", "discoveryUrl": null, "granularity": "reservation_slot", "updateFrequency": "realtime", "updateNote": "施設案内と予約状況を参照", "urlStability": "stable_official_page" },
+      "automation": { "feasibility": "difficult", "reason": "予約空きと個人利用可否の結合規則が未確認" }, "semantics": { "canInferAvailable": false, "coverage": "reservation_slots", "rule": "施設確認時だけavailable", "absenceMeaning": "空きをavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・整備"], "sources": ["https://www.city.kitakyushu.lg.jp/contents/924_00833.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "kurume-general-sports-center-athletic-stadium", "name": "久留米総合スポーツセンター陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "phone_only", "url": "https://shisetsu.mizuno.jp/m-7411/guide", "discoveryUrl": "https://www.city.kurume.fukuoka.jp/1060manabi/2040sports/3010shisetsu/4060trackandfield/2015-0513-1033-553.html", "granularity": "none", "updateFrequency": "on_demand", "updateNote": "個人利用可能日時は電話確認", "urlStability": "stable_facility_page" },
+      "automation": { "feasibility": "no", "reason": "日付別Web予定を確認できない" }, "semantics": { "canInferAvailable": false, "coverage": "manual_confirmation", "rule": "施設確認時だけavailable", "absenceMeaning": "予定なしをunavailableとしない" }, "dateSearch": "unknown", "specialCases": ["大会・休場"], "sources": ["https://shisetsu.mizuno.jp/m-7411/guide"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "gotaiten-memorial-ground", "name": "御大典記念グラウンド", "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": { "type": "phone_only", "url": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "discoveryUrl": null, "granularity": "none", "updateFrequency": "on_demand", "updateNote": "専用利用状況を窓口確認", "urlStability": "stable_official_page" },
+      "automation": { "feasibility": "no", "reason": "日付別Web予定を確認できない" }, "semantics": { "canInferAvailable": false, "coverage": "manual_confirmation", "rule": "施設確認時だけavailable", "absenceMeaning": "予定不掲載をunavailableとしない" }, "dateSearch": "unknown", "specialCases": ["大会・投てき利用時間"], "sources": ["https://www.city.omuta.lg.jp/kiji0032594/index.html"], "verifiedAt": "2026-08-28"
     }
   ]
 }

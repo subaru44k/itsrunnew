@@ -163,7 +163,9 @@ try {
     await page.getByText('明日利用可能', { exact: true }).first().waitFor();
     if (await page.locator('.facility-row .availability--unknown').count() !== tomorrowCounts.unknown) throw new Error('Future unknown facilities were unexpectedly removed');
     await page.getByLabel('明日利用不可の施設も表示').check();
-    if (await page.locator('.facility-row .availability--unavailable').count() !== tomorrowCounts.unavailable) throw new Error('Selected-date unavailable filter did not update');
+    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
+    const renderedUnavailable = await page.locator('.facility-row .availability--unavailable').count();
+    if (renderedUnavailable !== tomorrowCounts.unavailable) throw new Error(`Selected-date unavailable filter did not update: expected ${tomorrowCounts.unavailable}, rendered ${renderedUnavailable}`);
 
     await page.getByRole('button', { name: '土曜', exact: true }).click();
     await waitForSelectedDate(page, saturday);

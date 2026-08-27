@@ -54,9 +54,9 @@ JAAF一覧は転載元データとしてではなく、公認施設候補の発�
 
 ## MVP調査範囲と品質上の制限
 
-2026-08-27時点で89施設を掲載しています。内訳は東京26、埼玉11、神奈川15、千葉17、大阪7、兵庫7、京都6です。JAAF公認確認済み67、非公認確認済み13、公認状態unknown 9です。個人利用は86施設で公式根拠を確認し、主競技場が専用利用のみの1施設は `unavailable`、根拠を確定できない2施設は `unknown` としています。日ごとの開放を保証する意味ではありません。
+2026-08-28時点で109施設を掲載しています。内訳は東京26、埼玉11、神奈川15、千葉17、大阪7、兵庫7、京都6、広島5、山口5、愛知5、福岡5です。JAAF公認確認済み85、非公認確認済み14、公認状態unknown 10です。個人利用は105施設で公式根拠を確認し、1施設は `temporarily-unavailable`、主競技場が専用利用のみの1施設は `unavailable`、根拠を確定できない2施設は `unknown` としています。日ごとの開放を保証する意味ではありません。
 
-83施設が400m、78施設が全天候です。非公認でも実用的な公園track、土track、250m・300m trackを含めました。学校等で一般利用根拠を確認できない候補は掲載していません。料金は代表枠だけを記す場合があり、spike可否は公式根拠を確認できた値だけを表示するため、多くの施設でunknownです。33施設時点の詳細集計は [拡張レポート](../research/track-expansion/dataset-expansion-report.md)、51候補の追加履歴は [Phase 2レポート](../research/track-expansion/phase2-expansion-report.md)、遡及監査と補正は [監査レポート](../research/track-expansion/current-51-audit.md)、関東19施設と保留判断は [関東網羅性監査report](../research/track-expansion/batches/2026-08-kanto-completeness-audit-report.md)、関西20施設と保留・除外判断は [関西batch report](../research/track-expansion/batches/2026-08-kansai-public-tracks-report.md) にあります。
+103施設が400m、96施設が全天候です。非公認でも実用的な公園track、土track、250m・300m trackを含めました。学校等で一般利用根拠を確認できない候補は掲載していません。料金は代表枠だけを記す場合があり、spike可否は公式根拠を確認できた値だけを表示するため、多くの施設でunknownです。33施設時点の詳細集計は [拡張レポート](../research/track-expansion/dataset-expansion-report.md)、51候補の追加履歴は [Phase 2レポート](../research/track-expansion/phase2-expansion-report.md)、遡及監査と補正は [監査レポート](../research/track-expansion/current-51-audit.md)、関東19施設と保留判断は [関東網羅性監査report](../research/track-expansion/batches/2026-08-kanto-completeness-audit-report.md)、関西20施設と保留・除外判断は [関西batch report](../research/track-expansion/batches/2026-08-kansai-public-tracks-report.md)、中国・愛知・福岡20施設は [Step 3 batch report](../research/track-expansion/batches/2026-08-chugoku-aichi-fukuoka-public-tracks-report.md) にあります。
 
 候補抽出とvalidatorはautomatic寄りですが、同一施設へのcluster、公式page発見、個人利用条件・料金・spikeの意味確認はsemi-automaticからmanualです。全国展開時の最大のbottleneckは、公式情報の所在と「空き・貸切なし・一般開放」の意味を人が確認する工程です。
 

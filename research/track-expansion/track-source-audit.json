@@ -2,13 +2,14 @@
   "schemaVersion": 1,
   "auditedAt": "2026-08-27",
   "scope": {
-    "candidatesReviewed": 51,
-    "publishedAfterAudit": 50,
+    "candidatesReviewed": 70,
+    "publishedAfterAudit": 69,
     "excluded": 1,
     "cohorts": {
       "initial-12": 12,
       "12-to-33": 21,
-      "33-to-51": 18
+      "33-to-51": 18,
+      "2026-08-kanto-completeness-audit": 19
     }
   },
   "policy": {
@@ -18,7 +19,7 @@
     "spikesAreNiceToHave": true
   },
   "liveSourceReview": {
-    "uniqueUrlsChecked": 115,
+    "uniqueUrlsChecked": 145,
     "method": "single respectful GET per unique official/research URL with low concurrency; semantic changes manually checked on primary official pages",
     "brokenOrGuardedPublicUrlsRemoved": [
       "https://misato-hall.com/rikujyo/",
@@ -1507,6 +1508,139 @@
       },
       "result": "removed",
       "notes": "藤沢市と指定管理者の現行施設一覧に陸上競技場がなく、同地点のOSM形状にもrunning/athletics trackがないため誤登録と判定"
+    },
+    {
+      "trackId": "machida-gion-stadium", "name": "町田GIONスタジアム（町田市立陸上競技場）", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/5928504", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "calendar_html", "sourceUrl": "https://www.nozuta-park.com/stadium.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "chiba-toso-athletic-stadium", "name": "千葉県総合スポーツセンター東総運動場 陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.cue-net.or.jp/kouen/toso/annai/stadium.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "official_map_manual", "sourceUrl": "https://www.cue-net.or.jp/kouen/toso/annai/stadium.html", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.cue-net.or.jp/kouen/toso/annai/stadium.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://www.cue-net.or.jp/kouen/toso/annai/stadium.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "ichihara-za-oripri-stadium", "name": "ゼットエーオリプリスタジアム", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://ichiharazaidan-s.com/", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/15447509", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://ichiharazaidan-s.com/", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "weekly_notice", "sourceUrl": "https://ichiharazaidan-s.com/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "narita-nakadai-athletic-stadium", "name": "重兵衛スポーツフィールド中台 陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.narita.chiba.jp/bunka_sports/page327600.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/5383847", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.park-narita.jp/shisetsu/riyoryokin/nakadai/", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://www.park-narita.jp/shisetsu/riyoryokin/nakadai/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "kisarazu-egawa-athletic-stadium", "name": "O-ENCE SPORTS FIELD（江川総合運動場）陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.kisarazu.lg.jp/kurashi/shisetsuannai/sports_recreation/6585.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/1070936385", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.city.kisarazu.lg.jp/soshiki/kenkokodomo/sportsshinko/1/2439.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.kisarazu.lg.jp/kurashi/shisetsuannai/sports_recreation/6585.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "ichikawa-kohnodai-athletic-stadium", "name": "国府台陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.ichikawa.lg.jp/page/4184.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/128423123", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.city.ichikawa.lg.jp/page/4184.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "pdf", "sourceUrl": "https://www.city.ichikawa.lg.jp/page/2841.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "yachiyo-general-ground", "name": "八千代市総合グラウンド", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.yachiyo.lg.jp/soshiki/79/4817.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "official_map_manual", "sourceUrl": "https://www.city.yachiyo.lg.jp/soshiki/79/4817.html", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.city.yachiyo.lg.jp/soshiki/79/4817.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.yachiyo.lg.jp/soshiki/79/4817.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "inzai-matsuyamashita-athletic-stadium", "name": "松山下公園陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.inzai.lg.jp/0000021103.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/2295602", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.city.inzai.lg.jp/0000021103.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.inzai.lg.jp/0000021103.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "futtsu-rinkai-athletic-stadium", "name": "富津臨海陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.fureai-kouen.com/fureaikouen/sports/", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/14413800", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.fureai-kouen.com/fureaikouen/sports/", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.futtsu.lg.jp/0000002907.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "kamagaya-fukutaro-stadium", "name": "福太郎スタジアム（鎌ケ谷市営陸上競技場）", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.kamagaya.chiba.jp/sisetsu/sports-shisetsu/rikujou.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/13542297", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www1.g-reiki.net/city.kamagaya/reiki_honbun/g025RG00000525.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.kamagaya.chiba.jp/sisetsu/sports-shisetsu/rikujou.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "togane-arena-athletic-stadium", "name": "東金アリーナ陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.togane-bunspo.or.jp/arena/facility/togane_arena/athletic_field/", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "official_map_manual", "sourceUrl": "https://www.togane-bunspo.or.jp/arena/facility/togane_arena/athletic_field/", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.togane-bunspo.or.jp/arena/facility/togane_arena/athletic_field/", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://togane-bunspo.or.jp/arena/reserve/index.php", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "kanagawa-prefectural-sports-center-track", "name": "神奈川県立スポーツセンター陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/7437877", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "pdf", "sourceUrl": "https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "odawara-shiroyama-athletic-stadium", "name": "城山陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.odawara.kanagawa.jp/field/lifelong/sports/sport-f/shiroyama-stadium/", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/7325210", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.city.odawara.kanagawa.jp/global-image/units/491580/1-20210702113919.pdf", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "pdf", "sourceUrl": "https://www.city.odawara.kanagawa.jp/field/lifelong/sports/sport-f/shiroyama-stadium/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "nissan-field-kozukue", "name": "日産フィールド小机", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.nissan-stadium.jp/track/index.php", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/8435115", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.nissan-stadium.jp/track/index.php", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "structured_html", "sourceUrl": "https://www.nissan-stadium.jp/track/index.php", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "hadano-culture-park-track", "name": "秦野市カルチャーパーク陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.hadano.kanagawa.jp/soshiki/9/1062/1/3755.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/8754541", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://shisetsu.mizuno.jp/m-7506-0002/guide", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://shisetsu.mizuno.jp/m-7506-0002/guide", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "todoroki-athletic-stadium", "name": "Uvanceとどろきスタジアム by Fujitsu", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://kawasaki-todoroki-park.co.jp/guide/track-and-field/", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/7091851", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://kawasaki-todoroki-park.co.jp/guide/track-and-field/", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "calendar_html", "sourceUrl": "https://kawasaki-todoroki-park.co.jp/guide/track-and-field/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "補助競技場の利用休止と主競技場の個人利用を分離"
+    },
+    {
+      "trackId": "sagamihara-gion-field", "name": "相模原ギオンフィールド", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://a-stadium.jpn.org/news.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/21254941", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://a-stadium.jpn.org/news.html", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "weekly_notice", "sourceUrl": "https://a-stadium.jpn.org/news.html", "verifiedAt": "2026-08-27" }, "result": "added", "notes": "主競技場とは独立した個人利用告知あり"
+    },
+    {
+      "trackId": "chigasaki-yanagishima-athletic-stadium", "name": "柳島スポーツ公園総合競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://www.city.chigasaki.kanagawa.jp/shisetsu_info/s_sports/1028429.html", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/19260991", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://www.ys-park.jp/2025/09/01/15698/", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "weekly_notice", "sourceUrl": "https://www.ys-park.jp/", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
+    },
+    {
+      "trackId": "ayase-citizen-sports-center-track", "name": "IIMURO GLASS 綾瀬市民スポーツセンター陸上競技場", "cohort": "2026-08-kanto-completeness-audit", "decision": "include",
+      "identity": { "status": "verified", "sourceUrl": "https://shisetsu.mizuno.jp/m-7507-0001/guide", "verifiedAt": "2026-08-27" },
+      "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/relation/2282881", "verifiedAt": "2026-08-27" },
+      "individualUse": { "status": "available", "sourceUrl": "https://shisetsu.mizuno.jp/m-7507-0001/guide", "verifiedAt": "2026-08-27" },
+      "availability": { "type": "reservation_system", "sourceUrl": "https://shisetsu.mizuno.jp/m-7507-0001/guide", "verifiedAt": "2026-08-27" }, "result": "added", "notes": null
     }
   ]
 }

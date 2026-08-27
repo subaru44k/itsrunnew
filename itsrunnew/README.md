@@ -2,7 +2,7 @@
 
 ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify 4で構成し、Firebaseやその他のバックエンドには接続しません。競技場スケジュールは日付をブラウザ内で生成し、各時間帯を「情報なし」として表示します。
 
-ホーム `/`（英語版 `/en/`）では、東京・埼玉・神奈川・千葉の検証済み50施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` は日付queryを維持してホームへ移動します。各施設には共有可能な `/tracks/:trackId`（英語版 `/en/tracks/:trackId`）詳細ページがあり、織田フィールドの従来ページは `/oda-field` です。現在地または地図上で指定した地点からの直線距離、今日から31日分の日付指定availability、利用不可表示switch、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
+ホーム `/`（英語版 `/en/`）では、東京・埼玉・神奈川・千葉の検証済み69施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` は日付queryを維持してホームへ移動します。各施設には共有可能な `/tracks/:trackId`（英語版 `/en/tracks/:trackId`）詳細ページがあり、織田フィールドの従来ページは `/oda-field` です。現在地または地図上で指定した地点からの直線距離、今日から31日分の日付指定availability、利用不可表示switch、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
 
 検索の基準地点は「現在地」と「地図上で指定」を同じUI・markerで扱います。基準地点がない一覧は都道府県別、設定後は距離順で12件ずつ表示し、広域地図では近接markerをcluster化します。単一markerの選択時は地図を施設へ寄せたうえで、固定headerに隠れない位置へ詳細cardをscroll表示します。施設詳細からは `track` queryで対象施設を地図中央・選択状態へ戻し、距離基準とは分離します。検索専用ガイドは `/tracks/guide`（英語版 `/en/tracks/guide`）です。
 
@@ -35,7 +35,7 @@ npm run test:smoke:preview
 
 `collect:availability:range` は東京の当日から31日分を `src/data/availability/manifest.json` と日別JSONへ生成します。同一HTML/PDFをcacheし、日数分の重複fetchやPDF抽出を避けます。単日debug用 `npm run collect:availability -- --date YYYY-MM-DD` も維持しています。現在23施設を安全な自動判定対象とし、取得不能・予定未公開・期限切れ・形式変更は利用不可にせず「要確認」へ降格します。通常のbuild/devは外部sourceへアクセスしません。詳細は [`../docs/AVAILABILITY.md`](../docs/AVAILABILITY.md) を参照してください。
 
-`npm run build` はsitemapと施設詳細ページ用の静的HTML shellも生成します。`test:smoke` は `npm run preview` が `http://127.0.0.1:4173` で起動していることを前提にします。Track Datasetのschema、raw OSM (`../data/osm/tracks.json` と `expansion-candidates.json`) と公開データの役割、調査・更新手順、既知の制限、ODbL/JAAF/OSM tileの注意点は [`../docs/TRACK_DATA.md`](../docs/TRACK_DATA.md) を参照してください。33施設時点の調査は [`dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md)、51候補への品質優先の追補は [`phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、全候補の遡及監査と現在の50施設への補正は [`current-51-audit.md`](../research/track-expansion/current-51-audit.md) にあります。
+`npm run build` はsitemapと施設詳細ページ用の静的HTML shellも生成します。`test:smoke` は `npm run preview` が `http://127.0.0.1:4173` で起動していることを前提にします。Track Datasetのschema、raw OSM (`../data/osm/tracks.json` と `expansion-candidates.json`) と公開データの役割、調査・更新手順、既知の制限、ODbL/JAAF/OSM tileの注意点は [`../docs/TRACK_DATA.md`](../docs/TRACK_DATA.md) を参照してください。33施設時点の調査は [`dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md)、51候補への品質優先の追補は [`phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、全候補の遡及監査と50施設への補正は [`current-51-audit.md`](../research/track-expansion/current-51-audit.md)、以後の追加判断は [`batches/`](../research/track-expansion/batches/) にあります。
 
 施設を追加・再調査するときは、候補発見、公式source、属性別evidence、個人利用status、availability分類、collector判定、review手順を定めた [`../docs/TRACK_EXPANSION_PLAYBOOK.md`](../docs/TRACK_EXPANSION_PLAYBOOK.md) に従ってください。初期施設も例外にせず、確認できない値は推測せずunknownを維持します。
 

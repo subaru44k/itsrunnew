@@ -79,6 +79,7 @@ itsrunnew/
 │   ├── deployment-summary.mjs GitHub Actions run summary生成
 │   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
+│   ├── validate-track-batches.mjs 候補台帳の全件disposition・件数整合検証
 │   ├── availability/          HTML/calendar/fixed/PDF collector、range/cache、config、fixture、unit test
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
@@ -93,11 +94,12 @@ itsrunnew/
 
 data/osm/
 ├── tracks.json                    初期範囲のOverpass raw research data
-└── expansion-candidates.json      拡張範囲で選別・clusterしたOSM/Nominatim evidence
+├── expansion-candidates.json      拡張範囲で選別・clusterしたOSM/Nominatim evidence
+└── coverage-followup-2026-08.json 追加漏れ横断再監査で採用したOSM object evidence
 
 research/
 ├── availability/
-│   ├── availability-sources.json  Track Dataset全109施設のavailability source調査データ
+│   ├── availability-sources.json  Track Dataset全133施設のavailability source調査データ
 │   ├── availability-research.md   「今日利用可能」機能の調査と拡張追補
 │   ├── pdf-collector-validation.md PDF collectorのlive比較・format・coverage
 │   └── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
@@ -106,6 +108,7 @@ research/
     ├── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
     ├── phase2-expansion-report.md  51候補への品質優先拡張（現在50施設）
     ├── current-51-audit.md         全51候補の遡及品質監査
+    ├── coverage-gap-followups.*    完了済みbatchで採否記録がない未掲載施設の引継ぎ台帳
     └── track-source-audit.json     施設別のsource監査台帳
 
 docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの施設追加品質ゲート
@@ -195,11 +198,11 @@ Track Searchの中心価値は、指定日に近くで集中して走れる環�
 
 availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、PDF text extractionを再利用します。structured HTML 3施設、calendar HTML 3施設、固定規則9施設、PDF 8施設の計23施設を安全な自動判定対象とし、世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。staticな個人利用不可が公式規則で明示された施設だけは、日程欠落ではなく資格そのものを根拠に日別 `unavailable` を生成します。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 
-調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在109施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、raw fileのOSM ID、50〜150件の運用範囲、availability research・施設別監査台帳のID/件数、broken public URLの再混入、単日および31日manifest全件のavailability trackId/date一致を検証します。
+調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json` と `../data/osm/coverage-followup-2026-08.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在133施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、raw fileのOSM ID、50〜150件の運用範囲、availability research・施設別監査台帳のID/件数、broken public URLの再混入、単日および31日manifest全件のavailability trackId/date一致を検証します。`scripts/validate-track-batches.mjs` は候補ID・採否・review件数・公開datasetとの整合を検証し、新規batchではfacility cluster総数と全dispositionの合計一致を必須にします。
 
-新規施設と既存施設の再調査では [`TRACK_EXPANSION_PLAYBOOK.md`](TRACK_EXPANSION_PLAYBOOK.md) を使用します。施設を直接normalized datasetへ追加せず、discovery sourceとverification sourceを分離し、施設単位のevidence worksheet、個人利用status、availability source分類をreviewしてから公開します。施設掲載とcollector対応は別の品質ゲートであり、collector未対応は理由付きunknownとして保持します。初期12、12→33、33→51の全cohortを遡及監査対象とし、料金・スパイクの網羅よりavailability、位置、トラック長、路面、公式確認導線を優先します。
+新規施設と既存施設の再調査では [`TRACK_EXPANSION_PLAYBOOK.md`](TRACK_EXPANSION_PLAYBOOK.md) を使用します。施設を直接normalized datasetへ追加せず、discovery sourceとverification sourceを分離し、施設単位のevidence worksheet、個人利用status、availability source分類をreviewしてから公開します。施設掲載とcollector対応は別の品質ゲートであり、collector未対応は理由付きunknownとして保持します。初期12、12→33、33→51の全cohortを遡及監査対象とし、料金・スパイクの網羅よりavailability、位置、トラック長、路面、公式確認導線を優先します。1 batchの10〜20施設はreview量の目安であって候補発見・公開の上限ではなく、全facility clusterへ `existing | include | hold | exclude | defer` を残します。
 
-availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に109施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
+availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に133施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
 
 ### 広告
 
@@ -254,6 +257,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run test:smoke` | PC・スマホの全公開ルート、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
 | `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
+| `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
 | `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋日別availability JSONを生成 |

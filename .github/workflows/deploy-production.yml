@@ -50,6 +50,8 @@ jobs:
         run: npm ci
       - name: Generate fresh availability range
         run: npm run collect:availability:range
+      - name: Validate track expansion batches
+        run: npm run validate:track-batches
       - name: Validate Track Dataset
         run: npm run validate:tracks
       - name: Run unit tests

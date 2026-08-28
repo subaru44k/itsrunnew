@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "auditedAt": "2026-08-28",
   "scope": {
-    "candidatesReviewed": 110,
-    "publishedAfterAudit": 109,
+    "candidatesReviewed": 134,
+    "publishedAfterAudit": 133,
     "excluded": 1,
     "cohorts": {
       "initial-12": 12,
@@ -11,7 +11,8 @@
       "33-to-51": 18,
       "2026-08-kanto-completeness-audit": 19,
       "2026-08-kansai-public-tracks": 20,
-      "2026-08-chugoku-aichi-fukuoka-public-tracks": 20
+      "2026-08-chugoku-aichi-fukuoka-public-tracks": 20,
+      "2026-08-coverage-gap-followup": 24
     }
   },
   "policy": {
@@ -21,7 +22,7 @@
     "spikesAreNiceToHave": true
   },
   "liveSourceReview": {
-    "uniqueUrlsChecked": 229,
+    "uniqueUrlsChecked": 283,
     "method": "single respectful GET per unique official/research URL with low concurrency; semantic changes manually checked on primary official pages",
     "brokenOrGuardedPublicUrlsRemoved": [
       "https://misato-hall.com/rikujyo/",
@@ -1747,6 +1748,702 @@
     { "trackId": "honjo-athletic-stadium", "name": "黒崎播磨陸上競技場 in HONJO（本城陸上競技場）", "cohort": "2026-08-chugoku-aichi-fukuoka-public-tracks", "decision": "include", "identity": { "status": "verified", "sourceUrl": "https://honjo-park.com/fa_rikujo.html", "verifiedAt": "2026-08-28" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/665444342", "verifiedAt": "2026-08-28" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.kitakyushu.lg.jp/files/000933477.pdf", "verifiedAt": "2026-08-28" }, "availability": { "type": "reservation_system", "sourceUrl": "https://honjo-park.com/", "verifiedAt": "2026-08-28" }, "result": "added", "notes": null },
     { "trackId": "sayagatani-athletic-stadium", "name": "鞘ケ谷競技場", "cohort": "2026-08-chugoku-aichi-fukuoka-public-tracks", "decision": "include", "identity": { "status": "verified", "sourceUrl": "https://www.city.kitakyushu.lg.jp/contents/924_00833.html", "verifiedAt": "2026-08-28" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/698477484", "verifiedAt": "2026-08-28" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.kitakyushu.lg.jp/files/000933477.pdf", "verifiedAt": "2026-08-28" }, "availability": { "type": "reservation_system", "sourceUrl": "https://www.city.kitakyushu.lg.jp/contents/924_00833.html", "verifiedAt": "2026-08-28" }, "result": "added", "notes": null },
     { "trackId": "kurume-general-sports-center-athletic-stadium", "name": "久留米総合スポーツセンター陸上競技場", "cohort": "2026-08-chugoku-aichi-fukuoka-public-tracks", "decision": "include", "identity": { "status": "verified", "sourceUrl": "https://www.city.kurume.fukuoka.jp/1060manabi/2040sports/3010shisetsu/4060trackandfield/2015-0513-1033-553.html", "verifiedAt": "2026-08-28" }, "coordinates": { "status": "verified", "method": "osm_geometry", "sourceUrl": "https://www.openstreetmap.org/way/151017941", "verifiedAt": "2026-08-28" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.kurume.fukuoka.jp/1060manabi/2040sports/3010shisetsu/4060trackandfield/2015-0513-1033-553.html", "verifiedAt": "2026-08-28" }, "availability": { "type": "phone_only", "sourceUrl": "https://shisetsu.mizuno.jp/m-7411/guide", "verifiedAt": "2026-08-28" }, "result": "added", "notes": null },
-    { "trackId": "gotaiten-memorial-ground", "name": "御大典記念グラウンド", "cohort": "2026-08-chugoku-aichi-fukuoka-public-tracks", "decision": "include", "identity": { "status": "verified", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "coordinates": { "status": "verified", "method": "official_map_manual", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "availability": { "type": "phone_only", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "result": "added", "notes": "現行公式ページで公認更新・料金・spike条件を確認" }
+    { "trackId": "gotaiten-memorial-ground", "name": "御大典記念グラウンド", "cohort": "2026-08-chugoku-aichi-fukuoka-public-tracks", "decision": "include", "identity": { "status": "verified", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "coordinates": { "status": "verified", "method": "official_map_manual", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "individualUse": { "status": "available", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "availability": { "type": "phone_only", "sourceUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "verifiedAt": "2026-08-28" }, "result": "added", "notes": "現行公式ページで公認更新・料金・spike条件を確認" },
+    {
+      "trackId": "kawasaki-furuichiba-athletic-field",
+      "name": "古市場陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.kawasaki.jp/shisei/category/288-6-10-0-0-0-0-0-0-0.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/160024699",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "unknown",
+        "sourceUrl": "https://www.city.kawasaki.jp/530/page/0000020718.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.kawasaki.jp/530/page/0000020718.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "川崎市公式情報で400mクレートラックと有料施設であることを確認。一般個人利用の受付条件は要確認"
+    },
+    {
+      "trackId": "balcom-bmw-hiroshima-main-stadium",
+      "name": "Balcom BMW 広島総合グランド メインスタジアム",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/1847199",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "pdf",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "補助競技場とは別施設"
+    },
+    {
+      "trackId": "balcom-bmw-hiroshima-auxiliary-stadium",
+      "name": "Balcom BMW 広島総合グランド 補助競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/1776392",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "pdf",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "メインスタジアムとは別の300mトラック"
+    },
+    {
+      "trackId": "ueno-general-park-athletic-stadium",
+      "name": "上野総合公園陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.shobara.hiroshima.jp/main/industry/cat/post_1332.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "official_map_manual",
+        "sourceUrl": "https://www.city.shobara.hiroshima.jp/main/industry/cat/post_1332.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.shobara.hiroshima.jp/d1w_reiki/H417901010184/H417901010184_j.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.shobara.hiroshima.jp/d1w_reiki/H417901010184/H417901010184_j.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "市外利用者は200円"
+    },
+    {
+      "trackId": "miyoshi-sports-park-athletic-stadium",
+      "name": "みよし運動公園陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.pref.hiroshima.lg.jp/site/miyoshisportspark/index.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/6748803",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://ppp.seika-spc.co.jp/hiro-miyoshi/%E5%96%B6%E6%A5%AD%E6%99%82%E9%96%93%E3%83%BB%E6%96%99%E9%87%91/",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "reservation_system",
+        "sourceUrl": "https://ppp.seika-spc.co.jp/hiro-miyoshi/",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "市外利用者は440円"
+    },
+    {
+      "trackId": "iwakuni-55-field",
+      "name": "55フィールド（愛宕スポーツコンプレックス陸上競技場）",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.iwakuni.lg.jp/site/atago/27490.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "official_map_manual",
+        "sourceUrl": "https://www.city.iwakuni.lg.jp/site/atago/27490.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.iwakuni.lg.jp/soshiki/19/28779.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.iwakuni.lg.jp/soshiki/19/28779.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "b-food-science-1969-chita-stadium",
+      "name": "Bフードサイエンス1969知多スタジアム",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.chita.lg.jp/docs/2023092800011/",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/502051629",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.chita.lg.jp/docs/2023092800011/",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "calendar_html",
+        "sourceUrl": "https://www.city.chita.lg.jp/docs/2023092800011/",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "aichi-ichinomiya-general-athletic-stadium",
+      "name": "愛知県一宮総合運動場陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "official_map_manual",
+        "sourceUrl": "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://itinomiya.sports.coocan.jp/rikutebiki.pdf",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "reservation_system",
+        "sourceUrl": "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "paloma-mizuho-north-athletic-stadium",
+      "name": "パロマ瑞穂北陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://mizuho-loop.jp/equipment/equipment02/",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/21155802",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://mizuho-loop.jp/equipment/equipment02/",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "calendar_html",
+        "sourceUrl": "https://mizuho-loop.jp/equipment/equipment02/",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "okaken-athlete-field",
+      "name": "OKAKENアスリートフィールド（豊川市陸上競技場）",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "official_map_manual",
+        "sourceUrl": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "spore-kasugai-athletic-stadium",
+      "name": "スポーレ春日井（朝宮公園陸上競技場）",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.kasugai.lg.jp/bunka/sports/asamiya/index.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "official_map_manual",
+        "sourceUrl": "https://www.city.kasugai.lg.jp/bunka/sports/asamiya/index.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.spofure-kasugai.or.jp/sports/asamiya/charge/",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.spofure-kasugai.or.jp/sports/asamiya/charge/",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "toyota-city-sports-park-athletic-stadium",
+      "name": "豊田市運動公園陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/122766463",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "reservation_system",
+        "sourceUrl": "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "小人50円"
+    },
+    {
+      "trackId": "mihama-sports-park-athletic-stadium",
+      "name": "美浜町運動公園陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://mihama-sportspark.aichi.jp/",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/1458734674",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://mihama-sportspark.aichi.jp/news/%E3%80%90%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%80%91%E3%81%AE%E3%81%94%E6%A1%88%E5%86%85/",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "weekly_notice",
+        "sourceUrl": "https://mihama-sportspark.aichi.jp/",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "gamagori-park-ground-athletic-stadium",
+      "name": "蒲郡市公園グラウンド陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/7245358",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "anjo-athletic-stadium",
+      "name": "安城市陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/496753685",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "pdf",
+        "sourceUrl": "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "2026年JAAF一覧では公認有効期限を経過しているため非公認として扱う"
+    },
+    {
+      "trackId": "heiwadai-athletic-stadium",
+      "name": "平和台陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.midorimachi.jp/maiduru/guides/",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/186514343",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.midorimachi.jp/maiduru/guides/",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "structured_html",
+        "sourceUrl": "https://www.midorimachi.jp/maiduru/guides/",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "ogori-city-athletic-stadium",
+      "name": "小郡市陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/756934463",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "reservation_system",
+        "sourceUrl": "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "kaho-athletic-stadium",
+      "name": "嘉穂総合運動公園嘉穂陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.kama.lg.jp/site/sport-shisetsu/13373.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "official_map_manual",
+        "sourceUrl": "https://www.city.kama.lg.jp/site/sport-shisetsu/13373.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.kama.lg.jp/uploaded/attachment/5237.pdf",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.kama.lg.jp/uploaded/attachment/5237.pdf",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "kobe-sports-park-auxiliary-stadium",
+      "name": "神戸総合運動公園補助競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.kobe-park.or.jp/sougou/outline/",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/5641033",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7303/guide",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "weekly_notice",
+        "sourceUrl": "https://shisetsu.mizuno.jp/m-7303",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "主競技場ではなく北側の補助競技場"
+    },
+    {
+      "trackId": "ako-jonan-green-athletic-stadium",
+      "name": "赤穂城南緑地陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/159647710",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "学生は70円"
+    },
+    {
+      "trackId": "toyooka-general-sports-center-athletic-stadium",
+      "name": "豊岡総合スポーツセンター陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "official_map_manual",
+        "sourceUrl": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "学生は100円"
+    },
+    {
+      "trackId": "hanazono-central-park-trial-stadium",
+      "name": "花園中央公園多目的球技広場（トライスタジアム）",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.city.higashiosaka.lg.jp/0000007053.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/13460550",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://hanazono-centralparks-hos.com/",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "pdf",
+        "sourceUrl": "https://hanazono-centralparks-hos.com/",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": null
+    },
+    {
+      "trackId": "chiba-general-sports-center-second-track",
+      "name": "千葉県総合スポーツセンター第2陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/relation/2208671",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://www.cue-net.or.jp/kouen/sportscenter/riyou/index.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "主競技場とは別施設。個人共同利用は第2競技場トラックで実施"
+    },
+    {
+      "trackId": "kumagaya-sports-culture-park-auxiliary-track",
+      "name": "熊谷スポーツ文化公園補助陸上競技場",
+      "cohort": "2026-08-coverage-gap-followup",
+      "decision": "include",
+      "identity": {
+        "status": "verified",
+        "sourceUrl": "https://parks.or.jp/kumagaya/guide/001/001816.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "coordinates": {
+        "status": "verified",
+        "method": "osm_geometry",
+        "sourceUrl": "https://www.openstreetmap.org/way/385185042",
+        "verifiedAt": "2026-08-28"
+      },
+      "individualUse": {
+        "status": "available",
+        "sourceUrl": "https://parks.or.jp/kumagaya/guide/001/001816.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "availability": {
+        "type": "phone_only",
+        "sourceUrl": "https://parks.or.jp/kumagaya/guide/001/001816.html",
+        "verifiedAt": "2026-08-28"
+      },
+      "result": "added",
+      "notes": "主競技場とは別施設。県外一般は320円"
+    }
   ]
 }

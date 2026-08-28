@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "date": "2026-09-20",
   "timezone": "Asia/Tokyo",
-  "generatedAt": "2026-08-27T21:08:48.852Z",
+  "generatedAt": "2026-08-28T03:44:17.832Z",
   "facilities": [
     {
       "trackId": "ageo-athletic-stadium",
@@ -20,9 +20,9 @@
         "documentId": "att_0000059.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -34,6 +34,38 @@
       },
       "warnings": [
         "予定表に個人利用日として掲載なし"
+      ]
+    },
+    {
+      "trackId": "aichi-ichinomiya-general-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -53,8 +85,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -84,9 +116,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -114,9 +146,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -128,6 +160,38 @@
       },
       "warnings": [
         "追加開放・貸切状況は公式Xまたは電話確認"
+      ]
+    },
+    {
+      "trackId": "ako-jonan-green-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -147,8 +211,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "anjo-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -179,8 +275,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -211,8 +307,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -242,9 +338,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -273,8 +369,104 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "b-food-science-1969-chita-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.chita.lg.jp/docs/2023092800011/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "balcom-bmw-hiroshima-auxiliary-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "balcom-bmw-hiroshima-main-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -305,8 +497,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "chiba-general-sports-center-second-track",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -348,8 +572,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -380,8 +604,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -412,8 +636,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -443,16 +667,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
       "evidence": {
         "collector": "edogawa-weekly-table",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:09548ee3058bb4385d7cb0a0748d34d07593f1d6235c4907f420004bbcd72eed",
+        "sourceHash": "sha256:d2bb5f2f86d1a2a663a2074bd43b76436f3f037709c9f0ff327bcc9c1be39119",
         "confidence": "medium"
       },
       "warnings": []
@@ -474,8 +698,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -505,9 +729,9 @@
         "documentId": "reiwa8nennkarennda.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -538,8 +762,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -570,8 +794,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -602,8 +826,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "gamagori-park-ground-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -634,8 +890,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -716,9 +972,9 @@
         "documentId": "generalopen0819.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -750,8 +1006,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -782,8 +1038,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "hanazono-central-park-trial-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://hanazono-centralparks-hos.com/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -814,8 +1102,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -846,8 +1134,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "heiwadai-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.midorimachi.jp/maiduru/guides/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -878,8 +1198,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -910,8 +1230,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -942,8 +1262,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -984,9 +1304,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1017,8 +1337,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1049,8 +1369,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1081,8 +1401,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1113,8 +1433,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1145,8 +1465,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1177,8 +1497,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1209,8 +1529,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1249,16 +1569,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
       "evidence": {
         "collector": "inokashira-fixed",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:dd10a09cb3da9eff3a8929e4dfd1fae9c5dccaef4ac890343ecc4ea22ba6edba",
+        "sourceHash": "sha256:36096869c494319409d0dff8638273c80fe3c255043949e8c51c09551ccdd986",
         "confidence": "medium"
       },
       "warnings": [
@@ -1282,8 +1602,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1314,8 +1634,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1346,8 +1666,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "iwakuni-55-field",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.iwakuni.lg.jp/soshiki/19/28779.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1378,8 +1730,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1410,8 +1762,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1422,6 +1774,38 @@
         "confidence": "medium"
       },
       "warnings": []
+    },
+    {
+      "trackId": "kaho-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.kama.lg.jp/uploaded/attachment/5237.pdf",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
     },
     {
       "trackId": "kakogawa-athletics-stadium",
@@ -1440,8 +1824,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1472,8 +1856,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1504,8 +1888,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1566,9 +1950,9 @@
         "documentId": "2ed3e2579058a0ccecb8392ae2fff84f-3.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1600,8 +1984,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1632,8 +2016,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1664,8 +2048,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1696,8 +2080,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1709,6 +2093,38 @@
       },
       "warnings": [
         "Availability source researched; facility-specific collector is not implemented in the dataset expansion phase."
+      ]
+    },
+    {
+      "trackId": "kawasaki-furuichiba-athletic-field",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.kawasaki.jp/530/page/0000020718.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -1728,8 +2144,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "kobe-sports-park-auxiliary-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://shisetsu.mizuno.jp/m-7303",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1759,9 +2207,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1789,16 +2237,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
       "evidence": {
         "collector": "koshigaya-today-status",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:7c76beaf4592735a46c5fda9e233c928d627f5f55a044bc74fdf7da775baa5ae",
+        "sourceHash": "sha256:bc01572147aad6924b7b0e717e4756c2e4f5d6bd2882ba08f5864b9656a0f079",
         "confidence": "medium"
       },
       "warnings": []
@@ -1820,8 +2268,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1833,6 +2281,38 @@
       },
       "warnings": [
         "Availability source researched; facility-specific collector is not implemented in the dataset expansion phase."
+      ]
+    },
+    {
+      "trackId": "kumagaya-sports-culture-park-auxiliary-track",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://parks.or.jp/kumagaya/guide/001/001816.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
       ]
     },
     {
@@ -1852,8 +2332,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1884,8 +2364,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1916,8 +2396,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1948,8 +2428,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -1980,8 +2460,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2012,8 +2492,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2044,8 +2524,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "mihama-sports-park-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://mihama-sportspark.aichi.jp/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2076,8 +2588,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2130,24 +2642,24 @@
       ],
       "unknownReason": "insufficient_information",
       "source": {
-        "url": "https://www.misato-hall.com/secure/4855/89-7.pdf",
+        "url": "https://www.misato-hall.com/secure/4855/89-8.pdf",
         "landingPageUrl": "https://www.misato-hall.com/module/3299.htm",
         "type": "official",
         "publicationFormat": "pdf",
         "publishedAt": null,
-        "documentId": "89-7.pdf"
+        "documentId": "89-8.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
       "evidence": {
         "collector": "misato-three-slot-reservation",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:57ffa2093318e93ed3201bfb71aa76fda902cb71515bd5110ac790af25fb930b",
+        "sourceHash": "sha256:2c0aed7a62944761ff33c7d43b0187ef7541772ccd768773e8a410eab7d1221c",
         "confidence": "high"
       },
       "warnings": [
@@ -2172,8 +2684,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "miyoshi-sports-park-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://ppp.seika-spc.co.jp/hiro-miyoshi/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2203,16 +2747,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
       "evidence": {
         "collector": "musashino-html",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:f3a052585835f1dc667e8fff105203e61d1193daa9cfe754ef44cb5a41a16a98",
+        "sourceHash": "sha256:f6ec55ec511d3878ebb5973cb5169f40a7548b62103ee735bd27cb2127c395a6",
         "confidence": "medium"
       },
       "warnings": []
@@ -2234,8 +2778,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2257,24 +2801,24 @@
       "periods": [],
       "unknownReason": "outside_published_period",
       "source": {
-        "url": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/20260825souun_kaihoujoukyou.pdf",
+        "url": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/20260828souun_kaihoujoukyou.pdf",
         "landingPageUrl": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html",
         "type": "official",
         "publicationFormat": "pdf",
         "publishedAt": null,
-        "documentId": "20260825souun_kaihoujoukyou.pdf"
+        "documentId": "20260828souun_kaihoujoukyou.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
       "evidence": {
         "collector": "nerima-weekly-slots",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:0d75adc570855b92a506cccc1f85b1b138f59ac620517459cf4ac33bd08bd6c5",
+        "sourceHash": "sha256:a2061e7827408e7e56d174f81069864e353f8b0a09ebe5f9b537b6fb2c55c9c1",
         "confidence": "medium"
       },
       "warnings": [
@@ -2298,8 +2842,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2330,8 +2874,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2360,8 +2904,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2392,8 +2936,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2424,8 +2968,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2456,8 +3000,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2488,8 +3032,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "ogori-city-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2519,16 +3095,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
       "evidence": {
         "collector": "oi-first-third-thursday-fixed",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:4dff8449c790256aa660ae44c55eaeb0d677e80292f6bb1056e5b34a80cf62b5",
+        "sourceHash": "sha256:4b5cc8d511f6a28852c9bf068a7a49873ec294503b77eff4425eca05951e4723",
         "confidence": "medium"
       },
       "warnings": []
@@ -2549,9 +3125,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2562,6 +3138,38 @@
         "confidence": "medium"
       },
       "warnings": []
+    },
+    {
+      "trackId": "okaken-athlete-field",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
     },
     {
       "trackId": "okazaki-ryuhoku-stadium",
@@ -2580,8 +3188,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2611,9 +3219,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2644,8 +3252,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2676,8 +3284,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2708,8 +3316,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "paloma-mizuho-north-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://mizuho-loop.jp/equipment/equipment02/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2740,8 +3380,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2772,8 +3412,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2804,8 +3444,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2836,8 +3476,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2868,8 +3508,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2900,8 +3540,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2932,8 +3572,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2964,8 +3604,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -2996,8 +3636,40 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "spore-kasugai-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.spofure-kasugai.or.jp/sports/asamiya/charge/",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3028,8 +3700,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3060,8 +3732,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3092,8 +3764,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3124,8 +3796,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3156,8 +3828,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3208,9 +3880,9 @@
         "documentId": "2026.0902.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3242,8 +3914,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3274,8 +3946,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3446,9 +4118,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3479,9 +4151,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3512,8 +4184,104 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "toyooka-general-sports-center-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "toyota-city-sports-park-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
+        "validForDate": "2026-09-20",
+        "expiresAt": "2026-09-20T15:00:00.000Z"
+      },
+      "evidence": {
+        "collector": "official-source-manual-confirmation",
+        "parserVersion": "1.0.0",
+        "sourceHash": null,
+        "confidence": "low"
+      },
+      "warnings": [
+        "Facility identity is verified; date-specific availability is not automated yet."
+      ]
+    },
+    {
+      "trackId": "ueno-general-park-athletic-stadium",
+      "date": "2026-09-20",
+      "timezone": "Asia/Tokyo",
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "web_schedule_unavailable",
+      "source": {
+        "url": "https://www.city.shobara.hiroshima.jp/d1w_reiki/H417901010184/H417901010184_j.html",
+        "landingPageUrl": null,
+        "type": "official",
+        "publicationFormat": "no_schedule_found",
+        "publishedAt": null,
+        "documentId": null
+      },
+      "freshness": {
+        "fetchedAt": null,
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3544,8 +4312,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3576,8 +4344,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3628,9 +4396,9 @@
         "documentId": "%E7%AC%AC%E4%BA%8C%E7%AB%B6%E6%8A%80%E5%A0%B49%E6%9C%88%E5%88%86.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3663,8 +4431,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3695,8 +4463,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3727,8 +4495,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3759,8 +4527,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },
@@ -3801,9 +4569,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-08-27T21:08:48.852Z",
-        "parsedAt": "2026-08-27T21:08:48.852Z",
-        "checkedAt": "2026-08-27T21:08:48.852Z",
+        "fetchedAt": "2026-08-28T03:44:17.832Z",
+        "parsedAt": "2026-08-28T03:44:17.832Z",
+        "checkedAt": "2026-08-28T03:44:17.832Z",
         "validForDate": "2026-09-20",
         "expiresAt": "2026-09-20T15:00:00.000Z"
       },

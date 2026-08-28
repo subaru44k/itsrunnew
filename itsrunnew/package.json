@@ -16,6 +16,7 @@
     "test:smoke:preview": "node scripts/smoke-preview.mjs",
     "test:visual": "node scripts/visual-compare.mjs",
     "validate:tracks": "node scripts/validate-tracks.mjs",
+    "validate:track-batches": "node scripts/validate-track-batches.mjs",
     "collect:availability": "tsx scripts/availability/collect.ts",
     "collect:availability:range": "tsx scripts/availability/collect-range.ts",
     "lint": "vue-tsc --noEmit",

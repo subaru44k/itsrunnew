@@ -1,0 +1,280 @@
+{
+  "registryVersion": 2,
+  "purpose": "完了済みの施設拡張batchで採否記録がない未掲載施設を、正式な再調査batchへ引き継ぐ",
+  "lastReviewedAt": "2026-08-28",
+  "datasetObservation": {
+    "revision": "5c724851315c4b4e4ac8a9be46fc757036b159cf",
+    "facilityCount": 109
+  },
+  "statusDefinitions": {
+    "needs-full-review": "掲載候補として有力だが、playbookのevidence worksheetと公開可否reviewは未完了",
+    "reviewed": "後続batchでinclude、hold、excludeのいずれかを記録済み"
+  },
+  "candidates": [
+    {
+      "candidateId": "kawasaki-furuichiba-athletic-field",
+      "nameJa": "古市場陸上競技場",
+      "prefecture": "神奈川県",
+      "municipality": "川崎市幸区",
+      "status": "reviewed",
+      "reportedAt": "2026-08-27",
+      "reviewedAt": "2026-08-28",
+      "relatedBatch": {
+        "batchId": "2026-08-coverage-gap-followup",
+        "candidateRecorded": true,
+        "decisionRecorded": true,
+        "publicationCapacityReached": false,
+        "note": "coverage gap follow-upで正式に採否を記録"
+      },
+      "gapClassification": "discovery-query-false-negative",
+      "gapEvidence": {
+        "summary": "2026年JAAF一覧とleisure=track / sport=athleticsのOverpass抽出をどちらも通過しなかった可能性が高い",
+        "jaaf": {
+          "listedIn2026CertifiedFacilities": false,
+          "sourceUrl": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+        },
+        "osm": {
+          "type": "way",
+          "id": 160024699,
+          "url": "https://www.openstreetmap.org/way/160024699",
+          "observedTags": {
+            "highway": "service",
+            "name": "古市場陸上競技場"
+          },
+          "matchesPriorOverpassQuery": false,
+          "note": "名称付きgeometryは存在するがleisure=trackとsport=athleticsは付いていない"
+        }
+      },
+      "preliminaryEvidence": {
+        "identityAndSpecification": {
+          "sourceUrl": "https://www.city.kawasaki.jp/shisei/category/288-6-10-0-0-0-0-0-0-0.html",
+          "summary": "川崎市が古市場陸上競技場を400mクレートラック（河川敷）として掲載",
+          "verifiedAt": "2026-08-28"
+        },
+        "facilityListing": {
+          "sourceUrl": "https://www.city.kawasaki.jp/530/page/0000020718.html",
+          "summary": "川崎市が多摩川緑地古市場地区の陸上競技場として掲載。ページ上の有料表記が専用利用と個人利用のどちらを指すかは要確認",
+          "verifiedAt": "2026-08-28"
+        },
+        "coordinates": {
+          "latitude": 35.5574058,
+          "longitude": 139.6852874,
+          "method": "osm_way_center_pending_visual_review",
+          "source": "way/160024699"
+        },
+        "lengthMeters": 400,
+        "surface": "clay",
+        "individualUse": {
+          "provisionalStatus": "likely-available",
+          "secondarySourceUrl": "https://www.shima-ryota.jp/news/2025-6-23-%E4%BB%A4%E5%92%8C7%E5%B9%B4%E7%AC%AC2%E5%9B%9E%E5%AE%9A%E4%BE%8B%E4%BC%9A%E6%9C%AC%E4%BC%9A%E8%AD%B0-%E4%B8%80%E8%88%AC%E8%B3%AA%E5%95%8F%E3%81%AE%E3%81%94%E5%A0%B1%E5%91%8A%E3%80%82/",
+          "summary": "市議会一般質問の報告には、市答弁として個人利用可能・個人利用料無料と記載",
+          "publicationDecision": "公式会議録または現行の市案内で再確認するまでavailableとして公開しない"
+        }
+      },
+      "unresolved": [
+        "一般個人利用の受付方法と料金区分",
+        "専用利用日を確認できる安定した予定source",
+        "スパイク可否"
+      ],
+      "nextReview": "追加済み。公式の個人受付条件が公開された時点でunknownを更新する",
+      "finalDisposition": {
+        "decision": "include",
+        "publishedTrackIds": [
+          "kawasaki-furuichiba-athletic-field"
+        ],
+        "note": "identity・400m clay・有料施設の公式根拠を確認。一般個人受付条件は推測せずindividualUse.status=unknownで公開"
+      }
+    },
+    {
+      "candidateId": "hiroshima-prefectural-general-ground",
+      "nameJa": "Balcom BMW 広島総合グランド（広島県総合グランド）",
+      "prefecture": "広島県",
+      "municipality": "広島市西区",
+      "status": "reviewed",
+      "reportedAt": "2026-08-28",
+      "reviewedAt": "2026-08-28",
+      "relatedBatch": {
+        "batchId": "2026-08-coverage-gap-followup",
+        "candidateRecorded": true,
+        "decisionRecorded": true,
+        "publicationCapacityReached": false,
+        "note": "coverage gap follow-upで正式に採否を記録"
+      },
+      "gapClassification": "unrecorded-shortlist-omission",
+      "gapEvidence": {
+        "summary": "JAAFとOSMの両方から発見可能だったためqueryのfalse negativeではなく、公開上限へ絞る過程で採否記録が欠落した可能性が高い",
+        "jaaf": {
+          "mainStadium": {
+            "listedIn2026CertifiedFacilities": true,
+            "class": 2,
+            "lengthMeters": 400,
+            "certificationPeriod": "2025-10-26/2030-10-25"
+          },
+          "auxiliaryStadium": {
+            "listedIn2026CertifiedFacilities": true,
+            "class": "4L",
+            "lengthMeters": 300,
+            "certificationPeriod": "2024-04-29/2029-04-28"
+          },
+          "sourceUrl": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+        },
+        "osm": {
+          "complex": {
+            "type": "way",
+            "id": 481619502,
+            "url": "https://www.openstreetmap.org/way/481619502",
+            "observedTags": {
+              "leisure": "park",
+              "name": "Balcom BMW 広島総合グランド",
+              "official_name": "広島県総合グランド"
+            }
+          },
+          "trackGeometries": [
+            {
+              "type": "relation",
+              "id": 1847199,
+              "url": "https://www.openstreetmap.org/relation/1847199",
+              "observedTags": {
+                "leisure": "track"
+              },
+              "facilityPart": "main outer geometry"
+            },
+            {
+              "type": "way",
+              "id": 137071403,
+              "url": "https://www.openstreetmap.org/way/137071403",
+              "observedTags": {
+                "leisure": "track"
+              },
+              "facilityPart": "main inner geometry; not the auxiliary track"
+            },
+            {
+              "type": "relation",
+              "id": 1776392,
+              "url": "https://www.openstreetmap.org/relation/1776392",
+              "observedTags": {
+                "leisure": "pitch"
+              },
+              "facilityPart": "auxiliary infield; surrounding 300m track is visible but not independently tagged"
+            }
+          ],
+          "matchesPriorDiscoverySources": true,
+          "note": "relation/1847199とway/137071403は同じメイントラックの外周・内周。補助300mは北側relation/1776392周囲を公式配置と目視照合した"
+        }
+      },
+      "preliminaryEvidence": {
+        "officialIdentity": {
+          "sourceUrl": "https://www.pref.hiroshima.lg.jp/soshiki/257/nr-sogoground20211001.html",
+          "summary": "広島県が正式名称、命名権名称、所在地、メインスタジアム名称を掲載",
+          "verifiedAt": "2026-08-28"
+        },
+        "mainStadiumSpecification": {
+          "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/gallery",
+          "summary": "指定管理者が400m、8レーン、全天候舗装と掲載",
+          "verifiedAt": "2026-08-28"
+        },
+        "individualUse": {
+          "provisionalStatus": "available",
+          "sourceUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+          "summary": "専用利用がない時間帯はメインスタジアム、補助競技場、運動場を予約なしで当日個人利用可能と明示",
+          "verifiedAt": "2026-08-28"
+        },
+        "availability": {
+          "sourceType": "monthly_pdf",
+          "landingPageUrl": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+          "summary": "2026年8月・9月・10月の行事予定表と個人利用予定表を施設別PDFで掲載",
+          "automationDecision": "research_only",
+          "reason": "mainとauxiliaryを分離し、対象月・凡例・空欄の意味を検証する新規parser reviewが必要",
+          "verifiedAt": "2026-08-28"
+        }
+      },
+      "subfacilityReview": {
+        "mainStadium": "400m trackとして独立候補にする価値が高い",
+        "auxiliaryStadium": "300m trackも独立した個人利用制度とJAAF掲載があるため、同一施設にまとめず別候補にするかreviewする"
+      },
+      "unresolved": [
+        "料金表の代表区分",
+        "スパイク可否",
+        "月別PDFの自動判定semantics"
+      ],
+      "nextReview": "主・補助とも追加済み。availability collector追加時に月別PDFの凡例を再検証する",
+      "finalDisposition": {
+        "decision": "include",
+        "publishedTrackIds": [
+          "balcom-bmw-hiroshima-main-stadium",
+          "balcom-bmw-hiroshima-auxiliary-stadium"
+        ],
+        "note": "主400mと補助300mを独立施設として追加"
+      }
+    },
+    {
+      "candidateId": "ikeda-inagawa-sports-ground-athletics-field",
+      "nameJa": "猪名川運動場 陸上競技場",
+      "prefecture": "大阪府",
+      "municipality": "池田市",
+      "status": "reviewed",
+      "reportedAt": "2026-08-28",
+      "reviewedAt": "2026-08-28",
+      "relatedBatch": {
+        "batchId": "2026-08-coverage-gap-followup",
+        "candidateRecorded": true,
+        "decisionRecorded": true,
+        "publicationCapacityReached": false,
+        "note": "coverage gap follow-upで正式に採否を記録"
+      },
+      "gapClassification": "unrecorded-exclusion-candidate",
+      "gapEvidence": {
+        "summary": "施設は存在するが、一般個人利用の公式根拠がなくexcludeが有力。掲載漏れではなく、候補発見後に明示的な除外判断を残すべき事例",
+        "jaaf": {
+          "listedIn2026CertifiedFacilities": false,
+          "searchTerms": [
+            "猪名川",
+            "池田"
+          ],
+          "sourceUrl": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+        },
+        "geocoder": {
+          "provider": "Nominatim",
+          "query": "猪名川運動場",
+          "matchedTargetFacility": false,
+          "verifiedAt": "2026-08-28",
+          "note": "同名queryは尼崎市の猪名川公園テニスコートだけを返し、池田市の対象施設を特定できなかった"
+        }
+      },
+      "preliminaryEvidence": {
+        "officialIdentity": {
+          "sourceUrl": "https://www.city.ikeda.osaka.jp/shisei_info/kokyo/supoutsu_shisetsu/21263.html",
+          "summary": "池田市が住所、開場時間、施設概要として陸上競技場1面を掲載",
+          "verifiedAt": "2026-08-28"
+        },
+        "usageAndFee": {
+          "sourceUrl": "https://www.city.ikeda.osaka.jp/shisei_info/kokyo/supoutsu_shisetsu/21263.html",
+          "summary": "陸上競技場は2時間1面2,000円。個人料金または共用利用料金の記載はなく、OPASまたは施設窓口で申請する",
+          "verifiedAt": "2026-08-28"
+        },
+        "individualUse": {
+          "provisionalStatus": "unavailable",
+          "sourceUrl": "https://www.opas.jp/ikeda/pdf/ikd_guide.pdf",
+          "summary": "池田市OPASガイドは猪名川運動場を団体登録の利用施設に分類し、個人登録の利用施設には含めない",
+          "guideEdition": "2023-11 second edition",
+          "verifiedAt": "2026-08-28",
+          "publicationDecision": "一般個人利用の現行公式根拠を確認できないため掲載しない"
+        }
+      },
+      "provisionalDisposition": "exclude",
+      "unresolved": [],
+      "nextReview": "一般個人または共同利用制度の公式案内が新設・確認された場合のみ再審査する",
+      "finalDisposition": {
+        "decision": "exclude",
+        "publishedTrackIds": [],
+        "note": "団体登録・全面利用のみ確認でき、サイト対象の一般個人・共同利用を確認できない"
+      }
+    }
+  ],
+  "resolution": {
+    "batchId": "2026-08-coverage-gap-followup",
+    "resolvedAt": "2026-08-28",
+    "facilityCountAfter": 133,
+    "summary": "古市場をunknown条件付きで1施設、Balcom BMW広島総合グランドを主・補助の2施設として追加。猪名川運動場は一般個人利用の公式根拠がなくexcludeとして記録"
+  }
+}

@@ -2,7 +2,30 @@
 
 この文書は、Track Searchへ施設を追加するときの調査、判断、記録、検証を統一するための正本です。目的は件数を増やすことではなく、ランナーが指定日に近くで集中して走れる候補を、根拠と不確実性を含めて安全に判断できるdatasetを維持することです。
 
-適用対象は新規施設だけではありません。初期12施設、12→33施設の拡大、33→51候補の拡大を含む既存候補の再確認にも同じ基準を使います。2026-08-27の遡及監査で50施設へ補正した後、関東網羅性batchで19施設、関西batchで20施設、2026-08-28の中国・愛知・福岡batchで20施設を追加し、現在の公開候補は109施設です。
+適用対象は新規施設だけではありません。初期12施設、12→33施設の拡大、33→51候補の拡大を含む既存候補の再確認にも同じ基準を使います。2026-08-27の遡及監査で50施設へ補正した後、関東網羅性batchで19施設、関西batchで20施設、中国・愛知・福岡batchで20施設、2026-08-28のcoverage gap follow-upで24施設を追加し、現在の公開候補は133施設です。
+
+## 標準実行チェックリスト
+
+施設登録は次の順で行います。詳細な判定基準は後続節を参照します。
+
+1. 対象地域とdiscovery sourceを宣言し、JAAF、自治体・指定管理者一覧、OSM、既存のhold・follow-upを最後まで走査する。
+2. OSM objectや命名権名称をfacility clusterへまとめ、主・補助競技場は個人利用制度が独立する場合だけ別候補にする。
+3. 全clusterをbatch JSONへ書き、`existing | include | hold | exclude | defer` のどれかを付ける。10〜20件を超えた未review候補は消さず `defer` にする。
+4. `include` 候補は、公式一次情報でidentity、位置、track長・路面、個人利用status、availability sourceを属性別に確認する。不明値は `null` / `unknown` のままにする。
+5. raw位置evidence、`tracks.json`、`availability-sources.json`、`track-source-audit.json`、batch reportを同じ変更で更新し、follow-up起点なら元台帳へ最終decisionと公開track IDを戻す。
+6. availability 31日分を再生成し、以下を順に通す。検証後にpreview、本番へ出し、公開URLと施設件数を確認する。
+
+```sh
+npm run collect:availability:range
+npm run validate:track-batches
+npm run validate:tracks
+npm test
+npm run build
+npm run lint
+npm run test:smoke
+```
+
+batchを分割する場合も、discovery reconciliationを先に完成させます。後続作業は `defer` IDの集合から開始し、検索を最初からやり直して候補を再選抜しません。
 
 ## 1. 守るべきプロダクト原則
 
@@ -83,7 +106,7 @@ sourceは実ページを開いて、対象施設、対象設備、対象年度�
 
 ## 4. batchの開始方法
 
-一度に調査する公開候補は10〜20施設程度を推奨する。候補pool自体は多くてもよいが、公式確認とreviewを終えた施設だけを公開batchへ進める。
+一度に公式確認と公開reviewを完了させる施設は10〜20施設程度を推奨する。これはreview可能な差分へ分けるための目安であり、候補発見件数の上限、候補記録の打ち切り条件、または地域ごとの掲載枠ではない。候補pool自体は多くてよく、公開目標へ達した後も、宣言したdiscovery sourceと対象地域の走査を最後まで行う。
 
 品質と手間のバランスを取るため、最初の公式source探索は1施設20〜30分程度を目安に区切る。identity、位置、個人利用、availability sourceを確認できないまま補助属性を深掘りせず、`hold` と未解決理由を残して次の候補へ進む。collector固有解析や施設への問い合わせは、公開候補の価値と想定coverageを比較して別タスクにする。
 
@@ -92,11 +115,25 @@ batch開始時に次を決める。
 - `batchId`: 例 `2026-09-kanagawa-west`
 - 対象地域と選定理由
 - 候補発見queryと取得日時
-- 想定候補数、公開上限、完了期限
+- 想定候補数、今回review・公開する目標数、完了期限
 - 既存datasetとの重複判定方法
 - 調査担当と、可能なら別のreview pass
 
 将来の調査記録は `research/track-expansion/batches/<batchId>.json` と `<batchId>-report.md` に置く。raw OSMは `data/osm/` に保持し、公開datasetと混ぜない。
+
+batch JSONには `discoveryReconciliation.facilityClusters` と、`existing`、`include`、`hold`、`exclude`、`defer` の件数を持たせる。`npm run validate:track-batches` は候補ID・decision・review件数・公開datasetとの整合に加え、この合計を検証する。過去3batchは導入前の記録として例外だが、新規batchでreconciliationを省略すると検証に失敗する。
+
+公開目標数に入らない候補を無記録で捨てない。施設単位へclusterした候補には、必ず次のいずれかを記録する。
+
+| disposition | 意味 |
+|---|---|
+| `existing` | 既存datasetの施設と確認できた |
+| `include` | 今回のreviewを通過し公開する |
+| `hold` | 必要な調査を行ったが根拠不足・条件未確定で保留する |
+| `exclude` | 対象外または掲載基準を満たさないことを確認した |
+| `defer` | 有力候補だが、公開目標数・時間・review容量のため後続batchへ送る |
+
+`defer` は `hold` と異なり、掲載不適格や根拠不足を意味しない。最低限、仮名称、位置、discovery source、繰越理由、次の確認事項を残す。公開目標へ達したことを理由に、候補を `exclude` にしたりcandidate配列から省略したりしない。
 
 ## 5. 施設追加の標準手順
 
@@ -112,6 +149,10 @@ JAAF、OSM、自治体一覧を並行して調べる。OSMでは競馬、自転�
 - 発見日
 - 候補にした理由
 
+JAAF一覧や自治体施設一覧のように有限で列挙可能なsourceは、対象地域の全rowについて `existing | include | hold | exclude | defer` のいずれかへ消し込む。大量のOSM objectはraw件数、query、取得日時を保存し、競馬・自転車・private等の明示除外とfacility cluster化を行った後に残る全候補へdispositionを付ける。公開目標数へ達した時点でsource走査を止めない。
+
+batch reportには少なくとも、source row/object数、facility cluster数、既存重複数、`include`、`hold`、`exclude`、`defer` の件数を記録する。source間重複を除いたfacility cluster数が各dispositionの合計と一致しない場合、説明のない候補漏れがあるためbatchを完了させない。
+
 ### Step 2: 施設単位のdeduplication
 
 `OSM object != facility` を前提とする。次を同一施設clusterとして確認する。
@@ -123,7 +164,7 @@ JAAF、OSM、自治体一覧を並行して調べる。OSMでは競馬、自転�
 - 旧名称、命名権名称、略称
 - 既存datasetとの近接・名称重複
 
-主競技場と補助競技場が独立して一般利用できる場合だけ別施設にする。判断できなければ公開せず候補queueに残す。
+主競技場と補助競技場が独立して一般利用できる場合だけ別施設にする。判断できなければ公開せず候補queueに残す。完了済みbatchで採否記録がない未掲載施設は、既存batchへ後付けせず [`../research/track-expansion/coverage-gap-followups.json`](../research/track-expansion/coverage-gap-followups.json) に記録し、正式な再調査batchまで公開datasetへ追加しない。
 
 ### Step 3: 施設identityと位置の確認
 
@@ -261,7 +302,7 @@ geocoderの値を無確認で採用しない。OSM IDがないこと自体は不
 - availability research recordがある
 - 不明値を推測で補っていない
 
-候補を保留・除外しても失敗ではない。理由を `hold` / `exclude` としてbatch reportに残し、同じ候補を別担当が無駄に再調査しないようにする。
+候補を保留・除外・繰越しても失敗ではない。理由を `hold` / `exclude` / `defer` としてbatch reportに残し、同じ候補を別担当が無駄に再調査したり、公開目標数の外側で候補が消えたりしないようにする。
 
 ### Step 10: normalized datasetへ追加
 
@@ -353,7 +394,7 @@ review可能性を優先し、次の単位を推奨する。
 
 PR本文には次を記載する。
 
-- 候補数、追加数、hold数、exclude数
+- facility cluster数、既存重複数、追加数、hold数、exclude数、defer数、およびその合計確認
 - 新規IDと施設名
 - 地域・400m・路面・個人利用statusの集計
 - discovery sourceとverification sourceの内訳
@@ -404,7 +445,8 @@ sourceが404、別施設へredirect、内容変更、意味の矛盾になった
 
 batchを完了とするには、次をすべて満たす。
 
-- 候補、hold、exclude、includeの判断が記録されている
+- facility cluster化後の全候補に `existing | include | hold | exclude | defer` の判断が記録され、件数が一致している
+- 公開目標数へ達した後も宣言したdiscovery sourceを最後まで確認し、未review候補を `defer` へ繰り越している
 - 公開施設はidentity、位置、主要track仕様、個人利用statusの根拠を持つ
 - availability sourceが全追加施設で分類されている
 - 不明値を推測していない

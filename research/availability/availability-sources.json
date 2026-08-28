@@ -2,28 +2,28 @@
   "schemaVersion": 1,
   "dataset": {
     "path": "itsrunnew/src/data/tracks.json",
-    "trackCount": 109
+    "trackCount": 133
   },
   "research": {
     "verifiedAt": "2026-08-28",
     "timezone": "Asia/Tokyo",
     "scope": "All facilities in the current normalized Track Dataset",
-    "officialWebAvailabilityFoundCount": 94,
+    "officialWebAvailabilityFoundCount": 112,
     "classificationCounts": {
-      "pdf": 15,
-      "structured_html": 8,
+      "pdf": 19,
+      "structured_html": 9,
       "fixed_schedule": 11,
-      "phone_only": 8,
-      "reservation_system": 36,
-      "calendar_html": 12,
+      "phone_only": 19,
+      "reservation_system": 40,
+      "calendar_html": 14,
       "no_schedule_found": 12,
-      "weekly_notice": 7
+      "weekly_notice": 9
     },
     "automationCounts": {
       "yes": 18,
       "probably": 33,
       "no": 20,
-      "difficult": 38
+      "difficult": 62
     },
     "implementationCoverage": {
       "currentCollectors": 23,
@@ -34,13 +34,13 @@
       "pdfGuardedUnknown": 1,
       "pdfRequired": 2,
       "reservationSystemRequired": 33,
-      "manualOrUnknown": 86
+      "manualOrUnknown": 110
     },
     "futureDateAssessment": {
       "futureDatesSupported": 61,
       "futureRangeLimited": 20,
       "todayOnly": 5,
-      "unknown": 22,
+      "unknown": 46,
       "notAssessed": 1
     }
   },
@@ -2244,6 +2244,833 @@
       "trackId": "gotaiten-memorial-ground", "name": "御大典記念グラウンド", "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": { "type": "phone_only", "url": "https://www.city.omuta.lg.jp/kiji0032594/index.html", "discoveryUrl": null, "granularity": "none", "updateFrequency": "on_demand", "updateNote": "専用利用状況を窓口確認", "urlStability": "stable_official_page" },
       "automation": { "feasibility": "no", "reason": "日付別Web予定を確認できない" }, "semantics": { "canInferAvailable": false, "coverage": "manual_confirmation", "rule": "施設確認時だけavailable", "absenceMeaning": "予定不掲載をunavailableとしない" }, "dateSearch": "unknown", "specialCases": ["大会・投てき利用時間"], "sources": ["https://www.city.omuta.lg.jp/kiji0032594/index.html"], "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "kawasaki-furuichiba-athletic-field",
+      "name": "古市場陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.kawasaki.jp/530/page/0000020718.html",
+        "discoveryUrl": "https://www.city.kawasaki.jp/shisei/category/288-6-10-0-0-0-0-0-0-0.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "川崎市公式情報で400mクレートラックと有料施設であることを確認。一般個人利用の受付条件は要確認"
+      ],
+      "sources": [
+        "https://www.city.kawasaki.jp/shisei/category/288-6-10-0-0-0-0-0-0-0.html",
+        "https://www.city.kawasaki.jp/530/page/0000020718.html"
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "balcom-bmw-hiroshima-main-stadium",
+      "name": "Balcom BMW 広島総合グランド メインスタジアム",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "pdf",
+        "url": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "discoveryUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "補助競技場とは別施設"
+      ],
+      "sources": [
+        "https://shisetsu.mizuno.jp/m-7103/guide",
+        "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "balcom-bmw-hiroshima-auxiliary-stadium",
+      "name": "Balcom BMW 広島総合グランド 補助競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "pdf",
+        "url": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "discoveryUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "メインスタジアムとは別の300mトラック"
+      ],
+      "sources": [
+        "https://shisetsu.mizuno.jp/m-7103/guide",
+        "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "ueno-general-park-athletic-stadium",
+      "name": "上野総合公園陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.shobara.hiroshima.jp/d1w_reiki/H417901010184/H417901010184_j.html",
+        "discoveryUrl": "https://www.city.shobara.hiroshima.jp/main/industry/cat/post_1332.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "市外利用者は200円"
+      ],
+      "sources": [
+        "https://www.city.shobara.hiroshima.jp/main/industry/cat/post_1332.html",
+        "https://www.city.shobara.hiroshima.jp/d1w_reiki/H417901010184/H417901010184_j.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "miyoshi-sports-park-athletic-stadium",
+      "name": "みよし運動公園陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "reservation_system",
+        "url": "https://ppp.seika-spc.co.jp/hiro-miyoshi/",
+        "discoveryUrl": "https://www.pref.hiroshima.lg.jp/site/miyoshisportspark/index.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "市外利用者は440円"
+      ],
+      "sources": [
+        "https://www.pref.hiroshima.lg.jp/site/miyoshisportspark/index.html",
+        "https://ppp.seika-spc.co.jp/hiro-miyoshi/%E5%96%B6%E6%A5%AD%E6%99%82%E9%96%93%E3%83%BB%E6%96%99%E9%87%91/",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "iwakuni-55-field",
+      "name": "55フィールド（愛宕スポーツコンプレックス陸上競技場）",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.iwakuni.lg.jp/soshiki/19/28779.html",
+        "discoveryUrl": "https://www.city.iwakuni.lg.jp/site/atago/27490.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.iwakuni.lg.jp/site/atago/27490.html",
+        "https://www.city.iwakuni.lg.jp/soshiki/19/28779.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "b-food-science-1969-chita-stadium",
+      "name": "Bフードサイエンス1969知多スタジアム",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "calendar_html",
+        "url": "https://www.city.chita.lg.jp/docs/2023092800011/",
+        "discoveryUrl": "https://www.city.chita.lg.jp/docs/2023092800011/",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.chita.lg.jp/docs/2023092800011/",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "aichi-ichinomiya-general-athletic-stadium",
+      "name": "愛知県一宮総合運動場陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "reservation_system",
+        "url": "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+        "discoveryUrl": "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+        "https://itinomiya.sports.coocan.jp/rikutebiki.pdf",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "paloma-mizuho-north-athletic-stadium",
+      "name": "パロマ瑞穂北陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "calendar_html",
+        "url": "https://mizuho-loop.jp/equipment/equipment02/",
+        "discoveryUrl": "https://mizuho-loop.jp/equipment/equipment02/",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://mizuho-loop.jp/equipment/equipment02/",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "okaken-athlete-field",
+      "name": "OKAKENアスリートフィールド（豊川市陸上競技場）",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "discoveryUrl": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "spore-kasugai-athletic-stadium",
+      "name": "スポーレ春日井（朝宮公園陸上競技場）",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.spofure-kasugai.or.jp/sports/asamiya/charge/",
+        "discoveryUrl": "https://www.city.kasugai.lg.jp/bunka/sports/asamiya/index.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.kasugai.lg.jp/bunka/sports/asamiya/index.html",
+        "https://www.spofure-kasugai.or.jp/sports/asamiya/charge/",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "toyota-city-sports-park-athletic-stadium",
+      "name": "豊田市運動公園陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "reservation_system",
+        "url": "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+        "discoveryUrl": "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "小人50円"
+      ],
+      "sources": [
+        "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "mihama-sports-park-athletic-stadium",
+      "name": "美浜町運動公園陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "weekly_notice",
+        "url": "https://mihama-sportspark.aichi.jp/",
+        "discoveryUrl": "https://mihama-sportspark.aichi.jp/",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://mihama-sportspark.aichi.jp/",
+        "https://mihama-sportspark.aichi.jp/news/%E3%80%90%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%80%91%E3%81%AE%E3%81%94%E6%A1%88%E5%86%85/",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "gamagori-park-ground-athletic-stadium",
+      "name": "蒲郡市公園グラウンド陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+        "discoveryUrl": "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "anjo-athletic-stadium",
+      "name": "安城市陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "pdf",
+        "url": "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html",
+        "discoveryUrl": "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "2026年JAAF一覧では公認有効期限を経過しているため非公認として扱う"
+      ],
+      "sources": [
+        "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html"
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "heiwadai-athletic-stadium",
+      "name": "平和台陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "structured_html",
+        "url": "https://www.midorimachi.jp/maiduru/guides/",
+        "discoveryUrl": "https://www.midorimachi.jp/maiduru/guides/",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.midorimachi.jp/maiduru/guides/",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "ogori-city-athletic-stadium",
+      "name": "小郡市陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "reservation_system",
+        "url": "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+        "discoveryUrl": "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "kaho-athletic-stadium",
+      "name": "嘉穂総合運動公園嘉穂陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.kama.lg.jp/uploaded/attachment/5237.pdf",
+        "discoveryUrl": "https://www.city.kama.lg.jp/site/sport-shisetsu/13373.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.kama.lg.jp/site/sport-shisetsu/13373.html",
+        "https://www.city.kama.lg.jp/uploaded/attachment/5237.pdf",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "kobe-sports-park-auxiliary-stadium",
+      "name": "神戸総合運動公園補助競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "weekly_notice",
+        "url": "https://shisetsu.mizuno.jp/m-7303",
+        "discoveryUrl": "https://www.kobe-park.or.jp/sougou/outline/",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "主競技場ではなく北側の補助競技場"
+      ],
+      "sources": [
+        "https://www.kobe-park.or.jp/sougou/outline/",
+        "https://shisetsu.mizuno.jp/m-7303/guide",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "ako-jonan-green-athletic-stadium",
+      "name": "赤穂城南緑地陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+        "discoveryUrl": "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "学生は70円"
+      ],
+      "sources": [
+        "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "toyooka-general-sports-center-athletic-stadium",
+      "name": "豊岡総合スポーツセンター陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": false,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "discoveryUrl": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "学生は100円"
+      ],
+      "sources": [
+        "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "hanazono-central-park-trial-stadium",
+      "name": "花園中央公園多目的球技広場（トライスタジアム）",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "pdf",
+        "url": "https://hanazono-centralparks-hos.com/",
+        "discoveryUrl": "https://www.city.higashiosaka.lg.jp/0000007053.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [],
+      "sources": [
+        "https://www.city.higashiosaka.lg.jp/0000007053.html",
+        "https://hanazono-centralparks-hos.com/",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "chiba-general-sports-center-second-track",
+      "name": "千葉県総合スポーツセンター第2陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html",
+        "discoveryUrl": "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "主競技場とは別施設。個人共同利用は第2競技場トラックで実施"
+      ],
+      "sources": [
+        "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html",
+        "https://www.cue-net.or.jp/kouen/sportscenter/riyou/index.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
+    },
+    {
+      "trackId": "kumagaya-sports-culture-park-auxiliary-track",
+      "name": "熊谷スポーツ文化公園補助陸上競技場",
+      "availabilityInformationExistsOnOfficialWeb": true,
+      "availabilitySource": {
+        "type": "phone_only",
+        "url": "https://parks.or.jp/kumagaya/guide/001/001816.html",
+        "discoveryUrl": "https://parks.or.jp/kumagaya/guide/001/001816.html",
+        "granularity": "facility_day",
+        "updateFrequency": "unknown",
+        "updateNote": "公開前に公式情報の意味を確認済み。日付別自動判定は未実装",
+        "urlStability": "stable_landing_page"
+      },
+      "automation": {
+        "feasibility": "difficult",
+        "reason": "専用利用と個人利用の意味を施設別に判定するcollectorが未実装",
+        "implementation": {
+          "status": "research_only"
+        }
+      },
+      "semantics": {
+        "canInferAvailable": false,
+        "coverage": "research_only",
+        "rule": "公式ページまたは施設へ当日の個人利用可否を確認",
+        "absenceMeaning": "予定記載がないことだけではavailableと推測しない"
+      },
+      "specialCases": [
+        "主競技場とは別施設。県外一般は320円"
+      ],
+      "sources": [
+        "https://parks.or.jp/kumagaya/guide/001/001816.html",
+        "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406="
+      ],
+      "verifiedAt": "2026-08-28"
     }
   ]
 }

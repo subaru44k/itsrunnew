@@ -5,6 +5,7 @@ const appRoot = process.cwd();
 const normalizedPath = resolve(appRoot, 'src/data/tracks.json');
 const osmPath = resolve(appRoot, '../data/osm/tracks.json');
 const expansionOsmPath = resolve(appRoot, '../data/osm/expansion-candidates.json');
+const coverageFollowupOsmPath = resolve(appRoot, '../data/osm/coverage-followup-2026-08.json');
 const availabilityPath = resolve(appRoot, 'src/data/availability.json');
 const availabilityRangePath = resolve(appRoot, 'src/data/availability');
 const availabilityResearchPath = resolve(appRoot, '../research/availability/availability-sources.json');
@@ -12,6 +13,7 @@ const sourceAuditPath = resolve(appRoot, '../research/track-expansion/track-sour
 const tracks = JSON.parse(await readFile(normalizedPath, 'utf8'));
 const osm = JSON.parse(await readFile(osmPath, 'utf8'));
 const expansionOsm = JSON.parse(await readFile(expansionOsmPath, 'utf8'));
+const coverageFollowupOsm = JSON.parse(await readFile(coverageFollowupOsmPath, 'utf8'));
 const availability = JSON.parse(await readFile(availabilityPath, 'utf8'));
 const availabilityManifest = JSON.parse(await readFile(resolve(availabilityRangePath, 'manifest.json'), 'utf8'));
 const availabilityResearch = JSON.parse(await readFile(availabilityResearchPath, 'utf8'));
@@ -73,7 +75,7 @@ const excludedByTags = candidates.filter(element => {
 });
 const runningTagged = candidates.filter(element => /running|athletics/.test(element.tags?.sport ?? '') || element.tags?.athletics === 'running');
 const adoptedOsmIds = new Set(tracks.flatMap(track => track.externalIds?.osm ?? []));
-const rawIds = new Set([...osm.elements, ...expansionOsm.elements].map(element => `${element.type}/${element.id}`));
+const rawIds = new Set([...osm.elements, ...expansionOsm.elements, ...coverageFollowupOsm.elements].map(element => `${element.type}/${element.id}`));
 for (const id of adoptedOsmIds) if (!rawIds.has(id)) errors.push(`${id}: normalized OSM ID is absent from raw data`);
 
 const availabilityIds = new Set(availability.facilities.map(item => item.trackId));
@@ -95,5 +97,5 @@ if (errors.length) {
   console.error(errors.join('\n'));
   process.exitCode = 1;
 } else {
-  console.log(`Track data valid: ${tracks.length} facilities; ${candidates.length} original raw OSM objects; ${expansionOsm.elements.length} selected expansion objects; ${runningTagged.length} running/athletics-tagged; ${excludedByTags.length} explicitly excluded horse/cycling/private objects; ${adoptedOsmIds.size} adopted OSM objects.`);
+  console.log(`Track data valid: ${tracks.length} facilities; ${candidates.length} original raw OSM objects; ${expansionOsm.elements.length} selected expansion objects; ${coverageFollowupOsm.elements.length} coverage-followup objects; ${runningTagged.length} running/athletics-tagged; ${excludedByTags.length} explicitly excluded horse/cycling/private objects; ${adoptedOsmIds.size} adopted OSM objects.`);
 }

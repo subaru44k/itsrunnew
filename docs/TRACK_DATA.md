@@ -21,7 +21,7 @@ Track Searchの中心価値は、施設情報を網羅的に転載すること�
 ```text
 JAAF公開一覧（候補発見・公認種別） ─────────┐
 自治体・施設公式サイト（事実確認） ─────────┼─> src/data/tracks.json ─> /tracks
-data/osm/{tracks,expansion-candidates}.json（候補）┘
+data/osm/{tracks,expansion-candidates,coverage-followup-2026-08}.json（候補）┘
 ```
 
 JAAF一覧は転載元データとしてではなく、公認施設候補の発見と公認種別の確認にだけ使います。個人利用、料金、時間、スパイク等の可変情報は自治体・施設公式ページを根拠にし、確認できない値は `null` にします。OSM Overpass JSONは研究用raw dataであり、Webアプリは直接読みません。
@@ -30,11 +30,14 @@ JAAF一覧は転載元データとしてではなく、公認施設候補の発�
 
 - raw OSM: `../data/osm/tracks.json`（初期Overpass取得）
 - 拡張候補evidence: `../data/osm/expansion-candidates.json`（広域Overpass/Nominatimから選別したobject）
+- coverage gap再監査evidence: `../data/osm/coverage-followup-2026-08.json`
 - 公開用normalized dataset: `src/data/tracks.json`
 - 型・距離・Directions URL: `src/model/tracks.ts`
 - raw/normalized検証: `scripts/validate-tracks.mjs`
+- batch候補台帳の件数・採否検証: `scripts/validate-track-batches.mjs`
 - 拡張coverage report: `../research/track-expansion/dataset-expansion-report.md`
 - 施設別source監査台帳: `../research/track-expansion/track-source-audit.json`
+- 完了済みbatchの未記録候補: `../research/track-expansion/coverage-gap-followups.json`
 
 ## schema
 
@@ -50,13 +53,17 @@ JAAF一覧は転載元データとしてではなく、公認施設候補の発�
 2. 近接するway/relation、補助走路等を施設単位にclusterし、既存のJAAF候補と重複確認する。
 3. 自治体または施設公式サイトで名称、住所、仕様、個人利用条件を確認する。確認不能値は推測しない。
 4. `src/data/tracks.json` を更新し、すべての根拠URLと当日の `verifiedAt` を残す。
-5. `npm run validate:tracks`、`npm test`、`npm run build`、`npm run lint`、起動済みpreviewに対する `npm run test:smoke` を実行する。
+5. `npm run validate:track-batches`、`npm run validate:tracks`、`npm test`、`npm run build`、`npm run lint`、起動済みpreviewに対する `npm run test:smoke` を実行する。
 
 ## MVP調査範囲と品質上の制限
 
-2026-08-28時点で109施設を掲載しています。内訳は東京26、埼玉11、神奈川15、千葉17、大阪7、兵庫7、京都6、広島5、山口5、愛知5、福岡5です。JAAF公認確認済み85、非公認確認済み14、公認状態unknown 10です。個人利用は105施設で公式根拠を確認し、1施設は `temporarily-unavailable`、主競技場が専用利用のみの1施設は `unavailable`、根拠を確定できない2施設は `unknown` としています。日ごとの開放を保証する意味ではありません。
+2026-08-28時点で133施設を掲載しています。内訳は東京26、埼玉12、神奈川16、千葉18、大阪8、兵庫10、京都6、広島9、山口6、愛知14、福岡8です。JAAF公認確認済み107、非公認確認済み16、公認状態unknown 10です。個人利用は128施設で公式根拠を確認し、1施設は `temporarily-unavailable`、主競技場が専用利用のみの1施設は `unavailable`、根拠を確定できない3施設は `unknown` としています。日ごとの開放を保証する意味ではありません。
 
-103施設が400m、96施設が全天候です。非公認でも実用的な公園track、土track、250m・300m trackを含めました。学校等で一般利用根拠を確認できない候補は掲載していません。料金は代表枠だけを記す場合があり、spike可否は公式根拠を確認できた値だけを表示するため、多くの施設でunknownです。33施設時点の詳細集計は [拡張レポート](../research/track-expansion/dataset-expansion-report.md)、51候補の追加履歴は [Phase 2レポート](../research/track-expansion/phase2-expansion-report.md)、遡及監査と補正は [監査レポート](../research/track-expansion/current-51-audit.md)、関東19施設と保留判断は [関東網羅性監査report](../research/track-expansion/batches/2026-08-kanto-completeness-audit-report.md)、関西20施設と保留・除外判断は [関西batch report](../research/track-expansion/batches/2026-08-kansai-public-tracks-report.md)、中国・愛知・福岡20施設は [Step 3 batch report](../research/track-expansion/batches/2026-08-chugoku-aichi-fukuoka-public-tracks-report.md) にあります。
+126施設が400m、119施設が全天候です。非公認でも実用的な公園track、土track、250m・300m trackを含めました。学校等で一般利用根拠を確認できない候補は掲載していません。料金は代表枠だけを記す場合があり、spike可否は公式根拠を確認できた値だけを表示するため、多くの施設でunknownです。33施設時点の詳細集計は [拡張レポート](../research/track-expansion/dataset-expansion-report.md)、51候補の追加履歴は [Phase 2レポート](../research/track-expansion/phase2-expansion-report.md)、遡及監査と補正は [監査レポート](../research/track-expansion/current-51-audit.md)、関東19施設と保留判断は [関東網羅性監査report](../research/track-expansion/batches/2026-08-kanto-completeness-audit-report.md)、関西20施設と保留・除外判断は [関西batch report](../research/track-expansion/batches/2026-08-kansai-public-tracks-report.md)、中国・愛知・福岡20施設は [Step 3 batch report](../research/track-expansion/batches/2026-08-chugoku-aichi-fukuoka-public-tracks-report.md)、追加漏れの横断再監査と24施設の追補は [coverage gap follow-up report](../research/track-expansion/batches/2026-08-coverage-gap-followup-report.md) にあります。
+
+完了済みbatchで採否記録がない未掲載施設は、公開候補と混同せず [coverage gap follow-up台帳](../research/track-expansion/coverage-gap-followups.md) に記録します。正式batchで再調査し、解決後は追加したtrack IDまたは除外理由まで同じ台帳へ記録します。
+
+1 batchあたり10〜20施設という目安は、公式確認とreviewを小さく保つための公開目標であり、候補発見または候補台帳の上限ではありません。有限のJAAF・自治体一覧は全rowを消し込み、OSMはfacility cluster化後の全候補へ `existing | include | hold | exclude | defer` を記録します。公開目標の外にある有力候補は `defer` として次batchへ送り、無記録で省略しません。
 
 候補抽出とvalidatorはautomatic寄りですが、同一施設へのcluster、公式page発見、個人利用条件・料金・spikeの意味確認はsemi-automaticからmanualです。全国展開時の最大のbottleneckは、公式情報の所在と「空き・貸切なし・一般開放」の意味を人が確認する工程です。
 

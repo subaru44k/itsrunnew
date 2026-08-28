@@ -56,7 +56,10 @@ try {
     if (consentOverlapsHero) throw new Error('Analytics consent overlaps the Track Finder hero');
     if (requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length !== analyticsRequestsBeforeConsent) throw new Error('GA4 loaded before analytics consent');
     await page.getByRole('button', { name: '同意しない', exact: true }).click();
-    await page.locator('#track-map .track-marker').first().waitFor();
+    await page.locator('#track-map .track-marker, #track-map .track-cluster').first().waitFor();
+    const defaultMapZoom = Number(await page.locator('#track-map').getAttribute('data-zoom'));
+    const expectedDefaultZoom = viewport.width < 800 ? 5 : 7;
+    if (defaultMapZoom !== expectedDefaultZoom) throw new Error(`Default map zoom at ${viewport.width}px is ${defaultMapZoom}, expected ${expectedDefaultZoom}`);
     await page.getByText(`© 2019–${currentYear} いつラン`, { exact: true }).waitFor();
     if (viewport.width < 800) {
       const facilityNameWhiteSpace = await page.locator('.facility-main strong').first().evaluate(element => getComputedStyle(element).whiteSpace);
@@ -96,6 +99,10 @@ try {
       await page.getByText(heading, { exact: true }).waitFor();
     }
 
+    await page.goto(`${baseUrl}/?date=${today}&lat=35.68124&lng=139.76712`, { waitUntil: 'domcontentloaded' });
+    await page.locator('#track-map .search-origin-dot').waitFor();
+    await page.waitForFunction(() => document.querySelector('#track-map')?.getAttribute('data-zoom') === '13');
+
     const tracksResponse = await page.goto(`${baseUrl}/tracks`, { waitUntil: 'domcontentloaded' });
     if (expectEdgeRouting && !tracksResponse?.request().redirectedFrom()) throw new Error('/tracks did not return an edge redirect');
     await waitForSelectedDate(page, today);
@@ -106,7 +113,12 @@ try {
     await page.locator('#track-map .track-cluster, #track-map .track-marker').first().waitFor();
     const mapFacilityCount = () => page.locator('#track-map').evaluate(element => [...element.querySelectorAll('.track-marker')].length + [...element.querySelectorAll('.track-cluster')].reduce((sum, cluster) => sum + Number(cluster.textContent), 0));
     if (await mapFacilityCount() !== todayCounts.candidates) throw new Error('Clustered map did not represent every candidate facility');
-    await page.locator('#track-map .track-marker').first().click();
+    for (let attempt = 0; attempt < 4 && await page.locator('#track-map .track-marker').count() === 0; attempt += 1) {
+      const previousZoom = Number(await page.locator('#track-map').getAttribute('data-zoom'));
+      await page.locator('#track-map .track-cluster-shell').first().dispatchEvent('click');
+      await page.waitForFunction(zoom => Number(document.querySelector('#track-map')?.getAttribute('data-zoom')) > zoom, previousZoom);
+    }
+    await page.locator('#track-map .track-marker-shell').first().dispatchEvent('click');
     await page.locator('.detail-card').waitFor({ state: 'visible' });
     await page.waitForFunction(() => {
       const top = document.querySelector('.detail-card')?.getBoundingClientRect().top;
@@ -163,8 +175,10 @@ try {
     await page.getByText('選択した地点から近い順に並べました。', { exact: true }).waitFor();
     await page.getByRole('button', { name: '基準地点を解除', exact: true }).click();
     await page.waitForFunction(() => !new URL(location.href).searchParams.has('lat') && !new URL(location.href).searchParams.has('lng'));
+    const zoomBeforeLocationFailure = await page.locator('#track-map').getAttribute('data-zoom');
     await page.getByRole('button', { name: '現在地を使う', exact: true }).click();
     await page.getByText(/現在地の利用が許可されませんでした|現在地を取得できません/).waitFor();
+    if (await page.locator('#track-map').getAttribute('data-zoom') !== zoomBeforeLocationFailure) throw new Error('Location failure unexpectedly reset the map view');
     for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
     while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
 

@@ -57,7 +57,7 @@
           </v-btn>
           <span v-if="distanceOrigin">{{ referencePointLabel }}</span>
         </div>
-        <div ref="mapElement" id="track-map" class="track-map" />
+        <div ref="mapElement" id="track-map" class="track-map" :data-zoom="mapZoom ?? undefined" />
       </section>
 
       <aside v-if="selectedTrack" ref="detailElement" class="detail-card" aria-live="polite">
@@ -181,7 +181,6 @@ import {
 } from '../model/availability-range';
 import { trackProductEvent, type ProductEventName, type ProductEventParameters } from '../services/analytics';
 
-const SHAKUJII_PARK = { latitude: 35.7433, longitude: 139.5969 };
 const { locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -208,6 +207,7 @@ const expandedPrefectures = ref<string[]>(['東京都']);
 const prefectureListLimits = ref<Record<string, number>>({ 東京都: 12 });
 const mapElement = ref<HTMLElement | null>(null);
 const detailElement = ref<HTMLElement | null>(null);
+const mapZoom = ref<number | null>(null);
 let map: LeafletMap | null = null;
 let markerLayer: LayerGroup | null = null;
 let locationMarker: Marker | null = null;
@@ -285,20 +285,27 @@ watch(() => route.query.date, async value => {
 
 onMounted(() => {
   if (!mapElement.value) return;
-  map = L.map(mapElement.value, { zoomControl: true }).setView([SHAKUJII_PARK.latitude, SHAKUJII_PARK.longitude], 12);
+  map = L.map(mapElement.value, { zoomControl: true });
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     className: 'muted-map-tiles',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
+  fitDefaultTrackBounds();
   map.on('click', event => {
     if (!selectingPoint.value) return;
     setReferencePoint({ latitude: event.latlng.lat, longitude: event.latlng.lng }, 'map', true);
   });
-  map.on('zoomend', renderMarkers);
+  map.on('zoomend', () => {
+    mapZoom.value = map?.getZoom() ?? null;
+    renderMarkers();
+  });
   renderMarkers();
-  if (initialCoordinates) setReferencePoint(initialCoordinates, 'map', false);
+  if (initialCoordinates) {
+    setReferencePoint(initialCoordinates, 'map', false);
+    map.setView([initialCoordinates.latitude, initialCoordinates.longitude], 13);
+  }
   const focused = trackById(route.query.track);
   if (focused) void selectTrack(focused, 'map', false, false);
   nextTick(() => map?.invalidateSize());
@@ -341,6 +348,16 @@ function renderMarkers() {
     else addTrackMarker(group[0]);
   }
   if (selected && visibleTracks.value.some(track => track.id === selected.id)) addTrackMarker(selected, true);
+}
+
+function fitDefaultTrackBounds() {
+  if (!map || !tracks.length) return;
+  const padding = window.innerWidth < 800 ? 20 : 40;
+  map.fitBounds(L.latLngBounds(tracks.map(track => [track.location.latitude, track.location.longitude])), {
+    padding: [padding, padding],
+    maxZoom: 7,
+  });
+  mapZoom.value = map.getZoom();
 }
 
 function addTrackMarker(track: TrackFacility, selected = false) {
@@ -423,7 +440,7 @@ function requestLocation() {
   trackSearchEvent('use_location', { action: 'request' });
   if (!navigator.geolocation) {
     trackSearchEvent('use_location_result', { result: 'unsupported' });
-    showLocationError(isEnglish.value ? 'Geolocation is unavailable. Showing Shakujii Park instead.' : 'このブラウザでは現在地を取得できません。石神井公園周辺を表示します。');
+    showLocationError(isEnglish.value ? 'Geolocation is unavailable. You can choose a reference point on the map.' : 'このブラウザでは現在地を取得できません。地図から基準地点を選択できます。');
     return;
   }
   locating.value = true;
@@ -446,9 +463,9 @@ function requestLocation() {
   }, error => {
     locating.value = false;
     const messages: Record<number, string> = {
-      1: isEnglish.value ? 'Location permission was denied. The map remains usable around Shakujii Park.' : '現在地の利用が許可されませんでした。石神井公園周辺の地図はそのまま利用できます。',
-      2: isEnglish.value ? 'Your location is unavailable. Showing Shakujii Park instead.' : '現在地を取得できません。石神井公園周辺を表示します。',
-      3: isEnglish.value ? 'Location request timed out. Showing Shakujii Park instead.' : '現在地の取得がタイムアウトしました。石神井公園周辺を表示します。',
+      1: isEnglish.value ? 'Location permission was denied. You can choose a reference point on the map.' : '現在地の利用が許可されませんでした。地図から基準地点を選択できます。',
+      2: isEnglish.value ? 'Your location is unavailable. You can choose a reference point on the map.' : '現在地を取得できません。地図から基準地点を選択できます。',
+      3: isEnglish.value ? 'Location request timed out. You can choose a reference point on the map.' : '現在地の取得がタイムアウトしました。地図から基準地点を選択できます。',
     };
     showLocationError(messages[error.code] ?? messages[2]);
     trackSearchEvent('use_location_result', { result: error.code === 1 ? 'denied' : error.code === 3 ? 'timeout' : 'unavailable' });
@@ -536,7 +553,6 @@ function clearReferencePoint() {
 function showLocationError(message: string) {
   locationError.value = true;
   locationMessage.value = message;
-  map?.setView([SHAKUJII_PARK.latitude, SHAKUJII_PARK.longitude], 12);
 }
 
 function localizedName(track: TrackFacility) { return isEnglish.value ? track.name.en : track.name.ja; }

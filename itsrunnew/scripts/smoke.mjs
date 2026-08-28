@@ -33,6 +33,7 @@ const tomorrow = availabilityManifest.dates[Math.min(todayIndex + 1, availabilit
 const saturday = availabilityManifest.dates.find(date => new Date(`${date}T12:00:00+09:00`).getUTCDay() === 6);
 const todayCounts = statusCounts(datasetForDate(today));
 const tomorrowCounts = statusCounts(datasetForDate(tomorrow));
+const currentYear = new Date().getFullYear();
 const waitForSelectedDate = (page, date) => page.waitForFunction(expected => new URL(location.href).searchParams.get('date') === expected, date);
 
 try {
@@ -47,10 +48,20 @@ try {
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     const previewBuild = (await page.locator('meta[name="robots"]').getAttribute('content')) === 'noindex,nofollow';
     await page.getByRole('dialog', { name: 'アクセス解析の設定' }).waitFor();
+    const consentOverlapsHero = await page.evaluate(() => {
+      const consent = document.querySelector('.privacy-consent')?.getBoundingClientRect();
+      const hero = document.querySelector('.track-hero')?.getBoundingClientRect();
+      return Boolean(consent && hero && consent.bottom > hero.top);
+    });
+    if (consentOverlapsHero) throw new Error('Analytics consent overlaps the Track Finder hero');
     if (requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length !== analyticsRequestsBeforeConsent) throw new Error('GA4 loaded before analytics consent');
     await page.getByRole('button', { name: '同意しない', exact: true }).click();
     await page.locator('#track-map .track-marker').first().waitFor();
-    await page.getByText('©2019 — いつラン', { exact: true }).waitFor();
+    await page.getByText(`© 2019–${currentYear} いつラン`, { exact: true }).waitFor();
+    if (viewport.width < 800) {
+      const facilityNameWhiteSpace = await page.locator('.facility-main strong').first().evaluate(element => getComputedStyle(element).whiteSpace);
+      if (facilityNameWhiteSpace === 'nowrap') throw new Error('Mobile facility names are still forced onto one line');
+    }
     if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== 'https://itsrun.info/') throw new Error('Home canonical URL is incorrect');
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

@@ -1,13 +1,15 @@
 <template>
   <section v-if="showPrompt" class="privacy-consent" role="dialog" aria-labelledby="privacy-consent-title" aria-live="polite">
-    <div>
-      <strong id="privacy-consent-title">{{ copy.title }}</strong>
-      <p>{{ copy.message }} <router-link :to="privacyPath">{{ copy.details }}</router-link></p>
-    </div>
-    <div class="privacy-consent-actions">
-      <v-btn color="indigo" variant="flat" @click="choose('granted')">{{ copy.accept }}</v-btn>
-      <v-btn color="indigo" variant="outlined" @click="choose('denied')">{{ copy.decline }}</v-btn>
-      <v-btn v-if="analyticsConsent !== null" variant="text" @click="closePrivacySettings">{{ copy.close }}</v-btn>
+    <div class="privacy-consent-inner">
+      <div>
+        <strong id="privacy-consent-title">{{ copy.title }}</strong>
+        <p>{{ copy.message }} <router-link :to="privacyPath">{{ copy.details }}</router-link></p>
+      </div>
+      <div class="privacy-consent-actions">
+        <v-btn color="indigo" variant="flat" @click="choose('granted')">{{ copy.accept }}</v-btn>
+        <v-btn color="indigo" variant="outlined" @click="choose('denied')">{{ copy.decline }}</v-btn>
+        <v-btn v-if="analyticsConsent !== null" variant="text" @click="closePrivacySettings">{{ copy.close }}</v-btn>
+      </div>
     </div>
   </section>
 </template>
@@ -37,11 +39,12 @@ function choose(value: 'granted' | 'denied') {
 </script>
 
 <style scoped>
-.privacy-consent { position: fixed; right: 16px; bottom: 16px; z-index: 2000; display: flex; max-width: 680px; padding: 16px; align-items: center; gap: 16px; color: #212121; border: 1px solid #c5cae9; border-radius: 10px; background: white; box-shadow: 0 8px 30px rgba(20, 30, 70, .24); }
+.privacy-consent { width: 100%; color: #212121; border-bottom: 1px solid #c5cae9; background: #f7f8ff; box-shadow: 0 3px 12px rgba(20, 30, 70, .1); }
+.privacy-consent-inner { display: flex; width: min(100%, 1185px); padding: 12px 24px; margin-inline: auto; align-items: center; justify-content: space-between; gap: 16px; }
 .privacy-consent p { margin: 4px 0 0; }
 .privacy-consent-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 699px) {
-  .privacy-consent { right: 8px; bottom: 8px; left: 8px; align-items: stretch; flex-direction: column; }
+  .privacy-consent-inner { padding: 12px 10px; align-items: stretch; flex-direction: column; }
   .privacy-consent-actions .v-btn { flex: 1 1 auto; min-height: 44px; }
 }
 </style>

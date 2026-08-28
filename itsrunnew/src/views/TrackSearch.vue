@@ -772,7 +772,12 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
   .native-date-field { width: 100%; }
   .track-layout, .track-layout.has-detail { grid-template-columns: 1fr; }
   .track-map { height: 52vh; min-height: 360px; }
-  .facility-row > button { grid-template-columns: auto minmax(0,1fr) auto; gap: 8px; }.facility-row .facility-distance { grid-column: 2; }.facility-row .map-action { grid-column: 3; grid-row: 1 / span 2; }.facility-row > a { min-width: 70px; padding-inline: 7px; }
+  .facility-row > button { grid-template-columns: minmax(0,1fr) auto; gap: 6px 8px; }
+  .facility-row .availability-badge { grid-column: 1 / -1; }
+  .facility-row .facility-main strong { display: -webkit-box; overflow: hidden; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .facility-row .facility-distance { grid-column: 1; }
+  .facility-row .map-action { grid-column: 2; grid-row: 2 / span 2; }
+  .facility-row > a { min-width: 70px; padding-inline: 7px; }
   .detail-card { padding: 16px; }
 }
 </style>

@@ -129,8 +129,9 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 - 東京都の競技場、神奈川県の競技場、ラップタイム、記録集へのメニュー。
 - サイト名と「トラックを探す」はTrack Searchホームへ、東京都メニューの「織田フィールド」は専用ページへ遷移する。
 - 日本語と英語を現在のパスを維持して切り替えるボタン。
+- 本文先頭に、初回だけ表示されて本文へ重ならないアクセス解析同意バナー。
 - `router-view`で描画される本文。
-- 要望送付先と著作権表示を含む、旧サイトと同じ2段構成のフッター。
+- 要望送付先と、2019年からブラウザの現在年までを示す著作権表示を含む2段構成のフッター。
 
 旧Vuetifyサイトとの見た目を維持するため、`src/styles.css`が文字サイズ、行間、段落余白、コンテナ幅、余白ユーティリティ、フッター寸法を補正しています。通常のVuetify 4既定値へ無条件に戻さないでください。
 
@@ -190,7 +191,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 ### 陸上トラック検索
 
-`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。tileは低彩度表示とし、zoom 12以下では近接markerをcluster化します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順、拒否・取得不能・timeout時は石神井公園中心の地図を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有できます。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。一覧とmap detailからstable IDの施設詳細へ移動でき、`TrackDetail.vue` は選択日availability、仕様、公式導線と近隣5施設を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離し、詳細ページの「地図でこの施設を見る」から地図中央・選択状態を復元します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
+`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。tileは低彩度表示とし、zoom 12以下では近接markerをcluster化します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順、拒否・取得不能・timeout時は石神井公園中心の地図を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有できます。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。スマートフォンでは施設名を最大2行で表示します。一覧とmap detailからstable IDの施設詳細へ移動でき、`TrackDetail.vue` は選択日availability、仕様、公式導線と近隣5施設を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離し、詳細ページの「地図でこの施設を見る」から地図中央・選択状態を復元します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
 
 Track Searchの中心価値は、指定日に近くで集中して走れる環境を見つけられることです。施設情報を公式サイトなしで完全に把握できることは目標にせず、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と公式確認導線を優先します。スパイク可否、料金、細かな条件は補助情報であり、網羅率の目標にしません。変化し得る条件を古い静的値で断定せず、確認不能ならunknownを保ちます。調査・更新時の具体的な優先順位は [`TRACK_DATA.md`](TRACK_DATA.md) を正本とします。
 
@@ -211,6 +212,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 `public/service-worker.js`は新しいoffline機能ではなく、旧Firebase/Vue CLI版が利用者のブラウザへ登録したservice workerとCache Storageを除去する移行専用tombstoneです。activate時に旧cacheを削除し、登録解除後に既存windowをnetworkから再読込します。content deployではこのファイルを`no-cache`で配備し、CloudFront invalidationにも明示的に含めます。移行期間中は削除しません。
 
 ### プライバシーとアクセス解析
+
+アクセス解析の選択肢は本文先頭のインラインバナーに配置し、地図やページ操作へ重ねません。
 
 `PrivacyConsent.vue`はアクセス解析だけの選択肢を初回に日本語・英語で表示し、同意状態をlocalStorageへ保存します。拒否してもサイト機能は変わらず、フッターから再設定できます。広告を再開したbuildでは、解析への同意・拒否のどちらかが選ばれた後にAdSenseタグを初期化するため、サイト独自の解析画面とGoogle CMPを同時に重ねません。広告の選択はGoogle CMPへ分離し、フッターの「プライバシーとCookieの設定」からGoogle公式のrevocation flowを開けます。Google CMP側の「analytics purposes」はサイト独自の解析同意と二重管理にしないためOFFを維持します。
 

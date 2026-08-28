@@ -47,6 +47,7 @@
     </v-app-bar>
 
     <v-main>
+      <PrivacyConsent />
       <router-view />
     </v-main>
 
@@ -62,9 +63,8 @@
           </button>
         </nav>
       </div>
-      <div class="footer-copyright">&copy;2019 — <strong>{{ t('title') }}</strong></div>
+      <div class="footer-copyright">&copy; 2019–{{ currentYear }} <strong>{{ t('title') }}</strong></div>
     </footer>
-    <PrivacyConsent />
   </v-app>
 </template>
 
@@ -80,6 +80,7 @@ const drawer = ref(false);
 const route = useRoute();
 const router = useRouter();
 const { t, locale } = useI18n();
+const currentYear = new Date().getFullYear();
 
 const menuGroups = computed(() => [
   { title: t('menu.tokyo'), items: [

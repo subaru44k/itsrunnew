@@ -1,0 +1,725 @@
+{
+  "schemaVersion": 1,
+  "athlete": {
+    "nameJa": "田中希実",
+    "nameEn": "Nozomi Tanaka",
+    "worldAthleticsId": "14632538"
+  },
+  "season": 2025,
+  "collectedAt": "2026-08-29",
+  "scope": "本人が実際に走った競技会を対象とし、予選・決勝、駅伝区間、ロード、オープン参加、ペースメーカーを別レコードとして収録する。エントリーのみ、練習、イベント出演は含めない。",
+  "confidenceDefinitions": {
+    "verified": "主催者、計時会社、競技団体、World Athleticsのいずれかによる結果を確認済み",
+    "corroborated": "大会の存在・出場と記録を複数の信頼できる情報で確認したが、本人を含む公式結果表は未発見"
+  },
+  "summary": {
+    "records": 32,
+    "competitionDates": 30,
+    "competitions": 24,
+    "verified": 30,
+    "corroborated": 2
+  },
+  "results": [
+    {
+      "id": "2025-01-12-national-womens-ekiden-leg9",
+      "date": "2025-01-12",
+      "competition": "皇后盃 第43回全国都道府県対抗女子駅伝競走大会",
+      "venue": "京都市",
+      "country": "JPN",
+      "discipline": "relay-road",
+      "event": "9区 10km",
+      "round": "leg 9",
+      "team": "兵庫",
+      "place": 6,
+      "placeType": "leg",
+      "mark": "32:28",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "全国都道府県対抗女子駅伝競走大会 記録速報サイト",
+          "url": "https://gold.jaic.org/jaic/member/okayama/2025/43womens-ekiden/results.pdf"
+        }
+      ],
+      "notesJa": ["兵庫は総合10位（2:19:16）。placeはチーム総合順位ではなく区間順位。"]
+    },
+    {
+      "id": "2025-01-31-terrier-classic-1000m",
+      "date": "2025-01-31",
+      "competition": "Boston University John Thomas Terrier Classic",
+      "venue": "Boston, MA",
+      "country": "USA",
+      "discipline": "short-track",
+      "event": "1000m",
+      "round": "final",
+      "place": 1,
+      "mark": "2:39.06",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "Lancer Timing Services",
+          "url": "https://lancertiming.com/results/winter25/terrier-w.pdf"
+        }
+      ]
+    },
+    {
+      "id": "2025-02-02-new-balance-indoor-grand-prix-mile",
+      "date": "2025-02-02",
+      "competition": "New Balance Indoor Grand Prix",
+      "venue": "Boston, MA",
+      "country": "USA",
+      "discipline": "short-track",
+      "event": "Mile",
+      "round": "final",
+      "place": 6,
+      "mark": "4:28.54",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "PrimeTime Timing",
+          "url": "https://crm.pttiming.com/uploads/projects/2210/b3cc379781196deeaefa4076e514fa62.pdf"
+        }
+      ],
+      "notesJa": ["同じ結果表に1500m通過4:09.80があるが、独立した競技結果としては数えていない。"]
+    },
+    {
+      "id": "2025-02-08-millrose-games-3000m",
+      "date": "2025-02-08",
+      "competition": "117th Millrose Games",
+      "venue": "New York, NY",
+      "country": "USA",
+      "discipline": "short-track",
+      "event": "3000m",
+      "round": "final",
+      "place": 6,
+      "mark": "8:33.52",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-athlete-profile",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/athletes/japan/nozomi-tanaka-14632538"
+        }
+      ]
+    },
+    {
+      "id": "2025-02-15-david-hemery-valentine-5000m",
+      "date": "2025-02-15",
+      "competition": "Boston University David Hemery Valentine Invitational",
+      "venue": "Boston, MA",
+      "country": "USA",
+      "discipline": "short-track",
+      "event": "5000m",
+      "round": "final",
+      "place": 1,
+      "mark": "14:51.26",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "TFRRS",
+          "url": "https://tf.tfrrs.org/results/88419/5393802/Boston_University_David_Hemery_Valentine_Invitational/5000-Meters"
+        }
+      ]
+    },
+    {
+      "id": "2025-03-22-world-indoor-championships-3000m-final",
+      "date": "2025-03-22",
+      "competition": "World Athletics Indoor Championships Nanjing 25",
+      "venue": "Nanjing",
+      "country": "CHN",
+      "discipline": "short-track",
+      "event": "3000m",
+      "round": "final",
+      "place": 10,
+      "mark": "8:47.93",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/results/world-athletics-indoor-championships/2025/world-athletics-indoor-championships-7136586/women/3000-metres/final/result"
+        }
+      ]
+    },
+    {
+      "id": "2025-04-04-grand-slam-track-kingston-3000m",
+      "date": "2025-04-04",
+      "competition": "Grand Slam Track Kingston",
+      "venue": "Kingston",
+      "country": "JAM",
+      "discipline": "track",
+      "event": "3000m",
+      "round": "final",
+      "place": 7,
+      "mark": "8:49.10",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7223273"
+        }
+      ]
+    },
+    {
+      "id": "2025-04-06-grand-slam-track-kingston-5000m",
+      "date": "2025-04-06",
+      "competition": "Grand Slam Track Kingston",
+      "venue": "Kingston",
+      "country": "JAM",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "final",
+      "place": 7,
+      "mark": "15:31.93",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7223273?day=3"
+        }
+      ]
+    },
+    {
+      "id": "2025-04-12-kanaguri-memorial-1500m",
+      "date": "2025-04-12",
+      "competition": "第33回金栗記念選抜陸上中長距離大会2025",
+      "venue": "熊本市",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "2組",
+      "place": 2,
+      "mark": "4:11.31",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "熊本陸上競技協会",
+          "url": "https://kumariku.com/info/wp-content/uploads/2025/03/Top8.pdf"
+        }
+      ]
+    },
+    {
+      "id": "2025-04-12-kanaguri-memorial-5000m-pacemaker",
+      "date": "2025-04-12",
+      "competition": "第33回金栗記念選抜陸上中長距離大会2025",
+      "venue": "熊本市",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "final",
+      "place": null,
+      "mark": null,
+      "role": "pacemaker",
+      "confidence": "corroborated",
+      "sources": [
+        {
+          "type": "report",
+          "publisher": "月陸Online",
+          "url": "https://www.rikujyokyogi.co.jp/archives/166594"
+        },
+        {
+          "type": "official-result-context",
+          "publisher": "熊本陸上競技協会",
+          "url": "https://kumariku.com/info/wp-content/uploads/2025/03/Top8.pdf"
+        }
+      ],
+      "notesJa": ["報道では4000mまでペースメーカーを担当。本人を完走者として載せる公式結果行はない。"]
+    },
+    {
+      "id": "2025-04-19-baa-invitational-mile",
+      "date": "2025-04-19",
+      "competition": "B.A.A. Invitational Mile",
+      "venue": "Boston, MA",
+      "country": "USA",
+      "discipline": "road",
+      "event": "Mile",
+      "round": "final",
+      "place": 6,
+      "mark": "4:45.63",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-media-sheet",
+          "publisher": "World Athletics",
+          "url": "https://assets.aws.worldathletics.org/document/689f47b8d42827a23cd203f2.pdf"
+        }
+      ]
+    },
+    {
+      "id": "2025-04-26-penn-relays-1500m",
+      "date": "2025-04-26",
+      "competition": "The Penn Relays",
+      "venue": "Philadelphia, PA",
+      "country": "USA",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "final",
+      "place": 3,
+      "mark": "4:05.44",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7219596?day=3"
+        }
+      ]
+    },
+    {
+      "id": "2025-05-02-grand-slam-track-miami-5000m",
+      "date": "2025-05-02",
+      "competition": "Grand Slam Track Miami",
+      "venue": "Miramar, FL",
+      "country": "USA",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "final",
+      "place": 7,
+      "mark": "15:06.78",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7220714?eventId=10229514&gender=W"
+        }
+      ]
+    },
+    {
+      "id": "2025-05-04-grand-slam-track-miami-3000m",
+      "date": "2025-05-04",
+      "competition": "Grand Slam Track Miami",
+      "venue": "Miramar, FL",
+      "country": "USA",
+      "discipline": "track",
+      "event": "3000m",
+      "round": "final",
+      "place": 8,
+      "mark": "8:44.51",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7220714"
+        }
+      ]
+    },
+    {
+      "id": "2025-05-18-seiko-golden-grand-prix-3000m-pacemaker",
+      "date": "2025-05-18",
+      "competition": "セイコーゴールデングランプリ陸上2025東京",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "3000m",
+      "round": "final",
+      "place": null,
+      "mark": "DNF",
+      "role": "pacemaker",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7216820/result"
+        },
+        {
+          "type": "role-confirmation",
+          "publisher": "月陸Online",
+          "url": "https://www.rikujyokyogi.co.jp/archives/170286"
+        }
+      ],
+      "notesJa": ["2000mまでペースメーカーを担当。公式結果上はDNF。"]
+    },
+    {
+      "id": "2025-05-18-seiko-golden-grand-prix-1500m",
+      "date": "2025-05-18",
+      "competition": "セイコーゴールデングランプリ陸上2025東京",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "final",
+      "place": 2,
+      "mark": "4:06.08",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7216820/result"
+        }
+      ]
+    },
+    {
+      "id": "2025-05-31-grand-slam-track-philadelphia-3000m",
+      "date": "2025-05-31",
+      "competition": "Grand Slam Track Philadelphia",
+      "venue": "Philadelphia, PA",
+      "country": "USA",
+      "discipline": "track",
+      "event": "3000m",
+      "round": "final",
+      "place": 7,
+      "mark": "8:51.64",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7220713"
+        }
+      ],
+      "notesJa": ["フィラデルフィア大会の長距離種目は1レース制で、同大会の5000m欠落ではない。"]
+    },
+    {
+      "id": "2025-06-06-golden-gala-1500m",
+      "date": "2025-06-06",
+      "competition": "Golden Gala Pietro Mennea",
+      "venue": "Roma",
+      "country": "ITA",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "final",
+      "place": 14,
+      "mark": "4:05.08",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "Omega Timing / Wanda Diamond League",
+          "url": "https://www.omegatiming.com/File/000205080101080101FFFFFFFFFFFF6D.pdf"
+        }
+      ]
+    },
+    {
+      "id": "2025-06-15-bauhaus-galan-3000m",
+      "date": "2025-06-15",
+      "competition": "BAUHAUS-galan",
+      "venue": "Stockholm",
+      "country": "SWE",
+      "discipline": "track",
+      "event": "3000m",
+      "round": "final",
+      "place": 11,
+      "mark": "8:50.18",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "Wanda Diamond League",
+          "url": "https://stockholm.diamondleague.com/wp-content/uploads/sites/9/2025/06/ResultsAndAnalysis.pdf"
+        }
+      ]
+    },
+    {
+      "id": "2025-07-04-japanese-championships-5000m-final",
+      "date": "2025-07-04",
+      "competition": "第109回日本陸上競技選手権大会",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "final",
+      "place": 1,
+      "mark": "14:59.02",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7224447?eventId=10229514"
+        }
+      ]
+    },
+    {
+      "id": "2025-07-05-japanese-championships-1500m-round1",
+      "date": "2025-07-05",
+      "competition": "第109回日本陸上競技選手権大会",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "round 1, heat 1",
+      "place": 1,
+      "mark": "4:06.69",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7224447?eventId=10229513"
+        }
+      ]
+    },
+    {
+      "id": "2025-07-06-japanese-championships-1500m-final",
+      "date": "2025-07-06",
+      "competition": "第109回日本陸上競技選手権大会",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "final",
+      "place": 1,
+      "mark": "4:04.16",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7224447?eventId=10229513"
+        }
+      ]
+    },
+    {
+      "id": "2025-07-12-mdc-gp-1500m",
+      "date": "2025-07-12",
+      "competition": "MDC GP",
+      "venue": "世田谷区",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "final",
+      "place": 1,
+      "mark": "4:05.95",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7223070?eventId=10229513"
+        }
+      ]
+    },
+    {
+      "id": "2025-07-19-london-athletics-meet-5000m",
+      "date": "2025-07-19",
+      "competition": "London Athletics Meet",
+      "venue": "London",
+      "country": "GBR",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "final",
+      "place": 7,
+      "mark": "14:34.10",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7203943?eventId=10229514"
+        }
+      ]
+    },
+    {
+      "id": "2025-08-16-silesia-diamond-league-3000m",
+      "date": "2025-08-16",
+      "competition": "Silesia Kamila Skolimowska Memorial",
+      "venue": "Chorzów",
+      "country": "POL",
+      "discipline": "track",
+      "event": "3000m",
+      "round": "final",
+      "place": 13,
+      "mark": "8:45.80",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7199684?eventId=10229519&gender=W"
+        }
+      ]
+    },
+    {
+      "id": "2025-08-22-memorial-van-damme-5000m",
+      "date": "2025-08-22",
+      "competition": "Memorial van Damme",
+      "venue": "Bruxelles",
+      "country": "BEL",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "final",
+      "place": 9,
+      "mark": "14:37.19",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competitions/diamond-league/calendar-results/7199685/result"
+        }
+      ]
+    },
+    {
+      "id": "2025-09-13-world-championships-1500m-round1",
+      "date": "2025-09-13",
+      "competition": "World Athletics Championships Tokyo 25",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "1500m",
+      "round": "round 1, heat 1",
+      "place": 10,
+      "mark": "4:07.34",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/en/competitions/world-athletics-championships/world-athletics-championships-tokyo-2025-7190593/results/women/1500-metres/round-1/result"
+        }
+      ]
+    },
+    {
+      "id": "2025-09-18-world-championships-5000m-round1",
+      "date": "2025-09-18",
+      "competition": "World Athletics Championships Tokyo 25",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "round 1, heat 1",
+      "place": 5,
+      "mark": "14:47.14",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/results/world-athletics-championships/2025/world-athletics-championships-tokyo-2025-7190593/women/5000-metres/round-1/result"
+        }
+      ]
+    },
+    {
+      "id": "2025-09-20-world-championships-5000m-final",
+      "date": "2025-09-20",
+      "competition": "World Athletics Championships Tokyo 25",
+      "venue": "東京都",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "5000m",
+      "round": "final",
+      "place": 12,
+      "mark": "15:07.34",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competitions/world-athletics-championships/iaaf-world-championships-jpn-2025-7190593/results/women/5000-metres/final/result"
+        }
+      ]
+    },
+    {
+      "id": "2025-12-06-edion-distance-challenge-10000m",
+      "date": "2025-12-06",
+      "competition": "EDION Distance Challenge in Osaka 2025",
+      "venue": "大阪市",
+      "country": "JPN",
+      "discipline": "track",
+      "event": "10000m",
+      "round": "final",
+      "place": 3,
+      "mark": "30:54.40",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7234045"
+        }
+      ]
+    },
+    {
+      "id": "2025-12-13-kalakaua-merrie-mile",
+      "date": "2025-12-13",
+      "competition": "Kalākaua Merrie Mile",
+      "venue": "Honolulu, HI",
+      "country": "USA",
+      "discipline": "road",
+      "event": "Mile",
+      "round": "final",
+      "place": 5,
+      "mark": "4:30.04",
+      "role": "competitor",
+      "confidence": "verified",
+      "sources": [
+        {
+          "type": "official-result",
+          "publisher": "World Athletics",
+          "url": "https://worldathletics.org/competition/calendar-results/results/7231902"
+        }
+      ],
+      "notesJa": ["主催者記事・映像説明には4:30.37または4:30.4という表記もあるため、公開値はWorld Athletics結果の4:30.04を採用。"]
+    },
+    {
+      "id": "2025-12-28-isshin-furun-10km",
+      "date": "2025-12-28",
+      "competition": "Isshin fuRUN 2025",
+      "venue": "久喜市",
+      "country": "JPN",
+      "discipline": "road",
+      "event": "10km",
+      "round": "guest run",
+      "place": null,
+      "mark": "33:02",
+      "role": "guest",
+      "confidence": "corroborated",
+      "sources": [
+        {
+          "type": "official-event-page",
+          "publisher": "RUNNET",
+          "url": "https://runnet.jp/entry/runtes/user/pc/competitionDetailPrintAction.do?div=1&raceId=381314"
+        },
+        {
+          "type": "report",
+          "publisher": "月陸Online",
+          "url": "https://www.rikujyokyogi.co.jp/archives/194485"
+        },
+        {
+          "type": "athlete-video",
+          "publisher": "田中希実オフィシャルチャンネル",
+          "url": "https://www.youtube.com/watch?v=woOFP5HYc2M"
+        }
+      ],
+      "notesJa": ["ゲストラン。大会ページで出場、報道と本人動画で33:02を確認したが、本人を含む公式リザルトは未発見。"]
+    }
+  ]
+}

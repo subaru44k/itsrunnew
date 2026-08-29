@@ -54,6 +54,7 @@ itsrunnew/
 │   ├── router.ts              全ルート、SEOメタ情報、言語、ハッシュスクロール
 │   ├── store.ts               Pinia状態、日付生成、情報なしスケジュール、ペース選択
 │   ├── data/tracks.json       公式情報で検証済みの公開用Track Dataset
+│   ├── data/nozomi-results.json 田中希実選手の2020年以降の大会結果
 │   ├── data/availability.json 単日debug・後方互換用availability dataset
 │   ├── data/availability/    manifestと今日から31日分のdate-specific JSON
 │   ├── styles.css             全体CSSと旧サイト再現用のVuetify 4補正
@@ -103,6 +104,9 @@ research/
 │   ├── availability-research.md   「今日利用可能」機能の調査と拡張追補
 │   ├── pdf-collector-validation.md PDF collectorのlive比較・format・coverage
 │   └── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
+├── nozomi-tanaka/
+│   ├── 2025-trial-results.json    田中希実選手2025年出走の出典・確度付き試験収集データ
+│   └── 2025-trial-report.md       収集結果、情報源、継続更新方式の評価
 └── track-expansion/
     ├── batches/                    batch単位の候補・属性evidenceとreview report
     ├── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
@@ -156,7 +160,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。CloudFrontのSPA fallbackではHTTP status自体は200のため、正式公開時のedge 301/404は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) の残作業です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからsitemapを生成します。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けの施設別HTML shellとJSON-LDを生成します。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集の `#2021` と `#2020` は実要素のIDであり、`scrollBehavior`が固定ヘッダーを避けてスクロールします。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからsitemapを生成します。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けの施設別HTML shellとJSON-LDを生成します。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
@@ -187,7 +191,9 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 ### 記録集
 
-`NozomiAntena.vue`は大会記録を静的HTMLテーブルとして保持します。2021年・2020年の年別アンカーもこのファイルにあります。本文は翻訳ファイルではなく、現状は日本語で直接記述されています。
+`NozomiAntena.vue`は `src/data/nozomi-results.json` を読み、2020年から現在までのトラック、室内、ロードの大会結果を表示します。予選・決勝と同日複数種目は別レコードです。World Athleticsの大会記録を基礎にし、統計DBへ載りにくい駅伝区間、ペースメーカー、ゲスト出走、国内オープン種目をView内の補足レコードとして保持します。年度・種類・大会名／種目で絞り込め、地方大会、ロード・駅伝、役割付き出走をタグで識別できます。年ごとの短い解説では、世界大会へ至る準備レースと大会後の出走の流れを示します。本文は現状、日本語で直接記述されています。
+
+2025年分の収集経緯と個別出典は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
 
 ### 陸上トラック検索
 
@@ -301,6 +307,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | 競技場ページ | 対応するView、schedule components | locale、公開画像、smoke、visual、この文書 |
 | スケジュール挙動 | `src/store.ts`, `components/schedule/` | `store.test.ts`、smoke、Firebase非依存の記述、この文書 |
 | ペース計算 | `src/model/`, `components/laptime/` | `store.test.ts`または追加単体テスト、smoke、この文書 |
+| 田中希実選手の記録調査 | `src/data/nozomi-results.json`, `NozomiAntena.vue`, `../research/nozomi-tanaka/` | 公式結果、確度、重複、smoke、この文書 |
 | 翻訳・言語URL | `src/locales/`, `src/i18n.ts`, `src/router.ts` | `App.vue`、SEOメタ情報、smoke、この文書 |
 | 見た目・レスポンシブ | View、components、`src/styles.css` | 広告なしのvisual、PC/スマホsmoke、この文書 |
 | 依存・ビルド | `package.json`, lockfile、Vite/TS設定 | README、ビルド、lint、この文書 |

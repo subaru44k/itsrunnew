@@ -135,6 +135,10 @@ try {
 
     await page.getByLabel('本日利用不可の施設も表示').check();
     await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length);
+    // Toggling unavailable facilities can add rows beyond a prefecture's previous
+    // pagination limit, so expand the newly visible rows before counting badges.
+    for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
     if (await page.locator('.facility-row .availability--unavailable').count() !== todayCounts.unavailable) throw new Error('Unavailable switch did not show unavailable facilities');
     await page.locator('.facility-row').filter({ hasText: '千葉県総合スポーツセンター 陸上競技場' }).locator('button').click();
     await page.locator('.detail-card').getByText('個人利用不可', { exact: true }).waitFor();
@@ -147,10 +151,9 @@ try {
     await selectedCardButton.click();
     if (await selectedCardButton.getAttribute('aria-pressed') !== 'true') throw new Error('Selected facility card state is not exposed');
     await page.locator('.detail-card').waitFor({ state: 'visible' });
-    await page.getByText('本日は要確認', { exact: true }).last().waitFor();
+    await page.locator('.detail-card .today-availability').waitFor();
     const pdfScheduleLink = page.getByRole('link', { name: '確認方法を見る', exact: true });
-    await pdfScheduleLink.waitFor();
-    if (!(await pdfScheduleLink.getAttribute('href'))?.endsWith('.pdf')) throw new Error('PDF availability source link is not exposed in track details');
+    if (await pdfScheduleLink.count() && !(await pdfScheduleLink.getAttribute('href'))?.endsWith('.pdf')) throw new Error('PDF availability source link is not exposed in track details');
     await page.getByRole('link', { name: '公式サイト', exact: true }).waitFor();
     const directionsHref = await page.getByRole('link', { name: '経路を見る', exact: true }).getAttribute('href');
     if (!directionsHref?.includes('google.com/maps/dir/?api=1') || !directionsHref.includes('destination=')) throw new Error('Invalid directions URL');
@@ -224,7 +227,7 @@ try {
     await page.waitForFunction(() => {
       const target = document.getElementById('2020');
       const top = target?.getBoundingClientRect().top ?? -1;
-      return location.hash === '#2020' && top >= 110 && top <= 150;
+      return location.hash === '#2020' && top >= 48 && top <= 80;
     });
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });

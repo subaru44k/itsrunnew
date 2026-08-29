@@ -56,8 +56,8 @@ const pages = {
     path: 'nozomiantena/index', component: () => import('./views/NozomiAntena.vue'),
     jaTitle: '陸上 田中希実選手の記録集 - 大会出場日、種目、タイム等の結果まとめ',
     enTitle: 'Race results of Nozomi Tanaka',
-    jaDescription: '田中希実選手の出場大会の結果をまとめた記録集。',
-    enDescription: 'Race results of Japanese runner Nozomi Tanaka.',
+    jaDescription: '田中希実選手の2020年以降の出走を、世界大会、地方大会、記録会、駅伝、ペースメーカーまで時系列でまとめた非公式記録集。',
+    enDescription: 'An unofficial race archive of Japanese runner Nozomi Tanaka from 2020, including local meetings, relays and pacing appearances.',
   },
   tracks: {
     path: '', component: () => import('./views/TrackSearch.vue'),

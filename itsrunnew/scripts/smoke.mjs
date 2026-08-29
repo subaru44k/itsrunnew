@@ -220,11 +220,11 @@ try {
     await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
 
     await page.goto(`${baseUrl}/nozomiantena/index`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('link', { name: '2020年の大会結果・記録', exact: true }).first().click();
+    await page.getByRole('link', { name: '2020', exact: true }).first().click();
     await page.waitForFunction(() => {
       const target = document.getElementById('2020');
       const top = target?.getBoundingClientRect().top ?? -1;
-      return location.hash === '#2020' && top >= 48 && top <= 80;
+      return location.hash === '#2020' && top >= 110 && top <= 150;
     });
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });

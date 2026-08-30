@@ -191,7 +191,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 ### 記録集
 
-`NozomiAntena.vue`は `src/data/nozomi-results.json` を読み、2020年から現在までのトラック、室内、ロードの大会結果を表示します。予選・決勝と同日複数種目は別レコードです。World Athleticsの大会記録を基礎にし、統計DBへ載りにくい駅伝区間、ペースメーカー、ゲスト出走、国内オープン種目をView内の補足レコードとして保持します。年度・種類・大会名／種目で絞り込め、地方大会、ロード・駅伝、役割付き出走をタグで識別できます。年ごとの短い解説では、世界大会へ至る準備レースと大会後の出走の流れを示します。本文は現状、日本語で直接記述されています。
+`NozomiAntena.vue`は `src/data/nozomi-results.json` を読み、2020年から現在までのトラック、室内、ロードの大会結果を表示します。予選・決勝と同日複数種目は別レコードです。World Athleticsの大会記録を基礎にし、統計DBへ載りにくい駅伝区間、ペースメーカー、ゲスト出走、国内オープン種目をView内の補足レコードとして保持します。年度・種類・大会名／種目で絞り込め、地方大会、ロード・駅伝、役割付き出走をタグで識別できます。本文は現状、日本語で直接記述されています。
 
 2025年分の収集経緯と個別出典は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
 

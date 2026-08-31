@@ -11,6 +11,7 @@ const advertising = read('../src/services/advertising.ts');
 const main = read('../src/main.ts');
 const deployment = read('../src/services/deployment.ts');
 const ads = read('../src/components/AdsDisplay.vue');
+const odaField = read('../src/views/OdaField.vue');
 const router = read('../src/router.ts');
 const privacy = read('../src/views/Privacy.vue');
 const serviceWorker = read('../public/service-worker.js');
@@ -53,6 +54,7 @@ describe('public launch readiness', () => {
     expect(advertising).toContain('googlefc.callbackQueue.push');
     expect(main).toContain('if (value !== null) initializeAdvertising()');
     expect(ads).toContain('advertisingReady');
+    expect(odaField).not.toContain('AdsDisplay');
     expect(privacy).toContain('いつランではGoogle AdSenseを利用します。');
     expect(privacy).toContain('Googleの同意管理プラットフォーム（CMP）');
   });

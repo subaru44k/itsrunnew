@@ -175,7 +175,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 競技場固有の文章は主に `src/locales/ja.json` と `en.json` にあります。
 
-`OdaField.vue`は2026年7月1日から11月30日までの公認更新工事に合わせた専用構成です。冒頭で利用停止期間と公式案内を示し、旧来の情報なし週間表は表示しません。日付を選ぶと、織田フィールドを起点に、選択日に明示的な利用不可ではない近隣4施設を距離順で表示し、施設詳細・公式情報・全件検索へつなぎます。12月1日以降も再開告知を確認するまでは要確認です。アクセス・地図・連絡先に加え、公式情報では代替できない工事前のランナーの使用感を、現況ではない旨を添えて原文のまま保持します。
+`OdaField.vue`は2026年7月1日から11月30日までの公認更新工事に合わせた専用構成です。冒頭で利用停止期間と公式案内を示し、旧来の情報なし週間表とページ固有の広告枠は表示しません。日付を選ぶと、織田フィールドを起点に、選択日に明示的な利用不可ではない近隣4施設を距離順で表示し、施設詳細・公式情報・全件検索へつなぎます。12月1日以降も再開告知を確認するまでは要確認です。アクセス・地図・連絡先に加え、公式情報では代替できない工事前のランナーの使用感を、現況ではない旨を添えて原文のまま保持します。
 
 ### スケジュール
 
@@ -215,7 +215,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ### 広告
 
-`services/advertising.ts`は `VITE_ADSENSE_ENABLED=true` の場合だけ、全route共通でGoogle AdSenseタグを読み込みます。`AdsDisplay.vue`は共通serviceが準備できた後だけ既存広告枠を初期化します。これによりホームのTrack SearchではGoogle CMPとAdSense Auto adsを利用でき、織田フィールド・夢の島・駒沢・等々力・田中希実記録集には従来の明示的な上下広告枠も残ります。Production workflowはtrue、Preview workflowはfalseです。`ads.txt`とpublisher IDを維持し、AdSense管理画面で`itsrun.info`の確認、欧州規制メッセージ1件、米国州規制メッセージ1件の設定・公開が完了しています。
+`services/advertising.ts`は `VITE_ADSENSE_ENABLED=true` の場合だけ、全route共通でGoogle AdSenseタグを読み込みます。`AdsDisplay.vue`は共通serviceが準備できた後だけ既存広告枠を初期化します。これによりホームのTrack SearchではGoogle CMPとAdSense Auto adsを利用でき、夢の島・駒沢・等々力・田中希実記録集には従来の明示的な上下広告枠も残ります。織田フィールドにはページ固有の広告枠を置きません。Production workflowはtrue、Preview workflowはfalseです。`ads.txt`とpublisher IDを維持し、AdSense管理画面で`itsrun.info`の確認、欧州規制メッセージ1件、米国州規制メッセージ1件の設定・公開が完了しています。
 
 `public/service-worker.js`は新しいoffline機能ではなく、旧Firebase/Vue CLI版が利用者のブラウザへ登録したservice workerとCache Storageを除去する移行専用tombstoneです。activate時に旧cacheを削除し、登録解除後に既存windowをnetworkから再読込します。content deployではこのファイルを`no-cache`で配備し、CloudFront invalidationにも明示的に含めます。移行期間中は削除しません。
 

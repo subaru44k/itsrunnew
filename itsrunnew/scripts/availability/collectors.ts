@@ -378,6 +378,7 @@ const fixedConfigs: FixedConfig[] = [
     evidence: ['一般開放日', '毎週水曜日', '夜間のみ'],
     evaluate: date => {
       if (date >= '2026-07-01' && date <= '2026-11-30') return { status: 'unavailable', periods: [unavailablePeriod(null, null, ['certification_renewal_construction'])], warnings: ['工事期間は延長される可能性あり'] };
+      if (date >= '2026-12-01') return { status: 'unknown', unknownReason: 'insufficient_information', warnings: ['工事後の利用再開は公式の最新案内を確認'] };
       if ((date.slice(5) >= '12-29') || (date.slice(5) <= '01-03')) return { status: 'unavailable', periods: [unavailablePeriod(null, null, ['year_end_closure'])] };
       if (fullDayFixed(date, [3]) || fullDayFixed(date, [0], [1]) || fullDayFixed(date, [6], [3])) return { status: 'available', periods: [publicPeriod('09:00', '21:00')] };
       const { date: parsed } = dateParts(date);

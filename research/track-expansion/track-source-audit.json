@@ -344,9 +344,9 @@
         "verifiedAt": "2026-08-27"
       },
       "individualUse": {
-        "status": "available",
-        "sourceUrl": "https://www.tokyo-park.or.jp/park/yoyogi/facility/",
-        "verifiedAt": "2026-08-24"
+        "status": "temporarily-unavailable",
+        "sourceUrl": "https://www.tokyo-park.or.jp/park/yoyogi/news/2026/7_1_11_30.html",
+        "verifiedAt": "2026-08-31"
       },
       "availability": {
         "type": "fixed_schedule",
@@ -354,7 +354,7 @@
         "verifiedAt": "2026-08-24"
       },
       "result": "retained",
-      "notes": null
+      "notes": "2026年7月1日〜11月30日は公認更新工事で利用停止予定。再開は最新の公式案内を確認する。"
     },
     {
       "trackId": "tokyo-metropolitan-gymnasium-track",

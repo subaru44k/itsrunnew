@@ -30,7 +30,7 @@ const tokyoToday = new Intl.DateTimeFormat('en-CA', {
 const today = availabilityManifest.dates.includes(tokyoToday) ? tokyoToday : availabilityManifest.startDate;
 const todayIndex = availabilityManifest.dates.indexOf(today);
 const tomorrow = availabilityManifest.dates[Math.min(todayIndex + 1, availabilityManifest.dates.length - 1)];
-const saturday = availabilityManifest.dates.find(date => new Date(`${date}T12:00:00+09:00`).getUTCDay() === 6);
+const saturday = availabilityManifest.dates.find((date, index) => index >= todayIndex && new Date(`${date}T12:00:00+09:00`).getUTCDay() === 6);
 const todayCounts = statusCounts(datasetForDate(today));
 const tomorrowCounts = statusCounts(datasetForDate(tomorrow));
 const currentYear = new Date().getFullYear();
@@ -71,9 +71,15 @@ try {
     if (overflow > 1) throw new Error(`Horizontal overflow at ${viewport.width}px: ${overflow}px`);
 
     await page.goto(`${baseUrl}/oda-field`, { waitUntil: 'domcontentloaded' });
-    await page.getByText('織田フィールド 開放日', { exact: true }).waitFor();
-    const noDataIcons = await page.locator('img[alt="no data"]:visible').count();
-    if (noDataIcons !== 21) throw new Error(`Expected 21 no-data cells, found ${noDataIcons}`);
+    await page.getByRole('heading', { name: '織田フィールドの利用情報', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '2026年11月30日まで利用停止予定', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '代わりに使える周辺トラック', exact: true }).waitFor();
+    if (await page.locator('.alternative-card').count() !== 4) throw new Error('Oda Field alternatives did not render four nearby candidates');
+    await page.getByText('平常時の使用感（工事前）', { exact: true }).waitFor();
+    await page.getByText('原宿駅から徒歩圏内にある競技場。非常に立地がよく、火水金土と21時まで利用可能で、利用料金も無料ということで、該当日の19時以降は仕事帰りの社会人や大学生でごった返す。', { exact: true }).waitFor();
+    const searchFromOdaHref = await page.getByRole('link', { name: '織田フィールドを基準にすべてのトラックを探す', exact: true }).getAttribute('href');
+    if (!searchFromOdaHref?.includes('lat=35.6669') || !searchFromOdaHref.includes('lng=139.6941') || !searchFromOdaHref.includes(`date=${today}`)) throw new Error('Oda Field search CTA is missing date or origin parameters');
+    if (await page.locator('img[alt="no data"]:visible').count() !== 0) throw new Error('Old no-data schedule is still visible on Oda Field');
     if (await page.locator('a[href*="newyearscardlottery"]').count() !== 0) throw new Error('Removed postcard lottery promotion is still visible');
 
     await page.goto(`${baseUrl}/en/pace/marathon`, { waitUntil: 'domcontentloaded' });
@@ -86,7 +92,7 @@ try {
       ['/komazawa', '駒沢オリンピック公園陸上競技場 開放日'],
       ['/todoroki', '等々力陸上競技場 開放日'],
       ['/nozomiantena/index', '田中希実選手の記録集'],
-      ['/en/oda-field', "Yoyogi Park Athletic Track's Availability"],
+      ['/en/oda-field', 'Yoyogi Park Athletic Track (Oda Field)'],
       ['/en/', 'Find a track near you'],
       ['/about', 'いつランについて'],
       ['/tracks/guide', 'トラック検索の使い方'],
@@ -109,7 +115,7 @@ try {
     if (new URL(page.url()).pathname !== '/') throw new Error('/tracks did not canonicalize to the home route');
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     await page.getByText('公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。', { exact: true }).waitFor();
-    if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== 'いつラン - 日付から探せる陸上競技場・トラック検索') throw new Error('Track Search OGP title did not update');
+    if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== '個人利用できる陸上トラック検索｜日付・現在地から探す - いつラン') throw new Error('Track Search OGP title did not update');
     await page.locator('#track-map .track-cluster, #track-map .track-marker').first().waitFor();
     const mapFacilityCount = () => page.locator('#track-map').evaluate(element => [...element.querySelectorAll('.track-marker')].length + [...element.querySelectorAll('.track-cluster')].reduce((sum, cluster) => sum + Number(cluster.textContent), 0));
     if (await mapFacilityCount() !== todayCounts.candidates) throw new Error('Clustered map did not represent every candidate facility');

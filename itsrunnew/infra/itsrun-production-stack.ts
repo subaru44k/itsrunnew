@@ -57,7 +57,14 @@ function handler(event) {
   if (aliases[request.uri]) return redirect(aliases[request.uri], request.querystring);
   var routes = ${JSON.stringify(applicationRoutes)};
   if (routes.indexOf(request.uri) !== -1) {
-    request.uri = '/index.html';
+    var routeShells = ['/en/', '/oda-field', '/en/oda-field'];
+    if (routeShells.indexOf(request.uri) !== -1) {
+      var shellPath = request.uri;
+      if (shellPath.charAt(shellPath.length - 1) === '/') shellPath = shellPath.slice(0, -1);
+      request.uri = shellPath + '/index.html';
+    } else {
+      request.uri = '/index.html';
+    }
     return request;
   }
   if (/^\\/(en\\/)?tracks\\/[a-z0-9-]+\\/?$/.test(request.uri)) {

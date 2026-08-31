@@ -24,6 +24,8 @@ describe('public launch readiness', () => {
     expect(index).toContain('https://itsrun.info/img/itsrun-og.jpg');
     expect(index).toContain('summary_large_image');
     expect(index).not.toMatch(/UA-\d/);
+    expect(index).toContain('個人利用できる陸上トラック検索｜日付・現在地から探す - いつラン');
+    expect(router).toContain('織田フィールドの利用情報｜周辺の個人利用トラック - いつラン');
   });
 
   it('exposes an absolute sitemap without alias or date-query duplication', () => {

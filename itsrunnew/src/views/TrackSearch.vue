@@ -4,7 +4,7 @@
       <div>
         <p class="track-eyebrow">{{ isEnglish ? 'TRACK FINDER' : 'TRACK FINDER' }}</p>
         <h1>{{ isEnglish ? 'Find a track near you' : '近くで走れるトラックを探す' }}</h1>
-        <p>{{ isEnglish ? 'Choose a date and find promising tracks for your workout.' : '利用日を選び、練習できそうな競技場・トラックを探せます。' }}</p>
+        <p>{{ isEnglish ? 'When your usual track is closed, or when you are training somewhere new, search by workout date and a reference point.' : 'いつもの競技場が使えない日も、転居先や合宿先でも。利用日と基準地点から、練習できそうなトラックを探せます。' }}</p>
       </div>
     </header>
 

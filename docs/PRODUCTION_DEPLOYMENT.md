@@ -15,7 +15,7 @@
 
 ## Repository components
 
-- `infra/itsrun-production-stack.ts`: retained S3、CloudFront、OAC、既知route rewrite、旧URL 301、実HTTP 404。証明書を渡した更新時だけCloudFrontへ`itsrun.info` alternate domainを追加する。DNS recordは切替作業で別管理し、旧Aを先に削除しない。
+- `infra/itsrun-production-stack.ts`: retained S3、CloudFront、OAC、既知route rewrite（英語ホーム・日英織田フィールド・施設詳細は個別HTML shell）、旧URL 301、実HTTP 404。証明書を渡した更新時だけCloudFrontへ`itsrun.info` alternate domainを追加する。DNS recordは切替作業で別管理し、旧Aを先に削除しない。
 - `infra/itsrun-production-dns-stack.ts`: `itsrun.info` public Hosted Zone。既存recordを複製する前に委任してはいけない。
 - `infra/itsrun-production-certificate-stack.ts`: 委任済みHosted Zoneで検証する`us-east-1` ACM certificate。
 - `infra/itsrun-production-automation-stack.ts`: protected masterだけを信頼するcontent-only GitHub OIDC role。

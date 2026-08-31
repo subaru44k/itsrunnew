@@ -19,10 +19,10 @@ const SOCIAL_IMAGE = `${SITE_ORIGIN}/img/itsrun-og.jpg`;
 const pages = {
   oda: {
     path: 'oda-field', component: OdaField,
-    jaTitle: 'いつラン - 織田フィールドを個人利用する人のための利用時間確認ページ',
-    enTitle: "It's Run - Check the availability of the Yoyogi Park Athletic Track",
-    jaDescription: '織田フィールド(代々木公園陸上競技場)等の陸上競技場を個人利用したい際に、このサイトにて開放日・利用可能時間が確認できます。',
-    enDescription: "The available dates and times at Yoyogi Park Athletic Stadium (Oda Field) can be checked on this page.",
+    jaTitle: '織田フィールドの利用情報｜周辺の個人利用トラック - いつラン',
+    enTitle: 'Oda Field closure and nearby running tracks - ItsRun',
+    jaDescription: '織田フィールドは2026年11月30日まで利用停止予定です。周辺の個人利用できそうな陸上トラックを、選択日の利用状況と距離から比較して代わりの練習場所を探せます。',
+    enDescription: 'Oda Field is scheduled to remain closed through November 30, 2026. Compare nearby tracks by date-specific availability and distance.',
   },
   yumenoshima: {
     path: 'yumenoshima', component: Yumenoshima,
@@ -61,10 +61,10 @@ const pages = {
   },
   tracks: {
     path: '', component: () => import('./views/TrackSearch.vue'),
-    jaTitle: 'いつラン - 日付から探せる陸上競技場・トラック検索',
-    enTitle: "It's Run - Find a track for your workout date",
-    jaDescription: '利用日を選び、個人利用できそうな陸上競技場・ランニングトラックを地図と一覧から探せます。',
-    enDescription: 'Choose a date and find verified athletic and running tracks that may be available for your workout.',
+    jaTitle: '個人利用できる陸上トラック検索｜日付・現在地から探す - いつラン',
+    enTitle: 'Find tracks for individual use by date and location - ItsRun',
+    jaDescription: 'いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。利用日と現在地・任意地点から、個人利用できそうな陸上トラックを距離・利用状況・設備で比較できます。',
+    enDescription: 'When your usual venue is closed or you are training somewhere new, compare tracks for individual use by date, location, availability and facilities.',
   },
   about: {
     path: 'about', component: About,

@@ -119,6 +119,11 @@ describe('availability collectors', () => {
     const holiday = await collectAvailability('2026-11-03', { now, fetchImpl });
     expect(holiday.find(item => item.trackId === 'asaka-chuo-park-track')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
 
+    const closureEnd = await collectAvailability('2026-11-30', { now, fetchImpl });
+    expect(closureEnd.find(item => item.trackId === 'yoyogi-park-athletic-track')).toMatchObject({ status: 'unavailable' });
+    const afterPlannedClosure = await collectAvailability('2026-12-01', { now, fetchImpl });
+    expect(afterPlannedClosure.find(item => item.trackId === 'yoyogi-park-athletic-track')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
+
     const wednesday = await collectAvailability('2026-08-26', { now, fetchImpl });
     expect(wednesday.find(item => item.trackId === 'toneri-park-athletic-track')?.status).toBe('available');
     expect(wednesday.find(item => item.trackId === 'okudo-sports-center-track')?.status).toBe('available');

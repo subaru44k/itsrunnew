@@ -519,17 +519,17 @@
       "jaafClass": null
     },
     "individualUse": {
-      "status": "available",
+      "status": "temporarily-unavailable",
       "feeYen": 0,
       "feeUnit": "一般開放時",
-      "openingHours": "一般開放予定を確認",
+      "openingHours": "2026年7月1日〜11月30日は公認更新工事のため利用停止予定",
       "spikesAllowed": null,
-      "note": "2025年度JAAF一覧の公認期間終了後の現況は未確認"
+      "note": "利用停止の終了日は予定。再開は公式の最新案内を確認"
     },
     "urls": {
       "official": "https://www.tokyo-park.or.jp/park/yoyogi/",
       "individualUse": "https://www.tokyo-park.or.jp/park/yoyogi/facility/",
-      "schedule": "https://www.tokyo-park.or.jp/park/yoyogi/news/"
+      "schedule": "https://www.tokyo-park.or.jp/park/yoyogi/news/2026/7_1_11_30.html"
     },
     "externalIds": {
       "jaaf": "133040",
@@ -541,7 +541,12 @@
       {
         "url": "https://www.tokyo-park.or.jp/park/yoyogi/",
         "type": "official",
-        "verifiedAt": "2026-08-24"
+        "verifiedAt": "2026-08-31"
+      },
+      {
+        "url": "https://www.tokyo-park.or.jp/park/yoyogi/news/2026/7_1_11_30.html",
+        "type": "official",
+        "verifiedAt": "2026-08-31"
       },
       {
         "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",

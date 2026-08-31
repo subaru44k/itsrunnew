@@ -74,7 +74,7 @@ itsrunnew/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
 │   ├── generate-public-pages.mjs tracks.jsonからsitemapを生成
-│   ├── generate-track-route-shells.mjs build後に施設詳細HTML shellを生成
+│   ├── generate-track-route-shells.mjs build後に英語ホーム・織田フィールド・施設詳細HTML shellを生成
 │   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
 │   ├── deploy-production.sh   Production対象をguardしたS3 syncとinvalidation
 │   ├── deployment-summary.mjs GitHub Actions run summary生成
@@ -149,7 +149,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 | `/tracks` | `/en/tracks` | redirect | queryを維持してTrack Searchホームへ移動する互換URL |
 | `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 施設仕様、指定日availability、公式導線、近隣施設 |
 | `/tracks/guide` | `/en/tracks/guide` | `TrackGuide.vue` | 検索基準地点、利用状況、トラック条件の読み方 |
-| `/oda-field` | `/en/oda-field` | `OdaField.vue` | 織田フィールド |
+| `/oda-field` | `/en/oda-field` | `OdaField.vue` | 織田フィールドの利用停止情報、周辺の代替トラック、施設情報、工事前の使用感 |
 | `/yumenoshima` | `/en/yumenoshima` | `Yumenoshima.vue` | 夢の島陸上競技場 |
 | `/komazawa` | `/en/komazawa` | `Komazawa.vue` | 駒沢オリンピック公園陸上競技場 |
 | `/todoroki` | `/en/todoroki` | `Todoroki.vue` | 等々力陸上競技場 |
@@ -160,13 +160,13 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。CloudFrontのSPA fallbackではHTTP status自体は200のため、正式公開時のedge 301/404は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) の残作業です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからsitemapを生成します。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けの施設別HTML shellとJSON-LDを生成します。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからsitemapを生成します。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成し、施設詳細にはJSON-LDも追加します。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
 ### 競技場ページ
 
-`OdaField.vue`、`Yumenoshima.vue`、`Komazawa.vue`、`Todoroki.vue`は同じ基本構造です。
+`Yumenoshima.vue`、`Komazawa.vue`、`Todoroki.vue`は同じ基本構造です。
 
 - ページ説明
 - `AdsDisplay.vue`による広告スロット
@@ -174,6 +174,8 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 - 競技場情報、Google Maps iframe、アクセス、連絡先、説明文
 
 競技場固有の文章は主に `src/locales/ja.json` と `en.json` にあります。
+
+`OdaField.vue`は2026年7月1日から11月30日までの公認更新工事に合わせた専用構成です。冒頭で利用停止期間と公式案内を示し、旧来の情報なし週間表は表示しません。日付を選ぶと、織田フィールドを起点に、選択日に明示的な利用不可ではない近隣4施設を距離順で表示し、施設詳細・公式情報・全件検索へつなぎます。12月1日以降も再開告知を確認するまでは要確認です。アクセス・地図・連絡先に加え、公式情報では代替できない工事前のランナーの使用感を、現況ではない旨を添えて原文のまま保持します。
 
 ### スケジュール
 
@@ -250,7 +252,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `ItsRunPreviewAutomationStack` は既存の標準GitHub OIDC providerを参照し、`master` branchの `subaru44k/itsrunnew` workflowだけが引き受けられる `itsrun-track-preview-deploy` roleを作成します。既存migration roleは使用しません。権限はPreview bucketのcontent操作とPreview distributionのread/invalidationに限定し、hosting stackとは独立して管理します。
 
-正式配信用のCDK定義はPreviewと分離しています。`ItsRunProductionStack`はversioningとretainを有効にしたprivate S3、CloudFront OAC、既知routeのSPA rewrite、旧URLのHTTP 301、未知URLの実HTTP 404を定義します。初回はcustom domainなしで作成し、default domainをnoindex・GA4無効のまま検証できます。Route 53委任と`us-east-1` ACM発行後にdomainとcertificate ARNを渡す更新でCloudFrontへ`itsrun.info`を追加し、DNSは旧Firebase AからCloudFront Aliasへ別の原子的changeで切り替えます。旧Aを先に削除しない切替順序・rollback・repository variablesは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) が正本です。Google CMPとPrivacy整備後、ProductionのみAdSenseを有効化しています。
+正式配信用のCDK定義はPreviewと分離しています。`ItsRunProductionStack`はversioningとretainを有効にしたprivate S3、CloudFront OAC、既知routeのSPAまたは静的route shellへのrewrite、旧URLのHTTP 301、未知URLの実HTTP 404を定義します。初回はcustom domainなしで作成し、default domainをnoindex・GA4無効のまま検証できます。Route 53委任と`us-east-1` ACM発行後にdomainとcertificate ARNを渡す更新でCloudFrontへ`itsrun.info`を追加し、DNSは旧Firebase AからCloudFront Aliasへ別の原子的changeで切り替えます。旧Aを先に削除しない切替順序・rollback・repository variablesは [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md) が正本です。Google CMPとPrivacy整備後、ProductionのみAdSenseを有効化しています。
 
 ## 8. コマンドと検証
 

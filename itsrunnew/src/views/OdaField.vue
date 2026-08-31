@@ -15,8 +15,6 @@
       </v-btn>
     </v-alert>
 
-    <AdsDisplay slot="6879016191" />
-
     <section class="alternative-section">
       <div class="section-heading">
         <div>
@@ -80,7 +78,6 @@
         </section>
       </v-container>
     </v-card>
-    <AdsDisplay slot="6031307376" />
   </v-container>
 </template>
 
@@ -88,7 +85,6 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import AdsDisplay from '@/components/AdsDisplay.vue';
 import { availabilityDataset, availabilityForTrack, localDateKey, type AvailabilityDataset, type AvailabilityStatus } from '@/model/availability';
 import { addDateOnlyDays, availabilityManifest, loadAvailabilityDate, normalizeSelectedDate } from '@/model/availability-range';
 import { distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '@/model/tracks';

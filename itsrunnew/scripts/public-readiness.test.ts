@@ -42,6 +42,13 @@ describe('public launch readiness', () => {
     expect(locations).toContain(`https://itsrun.info/en/tracks/${tracks[0].id}`);
     expect(locations).not.toContain('https://itsrun.info/tracks');
     expect(locations.every(location => !location.includes('?'))).toBe(true);
+
+    const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/gs)].map(match => match[1]);
+    expect(entries.every(entry => {
+      const changefreq = entry.indexOf('<changefreq>');
+      const extension = entry.indexOf('<xhtml:link');
+      return changefreq === -1 || (extension !== -1 && changefreq < extension);
+    })).toBe(true);
   });
 
   it('loads GA4 only after consent and gates advertising behind the build flag', () => {

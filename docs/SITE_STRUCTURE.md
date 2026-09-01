@@ -74,7 +74,7 @@ itsrunnew/
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
-│   ├── generate-public-pages.mjs tracks.jsonからsitemapを生成
+│   ├── generate-public-pages.mjs tracks.jsonから日英URL・hreflang付きsitemapを生成（標準要素を拡張要素より前に配置）
 │   ├── generate-track-route-shells.mjs build後に英語ホーム・織田フィールド・施設詳細HTML shellを生成
 │   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
 │   ├── deploy-production.sh   Production対象をguardしたS3 syncとinvalidation
@@ -164,7 +164,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。CloudFrontのSPA fallbackではHTTP status自体は200のため、正式公開時のedge 301/404は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) の残作業です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定22 URLと全施設の日英詳細URLからsitemapを生成します。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成し、施設詳細にはJSON-LDも追加します。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定22 URLと全施設の日英詳細URLからUTF-8 sitemapを生成します。各`url`は絶対`loc`の後に標準要素（`changefreq`）を置き、その後に日英と`x-default`の`xhtml:link`を置きます。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成し、施設詳細にはJSON-LDも追加します。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
@@ -267,7 +267,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | コマンド | 内容 |
 |---|---|
 | `npm run dev` | Vite開発サーバー |
-| `npm run build` | sitemap生成、`vue-tsc --noEmit`、Vite build、施設詳細HTML shell生成 |
+| `npm run build` | sitemap生成（標準要素・hreflang順序を含むreadiness検証対象）、`vue-tsc --noEmit`、Vite build、施設詳細HTML shell生成 |
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |

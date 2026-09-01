@@ -57,6 +57,7 @@ invalidation_id="$(aws cloudfront create-invalidation \
   --paths '/' '/index.html' '/service-worker.js' '/en/' '/tracks' '/en/tracks' \
     '/tracks/guide' '/en/tracks/guide' '/tracks/*' '/en/tracks/*' \
     '/oda-field' '/en/oda-field' '/nozomiantena/index' '/en/nozomiantena/index' \
+    '/ryuji-miura/index' '/en/ryuji-miura/index' \
   --query Invalidation.Id \
   --output text)"
 aws cloudfront wait invalidation-completed --distribution-id "$PRODUCTION_DISTRIBUTION_ID" --id "$invalidation_id"

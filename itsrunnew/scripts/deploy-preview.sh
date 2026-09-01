@@ -53,6 +53,7 @@ aws s3 cp dist/service-worker.js "s3://$PREVIEW_BUCKET/service-worker.js" \
 invalidation_id="$(aws cloudfront create-invalidation \
   --distribution-id "$PREVIEW_DISTRIBUTION_ID" \
   --paths '/' '/index.html' '/service-worker.js' '/en/' '/tracks' '/en/tracks' '/oda-field' '/en/oda-field' \
+    '/nozomiantena/index' '/en/nozomiantena/index' '/ryuji-miura/index' '/en/ryuji-miura/index' \
   --query Invalidation.Id \
   --output text)"
 aws cloudfront wait invalidation-completed --distribution-id "$PREVIEW_DISTRIBUTION_ID" --id "$invalidation_id"

@@ -55,6 +55,7 @@ itsrunnew/
 │   ├── store.ts               Pinia状態、日付生成、情報なしスケジュール、ペース選択
 │   ├── data/tracks.json       公式情報で検証済みの公開用Track Dataset
 │   ├── data/nozomi-results.json 田中希実選手の2020年以降の大会結果
+│   ├── data/ryuji-results.json  三浦龍司選手の2020年以降の大会結果
 │   ├── data/availability.json 単日debug・後方互換用availability dataset
 │   ├── data/availability/    manifestと今日から31日分のdate-specific JSON
 │   ├── styles.css             全体CSSと旧サイト再現用のVuetify 4補正
@@ -107,6 +108,8 @@ research/
 ├── nozomi-tanaka/
 │   ├── 2025-trial-results.json    田中希実選手2025年出走の出典・確度付き試験収集データ
 │   └── 2025-trial-report.md       収集結果、情報源、継続更新方式の評価
+├── ryuji-miura/
+│   └── 2020-onward-report.md      三浦龍司選手2020年以降の収集範囲・出典・制限
 └── track-expansion/
     ├── batches/                    batch単位の候補・属性evidenceとreview report
     ├── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
@@ -155,12 +158,13 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 | `/todoroki` | `/en/todoroki` | `Todoroki.vue` | 等々力陸上競技場 |
 | `/pace/marathon` | `/en/pace/marathon` | `LapTime.vue` | マラソンのペース表 |
 | `/nozomiantena/index` | `/en/nozomiantena/index` | `NozomiAntena.vue` | 田中希実選手の記録集 |
+| `/ryuji-miura/index` | `/en/ryuji-miura/index` | `RyujiMiura.vue` | 三浦龍司選手の記録集 |
 | `/about` | `/en/about` | `About.vue` | サイト全体のコンテンツ、情報掲載方針、訂正窓口 |
 | `/privacy` | `/en/privacy` | `Privacy.vue` | GA4、現在地、広告、外部サービスの取扱い |
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。CloudFrontのSPA fallbackではHTTP status自体は200のため、正式公開時のedge 301/404は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) の残作業です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからsitemapを生成します。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成し、施設詳細にはJSON-LDも追加します。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定22 URLと全施設の日英詳細URLからsitemapを生成します。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成し、施設詳細にはJSON-LDも追加します。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
@@ -194,6 +198,8 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 ### 記録集
 
 `NozomiAntena.vue`は `src/data/nozomi-results.json` を読み、2020年から現在までのトラック、室内、ロードの大会結果を表示します。予選・決勝と同日複数種目は別レコードです。World Athleticsの大会記録を基礎にし、統計DBへ載りにくい駅伝区間、ペースメーカー、ゲスト出走、国内オープン種目をView内の補足レコードとして保持します。年度・種類・大会名／種目で絞り込め、地方大会、ロード・駅伝、役割付き出走をタグで識別できます。本文は現状、日本語で直接記述されています。
+
+`RyujiMiura.vue`は `src/data/ryuji-results.json` を読み、三浦龍司選手の2020年以降67レースを表示します。3000m障害を中心に、1500m、3000m、5000m、10000m、クロスカントリー、10マイル、ハーフマラソンを含みます。World Athleticsに掲載された国際大会だけでなく、順天堂大学競技会、関東インカレ、織田幹雄記念、ホクレン、日体大長距離競技会など国内の記録会も同じ時系列に収録し、年度・種類・大会名／種目で絞り込めます。各行の大会名は確認可能な公式結果へのリンクです。収集範囲と更新時の注意点は [`../research/ryuji-miura/2020-onward-report.md`](../research/ryuji-miura/2020-onward-report.md) に記録しています。
 
 2025年分の収集経緯と個別出典は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
 
@@ -310,6 +316,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | スケジュール挙動 | `src/store.ts`, `components/schedule/` | `store.test.ts`、smoke、Firebase非依存の記述、この文書 |
 | ペース計算 | `src/model/`, `components/laptime/` | `store.test.ts`または追加単体テスト、smoke、この文書 |
 | 田中希実選手の記録調査 | `src/data/nozomi-results.json`, `NozomiAntena.vue`, `../research/nozomi-tanaka/` | 公式結果、確度、重複、smoke、この文書 |
+| 三浦龍司選手の記録調査 | `src/data/ryuji-results.json`, `RyujiMiura.vue`, `../research/ryuji-miura/` | World Athletics/JAAF結果、収録範囲、重複、smoke、この文書 |
 | 翻訳・言語URL | `src/locales/`, `src/i18n.ts`, `src/router.ts` | `App.vue`、SEOメタ情報、smoke、この文書 |
 | 見た目・レスポンシブ | View、components、`src/styles.css` | 広告なしのvisual、PC/スマホsmoke、この文書 |
 | 依存・ビルド | `package.json`, lockfile、Vite/TS設定 | README、ビルド、lint、この文書 |

@@ -6,7 +6,7 @@ ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify
 
 地図の初期表示は全掲載施設が収まる範囲を画面幅から自動計算します。検索の基準地点は「現在地」と「地図上で指定」を同じUI・markerで扱います。基準地点がない一覧は都道府県別、設定後は距離順で12件ずつ表示し、広域地図では近接markerをcluster化します。単一markerの選択時は地図を施設へ寄せたうえで、固定headerに隠れない位置へ詳細cardをscroll表示します。`lat` / `lng` queryの共有URLは指定地点をzoom 13で中央表示します。施設詳細からは `track` queryで対象施設を地図中央・選択状態へ戻し、距離基準とは分離します。検索専用ガイドは `/tracks/guide`（英語版 `/en/tracks/guide`）です。
 
-正式URLは `https://itsrun.info` です。sitemap、canonical、日英hreflang、OGP、About、Privacyを備え、PreviewとProduction CloudFront default domainはnoindexにします。GA4は正式domain上で利用者が同意した後だけ読み込み、現在地座標は送信しません。ProductionではGoogle CMPを伴うAdSenseを有効化し、Previewは広告なしを維持します。公開後の管理画面・配信層の確認は [`../docs/PUBLIC_LAUNCH.md`](../docs/PUBLIC_LAUNCH.md) を参照してください。
+正式URLは `https://itsrun.info` です。sitemap、canonical、日英hreflang、OGP、About、Privacyを備え、PreviewとProduction CloudFront default domainはnoindexにします。記録集には田中希実選手と三浦龍司選手の2020年以降の大会結果を掲載しています。GA4は正式domain上で利用者が同意した後だけ読み込み、現在地座標は送信しません。ProductionではGoogle CMPを伴うAdSenseを有効化し、Previewは広告なしを維持します。公開後の管理画面・配信層の確認は [`../docs/PUBLIC_LAUNCH.md`](../docs/PUBLIC_LAUNCH.md) を参照してください。
 
 開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md) を参照してください。
 

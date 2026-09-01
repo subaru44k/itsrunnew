@@ -7,7 +7,7 @@ const origin = 'https://itsrun.info';
 const staticPairs = [
   ['', ''], ['oda-field', 'oda-field'], ['yumenoshima', 'yumenoshima'],
   ['komazawa', 'komazawa'], ['todoroki', 'todoroki'], ['pace/marathon', 'pace/marathon'],
-  ['nozomiantena/index', 'nozomiantena/index'], ['about', 'about'], ['tracks/guide', 'tracks/guide'], ['privacy', 'privacy'],
+  ['nozomiantena/index', 'nozomiantena/index'], ['ryuji-miura/index', 'ryuji-miura/index'], ['about', 'about'], ['tracks/guide', 'tracks/guide'], ['privacy', 'privacy'],
 ];
 
 function entry(jaPath, enPath) {

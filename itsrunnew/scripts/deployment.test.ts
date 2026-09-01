@@ -28,6 +28,7 @@ describe('Preview deployment contract', () => {
     expect(deployScript).toContain("--cache-control 'no-cache'");
     expect(deployScript).toContain('dist/service-worker.js');
     expect(deployScript).toContain("--paths '/' '/index.html' '/service-worker.js' '/en/' '/tracks' '/en/tracks' '/oda-field' '/en/oda-field'");
+    expect(deployScript).toContain("'/nozomiantena/index' '/en/nozomiantena/index' '/ryuji-miura/index' '/en/ryuji-miura/index'");
     expect(deployScript).not.toContain("--paths '/*'");
   });
 });

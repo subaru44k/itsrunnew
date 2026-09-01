@@ -91,7 +91,10 @@ const menuGroups = computed(() => [
   { title: t('menu.kanagawa'), items: [{ title: t('menu.todoroki'), path: 'todoroki' }] },
   { title: t('menu.find'), items: [{ title: t('menu.tracks'), path: '' }] },
   { title: t('menu.laptime'), items: [{ title: t('menu.marathon'), path: 'pace/marathon' }] },
-  { title: t('menu.records'), items: [{ title: t('menu.tanaka'), path: 'nozomiantena/index' }] },
+  { title: t('menu.records'), items: [
+    { title: t('menu.tanaka'), path: 'nozomiantena/index' },
+    { title: t('menu.miura'), path: 'ryuji-miura/index' },
+  ] },
 ]);
 
 function localizedPath(path: string, targetLocale = locale.value) {

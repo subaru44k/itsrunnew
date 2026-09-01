@@ -59,6 +59,13 @@ const pages = {
     jaDescription: '田中希実選手の2020年以降の出走を、世界大会、地方大会、記録会、駅伝、ペースメーカーまで時系列でまとめた非公式記録集。',
     enDescription: 'An unofficial race archive of Japanese runner Nozomi Tanaka from 2020, including local meetings, relays and pacing appearances.',
   },
+  ryuji: {
+    path: 'ryuji-miura/index', component: () => import('./views/RyujiMiura.vue'),
+    jaTitle: '陸上 三浦龍司選手の記録集 - 2020年以降の大会出場日、種目、タイム等の結果まとめ',
+    enTitle: 'Race results of Ryuji Miura',
+    jaDescription: '三浦龍司選手の2020年以降の出走を、世界大会、国内の大学競技会、記録会、クロスカントリー、ロードまで時系列でまとめた非公式記録集。',
+    enDescription: 'An unofficial race archive of Japanese steeplechaser Ryuji Miura from 2020, including local meetings, university competitions and road races.',
+  },
   tracks: {
     path: '', component: () => import('./views/TrackSearch.vue'),
     jaTitle: '個人利用できる陸上トラック検索｜日付・現在地から探す - いつラン',

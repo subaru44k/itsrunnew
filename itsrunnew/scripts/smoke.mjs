@@ -92,6 +92,7 @@ try {
       ['/komazawa', '駒沢オリンピック公園陸上競技場 開放日'],
       ['/todoroki', '等々力陸上競技場 開放日'],
       ['/nozomiantena/index', '田中希実選手の記録集'],
+      ['/ryuji-miura/index', '三浦龍司選手の記録集'],
       ['/en/oda-field', 'Yoyogi Park Athletic Track (Oda Field)'],
       ['/en/', 'Find a track near you'],
       ['/about', 'いつランについて'],
@@ -229,6 +230,15 @@ try {
     await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
 
     await page.goto(`${baseUrl}/nozomiantena/index`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('link', { name: '2020', exact: true }).first().click();
+    await page.waitForFunction(() => {
+      const target = document.getElementById('2020');
+      const top = target?.getBoundingClientRect().top ?? -1;
+      return location.hash === '#2020' && top >= 48 && top <= 80;
+    });
+
+    await page.goto(`${baseUrl}/ryuji-miura/index`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: '三浦龍司選手の記録集', exact: true }).waitFor();
     await page.getByRole('link', { name: '2020', exact: true }).first().click();
     await page.waitForFunction(() => {
       const target = document.getElementById('2020');

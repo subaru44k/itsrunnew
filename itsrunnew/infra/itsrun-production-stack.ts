@@ -18,6 +18,7 @@ const applicationRoutes = [
   '/todoroki', '/en/todoroki',
   '/pace/marathon', '/en/pace/marathon',
   '/nozomiantena/index', '/en/nozomiantena/index',
+  '/ryuji-miura/index', '/en/ryuji-miura/index',
   '/about', '/en/about',
   '/tracks/guide', '/en/tracks/guide',
   '/privacy', '/en/privacy',

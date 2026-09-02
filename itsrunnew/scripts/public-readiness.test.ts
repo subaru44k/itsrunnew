@@ -43,11 +43,14 @@ describe('public launch readiness', () => {
     expect(locations).not.toContain('https://itsrun.info/tracks');
     expect(locations.every(location => !location.includes('?'))).toBe(true);
 
+    expect(sitemap).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    expect(sitemap).not.toContain('xmlns:xhtml=');
+    expect(sitemap).not.toContain('<xhtml:link');
     const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/gs)].map(match => match[1]);
     expect(entries.every(entry => {
+      const loc = entry.indexOf('<loc>');
       const changefreq = entry.indexOf('<changefreq>');
-      const extension = entry.indexOf('<xhtml:link');
-      return changefreq === -1 || (extension !== -1 && changefreq < extension);
+      return loc !== -1 && (changefreq === -1 || loc < changefreq);
     })).toBe(true);
   });
 

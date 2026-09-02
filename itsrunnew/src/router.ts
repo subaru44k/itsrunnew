@@ -68,9 +68,9 @@ const pages = {
   },
   tracks: {
     path: '', component: () => import('./views/TrackSearch.vue'),
-    jaTitle: '個人利用できる陸上トラック検索｜日付・現在地から探す - いつラン',
+    jaTitle: '個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン',
     enTitle: 'Find tracks for individual use by date and location - ItsRun',
-    jaDescription: 'いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。利用日と現在地・任意地点から、個人利用できそうな陸上トラックを距離・利用状況・設備で比較できます。',
+    jaDescription: 'いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。',
     enDescription: 'When your usual venue is closed or you are training somewhere new, compare tracks for individual use by date, location, availability and facilities.',
   },
   about: {

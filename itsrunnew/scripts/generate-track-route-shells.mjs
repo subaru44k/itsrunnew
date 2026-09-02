@@ -66,6 +66,8 @@ for (const track of tracks) {
       ? `Check ${name}'s date-specific availability, track length, surface, individual-use information, official links and directions.`
       : `${name}の指定日ごとの利用状況、トラック距離・路面、個人利用情報、公式案内、経路を確認できます。`;
     const canonical = `${origin}${path}`;
+    const alternateJa = `${origin}/tracks/${track.id}`;
+    const alternateEn = `${origin}/en/tracks/${track.id}`;
     let html = template
       .replace(/<html lang="[^"]*"/, `<html lang="${locale}"`)
       .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`)
@@ -74,6 +76,9 @@ for (const track of tracks) {
     html = replaceMeta(html, /<meta property="og:title"[^>]*>/, title);
     html = replaceMeta(html, /<meta property="og:description"[^>]*>/, description);
     html = replaceMeta(html, /<meta property="og:url"[^>]*>/, canonical);
+    html = replaceLink(html, /<link rel="alternate" hreflang="ja"[^>]*>/, alternateJa);
+    html = replaceLink(html, /<link rel="alternate" hreflang="en"[^>]*>/, alternateEn);
+    html = replaceLink(html, /<link rel="alternate" hreflang="x-default"[^>]*>/, alternateJa);
     const structuredData = JSON.stringify({
       '@context': 'https://schema.org', '@type': 'SportsActivityLocation', name,
       address: track.location.address,

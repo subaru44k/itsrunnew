@@ -13,11 +13,11 @@ const staticPairs = [
 function entry(jaPath, enPath) {
   const ja = `${origin}/${jaPath}`;
   const en = `${origin}/en/${enPath}`;
-  return [ja, en].map((loc, index) => `  <url><loc>${loc}</loc>${index === 0 ? '<changefreq>daily</changefreq>' : ''}<xhtml:link rel="alternate" hreflang="ja" href="${ja}"/><xhtml:link rel="alternate" hreflang="en" href="${en}"/><xhtml:link rel="alternate" hreflang="x-default" href="${ja}"/></url>`).join('\n');
+  return [ja, en].map((loc, index) => `  <url><loc>${loc}</loc>${index === 0 ? '<changefreq>daily</changefreq>' : ''}</url>`).join('\n');
 }
 
 const entries = staticPairs.map(([ja, en]) => entry(ja, en));
 for (const track of tracks) entries.push(entry(`tracks/${track.id}`, `tracks/${track.id}`));
-const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join('\n')}\n</urlset>\n`;
+const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
 await writeFile(resolve(root, 'public/sitemap.xml'), xml, 'utf8');
 console.log(`Sitemap generated: ${staticPairs.length * 2 + tracks.length * 2} URLs`);

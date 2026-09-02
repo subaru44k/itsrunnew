@@ -10,8 +10,8 @@
         <h1>{{ localizedName(track) }}</h1>
         <p>{{ track.location.address }}</p>
       </div>
-      <v-btn color="white" class="back-search" prepend-icon="mdi-map-search" :to="searchPath" @click="trackDetailEvent('view_on_map_click')">
-        {{ isEnglish ? 'View this facility on map' : '地図でこの施設を見る' }}
+      <v-btn color="white" class="back-search" prepend-icon="mdi-map-search" :to="facilityMapPath" @click="trackDetailEvent('view_on_map_click')">
+        {{ isEnglish ? 'View location on map' : '地図上の位置を見る' }}
       </v-btn>
     </header>
 
@@ -47,7 +47,7 @@
           <span class="alternative-distance">{{ formatDistance(item.distance) }}</span>
         </router-link>
         <v-btn class="nearby-search-action white-text" color="indigo" variant="flat" prepend-icon="mdi-map-search" :to="nearbySearchPath" @click="trackDetailEvent('view_on_map_click', { source: 'nearby_alternatives' })">
-          {{ isEnglish ? 'Compare nearby tracks on the map' : '周辺トラックを地図で比較' }}
+          {{ isEnglish ? 'Compare nearby tracks from here' : 'この施設を基準に周辺を比較' }}
         </v-btn>
         <p class="related-note">{{ isEnglish ? '“Needs confirmation” is not the same as unavailable. Check the official information before visiting.' : '「要確認」は利用不可ではありません。訪問前に公式情報をご確認ください。' }}</p>
       </aside>
@@ -101,18 +101,27 @@ const today = localDateKey();
 const tomorrow = addDateOnlyDays(today, 1);
 const selectedDate = ref(normalizeSelectedDate(route.query.date, today));
 const dataset = ref<AvailabilityDataset>(availabilityDataset);
-const searchPath = computed(() => ({
-  path: isEnglish.value ? '/en/' : '/',
-  query: { date: selectedDate.value, track: track.value?.id, lat: route.query.lat, lng: route.query.lng },
-}));
-const nearbySearchPath = computed(() => ({
-  path: isEnglish.value ? '/en/' : '/',
-  query: {
-    date: selectedDate.value,
-    lat: track.value?.location.latitude.toFixed(4),
-    lng: track.value?.location.longitude.toFixed(4),
-  },
-}));
+const mapSectionHash = '#track-map-section';
+function trackFinderRoute(query: Record<string, string | undefined>, hash?: string) {
+  return {
+    path: isEnglish.value ? '/en/' : '/',
+    query,
+    ...(hash ? { hash } : {}),
+  };
+}
+function queryString(value: unknown) { return typeof value === 'string' ? value : undefined; }
+const searchPath = computed(() => trackFinderRoute({ date: selectedDate.value }));
+const facilityMapPath = computed(() => trackFinderRoute({
+  date: selectedDate.value,
+  track: track.value?.id,
+  lat: queryString(route.query.lat),
+  lng: queryString(route.query.lng),
+}, mapSectionHash));
+const nearbySearchPath = computed(() => trackFinderRoute({
+  date: selectedDate.value,
+  lat: track.value?.location.latitude.toFixed(4),
+  lng: track.value?.location.longitude.toFixed(4),
+}, mapSectionHash));
 const availability = computed(() => track.value ? availabilityForTrack(track.value.id, selectedDate.value, new Date(), dataset.value) : null);
 const related = computed(() => !track.value ? [] : rankTrackAlternatives(tracks
   .filter(item => item.id !== track.value?.id)

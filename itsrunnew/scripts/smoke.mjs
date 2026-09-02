@@ -41,6 +41,8 @@ const representativeTracks = Object.fromEntries(['available', 'partially_availab
   if (!track) throw new Error(`No representative ${status} track is available for detail-page smoke testing`);
   return [status, track];
 }));
+const todaTrack = trackDataset.find(item => item.id === 'toda-sports-center-track');
+if (!todaTrack) throw new Error('Toda Sports Center track is required for map-action smoke testing');
 const currentYear = new Date().getFullYear();
 const waitForSelectedDate = (page, date) => page.waitForFunction(expected => new URL(location.href).searchParams.get('date') === expected, date);
 
@@ -183,10 +185,40 @@ try {
     await page.getByRole('link', { name: '施設ページ', exact: true }).click();
     await page.waitForURL(url => url.pathname === '/tracks/toda-sports-center-track');
     await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
-    await page.getByRole('link', { name: '地図でこの施設を見る', exact: true }).click();
-    await page.waitForFunction(() => new URL(location.href).searchParams.get('track') === 'toda-sports-center-track');
+    const detailBreadcrumbHref = await page.locator('.breadcrumbs').getByRole('link', { name: 'トラック検索', exact: true }).getAttribute('href');
+    if (detailBreadcrumbHref !== `/?date=${today}`) throw new Error('Track detail breadcrumb unexpectedly focuses the map or a facility');
+    await page.getByRole('link', { name: '地図上の位置を見る', exact: true }).click();
+    await page.waitForURL(url => url.pathname === '/' && url.hash === '#track-map-section'
+      && url.searchParams.get('date') === today
+      && url.searchParams.get('track') === 'toda-sports-center-track');
     await page.locator('#track-map .track-marker--selected').waitFor();
+    await page.locator('.detail-card').waitFor({ state: 'visible' });
+    await page.waitForFunction(() => {
+      const target = document.getElementById('track-map-section');
+      const top = target?.getBoundingClientRect().top ?? -1;
+      return document.activeElement === target && top >= 48 && top <= 100;
+    });
+    if (new URL(page.url()).searchParams.has('lat') || new URL(page.url()).searchParams.has('lng')) throw new Error('Facility map action unexpectedly added a search origin');
     if (await page.locator('.map-tools').getByRole('button', { name: '現在地を使う', exact: true }).count() !== 1) throw new Error('Search-origin controls are not grouped above the map');
+
+    await page.goto(`${baseUrl}/tracks/toda-sports-center-track?date=${today}`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
+    await page.getByRole('link', { name: 'この施設を基準に周辺を比較', exact: true }).click();
+    await page.waitForURL(url => url.pathname === '/' && url.hash === '#track-map-section'
+      && url.searchParams.get('date') === today
+      && !url.searchParams.has('track')
+      && url.searchParams.get('lat') === todaTrack.location.latitude.toFixed(4)
+      && url.searchParams.get('lng') === todaTrack.location.longitude.toFixed(4));
+    await page.locator('#track-map .search-origin-dot').waitFor();
+    await page.waitForFunction(() => {
+      const target = document.getElementById('track-map-section');
+      const top = target?.getBoundingClientRect().top ?? -1;
+      return document.activeElement === target
+        && top >= 48 && top <= 100
+        && document.querySelector('#track-map')?.getAttribute('data-zoom') === '13'
+        && !document.querySelector('.detail-card');
+    });
+
     await page.getByRole('button', { name: '地図から基準地点を選ぶ', exact: true }).click();
     await page.locator('#track-map').click({ position: { x: 160, y: 160 } });
     await page.waitForFunction(() => new URL(location.href).searchParams.has('lat') && new URL(location.href).searchParams.has('lng'));
@@ -274,7 +306,7 @@ try {
       if (await page.locator('.related-section .alternative-link').count() !== 5) throw new Error(`${status} detail did not render five ranked alternatives`);
       const firstAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
       if (!firstAlternativeHref?.includes(`date=${today}`)) throw new Error(`${status} alternative link did not preserve the selected date`);
-      const nearbySearchHref = await page.getByRole('link', { name: '周辺トラックを地図で比較', exact: true }).getAttribute('href');
+      const nearbySearchHref = await page.getByRole('link', { name: 'この施設を基準に周辺を比較', exact: true }).getAttribute('href');
       if (!nearbySearchHref?.includes(`date=${today}`) || !nearbySearchHref.includes('lat=') || !nearbySearchHref.includes('lng=')) throw new Error(`${status} nearby map search is missing the selected date or origin`);
       if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${representative.id}`) throw new Error(`${status} detail canonical unexpectedly includes a date query`);
       const emphasized = await page.locator('.related-section').evaluate(element => element.classList.contains('related-section--urgent'));
@@ -293,6 +325,17 @@ try {
     await page.getByRole('heading', { name: 'Nearby alternatives for this date', exact: true }).waitFor();
     const englishAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
     if (!englishAlternativeHref?.startsWith('/en/tracks/') || !englishAlternativeHref.includes(`date=${today}`)) throw new Error('English alternative link did not preserve locale and date');
+    await page.getByRole('link', { name: 'View location on map', exact: true }).click();
+    await page.waitForURL(url => url.pathname === '/en/' && url.hash === '#track-map-section'
+      && url.searchParams.get('date') === today
+      && url.searchParams.get('track') === representativeTracks.unavailable.id);
+    await page.locator('#track-map .track-marker--selected').waitFor();
+    await page.locator('.detail-card .today-availability.availability--unavailable').waitFor();
+    await page.waitForFunction(() => {
+      const target = document.getElementById('track-map-section');
+      const top = target?.getBoundingClientRect().top ?? -1;
+      return document.activeElement === target && top >= 48 && top <= 100;
+    });
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();

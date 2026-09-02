@@ -43,7 +43,7 @@
     </section>
 
     <div :class="['track-layout', { 'has-detail': selectedTrack }]">
-      <section class="map-panel" :aria-label="isEnglish ? 'Athletic track map' : '陸上トラック地図'">
+      <section ref="mapPanelElement" id="track-map-section" tabindex="-1" class="map-panel" :aria-label="isEnglish ? 'Athletic track map' : '陸上トラック地図'">
         <div class="map-tools">
           <strong>{{ isEnglish ? 'Search origin' : '検索の基準地点' }}</strong>
           <v-btn size="small" :variant="referencePointSource === 'current' ? 'flat' : 'outlined'" color="indigo" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
@@ -206,6 +206,7 @@ const distanceListLimit = ref(12);
 const expandedPrefectures = ref<string[]>(['東京都']);
 const prefectureListLimits = ref<Record<string, number>>({ 東京都: 12 });
 const mapElement = ref<HTMLElement | null>(null);
+const mapPanelElement = ref<HTMLElement | null>(null);
 const detailElement = ref<HTMLElement | null>(null);
 const mapZoom = ref<number | null>(null);
 let map: LeafletMap | null = null;
@@ -308,13 +309,18 @@ onMounted(() => {
   }
   const focused = trackById(route.query.track);
   if (focused) void selectTrack(focused, 'map', false, false);
-  nextTick(() => map?.invalidateSize());
+  nextTick(() => {
+    map?.invalidateSize();
+    focusMapSection();
+  });
 });
 
 onBeforeUnmount(() => map?.remove());
+watch(() => route.hash, focusMapSection);
 watch(visibleTracks, tracksNow => {
   renderMarkers();
-  if (selectedTrack.value && !tracksNow.some(track => track.id === selectedTrack.value?.id)) closeSelectedTrack();
+  const explicitlyFocused = selectedTrack.value?.id === route.query.track;
+  if (selectedTrack.value && !explicitlyFocused && !tracksNow.some(track => track.id === selectedTrack.value?.id)) closeSelectedTrack();
 });
 watch(() => route.query.track, value => {
   const focused = trackById(value);
@@ -347,7 +353,13 @@ function renderMarkers() {
     if (group.length > 1) addClusterMarker(group);
     else addTrackMarker(group[0]);
   }
-  if (selected && visibleTracks.value.some(track => track.id === selected.id)) addTrackMarker(selected, true);
+  const explicitlyFocused = selected?.id === route.query.track;
+  if (selected && (explicitlyFocused || visibleTracks.value.some(track => track.id === selected.id))) addTrackMarker(selected, true);
+}
+
+function focusMapSection() {
+  if (route.hash !== '#track-map-section') return;
+  void nextTick(() => mapPanelElement.value?.focus({ preventScroll: true }));
 }
 
 function fitDefaultTrackBounds() {

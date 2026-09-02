@@ -146,10 +146,10 @@ router.beforeEach((to) => {
   const detailTrack = trackById(to.params.trackId);
   if (to.params.trackId && !detailTrack) return locale === 'en' ? '/en/' : '/';
   const title = detailTrack
-    ? (locale === 'en' ? `${detailTrack.name.en} availability and track details - ItsRun` : `${detailTrack.name.ja}の利用予定・トラック情報 - いつラン`)
+    ? (locale === 'en' ? `${detailTrack.name.en} availability and nearby tracks - ItsRun` : `${detailTrack.name.ja}の利用予定・周辺トラック - いつラン`)
     : String(to.meta.title ?? 'いつラン');
   const description = detailTrack
-    ? (locale === 'en' ? `Check ${detailTrack.name.en}'s date-specific availability, track details, official links and directions.` : `${detailTrack.name.ja}の指定日ごとの利用状況、トラック情報、公式案内、経路を確認できます。`)
+    ? (locale === 'en' ? `Check ${detailTrack.name.en}'s date-specific availability and find useful nearby alternatives ranked by availability and distance.` : `${detailTrack.name.ja}の指定日ごとの利用状況を確認し、利用状況と距離を考慮した周辺の代替トラックを探せます。`)
     : String(to.meta.description ?? 'いつラン');
   const canonicalPath = detailTrack ? `${locale === 'en' ? '/en' : ''}/tracks/${detailTrack.id}` : String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;

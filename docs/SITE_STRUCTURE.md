@@ -67,7 +67,7 @@ itsrunnew/
 │   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
 │   │   └── laptime/           PC・スマホ用マラソンペース表
-│   ├── model/                 ペース表の計算モデル、トラック型・距離・経路URL
+│   ├── model/                 ペース表、トラック型・距離・経路URL、代替候補ranking
 │   ├── services/              同意状態、GA4の遅延loadと同意済みevent
 │   └── plugins/vuetify.ts     Vuetifyテーマとアイコン設定
 ├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像
@@ -150,7 +150,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 |---|---|---|---|
 | `/` | `/en/` | `TrackSearch.vue` | 陸上トラック検索（ホーム） |
 | `/tracks` | `/en/tracks` | redirect | queryを維持してTrack Searchホームへ移動する互換URL |
-| `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 施設仕様、指定日availability、公式導線、近隣施設 |
+| `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 施設仕様、指定日availability、公式導線、利用状況と距離でrankingした周辺施設 |
 | `/tracks/guide` | `/en/tracks/guide` | `TrackGuide.vue` | 検索基準地点、利用状況、トラック条件の読み方 |
 | `/oda-field` | `/en/oda-field` | `OdaField.vue` | 織田フィールドの利用停止情報、周辺の代替トラック、施設情報、工事前の使用感 |
 | `/yumenoshima` | `/en/yumenoshima` | `Yumenoshima.vue` | 夢の島陸上競技場 |
@@ -164,7 +164,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。CloudFrontのSPA fallbackではHTTP status自体は200のため、正式公開時のedge 301/404は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) の残作業です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定22 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成し、施設詳細にはJSON-LDも追加します。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定22 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成します。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
@@ -205,7 +205,7 @@ docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの�
 
 ### 陸上トラック検索
 
-`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。初期表示は全掲載施設を余白付きの`fitBounds`で収め、最大zoom 7とするため、PC・スマートフォンの表示幅と掲載地域の拡張へ自動追従します。tileは低彩度表示とし、zoom 12以下では近接markerをcluster化します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順、拒否・取得不能・timeout時は掲載エリア全体の表示を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有でき、共有URLでは指定地点をzoom 13で中央表示します。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。スマートフォンでは施設名を最大2行で表示します。一覧とmap detailからstable IDの施設詳細へ移動でき、`TrackDetail.vue` は選択日availability、仕様、公式導線と近隣5施設を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離し、詳細ページの「地図でこの施設を見る」から地図中央・選択状態を復元します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
+`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。初期表示は全掲載施設を余白付きの`fitBounds`で収め、最大zoom 7とするため、PC・スマートフォンの表示幅と掲載地域の拡張へ自動追従します。tileは低彩度表示とし、zoom 12以下では近接markerをcluster化します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順、拒否・取得不能・timeout時は掲載エリア全体の表示を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有でき、共有URLでは指定地点をzoom 13で中央表示します。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。スマートフォンでは施設名を最大2行で表示します。一覧とmap detailからstable IDの施設詳細へ移動できます。`TrackDetail.vue` は選択日availability、仕様、公式導線に加え、`track-alternatives.ts`で同日の利用状況とHaversine直線距離をscore化した周辺5施設を表示します。statusの距離penaltyは利用可0 km相当、一部利用可6 km相当、要確認30 km相当、利用不可60 km相当で、確認済みの候補を強く優先しつつ、極端に遠い施設より近い要確認を残します。同scoreでは利用可、一部利用可、要確認、利用不可の順、次に距離、stable IDで決定します。候補linkは選択日の`date` queryを維持し、地図比較は対象施設の座標を`lat` / `lng`検索基準として渡します。対象施設が利用不可なら候補欄を強調し、スマートフォンでもavailability直後・施設諸元より前へ配置します。要確認は候補に残して利用不可と明確に区別し、各status badgeと公式確認の注意を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離し、詳細ページの「地図でこの施設を見る」から地図中央・選択状態を復元します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
 
 Track Searchの中心価値は、指定日に近くで集中して走れる環境を見つけられることです。施設情報を公式サイトなしで完全に把握できることは目標にせず、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と公式確認導線を優先します。スパイク可否、料金、細かな条件は補助情報であり、網羅率の目標にしません。変化し得る条件を古い静的値で断定せず、確認不能ならunknownを保ちます。調査・更新時の具体的な優先順位は [`TRACK_DATA.md`](TRACK_DATA.md) を正本とします。
 
@@ -271,7 +271,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
-| `npm run test:smoke` | PC・スマホの全公開ルート、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
+| `npm run test:smoke` | PC・スマホの全公開ルート、4 availability statusの施設詳細・代替候補・date継承、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
 | `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
 | `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |

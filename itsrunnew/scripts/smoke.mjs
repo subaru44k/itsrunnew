@@ -31,8 +31,16 @@ const today = availabilityManifest.dates.includes(tokyoToday) ? tokyoToday : ava
 const todayIndex = availabilityManifest.dates.indexOf(today);
 const tomorrow = availabilityManifest.dates[Math.min(todayIndex + 1, availabilityManifest.dates.length - 1)];
 const saturday = availabilityManifest.dates.find((date, index) => index >= todayIndex && new Date(`${date}T12:00:00+09:00`).getUTCDay() === 6);
-const todayCounts = statusCounts(datasetForDate(today));
+const todayDataset = datasetForDate(today);
+const todayCounts = statusCounts(todayDataset);
 const tomorrowCounts = statusCounts(datasetForDate(tomorrow));
+const effectiveStatus = item => Date.now() < new Date(item.freshness.expiresAt).getTime() ? item.status : 'unknown';
+const representativeTracks = Object.fromEntries(['available', 'partially_available', 'unknown', 'unavailable'].map(status => {
+  const record = todayDataset.facilities.find(item => effectiveStatus(item) === status);
+  const track = trackDataset.find(item => item.id === record?.trackId);
+  if (!track) throw new Error(`No representative ${status} track is available for detail-page smoke testing`);
+  return [status, track];
+}));
 const currentYear = new Date().getFullYear();
 const waitForSelectedDate = (page, date) => page.waitForFunction(expected => new URL(location.href).searchParams.get('date') === expected, date);
 
@@ -245,6 +253,46 @@ try {
       const top = target?.getBoundingClientRect().top ?? -1;
       return location.hash === '#2020' && top >= 48 && top <= 80;
     });
+
+    const statusLabels = {
+      available: '利用可能',
+      partially_available: '一部利用可能',
+      unknown: '要確認',
+      unavailable: '利用不可',
+    };
+    await page.goto(`${baseUrl}/tracks/${representativeTracks.available.id}`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: statusLabels.available, exact: true }).waitFor();
+    if (new URL(page.url()).searchParams.has('date')) throw new Error('Track detail without date unexpectedly added a date query');
+    if (await page.getByLabel('日付を選ぶ').inputValue() !== today) throw new Error('Track detail without date did not default to today');
+    if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${representativeTracks.available.id}`) throw new Error('Track detail canonical unexpectedly includes a date query');
+
+    for (const status of ['available', 'partially_available', 'unknown', 'unavailable']) {
+      const representative = representativeTracks[status];
+      await page.goto(`${baseUrl}/tracks/${representative.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
+      await page.getByRole('heading', { name: statusLabels[status], exact: true }).waitFor();
+      await page.getByRole('heading', { name: status === 'unavailable' ? 'この日の代替候補' : 'この日の周辺トラック', exact: true }).waitFor();
+      if (await page.locator('.related-section .alternative-link').count() !== 5) throw new Error(`${status} detail did not render five ranked alternatives`);
+      const firstAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
+      if (!firstAlternativeHref?.includes(`date=${today}`)) throw new Error(`${status} alternative link did not preserve the selected date`);
+      const nearbySearchHref = await page.getByRole('link', { name: '周辺トラックを地図で比較', exact: true }).getAttribute('href');
+      if (!nearbySearchHref?.includes(`date=${today}`) || !nearbySearchHref.includes('lat=') || !nearbySearchHref.includes('lng=')) throw new Error(`${status} nearby map search is missing the selected date or origin`);
+      if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${representative.id}`) throw new Error(`${status} detail canonical unexpectedly includes a date query`);
+      const emphasized = await page.locator('.related-section').evaluate(element => element.classList.contains('related-section--urgent'));
+      if (emphasized !== (status === 'unavailable')) throw new Error(`${status} detail alternative emphasis is incorrect`);
+      if (viewport.width < 800) {
+        const mobileOrder = await page.evaluate(() => ({
+          availability: document.querySelector('.availability-panel')?.getBoundingClientRect().top ?? 0,
+          alternatives: document.querySelector('.related-section')?.getBoundingClientRect().top ?? 0,
+          information: document.querySelector('.info-section')?.getBoundingClientRect().top ?? 0,
+        }));
+        if (!(mobileOrder.availability < mobileOrder.alternatives && mobileOrder.alternatives < mobileOrder.information)) throw new Error(`${status} mobile alternatives are not placed immediately after availability`);
+      }
+    }
+
+    await page.goto(`${baseUrl}/en/tracks/${representativeTracks.unavailable.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: 'Nearby alternatives for this date', exact: true }).waitFor();
+    const englishAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
+    if (!englishAlternativeHref?.startsWith('/en/tracks/') || !englishAlternativeHref.includes(`date=${today}`)) throw new Error('English alternative link did not preserve locale and date');
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();

@@ -119,6 +119,7 @@ research/
     └── track-source-audit.json     施設別のsource監査台帳
 
 docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの施設追加品質ゲート
+docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約、review記録
 
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証

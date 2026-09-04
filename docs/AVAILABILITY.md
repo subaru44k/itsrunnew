@@ -56,6 +56,7 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `structured_html` | 光が丘公園 | 改修等の明示的な期間告知を解析 |
 | `structured_html` | 武蔵野陸上競技場 | 当日HTMLの2時間枠、A・B・貸切を解析 |
 | `structured_html` | 越谷しらこばと | 日付付き「個人利用できます」の時間だけを解析 |
+| `structured_html` | 日産スタジアム・日産フィールド小机 | 共通ページを1回取得し、施設名・実施日・時間が明示された枠だけを解析 |
 | `calendar_html` | 東京体育館 | 日付をPOSTし、コース別1時間枠を解析 |
 | `calendar_html` | 駒沢 | 東京体育館と共通のTEF POST表parserで陸上競技場行を解析 |
 | `calendar_html` | 江戸川 | 当日から7日分の一般・専用3時間帯を解析 |
@@ -75,9 +76,11 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `pdf` | 上尾運動公園 | 個人利用日一覧の明示日・時間だけを解析 |
 | `pdf` | 八王子富士森競技場 | 複数月matrixと早朝地域開放規則を解析 |
 | `pdf` | 上柚木公園 | 施設ページから複数月PDFを発見し、3区分の○・貸切・整備を解析 |
+| `pdf` | 神奈川県立スポーツセンター | 対象月PDFの陸上競技場欄について、午前・午後の○と×を解析 |
+| `pdf` | 万博記念競技場 | 対象月の個人利用予定表について、明示時間帯と×を解析 |
 | `pdf` | 府中市民陸上競技場 | 日別記号がvector図形のためguarded unknown |
 
-133施設中23施設（17.3%）を安全な自動判定対象にしています。内訳はstructured HTML 3、calendar HTML 3、固定規則9、PDF 8です。今回の拡張候補ではcollector対応数を水増しせず、日付sourceの意味を未確認の施設は共通fallbackで `unknown` にします。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式Web・公式X確認という運用までは確認できるものの、安定した日付別HTML取得元がないためguarded unknownです。
+133施設中27施設（20.3%）を安全な自動判定対象にしています。内訳はstructured HTML 5、calendar HTML 3、固定規則9、PDF 10です。collector対応数を水増しせず、日付sourceの意味を未確認の施設は共通fallbackで `unknown` にします。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式Web・公式X確認という運用までは確認できるものの、安定した日付別HTML取得元がないためguarded unknownです。
 
 未対応施設もdatasetとUIから除外しません。
 
@@ -89,7 +92,7 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 - 城北中央: `phone_confirmation_required`。Web日程がなく、個人利用可能＋本日は要確認として表示。
 - その他8施設: source方式に応じて `reservation_system_unsupported`、`phone_confirmation_required`、`web_schedule_unavailable` を生成。施設自体は個人利用可能な候補として残す。
 
-現行分類はstructured HTML 9、calendar HTML 14、固定規則11、PDF 19、reservation system 40、phone only 19、Web予定なし12、weekly notice 9です。source type別の実装率はそれぞれ3/9、3/14、9/11、8/19、0/40、0/19、0/12、0/9です。今回のlive検証は [HTML/calendar/fixed collector検証](../research/availability/html-calendar-collector-validation.md)、PDFの詳細は [PDF collector検証](../research/availability/pdf-collector-validation.md) を参照してください。
+現行分類はstructured HTML 9、calendar HTML 14、固定規則11、PDF 19、reservation system 40、phone only 19、Web予定なし12、weekly notice 9です。source type別の実装率はそれぞれ5/9、3/14、9/11、10/19、0/40、0/19、0/12、0/9です。今回の4施設は [2026-09高確度collector追加検証](../research/availability/high-confidence-collector-validation-2026-09.md)、従来分は [HTML/calendar/fixed collector検証](../research/availability/html-calendar-collector-validation.md) と [PDF collector検証](../research/availability/pdf-collector-validation.md) を参照してください。
 
 ## HTML・calendar・fixed collector
 
@@ -98,6 +101,7 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 - TEF calendar: 東京体育館と駒沢でPOST、日付header、時間帯header、対象施設行の構造検証を共有し、施設ごとに行名だけを設定します。
 - 江戸川: 公式指定管理者の7日表について、掲載上の「本日」が取得日の東京日付と一致すること、requested dateが公開7日内であること、3区分headerを検証します。
 - 越谷: トップページの明示日付と「個人利用できます」の時間を検証します。対象日不一致や文言欠落はunknownです。
+- 日産: 共通の公式ページを1回だけ取得し、日産スタジアムと日産フィールド小机の完全一致する施設名、実施日、時間、年情報を検証します。未掲載日や古い年の告知はunknownです。
 - fixed: 共通の曜日・第N曜日rule evaluatorを再利用します。固定開放枠以外をunavailableとせずunknownにし、公式ページの例外注意をwarningへ保持します。
 
 安定した公式日次sourceがない世田谷、公式Xにだけ載る舎人・秋留台の追加開放は推測しません。新施設追加時は、公式文言、requested-date範囲、構造anchor、明示的available/unavailable語、例外、fixture、parser versionを同時に追加します。
@@ -140,13 +144,13 @@ source bytesのSHA-256とparser versionを残すため、誤解析時に使っ�
 
 `scripts/availability/pdf.ts` は、取得・content type/PDF magic検証、pdfjsによる座標付きtext extraction、対象月URL discovery、format固有parser、normalized record化を分離します。requested dateの年月からmonthly/annual/latest資料を選びます。和田堀だけはnews index → 対象月article → PDFの2段階です。
 
-formatは練馬、戸田、府中guard、和田堀共通、三郷、上尾、富士森、上柚木の8種類です。万能table parserではなく、確認済みtitle/header/legend/月のanchorを必須にします。府中以外の8施設を対応し、府中は図形statusを推測しません。OCR、reservation system、schedulerは実装していません。
+formatは練馬、戸田、府中guard、和田堀共通、三郷、上尾、富士森、上柚木、神奈川県立スポーツセンター、万博記念競技場の10種類です。万能table parserではなく、確認済みtitle/header/legend/月のanchorを必須にします。府中以外の10施設を対応し、府中は図形statusを推測しません。OCR、reservation system、schedulerは実装していません。
 
 新formatを追加する場合は、安定landing page、requested dateに対応するPDF discovery、公式凡例によるsemantic mapping、座標付きfixture、missing/changed layoutのunknown test、parser name/versionを同時に追加します。PDFそのものは著作権上commitせず、最小のmocked extractor outputをtest fixtureにします。
 
 ## テスト
 
-`scripts/availability/collectors.test.ts` はTEF共通calendar、江戸川7日表、越谷当日HTML、新旧fixed ruleと、日付欠落・週外・古い表・見出し変更・意味曖昧時のunknownをfixtureで確認します。`scripts/availability/pdf.test.ts` は8 format、requested month、複数period、partial、明示的不可、空欄、header/legend変更、対象月未公開、fetch/content/extraction failureをmocked extractor outputで確認します。失敗がunavailableにならないことを必須にしています。`src/model/availability.test.ts` はunknownを候補に残すことを確認します。
+`scripts/availability/collectors.test.ts` はTEF共通calendar、江戸川7日表、越谷当日HTML、日産2施設の共通HTML、新旧fixed ruleと、日付欠落・週外・古い表・見出し変更・意味曖昧時のunknownをfixtureで確認します。`scripts/availability/pdf.test.ts` は10 format、requested month、複数period、partial、明示的不可、空欄、header/legend変更、対象月未公開、fetch/content/extraction failureをmocked extractor outputで確認します。失敗がunavailableにならないことを必須にしています。`src/model/availability.test.ts` はunknownを候補に残すことを確認します。
 
 `scripts/availability/range.test.ts` は31日、月・年境界、HTTP cache reuseと日付固有POSTの分離を確認します。`src/model/availability-range.test.ts` はAsia/Tokyoのdate-only演算、URLのinvalid/out-of-range fallback、土日のshortcutを確認します。browser smokeは今日・明日・native date input、URL query、marker/list/filter同期、未来日のunknown維持をdesktop/mobileで確認します。
 
@@ -173,6 +177,6 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 
 ## 次の段階
 
-現collectorは23/133（17.3%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開は引き続きunknownです。
+現collectorは27/133（20.3%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開は引き続きunknownです。
 
 新座予約システムは、規約・低頻度アクセス・cache・「空き」の意味を確認するまで実装しません。城北中央は公式Web日程が提供されない限りmanual confirmationを維持します。

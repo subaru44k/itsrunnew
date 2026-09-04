@@ -10,6 +10,7 @@ import {
   parseKomazawa,
   parseKoshigayaToday,
   parseMusashino,
+  parseNissanTrack,
   parseTokyoGymnasium,
 } from './collectors';
 import { sourceUrls } from './config';
@@ -74,6 +75,61 @@ describe('availability collectors', () => {
     });
     expect(parseKoshigayaToday(html, { date: '2026-08-25', now })).toMatchObject({ status: 'unknown', unknownReason: 'outside_published_period' });
     expect(parseKoshigayaToday(html.replace('個人利用できます。（9時～17時）', '予定は施設へ確認'), { date: '2026-08-24', now })).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
+  });
+
+  it('parses Nissan events for the exact facility label and preserves registration warnings', () => {
+    const html = fixture('nissan-track.html');
+    const stadium = parseNissanTrack(html, { date: '2026-09-11', now }, 'nissan-stadium-track');
+    expect(stadium).toMatchObject({
+      trackId: 'nissan-stadium-track',
+      status: 'partially_available',
+      source: { url: 'https://www.nissan-stadium.jp/track/index.php' },
+      periods: [{ from: '17:00', to: '21:00', status: 'available', scope: 'full_track', eligibility: 'public' }],
+    });
+    expect(stadium.warnings.join(' ')).toMatch(/完全予約制|利用3日前/);
+    expect(stadium.warnings.join(' ')).toMatch(/先着|定員/);
+    expect(stadium.warnings.join(' ')).toMatch(/中止|閉鎖/);
+
+    const field = parseNissanTrack(html, { date: '2026-09-21', now }, 'nissan-field-kozukue');
+    expect(field).toMatchObject({
+      trackId: 'nissan-field-kozukue',
+      status: 'partially_available',
+      periods: [{ from: '09:00', to: '12:00', status: 'available', scope: 'full_track', eligibility: 'public' }],
+    });
+  });
+
+  it('does not cross-match Nissan venues and keeps unlisted or stale dates unknown', () => {
+    const html = fixture('nissan-track.html');
+    expect(parseNissanTrack(html, { date: '2026-09-11', now }, 'nissan-field-kozukue')).toMatchObject({
+      status: 'unknown', unknownReason: 'outside_published_period', periods: [],
+    });
+    expect(parseNissanTrack(html, { date: '2026-09-12', now }, 'nissan-stadium-track')).toMatchObject({
+      status: 'unknown', unknownReason: 'outside_published_period', periods: [],
+    });
+    const stale = html.replaceAll('2026', '2025');
+    expect(parseNissanTrack(stale, { date: '2026-09-11', now }, 'nissan-stadium-track')).toMatchObject({
+      status: 'unknown', unknownReason: 'source_stale', periods: [],
+    });
+    expect(parseNissanTrack(html.replace('17時～21時', '開催予定なし'), { date: '2026-09-11', now }, 'nissan-stadium-track')).toMatchObject({
+      status: 'unknown', periods: [],
+    });
+    expect(() => parseNissanTrack(html.replace('17時～21時', '17時'), { date: '2026-09-11', now }, 'nissan-stadium-track')).toThrow(/time/);
+    expect(() => parseNissanTrack('<h1>トラック個人利用</h1>', { date: '2026-09-11', now }, 'nissan-stadium-track')).toThrow(/anchors/);
+  });
+
+  it('fetches the shared Nissan source once and represents each facility once', async () => {
+    const calls: string[] = [];
+    const fetchImpl = (async (input: string | URL | Request) => {
+      const url = String(input);
+      calls.push(url);
+      if (url === sourceUrls.nissan) return new Response(fixture('nissan-track.html'));
+      return new Response('source');
+    }) as typeof fetch;
+    const result = await collectAvailability('2026-09-11', { now, fetchImpl });
+    const nissan = result.filter(item => item.trackId === 'nissan-stadium-track' || item.trackId === 'nissan-field-kozukue');
+    expect(nissan).toHaveLength(2);
+    expect(nissan.map(item => item.trackId).sort()).toEqual(['nissan-field-kozukue', 'nissan-stadium-track']);
+    expect(calls.filter(url => url === sourceUrls.nissan)).toHaveLength(1);
   });
 
   it('downgrades stale records to unknown', () => {

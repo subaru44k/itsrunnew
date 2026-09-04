@@ -306,6 +306,208 @@ export function parseKoshigayaToday(html: string, context: Omit<CollectorContext
   return unknownRecord({ trackId: 'koshigaya-shirakobato-track', date: context.date, now: context.now, unknownReason: 'insufficient_information', url: sourceUrls.koshigaya, publicationFormat: 'structured_html', collector: 'koshigaya-today-status', fetchedAt: context.fetchedAt, sourceHash: context.sourceHash, warnings: ['陸上競技場欄に明示的な個人利用可否なし'] });
 }
 
+export type NissanTrackId = 'nissan-stadium-track' | 'nissan-field-kozukue';
+
+const nissanTrackIds: NissanTrackId[] = ['nissan-stadium-track', 'nissan-field-kozukue'];
+
+const nissanTrackLabels: Record<NissanTrackId, string> = {
+  'nissan-stadium-track': '日産スタジアム個人利用（一般）',
+  'nissan-field-kozukue': '日産フィールド小机個人利用（一般）',
+};
+
+interface NissanApplicationStart {
+  year: number;
+  month: number;
+}
+
+interface NissanEvent {
+  month: number;
+  day: number;
+  from: string;
+  to: string;
+  explicitYear: number | null;
+  hrefYear: number | null;
+  hrefMonth: number | null;
+  hrefDay: number | null;
+  applicationStarts: NissanApplicationStart[];
+}
+
+function compactText(text: string) {
+  return stripHtml(text).replace(/\s+/g, '');
+}
+
+function nissanWarnings(text: string) {
+  const warnings: string[] = [];
+  const sentences = [
+    ...text.matchAll(/(?:完全予約制|事前(?:申込|登録)|利用\d+日前)[^。！？]*(?:[。！？]|$)/g),
+    ...text.matchAll(/(?:先着|定員)[^。！？]*(?:[。！？]|$)/g),
+    ...text.matchAll(/(?:急きょ[^。！？]{0,30}中止|キャンセル|中止|休止|閉鎖)[^。！？]*(?:[。！？]|$)/g),
+  ].map(match => match[0].trim()).filter(Boolean);
+  for (const sentence of sentences) {
+    if (!warnings.includes(sentence)) warnings.push(sentence);
+  }
+  return warnings;
+}
+
+function nissanHrefDate(attributes: string) {
+  const href = /\bhref\s*=\s*["']([^"']+)["']/i.exec(attributes)?.[1];
+  if (!href) return null;
+  const match = /(?:^|\/)(20\d{2})[-_]?(\d{2})[-_]?(\d{2})(?:[_?#/]|$)/.exec(href);
+  if (!match) return null;
+  return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
+}
+
+function nissanTime(hour: string, minute: string | undefined) {
+  const hourNumber = Number(hour);
+  const minuteNumber = minute == null ? 0 : Number(minute);
+  if (hourNumber > 23 || minuteNumber > 59) throw new Error('Nissan event has an invalid time');
+  return `${hour.padStart(2, '0')}:${String(minuteNumber).padStart(2, '0')}`;
+}
+
+function parseNissanEvent(body: string, attributes: string, label: string): NissanEvent | null {
+  const text = compactText(body);
+  const labelIndex = text.indexOf(label);
+  if (labelIndex < 0) return null;
+  const afterLabel = text.slice(labelIndex + label.length);
+  const applicationMarker = afterLabel.search(/申込開始/);
+  const eventText = applicationMarker >= 0 ? afterLabel.slice(0, applicationMarker) : afterLabel;
+
+  // A link can remain in the form while its date is intentionally unpublished.
+  // Such text is evidence for neither availability nor unavailability.
+  if (/開催予定(?:が)?ございません|開催予定なし|調整中|空欄|未定/.test(eventText)) return null;
+
+  const eventDateMatch = /(?:^|[^0-9年])(?:(20\d{2})年)?(\d{1,2})月(\d{1,2})日/.exec(eventText);
+  const eventLike = /link_border|ns-entry|surl/i.test(attributes) || eventDateMatch != null;
+  if (!eventDateMatch) {
+    if (!eventLike || /予約|申込|受付|定員/.test(eventText)) return null;
+    throw new Error(`Nissan event date missing for ${label}`);
+  }
+  const explicitYear = eventDateMatch[1] ? Number(eventDateMatch[1]) : null;
+  const month = Number(eventDateMatch[2]);
+  const day = Number(eventDateMatch[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) throw new Error('Nissan event has an invalid date');
+  const eventTextAfterDate = eventText.slice(eventDateMatch.index + eventDateMatch[0].length);
+  const timeMatch = /(\d{1,2})(?:時|:)(\d{2})?[〜～~\-−–—](\d{1,2})(?:時|:)(\d{2})?/.exec(eventTextAfterDate);
+  if (!timeMatch) {
+    if (/予約|申込|受付|定員|開催予定/.test(eventText)) return null;
+    throw new Error(`Nissan event time missing for ${label}`);
+  }
+  const from = nissanTime(timeMatch[1], timeMatch[2]);
+  const to = nissanTime(timeMatch[3], timeMatch[4]);
+  if (from >= to) throw new Error('Nissan event time range is not increasing');
+
+  const hrefDate = nissanHrefDate(attributes);
+  const applicationStarts = [...afterLabel.matchAll(/(20\d{2})年(\d{1,2})月\d{1,2}日.{0,60}?申込開始/g)]
+    .map(match => ({ year: Number(match[1]), month: Number(match[2]) }));
+  return {
+    month,
+    day,
+    from,
+    to,
+    explicitYear,
+    hrefYear: hrefDate?.year ?? null,
+    hrefMonth: hrefDate?.month ?? null,
+    hrefDay: hrefDate?.day ?? null,
+    applicationStarts,
+  };
+}
+
+function nissanYearIsSafe(event: NissanEvent, requestedYear: number) {
+  if (event.hrefYear !== null && event.hrefYear !== requestedYear) return false;
+  if (event.explicitYear !== null && event.explicitYear !== requestedYear) return false;
+  const priorYearApplicationAllowed = event.month <= 2
+    && event.applicationStarts.length > 0
+    && event.applicationStarts.every(start => start.year === requestedYear - 1 && start.month >= 11);
+  const allowedApplicationYears = new Set([requestedYear, ...(priorYearApplicationAllowed ? [requestedYear - 1] : [])]);
+  if (event.applicationStarts.some(start => !allowedApplicationYears.has(start.year))) return false;
+
+  // The visible event date has no year, so do not infer a year from a bare
+  // month/day. At least one explicit year-bearing source must agree.
+  if (event.hrefYear === null && event.explicitYear === null
+    && !event.applicationStarts.some(start => start.year === requestedYear)) return false;
+  return true;
+}
+
+function nissanUnknown(
+  trackId: NissanTrackId,
+  context: Omit<CollectorContext, 'fetchImpl'> & { fetchedAt?: string; sourceHash?: string },
+  unknownReason: UnknownReason,
+  warnings: string[],
+) {
+  return unknownRecord({
+    trackId,
+    date: context.date,
+    now: context.now,
+    unknownReason,
+    url: sourceUrls.nissan,
+    publicationFormat: 'structured_html',
+    collector: 'nissan-track-html',
+    fetchedAt: context.fetchedAt,
+    sourceHash: context.sourceHash,
+    confidence: 'low',
+    warnings,
+  });
+}
+
+export function parseNissanTrack(
+  html: string,
+  context: Omit<CollectorContext, 'fetchImpl' | 'now'> & { now: Date; fetchedAt?: string; sourceHash?: string },
+  trackId: NissanTrackId,
+) {
+  const pageText = stripHtml(html);
+  if (!pageText.includes('トラック個人利用') || !pageText.includes('トラック個人利用エントリーフォーム')) {
+    throw new Error('Expected Nissan track page anchors not found');
+  }
+  if (!pageText.includes('日産スタジアム') || !pageText.includes('日産フィールド小机')) {
+    throw new Error('Expected Nissan venue anchors not found');
+  }
+
+  const { year, month, day } = dateParts(context.date);
+  const label = nissanTrackLabels[trackId];
+  const warnings = nissanWarnings(pageText);
+  const events: NissanEvent[] = [];
+  const anchors = [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)];
+  for (const anchor of anchors) {
+    const event = parseNissanEvent(anchor[2], anchor[1], label);
+    if (event) events.push(event);
+  }
+
+  const dateEvents = events.filter(event => event.month === month && event.day === day);
+  const matchingEvents = dateEvents.filter(event => {
+    if (event.hrefMonth !== null && (event.hrefMonth !== month || event.hrefDay !== day)) return false;
+    return nissanYearIsSafe(event, year);
+  });
+  if (matchingEvents.length > 1) throw new Error(`Multiple Nissan events found for ${label} on ${context.date}`);
+  if (matchingEvents.length === 1) {
+    const event = matchingEvents[0];
+    return makeRecord({
+      trackId,
+      date: context.date,
+      now: context.now,
+      status: 'partially_available',
+      periods: [publicPeriod(event.from, event.to, 'full_track', ['explicit_individual_use_event'], 'public')],
+      url: sourceUrls.nissan,
+      publicationFormat: 'structured_html',
+      collector: 'nissan-track-html',
+      fetchedAt: context.fetchedAt,
+      sourceHash: context.sourceHash,
+      confidence: 'high',
+      warnings,
+    });
+  }
+
+  const hasStaleYear = dateEvents.some(event => {
+    const explicitYears = [event.explicitYear, event.hrefYear, ...event.applicationStarts.map(start => start.year)]
+      .filter((value): value is number => value !== null);
+    return explicitYears.length > 0 && explicitYears.every(value => value !== year);
+  });
+  return nissanUnknown(trackId, context, hasStaleYear ? 'source_stale' : 'outside_published_period', warnings);
+}
+
+// Keep the parser discoverable under the source-oriented name used by the
+// other collectors while retaining a facility-specific exported name.
+export const parseNissan = parseNissanTrack;
+
 interface FixedConfig {
   trackId: string;
   url: string;
@@ -462,6 +664,51 @@ async function collectHtml(trackId: string, url: string, publicationFormat: 'str
   }
 }
 
+async function collectNissan(context: CollectorContext) {
+  let source: { html: string; sourceHash: string };
+  try {
+    source = await request(sourceUrls.nissan, context.fetchImpl);
+  } catch (error) {
+    const reason: UnknownReason = error instanceof TypeError || /HTTP|fetch|abort|network/i.test(String(error)) ? 'fetch_failed' : 'parse_failed';
+    return nissanTrackIds.map(trackId => unknownRecord({
+      trackId,
+      date: context.date,
+      now: context.now,
+      unknownReason: reason,
+      url: sourceUrls.nissan,
+      publicationFormat: 'structured_html',
+      collector: 'nissan-track-html',
+      confidence: 'low',
+      warnings: [String(error)],
+    }));
+  }
+
+  return nissanTrackIds.map(trackId => {
+    try {
+      return parseNissanTrack(source.html, {
+        date: context.date,
+        now: context.now,
+        fetchedAt: toIso(context.now),
+        sourceHash: source.sourceHash,
+      }, trackId);
+    } catch (error) {
+      return unknownRecord({
+        trackId,
+        date: context.date,
+        now: context.now,
+        unknownReason: 'parse_failed',
+        url: sourceUrls.nissan,
+        publicationFormat: 'structured_html',
+        collector: 'nissan-track-html',
+        fetchedAt: toIso(context.now),
+        sourceHash: source.sourceHash,
+        confidence: 'low',
+        warnings: [String(error)],
+      });
+    }
+  });
+}
+
 async function collectPdf(config: (typeof pdfSourceConfigs)[number], context: CollectorContext, collector = createPdfCollector(context.fetchImpl)) {
   try {
     const result = await collector.collect(config, context.date, context.now);
@@ -507,6 +754,7 @@ export async function collectAvailability(date: string, options: { now?: Date; f
   const context: CollectorContext = { date, now: options.now ?? new Date(), fetchImpl: options.fetchImpl ?? fetch };
   // Official sources are intentionally fetched sequentially to avoid bursts to the same operator.
   const supported = [
+    ...(await collectNissan(context)),
     await collectHtml('hikarigaoka-park-track', sourceUrls.hikarigaoka, 'structured_html', 'hikarigaoka-html', context, parseHikarigaoka),
     await collectHtml('musashino-athletic-track', sourceUrls.musashino, 'structured_html', 'musashino-html', context, parseMusashino),
     await collectHtml('tokyo-metropolitan-gymnasium-track', sourceUrls.tokyoGymnasium, 'calendar_html', 'tokyo-gymnasium-calendar', context, parseTokyoGymnasium, true),
@@ -528,6 +776,8 @@ export async function collectAvailability(date: string, options: { now?: Date; f
       'okudo-sports-center-track',
       'koshigaya-shirakobato-track',
       'akirudai-park-athletic-track',
+      'nissan-stadium-track',
+      'nissan-field-kozukue',
     ].includes(source.trackId)).map(source => unknownRecord({
       trackId: source.trackId,
       date,

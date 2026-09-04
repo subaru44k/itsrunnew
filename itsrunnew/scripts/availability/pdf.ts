@@ -334,6 +334,88 @@ export function parseKamiyugiPdf(pdf: ExtractedPdf, date: string): PdfParseResul
   };
 }
 
+export function parseKanagawaSportsCenterPdf(pdf: ExtractedPdf, date: string): PdfParseResult {
+  const { year, month, day } = dateParts(date);
+  assertAnchors(pdf, [
+    '県立スポーツセンター',
+    `令和${reiwaYear(year)}年${month}月分`,
+    '個人・団体利用可能予定日時',
+    '「〇」が利用可能予定の日時です',
+    '陸上競技場',
+  ]);
+  const table = pageItems(pdf).filter(item => item.y < 800);
+  const rows = itemsForDay(table, day, text => {
+    const match = /^(\d{1,2})(?:★)?$/.exec(text);
+    return match ? Number(match[1]) : null;
+  }, 130);
+  if (!rows) throw new PdfCollectorError('source_changed', 'Target date row missing from Kanagawa Sports Center schedule');
+  const afternoonEnd = (month > 4 && month < 9) || (month === 4 && day >= 15) || (month === 9 && day <= 15) ? '18:00' : '17:00';
+  const slots = [
+    { from: '09:00', to: '12:00', value: cellText(rows, 250, 450) },
+    { from: '13:00', to: afternoonEnd, value: cellText(rows, 500, 700) },
+  ];
+  const periods = slots.map(slot => {
+    if (/[○〇]/.test(slot.value)) return period(slot.from, slot.to, 'available', ['explicit_individual_or_small_group_availability', 'annual_pass_required_for_individual_use']);
+    if (slot.value.includes('×')) return period(slot.from, slot.to, 'unavailable', ['explicit_schedule_unavailable']);
+    return period(slot.from, slot.to, 'unknown', ['not_explicitly_published']);
+  });
+  const status = aggregate(periods);
+  return {
+    status,
+    periods,
+    unknownReason: status === 'unknown' ? 'insufficient_information' : undefined,
+    warnings: ['個人利用は1年単位の定期利用者のみ', '施設点検等による当日変更の可能性あり'],
+    confidence: 'high',
+  };
+}
+
+export function parseExpo70Pdf(pdf: ExtractedPdf, date: string): PdfParseResult {
+  const { year, month, day } = dateParts(date);
+  assertAnchors(pdf, [
+    '月度',
+    '個人利用予定表',
+    '個人利用では、陸上競技の練習目的以外でのご利用はできません',
+    `${year}年`,
+    '日程変更の可能性があります',
+  ]);
+  const items = pageItems(pdf);
+  if (!items.some(item => compact(item.text) === String(month) && item.x >= 85 && item.x < 125 && item.y > 750)) {
+    throw new PdfCollectorError('outside_published_period', 'Expo 70 PDF month does not match requested date');
+  }
+  const target = uniqueItems(items).find(item => {
+    const value = compact(item.text);
+    return /^\d{1,2}$/.test(value)
+      && Number(value) === day
+      && ((item.x >= 35 && item.x < 70) || (item.x >= 315 && item.x < 350))
+      && item.y > 230 && item.y < 620;
+  });
+  if (!target) throw new PdfCollectorError('source_changed', 'Target date row missing from Expo 70 individual-use schedule');
+  const row = items.filter(item => Math.abs(item.y - target.y) < 2);
+  const rightColumn = target.x >= 315;
+  const value = cellText(row, rightColumn ? 400 : 120, rightColumn ? 485 : 200);
+  const time = /(\d{1,2})時\s*[~〜～-]\s*(\d{1,2})時/.exec(normalize(value));
+  if (time) {
+    return {
+      status: 'available',
+      periods: [period(`${time[1].padStart(2, '0')}:00`, `${time[2].padStart(2, '0')}:00`, 'available', ['explicit_individual_use_schedule'])],
+      warnings: ['予定表作成後も日程変更の可能性あり', '個人利用は陸上競技の練習目的に限定'],
+      confidence: 'high',
+    };
+  }
+  if (value.includes('×')) {
+    return {
+      status: 'unavailable',
+      periods: [period(null, null, 'unavailable', ['explicit_individual_use_schedule_unavailable'])],
+      warnings: ['予定表作成後も日程変更の可能性あり'],
+      confidence: 'high',
+    };
+  }
+  return {
+    status: 'unknown', periods: [], unknownReason: 'insufficient_information',
+    warnings: ['予定表の対象日に利用時間または利用不可記号の明示なし'], confidence: 'low',
+  };
+}
+
 export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.0.0' },
   { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.0.0' },
@@ -344,6 +426,8 @@ export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'ageo-athletic-stadium', name: '上尾運動公園 陸上競技場', landingPageUrl: 'https://www.parks.or.jp/saitamasuijo/guide/006/006231.html', discovery: 'monthly_pdf_discovery', parser: 'ageo-individual-use-list', parserVersion: '1.0.0' },
   { trackId: 'hachioji-fujimori-athletic-stadium', name: '東京フットボールセンター八王子富士森競技場', landingPageUrl: 'https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html', discovery: 'latest_pdf_discovery', parser: 'fujimori-multi-month-matrix', parserVersion: '1.0.0' },
   { trackId: 'kamiyugi-park-athletic-stadium', name: '上柚木公園陸上競技場', landingPageUrl: 'https://kamiyugi-park.jp/facility/athletics-stadium/', discovery: 'latest_pdf_discovery', parser: 'kamiyugi-multi-month-matrix', parserVersion: '1.0.0' },
+  { trackId: 'kanagawa-prefectural-sports-center-track', name: '神奈川県立スポーツセンター陸上競技場', landingPageUrl: 'https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html', discovery: 'monthly_pdf_discovery', parser: 'kanagawa-sports-center-monthly', parserVersion: '1.0.0' },
+  { trackId: 'expo70-commemorative-stadium', name: '万博記念競技場', landingPageUrl: 'https://www.expo70-park.jp/sports/facility/arena/', discovery: 'monthly_pdf_discovery', parser: 'expo70-individual-use-monthly', parserVersion: '1.0.0' },
 ];
 
 interface HtmlLink { url: string; text: string }
@@ -421,6 +505,13 @@ async function discoverPdf(config: PdfSourceConfig, date: string, client: PdfSou
     const url = paragraph ? htmlLinks(paragraph, landing.finalUrl)[0]?.url : undefined;
     return url?.includes(`/${year}/`) ? url : undefined;
   }
+  if (config.trackId === 'kanagawa-prefectural-sports-center-track') {
+    return links.find(link => text(link).includes(`予定表(令和${reiwaYear(year)}年${month}月分)`))?.url;
+  }
+  if (config.trackId === 'expo70-commemorative-stadium') {
+    const label = `競技場${month}月個人利用予定表`;
+    return links.find(link => text(link).includes(label) && link.url.includes(`${year}${String(month).padStart(2, '0')}`))?.url;
+  }
   if (config.trackId.startsWith('wadabori-park-')) {
     const article = links.find(link => link.url.includes(`/news/${year}/`) && text(link).includes('競技場') && text(link).includes(`${month}月`));
     if (!article) return undefined;
@@ -441,6 +532,8 @@ function parserFor(config: PdfSourceConfig, pdf: ExtractedPdf, date: string) {
   if (config.trackId === 'ageo-athletic-stadium') return parseAgeoPdf(pdf, date);
   if (config.trackId === 'hachioji-fujimori-athletic-stadium') return parseFujimoriPdf(pdf, date);
   if (config.trackId === 'kamiyugi-park-athletic-stadium') return parseKamiyugiPdf(pdf, date);
+  if (config.trackId === 'kanagawa-prefectural-sports-center-track') return parseKanagawaSportsCenterPdf(pdf, date);
+  if (config.trackId === 'expo70-commemorative-stadium') return parseExpo70Pdf(pdf, date);
   throw new PdfCollectorError('unsupported_source_type', `No parser for ${config.trackId}`);
 }
 

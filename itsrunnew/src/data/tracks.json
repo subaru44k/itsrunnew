@@ -1754,8 +1754,8 @@
     },
     "urls": {
       "official": "https://www.nissan-stadium.jp/",
-      "individualUse": "https://www.nissan-stadium.jp/sp/track/index.php",
-      "schedule": "https://www.nissan-stadium.jp/sp/track/index.php"
+      "individualUse": "https://www.nissan-stadium.jp/track/index.php",
+      "schedule": "https://www.nissan-stadium.jp/track/index.php"
     },
     "externalIds": {
       "jaaf": null,
@@ -1765,12 +1765,12 @@
       {
         "url": "https://www.nissan-stadium.jp/",
         "type": "official",
-        "verifiedAt": "2026-08-25"
+        "verifiedAt": "2026-09-04"
       },
       {
-        "url": "https://www.nissan-stadium.jp/sp/track/index.php",
+        "url": "https://www.nissan-stadium.jp/track/index.php",
         "type": "official",
-        "verifiedAt": "2026-08-25"
+        "verifiedAt": "2026-09-04"
       }
     ]
   },
@@ -2656,7 +2656,7 @@
     "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "公式のトラック個人利用実施日時を確認", "spikesAllowed": null, "note": "事前申込制の実施日あり" },
     "urls": { "official": "https://www.nissan-stadium.jp/track/index.php", "individualUse": "https://www.nissan-stadium.jp/track/index.php", "schedule": "https://www.nissan-stadium.jp/track/index.php" },
     "externalIds": { "jaaf": "10377", "osm": [] },
-    "sources": [{ "url": "https://www.nissan-stadium.jp/track/index.php", "type": "official", "verifiedAt": "2026-08-27" }, { "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=", "type": "jaaf-candidate", "verifiedAt": "2026-08-27" }]
+    "sources": [{ "url": "https://www.nissan-stadium.jp/track/index.php", "type": "official", "verifiedAt": "2026-09-04" }, { "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=", "type": "jaaf-candidate", "verifiedAt": "2026-08-27" }]
   },
   {
     "id": "hadano-culture-park-track",

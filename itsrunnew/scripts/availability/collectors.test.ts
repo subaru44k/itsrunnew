@@ -9,11 +9,13 @@ import {
   parseEdogawaWeekly,
   parseKomazawa,
   parseKoshigayaToday,
+  parseMachidaGion,
   parseMusashino,
   parseNissanTrack,
   parseTokyoGymnasium,
 } from './collectors';
 import { sourceUrls } from './config';
+import { collectAvailabilityRange } from './range';
 
 const fixture = (name: string) => readFileSync(fileURLToPath(new URL(`fixtures/${name}`, import.meta.url)), 'utf8');
 const now = new Date('2026-08-24T03:00:00.000Z');
@@ -130,6 +132,77 @@ describe('availability collectors', () => {
     expect(nissan).toHaveLength(2);
     expect(nissan.map(item => item.trackId).sort()).toEqual(['nissan-field-kozukue', 'nissan-stadium-track']);
     expect(calls.filter(url => url === sourceUrls.nissan)).toHaveLength(1);
+  });
+
+  it('parses Machida Event Organiser personal, dedicated, and closure events', () => {
+    const html = fixture('machida-gion-events.json');
+    expect(parseMachidaGion(html, { date: '2026-09-01', now })).toMatchObject({
+      trackId: 'machida-gion-stadium',
+      status: 'partially_available',
+      source: {
+        publicationFormat: 'calendar_json',
+        landingPageUrl: 'https://www.nozuta-park.com/calender.html',
+      },
+      periods: [{ from: '09:00', to: '18:00', status: 'available', scope: 'full_track', eligibility: 'public' }],
+    });
+    expect(parseMachidaGion(html, { date: '2026-09-06', now }).periods[0]).toMatchObject({ from: '09:00', to: '18:00' });
+    expect(parseMachidaGion(html, { date: '2026-09-13', now })).toMatchObject({
+      status: 'unavailable',
+      periods: [{ from: '09:00', to: '18:00', status: 'unavailable', conditions: ['explicit_dedicated_use_event'] }],
+    });
+    expect(parseMachidaGion(html, { date: '2026-09-14', now })).toMatchObject({
+      status: 'unavailable',
+      periods: [{ from: null, to: null, status: 'unavailable', conditions: ['explicit_facility_closure'] }],
+    });
+    expect(parseMachidaGion(html, { date: '2026-09-08', now })).toMatchObject({
+      status: 'unknown', unknownReason: 'outside_published_period', periods: [],
+    });
+    expect(parseMachidaGion(html, { date: '2026-09-01', now }).warnings.join(' ')).toContain('変更する場合がございます');
+  });
+
+  it('fails closed for malformed or contradictory Machida events', () => {
+    const events = JSON.parse(fixture('machida-gion-events.json')) as Array<Record<string, unknown>>;
+    events[0].end = 'not-an-iso-date';
+    expect(parseMachidaGion(JSON.stringify(events), { date: '2026-09-01', now })).toMatchObject({
+      status: 'unknown', unknownReason: 'parse_failed', periods: [],
+    });
+
+    const contradictory = JSON.parse(fixture('machida-gion-events.json')) as Array<Record<string, unknown>>;
+    contradictory.push({
+      ...contradictory[0],
+      url: 'https://www.nozuta-park.com/events/event/personal-0901-duplicate',
+      description: 'この日はスタジアムの個人利用が可能です。【利用時間】10:00-12:00',
+    });
+    expect(parseMachidaGion(JSON.stringify(contradictory), { date: '2026-09-01', now })).toMatchObject({
+      status: 'unknown', unknownReason: 'parse_failed', periods: [],
+    });
+
+    const wrongDescription = JSON.parse(fixture('machida-gion-events.json')) as Array<Record<string, unknown>>;
+    wrongDescription[0].description = 'この日はスタジアムの個人利用について確認が必要です。【利用時間】9:00-18:00';
+    expect(parseMachidaGion(JSON.stringify(wrongDescription), { date: '2026-09-01', now })).toMatchObject({
+      status: 'unknown', unknownReason: 'parse_failed', periods: [],
+    });
+  });
+
+  it('uses a month-bounded Machida endpoint and represents the facility once', async () => {
+    const calls: string[] = [];
+    const fetchImpl = (async (input: string | URL | Request) => {
+      const url = String(input);
+      calls.push(url);
+      if (url.startsWith(sourceUrls.machidaGion)) return new Response(fixture('machida-gion-events.json'));
+      return new Response('source');
+    }) as typeof fetch;
+    const single = await collectAvailability('2026-09-01', { now, fetchImpl });
+    expect(single.filter(item => item.trackId === 'machida-gion-stadium')).toHaveLength(1);
+    expect(single.find(item => item.trackId === 'machida-gion-stadium')).toMatchObject({ status: 'partially_available' });
+    calls.length = 0;
+    const ranged = await collectAvailabilityRange('2026-09-29', 5, { now, fetchImpl });
+    const machidaUrls = calls.filter(url => url.startsWith(sourceUrls.machidaGion));
+    expect(machidaUrls).toHaveLength(2);
+    expect(new Set(machidaUrls).size).toBe(2);
+    expect(machidaUrls.filter(url => url.includes('start=2026-09-01') && url.includes('end=2026-10-01'))).toHaveLength(1);
+    expect(machidaUrls.filter(url => url.includes('start=2026-10-01') && url.includes('end=2026-11-01'))).toHaveLength(1);
+    expect(ranged.datasets.every(dataset => dataset.facilities.filter(item => item.trackId === 'machida-gion-stadium').length === 1)).toBe(true);
   });
 
   it('downgrades stale records to unknown', () => {

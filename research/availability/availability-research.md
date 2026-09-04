@@ -1,15 +1,60 @@
 # 「今日、個人利用できるトラック」フィージビリティ調査
 
-調査日: 2026-08-24（Asia/Tokyo）
+初回調査日: 2026-08-24（Asia/Tokyo）
+最終更新: 2026-09-04（Asia/Tokyo）
 
 対象データ: [`itsrunnew/src/data/tracks.json`](../../itsrunnew/src/data/tracks.json)
 構造化結果: [`availability-sources.json`](availability-sources.json)
 
 ## 51候補への品質優先拡張追補
 
-2026-08-25に神奈川・千葉・埼玉の公式一次情報を確認した18候補を追加し、当時のTrack Datasetは51施設になった。2026-08-27に初期33施設を含む全51候補を遡及監査し、施設identityを確認できなかった1件を除外して50施設へ補正した。同日の関東網羅性batchで東京・千葉・神奈川の19施設、関西batchで大阪・兵庫・京都の20施設、2026-08-28の中国・愛知・福岡batchで20施設を追加した。さらに同日のcoverage gap follow-upで過去対象地域を再監査し24施設を追加して、現在は133施設である。2026-09-04に日産スタジアム・日産フィールド小机の共通HTMLと、神奈川県立スポーツセンター・万博記念競技場の月次PDFを実データで検証してcollectorへ追加した。意味まで安全に確定できる施設数は27、coverageは27/133（20.3%）。未対応施設は共通fallbackにより `unknown` となり、情報欠落を利用不可とは解釈しない。
+2026-08-25に神奈川・千葉・埼玉の公式一次情報を確認した18候補を追加し、当時のTrack Datasetは51施設になった。2026-08-27に初期33施設を含む全51候補を遡及監査し、施設identityを確認できなかった1件を除外して50施設へ補正した。同日の関東網羅性batchで東京・千葉・神奈川の19施設、関西batchで大阪・兵庫・京都の20施設、2026-08-28の中国・愛知・福岡batchで20施設を追加した。さらに同日のcoverage gap follow-upで過去対象地域を再監査し24施設を追加して、現在は133施設である。2026-09-04のbatch 1では日産スタジアム・日産フィールド小机の共通HTMLと、神奈川県立スポーツセンター・万博記念競技場の月次PDFを実データで検証してcollectorへ追加し、27/133（20.3%）になった。同日のbatch 2では6施設を追加し、意味まで安全に確定できる施設数は33、coverageは33/133（24.8%）になった。未対応施設は共通fallbackにより `unknown` となり、情報欠落を利用不可とは解釈しない。
 
-施設・属性・地域の追加履歴は [`../track-expansion/phase2-expansion-report.md`](../track-expansion/phase2-expansion-report.md)、遡及監査は [`../track-expansion/current-51-audit.md`](../track-expansion/current-51-audit.md) を参照する。以下の33施設・12施設の節は当時の調査履歴として残す。
+施設・属性・地域の追加履歴は [`../track-expansion/phase2-expansion-report.md`](../track-expansion/phase2-expansion-report.md)、遡及監査は [`../track-expansion/current-51-audit.md`](../track-expansion/current-51-audit.md) を参照する。batch 2のsource・意味付け・live検証は [`high-confidence-collector-validation-batch-2-2026-09.md`](high-confidence-collector-validation-batch-2-2026-09.md) に記録する。以下の33施設・12施設の節は当時の調査履歴として残す。
+
+## 2026-09 batch 2: 6施設の高確度collector
+
+2026-09-04に、公式sourceの対象日・時間・利用可否を明示情報だけで判定できる6施設を追加検証した。27施設から33施設となり、Track Dataset 133施設に対するcoverageは33/133（24.8%）である。自動判定対象の実装形式は、実際のrecordが持つ `publicationFormat` に基づき次のとおりである。
+
+| publicationFormat | 施設数 | 施設 |
+|---|---:|---|
+| `structured_html` | 7 | 光が丘、武蔵野、越谷、日産スタジアム、日産フィールド小机、西京極補助競技場、柳島 |
+| `calendar_html` | 3 | 東京体育館、駒沢、江戸川 |
+| `calendar_json` | 1 | 町田GIONスタジアム |
+| `fixed_schedule` | 9 | 大泉、赤塚、井の頭、朝霞、代々木、大井、舎人、奥戸、秋留台 |
+| `weekly_notice` | 1 | 山城総合運動公園 |
+| `pdf` | 12 | 練馬、戸田、和田堀第一、和田堀第二、三郷、上尾、富士森、上柚木、神奈川県立スポーツセンター、万博記念、国府台、びんご |
+| **合計** | **33** | |
+
+WordPress記事や施設の調査上の公開方式と、collectorが生成recordへ保存する `publicationFormat` は同じ分類とは限らない。本coverageでは現行codeを正本とし、西京極・柳島のWordPress月次noticeを `structured_html` として数えた。研究用source分類での `weekly_notice` / `calendar_html` との重複カウントは避ける。
+
+### 追加施設の公式sourceと安全な意味付け
+
+| 施設 | 公式source | 安全に判定する根拠 |
+|---|---|---|
+| 町田GIONスタジアム | [町田市案内](https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html)、[公式カレンダー](https://www.nozuta-park.com/calender.html)、[Event Organiser JSON](https://www.nozuta-park.com/wp-admin/admin-ajax.php?action=eventorganiser-fullcal) | 月境界付きJSONの完全一致title・category・説明文・ISO日時。個人利用の明示時間だけpartial、専用利用・休場の明示範囲だけunavailable。イベントなし、対象月外、重複・矛盾、形式変更はunknown |
+| 国府台陸上競技場 | [市川市施設案内](https://www.city.ichikawa.lg.jp/page/4184.html)、[月次使用予定表](https://www.city.ichikawa.lg.jp/page/4185.html) | 月次表の対象日「利用時間」から明示イベントの「使用時間」を差し引く。予定表ページの「使用時間以外を一般開放」という規則、対象月、時刻を検証できなければunknown |
+| 柳島スポーツ公園総合競技場 | [茅ヶ崎市案内](https://www.city.chigasaki.kanagawa.jp/shisetsu_info/s_sports/1028429.html)、[個人利用案内](https://www.ys-park.jp/user-guide/athletics/)、[2026年9月記事](https://www.ys-park.jp/2026/09/01/17617/) | WordPress検索結果の年・月・完全一致titleと、記事内の明示日時・休館・開放なしだけを判定。記事内非掲載日はunknown |
+| 東寺ハウジングフィールド西京極 | [施設案内](https://www.kyoto-sports.or.jp/facilities/detail.php?id=4)、[月次topic一覧](https://www.kyoto-sports.or.jp/category/cat_topics/) | 記事titleの年月、本文の補助競技場名、開放日と時間を相互検証。主競技場の予定や非掲載日を補助競技場の不可・可へ流用しない |
+| 京都府立山城総合運動公園 | [個人利用申込案内](https://www.kyoto-park.jp/application/)、[固定URLの個人利用告知](https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/) | 固定URLを上書きする記事のtitle、公開年、対象日、明示時間を検証。記事の短期掲載範囲外はunknownで、過去記事から補完しない |
+| びんご運動公園陸上競技場 | [利用案内](https://bingo-sportspark.com/guide.html)、[月次PDF掲載記事](https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033) | 月次PDFの年月・凡例とトラック可否を検証。トラック利用可、明示時間境界、終日×だけを判定し、空欄・混在記号はunknown |
+
+国府台の「利用時間以外は一般開放」は、公式規則が明示する開場時間を根拠にした限定的な差し引きであり、他施設へ一般化しない。全施設で予定変更・大会・専用利用・整備・天候等の当日差異が残るため、freshなavailableでも公式確認を案内する。
+
+### 代表的なlive例
+
+2026年9月の公式資料・応答をfixtureと目視比較した代表例は次のとおりである。いずれもsourceの掲載範囲に依存し、将来の掲載内容を保証するものではない。
+
+- Machida JSON: `個人利用日` / `personal` の9月1日9:00–18:00は `partially_available`、9月3日開始・9月7日終了のend-exclusive範囲は9月6日までを対象とする。`専用利用日` / `rikujyou` と `休場日` / `break` は明示範囲だけ `unavailable`、非掲載日はunknown。
+- 国府台PDF: 9月1日は9:00–21:00、9月4日は9:00–12:00の市民スポーツ教室を差し引いて12:00–21:00をavailable、9月28日の休場表示はunavailable。
+- 柳島記事: 9月4日14:30–22:00をpartial、9月14日の施設休館・9月21日の開放なしをunavailable、記事にない9月3日はunknown。
+- 西京極記事: 9月1日と7〜9日の7:00–21:00をpartial、非掲載日はunknown。主競技場の予定とは混同しない。
+- 山城告知: 9月4日9:00–21:00をpartial、9月6日の利用不可をunavailable、短期告知にない9月7日はunknown。
+- びんごPDF: 9月1日はトラック利用可、9月3日は16:00まで、9月5日は14:00以降をpartial、9月19日の終日×はunavailable。
+
+### 取得・解析の失敗時
+
+JSONの対象月、PDFの年月・凡例、WordPress記事のtitle・公開年・施設anchorを検証する。取得失敗、content type不一致、抽出失敗、anchor変更、年月不一致、時刻欠落、空欄、非掲載、重複や意味の矛盾は `unknown` へ降格し、`unavailable` にはしない。PDFはOCRを導入せず、座標付きtext extractionで意味を確定できる形式だけを対応する。range collectorの同一URL cacheにより、月次PDF・月次JSON・WordPress記事・固定URL告知を31日分繰り返し取得しない。
 
 ## 33施設への拡張追補
 
@@ -197,7 +242,7 @@ PDF parserの投資で主方式として追加できるのは練馬と戸田の2
 
 `scope` は少なくとも `full_track | track_and_jogging_course | jogging_course_only | lane_subset | unknown` を持つ。利用資格は `eligibility` と `conditions` に分離し、朝霞の市内要件を失わないようにする。生の根拠を再検証できるよう、source URL、bytes hash、collector名、parser versionも保存する。
 
-## 実装優先順位
+## 実装優先順位（初回調査時点の履歴）
 
 ### Phase A: HTML/calendar + fixed rule evaluator
 
@@ -223,9 +268,9 @@ PDF parserの投資で主方式として追加できるのは練馬と戸田の2
 
 城北中央公園は電話・現地掲示のみのため自動化対象外とし、`unknown` と公式連絡先を表示する方が正確である。
 
-## 次のCodexタスク
+## 初回調査時点の次のCodexタスク（履歴）
 
-次のタスクは「UIを変更せず、Phase Aのavailability生成パイプラインを実装する」とするのが具体的である。
+以下は初回調査時点の計画である。Phase A・Bと後続collector追加の一部は実装済みで、現在の6施設追加の詳細はbatch 2の検証記録を正本とする。
 
 1. `trackId + source config`、fixed rule、closure overlayのschemaとvalidatorを追加する。
 2. 光が丘・武蔵野・東京体育館のfixtureベースHTML parserを実装する。
@@ -234,7 +279,13 @@ PDF parserの投資で主方式として追加できるのは練馬と戸田の2
 5. 取得失敗、古い情報、対象日不一致、矛盾、限定利用をすべて `unknown` にするテストを追加する。
 6. collectorを実サイトへ過剰アクセスさせず、fixture testと低頻度の明示的refresh commandを分ける。
 
-UIの「本日利用可能」filter、scheduler、PDF parser、予約システムcollectorは、このPhase A生成物の精度を確認してから別タスクで実装する。
+UIの「本日利用可能」filter、scheduler、予約システムcollectorは、この生成物の精度と運用許容を確認してから別タスクで実装する。PDF parserとbatch 2の6施設は後続作業で実装済みである。
+
+## 現在の後続課題
+
+- 33/133のcollectorを日次rangeで運用し、source変更・予定未公開・当日変更を `unknown` として監視する。
+- 町田、国府台、柳島、西京極、山城、びんごのlive sourceを定期的に目視比較し、月次PDF・WordPress記事・固定URL告知の掲載範囲を再確認する。
+- 予約システム、電話・現地確認、today-only sourceは、意味と運用許容を別途確認するまで自動化しない。
 
 ## 制約と未解決事項
 
@@ -242,4 +293,4 @@ UIの「本日利用可能」filter、scheduler、PDF parser、予約システ�
 - 一般開放予定は利用保証ではなく、当日変更・天候・混雑・安全判断がある。
 - 固定ルール型の実日付カバレッジは、将来の観測期間を決めて別途測定する必要がある。
 - 公開予約システムの自動取得は、技術的に可能でも運用者の許容と利用規約を先に確認する。
-- 調査結果はTrack Datasetへ埋め込まず、頻繁に変わるavailability source metadataとして分離した。既存Track Search UI、route、dataset、backend構成には変更を加えていない。
+- 調査結果はTrack Datasetのsource metadataと分離し、頻繁に変わるavailabilityはcollectorの生成物として扱う。batch 2でもこの境界を維持し、未確定のsource semanticsや取得失敗を既存UIで利用不可と表示しない。

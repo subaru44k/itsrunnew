@@ -23,6 +23,13 @@ export const sourceUrls = {
   kamiyugi: 'https://kamiyugi-park.jp/facility/athletics-stadium/',
   akirudai: 'https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html',
   nissan: 'https://www.nissan-stadium.jp/track/index.php',
+  machidaGion: 'https://www.nozuta-park.com/wp-admin/admin-ajax.php?action=eventorganiser-fullcal',
+  machidaCalendar: 'https://www.nozuta-park.com/calender.html',
+  nishikyogoku: 'https://www.kyoto-sports.or.jp/wp-json/wp/v2/posts?search=%E8%A5%BF%E4%BA%AC%E6%A5%B5%20%E9%99%B8%E4%B8%8A%E3%83%88%E3%83%A9%E3%83%83%E3%82%AF%20%E4%B8%80%E8%88%AC%E9%96%8B%E6%94%BE%E6%97%A5&per_page=10&_fields=date%2Cmodified%2Clink%2Ctitle%2Ccontent',
+  nishikyogokuLanding: 'https://www.kyoto-sports.or.jp/category/cat_topics/',
+  chigasaki: 'https://www.ys-park.jp/wp-json/wp/v2/posts?search=%E9%99%B8%E4%B8%8A%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8&per_page=10&_fields=date%2Cmodified%2Clink%2Ctitle%2Ccontent',
+  chigasakiLanding: 'https://www.ys-park.jp/user-guide/athletics/',
+  yamashiro: 'https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/',
 } as const;
 
 export const expansionFallbackSources = [

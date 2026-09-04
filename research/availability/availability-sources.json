@@ -10,31 +10,31 @@
     "scope": "All facilities in the current normalized Track Dataset",
     "officialWebAvailabilityFoundCount": 112,
     "classificationCounts": {
-      "pdf": 19,
+      "pdf": 20,
       "structured_html": 9,
       "fixed_schedule": 11,
       "phone_only": 19,
       "reservation_system": 40,
-      "calendar_html": 14,
+      "calendar_html": 13,
       "no_schedule_found": 12,
       "weekly_notice": 9
     },
     "automationCounts": {
-      "yes": 22,
-      "probably": 29,
+      "yes": 28,
+      "probably": 23,
       "no": 20,
       "difficult": 62
     },
     "implementationCoverage": {
-      "currentCollectors": 27,
+      "currentCollectors": 33,
       "smallCollectorExtension": 0,
-      "newlySupported": 12,
+      "newlySupported": 18,
       "guardedUnknown": 2,
-      "pdfSupported": 10,
+      "pdfSupported": 12,
       "pdfGuardedUnknown": 1,
       "pdfRequired": 2,
       "reservationSystemRequired": 33,
-      "manualOrUnknown": 106
+      "manualOrUnknown": 100
     },
     "futureDateAssessment": {
       "futureDatesSupported": 61,
@@ -1939,9 +1939,9 @@
     },
     {
       "trackId": "machida-gion-stadium", "name": "町田GIONスタジアム（町田市立陸上競技場）", "availabilityInformationExistsOnOfficialWeb": true,
-      "availabilitySource": { "type": "calendar_html", "url": "https://www.nozuta-park.com/stadium.html", "discoveryUrl": "https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html", "granularity": "reservation_slot", "updateFrequency": "monthly", "updateNote": "個人利用枠を施設カレンダーまたは窓口で確認", "urlStability": "stable_landing_page" },
-      "automation": { "feasibility": "probably", "reason": "個人利用と明示された枠だけを対象にする新規parser reviewが必要" },
-      "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用と明示された枠だけavailable", "absenceMeaning": "空欄や貸切予定なしをavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["大会・Jリーグ・臨時休場"], "sources": ["https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html", "https://www.nozuta-park.com/stadium.html"], "verifiedAt": "2026-08-27"
+      "availabilitySource": { "type": "calendar_html", "url": "https://www.nozuta-park.com/calender.html", "discoveryUrl": "https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html", "granularity": "reservation_slot", "updateFrequency": "monthly", "updateNote": "公式カレンダーのEvent Organiser JSONで個人利用・専用利用・休場と時間を掲載", "urlStability": "stable_landing_page" },
+      "automation": { "feasibility": "yes", "reason": "公式JSONのカテゴリ・説明・対象月を相互検証し、明示イベントだけを判定できる", "implementation": { "status": "supported", "parser": "machida-gion-eventorganiser-json", "version": "1.0.0", "discovery": "month_bounded_eventorganiser_json" } },
+      "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用イベントは時間付きavailable、専用利用・休場は明示範囲だけunavailable", "absenceMeaning": "イベントなしをavailableまたはunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["大会・Jリーグ・臨時休場"], "sources": ["https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html", "https://www.nozuta-park.com/calender.html"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "chiba-toso-athletic-stadium", "name": "千葉県総合スポーツセンター東総運動場 陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
@@ -1969,9 +1969,9 @@
     },
     {
       "trackId": "ichikawa-kohnodai-athletic-stadium", "name": "国府台陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
-      "availabilitySource": { "type": "pdf", "url": "https://www.city.ichikawa.lg.jp/page/2841.html", "discoveryUrl": "https://www.city.ichikawa.lg.jp/page/4184.html", "granularity": "day", "updateFrequency": "monthly", "updateNote": "使用予定表を公式施設一覧から案内", "urlStability": "dated_document_from_stable_page" },
-      "automation": { "feasibility": "probably", "reason": "凡例と個人利用日の明示を確認する新規parserが必要" },
-      "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_days", "rule": "個人利用日と明示された場合だけavailable", "absenceMeaning": "PDF空欄をavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["大会・貸切・閉場日"], "sources": ["https://www.city.ichikawa.lg.jp/page/4184.html", "https://www.city.ichikawa.lg.jp/page/2841.html"], "verifiedAt": "2026-08-27"
+      "availabilitySource": { "type": "pdf", "url": "https://www.city.ichikawa.lg.jp/page/4185.html", "discoveryUrl": "https://www.city.ichikawa.lg.jp/page/4185.html", "granularity": "time_slot", "updateFrequency": "monthly", "updateNote": "月次使用予定表と、使用時間以外を一般開放する公式規則を掲載", "urlStability": "dated_document_from_stable_page" },
+      "automation": { "feasibility": "yes", "reason": "公式規則により利用時間から明示イベント時間を安全に差し引ける", "implementation": { "status": "supported", "parser": "ichikawa-kohnodai-monthly-events", "version": "1.0.0", "discovery": "requested_month_pdf_from_landing_page" } },
+      "semantics": { "canInferAvailable": true, "coverage": "operating_hours_minus_explicit_events", "rule": "利用時間内の使用予定時間はunavailable、それ以外は公式規則に基づく一般開放", "absenceMeaning": "時刻なしイベントや年月不一致はunknown" }, "dateSearch": "future_range_limited", "specialCases": ["大会・貸切・閉場日・天候変更"], "sources": ["https://www.city.ichikawa.lg.jp/page/4184.html", "https://www.city.ichikawa.lg.jp/page/4185.html"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "yachiyo-general-ground", "name": "八千代市総合グラウンド", "availabilityInformationExistsOnOfficialWeb": true,
@@ -2041,9 +2041,9 @@
     },
     {
       "trackId": "chigasaki-yanagishima-athletic-stadium", "name": "柳島スポーツ公園総合競技場", "availabilityInformationExistsOnOfficialWeb": true,
-      "availabilitySource": { "type": "weekly_notice", "url": "https://www.ys-park.jp/", "discoveryUrl": "https://www.city.chigasaki.kanagawa.jp/shisetsu_info/s_sports/1028429.html", "granularity": "reservation_slot", "updateFrequency": "monthly", "updateNote": "月ごとの陸上個人利用日時を記事で掲載", "urlStability": "dated_article_from_stable_index" },
-      "automation": { "feasibility": "probably", "reason": "対象月記事の安定発見と更新日検証が必要" },
-      "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用日時と明示された枠だけavailable", "absenceMeaning": "記事なしをunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["休館・予定変更・夜間利用"], "sources": ["https://www.city.chigasaki.kanagawa.jp/shisetsu_info/s_sports/1028429.html", "https://www.ys-park.jp/"], "verifiedAt": "2026-08-27"
+      "availabilitySource": { "type": "weekly_notice", "url": "https://www.ys-park.jp/2026/09/01/17617/", "discoveryUrl": "https://www.ys-park.jp/user-guide/athletics/", "granularity": "reservation_slot", "updateFrequency": "monthly", "updateNote": "月ごとの陸上個人利用日時と明示的な休館・開放なしを記事で掲載", "urlStability": "dated_article_from_stable_index" },
+      "automation": { "feasibility": "yes", "reason": "WordPress検索結果の年・月・タイトルを検証し、明示日時だけを判定できる", "implementation": { "status": "supported", "parser": "chigasaki-wordpress-monthly-notice", "version": "1.0.0", "discovery": "wordpress_search_monthly_notice" } },
+      "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用日時だけavailable、休館・開放無しだけunavailable", "absenceMeaning": "記事内の非掲載日はunknown" }, "dateSearch": "future_range_limited", "specialCases": ["休館・予定変更・夜間利用"], "sources": ["https://www.city.chigasaki.kanagawa.jp/shisetsu_info/s_sports/1028429.html", "https://www.ys-park.jp/user-guide/athletics/", "https://www.ys-park.jp/2026/09/01/17617/"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "ayase-citizen-sports-center-track", "name": "IIMURO GLASS 綾瀬市民スポーツセンター陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
@@ -2128,13 +2128,13 @@
     },
     {
       "trackId": "nishikyogoku-auxiliary-athletics-stadium", "name": "東寺ハウジングフィールド西京極", "availabilityInformationExistsOnOfficialWeb": true,
-      "availabilitySource": { "type": "calendar_html", "url": "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4", "discoveryUrl": "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4", "granularity": "day", "updateFrequency": "monthly", "updateNote": "施設予定と個人利用案内", "urlStability": "stable_facility_page" },
-      "automation": { "feasibility": "probably", "reason": "補助競技場の個人利用日だけを分離する必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_days", "rule": "東寺ハウジングフィールドの個人利用日だけavailable", "absenceMeaning": "予定なしをunavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["主競技場との予定分離・大会"], "sources": ["https://www.kyoto-sports.or.jp/facilities/detail.php?id=4"], "verifiedAt": "2026-08-27"
+      "availabilitySource": { "type": "calendar_html", "url": "https://www.kyoto-sports.or.jp/category/cat_topics/", "discoveryUrl": "https://www.kyoto-sports.or.jp/category/cat_topics/", "granularity": "time_slot", "updateFrequency": "monthly", "updateNote": "補助競技場を施設名で特定した一般開放日と時間を月次掲載", "urlStability": "dated_article_from_stable_index" },
+      "automation": { "feasibility": "yes", "reason": "WordPress検索結果と記事内の年・月・施設名を相互検証できる", "implementation": { "status": "supported", "parser": "nishikyogoku-wordpress-monthly-notice", "version": "1.0.0", "discovery": "wordpress_search_monthly_notice" } }, "semantics": { "canInferAvailable": true, "coverage": "explicit_general_opening_slots", "rule": "東寺ハウジングフィールドの一般開放日と時間だけavailable", "absenceMeaning": "非掲載日はunknown" }, "dateSearch": "future_dates_supported", "specialCases": ["主競技場との予定分離・大会・荒天"], "sources": ["https://www.kyoto-sports.or.jp/category/cat_topics/"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "yamashiro-general-sports-park-athletics-stadium", "name": "京都府立山城総合運動公園陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
-      "availabilitySource": { "type": "weekly_notice", "url": "https://www.kyoto-park.jp/news/", "discoveryUrl": "https://www.kyoto-park.jp/application/", "granularity": "time_slot", "updateFrequency": "frequent", "updateNote": "陸上競技場個人利用のお知らせ", "urlStability": "stable_news_index" },
-      "automation": { "feasibility": "probably", "reason": "個人利用記事の対象日と更新範囲を検証する必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用可と明示された日時だけavailable", "absenceMeaning": "記事なしをunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["専用利用・整備・急な変更"], "sources": ["https://www.kyoto-park.jp/news/", "https://www.kyoto-park.jp/application/"], "verifiedAt": "2026-08-27"
+      "availabilitySource": { "type": "weekly_notice", "url": "https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/", "discoveryUrl": "https://www.kyoto-park.jp/application/", "granularity": "time_slot", "updateFrequency": "frequent", "updateNote": "固定URLを上書きする短期ローリング個人利用告知", "urlStability": "stable_overwritten_article" },
+      "automation": { "feasibility": "yes", "reason": "公開年・記事タイトル・明示日付と時間を検証し短期範囲だけ判定できる", "implementation": { "status": "supported", "parser": "yamashiro-rolling-html-notice", "version": "1.0.0", "discovery": "stable_overwritten_html_notice" } }, "semantics": { "canInferAvailable": true, "coverage": "explicit_rolling_individual_use_slots", "rule": "時間付き告知はavailable、利用不可の明示はunavailable", "absenceMeaning": "短期掲載範囲外はunknown" }, "dateSearch": "future_range_limited", "specialCases": ["専用利用・整備・急な変更"], "sources": ["https://www.kyoto-park.jp/application/", "https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "tanba-natural-sports-park-athletics-stadium", "name": "京都府立丹波自然運動公園陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
@@ -2163,8 +2163,8 @@
     },
     {
       "trackId": "bingo-sports-park-athletic-stadium", "name": "広島県立びんご運動公園陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
-      "availabilitySource": { "type": "calendar_html", "url": "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033", "discoveryUrl": "https://bingo-sportspark.com/guide.html", "granularity": "day", "updateFrequency": "monthly", "updateNote": "月間個人利用予定を掲載", "urlStability": "stable_calendar_index" },
-      "automation": { "feasibility": "probably", "reason": "対象月と個人利用日の明示を検証するparserが必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_days", "rule": "個人利用日だけavailable", "absenceMeaning": "空欄をavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・予定変更"], "sources": ["https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033"], "verifiedAt": "2026-08-28"
+      "availabilitySource": { "type": "pdf", "url": "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033", "discoveryUrl": "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033", "granularity": "time_slot", "updateFrequency": "monthly", "updateNote": "月間PDFでトラック個人利用可・終日不可・開始終了時刻を掲載", "urlStability": "dynamic_pdf_from_stable_article" },
+      "automation": { "feasibility": "yes", "reason": "対象月PDFと凡例を検証し、明示されたトラック利用枠だけを判定できる", "implementation": { "status": "supported", "parser": "bingo-individual-use-calendar", "version": "1.0.0", "discovery": "requested_month_pdf_from_stable_article" } }, "semantics": { "canInferAvailable": true, "coverage": "explicit_track_availability_slots", "rule": "トラック利用可はavailable、終日×はunavailable、時間境界はpartial", "absenceMeaning": "空欄・混在記号・未確定はunknown" }, "dateSearch": "future_dates_supported", "specialCases": ["大会・予定変更・第1レーン禁止"], "sources": ["https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "higashihiroshima-sports-park-athletic-stadium", "name": "東広島運動公園陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,

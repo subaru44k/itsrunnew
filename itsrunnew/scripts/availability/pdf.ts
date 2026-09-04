@@ -416,6 +416,149 @@ export function parseExpo70Pdf(pdf: ExtractedPdf, date: string): PdfParseResult 
   };
 }
 
+function looseHourRanges(value: string) {
+  return [...normalize(value).matchAll(/(\d{1,2})(?::(\d{2}))?\s*[~〜～-]\s*(\d{1,2})(?::(\d{2}))?/g)].map(match => ({
+    from: `${match[1].padStart(2, '0')}:${match[2] ?? '00'}`,
+    to: `${match[3].padStart(2, '0')}:${match[4] ?? '00'}`,
+  }));
+}
+
+const timeMinutes = (value: string) => {
+  const [hour, minute] = value.split(':').map(Number);
+  return hour * 60 + minute;
+};
+
+export function parseIchikawaKohnodaiPdf(pdf: ExtractedPdf, date: string): PdfParseResult {
+  const { month, day } = dateParts(date);
+  assertAnchors(pdf, [
+    `■${month}月`,
+    '陸上競技場使用予定表',
+    '利用時間',
+    '使用時間',
+    '使用予定内容',
+    '大会・イベント中の個人利用はできません',
+  ]);
+  const items = pageItems(pdf);
+  const dates = dateRows(items, value => /^\d{1,2}$/.test(value) ? Number(value) : null, 90);
+  const dateIndex = dates.findIndex(value => value.day === day);
+  if (dateIndex < 0) throw new PdfCollectorError('source_changed', 'Target date row missing from Ichikawa Kohnodai schedule');
+  const currentY = dates[dateIndex].item.y;
+  const nextY = dates[dateIndex + 1]?.item.y ?? currentY - 45;
+  const rows = uniqueItems(items.filter(item => item.y <= currentY + 3 && item.y > nextY + 0.5));
+  const rowText = compact(rows.map(item => item.text).join(' '));
+  if (rowText.includes('休場日')) {
+    return {
+      status: 'unavailable',
+      periods: [period(null, null, 'unavailable', ['explicit_facility_closure'])],
+      warnings: ['市主催行事・天候・緊急利用による変更の可能性あり'],
+      confidence: 'high',
+    };
+  }
+  const usageRanges = looseHourRanges(cellText(rows, 105, 165));
+  if (usageRanges.length !== 1) throw new PdfCollectorError('source_changed', 'Operating hours missing or ambiguous in Ichikawa Kohnodai schedule');
+  const usage = usageRanges[0];
+  const usageStart = timeMinutes(usage.from);
+  const usageEnd = timeMinutes(usage.to);
+  if (usageStart >= usageEnd) throw new PdfCollectorError('source_changed', 'Invalid operating hours in Ichikawa Kohnodai schedule');
+
+  const eventItems = rows.filter(item => item.x >= 165 && !/\d{1,2}時閉館/.test(compact(item.text)));
+  const grouped = new Map<number, PdfTextItem[]>();
+  for (const item of eventItems) {
+    const key = Math.round(item.y);
+    grouped.set(key, [...(grouped.get(key) ?? []), item]);
+  }
+  const eventRanges: Array<{ from: string; to: string }> = [];
+  for (const line of grouped.values()) {
+    const value = line.sort((a, b) => a.x - b.x).map(item => item.text).join(' ');
+    const ranges = looseHourRanges(value);
+    const hasDescription = line.some(item => item.x >= 220 && compact(item.text));
+    if (hasDescription && ranges.length === 0) {
+      return {
+        status: 'unknown', periods: [], unknownReason: 'insufficient_information',
+        warnings: ['使用予定内容に対応する時間を安全に特定できない'], confidence: 'low',
+      };
+    }
+    eventRanges.push(...ranges);
+  }
+
+  if (eventRanges.length === 0) {
+    return {
+      status: 'available',
+      periods: [period(usage.from, usage.to, 'available', ['outside_explicit_event_hours'])],
+      warnings: ['大会・イベント中は個人利用不可', '市主催行事・天候・緊急利用による変更の可能性あり'],
+      confidence: 'high',
+    };
+  }
+
+  const blocked = eventRanges.map(value => ({
+    from: Math.max(usageStart, timeMinutes(value.from)),
+    to: Math.min(usageEnd, timeMinutes(value.to)),
+  })).filter(value => value.from < value.to).sort((a, b) => a.from - b.from);
+  if (blocked.length !== eventRanges.length) throw new PdfCollectorError('source_changed', 'Event hours fall outside operating hours in Ichikawa Kohnodai schedule');
+  const merged = blocked.reduce<Array<{ from: number; to: number }>>((result, value) => {
+    const previous = result.at(-1);
+    if (previous && value.from <= previous.to) previous.to = Math.max(previous.to, value.to);
+    else result.push({ ...value });
+    return result;
+  }, []);
+  const asTime = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+  const periods: AvailabilityPeriod[] = [];
+  let cursor = usageStart;
+  for (const value of merged) {
+    if (cursor < value.from) periods.push(period(asTime(cursor), asTime(value.from), 'available', ['outside_explicit_event_hours']));
+    periods.push(period(asTime(value.from), asTime(value.to), 'unavailable', ['explicit_event_hours']));
+    cursor = value.to;
+  }
+  if (cursor < usageEnd) periods.push(period(asTime(cursor), asTime(usageEnd), 'available', ['outside_explicit_event_hours']));
+  return {
+    status: aggregate(periods),
+    periods,
+    warnings: ['大会・イベント中は個人利用不可', '市主催行事・天候・緊急利用による変更の可能性あり'],
+    confidence: 'high',
+  };
+}
+
+export function parseBingoSportsParkPdf(pdf: ExtractedPdf, date: string): PdfParseResult {
+  const { year, month, day } = dateParts(date);
+  assertAnchors(pdf, ['びんご運動公園', '陸上競技場', '個人利用可能日時案内カレンダー', String(year), `.${month}月`, 'トラック第1レーン']);
+  const weekday = new Date(`${date}T12:00:00+09:00`).getUTCDay();
+  const column = (weekday + 6) % 7;
+  const minX = 50 + column * 104;
+  const maxX = minX + 104;
+  const target = uniqueItems(pageItems(pdf)).find(item => compact(item.text) === String(day)
+    && item.x >= minX && item.x < maxX && item.y > 150 && item.y < 540);
+  if (!target) throw new PdfCollectorError('source_changed', 'Target date cell missing from Bingo Sports Park calendar');
+  const cell = pageItems(pdf).filter(item => item.x >= minX && item.x < maxX && item.y < target.y - 1 && item.y > Math.max(145, target.y - 63));
+  const value = cellText(cell, minX, maxX);
+  if (value.includes('未確定')) {
+    return { status: 'unknown', periods: [], unknownReason: 'insufficient_information', warnings: ['対象日の予定は未確定'], confidence: 'low' };
+  }
+  if (value.includes('終日×')) {
+    return {
+      status: 'unavailable', periods: [period(null, null, 'unavailable', ['explicit_full_day_unavailable'])],
+      warnings: ['専用利用や公園設備事情による当日変更の可能性あり'], confidence: 'high',
+    };
+  }
+  const trackAvailable = /トラック(?:のみ|・投てき)?可/.test(value);
+  if (!trackAvailable || value.includes('×')) {
+    return {
+      status: 'unknown', periods: [], unknownReason: 'insufficient_information',
+      warnings: ['対象日の利用可能時間を安全に特定できない'], confidence: 'low',
+    };
+  }
+  const from = /(\d{1,2}):(\d{2})[~〜～-]/.exec(value);
+  const to = /[~〜～-](\d{1,2}):(\d{2})まで/.exec(value);
+  if (from && to) throw new PdfCollectorError('source_changed', 'Multiple partial-day boundaries in Bingo Sports Park calendar');
+  const fromTime = from ? `${from[1].padStart(2, '0')}:${from[2]}` : null;
+  const toTime = to ? `${to[1].padStart(2, '0')}:${to[2]}` : null;
+  return {
+    status: fromTime || toTime ? 'partially_available' : 'available',
+    periods: [period(fromTime, toTime, 'available', [value.includes('投てき') ? 'track_and_throwing_available' : 'track_only_available'])],
+    warnings: ['トラック第1レーンは個人使用禁止', '専用利用や公園設備事情による当日変更の可能性あり', '夜間照明は別料金で点灯できない場合あり'],
+    confidence: 'high',
+  };
+}
+
 export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.0.0' },
   { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.0.0' },
@@ -428,6 +571,8 @@ export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'kamiyugi-park-athletic-stadium', name: '上柚木公園陸上競技場', landingPageUrl: 'https://kamiyugi-park.jp/facility/athletics-stadium/', discovery: 'latest_pdf_discovery', parser: 'kamiyugi-multi-month-matrix', parserVersion: '1.0.0' },
   { trackId: 'kanagawa-prefectural-sports-center-track', name: '神奈川県立スポーツセンター陸上競技場', landingPageUrl: 'https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html', discovery: 'monthly_pdf_discovery', parser: 'kanagawa-sports-center-monthly', parserVersion: '1.0.0' },
   { trackId: 'expo70-commemorative-stadium', name: '万博記念競技場', landingPageUrl: 'https://www.expo70-park.jp/sports/facility/arena/', discovery: 'monthly_pdf_discovery', parser: 'expo70-individual-use-monthly', parserVersion: '1.0.0' },
+  { trackId: 'ichikawa-kohnodai-athletic-stadium', name: '国府台陸上競技場', landingPageUrl: 'https://www.city.ichikawa.lg.jp/page/4185.html', discovery: 'monthly_pdf_discovery', parser: 'ichikawa-kohnodai-monthly-events', parserVersion: '1.0.0' },
+  { trackId: 'bingo-sports-park-athletic-stadium', name: 'こざかなくんスポーツパークびんご 陸上競技場', landingPageUrl: 'https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033', discovery: 'monthly_pdf_discovery', parser: 'bingo-individual-use-calendar', parserVersion: '1.0.0' },
 ];
 
 interface HtmlLink { url: string; text: string }
@@ -512,6 +657,16 @@ async function discoverPdf(config: PdfSourceConfig, date: string, client: PdfSou
     const label = `競技場${month}月個人利用予定表`;
     return links.find(link => text(link).includes(label) && link.url.includes(`${year}${String(month).padStart(2, '0')}`))?.url;
   }
+  if (config.trackId === 'ichikawa-kohnodai-athletic-stadium') {
+    const pageText = compact(landing.html.replace(/<[^>]+>/g, ' '));
+    if (!pageText.includes(`更新日:${year}年`) || !pageText.includes('「使用時間」以外を一般開放いたします')) return undefined;
+    return links.find(link => text(link).includes(`${month}月使用予定表`) && link.url.toLowerCase().includes('.pdf'))?.url;
+  }
+  if (config.trackId === 'bingo-sports-park-athletic-stadium') {
+    const pageText = compact(landing.html.replace(/<[^>]+>/g, ' '));
+    if (!pageText.includes(`陸上競技場${year}.${month}月個人利用可能日時案内カレンダー`)) return undefined;
+    return links.find(link => text(link).includes(`${year}.${month}月陸上競技場個人利用可能日時案内カレンダー`) && link.url.toLowerCase().includes('.pdf'))?.url;
+  }
   if (config.trackId.startsWith('wadabori-park-')) {
     const article = links.find(link => link.url.includes(`/news/${year}/`) && text(link).includes('競技場') && text(link).includes(`${month}月`));
     if (!article) return undefined;
@@ -534,6 +689,8 @@ function parserFor(config: PdfSourceConfig, pdf: ExtractedPdf, date: string) {
   if (config.trackId === 'kamiyugi-park-athletic-stadium') return parseKamiyugiPdf(pdf, date);
   if (config.trackId === 'kanagawa-prefectural-sports-center-track') return parseKanagawaSportsCenterPdf(pdf, date);
   if (config.trackId === 'expo70-commemorative-stadium') return parseExpo70Pdf(pdf, date);
+  if (config.trackId === 'ichikawa-kohnodai-athletic-stadium') return parseIchikawaKohnodaiPdf(pdf, date);
+  if (config.trackId === 'bingo-sports-park-athletic-stadium') return parseBingoSportsParkPdf(pdf, date);
   throw new PdfCollectorError('unsupported_source_type', `No parser for ${config.trackId}`);
 }
 

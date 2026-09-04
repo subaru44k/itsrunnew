@@ -82,7 +82,7 @@ itsrunnew/
 │   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
 │   ├── validate-track-batches.mjs 候補台帳の全件disposition・件数整合検証
-│   ├── availability/          HTML/calendar/fixed/PDF collector、range/cache、config、fixture、unit test
+│   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF collector、range/cache、config、fixture、unit test
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
     ├── app.ts                              hosting CDKアプリのエントリー
@@ -104,7 +104,8 @@ research/
 │   ├── availability-sources.json  Track Dataset全133施設のavailability source調査データ
 │   ├── availability-research.md   「今日利用可能」機能の調査と拡張追補
 │   ├── pdf-collector-validation.md PDF collectorのlive比較・format・coverage
-│   └── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
+│   ├── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
+│   └── high-confidence-collector-validation-batch-2-2026-09.md 6施設の追加collector、source、safe semantics、coverage検証
 ├── nozomi-tanaka/
 │   ├── 2025-trial-results.json    田中希実選手2025年出走の出典・確度付き試験収集データ
 │   └── 2025-trial-report.md       収集結果、情報源、継続更新方式の評価
@@ -212,13 +213,13 @@ Track Searchの中心価値は、指定日に近くで集中して走れる環�
 
 施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや3択dropdownは設けません。routing API、backend、リアルタイムOverpass/JAAF/施設検索はありません。
 
-availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、PDF text extractionを再利用します。structured HTML 5施設、calendar HTML 3施設、固定規則9施設、PDF 10施設の計27施設を安全な自動判定対象とします。structured HTMLには共通ページを1回取得して施設名別に判定する日産スタジアム・日産フィールド小机、PDFには神奈川県立スポーツセンター・万博記念競技場を含みます。世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。staticな個人利用不可が公式規則で明示された施設だけは、日程欠落ではなく資格そのものを根拠に日別 `unavailable` を生成します。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
+availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、PDF text extractionを再利用します。structured HTML 7施設、calendar HTML 3施設、calendar JSON 1施設、固定規則9施設、weekly notice 1施設、PDF 12施設の計33施設を安全な自動判定対象とします。structured HTMLには共通ページを1回取得して施設名別に判定する日産スタジアム・日産フィールド小机と、WordPress月次noticeの西京極・柳島を含みます。calendar JSONは町田GIONスタジアムの対象月Event Organiser応答、weekly noticeは固定URLを上書きする山城の短期告知です。PDFには神奈川県立スポーツセンター・万博記念競技場・国府台・びんごを含みます。世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。staticな個人利用不可が公式規則で明示された施設だけは、日程欠落ではなく資格そのものを根拠に日別 `unavailable` を生成します。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 
 調査用raw dataはアプリ外の `../data/osm/tracks.json`、拡張時に選別したOSM/Nominatim evidenceは `../data/osm/expansion-candidates.json` と `../data/osm/coverage-followup-2026-08.json`、公開用normalized datasetは `src/data/tracks.json` に分離されています。normalized datasetは現在133施設です。候補cluster、一次情報の優先順位、schema、更新手順、ライセンスは [`TRACK_DATA.md`](TRACK_DATA.md) が正本です。`scripts/validate-tracks.mjs` はstable ID、既存12 ID、必須値、座標範囲、source provenance、raw fileのOSM ID、50〜150件の運用範囲、availability research・施設別監査台帳のID/件数、broken public URLの再混入、単日および31日manifest全件のavailability trackId/date一致を検証します。`scripts/validate-track-batches.mjs` は候補ID・採否・review件数・公開datasetとの整合を検証し、新規batchではfacility cluster総数と全dispositionの合計一致を必須にします。
 
 新規施設と既存施設の再調査では [`TRACK_EXPANSION_PLAYBOOK.md`](TRACK_EXPANSION_PLAYBOOK.md) を使用します。施設を直接normalized datasetへ追加せず、discovery sourceとverification sourceを分離し、施設単位のevidence worksheet、個人利用status、availability source分類をreviewしてから公開します。施設掲載とcollector対応は別の品質ゲートであり、collector未対応は理由付きunknownとして保持します。初期12、12→33、33→51の全cohortを遡及監査対象とし、料金・スパイクの網羅よりavailability、位置、トラック長、路面、公式確認導線を優先します。1 batchの10〜20施設はreview量の目安であって候補発見・公開の上限ではなく、全facility clusterへ `existing | include | hold | exclude | defer` を残します。
 
-availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に133施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
+availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に133施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。27→33施設の高確度collector追加検証は [`../research/availability/high-confidence-collector-validation-batch-2-2026-09.md`](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md) に記録します。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
 
 施設情報のsource確認日は日別availabilityの取得日と区別し、公開UIで「施設情報の確認日」と表示します。予定actionは施設別の `urls.schedule` を最優先し、未設定ならavailabilityの安定landing page、取得資料URLの順で選びます。差し替え型PDFは最新資料が掲載される公式pageへ、固定URLの資料を `urls.schedule` に指定した施設は資料へ直接案内します。取得時の資料URLとhashは証跡としてavailability datasetに保持します。
 

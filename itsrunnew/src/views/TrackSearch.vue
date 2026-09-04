@@ -99,7 +99,7 @@
           <div v-if="selectedTrack.track.surface"><dt>{{ isEnglish ? 'Surface' : '路面' }}</dt><dd>{{ surfaceLabel(selectedTrack.track.surface) }}</dd></div>
           <div v-if="selectedTrack.individualUse.feeYen != null"><dt>{{ isEnglish ? 'Fee' : '個人料金' }}</dt><dd>{{ feeLabel(selectedTrack) }}</dd></div>
           <div v-if="selectedTrack.individualUse.openingHours"><dt>{{ isEnglish ? 'Hours' : '利用条件' }}</dt><dd>{{ selectedTrack.individualUse.openingHours }}</dd></div>
-          <div><dt>{{ isEnglish ? 'Verified' : '最終確認' }}</dt><dd>{{ latestVerifiedAt(selectedTrack) }}</dd></div>
+          <div><dt>{{ isEnglish ? 'Facility info checked' : '施設情報の確認日' }}</dt><dd>{{ latestVerifiedAt(selectedTrack) }}</dd></div>
         </dl>
         <p v-if="selectedTrack.individualUse.note" class="track-note">{{ selectedTrack.individualUse.note }}</p>
         <p class="official-warning">{{ isEnglish ? 'Conditions may change. Check the official website before visiting.' : '利用条件は変わることがあります。お出かけ前に公式サイトをご確認ください。' }}</p>
@@ -184,6 +184,7 @@ import {
   type TrackAvailability,
   type UnknownReason,
 } from '../model/availability';
+import { availabilityActionUrl as resolveAvailabilityActionUrl } from '../model/availability-link';
 import {
   addDateOnlyDays,
   availabilityManifest,
@@ -746,7 +747,7 @@ function freshnessLabel(availability: TrackAvailability) {
     ? (isEnglish.value ? `Official source checked: ${formatted}` : `公式情報の最終確認：${formatted}`)
     : (isEnglish.value ? `Status prepared: ${formatted}` : `要確認情報の生成：${formatted}`);
 }
-function availabilityActionUrl(track: TrackFacility) { return selectedDateAvailability(track).source.url || track.urls.schedule || track.urls.individualUse || track.urls.official; }
+function availabilityActionUrl(track: TrackFacility) { return resolveAvailabilityActionUrl(track, selectedDateAvailability(track)); }
 function availabilityActionLabel(availability: TrackAvailability) {
   if (availability.status === 'unknown') return isEnglish.value ? 'How to confirm' : '確認方法を見る';
   return isEnglish.value ? `${selectedDateShortLabel.value} schedule` : `${selectedDateShortLabel.value}の予定`;

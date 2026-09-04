@@ -220,6 +220,8 @@ availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実�
 
 availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に133施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
 
+施設情報のsource確認日は日別availabilityの取得日と区別し、公開UIで「施設情報の確認日」と表示します。予定actionは施設別の `urls.schedule` を最優先し、未設定ならavailabilityの安定landing page、取得資料URLの順で選びます。差し替え型PDFは最新資料が掲載される公式pageへ、固定URLの資料を `urls.schedule` に指定した施設は資料へ直接案内します。取得時の資料URLとhashは証跡としてavailability datasetに保持します。
+
 ### 広告
 
 `services/advertising.ts`は `VITE_ADSENSE_ENABLED=true` の場合だけ、全route共通でGoogle AdSenseタグを読み込みます。`AdsDisplay.vue`は共通serviceが準備できた後だけ既存広告枠を初期化します。これによりホームのTrack SearchではGoogle CMPとAdSense Auto adsを利用でき、夢の島・駒沢・等々力・田中希実記録集には従来の明示的な上下広告枠も残ります。織田フィールドにはページ固有の広告枠を置きません。Production workflowはtrue、Preview workflowはfalseです。`ads.txt`とpublisher IDを維持し、AdSense管理画面で`itsrun.info`の確認、欧州規制メッセージ1件、米国州規制メッセージ1件の設定・公開が完了しています。

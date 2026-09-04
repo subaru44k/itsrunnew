@@ -63,7 +63,7 @@
             <div><dt>{{ isEnglish ? 'Individual use' : '個人利用' }}</dt><dd>{{ individualUseLabel }}</dd></div>
             <div><dt>{{ isEnglish ? 'Spikes' : 'スパイク' }}</dt><dd>{{ spikesLabel }}</dd></div>
             <div><dt>{{ isEnglish ? 'Fee' : '料金' }}</dt><dd>{{ feeLabel }}</dd></div>
-            <div><dt>{{ isEnglish ? 'Verified' : '最終確認' }}</dt><dd>{{ latestVerifiedAt }}</dd></div>
+            <div><dt>{{ isEnglish ? 'Facility info checked' : '施設情報の確認日' }}</dt><dd>{{ latestVerifiedAt }}</dd></div>
           </dl>
           <p v-if="track.individualUse.note" class="track-note">{{ track.individualUse.note }}</p>
         </section>
@@ -72,7 +72,7 @@
           <h2>{{ isEnglish ? 'Check before visiting' : '利用前に確認' }}</h2>
           <p>{{ isEnglish ? 'Schedules and rules can change. Please confirm the latest information from the facility.' : '予定や利用条件は変更されることがあります。お出かけ前に施設の最新情報をご確認ください。' }}</p>
           <div class="primary-actions">
-            <v-btn v-if="availabilityUrl" color="amber-lighten-4" class="schedule-action" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityUrl" target="_blank" rel="noopener" @click="trackDetailEvent('availability_source_click')">{{ isEnglish ? 'View schedule' : '利用予定を見る' }}</v-btn>
+            <v-btn v-if="availabilityUrl" color="amber-lighten-4" class="schedule-action" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityUrl" target="_blank" rel="noopener" @click="trackDetailEvent('availability_source_click')">{{ isEnglish ? 'View latest schedule on official site' : '最新の利用予定を公式サイトで見る' }}</v-btn>
             <v-btn color="indigo" variant="flat" class="white-text" prepend-icon="mdi-open-in-new" :href="track.urls.official" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click')">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
             <v-btn color="teal-darken-2" variant="outlined" class="directions-action" prepend-icon="mdi-directions" :href="directionsUrl(track)" target="_blank" rel="noopener" @click="trackDetailEvent('directions_click')">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
           </div>
@@ -87,6 +87,7 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { availabilityDataset, availabilityForTrack, localDateKey, type AvailabilityDataset, type AvailabilityStatus } from '../model/availability';
+import { availabilityActionUrl } from '../model/availability-link';
 import { addDateOnlyDays, availabilityManifest, loadAvailabilityDate, normalizeSelectedDate } from '../model/availability-range';
 import { rankTrackAlternatives } from '../model/track-alternatives';
 import { directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
@@ -212,7 +213,7 @@ const individualUseLabel = computed(() => {
 const spikesLabel = computed(() => track.value?.individualUse.spikesAllowed === true ? (isEnglish.value ? 'Allowed' : '利用可') : track.value?.individualUse.spikesAllowed === false ? (isEnglish.value ? 'Not allowed' : '利用不可') : (isEnglish.value ? 'Not confirmed' : '未確認'));
 const feeLabel = computed(() => track.value?.individualUse.feeYen == null ? (isEnglish.value ? 'Check official site' : '公式サイトで確認') : track.value.individualUse.feeYen === 0 ? (isEnglish.value ? 'Free' : '無料') : `¥${track.value.individualUse.feeYen.toLocaleString()}${track.value.individualUse.feeUnit ? ` / ${track.value.individualUse.feeUnit}` : ''}`);
 const latestVerifiedAt = computed(() => track.value ? track.value.sources.map(source => source.verifiedAt).sort().at(-1) ?? '—' : '—');
-const availabilityUrl = computed(() => availability.value?.source.url || track.value?.urls.schedule || track.value?.urls.individualUse);
+const availabilityUrl = computed(() => track.value ? availabilityActionUrl(track.value, availability.value) : '');
 </script>
 
 <style scoped>

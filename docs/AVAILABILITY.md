@@ -134,6 +134,8 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 
 source bytesのSHA-256とparser versionを残すため、誤解析時に使った原典とparserを追跡できます。公式予定は当日変更され得るため、freshなavailableでも訪問前の公式確認を案内します。
 
+公開UIの予定actionは、施設別に管理する `tracks.json` の `urls.schedule` を最優先し、未設定の場合は `source.landingPageUrl`、`source.url`、個人利用案内、公式トップの順で選びます。ファイル名が更新ごとに変わり旧PDFが削除されるsourceは安定したlanding pageへ案内しつつ、`source.url` とhashは取得時の証跡としてdatasetに保持します。施設情報のsource確認日は日別availabilityの取得日とは別に「施設情報の確認日」と表示します。
+
 ## PDF collector
 
 `scripts/availability/pdf.ts` は、取得・content type/PDF magic検証、pdfjsによる座標付きtext extraction、対象月URL discovery、format固有parser、normalized record化を分離します。requested dateの年月からmonthly/annual/latest資料を選びます。和田堀だけはnews index → 対象月article → PDFの2段階です。

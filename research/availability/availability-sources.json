@@ -5,7 +5,7 @@
     "trackCount": 133
   },
   "research": {
-    "verifiedAt": "2026-08-28",
+    "verifiedAt": "2026-09-04",
     "timezone": "Asia/Tokyo",
     "scope": "All facilities in the current normalized Track Dataset",
     "officialWebAvailabilityFoundCount": 112,
@@ -20,21 +20,21 @@
       "weekly_notice": 9
     },
     "automationCounts": {
-      "yes": 18,
-      "probably": 33,
+      "yes": 22,
+      "probably": 29,
       "no": 20,
       "difficult": 62
     },
     "implementationCoverage": {
-      "currentCollectors": 23,
+      "currentCollectors": 27,
       "smallCollectorExtension": 0,
-      "newlySupported": 8,
+      "newlySupported": 12,
       "guardedUnknown": 2,
-      "pdfSupported": 8,
+      "pdfSupported": 10,
       "pdfGuardedUnknown": 1,
       "pdfRequired": 2,
       "reservationSystemRequired": 33,
-      "manualOrUnknown": 110
+      "manualOrUnknown": 106
     },
     "futureDateAssessment": {
       "futureDatesSupported": 61,
@@ -1415,22 +1415,28 @@
       "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": {
         "type": "structured_html",
-        "url": "https://www.nissan-stadium.jp/sp/track/index.php",
-        "discoveryUrl": "https://www.nissan-stadium.jp/",
-        "granularity": "date_or_period",
-        "updateFrequency": "unknown",
-        "updateNote": "Phase 2 expansionで公式sourceを確認。format-specific collectorは未実装",
-        "urlStability": "stable_official_page"
+        "url": "https://www.nissan-stadium.jp/track/index.php",
+        "discoveryUrl": "https://www.nissan-stadium.jp/track/index.php",
+        "granularity": "reservation_slot",
+        "updateFrequency": "irregular",
+        "updateNote": "個人利用の施設名、実施日、時間、申込開始日を掲載",
+        "urlStability": "stable_landing_page"
       },
       "automation": {
-        "feasibility": "probably",
-        "reason": "公式sourceの意味とformatを確認後に小規模collector候補"
+        "feasibility": "yes",
+        "reason": "安定した公式HTMLで施設名、実施日、時間を明示しており、掲載枠だけを安全に判定できる",
+        "implementation": {
+          "status": "supported",
+          "parser": "nissan-track-html",
+          "version": "1.0.0",
+          "discovery": "stable_html_page"
+        }
       },
       "semantics": {
-        "canInferAvailable": false,
-        "coverage": "none",
-        "rule": "format-specific collector実装まではunknown。公式に明示された個人利用枠だけをavailableとする",
-        "absenceMeaning": "予定の不在をavailableまたはunavailableと解釈しない"
+        "canInferAvailable": true,
+        "coverage": "explicit_individual_use_events",
+        "rule": "日産スタジアム名で明示された個人利用実施枠だけavailable",
+        "absenceMeaning": "告知なしをavailableまたはunavailableと解釈しない"
       },
       "dateSearch": "future_range_limited",
       "specialCases": [
@@ -1438,9 +1444,9 @@
       ],
       "sources": [
         "https://www.nissan-stadium.jp/",
-        "https://www.nissan-stadium.jp/sp/track/index.php"
+        "https://www.nissan-stadium.jp/track/index.php"
       ],
-      "verifiedAt": "2026-08-25"
+      "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "aoba-no-mori-athletic-stadium",
@@ -2000,8 +2006,8 @@
     {
       "trackId": "kanagawa-prefectural-sports-center-track", "name": "神奈川県立スポーツセンター陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": { "type": "pdf", "url": "https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html", "discoveryUrl": "https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html", "granularity": "day", "updateFrequency": "monthly", "updateNote": "利用可能予定表を月ごとに掲載", "urlStability": "dated_document_from_stable_page" },
-      "automation": { "feasibility": "probably", "reason": "対象月と競技場行を検証する新規PDF parserが必要" },
-      "semantics": { "canInferAvailable": true, "coverage": "explicit_available_days", "rule": "利用可能予定日と明示された日だけavailable", "absenceMeaning": "空欄や未掲載をunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["急な予定更新・専用利用・施設点検"], "sources": ["https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html"], "verifiedAt": "2026-08-27"
+      "automation": { "feasibility": "yes", "reason": "安定ページから対象月PDFを発見し、競技場の午前・午後欄に明示された○と×を安全に判定できる", "implementation": { "status": "supported", "parser": "kanagawa-sports-center-monthly", "version": "1.0.0", "discovery": "monthly_pdf_discovery" } },
+      "semantics": { "canInferAvailable": true, "coverage": "explicit_available_days", "rule": "利用可能予定日と明示された日だけavailable", "absenceMeaning": "空欄や未掲載をunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["急な予定更新・専用利用・施設点検"], "sources": ["https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "odawara-shiroyama-athletic-stadium", "name": "城山陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
@@ -2012,8 +2018,8 @@
     {
       "trackId": "nissan-field-kozukue", "name": "日産フィールド小机", "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": { "type": "structured_html", "url": "https://www.nissan-stadium.jp/track/index.php", "discoveryUrl": "https://www.nissan-stadium.jp/track/index.php", "granularity": "reservation_slot", "updateFrequency": "irregular", "updateNote": "個人利用実施日と申込開始日を掲載", "urlStability": "stable_landing_page" },
-      "automation": { "feasibility": "probably", "reason": "施設名、実施日、申込開始日を分離するparserが必要" },
-      "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_events", "rule": "日産フィールド小机の個人利用実施枠だけavailable", "absenceMeaning": "告知なしをunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["事前申込・定員・中止"], "sources": ["https://www.nissan-stadium.jp/track/index.php"], "verifiedAt": "2026-08-27"
+      "automation": { "feasibility": "yes", "reason": "同一の公式HTMLから施設名で実施枠を分離し、掲載された日時だけを安全に判定できる", "implementation": { "status": "supported", "parser": "nissan-track-html", "version": "1.0.0", "discovery": "stable_html_page" } },
+      "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_events", "rule": "日産フィールド小机の個人利用実施枠だけavailable", "absenceMeaning": "告知なしをunavailableとしない" }, "dateSearch": "future_range_limited", "specialCases": ["事前申込・定員・中止"], "sources": ["https://www.nissan-stadium.jp/track/index.php"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "hadano-culture-park-track", "name": "秦野市カルチャーパーク陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,
@@ -2053,7 +2059,7 @@
     {
       "trackId": "expo70-commemorative-stadium", "name": "万博記念競技場", "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": { "type": "pdf", "url": "https://www.expo70-park.jp/sports/facility/arena/", "discoveryUrl": "https://www.expo70-park.jp/sports/facility/arena/", "granularity": "time_slot", "updateFrequency": "monthly", "updateNote": "月別個人利用予定表を施設ページから掲載", "urlStability": "stable_landing_dynamic_pdf" },
-      "automation": { "feasibility": "probably", "reason": "対象月PDFと個人利用枠の凡例検証が必要" }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用予定表の明示枠だけavailable", "absenceMeaning": "予定表の空欄をavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["予定変更・休場日"], "sources": ["https://www.expo70-park.jp/sports/facility/arena/"], "verifiedAt": "2026-08-27"
+      "automation": { "feasibility": "yes", "reason": "安定ページから対象月PDFを発見し、個人利用予定表の時間帯と×を安全に判定できる", "implementation": { "status": "supported", "parser": "expo70-individual-use-monthly", "version": "1.0.0", "discovery": "monthly_pdf_discovery" } }, "semantics": { "canInferAvailable": true, "coverage": "explicit_individual_use_slots", "rule": "個人利用予定表の明示枠だけavailable", "absenceMeaning": "予定表の空欄をavailableとしない" }, "dateSearch": "future_dates_supported", "specialCases": ["予定変更・休場日"], "sources": ["https://www.expo70-park.jp/sports/facility/arena/"], "verifiedAt": "2026-09-04"
     },
     {
       "trackId": "hattori-ryokuchi-athletics-stadium", "name": "服部緑地陸上競技場", "availabilityInformationExistsOnOfficialWeb": true,

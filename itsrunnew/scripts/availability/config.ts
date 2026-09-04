@@ -22,6 +22,7 @@ export const sourceUrls = {
   koshigaya: 'https://kouen-kyougijyou.kosi-kanri.com/',
   kamiyugi: 'https://kamiyugi-park.jp/facility/athletics-stadium/',
   akirudai: 'https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html',
+  nissan: 'https://www.nissan-stadium.jp/track/index.php',
 } as const;
 
 export const expansionFallbackSources = [

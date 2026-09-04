@@ -6,6 +6,8 @@ import {
   parseFuchuPdf,
   parseFujimoriPdf,
   parseKamiyugiPdf,
+  parseKanagawaSportsCenterPdf,
+  parseExpo70Pdf,
   parseMisatoPdf,
   parseNerimaPdf,
   parseTodaPdf,
@@ -74,6 +76,25 @@ const kamiyugi = document(
   ],
 );
 
+const kanagawa = document(
+  ['県立スポーツセンター', '令和8年9月分', '個人・団体利用可能予定日時', '（「〇」が利用可能予定の日時です）', '陸上競技場'],
+  [
+    item('3', 113, 689), item('木', 156, 689), item('〇', 323, 689), item('〇', 603, 689),
+    item('7', 113, 601), item('月', 156, 601),
+    item('9★', 108, 557), item('水', 156, 557), item('〇', 323, 557), item('×', 603, 557),
+  ],
+);
+
+const expo70 = document(
+  ['9 月度', '個人利用予定表', '個人利用では、陸上競技の練習目的以外でのご利用はできません。', '2026年8月20日現在の予定です。日程変更の可能性があります！'],
+  [
+    item('9', 104, 783),
+    item('1', 50, 594), item('火', 89, 594), item('9時～17時', 134, 594), item('〇', 216, 594),
+    item('4', 50, 523), item('金', 89, 523), item('×', 153, 524),
+    item('16', 331, 594), item('水', 373, 594), item('×', 437, 595),
+  ],
+);
+
 describe('PDF availability parsers', () => {
   it('parses Japanese dates, multiple slots, and partial availability', () => {
     const result = parseNerimaPdf(nerima, '2026-08-24');
@@ -128,6 +149,26 @@ describe('PDF availability parsers', () => {
     expect(parseFuchuPdf(pdf, '2026-08-24')).toMatchObject({ status: 'unknown', unknownReason: 'unsupported_pdf_graphics' });
   });
 
+  it('parses Kanagawa Sports Center explicit morning and afternoon symbols', () => {
+    expect(parseKanagawaSportsCenterPdf(kanagawa, '2026-09-03')).toMatchObject({
+      status: 'available',
+      periods: [
+        { from: '09:00', to: '12:00', status: 'available' },
+        { from: '13:00', to: '18:00', status: 'available' },
+      ],
+    });
+    expect(parseKanagawaSportsCenterPdf(kanagawa, '2026-09-09').status).toBe('partially_available');
+    expect(parseKanagawaSportsCenterPdf(kanagawa, '2026-09-07')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
+  });
+
+  it('parses both halves of the Expo 70 individual-use schedule without treating other cells as availability', () => {
+    expect(parseExpo70Pdf(expo70, '2026-09-01')).toMatchObject({
+      status: 'available', periods: [{ from: '09:00', to: '17:00', status: 'available' }],
+    });
+    expect(parseExpo70Pdf(expo70, '2026-09-04').status).toBe('unavailable');
+    expect(parseExpo70Pdf(expo70, '2026-09-16').status).toBe('unavailable');
+  });
+
   it('fails closed when anchors, legends, or rows change', () => {
     expect(() => parseNerimaPdf({ ...nerima, text: 'unexpected layout' }, '2026-08-24')).toThrow(/anchor/);
     const malformed = document(['上尾陸上競技場', '個人利用日予定表', '令和8年 8月', '利用時間', '利用時間は1回4時間まで'], [item('27日', 53, 580)]);
@@ -151,6 +192,34 @@ describe('PDF source discovery and failures', () => {
     expect(result.documentId).toBe('sep.pdf');
     expect(result.sourceHash).toMatch(/^sha256:/);
     expect(result.parserVersion).toBe('1.0.0');
+  });
+
+  it('discovers current Kanagawa and Expo 70 monthly PDFs from stable official pages', async () => {
+    const cases = [
+      {
+        trackId: 'kanagawa-prefectural-sports-center-track',
+        link: '<a href="/documents/65520/sep.pdf">予定表（令和8年9月分)（PDF）</a>',
+        pdfUrl: 'https://www.pref.kanagawa.jp/documents/65520/sep.pdf',
+        extracted: kanagawa,
+        date: '2026-09-03',
+      },
+      {
+        trackId: 'expo70-commemorative-stadium',
+        link: '<a href="/sys/wp-content/uploads/kyogijyo_kojinriyou_yoteihyou_202609.pdf">競技場9月個人利用予定表</a>',
+        pdfUrl: 'https://www.expo70-park.jp/sys/wp-content/uploads/kyogijyo_kojinriyou_yoteihyou_202609.pdf',
+        extracted: expo70,
+        date: '2026-09-01',
+      },
+    ];
+    for (const testCase of cases) {
+      const sourceConfig = pdfSourceConfigs.find(value => value.trackId === testCase.trackId)!;
+      const fetchImpl = (async (input: string | URL | Request) => String(input) === sourceConfig.landingPageUrl
+        ? new Response(testCase.link, { headers: { 'content-type': 'text/html; charset=utf-8' } })
+        : new Response(new TextEncoder().encode('%PDF-synthetic'), { headers: { 'content-type': 'application/pdf' } })) as typeof fetch;
+      const result = await createPdfCollector(fetchImpl, async () => testCase.extracted).collect(sourceConfig, testCase.date, new Date('2026-09-01T00:00:00Z'));
+      expect(result.pdfUrl).toBe(testCase.pdfUrl);
+      expect(result.status).toBe('available');
+    }
   });
 
   it('reuses one extracted monthly PDF for multiple requested dates', async () => {

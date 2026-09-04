@@ -70,7 +70,7 @@ collectorは、万能parserを作らず、共通fetch・cache・failure正規化
 - 新規18施設の `externalIds.osm` / `externalIds.jaaf` は空で、座標や候補発見のevidenceが公開recordから追跡しにくい。値が誤りという意味ではないが、今後は座標決定方法を調査記録へ残す。
 - `sources` は属性単位ではないため、1つの公式ページだけで全属性を検証したように見える場合がある。
 - `phase2-tracks.json` と `tracks.json` に同じnormalized値が重複し、将来driftする可能性がある。今後のbatch fileはnormalized recordの複製ではなく、判断と根拠を記録する。
-- `availability-sources.json` の `automation.implementation` は古い施設で未記録のものがあり、単純集計が実collectorの23施設と一致しない。research metadataとcollector registryの整合を検証対象にする。
+- `availability-sources.json` の `automation.implementation` は古い施設で未記録の時期があった。現在は27施設のresearch metadataとcollector registryを同期し、以後も両者の整合を検証対象にする。
 - Track Dataset、31日分のgenerated availability、UI、route、インフラ変更を1つの大きなPRに含めると、施設ごとの根拠をreviewしにくい。今後はresearch、dataset、collector/UIを分離する。
 - 現行validatorはID、座標範囲、source形式、OSM参照、availability ID整合を確認するが、公式sourceが各属性を本当に支えるか、URLが生きているか、個人利用の意味が正しいかは人のreviewが必要である。
 

@@ -6,6 +6,15 @@
         <h1>{{ isEnglish ? 'Find a track near you' : '近くで走れるトラックを探す' }}</h1>
         <p>{{ isEnglish ? 'When your usual track is closed, or when you are training somewhere new, search by workout date and a reference point.' : 'いつもの競技場が使えない日も、転居先や合宿先でも。利用日と基準地点から、練習できそうなトラックを探せます。' }}</p>
       </div>
+      <div class="track-hero-actions">
+        <v-btn class="hero-location-action" color="white" size="large" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
+          {{ isEnglish ? 'Find near me' : '現在地から探す' }}
+        </v-btn>
+        <v-btn class="hero-map-action" color="white" size="large" variant="outlined" prepend-icon="mdi-map-marker-plus" @click="startPointSelection">
+          {{ isEnglish ? 'Choose on the map' : '場所を地図で選ぶ' }}
+        </v-btn>
+        <small>{{ isEnglish ? 'Your device location is used only to calculate distance. It is not saved or sent.' : '端末の現在地は距離計算にだけ使い、保存・送信しません。' }}</small>
+      </div>
     </header>
 
     <v-alert v-if="locationMessage" :type="locationError ? 'warning' : 'success'" variant="tonal" class="mb-3" closable>
@@ -47,7 +56,7 @@
         <div class="map-tools">
           <strong>{{ isEnglish ? 'Search origin' : '検索の基準地点' }}</strong>
           <v-btn size="small" :variant="referencePointSource === 'current' ? 'flat' : 'outlined'" color="indigo" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
-            {{ isEnglish ? 'Use current location' : '現在地を使う' }}
+            {{ isEnglish ? 'Find near me' : '現在地から探す' }}
           </v-btn>
           <v-btn size="small" :color="selectingPoint ? 'indigo' : undefined" :variant="selectingPoint ? 'flat' : 'outlined'" prepend-icon="mdi-map-marker-plus" @click="togglePointSelection">
             {{ selectingPoint ? (isEnglish ? 'Tap a point on the map' : '地図上の地点をタップ') : (isEnglish ? 'Choose a map point' : '地図から基準地点を選ぶ') }}
@@ -55,7 +64,11 @@
           <v-btn v-if="distanceOrigin" size="small" variant="text" prepend-icon="mdi-close" @click="clearReferencePoint">
             {{ isEnglish ? 'Clear reference point' : '基準地点を解除' }}
           </v-btn>
-          <span v-if="distanceOrigin">{{ referencePointLabel }}</span>
+          <span v-if="distanceOrigin" class="reference-status" role="status"><v-icon icon="mdi-sort-ascending" size="16" />{{ referencePointLabel }}</span>
+          <span v-else-if="showingExampleView" class="example-map-label">{{ isEnglish ? 'Example: Shinjuku area' : '表示例：新宿周辺' }}</span>
+          <v-btn v-if="showingExampleView" size="small" variant="text" prepend-icon="mdi-map-outline" @click="showCoverageMap">
+            {{ isEnglish ? 'View all coverage areas' : '掲載エリア全体を見る' }}
+          </v-btn>
         </div>
         <div ref="mapElement" id="track-map" class="track-map" :data-zoom="mapZoom ?? undefined" />
       </section>
@@ -184,6 +197,8 @@ import { trackProductEvent, type ProductEventName, type ProductEventParameters }
 const { locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const EXAMPLE_MAP_CENTER = { latitude: 35.6896, longitude: 139.6917 };
+const EXAMPLE_MAP_ZOOM = 13;
 const isEnglish = computed(() => locale.value === 'en');
 const showUnavailable = ref(false);
 const today = localDateKey();
@@ -209,6 +224,7 @@ const mapElement = ref<HTMLElement | null>(null);
 const mapPanelElement = ref<HTMLElement | null>(null);
 const detailElement = ref<HTMLElement | null>(null);
 const mapZoom = ref<number | null>(null);
+const showingExampleView = ref(false);
 let map: LeafletMap | null = null;
 let markerLayer: LayerGroup | null = null;
 let locationMarker: Marker | null = null;
@@ -293,7 +309,9 @@ onMounted(() => {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
-  fitDefaultTrackBounds();
+  map.setView([EXAMPLE_MAP_CENTER.latitude, EXAMPLE_MAP_CENTER.longitude], EXAMPLE_MAP_ZOOM);
+  mapZoom.value = map.getZoom();
+  showingExampleView.value = !initialCoordinates && !trackById(route.query.track);
   map.on('click', event => {
     if (!selectingPoint.value) return;
     setReferencePoint({ latitude: event.latlng.lat, longitude: event.latlng.lng }, 'map', true);
@@ -308,7 +326,10 @@ onMounted(() => {
     map.setView([initialCoordinates.latitude, initialCoordinates.longitude], 13);
   }
   const focused = trackById(route.query.track);
-  if (focused) void selectTrack(focused, 'map', false, false);
+  if (focused) {
+    showingExampleView.value = false;
+    void selectTrack(focused, 'map', false, false);
+  }
   nextTick(() => {
     map?.invalidateSize();
     focusMapSection();
@@ -372,6 +393,11 @@ function fitDefaultTrackBounds() {
   mapZoom.value = map.getZoom();
 }
 
+function showCoverageMap() {
+  showingExampleView.value = false;
+  fitDefaultTrackBounds();
+}
+
 function addTrackMarker(track: TrackFacility, selected = false) {
   if (!map || !markerLayer) return;
     const availability = selectedDateAvailability(track);
@@ -426,6 +452,7 @@ function onDateInput(event: Event) {
 }
 
 async function selectTrack(track: TrackFacility, source: 'map' | 'list', updateUrl = true, scroll = true) {
+  showingExampleView.value = false;
   selectedTrack.value = track;
   if (!distanceOrigin.value) {
     const prefecture = prefectureName(track.location.address);
@@ -462,8 +489,11 @@ function requestLocation() {
     locationError.value = false;
     distanceOrigin.value = { latitude: position.coords.latitude, longitude: position.coords.longitude };
     referencePointSource.value = 'current';
+    showingExampleView.value = false;
     distanceListLimit.value = 12;
-    locationMessage.value = isEnglish.value ? 'Location found. Facilities are sorted by straight-line distance.' : '現在地を取得しました。施設一覧を直線距離順に並べました。';
+    locationMessage.value = isEnglish.value
+      ? `${visibleTracks.value.length} facilities are now sorted by straight-line distance from your location.`
+      : `${visibleTracks.value.length}施設を現在地から直線距離の近い順に表示しています。`;
     trackSearchEvent('use_location_result', { result: 'success' });
     trackSearchEvent('search_origin_select', { origin_type: 'current' });
     if (map) {
@@ -472,6 +502,7 @@ function requestLocation() {
     }
     const query = { ...route.query }; delete query.lat; delete query.lng;
     void router.replace({ path: route.path, query });
+    revealMapResults();
   }, error => {
     locating.value = false;
     const messages: Record<number, string> = {
@@ -527,9 +558,18 @@ function togglePointSelection() {
   locationError.value = false;
 }
 
+function startPointSelection() {
+  if (!selectingPoint.value) togglePointSelection();
+  void nextTick(() => {
+    mapPanelElement.value?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+    mapPanelElement.value?.focus({ preventScroll: true });
+  });
+}
+
 function setReferencePoint(point: { latitude: number; longitude: number }, source: 'current' | 'map', updateUrl: boolean) {
   distanceOrigin.value = point;
   referencePointSource.value = source;
+  showingExampleView.value = false;
   distanceListLimit.value = 12;
   selectingPoint.value = false;
   locationMessage.value = source === 'map'
@@ -537,6 +577,17 @@ function setReferencePoint(point: { latitude: number; longitude: number }, sourc
   renderReferenceMarker();
   if (updateUrl) trackSearchEvent('search_origin_select', { origin_type: source });
   if (updateUrl) void router.replace({ path: route.path, query: { ...route.query, lat: point.latitude.toFixed(5), lng: point.longitude.toFixed(5) } });
+}
+
+function revealMapResults() {
+  void nextTick(() => {
+    mapPanelElement.value?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+    mapPanelElement.value?.focus({ preventScroll: true });
+  });
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
 function renderReferenceMarker() {
@@ -715,10 +766,15 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
 
 <style scoped>
 .track-search-page { max-width: 1185px; padding-block: 24px 40px; }
-.track-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 24px; margin-bottom: 16px; color: white; background: linear-gradient(135deg, #283593, #00897b); border-radius: 12px; }
+.track-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; margin-bottom: 16px; color: white; background: linear-gradient(135deg, #283593, #00897b); border-radius: 12px; }
 .track-hero h1 { margin: 2px 0 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.2; }
 .track-hero p { max-width: 720px; margin: 0; }
 .track-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; opacity: .85; }
+.track-hero-actions { display: grid; width: min(100%, 250px); flex: 0 0 250px; gap: 8px; }
+.track-hero-actions .v-btn { min-height: 48px; }
+.track-hero-actions small { color: rgba(255,255,255,.9); font-size: 12px; line-height: 1.45; }
+.hero-location-action { color: #283593 !important; font-weight: 800; }
+.hero-map-action { color: white !important; }
 .track-controls { display: flex; min-height: 52px; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 6px 14px; margin-bottom: 12px; border: 1px solid #d9dce8; border-radius: 10px; background: white; }
 .track-controls .v-switch { flex: 0 1 auto; }
 .date-controls { padding: 12px 14px; margin-bottom: 12px; border: 1px solid #d9dce8; border-radius: 10px; background: white; }
@@ -735,9 +791,11 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
 .legend-dot.today-available { background: #00897b; }.legend-dot.today-partial { background: #f9a825; }.legend-dot.today-unknown { background: #78909c; }.legend-dot.today-unavailable { background: #c62828; }
 .track-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
 .track-layout.has-detail { grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); }
-.map-panel { overflow: hidden; border: 1px solid #d9dce8; border-radius: 12px; background: #eef1f5; }
+.map-panel { overflow: hidden; scroll-margin-top: 64px; border: 1px solid #d9dce8; border-radius: 12px; background: #eef1f5; }
 .map-tools { display: flex; min-height: 52px; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding: 8px 10px; background: white; border-bottom: 1px solid #d9dce8; }
 .map-tools strong { margin-right: 4px; font-size: 13px; }.map-tools span { color: #555; font-size: 12px; }
+.map-tools .reference-status { display: inline-flex; align-items: center; gap: 4px; color: #283593; font-weight: 700; }
+.map-tools .example-map-label { padding: 4px 8px; color: #455a64; border-radius: 999px; background: #eceff1; font-weight: 700; }
 .track-map { width: 100%; height: min(64vh, 610px); min-height: 480px; z-index: 0; }
 .detail-card { padding: 20px; scroll-margin-top: 64px; border: 1px solid #d9dce8; border-radius: 12px; background: white; box-shadow: 0 6px 24px rgba(24, 39, 90, .09); }
 .detail-heading { display: flex; justify-content: space-between; gap: 12px; }
@@ -792,7 +850,8 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
 @media (max-width: 799px) {
   .track-search-page { padding: 12px 10px 28px; }
   .track-hero { align-items: stretch; padding: 18px; flex-direction: column; }
-  .track-hero .v-btn { align-self: flex-start; }
+  .track-hero-actions { width: 100%; flex-basis: auto; }
+  .track-hero .v-btn { width: 100%; }
   .track-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 8px 12px; padding-block: 10px; }
   .track-controls .v-switch, .track-controls .result-count { grid-column: 1 / -1; }
   .date-control-heading { align-items: flex-start; flex-direction: column; }

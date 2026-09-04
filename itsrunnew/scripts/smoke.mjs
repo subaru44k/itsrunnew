@@ -52,6 +52,28 @@ try {
     page.on('request', request => requests.push(request.url()));
     page.on('pageerror', error => runtimeErrors.push(error.message));
     await page.route('**/*', route => adPattern.test(route.request().url()) ? route.abort() : route.continue());
+    await page.addInitScript(() => {
+      window.__itsrunGeolocationRequests = 0;
+      const geolocation = navigator.geolocation;
+      window.__itsrunGeolocationCounterInstalled = !geolocation;
+      if (!geolocation) return;
+      try {
+        const originalGetCurrentPosition = geolocation.getCurrentPosition.bind(geolocation);
+        Object.defineProperty(geolocation, 'getCurrentPosition', {
+          configurable: true,
+          writable: true,
+          value: (...args) => {
+            window.__itsrunGeolocationRequests += 1;
+            return originalGetCurrentPosition(...args);
+          },
+        });
+        window.__itsrunGeolocationCounterInstalled = true;
+      } catch {
+        // A browser that exposes an unusual geolocation object may reject the
+        // method replacement; the assertion below then fails rather than
+        // silently weakening the no-auto-request check.
+      }
+    });
     const analyticsRequestsBeforeConsent = requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length;
 
     await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
@@ -68,8 +90,50 @@ try {
     await page.getByRole('button', { name: '同意しない', exact: true }).click();
     await page.locator('#track-map .track-marker, #track-map .track-cluster').first().waitFor();
     const defaultMapZoom = Number(await page.locator('#track-map').getAttribute('data-zoom'));
-    const expectedDefaultZoom = viewport.width < 800 ? 5 : 7;
-    if (defaultMapZoom !== expectedDefaultZoom) throw new Error(`Default map zoom at ${viewport.width}px is ${defaultMapZoom}, expected ${expectedDefaultZoom}`);
+    const expectedCoverageZoom = viewport.width < 800 ? 5 : 7;
+    if (defaultMapZoom !== 13) throw new Error(`Initial sample map zoom at ${viewport.width}px is ${defaultMapZoom}, expected 13`);
+    await page.getByText('表示例：新宿周辺', { exact: true }).waitFor();
+    await page.getByRole('button', { name: '掲載エリア全体を見る', exact: true }).waitFor();
+    if (await page.locator('#track-map .search-origin-dot').count() !== 0) throw new Error('Initial sample map unexpectedly rendered a search origin');
+    await page.locator('.facility-heading').getByText('都道府県別に表示', { exact: true }).waitFor();
+    const initialGeolocationState = await page.evaluate(() => ({
+      count: window.__itsrunGeolocationRequests,
+      installed: window.__itsrunGeolocationCounterInstalled,
+    }));
+    if (!initialGeolocationState.installed) throw new Error('Could not install the geolocation request counter');
+    const initialGeolocationRequests = initialGeolocationState.count;
+    if (initialGeolocationRequests !== 0) throw new Error(`Geolocation was requested automatically on home load (${initialGeolocationRequests} calls)`);
+
+    await page.getByRole('button', { name: '掲載エリア全体を見る', exact: true }).click();
+    await page.waitForFunction(expected => Number(document.querySelector('#track-map')?.getAttribute('data-zoom')) === expected, expectedCoverageZoom);
+    if (await page.locator('#track-map .search-origin-dot').count() !== 0) throw new Error('Coverage map unexpectedly rendered a search origin');
+    await page.locator('.facility-heading').getByText('都道府県別に表示', { exact: true }).waitFor();
+
+    const locationPage = await browser.newPage({ viewport });
+    locationPage.on('request', request => requests.push(request.url()));
+    locationPage.on('pageerror', error => runtimeErrors.push(error.message));
+    await locationPage.route('**/*', route => adPattern.test(route.request().url()) ? route.abort() : route.continue());
+    await locationPage.emulateMedia({ reducedMotion: 'reduce' });
+    await locationPage.context().setGeolocation({ latitude: 35.68124, longitude: 139.76712 });
+    await locationPage.context().grantPermissions(['geolocation'], { origin: new URL(baseUrl).origin });
+    await locationPage.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
+    await locationPage.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    await locationPage.getByRole('dialog', { name: 'アクセス解析の設定' }).waitFor();
+    await locationPage.getByRole('button', { name: '同意しない', exact: true }).click();
+    await locationPage.locator('#track-map .track-marker, #track-map .track-cluster').first().waitFor();
+    await locationPage.locator('.track-hero-actions').getByRole('button', { name: '現在地から探す', exact: true }).click();
+    await locationPage.locator('#track-map .search-origin-dot').waitFor();
+    await locationPage.getByText(/^\d+施設を現在地から直線距離の近い順に表示しています。$/, { exact: true }).waitFor();
+    await locationPage.locator('.facility-heading').getByText('現在地から近い順', { exact: true }).waitFor();
+    await locationPage.waitForFunction(() => {
+      const target = document.getElementById('track-map-section');
+      const top = target?.getBoundingClientRect().top ?? -1;
+      return document.activeElement === target
+        && top >= 48 && top <= 100
+        && document.querySelector('#track-map')?.getAttribute('data-zoom') === '13';
+    });
+    await locationPage.context().clearPermissions();
+    await locationPage.close();
     await page.getByText(`© 2019–${currentYear} いつラン`, { exact: true }).waitFor();
     if (viewport.width < 800) {
       const facilityNameWhiteSpace = await page.locator('.facility-main strong').first().evaluate(element => getComputedStyle(element).whiteSpace);
@@ -199,7 +263,7 @@ try {
       return document.activeElement === target && top >= 48 && top <= 100;
     });
     if (new URL(page.url()).searchParams.has('lat') || new URL(page.url()).searchParams.has('lng')) throw new Error('Facility map action unexpectedly added a search origin');
-    if (await page.locator('.map-tools').getByRole('button', { name: '現在地を使う', exact: true }).count() !== 1) throw new Error('Search-origin controls are not grouped above the map');
+    if (await page.locator('.map-tools').getByRole('button', { name: '現在地から探す', exact: true }).count() !== 1) throw new Error('Search-origin controls are not grouped above the map');
 
     await page.goto(`${baseUrl}/tracks/toda-sports-center-track?date=${today}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
@@ -226,7 +290,7 @@ try {
     await page.getByRole('button', { name: '基準地点を解除', exact: true }).click();
     await page.waitForFunction(() => !new URL(location.href).searchParams.has('lat') && !new URL(location.href).searchParams.has('lng'));
     const zoomBeforeLocationFailure = await page.locator('#track-map').getAttribute('data-zoom');
-    await page.getByRole('button', { name: '現在地を使う', exact: true }).click();
+    await page.locator('.map-tools').getByRole('button', { name: '現在地から探す', exact: true }).click();
     await page.getByText(/現在地の利用が許可されませんでした|現在地を取得できません/).waitFor();
     if (await page.locator('#track-map').getAttribute('data-zoom') !== zoomBeforeLocationFailure) throw new Error('Location failure unexpectedly reset the map view');
     for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();

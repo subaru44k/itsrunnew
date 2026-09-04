@@ -5,7 +5,7 @@
 Track Searchのavailabilityは、「その施設が一般の個人利用を受け付けるか」という比較的staticな `src/data/tracks.json` と、「指定日に実際に利用できるか」という日付別の `src/data/availability.json` を分離します。
 
 ```text
-公式HTML / calendar / 固定規則 / PDF
+公式HTML / calendar / JSON / 固定規則 / PDF
               ↓
 scripts/availability/ collectors + source cache
               ↓
@@ -47,7 +47,7 @@ range生成先は `src/data/availability/manifest.json` と日付別 `YYYY-MM-DD
 
 manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。Viteは日付JSONを別chunkとしてbuildし、Track Searchは選択日のchunkだけを遅延loadします。133施設×31日を初期bundleへ含めません。
 
-range collectorは同一method・URL・request bodyをprocess内でcacheします。同じlanding page、fixed rule HTML、weekly HTML、月間PDFは再取得せず、同一PDFのtext extractionもsource hash単位で再利用します。TEFのような日付指定POSTはbodyが日ごとに異なるため各日1回だけ取得します。2026-08-24から31日のlive実行ではcache hit 390回、実HTTP 98回でした。retryや並列burstは行いません。
+range collectorは同一method・URL・request bodyをprocess内でcacheします。同じlanding page、fixed rule HTML、weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、月間PDFは再取得せず、同一PDFのtext extractionもsource hash単位で再利用します。TEFのような日付指定POSTはbodyが日ごとに異なるため各日1回だけ取得します。2026-08-24から31日のlive実行ではcache hit 390回、実HTTP 98回でした。retryや並列burstは行いません。
 
 ## 対応施設
 
@@ -57,9 +57,12 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `structured_html` | 武蔵野陸上競技場 | 当日HTMLの2時間枠、A・B・貸切を解析 |
 | `structured_html` | 越谷しらこばと | 日付付き「個人利用できます」の時間だけを解析 |
 | `structured_html` | 日産スタジアム・日産フィールド小机 | 共通ページを1回取得し、施設名・実施日・時間が明示された枠だけを解析 |
+| `structured_html` | 東寺ハウジングフィールド西京極 | WordPress月次記事から補助競技場の一般開放日・時間だけを解析 |
+| `structured_html` | 柳島スポーツ公園総合競技場 | WordPress月次記事から個人利用日時と明示休館だけを解析 |
 | `calendar_html` | 東京体育館 | 日付をPOSTし、コース別1時間枠を解析 |
 | `calendar_html` | 駒沢 | 東京体育館と共通のTEF POST表parserで陸上競技場行を解析 |
 | `calendar_html` | 江戸川 | 当日から7日分の一般・専用3時間帯を解析 |
+| `calendar_json` | 町田GIONスタジアム | Event Organiser JSONの個人利用・専用利用・休場イベントを対象月単位で解析 |
 | `fixed_schedule` | 大泉中央公園 | 水曜・第1日曜・第3土曜等を評価 |
 | `fixed_schedule` | 赤塚公園 | 水曜・第1日曜・第3土曜等を評価 |
 | `fixed_schedule` | 井の頭恩賜公園 | 貸切申請可能日以外の一般利用規則を評価 |
@@ -78,9 +81,12 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `pdf` | 上柚木公園 | 施設ページから複数月PDFを発見し、3区分の○・貸切・整備を解析 |
 | `pdf` | 神奈川県立スポーツセンター | 対象月PDFの陸上競技場欄について、午前・午後の○と×を解析 |
 | `pdf` | 万博記念競技場 | 対象月の個人利用予定表について、明示時間帯と×を解析 |
+| `pdf` | 国府台陸上競技場 | 月次使用予定表から明示イベントを差し引き、公式規則の一般開放時間を解析 |
+| `pdf` | びんご運動公園陸上競技場 | 月次PDFのトラック利用可・時間境界・終日不可を解析 |
 | `pdf` | 府中市民陸上競技場 | 日別記号がvector図形のためguarded unknown |
+| `weekly_notice` | 京都府立山城総合運動公園 | 固定URLを上書きする短期告知の対象日・時間だけを解析 |
 
-133施設中27施設（20.3%）を安全な自動判定対象にしています。内訳はstructured HTML 5、calendar HTML 3、固定規則9、PDF 10です。collector対応数を水増しせず、日付sourceの意味を未確認の施設は共通fallbackで `unknown` にします。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式Web・公式X確認という運用までは確認できるものの、安定した日付別HTML取得元がないためguarded unknownです。
+133施設中33施設（24.8%）を安全な自動判定対象にしています。実装のpublication format内訳はstructured HTML 7、calendar HTML 3、calendar JSON 1、固定規則9、weekly notice 1、PDF 12（合計33）です。collector対応数を水増しせず、日付sourceの意味を未確認の施設は共通fallbackで `unknown` にします。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式Web・公式X確認という運用までは確認できるものの、安定した日付別HTML取得元がないためguarded unknownです。
 
 未対応施設もdatasetとUIから除外しません。
 
@@ -92,7 +98,7 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 - 城北中央: `phone_confirmation_required`。Web日程がなく、個人利用可能＋本日は要確認として表示。
 - その他8施設: source方式に応じて `reservation_system_unsupported`、`phone_confirmation_required`、`web_schedule_unavailable` を生成。施設自体は個人利用可能な候補として残す。
 
-現行分類はstructured HTML 9、calendar HTML 14、固定規則11、PDF 19、reservation system 40、phone only 19、Web予定なし12、weekly notice 9です。source type別の実装率はそれぞれ5/9、3/14、9/11、10/19、0/40、0/19、0/12、0/9です。今回の4施設は [2026-09高確度collector追加検証](../research/availability/high-confidence-collector-validation-2026-09.md)、従来分は [HTML/calendar/fixed collector検証](../research/availability/html-calendar-collector-validation.md) と [PDF collector検証](../research/availability/pdf-collector-validation.md) を参照してください。
+現行のavailability source分類はstructured HTML 9、calendar HTML 13、固定規則11、PDF 20、reservation system 40、phone only 19、Web予定なし12、weekly notice 9です。これはresearch上のsource分類であり、実装のpublication formatとは別軸です。実装済み33施設の内訳と6施設の根拠は [2026-09高確度collector追加検証 batch 2](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md)、前回4施設分は [2026-09高確度collector追加検証](../research/availability/high-confidence-collector-validation-2026-09.md)、従来分は [HTML/calendar/fixed collector検証](../research/availability/html-calendar-collector-validation.md) と [PDF collector検証](../research/availability/pdf-collector-validation.md) を参照してください。
 
 ## HTML・calendar・fixed collector
 
@@ -102,6 +108,9 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 - 江戸川: 公式指定管理者の7日表について、掲載上の「本日」が取得日の東京日付と一致すること、requested dateが公開7日内であること、3区分headerを検証します。
 - 越谷: トップページの明示日付と「個人利用できます」の時間を検証します。対象日不一致や文言欠落はunknownです。
 - 日産: 共通の公式ページを1回だけ取得し、日産スタジアムと日産フィールド小机の完全一致する施設名、実施日、時間、年情報を検証します。未掲載日や古い年の告知はunknownです。
+- Machida Event Organiser JSON: 対象月のstart/end、イベントtitle・category・説明文・ISO日時を検証し、個人利用の明示時間だけをpartial、専用利用・休場の明示範囲だけをunavailableにします。イベントなし、対象月外、矛盾、重複、形式変更はunknownです。
+- WordPress月次notice: 西京極は補助競技場の施設名と年月、柳島は記事title・年月・明示日時を検証します。記事内の非掲載日や検索結果の欠落を利用不可とは解釈しません。
+- 山城のrolling notice: 固定URLの記事title、公開年、明示日付・時間を検証します。短期掲載範囲外はunknownです。
 - fixed: 共通の曜日・第N曜日rule evaluatorを再利用します。固定開放枠以外をunavailableとせずunknownにし、公式ページの例外注意をwarningへ保持します。
 
 安定した公式日次sourceがない世田谷、公式Xにだけ載る舎人・秋留台の追加開放は推測しません。新施設追加時は、公式文言、requested-date範囲、構造anchor、明示的available/unavailable語、例外、fixture、parser versionを同時に追加します。
@@ -144,13 +153,13 @@ source bytesのSHA-256とparser versionを残すため、誤解析時に使っ�
 
 `scripts/availability/pdf.ts` は、取得・content type/PDF magic検証、pdfjsによる座標付きtext extraction、対象月URL discovery、format固有parser、normalized record化を分離します。requested dateの年月からmonthly/annual/latest資料を選びます。和田堀だけはnews index → 対象月article → PDFの2段階です。
 
-formatは練馬、戸田、府中guard、和田堀共通、三郷、上尾、富士森、上柚木、神奈川県立スポーツセンター、万博記念競技場の10種類です。万能table parserではなく、確認済みtitle/header/legend/月のanchorを必須にします。府中以外の10施設を対応し、府中は図形statusを推測しません。OCR、reservation system、schedulerは実装していません。
+formatは練馬、戸田、府中guard、和田堀共通、三郷、上尾、富士森、上柚木、神奈川県立スポーツセンター、万博記念競技場、国府台、びんごの13 configです。府中guardを除く12施設を対応し、府中は図形statusを推測しません。万能table parserではなく、確認済みtitle/header/legend/月のanchorを必須にします。OCR、reservation system、schedulerは実装していません。
 
 新formatを追加する場合は、安定landing page、requested dateに対応するPDF discovery、公式凡例によるsemantic mapping、座標付きfixture、missing/changed layoutのunknown test、parser name/versionを同時に追加します。PDFそのものは著作権上commitせず、最小のmocked extractor outputをtest fixtureにします。
 
 ## テスト
 
-`scripts/availability/collectors.test.ts` はTEF共通calendar、江戸川7日表、越谷当日HTML、日産2施設の共通HTML、新旧fixed ruleと、日付欠落・週外・古い表・見出し変更・意味曖昧時のunknownをfixtureで確認します。`scripts/availability/pdf.test.ts` は10 format、requested month、複数period、partial、明示的不可、空欄、header/legend変更、対象月未公開、fetch/content/extraction failureをmocked extractor outputで確認します。失敗がunavailableにならないことを必須にしています。`src/model/availability.test.ts` はunknownを候補に残すことを確認します。
+`scripts/availability/collectors.test.ts` はTEF共通calendar、江戸川7日表、越谷当日HTML、日産2施設の共通HTML、Machida JSON、WordPress月次notice、新旧fixed ruleと、日付欠落・週外・古い表・見出し変更・意味曖昧時のunknownをfixtureで確認します。`scripts/availability/notices.test.ts` は西京極・柳島・山城の成功、非掲載日、年・anchor変更を確認します。`scripts/availability/pdf.test.ts` は12対応formatと府中guard、requested month、複数period、partial、明示的不可、空欄、header/legend変更、対象月未公開、fetch/content/extraction failureをmocked extractor outputで確認します。失敗がunavailableにならないことを必須にしています。`src/model/availability.test.ts` はunknownを候補に残すことを確認します。
 
 `scripts/availability/range.test.ts` は31日、月・年境界、HTTP cache reuseと日付固有POSTの分離を確認します。`src/model/availability-range.test.ts` はAsia/Tokyoのdate-only演算、URLのinvalid/out-of-range fallback、土日のshortcutを確認します。browser smokeは今日・明日・native date input、URL query、marker/list/filter同期、未来日のunknown維持をdesktop/mobileで確認します。
 
@@ -177,6 +186,6 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 
 ## 次の段階
 
-現collectorは27/133（20.3%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開は引き続きunknownです。
+現collectorは33/133（24.8%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開は引き続きunknownです。
 
 新座予約システムは、規約・低頻度アクセス・cache・「空き」の意味を確認するまで実装しません。城北中央は公式Web日程が提供されない限りmanual confirmationを維持します。

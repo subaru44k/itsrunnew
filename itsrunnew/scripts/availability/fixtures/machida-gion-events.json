@@ -1,0 +1,47 @@
+[
+  {
+    "title": "個人利用日",
+    "url": "https://www.nozuta-park.com/events/event/personal-0901",
+    "allDay": true,
+    "start": "2026-09-01T00:00:00",
+    "end": "2026-09-02T00:00:00",
+    "description": "9月 1, 2026<br><br>この日は下記時間帯において、スタジアムの個人利用が可能です。 【利用時間】 9:00-18:00",
+    "category": ["personal"]
+  },
+  {
+    "title": "個人利用日",
+    "url": "https://www.nozuta-park.com/events/event/personal-0903",
+    "allDay": true,
+    "start": "2026-09-03T00:00:00",
+    "end": "2026-09-07T00:00:00",
+    "description": "9月 3 - 6, 2026<br><br>この日は下記時間帯において、スタジアムの個人利用が可能です。 【利用時間】 9:00-18:00",
+    "category": ["personal"]
+  },
+  {
+    "title": "専用利用日",
+    "url": "https://www.nozuta-park.com/events/event/dedicated-0913",
+    "allDay": true,
+    "start": "2026-09-13T00:00:00",
+    "end": "2026-09-14T00:00:00",
+    "description": "9月 13, 2026<br><br>この日は、スタジアムは終日専用利用日となります。 【専用時間】 9:00 - 18:00",
+    "category": ["rikujyou"]
+  },
+  {
+    "title": "休場日",
+    "url": "https://www.nozuta-park.com/events/event/break-0914",
+    "allDay": true,
+    "start": "2026-09-14T00:00:00",
+    "end": "2026-09-15T00:00:00",
+    "description": "9月 14, 2026<br><br>この日はスタジアム休場日となります",
+    "category": ["break"]
+  },
+  {
+    "title": "施設開場日",
+    "url": "https://www.nozuta-park.com/events/event/unrelated-0915",
+    "allDay": true,
+    "start": "2026-09-15T00:00:00",
+    "end": "2026-09-16T00:00:00",
+    "description": "9月 15, 2026<br><br>この日はドッグラン施設の開場日となります。",
+    "category": ["dogrun02"]
+  }
+]

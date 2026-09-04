@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "date": "2026-10-04",
   "timezone": "Asia/Tokyo",
-  "generatedAt": "2026-09-04T06:58:45.842Z",
+  "generatedAt": "2026-09-04T12:50:17.540Z",
   "facilities": [
     {
       "trackId": "ageo-athletic-stadium",
@@ -20,9 +20,9 @@
         "documentId": "att_0000060.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -53,8 +53,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -85,8 +85,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -125,9 +125,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -166,9 +166,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -200,8 +200,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -232,8 +232,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -264,8 +264,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -296,8 +296,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -328,8 +328,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -359,9 +359,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -390,8 +390,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -422,8 +422,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -454,8 +454,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -486,8 +486,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -507,30 +507,30 @@
       "timezone": "Asia/Tokyo",
       "status": "unknown",
       "periods": [],
-      "unknownReason": "web_schedule_unavailable",
+      "unknownReason": "schedule_not_published",
       "source": {
         "url": "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033",
-        "landingPageUrl": null,
+        "landingPageUrl": "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033",
         "type": "official",
-        "publicationFormat": "no_schedule_found",
+        "publicationFormat": "pdf",
         "publishedAt": null,
         "documentId": null
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
-        "collector": "official-source-manual-confirmation",
+        "collector": "bingo-individual-use-calendar",
         "parserVersion": "1.0.0",
         "sourceHash": null,
         "confidence": "low"
       },
       "warnings": [
-        "Facility identity is verified; date-specific availability is not automated yet."
+        "No PDF published for 2026-10-04"
       ]
     },
     {
@@ -550,8 +550,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -593,8 +593,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -625,8 +625,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -646,31 +646,29 @@
       "timezone": "Asia/Tokyo",
       "status": "unknown",
       "periods": [],
-      "unknownReason": "web_schedule_unavailable",
+      "unknownReason": "outside_published_period",
       "source": {
-        "url": "https://www.ys-park.jp/",
-        "landingPageUrl": null,
+        "url": "https://www.ys-park.jp/wp-json/wp/v2/posts?search=%E9%99%B8%E4%B8%8A%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8&per_page=10&_fields=date%2Cmodified%2Clink%2Ctitle%2Ccontent",
+        "landingPageUrl": "https://www.ys-park.jp/user-guide/athletics/",
         "type": "official",
-        "publicationFormat": "no_schedule_found",
+        "publicationFormat": "structured_html",
         "publishedAt": null,
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
-        "collector": "official-source-manual-confirmation",
+        "collector": "chigasaki-wordpress-monthly-notice",
         "parserVersion": "1.0.0",
-        "sourceHash": null,
+        "sourceHash": "sha256:70c9278edcc98f9c6dbeaee3086331cd43a2a759b016f49a81bcd37bea6edcd2",
         "confidence": "low"
       },
-      "warnings": [
-        "Facility identity is verified; date-specific availability is not automated yet."
-      ]
+      "warnings": []
     },
     {
       "trackId": "edogawa-athletic-stadium",
@@ -688,9 +686,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -719,8 +717,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -750,9 +748,9 @@
         "documentId": "reiwa8nennkarennda.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -783,8 +781,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -815,8 +813,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -847,8 +845,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -879,8 +877,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -911,8 +909,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -993,9 +991,9 @@
         "documentId": "generalopen0902.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1027,8 +1025,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1059,8 +1057,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1091,8 +1089,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1123,8 +1121,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1155,8 +1153,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1187,8 +1185,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1219,8 +1217,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1251,8 +1249,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1283,8 +1281,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1325,9 +1323,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1358,8 +1356,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1390,8 +1388,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1422,8 +1420,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1454,8 +1452,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1486,8 +1484,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1518,8 +1516,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1539,30 +1537,30 @@
       "timezone": "Asia/Tokyo",
       "status": "unknown",
       "periods": [],
-      "unknownReason": "web_schedule_unavailable",
+      "unknownReason": "schedule_not_published",
       "source": {
-        "url": "https://www.city.ichikawa.lg.jp/page/2841.html",
-        "landingPageUrl": null,
+        "url": "https://www.city.ichikawa.lg.jp/page/4185.html",
+        "landingPageUrl": "https://www.city.ichikawa.lg.jp/page/4185.html",
         "type": "official",
-        "publicationFormat": "no_schedule_found",
+        "publicationFormat": "pdf",
         "publishedAt": null,
         "documentId": null
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
-        "collector": "official-source-manual-confirmation",
+        "collector": "ichikawa-kohnodai-monthly-events",
         "parserVersion": "1.0.0",
         "sourceHash": null,
         "confidence": "low"
       },
       "warnings": [
-        "Facility identity is verified; date-specific availability is not automated yet."
+        "No PDF published for 2026-10-04"
       ]
     },
     {
@@ -1590,16 +1588,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
         "collector": "inokashira-fixed",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:73034fe6cecd1c59f2910051f7ad3f1eda3e0093e7e788431c7b95b5bc2f0be3",
+        "sourceHash": "sha256:dd614bbe07e1f95b0d55ee0ae1dc2b29d1802831280609303179df5a9fb511fa",
         "confidence": "medium"
       },
       "warnings": [
@@ -1623,8 +1621,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1655,8 +1653,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1687,8 +1685,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1719,8 +1717,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1751,8 +1749,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1783,8 +1781,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1813,8 +1811,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1845,8 +1843,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1877,8 +1875,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1909,8 +1907,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -1971,9 +1969,9 @@
         "documentId": "2ed3e2579058a0ccecb8392ae2fff84f-3.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2005,8 +2003,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2037,8 +2035,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2069,8 +2067,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2101,8 +2099,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2133,8 +2131,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2165,8 +2163,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2197,8 +2195,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2228,9 +2226,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2258,9 +2256,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2289,8 +2287,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2321,8 +2319,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2353,8 +2351,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2385,8 +2383,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2417,8 +2415,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2449,8 +2447,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2481,8 +2479,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2502,30 +2500,30 @@
       "timezone": "Asia/Tokyo",
       "status": "unknown",
       "periods": [],
-      "unknownReason": "web_schedule_unavailable",
+      "unknownReason": "outside_published_period",
       "source": {
-        "url": "https://www.nozuta-park.com/stadium.html",
-        "landingPageUrl": null,
+        "url": "https://www.nozuta-park.com/wp-admin/admin-ajax.php?action=eventorganiser-fullcal&start=2026-10-01&end=2026-11-01",
+        "landingPageUrl": "https://www.nozuta-park.com/calender.html",
         "type": "official",
-        "publicationFormat": "no_schedule_found",
+        "publicationFormat": "calendar_json",
         "publishedAt": null,
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
-        "collector": "official-source-manual-confirmation",
+        "collector": "machida-gion-eventorganiser-json",
         "parserVersion": "1.0.0",
-        "sourceHash": null,
+        "sourceHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
         "confidence": "low"
       },
       "warnings": [
-        "Facility identity is verified; date-specific availability is not automated yet."
+        "※町田GIONスタジアム（町田市立陸上競技場）等の利用予定は変更する場合がございます。"
       ]
     },
     {
@@ -2545,8 +2543,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2577,8 +2575,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2609,8 +2607,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2671,9 +2669,9 @@
         "documentId": "810-4.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2705,8 +2703,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2737,8 +2735,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2768,16 +2766,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
         "collector": "musashino-html",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:f8deda890a3597a265495bb72d53c7f169bc0d0dea611246910566f17b68144c",
+        "sourceHash": "sha256:2f492e38b433ad4b7b29224da17584d256906d0182723794b860f02932f57938",
         "confidence": "medium"
       },
       "warnings": []
@@ -2799,8 +2797,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2830,9 +2828,9 @@
         "documentId": "20260904souun_kaihoujoukyou.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2863,8 +2861,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2895,8 +2893,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2914,31 +2912,29 @@
       "timezone": "Asia/Tokyo",
       "status": "unknown",
       "periods": [],
-      "unknownReason": "web_schedule_unavailable",
+      "unknownReason": "outside_published_period",
       "source": {
-        "url": "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4",
-        "landingPageUrl": null,
+        "url": "https://www.kyoto-sports.or.jp/wp-json/wp/v2/posts?search=%E8%A5%BF%E4%BA%AC%E6%A5%B5%20%E9%99%B8%E4%B8%8A%E3%83%88%E3%83%A9%E3%83%83%E3%82%AF%20%E4%B8%80%E8%88%AC%E9%96%8B%E6%94%BE%E6%97%A5&per_page=10&_fields=date%2Cmodified%2Clink%2Ctitle%2Ccontent",
+        "landingPageUrl": "https://www.kyoto-sports.or.jp/category/cat_topics/",
         "type": "official",
-        "publicationFormat": "no_schedule_found",
+        "publicationFormat": "structured_html",
         "publishedAt": null,
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
-        "collector": "official-source-manual-confirmation",
+        "collector": "nishikyogoku-wordpress-monthly-notice",
         "parserVersion": "1.0.0",
-        "sourceHash": null,
+        "sourceHash": "sha256:212fd1a4426b1874e2714cdffe28dbabc3b9cf3e5582cd2aa240e11fd3496842",
         "confidence": "low"
       },
-      "warnings": [
-        "Facility identity is verified; date-specific availability is not automated yet."
-      ]
+      "warnings": []
     },
     {
       "trackId": "nissan-field-kozukue",
@@ -2956,9 +2952,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -2992,9 +2988,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3029,8 +3025,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3061,8 +3057,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3093,8 +3089,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3124,16 +3120,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
         "collector": "oi-first-third-thursday-fixed",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:2cf1e90c5fd5b6508acd8a00fa8def7d2212233f2b22e1df53f3a5c6922fac74",
+        "sourceHash": "sha256:f0251a3b19ed0e94b7a61b35a4f88a0a5076f640889541045a63887171f62d40",
         "confidence": "medium"
       },
       "warnings": []
@@ -3142,18 +3138,9 @@
       "trackId": "oizumi-chuo-park-track",
       "date": "2026-10-04",
       "timezone": "Asia/Tokyo",
-      "status": "available",
-      "periods": [
-        {
-          "from": null,
-          "to": null,
-          "status": "available",
-          "scope": "full_track",
-          "eligibility": "public",
-          "conditions": []
-        }
-      ],
-      "unknownReason": null,
+      "status": "unknown",
+      "periods": [],
+      "unknownReason": "fetch_failed",
       "source": {
         "url": "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/",
         "landingPageUrl": null,
@@ -3163,19 +3150,21 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": null,
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
         "collector": "oizumi-fixed",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:50d30eecd92b3bddb4ce2dd5ca606bfe70e035aa8ec86c061883c60eba434e46",
+        "sourceHash": null,
         "confidence": "medium"
       },
-      "warnings": []
+      "warnings": [
+        "TimeoutError: The operation was aborted due to timeout"
+      ]
     },
     {
       "trackId": "okaken-athlete-field",
@@ -3194,8 +3183,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3226,8 +3215,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3257,9 +3246,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3290,8 +3279,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3322,8 +3311,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3354,8 +3343,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3386,8 +3375,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3418,8 +3407,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3450,8 +3439,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3482,8 +3471,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3514,8 +3503,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3546,8 +3535,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3578,8 +3567,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3610,8 +3599,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3642,8 +3631,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3674,8 +3663,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3706,8 +3695,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3738,8 +3727,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3770,8 +3759,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3802,8 +3791,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3834,8 +3823,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3866,8 +3855,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3898,8 +3887,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3930,8 +3919,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -3962,8 +3951,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4134,16 +4123,16 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
         "collector": "tokyo-gymnasium-calendar",
         "parserVersion": "1.0.0",
-        "sourceHash": "sha256:2b479ab9584f11bdfe6baec855cc1529c116352b3c02406936d36d711d082775",
+        "sourceHash": "sha256:f2a6d5adb39b105925b7c15ea774e97e8a613b813a73d28e25e21a366c264e6d",
         "confidence": "high"
       },
       "warnings": [
@@ -4178,9 +4167,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4211,8 +4200,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4243,8 +4232,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4275,8 +4264,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4307,8 +4296,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4339,8 +4328,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4391,9 +4380,9 @@
         "documentId": "%E7%AC%AC%E4%B8%80%E7%AB%B6%E6%8A%80%E5%A0%B410%E6%9C%88%E5%88%86_2.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4446,9 +4435,9 @@
         "documentId": "%E7%AC%AC%E4%BA%8C%E7%AB%B6%E6%8A%80%E5%A0%B410%E6%9C%88%E5%88%86_1.pdf"
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4481,8 +4470,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4513,8 +4502,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4534,30 +4523,30 @@
       "timezone": "Asia/Tokyo",
       "status": "unknown",
       "periods": [],
-      "unknownReason": "web_schedule_unavailable",
+      "unknownReason": "outside_published_period",
       "source": {
-        "url": "https://www.kyoto-park.jp/news/",
-        "landingPageUrl": null,
+        "url": "https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/",
+        "landingPageUrl": "https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/",
         "type": "official",
-        "publicationFormat": "no_schedule_found",
-        "publishedAt": null,
+        "publicationFormat": "weekly_notice",
+        "publishedAt": "2026-09-04",
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
       "evidence": {
-        "collector": "official-source-manual-confirmation",
+        "collector": "yamashiro-rolling-html-notice",
         "parserVersion": "1.0.0",
-        "sourceHash": null,
+        "sourceHash": "sha256:8113d9544a3a069023e91e7a95afe609060bfe19cba45b495720121053ee7406",
         "confidence": "low"
       },
       "warnings": [
-        "Facility identity is verified; date-specific availability is not automated yet."
+        "短期更新範囲外"
       ]
     },
     {
@@ -4577,8 +4566,8 @@
       },
       "freshness": {
         "fetchedAt": null,
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },
@@ -4619,9 +4608,9 @@
         "documentId": null
       },
       "freshness": {
-        "fetchedAt": "2026-09-04T06:58:45.842Z",
-        "parsedAt": "2026-09-04T06:58:45.842Z",
-        "checkedAt": "2026-09-04T06:58:45.842Z",
+        "fetchedAt": "2026-09-04T12:50:17.540Z",
+        "parsedAt": "2026-09-04T12:50:17.540Z",
+        "checkedAt": "2026-09-04T12:50:17.540Z",
         "validForDate": "2026-10-04",
         "expiresAt": "2026-10-04T15:00:00.000Z"
       },

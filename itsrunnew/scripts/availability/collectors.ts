@@ -3,9 +3,10 @@ import type { AvailabilityPeriod, TrackAvailability, UnknownReason } from '../..
 import { expansionFallbackSources, PARSER_VERSION, sourceUrls } from './config';
 import { createPdfCollector, PdfCollectorError, pdfSourceConfigs } from './pdf';
 import { tracks } from '../../src/model/tracks';
+import { parseChigasakiNotice, parseNishikyogokuNotice, parseYamashiroNotice, type NoticeParseResult } from './notices';
 
 type FetchLike = typeof fetch;
-type PublicationFormat = 'structured_html' | 'calendar_html' | 'weekly_notice' | 'fixed_schedule' | 'pdf' | 'reservation_system' | 'phone_only' | 'no_schedule_found';
+type PublicationFormat = 'structured_html' | 'calendar_html' | 'calendar_json' | 'weekly_notice' | 'fixed_schedule' | 'pdf' | 'reservation_system' | 'phone_only' | 'no_schedule_found';
 
 interface CollectorContext {
   date: string;
@@ -508,6 +509,264 @@ export function parseNissanTrack(
 // other collectors while retaining a facility-specific exported name.
 export const parseNissan = parseNissanTrack;
 
+const MACHIDA_PARSER_VERSION = '1.0.0';
+const MACHIDA_COLLECTOR = 'machida-gion-eventorganiser-json';
+const MACHIDA_SCHEDULE_WARNING = '※町田GIONスタジアム（町田市立陸上競技場）等の利用予定は変更する場合がございます。';
+const MACHIDA_TRACK_ID = 'machida-gion-stadium';
+
+type MachidaEventKind = 'personal' | 'dedicated' | 'break';
+
+interface MachidaIsoDateTime {
+  dateKey: string;
+  timestamp: number;
+}
+
+interface MachidaParsedEvent {
+  kind: MachidaEventKind;
+  start: MachidaIsoDateTime;
+  end: MachidaIsoDateTime;
+  from: string | null;
+  to: string | null;
+}
+
+type MachidaParseContext = Omit<CollectorContext, 'fetchImpl'> & {
+  fetchedAt?: string;
+  sourceHash?: string;
+  sourceUrl?: string;
+};
+
+function strictDateKey(dateKey: string) {
+  const { year, month, day } = dateParts(dateKey);
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  if (month < 1 || month > 12 || day < 1 || day > daysInMonth) throw new Error(`Invalid calendar date: ${dateKey}`);
+  return dateKey;
+}
+
+function machidaMonthBounds(dateKey: string) {
+  const { year, month } = dateParts(strictDateKey(dateKey));
+  const startMonth = `${year}-${String(month).padStart(2, '0')}-01`;
+  const nextYear = month === 12 ? year + 1 : year;
+  const nextMonth = month === 12 ? 1 : month + 1;
+  return { start: startMonth, end: `${nextYear}-${String(nextMonth).padStart(2, '0')}-01` };
+}
+
+export function machidaGionCalendarUrl(dateKey: string) {
+  const bounds = machidaMonthBounds(dateKey);
+  const url = new URL(sourceUrls.machidaGion);
+  url.searchParams.set('start', bounds.start);
+  url.searchParams.set('end', bounds.end);
+  return url.toString();
+}
+
+function parseMachidaIsoDateTime(value: unknown, field: string): MachidaIsoDateTime {
+  if (typeof value !== 'string') throw new Error(`Machida event ${field} is not an ISO date`);
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-]\d{2}:\d{2})?$/.exec(value);
+  if (!match) throw new Error(`Machida event ${field} is not an ISO date`);
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6] ?? '0');
+  const millisecond = Number((match[7] ?? '').padEnd(3, '0') || '0');
+  if (hour > 23 || minute > 59 || second > 59) throw new Error(`Machida event ${field} has an invalid time`);
+  if (match[8]) {
+    const offset = /[+-](\d{2}):(\d{2})/.exec(match[8]);
+    if (offset && (Number(offset[1]) > 23 || Number(offset[2]) > 59)) throw new Error(`Machida event ${field} has an invalid timezone`);
+  }
+  const timestamp = Date.UTC(year, month - 1, day, hour, minute, second, millisecond);
+  const parsed = new Date(timestamp);
+  if (Number.isNaN(timestamp) || parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) {
+    throw new Error(`Machida event ${field} has an invalid calendar date`);
+  }
+  return { dateKey: `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`, timestamp };
+}
+
+function normalizeMachidaDigits(text: string) {
+  return text
+    .replace(/[０-９]/g, value => String(value.charCodeAt(0) - '０'.charCodeAt(0)))
+    .replace(/：/g, ':')
+    .replace(/〜|～|−|–|—/g, '-');
+}
+
+function machidaClock(hour: string, minute?: string) {
+  const hourNumber = Number(hour);
+  const minuteNumber = minute == null ? 0 : Number(minute);
+  if (hourNumber > 23 || minuteNumber > 59) throw new Error('Machida event has an invalid time range');
+  return `${hour.padStart(2, '0')}:${String(minuteNumber).padStart(2, '0')}`;
+}
+
+function machidaTimeRanges(description: string) {
+  const text = normalizeMachidaDigits(description);
+  const clock = '(\\d{1,2})\\s*(?::|時)\\s*(\\d{2})?';
+  const range = new RegExp(`${clock}\\s*(?:-|から)\\s*${clock}`, 'g');
+  return [...text.matchAll(range)].map(match => {
+    const from = machidaClock(match[1], match[2]);
+    const to = machidaClock(match[3], match[4]);
+    if (from >= to) throw new Error('Machida event time range is not increasing');
+    return { from, to };
+  });
+}
+
+function machidaCategories(value: unknown) {
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value) && value.every(category => typeof category === 'string')) return value as string[];
+  return null;
+}
+
+function parseMachidaEvent(value: unknown): MachidaParsedEvent | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const event = value as Record<string, unknown>;
+  const title = event.title;
+  if (typeof title !== 'string' || !['個人利用日', '専用利用日', '休場日'].includes(title)) return null;
+  const categories = machidaCategories(event.category);
+  if (!categories) throw new Error(`Machida event ${title} has malformed category`);
+  const declaredKinds = [...new Set(categories.filter(category => ['personal', 'rikujyou', 'break'].includes(category)))];
+  if (declaredKinds.length > 1) throw new Error(`Machida event ${title} has contradictory categories`);
+  const categoryKinds: MachidaEventKind[] = [];
+  if (title === '個人利用日' && categories.includes('personal')) categoryKinds.push('personal');
+  if (title === '専用利用日' && categories.includes('rikujyou')) categoryKinds.push('dedicated');
+  if (title === '休場日' && categories.includes('break')) categoryKinds.push('break');
+  if (categoryKinds.length === 0) return null;
+  if (categoryKinds.length !== 1) throw new Error(`Machida event ${title} has contradictory categories`);
+  const kind = categoryKinds[0];
+  if (event.allDay !== true) throw new Error(`Machida event ${title} is not an all-day event`);
+  if (typeof event.description !== 'string') throw new Error(`Machida event ${title} has no description`);
+  const description = stripHtml(event.description);
+  if (kind === 'personal' && !/スタジアムの個人利用が可能(?:です|となります|になります)?(?=$|[。！、,\s　])/.test(description)) {
+    throw new Error('Machida personal event has no explicit stadium-use wording');
+  }
+  if (kind === 'dedicated' && !/スタジアムは(?:終日)?専用利用日(?:となります|です)?(?=$|[。！、,\s　])/.test(description)) {
+    throw new Error('Machida dedicated event has no explicit dedicated-use wording');
+  }
+  if (kind === 'break' && !/スタジアム(?:は)?休場日(?:となります|です)?(?=$|[。！、,\s　])/.test(description)) {
+    throw new Error('Machida break event has no explicit closure wording');
+  }
+  const start = parseMachidaIsoDateTime(event.start, 'start');
+  const end = parseMachidaIsoDateTime(event.end, 'end');
+  if (end.timestamp <= start.timestamp || end.dateKey <= start.dateKey) throw new Error(`Machida event ${title} has an invalid end-exclusive range`);
+  const ranges = machidaTimeRanges(description);
+  if (kind === 'personal' && ranges.length !== 1) throw new Error('Machida personal event must have one explicit time range');
+  if (kind !== 'personal' && ranges.length > 1) throw new Error(`Machida ${kind} event has contradictory time ranges`);
+  return { kind, start, end, from: ranges[0]?.from ?? null, to: ranges[0]?.to ?? null };
+}
+
+function machidaUnknown(context: MachidaParseContext, sourceUrl: string, unknownReason: UnknownReason, warnings: string[] = []) {
+  return unknownRecord({
+    trackId: MACHIDA_TRACK_ID,
+    date: context.date,
+    now: context.now,
+    unknownReason,
+    url: sourceUrl,
+    landingPageUrl: sourceUrls.machidaCalendar,
+    publicationFormat: 'calendar_json',
+    collector: MACHIDA_COLLECTOR,
+    parserVersion: MACHIDA_PARSER_VERSION,
+    fetchedAt: context.fetchedAt,
+    sourceHash: context.sourceHash,
+    confidence: 'low',
+    warnings: [MACHIDA_SCHEDULE_WARNING, ...warnings],
+  });
+}
+
+function machidaRecord(
+  context: MachidaParseContext,
+  sourceUrl: string,
+  status: TrackAvailability['status'],
+  periods: AvailabilityPeriod[],
+  warnings: string[] = [],
+) {
+  return makeRecord({
+    trackId: MACHIDA_TRACK_ID,
+    date: context.date,
+    now: context.now,
+    status,
+    periods,
+    url: sourceUrl,
+    landingPageUrl: sourceUrls.machidaCalendar,
+    publicationFormat: 'calendar_json',
+    collector: MACHIDA_COLLECTOR,
+    parserVersion: MACHIDA_PARSER_VERSION,
+    fetchedAt: context.fetchedAt,
+    sourceHash: context.sourceHash,
+    confidence: 'high',
+    warnings: [MACHIDA_SCHEDULE_WARNING, ...warnings],
+  });
+}
+
+function parseMachidaPayload(payload: string | unknown) {
+  if (typeof payload === 'string') {
+    try {
+      payload = JSON.parse(payload.replace(/^\uFEFF/, ''));
+    } catch (error) {
+      throw new Error(`Machida Event Organiser JSON is invalid: ${String(error)}`);
+    }
+  }
+  if (!Array.isArray(payload)) throw new Error('Machida Event Organiser response is not an event array');
+  return payload;
+}
+
+export function parseMachidaGion(
+  payload: string | unknown,
+  context: MachidaParseContext,
+) {
+  const sourceUrl = context.sourceUrl ?? machidaGionCalendarUrl(context.date);
+  try {
+    const source = new URL(sourceUrl);
+    const officialEndpoint = new URL(sourceUrls.machidaGion);
+    const bounds = machidaMonthBounds(context.date);
+    if (source.origin !== officialEndpoint.origin
+      || source.pathname !== officialEndpoint.pathname
+      || source.searchParams.get('action') !== 'eventorganiser-fullcal'
+      || source.searchParams.get('start') !== bounds.start
+      || source.searchParams.get('end') !== bounds.end) {
+      return machidaUnknown(context, sourceUrl, 'parse_failed', ['Event Organiser request range did not match the requested month.']);
+    }
+  } catch (error) {
+    return machidaUnknown(context, sourceUrl, 'parse_failed', [String(error)]);
+  }
+  const requestedDate = strictDateKey(context.date);
+  const requestedBounds = machidaMonthBounds(requestedDate);
+  let events: unknown[];
+  try {
+    events = parseMachidaPayload(payload);
+  } catch (error) {
+    return machidaUnknown(context, sourceUrl, 'parse_failed', [String(error)]);
+  }
+  const parsedEvents: MachidaParsedEvent[] = [];
+  try {
+    for (const event of events) {
+      const parsed = parseMachidaEvent(event);
+      if (parsed) parsedEvents.push(parsed);
+    }
+  } catch (error) {
+    return machidaUnknown(context, sourceUrl, 'parse_failed', [String(error)]);
+  }
+
+  const dateEvents = parsedEvents.filter(event => event.start.dateKey <= requestedDate && requestedDate < event.end.dateKey);
+  if (dateEvents.some(event => event.start.dateKey < requestedBounds.start || event.start.dateKey >= requestedBounds.end)) {
+    return machidaUnknown(context, sourceUrl, 'parse_failed', ['A relevant event started outside the requested month.']);
+  }
+  for (let index = 0; index < dateEvents.length; index += 1) {
+    for (const other of dateEvents.slice(index + 1)) {
+      if (dateEvents[index].start.timestamp < other.end.timestamp && other.start.timestamp < dateEvents[index].end.timestamp) {
+        return machidaUnknown(context, sourceUrl, 'parse_failed', ['Overlapping personal, dedicated-use, or closure events were rejected.']);
+      }
+    }
+  }
+  if (dateEvents.length === 0) return machidaUnknown(context, sourceUrl, 'outside_published_period');
+  if (dateEvents.length !== 1) return machidaUnknown(context, sourceUrl, 'parse_failed', ['Multiple relevant events matched the requested date.']);
+  const event = dateEvents[0];
+  if (event.kind === 'personal') {
+    return machidaRecord(context, sourceUrl, 'partially_available', [publicPeriod(event.from, event.to, 'full_track', ['explicit_personal_use_event'], 'public')]);
+  }
+  const conditions = event.kind === 'dedicated' ? ['explicit_dedicated_use_event'] : ['explicit_facility_closure'];
+  return machidaRecord(context, sourceUrl, 'unavailable', [unavailablePeriod(event.from, event.to, conditions)]);
+}
+
+export const parseMachidaGionEvents = parseMachidaGion;
+export const parseMachidaCalendar = parseMachidaGion;
+
 interface FixedConfig {
   trackId: string;
   url: string;
@@ -709,6 +968,109 @@ async function collectNissan(context: CollectorContext) {
   });
 }
 
+async function collectMachida(context: CollectorContext) {
+  const sourceUrl = machidaGionCalendarUrl(context.date);
+  try {
+    const source = await request(sourceUrl, context.fetchImpl);
+    return parseMachidaGion(source.html, {
+      date: context.date,
+      now: context.now,
+      fetchedAt: toIso(context.now),
+      sourceHash: source.sourceHash,
+      sourceUrl,
+    });
+  } catch (error) {
+    const reason: UnknownReason = error instanceof TypeError || /HTTP|fetch|abort|network/i.test(String(error)) ? 'fetch_failed' : 'parse_failed';
+    return unknownRecord({
+      trackId: MACHIDA_TRACK_ID,
+      date: context.date,
+      now: context.now,
+      unknownReason: reason,
+      url: sourceUrl,
+      landingPageUrl: sourceUrls.machidaCalendar,
+      publicationFormat: 'calendar_json',
+      collector: MACHIDA_COLLECTOR,
+      parserVersion: MACHIDA_PARSER_VERSION,
+      confidence: 'low',
+      warnings: [MACHIDA_SCHEDULE_WARNING, String(error)],
+    });
+  }
+}
+
+interface NoticeCollectorConfig {
+  trackId: string;
+  url: string;
+  landingPageUrl: string;
+  publicationFormat: 'structured_html' | 'weekly_notice';
+  collector: string;
+  parser: (body: string, date: string, sourceUrl: string) => NoticeParseResult;
+}
+
+const noticeCollectorConfigs: NoticeCollectorConfig[] = [
+  {
+    trackId: 'nishikyogoku-auxiliary-athletics-stadium',
+    url: sourceUrls.nishikyogoku,
+    landingPageUrl: sourceUrls.nishikyogokuLanding,
+    publicationFormat: 'structured_html',
+    collector: 'nishikyogoku-wordpress-monthly-notice',
+    parser: parseNishikyogokuNotice,
+  },
+  {
+    trackId: 'chigasaki-yanagishima-athletic-stadium',
+    url: sourceUrls.chigasaki,
+    landingPageUrl: sourceUrls.chigasakiLanding,
+    publicationFormat: 'structured_html',
+    collector: 'chigasaki-wordpress-monthly-notice',
+    parser: parseChigasakiNotice,
+  },
+  {
+    trackId: 'yamashiro-general-sports-park-athletics-stadium',
+    url: sourceUrls.yamashiro,
+    landingPageUrl: sourceUrls.yamashiro,
+    publicationFormat: 'weekly_notice',
+    collector: 'yamashiro-rolling-html-notice',
+    parser: parseYamashiroNotice,
+  },
+];
+
+async function collectNotice(config: NoticeCollectorConfig, context: CollectorContext) {
+  try {
+    const source = await request(config.url, context.fetchImpl);
+    const parsed = config.parser(source.html, context.date, config.url);
+    return makeRecord({
+      trackId: config.trackId,
+      date: context.date,
+      now: context.now,
+      status: parsed.status,
+      periods: parsed.periods,
+      unknownReason: parsed.unknownReason ?? null,
+      url: parsed.sourceUrl,
+      landingPageUrl: config.landingPageUrl,
+      publicationFormat: config.publicationFormat,
+      collector: config.collector,
+      fetchedAt: toIso(context.now),
+      publishedAt: parsed.publishedAt,
+      sourceHash: source.sourceHash,
+      confidence: parsed.status === 'unknown' ? 'low' : 'high',
+      warnings: parsed.warnings,
+    });
+  } catch (error) {
+    const reason: UnknownReason = error instanceof TypeError || /HTTP|fetch|abort|network/i.test(String(error)) ? 'fetch_failed' : 'parse_failed';
+    return unknownRecord({
+      trackId: config.trackId,
+      date: context.date,
+      now: context.now,
+      unknownReason: reason,
+      url: config.url,
+      landingPageUrl: config.landingPageUrl,
+      publicationFormat: config.publicationFormat,
+      collector: config.collector,
+      confidence: 'low',
+      warnings: [error instanceof Error ? error.message : String(error)],
+    });
+  }
+}
+
 async function collectPdf(config: (typeof pdfSourceConfigs)[number], context: CollectorContext, collector = createPdfCollector(context.fetchImpl)) {
   try {
     const result = await collector.collect(config, context.date, context.now);
@@ -754,6 +1116,7 @@ export async function collectAvailability(date: string, options: { now?: Date; f
   const context: CollectorContext = { date, now: options.now ?? new Date(), fetchImpl: options.fetchImpl ?? fetch };
   // Official sources are intentionally fetched sequentially to avoid bursts to the same operator.
   const supported = [
+    await collectMachida(context),
     ...(await collectNissan(context)),
     await collectHtml('hikarigaoka-park-track', sourceUrls.hikarigaoka, 'structured_html', 'hikarigaoka-html', context, parseHikarigaoka),
     await collectHtml('musashino-athletic-track', sourceUrls.musashino, 'structured_html', 'musashino-html', context, parseMusashino),
@@ -762,6 +1125,7 @@ export async function collectAvailability(date: string, options: { now?: Date; f
     await collectHtml('edogawa-athletic-stadium', sourceUrls.edogawa, 'calendar_html', 'edogawa-weekly-table', context, parseEdogawaWeekly),
     await collectHtml('koshigaya-shirakobato-track', sourceUrls.koshigaya, 'structured_html', 'koshigaya-today-status', context, parseKoshigayaToday),
   ];
+  for (const config of noticeCollectorConfigs) supported.push(await collectNotice(config, context));
   for (const config of fixedConfigs) supported.push(await collectFixed(config, context));
   const pdfCollector = options.pdfCollector ?? createPdfCollector(context.fetchImpl);
   for (const config of pdfSourceConfigs) supported.push(await collectPdf(config, context, pdfCollector));
@@ -778,6 +1142,7 @@ export async function collectAvailability(date: string, options: { now?: Date; f
       'akirudai-park-athletic-track',
       'nissan-stadium-track',
       'nissan-field-kozukue',
+      'machida-gion-stadium',
     ].includes(source.trackId)).map(source => unknownRecord({
       trackId: source.trackId,
       date,

@@ -70,9 +70,17 @@ collectorは、万能parserを作らず、共通fetch・cache・failure正規化
 - 新規18施設の `externalIds.osm` / `externalIds.jaaf` は空で、座標や候補発見のevidenceが公開recordから追跡しにくい。値が誤りという意味ではないが、今後は座標決定方法を調査記録へ残す。
 - `sources` は属性単位ではないため、1つの公式ページだけで全属性を検証したように見える場合がある。
 - `phase2-tracks.json` と `tracks.json` に同じnormalized値が重複し、将来driftする可能性がある。今後のbatch fileはnormalized recordの複製ではなく、判断と根拠を記録する。
-- `availability-sources.json` の `automation.implementation` は古い施設で未記録の時期があった。現在は27施設のresearch metadataとcollector registryを同期し、以後も両者の整合を検証対象にする。
+- `availability-sources.json` の `automation.implementation` は古い施設で未記録の時期があった。現在は33施設のresearch metadataとcollector registryを同期し、以後も両者の整合を検証対象にする。
 - Track Dataset、31日分のgenerated availability、UI、route、インフラ変更を1つの大きなPRに含めると、施設ごとの根拠をreviewしにくい。今後はresearch、dataset、collector/UIを分離する。
 - 現行validatorはID、座標範囲、source形式、OSM参照、availability ID整合を確認するが、公式sourceが各属性を本当に支えるか、URLが生きているか、個人利用の意味が正しいかは人のreviewが必要である。
+
+### 2026-09 batch 2: 6施設の高確度collector
+
+2026-09-04に、公式sourceの対象日・時間・利用可否を安全に意味付けできる6施設をcollector対応へ追加した。自動判定対象は27施設から33/133施設（24.8%）になった。実装の `publicationFormat` による内訳は、structured HTML 7、calendar HTML 3、calendar JSON 1、fixed schedule 9、weekly notice 1、PDF 12である。施設追加の根拠、代表的なlive例、保留候補は [`../research/availability/high-confidence-collector-validation-batch-2-2026-09.md`](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md) に記録する。
+
+追加施設のsource semanticsは形式ごとに分離する。町田GIONは月境界付きEvent Organiser JSONの個人利用・専用利用・休場イベントだけを判定し、イベントなしや対象外をunknownにする。国府台とびんごは月次PDFの構造・凡例・年月を検証し、国府台は公式規則で定めた開場時間から明示イベントを差し引く。西京極と柳島はWordPress月次noticeから施設名・年月・明示日時だけを読み、山城は固定URLを上書きする短期告知の公開年・対象日・時間だけを読む。
+
+このcoverage内訳は実装の出力形式に基づく。research上のsource分類ではWordPress記事を `weekly_notice`、Machidaを `calendar_html` と整理しているため、調査分類との単純合算はしない。特に西京極・柳島は現行codeの `publicationFormat: structured_html` に従ってstructured HTML 7件へ数える。
 
 過去データを一律に信用または否定するのではなく、上記の弱点を全51候補の遡及監査で補う。監査では1件を誤登録として除外し、現在は50施設を掲載している。
 
@@ -230,7 +238,7 @@ geocoderの値を無確認で採用しない。OSM IDがないこと自体は不
 - track IDと施設名
 - sourceの有無
 - stable landing pageと実予定表URL
-- `structured_html | calendar_html | weekly_notice | fixed_schedule | pdf | reservation_system | phone_only | no_schedule_found | other`
+- `structured_html | calendar_html | calendar_json | weekly_notice | fixed_schedule | pdf | reservation_system | phone_only | no_schedule_found | other`
 - 粒度、更新頻度、URL安定性
 - 対象日・未来日を判定できる範囲
 - available / unavailableと判断できる明示的な根拠

@@ -3,8 +3,10 @@ import {
   createPdfCollector,
   extractPdf,
   parseAgeoPdf,
+  parseBingoSportsParkPdf,
   parseFuchuPdf,
   parseFujimoriPdf,
+  parseIchikawaKohnodaiPdf,
   parseKamiyugiPdf,
   parseKanagawaSportsCenterPdf,
   parseExpo70Pdf,
@@ -95,6 +97,33 @@ const expo70 = document(
   ],
 );
 
+const ichikawa = document(
+  ['■9月【September】', '陸上競技場使用予定表【track and field schedule】', '利用時間', '使用時間', '使用予定内容', '※大会・イベント中の個人利用はできません'],
+  [
+    item('1', 78, 700), item('火', 96, 700), item('9~21', 125, 700),
+    item('4', 78, 650), item('金', 96, 650), item('9~21', 125, 650), item('9~12', 171, 645), item('市民スポーツ教室', 223, 645),
+    item('5', 78, 600), item('土', 96, 600), item('9~21', 125, 600),
+    item('12~14', 171, 595), item('講習会', 223, 595), item('14~17', 171, 585), item('大会', 223, 585),
+    item('6', 78, 550), item('日', 96, 550), item('9~21', 125, 550),
+    item('28', 78, 500), item('月', 96, 500), item('―', 125, 500), item('―', 171, 495), item('☆休場日', 223, 495),
+    item('29', 78, 450), item('火', 96, 450), item('9~21', 125, 450),
+  ],
+);
+
+const bingo = document(
+  ['びんご運動公園', '陸上競技場', '個人利用可能日時 案内カレンダー', '2026', '.9月', 'トラック第1レーンは保護のため、現在個人使用を禁止しております'],
+  [
+    item('1', 174, 461), item('2', 278, 461), item('3', 383, 461), item('4', 487, 461), item('5', 592, 461), item('6', 696, 461),
+    item('トラック', 179, 429), item('のみ', 212, 429), item('可', 235, 429),
+    item('~16:00まで', 389, 437), item('トラック・投てき', 380, 422), item('可', 451, 422),
+    item('14:00~', 607, 437), item('トラック', 596, 429), item('のみ', 630, 429), item('可', 652, 429),
+    item('7', 70, 397), item('8', 174, 397), item('9', 278, 397), item('10', 379, 397), item('11', 484, 397), item('12', 588, 397), item('13', 692, 397),
+    item('14', 66, 335), item('15', 170, 335), item('16', 275, 335), item('17', 379, 335), item('18', 484, 335), item('19', 588, 335), item('20', 692, 335),
+    item('終日', 611, 302), item('×', 640, 302),
+    item('21', 66, 270), item('22', 170, 270), item('23', 275, 270), item('24', 379, 270), item('25', 484, 270), item('26', 588, 270), item('27', 692, 270),
+  ],
+);
+
 describe('PDF availability parsers', () => {
   it('parses Japanese dates, multiple slots, and partial availability', () => {
     const result = parseNerimaPdf(nerima, '2026-08-24');
@@ -169,6 +198,36 @@ describe('PDF availability parsers', () => {
     expect(parseExpo70Pdf(expo70, '2026-09-16').status).toBe('unavailable');
   });
 
+  it('subtracts Ichikawa Kohnodai event hours from explicit operating hours', () => {
+    expect(parseIchikawaKohnodaiPdf(ichikawa, '2026-09-01')).toMatchObject({
+      status: 'available', periods: [{ from: '09:00', to: '21:00', status: 'available' }],
+    });
+    expect(parseIchikawaKohnodaiPdf(ichikawa, '2026-09-04')).toMatchObject({
+      status: 'partially_available',
+      periods: [
+        { from: '09:00', to: '12:00', status: 'unavailable' },
+        { from: '12:00', to: '21:00', status: 'available' },
+      ],
+    });
+    expect(parseIchikawaKohnodaiPdf(ichikawa, '2026-09-05').periods).toEqual(expect.arrayContaining([
+      expect.objectContaining({ from: '12:00', to: '17:00', status: 'unavailable' }),
+    ]));
+    expect(parseIchikawaKohnodaiPdf(ichikawa, '2026-09-28').status).toBe('unavailable');
+    const ambiguous = document(ichikawa.text.split('\n'), [...ichikawa.items, item('時間未定イベント', 223, 695)]);
+    expect(parseIchikawaKohnodaiPdf(ambiguous, '2026-09-01')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
+  });
+
+  it('parses Bingo explicit track availability, partial boundaries, and full-day closure', () => {
+    expect(parseBingoSportsParkPdf(bingo, '2026-09-01').status).toBe('available');
+    expect(parseBingoSportsParkPdf(bingo, '2026-09-03')).toMatchObject({
+      status: 'partially_available', periods: [{ from: null, to: '16:00', status: 'available' }],
+    });
+    expect(parseBingoSportsParkPdf(bingo, '2026-09-05')).toMatchObject({
+      status: 'partially_available', periods: [{ from: '14:00', to: null, status: 'available' }],
+    });
+    expect(parseBingoSportsParkPdf(bingo, '2026-09-19').status).toBe('unavailable');
+  });
+
   it('fails closed when anchors, legends, or rows change', () => {
     expect(() => parseNerimaPdf({ ...nerima, text: 'unexpected layout' }, '2026-08-24')).toThrow(/anchor/);
     const malformed = document(['上尾陸上競技場', '個人利用日予定表', '令和8年 8月', '利用時間', '利用時間は1回4時間まで'], [item('27日', 53, 580)]);
@@ -210,6 +269,20 @@ describe('PDF source discovery and failures', () => {
         extracted: expo70,
         date: '2026-09-01',
       },
+      {
+        trackId: 'ichikawa-kohnodai-athletic-stadium',
+        link: '<p>更新日：2026年8月22日</p><p>「使用時間」以外を一般開放いたします。</p><a href="/uploaded/attachment/sep.pdf">9月使用予定表 [PDF]</a>',
+        pdfUrl: 'https://www.city.ichikawa.lg.jp/uploaded/attachment/sep.pdf',
+        extracted: ichikawa,
+        date: '2026-09-01',
+      },
+      {
+        trackId: 'bingo-sports-park-athletic-stadium',
+        link: '<h1>陸上競技場 2026.9月 個人利用可能日時案内カレンダー</h1><a href="/images/topics/1566461033/sep.pdf">2026.9月 陸上競技場個人利用可能日時案内カレンダー</a>',
+        pdfUrl: 'https://www.bingo-sportspark.com/images/topics/1566461033/sep.pdf',
+        extracted: bingo,
+        date: '2026-09-01',
+      },
     ];
     for (const testCase of cases) {
       const sourceConfig = pdfSourceConfigs.find(value => value.trackId === testCase.trackId)!;
@@ -236,6 +309,12 @@ describe('PDF source discovery and failures', () => {
   it('uses schedule_not_published for a missing target month', async () => {
     const collector = createPdfCollector((async () => new Response('<a href="/aug.pdf">8月「個人利用日」予定表</a>')) as typeof fetch, async () => ageo);
     await expect(collector.collect(config, '2026-09-27', new Date())).rejects.toMatchObject({ reason: 'schedule_not_published' });
+  });
+
+  it('requires Ichikawa general-opening semantics before using event complements', async () => {
+    const sourceConfig = pdfSourceConfigs.find(value => value.trackId === 'ichikawa-kohnodai-athletic-stadium')!;
+    const collector = createPdfCollector((async () => new Response('<p>更新日：2026年8月22日</p><a href="/sep.pdf">9月使用予定表 [PDF]</a>')) as typeof fetch, async () => ichikawa);
+    await expect(collector.collect(sourceConfig, '2026-09-01', new Date())).rejects.toMatchObject({ reason: 'schedule_not_published' });
   });
 
   it('distinguishes fetch and invalid-content failures', async () => {

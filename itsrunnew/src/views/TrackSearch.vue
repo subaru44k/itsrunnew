@@ -13,7 +13,7 @@
         <v-btn class="hero-map-action" color="white" size="large" variant="outlined" prepend-icon="mdi-map-marker-plus" @click="startPointSelection">
           {{ isEnglish ? 'Choose on the map' : '場所を地図で選ぶ' }}
         </v-btn>
-        <small>{{ isEnglish ? 'Your device location is used only to calculate distance. It is not saved or sent.' : '端末の現在地は距離計算にだけ使い、保存・送信しません。' }}</small>
+        <small>{{ isEnglish ? 'Your location is used on your device to sort distances. The map provider receives requests for the area shown.' : '現在地は端末内で距離順の計算に使います。背景地図の配信元には表示範囲のリクエストが届きます。' }}</small>
       </div>
     </header>
 
@@ -66,11 +66,11 @@
           </v-btn>
           <span v-if="distanceOrigin" class="reference-status" role="status"><v-icon icon="mdi-sort-ascending" size="16" />{{ referencePointLabel }}</span>
           <span v-else-if="showingExampleView" class="example-map-label">{{ isEnglish ? 'Example: Shinjuku area' : '表示例：新宿周辺' }}</span>
-          <v-btn v-if="showingExampleView" size="small" variant="text" prepend-icon="mdi-map-outline" @click="showCoverageMap">
+          <v-btn size="small" variant="text" prepend-icon="mdi-map-outline" @click="showCoverageMap">
             {{ isEnglish ? 'View all coverage areas' : '掲載エリア全体を見る' }}
           </v-btn>
         </div>
-        <div ref="mapElement" id="track-map" class="track-map" :data-zoom="mapZoom ?? undefined" />
+        <TrackMap ref="map" :state="mapState" @select="selectMapTrack" @point="point => setReferencePoint(point, 'map', true)" />
       </section>
 
       <aside v-if="selectedTrack" ref="detailElement" class="detail-card" aria-live="polite">
@@ -168,9 +168,9 @@
 </template>
 
 <script setup lang="ts">
-import 'leaflet/dist/leaflet.css';
-import L, { type Map as LeafletMap, type LayerGroup, type Marker } from 'leaflet';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import TrackMap from '../components/TrackMap.vue';
+import type { MapState } from '../components/map/types';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
@@ -198,8 +198,6 @@ import { trackProductEvent, type ProductEventName, type ProductEventParameters }
 const { locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const EXAMPLE_MAP_CENTER = { latitude: 35.6896, longitude: 139.6917 };
-const EXAMPLE_MAP_ZOOM = 13;
 const isEnglish = computed(() => locale.value === 'en');
 const showUnavailable = ref(false);
 const today = localDateKey();
@@ -221,14 +219,10 @@ const selectedTrack = ref<TrackFacility | null>(null);
 const distanceListLimit = ref(12);
 const expandedPrefectures = ref<string[]>(['東京都']);
 const prefectureListLimits = ref<Record<string, number>>({ 東京都: 12 });
-const mapElement = ref<HTMLElement | null>(null);
+const map = ref<InstanceType<typeof TrackMap> | null>(null);
 const mapPanelElement = ref<HTMLElement | null>(null);
 const detailElement = ref<HTMLElement | null>(null);
-const mapZoom = ref<number | null>(null);
 const showingExampleView = ref(false);
-let map: LeafletMap | null = null;
-let markerLayer: LayerGroup | null = null;
-let locationMarker: Marker | null = null;
 let loadSequence = 0;
 
 const availabilityByTrack = computed(() => new Map(tracks.map(track => [track.id, availabilityForTrack(track.id, selectedDate.value, pageLoadedAt, selectedDataset.value)])));
@@ -301,52 +295,36 @@ watch(() => route.query.date, async value => {
   await loadDate(normalized);
 }, { immediate: true });
 
+const mapState = computed<MapState>(() => {
+  const facilities = [...visibleTracks.value];
+  if (selectedTrack.value && !facilities.some(track => track.id === selectedTrack.value?.id)) facilities.push(selectedTrack.value);
+  return {
+    facilities: facilities.map(track => ({ id: track.id, name: localizedName(track), ...track.location, status: selectedDateAvailability(track).status, selected: selectedTrack.value?.id === track.id })),
+    reference: distanceOrigin.value,
+    referenceLabel: referencePointSource.value === 'map' ? (isEnglish.value ? 'Selected point' : '選択地点') : (isEnglish.value ? 'Current location' : '現在地'),
+    english: isEnglish.value, selecting: selectingPoint.value,
+  };
+});
+function selectMapTrack(id: string) { const track = trackById(id); if (track) void selectTrack(track, 'map'); }
 onMounted(() => {
-  if (!mapElement.value) return;
-  map = L.map(mapElement.value, { zoomControl: true });
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    className: 'muted-map-tiles',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(map);
-  markerLayer = L.layerGroup().addTo(map);
-  map.setView([EXAMPLE_MAP_CENTER.latitude, EXAMPLE_MAP_CENTER.longitude], EXAMPLE_MAP_ZOOM);
-  mapZoom.value = map.getZoom();
   showingExampleView.value = !initialCoordinates && !trackById(route.query.track);
-  map.on('click', event => {
-    if (!selectingPoint.value) return;
-    setReferencePoint({ latitude: event.latlng.lat, longitude: event.latlng.lng }, 'map', true);
-  });
-  map.on('zoomend', () => {
-    mapZoom.value = map?.getZoom() ?? null;
-    renderMarkers();
-  });
-  renderMarkers();
   if (initialCoordinates) {
     setReferencePoint(initialCoordinates, 'map', false);
-    map.setView([initialCoordinates.latitude, initialCoordinates.longitude], 13);
+    map.value?.setView(initialCoordinates, 13);
   }
   const focused = trackById(route.query.track);
-  if (focused) {
-    showingExampleView.value = false;
-    void selectTrack(focused, 'map', false, false);
-  }
-  nextTick(() => {
-    map?.invalidateSize();
-    focusMapSection();
-  });
+  if (focused) void selectTrack(focused, 'map', false, false);
+  void nextTick(focusMapSection);
 });
 
-onBeforeUnmount(() => map?.remove());
 watch(() => route.hash, focusMapSection);
 watch(visibleTracks, tracksNow => {
-  renderMarkers();
   const explicitlyFocused = selectedTrack.value?.id === route.query.track;
   if (selectedTrack.value && !explicitlyFocused && !tracksNow.some(track => track.id === selectedTrack.value?.id)) closeSelectedTrack();
 });
 watch(() => route.query.track, value => {
   const focused = trackById(value);
-  if (focused && focused.id !== selectedTrack.value?.id && map) void selectTrack(focused, 'map', false, false);
+  if (focused && focused.id !== selectedTrack.value?.id) void selectTrack(focused, 'map', false, false);
   if (!focused && selectedTrack.value) selectedTrack.value = null;
 });
 watch(showUnavailable, value => trackSearchEvent('show_unavailable_change', { enabled: value }));
@@ -359,66 +337,18 @@ watch([availabilityLoading, () => visibleTracks.value.length, selectedDate, show
   trackSearchEvent('no_results', { include_unavailable: includeUnavailable });
 });
 
-function renderMarkers() {
-  if (!map || !markerLayer) return;
-  markerLayer.clearLayers();
-  const selected = selectedTrack.value;
-  const candidates = visibleTracks.value.filter(track => track.id !== selected?.id);
-  const groups = new Map<string, TrackFacility[]>();
-  const zoom = map.getZoom();
-  for (const track of candidates) {
-    const point = map.project([track.location.latitude, track.location.longitude], zoom);
-    const key = zoom <= 12 ? `${Math.floor(point.x / 150)}:${Math.floor(point.y / 150)}` : track.id;
-    groups.set(key, [...(groups.get(key) ?? []), track]);
-  }
-  for (const group of groups.values()) {
-    if (group.length > 1) addClusterMarker(group);
-    else addTrackMarker(group[0]);
-  }
-  const explicitlyFocused = selected?.id === route.query.track;
-  if (selected && (explicitlyFocused || visibleTracks.value.some(track => track.id === selected.id))) addTrackMarker(selected, true);
-}
-
 function focusMapSection() {
   if (route.hash !== '#track-map-section') return;
   void nextTick(() => mapPanelElement.value?.focus({ preventScroll: true }));
 }
 
 function fitDefaultTrackBounds() {
-  if (!map || !tracks.length) return;
-  const padding = window.innerWidth < 800 ? 20 : 40;
-  map.fitBounds(L.latLngBounds(tracks.map(track => [track.location.latitude, track.location.longitude])), {
-    padding: [padding, padding],
-    maxZoom: 7,
-  });
-  mapZoom.value = map.getZoom();
+  map.value?.fitBounds(tracks.map(track => track.location), window.innerWidth < 800 ? 20 : 40, 7);
 }
 
 function showCoverageMap() {
   showingExampleView.value = false;
   fitDefaultTrackBounds();
-}
-
-function addTrackMarker(track: TrackFacility, selected = false) {
-  if (!map || !markerLayer) return;
-    const availability = selectedDateAvailability(track);
-    const icon = L.divIcon({
-      className: 'track-marker-shell',
-      html: `<span class="track-marker track-marker--${availability.status}${selected ? ' track-marker--selected' : ''}" aria-hidden="true"></span>`,
-      iconSize: selected ? [36, 36] : [30, 30], iconAnchor: selected ? [18, 18] : [15, 15],
-    });
-    L.marker([track.location.latitude, track.location.longitude], { icon, title: localizedName(track) })
-      .on('click', () => selectTrack(track, 'map')).addTo(markerLayer);
-}
-
-function addClusterMarker(group: TrackFacility[]) {
-  if (!map || !markerLayer) return;
-  const latitude = group.reduce((sum, track) => sum + track.location.latitude, 0) / group.length;
-  const longitude = group.reduce((sum, track) => sum + track.location.longitude, 0) / group.length;
-  const icon = L.divIcon({ className: 'track-cluster-shell', html: `<span class="track-cluster">${group.length}</span>`, iconSize: [38, 38], iconAnchor: [19, 19] });
-  L.marker([latitude, longitude], { icon, title: isEnglish.value ? `${group.length} facilities` : `${group.length}施設` })
-    .on('click', () => map?.fitBounds(L.latLngBounds(group.map(track => [track.location.latitude, track.location.longitude])), { padding: [30, 30], maxZoom: 14 }))
-    .addTo(markerLayer);
 }
 
 async function loadDate(date: string) {
@@ -462,8 +392,7 @@ async function selectTrack(track: TrackFacility, source: 'map' | 'list', updateU
     if (index >= prefectureLimit(prefecture)) prefectureListLimits.value = { ...prefectureListLimits.value, [prefecture]: index + 1 };
   }
   trackSearchEvent('facility_select', { track_id: track.id, source, availability_status: selectedDateAvailability(track).status });
-  map?.flyTo([track.location.latitude, track.location.longitude], Math.max(map.getZoom(), 14));
-  renderMarkers();
+  map.value?.setView(track.location, Math.max(map.value.getZoom(), 14), !prefersReducedMotion());
   if (updateUrl) await router.replace({ path: route.path, query: { ...route.query, track: track.id } });
   await nextTick();
   if (scroll) detailElement.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -471,7 +400,6 @@ async function selectTrack(track: TrackFacility, source: 'map' | 'list', updateU
 
 function closeSelectedTrack() {
   selectedTrack.value = null;
-  renderMarkers();
   const query = { ...route.query }; delete query.track;
   void router.replace({ path: route.path, query });
 }
@@ -497,10 +425,8 @@ function requestLocation() {
       : `${visibleTracks.value.length}施設を現在地から直線距離の近い順に表示しています。`;
     trackSearchEvent('use_location_result', { result: 'success' });
     trackSearchEvent('search_origin_select', { origin_type: 'current' });
-    if (map) {
-      renderReferenceMarker();
-      map.setView([position.coords.latitude, position.coords.longitude], 13);
-    }
+    selectingPoint.value = false;
+    map.value?.setView(distanceOrigin.value, 13);
     const query = { ...route.query }; delete query.lat; delete query.lng;
     void router.replace({ path: route.path, query });
     revealMapResults();
@@ -537,8 +463,8 @@ function togglePrefecture(group: { name: string; items: Array<{ track: TrackFaci
   expandedPrefectures.value = expanded ? expandedPrefectures.value.filter(name => name !== group.name) : [...expandedPrefectures.value, group.name];
   trackSearchEvent('prefecture_toggle', { prefecture: group.name, expanded: !expanded });
   if (!expanded && !prefectureListLimits.value[group.name]) prefectureListLimits.value = { ...prefectureListLimits.value, [group.name]: 12 };
-  if (!expanded && map && group.items.length) {
-    map.fitBounds(L.latLngBounds(group.items.map(item => [item.track.location.latitude, item.track.location.longitude])), { padding: [28, 28], maxZoom: 12 });
+  if (!expanded && group.items.length) {
+    map.value?.fitBounds(group.items.map(item => item.track.location), 28, 12);
   }
 }
 
@@ -575,7 +501,6 @@ function setReferencePoint(point: { latitude: number; longitude: number }, sourc
   selectingPoint.value = false;
   locationMessage.value = source === 'map'
     ? (isEnglish.value ? 'Facilities are sorted from the selected point.' : '選択した地点から近い順に並べました。') : locationMessage.value;
-  renderReferenceMarker();
   if (updateUrl) trackSearchEvent('search_origin_select', { origin_type: source });
   if (updateUrl) void router.replace({ path: route.path, query: { ...route.query, lat: point.latitude.toFixed(5), lng: point.longitude.toFixed(5) } });
 }
@@ -591,22 +516,11 @@ function prefersReducedMotion() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
-function renderReferenceMarker() {
-  if (!map || !distanceOrigin.value) return;
-  locationMarker?.remove();
-  locationMarker = L.marker([distanceOrigin.value.latitude, distanceOrigin.value.longitude], {
-    icon: L.divIcon({ className: 'current-location-shell', html: '<span class="search-origin-dot"></span>', iconSize: [24, 24], iconAnchor: [12, 12] }),
-    title: referencePointSource.value === 'map' ? (isEnglish.value ? 'Selected point' : '選択地点') : (isEnglish.value ? 'Current location' : '現在地'),
-  }).addTo(map);
-}
-
 function clearReferencePoint() {
   if (referencePointSource.value) trackSearchEvent('search_origin_clear', { origin_type: referencePointSource.value });
   distanceOrigin.value = null;
   referencePointSource.value = null;
   selectingPoint.value = false;
-  locationMarker?.remove();
-  locationMarker = null;
   locationMessage.value = '';
   const query = { ...route.query };
   delete query.lat;

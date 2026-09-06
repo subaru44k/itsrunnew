@@ -17,11 +17,11 @@
       <p>Google's consent management platform (CMP) manages advertising and cookie choices where applicable. It is separate from the ItsRun analytics preference above. You can revisit advertising consent from “Privacy and cookie settings” in the footer. See <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">how Google uses information from sites that use its services</a> and <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a>.</p>
 
       <h2>External services and links</h2>
-      <p>The map uses OpenStreetMap tiles. Official facility pages and Google Maps directions open as external services and are governed by their respective policies.</p>
+      <p>The search map uses OpenStreetMap tiles. The map provider receives your IP address and requests corresponding to the area shown. Official facility pages and Google Maps directions open as external services and are governed by their respective policies.</p>
 
       <h2>Contact</h2>
       <p>For privacy questions or corrections, contact <a href="https://twitter.com/itsrun_page" target="_blank" rel="noopener">@itsrun_page on X</a>. No personal name is published.</p>
-      <p class="updated">Last updated: 25 August 2026</p>
+      <p class="updated">Last updated: 6 September 2026</p>
     </article>
 
     <article v-else>
@@ -41,11 +41,11 @@
       <p>広告・Cookieに関する選択が必要な地域では、Googleの同意管理プラットフォーム（CMP）を使用します。この選択は、上記のいつラン独自のアクセス解析設定とは別に管理されます。フッターの「プライバシーとCookieの設定」から広告の同意内容を再確認・変更できます。Googleによる情報の利用については、<a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleのサービスを使用するサイトやアプリから収集した情報の利用</a>および<a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Googleプライバシーポリシー</a>をご確認ください。</p>
 
       <h2>外部サービス・外部リンク</h2>
-      <p>地図にはOpenStreetMapのタイルを使用します。施設公式サイトやGoogle Mapsの経路検索は外部サービスとして開き、それぞれのサービスの方針が適用されます。</p>
+      <p>検索地図にはOpenStreetMapのタイルを使用します。地図配信元にはIPアドレスと表示範囲に対応するリクエストが届きます。施設公式サイトやGoogle Mapsの経路検索は外部サービスとして開き、それぞれのサービスの方針が適用されます。</p>
 
       <h2>お問い合わせ</h2>
       <p>プライバシーに関するお問い合わせや掲載情報の訂正は、<a href="https://twitter.com/itsrun_page" target="_blank" rel="noopener">Xの@itsrun_page</a>へご連絡ください。個人名は公開していません。</p>
-      <p class="updated">制定・最終更新：2026年8月25日</p>
+      <p class="updated">制定・最終更新：2026年9月6日</p>
     </article>
   </v-container>
 </template>

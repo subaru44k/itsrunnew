@@ -65,6 +65,8 @@ itsrunnew/
 │   ├── components/
 │   │   ├── AdsDisplay.vue     共通広告serviceの準備後に表示するAdSenseスロット
 │   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
+│   │   ├── TrackMap.vue       地図の遅延初期化、失敗表示、再試行、resize
+│   │   ├── map/               Leafletの描画・クラスタリング、地図の型とmarker button
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
 │   │   └── laptime/           PC・スマホ用マラソンペース表
 │   ├── model/                 ペース表、トラック型・距離・経路URL、代替候補ranking
@@ -83,6 +85,7 @@ itsrunnew/
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
 │   ├── validate-track-batches.mjs 候補台帳の全件disposition・件数整合検証
 │   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF collector、range/cache、config、fixture、unit test
+│   ├── map-compare.mjs        地図の旧新PC/スマホ比較・帰属・keyboard操作・障害復帰
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
     ├── app.ts                              hosting CDKアプリのエントリー
@@ -207,7 +210,11 @@ docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約
 
 ### 陸上トラック検索
 
-`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。ヒーローには「現在地から探す」を主action、「場所を地図で選ぶ」を代替actionとして配置し、位置情報は距離計算だけに使って保存・送信しないことを許可要求前に明示します。初期地図は検索後の縮尺とmarker密度を理解できるよう、新宿周辺を「表示例」と明記してzoom 13で表示し、現在地点markerや架空の距離順は付けません。「掲載エリア全体を見る」は全掲載施設を余白付きの`fitBounds`で収め、最大zoom 7とするため、PC・スマートフォンの表示幅と掲載地域の拡張へ自動追従します。tileは低彩度表示とし、zoom 12以下では近接markerをcluster化します。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順へ切り替えて地図へscroll/focusし、拒否・取得不能・timeout時は現在の地図表示を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有でき、共有URLでは指定地点をzoom 13で中央表示します。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。スマートフォンでは施設名を最大2行で表示します。一覧とmap detailからstable IDの施設詳細へ移動できます。`TrackDetail.vue` は選択日availability、仕様、公式導線に加え、`track-alternatives.ts`で同日の利用状況とHaversine直線距離をscore化した周辺5施設を表示します。statusの距離penaltyは利用可0 km相当、一部利用可6 km相当、要確認30 km相当、利用不可60 km相当で、確認済みの候補を強く優先しつつ、極端に遠い施設より近い要確認を残します。同scoreでは利用可、一部利用可、要確認、利用不可の順、次に距離、stable IDで決定します。候補linkは選択日の`date` queryを維持します。詳細の「地図上の位置を見る」は`track` queryで対象施設を選択し、「この施設を基準に周辺を比較」は対象施設の座標を`lat` / `lng`検索基準として渡します。両actionは`#track-map-section`へ直接scrollし、programmatic focusも同sectionへ移すため、PC・スマートフォンとも検索基準操作と地図から開始できます。`track`で明示focusされた施設は、選択日に利用不可で通常filterから外れる場合もmarkerとdetail cardを保持します。breadcrumbの「トラック検索」は選択日だけを維持する通常のページ遷移で、地図anchorや施設選択を持ちません。対象施設が利用不可なら候補欄を強調し、スマートフォンでもavailability直後・施設諸元より前へ配置します。要確認は候補に残して利用不可と明確に区別し、各status badgeと公式確認の注意を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
+`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。ヒーローには「現在地から探す」を主action、「場所を地図で選ぶ」を代替actionとして配置し、現在地は端末内で距離順計算に使い、背景地図の配信元には表示範囲のリクエストが届くことを許可要求前に明示します。初期地図は検索後の縮尺とmarker密度を理解できるよう、新宿周辺を「表示例」と明記してzoom 13で表示し、現在地点markerや架空の距離順は付けません。「掲載エリア全体を見る」は全掲載施設を余白付きの`fitBounds`で収め、最大zoom 7とするため、PC・スマートフォンの表示幅と掲載地域の拡張へ自動追従します。Leaflet tileは低彩度表示とし、zoom 12以下では従来のgridで近接markerをcluster化します。施設とclusterは44pxのHTML buttonで操作でき、施設名と利用状況の読み上げに対応します。選択施設はclusterから分離して保持します。「掲載エリア全体を見る」は検索後も利用できます。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順へ切り替えて地図へscroll/focusし、拒否・取得不能・timeout時は現在の地図表示を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有でき、共有URLでは指定地点をzoom 13で中央表示します。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。スマートフォンでは施設名を最大2行で表示します。一覧とmap detailからstable IDの施設詳細へ移動できます。`TrackDetail.vue` は選択日availability、仕様、公式導線に加え、`track-alternatives.ts`で同日の利用状況とHaversine直線距離をscore化した周辺5施設を表示します。statusの距離penaltyは利用可0 km相当、一部利用可6 km相当、要確認30 km相当、利用不可60 km相当で、確認済みの候補を強く優先しつつ、極端に遠い施設より近い要確認を残します。同scoreでは利用可、一部利用可、要確認、利用不可の順、次に距離、stable IDで決定します。候補linkは選択日の`date` queryを維持します。詳細の「地図上の位置を見る」は`track` queryで対象施設を選択し、「この施設を基準に周辺を比較」は対象施設の座標を`lat` / `lng`検索基準として渡します。両actionは`#track-map-section`へ直接scrollし、programmatic focusも同sectionへ移すため、PC・スマートフォンとも検索基準操作と地図から開始できます。`track`で明示focusされた施設は、選択日に利用不可で通常filterから外れる場合もmarkerとdetail cardを保持します。breadcrumbの「トラック検索」は選択日だけを維持する通常のページ遷移で、地図anchorや施設選択を持ちません。対象施設が利用不可なら候補欄を強調し、スマートフォンでもavailability直後・施設諸元より前へ配置します。要確認は候補に残して利用不可と明確に区別し、各status badgeと公式確認の注意を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
+
+地図の責務は`components/TrackMap.vue`と`components/map/{types,leaflet}.ts`に分離し、日付・距離・施設選択・URLは`TrackSearch.vue`が維持します。Leafletはdynamic importで遅延loadし、日付・言語変更では地図を再生成しません。背景は従来と同じ低彩度のOSM標準タイルです。検索基準地点の表示は背後のmarkerやclusterへのpointer操作を遮りません。ResizeObserverで詳細card開閉や画面幅変更に追従します。初期化前の地図移動は保持して起動後に適用し、unmount時はobserver・地図を解放します。地図初期化は15秒timeout、tile errorでは短い案内と再試行を提供し、一覧・日付・現在地による距離計算は使用可能です。OpenStreetMapの帰属を地図上に残し、Privacyの日英説明はIP・表示範囲の通信を明記します。
+
+地図のAPIキー・配信方式の環境設定は不要です。任意で`itsrunnew/.env.example`からGit管理外の`.env.local`を作り、ローカルの広告設定を指定できます。MapLibre・MapTiler・OpenFreeMapの実験用依存と設定は採用せず、Leaflet＋OSMを維持します。
 
 Track Searchの中心価値は、指定日に近くで集中して走れる環境を見つけられることです。施設情報を公式サイトなしで完全に把握できることは目標にせず、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と公式確認導線を優先します。スパイク可否、料金、細かな条件は補助情報であり、網羅率の目標にしません。変化し得る条件を古い静的値で断定せず、確認不能ならunknownを保ちます。調査・更新時の具体的な優先順位は [`TRACK_DATA.md`](TRACK_DATA.md) を正本とします。
 
@@ -277,6 +284,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run preview` | `dist/`のローカル配信 |
 | `npm run test:smoke` | PC・スマホの全公開ルート、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
 | `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
+| `npm run test:map` | 起動済みの旧版4172・新版4173をPC/スマホで比較し、地図画像・参考初期表示時間・OSM帰属・keyboard操作・日付/言語切替時の再生成なし・tile通信403からの復帰を確認 |
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
 | `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |

@@ -27,7 +27,8 @@ describe('Preview deployment contract', () => {
     expect(deployScript).toContain("public,max-age=300");
     expect(deployScript).toContain("--cache-control 'no-cache'");
     expect(deployScript).toContain('dist/service-worker.js');
-    expect(deployScript).toContain("--paths '/' '/index.html' '/service-worker.js' '/en/' '/tracks' '/en/tracks' '/oda-field' '/en/oda-field'");
+    expect(deployScript).toContain("--paths '/' '/index.html' '/sitemap.xml' '/service-worker.js' '/en/' '/tracks' '/en/tracks'");
+    expect(deployScript).toContain("'/tracks/yoyogi-park-athletic-track' '/en/tracks/yoyogi-park-athletic-track'");
     expect(deployScript).toContain("'/nozomiantena/index' '/en/nozomiantena/index' '/ryuji-miura/index' '/en/ryuji-miura/index'");
     expect(deployScript).not.toContain("--paths '/*'");
   });

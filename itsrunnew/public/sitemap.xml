@@ -2,8 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://itsrun.info/</loc><changefreq>daily</changefreq></url>
   <url><loc>https://itsrun.info/en/</loc></url>
-  <url><loc>https://itsrun.info/oda-field</loc><changefreq>daily</changefreq></url>
-  <url><loc>https://itsrun.info/en/oda-field</loc></url>
   <url><loc>https://itsrun.info/yumenoshima</loc><changefreq>daily</changefreq></url>
   <url><loc>https://itsrun.info/en/yumenoshima</loc></url>
   <url><loc>https://itsrun.info/komazawa</loc><changefreq>daily</changefreq></url>

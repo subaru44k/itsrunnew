@@ -23,6 +23,7 @@ export interface TrackFacility {
 }
 
 export const tracks = rawTracks as TrackFacility[];
+export const ODA_TRACK_ID = 'yoyogi-park-athletic-track';
 
 export function trackById(id: unknown) {
   return typeof id === 'string' ? tracks.find(track => track.id === id) ?? null : null;

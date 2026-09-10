@@ -12,7 +12,6 @@ export interface ItsRunProductionStackProps extends cdk.StackProps {
 
 const applicationRoutes = [
   '/', '/en/',
-  '/oda-field', '/en/oda-field',
   '/yumenoshima', '/en/yumenoshima',
   '/komazawa', '/en/komazawa',
   '/todoroki', '/en/todoroki',
@@ -32,7 +31,8 @@ function routerFunctionCode() {
     var item = query[key];
     var values = item.multiValue || [item];
     for (var index = 0; index < values.length; index += 1) {
-      parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(values[index].value || ''));
+      // CloudFront supplies percent-encoded query components; preserve them verbatim.
+      parts.push(key + '=' + (values[index].value || ''));
     }
   }
   return parts.length ? '?' + parts.join('&') : '';
@@ -49,6 +49,10 @@ function redirect(location, query) {
 function handler(event) {
   var request = event.request;
   var aliases = {
+    '/oda-field': '/tracks/yoyogi-park-athletic-track',
+    '/oda-field/': '/tracks/yoyogi-park-athletic-track',
+    '/en/oda-field': '/en/tracks/yoyogi-park-athletic-track',
+    '/en/oda-field/': '/en/tracks/yoyogi-park-athletic-track',
     '/tracks': '/',
     '/en/tracks': '/en/',
     '/index.html': '/',
@@ -58,7 +62,7 @@ function handler(event) {
   if (aliases[request.uri]) return redirect(aliases[request.uri], request.querystring);
   var routes = ${JSON.stringify(applicationRoutes)};
   if (routes.indexOf(request.uri) !== -1) {
-    var routeShells = ['/en/', '/oda-field', '/en/oda-field'];
+    var routeShells = ['/en/'];
     if (routeShells.indexOf(request.uri) !== -1) {
       var shellPath = request.uri;
       if (shellPath.charAt(shellPath.length - 1) === '/') shellPath = shellPath.slice(0, -1);

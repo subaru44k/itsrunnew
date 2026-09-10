@@ -15,7 +15,7 @@
 
 ## Repository components
 
-- `infra/itsrun-production-stack.ts`: retained S3、CloudFront、OAC、既知route rewrite（英語ホーム・日英織田フィールド・施設詳細は個別HTML shell）、旧URL 301、実HTTP 404。証明書を渡した更新時だけCloudFrontへ`itsrun.info` alternate domainを追加する。DNS recordは切替作業で別管理し、旧Aを先に削除しない。
+- `infra/itsrun-production-stack.ts`: retained S3、CloudFront、OAC、既知route rewrite（英語ホーム・施設詳細は個別HTML shell）、旧URL 301（織田フィールドの旧日英URL・末尾スラッシュを含みqueryを保持）、実HTTP 404。証明書を渡した更新時だけCloudFrontへ`itsrun.info` alternate domainを追加する。DNS recordは切替作業で別管理し、旧Aを先に削除しない。
 - `infra/itsrun-production-dns-stack.ts`: `itsrun.info` public Hosted Zone。既存recordを複製する前に委任してはいけない。
 - `infra/itsrun-production-certificate-stack.ts`: 委任済みHosted Zoneで検証する`us-east-1` ACM certificate。
 - `infra/itsrun-production-automation-stack.ts`: protected masterだけを信頼するcontent-only GitHub OIDC role。
@@ -95,3 +95,7 @@ Production hostingとautomation stackの作成後、次を設定する。
 - `ITSRUN_PRODUCTION_URL`: 上記domainのHTTPS URL
 
 long-lived AWS keyやAWS secretは登録しない。
+
+## 織田フィールド統合の配備
+
+`/oda-field` と `/en/oda-field` は同じ言語の施設詳細へHTTP 301で転送します。末尾スラッシュにも対応し、queryを保持します。この変更はcontent deployだけでは反映されないため、現行のdomain・certificate ARNを指定したCDK差分でRouteFunctionだけが変更されることを確認してhosting stackを更新します。DNS・証明書・配信元を変更しません。転送先の施設詳細は既に存在するため、edge更新後に検証済みcontentを配備できます。公開後は旧URLのHTTP 301、転送先の本文・canonical・日英導線、旧URLを除いたsitemapを確認します。

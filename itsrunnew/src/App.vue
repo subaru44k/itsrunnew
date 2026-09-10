@@ -75,6 +75,7 @@ import { useRoute, useRouter } from 'vue-router';
 import PrivacyConsent from '@/components/PrivacyConsent.vue';
 import { openPrivacySettings } from '@/services/privacy-consent';
 import { advertisingReady, openGooglePrivacySettings } from '@/services/advertising';
+import { ODA_TRACK_ID } from '@/model/tracks';
 
 const drawer = ref(false);
 const route = useRoute();
@@ -84,7 +85,7 @@ const currentYear = new Date().getFullYear();
 
 const menuGroups = computed(() => [
   { title: t('menu.tokyo'), items: [
-    { title: t('menu.oda'), path: 'oda-field' },
+    { title: t('menu.oda'), path: `tracks/${ODA_TRACK_ID}` },
     { title: t('menu.yume'), path: 'yumenoshima' },
     { title: t('menu.komazawa'), path: 'komazawa' },
   ] },
@@ -103,12 +104,14 @@ function localizedPath(path: string, targetLocale = locale.value) {
 
 function navigate(path: string) {
   drawer.value = false;
-  void router.push(localizedPath(path));
+  const routeLocation = { path: localizedPath(path) } as { path: string; query?: typeof route.query };
+  if (path === `tracks/${ODA_TRACK_ID}` && route.query.date) routeLocation.query = { date: route.query.date };
+  void router.push(routeLocation);
 }
 
 function changeLanguage() {
   const withoutLanguage = route.path.replace(/^\/en\/?/, '').replace(/^\//, '');
   const nextLocale = locale.value === 'ja' ? 'en' : 'ja';
-  void router.push(localizedPath(withoutLanguage, nextLocale));
+  void router.push({ path: localizedPath(withoutLanguage, nextLocale), query: route.query, hash: route.hash });
 }
 </script>

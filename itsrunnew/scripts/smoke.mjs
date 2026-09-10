@@ -43,10 +43,21 @@ const representativeTracks = Object.fromEntries(['available', 'partially_availab
 }));
 const todaTrack = trackDataset.find(item => item.id === 'toda-sports-center-track');
 if (!todaTrack) throw new Error('Toda Sports Center track is required for map-action smoke testing');
+const odaTrack = trackDataset.find(item => item.id === 'yoyogi-park-athletic-track');
+if (!odaTrack) throw new Error('Oda Field track is required for canonical-route smoke testing');
 const currentYear = new Date().getFullYear();
 const waitForSelectedDate = (page, date) => page.waitForFunction(expected => new URL(location.href).searchParams.get('date') === expected, date);
 
 try {
+  const sitemapResponse = await fetch(`${baseUrl}/sitemap.xml`);
+  if (!sitemapResponse.ok) throw new Error(`Sitemap returned HTTP ${sitemapResponse.status}`);
+  const sitemapText = await sitemapResponse.text();
+  if (!sitemapText.includes(`<loc>https://itsrun.info/tracks/${odaTrack.id}</loc>`)
+    || !sitemapText.includes(`<loc>https://itsrun.info/en/tracks/${odaTrack.id}</loc>`)
+    || /https:\/\/itsrun\.info\/(?:en\/)?oda-field\/?(?:<|\?|#)/.test(sitemapText)) {
+    throw new Error('Sitemap does not contain the canonical Oda detail URLs exclusively');
+  }
+
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport });
     page.on('request', request => requests.push(request.url()));
@@ -78,6 +89,8 @@ try {
 
     await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    const odaDiscoveryHref = await page.locator('[data-oda-discovery-link], .oda-discovery-link a').getAttribute('href');
+    if (!odaDiscoveryHref?.startsWith(`/tracks/${odaTrack.id}?date=${today}`)) throw new Error('Japanese home Oda discovery link is missing the canonical detail path or selected date');
     const previewBuild = (await page.locator('meta[name="robots"]').getAttribute('content')) === 'noindex,nofollow';
     await page.getByRole('dialog', { name: 'アクセス解析の設定' }).waitFor();
     const consentOverlapsHero = await page.evaluate(() => {
@@ -144,17 +157,43 @@ try {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (overflow > 1) throw new Error(`Horizontal overflow at ${viewport.width}px: ${overflow}px`);
 
-    await page.goto(`${baseUrl}/oda-field`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: '織田フィールドの利用情報', exact: true }).waitFor();
+    for (const legacyPath of ['/oda-field', '/oda-field/', '/en/oda-field', '/en/oda-field/']) {
+      const query = `?date=${today}&tag=a%26b#legacy-section`;
+      await page.goto(`${baseUrl}${legacyPath}${query}`, { waitUntil: 'domcontentloaded' });
+      const expectedPath = legacyPath.startsWith('/en/') ? `/en/tracks/${odaTrack.id}` : `/tracks/${odaTrack.id}`;
+      await page.waitForURL(url => url.pathname === expectedPath
+        && url.searchParams.get('date') === today
+        && url.searchParams.get('tag') === 'a&b'
+        && url.hash === '#legacy-section');
+    }
+
+    await page.goto(`${baseUrl}/tracks/${odaTrack.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: '織田フィールド（代々木公園陸上競技場）', exact: true }).waitFor();
     await page.getByRole('heading', { name: '2026年11月30日まで利用停止予定', exact: true }).waitFor();
-    await page.getByRole('heading', { name: '代わりに使える周辺トラック', exact: true }).waitFor();
-    if (await page.locator('.alternative-card').count() !== 4) throw new Error('Oda Field alternatives did not render four nearby candidates');
+    await page.getByRole('heading', { name: 'この日の代替候補', exact: true }).waitFor();
+    if (await page.locator('.related-section .alternative-link').count() !== 5) throw new Error('Oda Field did not use the shared five-item ranked alternatives');
     await page.getByText('平常時の使用感（工事前）', { exact: true }).waitFor();
     await page.getByText('原宿駅から徒歩圏内にある競技場。非常に立地がよく、火水金土と21時まで利用可能で、利用料金も無料ということで、該当日の19時以降は仕事帰りの社会人や大学生でごった返す。', { exact: true }).waitFor();
-    const searchFromOdaHref = await page.getByRole('link', { name: '織田フィールドを基準にすべてのトラックを探す', exact: true }).getAttribute('href');
-    if (!searchFromOdaHref?.includes('lat=35.6669') || !searchFromOdaHref.includes('lng=139.6941') || !searchFromOdaHref.includes(`date=${today}`)) throw new Error('Oda Field search CTA is missing date or origin parameters');
-    if (await page.locator('img[alt="no data"]:visible').count() !== 0) throw new Error('Old no-data schedule is still visible on Oda Field');
+    await page.getByRole('heading', { name: '施設・トラック情報', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '織田フィールドの情報', exact: true }).waitFor();
+    const odaNearbyHref = await page.getByRole('link', { name: 'この施設を基準に周辺を比較', exact: true }).getAttribute('href');
+    if (!odaNearbyHref?.startsWith(`/?date=${today}`) || !odaNearbyHref.includes('lat=35.6669') || !odaNearbyHref.includes('lng=139.6941')) throw new Error('Oda Field nearby search link is missing canonical home path or selected date');
+    const odaNoticeHref = await page.getByRole('link', { name: '公式の利用停止案内を見る', exact: true }).getAttribute('href');
+    if (odaNoticeHref !== odaTrack.urls.schedule) throw new Error('Oda closure notice does not point to the official schedule notice');
+    if (await page.locator('.oda-closure').getByText('12月1日の自動的な再開を前提にせず', { exact: false }).count() !== 1) throw new Error('Oda closure caveat is missing');
+    const odaStructuredData = JSON.parse(await page.locator('#track-structured-data').textContent() ?? '{}');
+    if (odaStructuredData.url !== `https://itsrun.info/tracks/${odaTrack.id}` || odaStructuredData.name !== odaTrack.name.ja) throw new Error('Oda JSON-LD does not match the canonical detail metadata');
+    if (await page.locator('img[alt="no data"]:visible').count() !== 0) throw new Error('Old no-data schedule is still visible on Oda Field detail');
     if (await page.locator('a[href*="newyearscardlottery"]').count() !== 0) throw new Error('Removed postcard lottery promotion is still visible');
+
+    await page.locator('.language-button').click();
+    await page.waitForURL(url => url.pathname === `/en/tracks/${odaTrack.id}` && url.searchParams.get('date') === today);
+    await page.getByRole('heading', { name: 'Yoyogi Park Athletic Track (Oda Field)', exact: true }).waitFor();
+    await page.getByRole('heading', { name: 'Closed through November 30, 2026 (planned)', exact: true }).waitFor();
+    const englishOdaStructuredData = JSON.parse(await page.locator('#track-structured-data').textContent() ?? '{}');
+    if (englishOdaStructuredData.url !== `https://itsrun.info/en/tracks/${odaTrack.id}` || englishOdaStructuredData.name !== odaTrack.name.en) throw new Error('English Oda JSON-LD does not match the canonical detail metadata');
+    await page.locator('.language-button').click();
+    await page.waitForURL(url => url.pathname === `/tracks/${odaTrack.id}` && url.searchParams.get('date') === today);
 
     await page.goto(`${baseUrl}/en/pace/marathon`, { waitUntil: 'domcontentloaded' });
     await page.getByText('Lap Time for the Marathon', { exact: true }).waitFor();
@@ -167,7 +206,6 @@ try {
       ['/todoroki', '等々力陸上競技場 開放日'],
       ['/nozomiantena/index', '田中希実選手の記録集'],
       ['/ryuji-miura/index', '三浦龍司選手の記録集'],
-      ['/en/oda-field', 'Yoyogi Park Athletic Track (Oda Field)'],
       ['/en/', 'Find a track near you'],
       ['/about', 'いつランについて'],
       ['/tracks/guide', 'トラック検索の使い方'],
@@ -234,7 +272,7 @@ try {
     await page.locator('.detail-card').waitFor({ state: 'visible' });
     await page.locator('.detail-card .today-availability').waitFor();
     const pdfScheduleLink = page.getByRole('link', { name: '確認方法を見る', exact: true });
-    if (await pdfScheduleLink.count() && !(await pdfScheduleLink.getAttribute('href'))?.endsWith('.pdf')) throw new Error('PDF availability source link is not exposed in track details');
+    if (await pdfScheduleLink.count() && (await pdfScheduleLink.getAttribute('href')) !== 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/') throw new Error('Toda availability source link did not use the official stable landing page');
     await page.getByRole('link', { name: '公式サイト', exact: true }).waitFor();
     const directionsHref = await page.getByRole('link', { name: '経路を見る', exact: true }).getAttribute('href');
     if (!directionsHref?.includes('google.com/maps/dir/?api=1') || !directionsHref.includes('destination=')) throw new Error('Invalid directions URL');
@@ -332,6 +370,8 @@ try {
     await page.goto(`${baseUrl}/en/?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
     await waitForSelectedDate(page, tomorrow);
     await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
+    const englishOdaDiscoveryHref = await page.locator('[data-oda-discovery-link], .oda-discovery-link a').getAttribute('href');
+    if (!englishOdaDiscoveryHref?.startsWith(`/en/tracks/${odaTrack.id}?date=${tomorrow}`)) throw new Error('English home Oda discovery link is missing the canonical detail path or selected date');
 
     await page.goto(`${baseUrl}/nozomiantena/index`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: '2020', exact: true }).first().click();

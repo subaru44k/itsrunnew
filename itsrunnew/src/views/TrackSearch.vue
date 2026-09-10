@@ -17,6 +17,10 @@
       </div>
     </header>
 
+    <p class="oda-discovery-link">
+      <router-link data-oda-discovery-link :to="odaDiscoveryPath">{{ isEnglish ? 'Oda Field closure and facility information' : '織田フィールドの利用情報' }}</router-link>
+    </p>
+
     <v-alert v-if="locationMessage" :type="locationError ? 'warning' : 'success'" variant="tonal" class="mb-3" closable>
       {{ locationMessage }}
     </v-alert>
@@ -173,7 +177,7 @@ import type { MapState } from '../components/map/types';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
+import { ODA_TRACK_ID, directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
 import {
   availabilityDataset,
   availabilityForTrack,
@@ -205,6 +209,10 @@ const tomorrow = addDateOnlyDays(today, 1);
 const saturday = nextWeekdayDate(today, 6);
 const sunday = nextWeekdayDate(today, 0);
 const selectedDate = ref(normalizeSelectedDate(route.query.date, today));
+const odaDiscoveryPath = computed(() => ({
+  path: trackDetailPath(trackById(ODA_TRACK_ID)!, locale.value),
+  query: { date: selectedDate.value },
+}));
 const selectedDataset = ref<AvailabilityDataset>(availabilityDataset);
 const availabilityLoading = ref(false);
 const dateMessage = ref('');
@@ -682,6 +690,7 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
 <style scoped>
 .track-search-page { max-width: 1185px; padding-block: 24px 40px; }
 .track-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; margin-bottom: 16px; color: white; background: linear-gradient(135deg, #283593, #00897b); border-radius: 12px; }
+.oda-discovery-link { margin: -5px 0 16px; font-size: 14px; }
 .track-hero h1 { margin: 2px 0 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.2; }
 .track-hero p { max-width: 720px; margin: 0; }
 .track-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; opacity: .85; }

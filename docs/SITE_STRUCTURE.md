@@ -77,7 +77,7 @@ itsrunnew/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
 │   ├── generate-public-pages.mjs tracks.jsonから日英URLの標準sitemapを生成（hreflangはHTML metadataで提供）
-│   ├── generate-track-route-shells.mjs build後に英語ホーム・織田フィールド・施設詳細HTML shellを生成
+│   ├── generate-track-route-shells.mjs build後に日英ホーム・施設詳細HTML shellを生成
 │   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
 │   ├── deploy-production.sh   Production対象をguardしたS3 syncとinvalidation
 │   ├── deployment-summary.mjs GitHub Actions run summary生成
@@ -139,8 +139,8 @@ docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約
 
 - PCではアプリバー内のドロップダウンメニュー、スマートフォンでは一時表示のナビゲーションドロワー。
 - 東京都の競技場、神奈川県の競技場、ラップタイム、記録集へのメニュー。
-- サイト名と「トラックを探す」はTrack Searchホームへ、東京都メニューの「織田フィールド」は専用ページへ遷移する。
-- 日本語と英語を現在のパスを維持して切り替えるボタン。
+- サイト名と「トラックを探す」はTrack Searchホームへ、東京都メニューの「織田フィールド」は `/tracks/yoyogi-park-athletic-track` の施設詳細へ遷移する。PC・スマホで同じ導線を使用し、ホーム本文にも利用情報への直接リンクを置く。
+- 日本語と英語を現在のパス・query・hashを維持して切り替えるボタン。
 - 本文先頭に、初回だけ表示されて本文へ重ならないアクセス解析同意バナー。
 - `router-view`で描画される本文。
 - 要望送付先と、2019年からブラウザの現在年までを示す著作権表示を含む2段構成のフッター。
@@ -157,7 +157,7 @@ docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約
 | `/tracks` | `/en/tracks` | redirect | queryを維持してTrack Searchホームへ移動する互換URL |
 | `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 施設仕様、指定日availability、公式導線、利用状況と距離でrankingした周辺施設 |
 | `/tracks/guide` | `/en/tracks/guide` | `TrackGuide.vue` | 検索基準地点、利用状況、トラック条件の読み方 |
-| `/oda-field` | `/en/oda-field` | `OdaField.vue` | 織田フィールドの利用停止情報、周辺の代替トラック、施設情報、工事前の使用感 |
+| `/oda-field` | `/en/oda-field` | redirect | 同じ言語の `/tracks/yoyogi-park-athletic-track` へ統合。末尾スラッシュにも対応 |
 | `/yumenoshima` | `/en/yumenoshima` | `Yumenoshima.vue` | 夢の島陸上競技場 |
 | `/komazawa` | `/en/komazawa` | `Komazawa.vue` | 駒沢オリンピック公園陸上競技場 |
 | `/todoroki` | `/en/todoroki` | `Todoroki.vue` | 等々力陸上競技場 |
@@ -167,9 +167,9 @@ docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約
 | `/about` | `/en/about` | `About.vue` | サイト全体のコンテンツ、情報掲載方針、訂正窓口 |
 | `/privacy` | `/en/privacy` | `Privacy.vue` | GA4、現在地、広告、外部サービスの取扱い |
 
-`/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。CloudFrontのSPA fallbackではHTTP status自体は200のため、正式公開時のedge 301/404は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) の残作業です。
+`/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。織田フィールドの旧URLは末尾スラッシュの有無を問わず、Production CloudFrontで日付などのqueryを保持したHTTP 301を返します。Vue Routerでも同じ転送先へquery・hashを維持します。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。Productionは実HTTP 404、PreviewのSPA fallbackはHTTP 200です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定22 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、英語ホーム、日英の織田フィールド、全施設詳細のHTML shellを生成します。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontはこの3固定routeと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英ホームと全施設詳細のHTML shellを生成します。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは英語ホームと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
@@ -184,7 +184,7 @@ docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約
 
 競技場固有の文章は主に `src/locales/ja.json` と `en.json` にあります。
 
-`OdaField.vue`は2026年7月1日から11月30日までの公認更新工事に合わせた専用構成です。冒頭で利用停止期間と公式案内を示し、旧来の情報なし週間表とページ固有の広告枠は表示しません。日付を選ぶと、織田フィールドを起点に、選択日に明示的な利用不可ではない近隣4施設を距離順で表示し、施設詳細・公式情報・全件検索へつなぎます。12月1日以降も再開告知を確認するまでは要確認です。アクセス・地図・連絡先に加え、公式情報では代替できない工事前のランナーの使用感を、現況ではない旨を添えて原文のまま保持します。
+織田フィールドの正規ページは `/tracks/yoyogi-park-athletic-track` です。共通の `TrackDetail.vue` に、2026年7月1日から11月30日までの利用停止予定と公式案内、アクセス・地図・連絡先、工事前のランナーの使用感を追加します。日付・availability・周辺5施設のrankingは他施設と共通の機能を使い、独立した旧週間表・近隣4施設の計算・ページ固有広告枠は持ちません。12月1日の自動的な再開を前提にしない注意と、使用感が現況ではない旨を保持します。日英の旧URLは転送のみとし、sitemapとサイト内リンクは正規ページへ統一します。日英ホームの初期HTMLにも織田フィールドへの通常のリンクを含め、施設詳細の初期HTMLには固有の案内を含めます。
 
 ### スケジュール
 
@@ -294,7 +294,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run infra:deploy` | ビルドして検証スタックへ配備、`cdk-outputs.json`へ出力 |
 | `npm run infra:destroy` | 検証スタックを削除 |
 | `npm run deploy:preview:content` | guard後に既存Preview S3へcontent syncし、targeted invalidationを完了まで待機 |
-| `npm run deploy:production:content` | Productionのaccount/tag/origin/aliasをguardしてcontent syncとtargeted invalidationを行う |
+| `npm run deploy:production:content` | Productionのaccount/tag/origin/aliasをguardしてcontent syncとtargeted invalidation（sitemap・旧日英織田URLを含む）を行う |
 | `npm run deployment:summary` | availability範囲・status・deploy結果のActions summaryを生成 |
 | `npm run infra:automation:synth` | GitHub OIDC deploy role専用stackを生成 |
 | `npm run infra:automation:deploy` | hosting stackへ触れずdeploy role専用stackだけを配備 |

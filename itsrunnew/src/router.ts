@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import i18n from './i18n';
 import { useAppStore } from './store';
-import OdaField from './views/OdaField.vue';
 import Yumenoshima from './views/Yumenoshima.vue';
 import Komazawa from './views/Komazawa.vue';
 import Todoroki from './views/Todoroki.vue';
@@ -10,20 +9,13 @@ import Privacy from './views/Privacy.vue';
 import NotFound from './views/NotFound.vue';
 import TrackDetail from './views/TrackDetail.vue';
 import TrackGuide from './views/TrackGuide.vue';
-import { trackById } from './model/tracks';
+import { ODA_TRACK_ID, trackById } from './model/tracks';
 import { isPublicProductionRuntime, PUBLIC_SITE_ORIGIN } from './services/deployment';
 
 const SITE_ORIGIN = PUBLIC_SITE_ORIGIN;
 const SOCIAL_IMAGE = `${SITE_ORIGIN}/img/itsrun-og.jpg`;
 
 const pages = {
-  oda: {
-    path: 'oda-field', component: OdaField,
-    jaTitle: '織田フィールドの利用情報｜周辺の個人利用トラック - いつラン',
-    enTitle: 'Oda Field closure and nearby running tracks - ItsRun',
-    jaDescription: '織田フィールドは2026年11月30日まで利用停止予定です。周辺の個人利用できそうな陸上トラックを、選択日の利用状況と距離から比較して代わりの練習場所を探せます。',
-    enDescription: 'Oda Field is scheduled to remain closed through November 30, 2026. Compare nearby tracks by date-specific availability and distance.',
-  },
   yumenoshima: {
     path: 'yumenoshima', component: Yumenoshima,
     jaTitle: 'いつラン - 夢の島陸上競技場を個人利用する人のための利用時間確認ページ',
@@ -108,6 +100,8 @@ for (const [key, page] of Object.entries(pages)) {
 routes.push(
   { path: '/tracks/:trackId', name: 'track-detail-ja', component: TrackDetail, meta: { locale: 'ja' } },
   { path: '/en/tracks/:trackId', name: 'track-detail-en', component: TrackDetail, meta: { locale: 'en' } },
+  { path: '/oda-field', redirect: to => ({ path: `/tracks/${ODA_TRACK_ID}`, query: to.query, hash: to.hash }) },
+  { path: '/en/oda-field', redirect: to => ({ path: `/en/tracks/${ODA_TRACK_ID}`, query: to.query, hash: to.hash }) },
   { path: '/tracks', redirect: to => ({ path: '/', query: to.query, hash: to.hash }) },
   { path: '/en/tracks', redirect: to => ({ path: '/en/', query: to.query, hash: to.hash }) },
   { path: '/index.html', redirect: '/' },
@@ -145,11 +139,16 @@ router.beforeEach((to) => {
   document.documentElement.lang = locale;
   const detailTrack = trackById(to.params.trackId);
   if (to.params.trackId && !detailTrack) return locale === 'en' ? '/en/' : '/';
+  const isOda = detailTrack?.id === ODA_TRACK_ID;
   const title = detailTrack
-    ? (locale === 'en' ? `${detailTrack.name.en} availability and nearby tracks - ItsRun` : `${detailTrack.name.ja}の利用予定・周辺トラック - いつラン`)
+    ? isOda
+      ? (locale === 'en' ? 'Oda Field (Yoyogi Park Athletic Track) closure and nearby tracks - ItsRun' : '織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン')
+      : (locale === 'en' ? `${detailTrack.name.en} availability and nearby tracks - ItsRun` : `${detailTrack.name.ja}の利用予定・周辺トラック - いつラン`)
     : String(to.meta.title ?? 'いつラン');
   const description = detailTrack
-    ? (locale === 'en' ? `Check ${detailTrack.name.en}'s date-specific availability and find useful nearby alternatives ranked by availability and distance.` : `${detailTrack.name.ja}の指定日ごとの利用状況を確認し、利用状況と距離を考慮した周辺の代替トラックを探せます。`)
+    ? isOda
+      ? (locale === 'en' ? 'Oda Field is scheduled to remain closed through November 30, 2026. Check the selected date and compare nearby tracks before your workout.' : '織田フィールド（代々木公園陸上競技場）は2026年11月30日まで利用停止予定です。指定日の状況と周辺の代替トラックを確認できます。')
+      : (locale === 'en' ? `Check ${detailTrack.name.en}'s date-specific availability and find useful nearby alternatives ranked by availability and distance.` : `${detailTrack.name.ja}の指定日ごとの利用状況を確認し、利用状況と距離を考慮した周辺の代替トラックを探せます。`)
     : String(to.meta.description ?? 'いつラン');
   const canonicalPath = detailTrack ? `${locale === 'en' ? '/en' : ''}/tracks/${detailTrack.id}` : String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
@@ -171,6 +170,23 @@ router.beforeEach((to) => {
   document.querySelector('link[rel="alternate"][hreflang="ja"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateJa}`);
   document.querySelector('link[rel="alternate"][hreflang="en"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateEn}`);
   document.querySelector('link[rel="alternate"][hreflang="x-default"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateJa}`);
+  const structuredData = document.getElementById('track-structured-data') as HTMLScriptElement | null;
+  if (detailTrack) {
+    const script = structuredData ?? Object.assign(document.createElement('script'), { id: 'track-structured-data', type: 'application/ld+json' });
+    if (!structuredData) document.head.appendChild(script);
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'SportsActivityLocation',
+      name: detailTrack.name[locale],
+      description,
+      address: detailTrack.location.address,
+      geo: { '@type': 'GeoCoordinates', latitude: detailTrack.location.latitude, longitude: detailTrack.location.longitude },
+      url: canonicalUrl,
+      sameAs: detailTrack.urls.official,
+    });
+  } else {
+    structuredData?.remove();
+  }
 });
 
 export default router;

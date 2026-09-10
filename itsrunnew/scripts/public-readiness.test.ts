@@ -11,7 +11,9 @@ const advertising = read('../src/services/advertising.ts');
 const main = read('../src/main.ts');
 const deployment = read('../src/services/deployment.ts');
 const ads = read('../src/components/AdsDisplay.vue');
-const odaField = read('../src/views/OdaField.vue');
+const trackDetail = read('../src/views/TrackDetail.vue');
+const routeShells = read('../scripts/generate-track-route-shells.mjs');
+const trackData = read('../src/data/tracks.json');
 const router = read('../src/router.ts');
 const privacy = read('../src/views/Privacy.vue');
 const serviceWorker = read('../public/service-worker.js');
@@ -26,13 +28,15 @@ describe('public launch readiness', () => {
     expect(index).toContain('summary_large_image');
     expect(index).not.toMatch(/UA-\d/);
     expect(index).toContain('個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン');
-    expect(router).toContain('織田フィールドの利用情報｜周辺の個人利用トラック - いつラン');
+    expect(router).toContain('織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン');
+    expect(trackData).toContain('"id": "yoyogi-park-athletic-track"');
+    expect(trackData).toContain('"ja": "織田フィールド（代々木公園陸上競技場）"');
   });
 
   it('exposes an absolute sitemap without alias or date-query duplication', () => {
     expect(robots).toContain('Sitemap: https://itsrun.info/sitemap.xml');
     const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-    expect(locations).toHaveLength(22 + tracks.length * 2);
+    expect(locations).toHaveLength(20 + tracks.length * 2);
     expect(new Set(locations).size).toBe(locations.length);
     expect(locations).toContain('https://itsrun.info/');
     expect(locations).toContain('https://itsrun.info/en/privacy');
@@ -40,6 +44,10 @@ describe('public launch readiness', () => {
     expect(locations).toContain('https://itsrun.info/en/ryuji-miura/index');
     expect(locations).toContain(`https://itsrun.info/tracks/${tracks[0].id}`);
     expect(locations).toContain(`https://itsrun.info/en/tracks/${tracks[0].id}`);
+    expect(locations).toContain('https://itsrun.info/tracks/yoyogi-park-athletic-track');
+    expect(locations).toContain('https://itsrun.info/en/tracks/yoyogi-park-athletic-track');
+    expect(locations).not.toContain('https://itsrun.info/oda-field');
+    expect(locations).not.toContain('https://itsrun.info/en/oda-field');
     expect(locations).not.toContain('https://itsrun.info/tracks');
     expect(locations.every(location => !location.includes('?'))).toBe(true);
 
@@ -66,7 +74,7 @@ describe('public launch readiness', () => {
     expect(advertising).toContain('googlefc.callbackQueue.push');
     expect(main).toContain('if (value !== null) initializeAdvertising()');
     expect(ads).toContain('advertisingReady');
-    expect(odaField).not.toContain('AdsDisplay');
+    expect(trackDetail).not.toContain('AdsDisplay');
     expect(privacy).toContain('いつランではGoogle AdSenseを利用します。');
     expect(privacy).toContain('Googleの同意管理プラットフォーム（CMP）');
   });
@@ -74,6 +82,13 @@ describe('public launch readiness', () => {
   it('canonicalizes Track Search aliases and marks unknown routes noindex', () => {
     expect(router).toContain("path: '/tracks', redirect:");
     expect(router).toContain("path: '/en/tracks', redirect:");
+    expect(router).toContain("path: '/oda-field', redirect:");
+    expect(router).toContain("path: '/en/oda-field', redirect:");
+    expect(router).toContain('query: to.query, hash: to.hash');
+    expect(routeShells).toContain('data-oda-discovery');
+    expect(routeShells).toContain('data-oda-closure');
+    expect(routeShells).toContain('track-structured-data');
+    expect(routeShells).toContain('平常時の使用感（工事前）');
     expect(router).toContain("noindex: true");
     expect(router).toContain('isPublicProductionRuntime()');
   });

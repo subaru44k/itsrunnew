@@ -137,7 +137,7 @@
                 <td scope="col">{{ lapTimeList[18][5] }}</td>
             </tr>
             <tr>
-                <th scope="row">ハーフ</th>
+                <th scope="row">{{ $t('pacetable.half') }}</th>
                 <td scope="col">{{ lapTimeList[0][6] }}</td>
                 <td scope="col">{{ lapTimeList[1][6] }}</td>
                 <td scope="col">{{ lapTimeList[2][6] }}</td>

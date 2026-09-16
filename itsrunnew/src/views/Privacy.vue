@@ -9,6 +9,9 @@
       <p>With your permission, ItsRun uses Google Analytics 4 to understand aggregate usage and improve the Track Finder. Google may collect cookie identifiers, device and browser information, approximate location derived from an IP address, and interaction data. ItsRun does not send your browser geolocation coordinates to Google Analytics.</p>
       <p>You can decline analytics without losing any Track Finder functionality, and change your choice at any time using “Analytics settings” in the footer. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a> for Google's processing.</p>
 
+      <h2>Pace table settings</h2>
+      <p>The pace table saves the last valid finish time or pace in this browser's localStorage. No account is needed. Use “Reset settings” on the pace table to remove the saved value. Shared links contain the selected time or pace; anyone with the link can view that plan. Images are generated in your browser.</p>
+
       <h2>Geolocation</h2>
       <p>Your browser asks permission before location access. Coordinates are used in the browser to calculate straight-line distances and move the map. ItsRun does not send or store those coordinates on its own server.</p>
 
@@ -21,7 +24,7 @@
 
       <h2>Contact</h2>
       <p>For privacy questions or corrections, contact <a href="https://twitter.com/itsrun_page" target="_blank" rel="noopener">@itsrun_page on X</a>. No personal name is published.</p>
-      <p class="updated">Last updated: 6 September 2026</p>
+      <p class="updated">Last updated: 15 September 2026</p>
     </article>
 
     <article v-else>
@@ -32,6 +35,9 @@
       <h2>Google Analytics</h2>
       <p>いつランでは、利用者が同意した場合に限り、トラック検索の利用状況を集計し改善するためGoogle Analytics 4を使用します。GoogleはCookie識別子、端末・ブラウザ情報、IPアドレスから推定されるおおよその地域、操作情報等を取得する場合があります。ブラウザから取得した現在地の緯度・経度をGoogle Analyticsへ送信することはありません。</p>
       <p>アクセス解析を拒否しても、トラック検索の機能はすべて利用できます。選択はフッターの「アクセス解析の設定」からいつでも変更できます。Googleによる情報の取扱いは、<a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Googleプライバシーポリシー</a>をご確認ください。</p>
+
+      <h2>ペース表の設定</h2>
+      <p>ペース表では、最後に入力した有効な目標タイムまたはペースを、このブラウザのlocalStorageに保存します。会員登録は不要で、ペース表の「設定をリセット」から保存値を削除できます。共有リンクには選択したタイムまたはペースが含まれ、リンクを知る人が同じ表を表示できます。画像はブラウザ内で生成します。</p>
 
       <h2>現在地情報</h2>
       <p>現在地は利用者がブラウザ上で許可した場合のみ取得します。緯度・経度はブラウザ内で直線距離の計算と地図移動に利用し、いつラン独自のサーバーへ送信・保存しません。</p>
@@ -45,7 +51,7 @@
 
       <h2>お問い合わせ</h2>
       <p>プライバシーに関するお問い合わせや掲載情報の訂正は、<a href="https://twitter.com/itsrun_page" target="_blank" rel="noopener">Xの@itsrun_page</a>へご連絡ください。個人名は公開していません。</p>
-      <p class="updated">制定・最終更新：2026年9月6日</p>
+      <p class="updated">制定・最終更新：2026年9月15日</p>
     </article>
   </v-container>
 </template>

@@ -11,7 +11,7 @@ const targets = [
   { name: 'yumenoshima', path: '/yumenoshima', readyText: '夢の島陸上競技場 開放日' },
   { name: 'komazawa', path: '/komazawa', readyText: '駒沢オリンピック公園陸上競技場 開放日' },
   { name: 'todoroki', path: '/todoroki', readyText: '等々力陸上競技場 開放日' },
-  { name: 'marathon', path: '/pace/marathon', readyText: 'マラソンのラップタイム' },
+  { name: 'marathon', path: '/pace/marathon', readyText: /^(マラソンのラップタイム|マラソンペース表)$/ },
   { name: 'records', path: '/nozomiantena/index', readyText: '田中希実選手の記録集' },
 ];
 const viewports = [
@@ -104,7 +104,9 @@ for (const measurement of measurements) {
       candidate.viewport === measurement.viewport
     );
     if (!baseline) throw new Error(`Baseline missing for ${measurement.page}/${measurement.viewport}`);
-    if (Math.abs(measurement.documentHeight - baseline.documentHeight) > 100) {
+    // The personal planner intentionally adds content above the legacy table.
+    // Retain overflow/footer checks; its new layout is covered by test:pace.
+    if (measurement.page !== 'marathon' && Math.abs(measurement.documentHeight - baseline.documentHeight) > 100) {
       throw new Error(`Full-page height drift in ${measurement.page}/${measurement.viewport}: old=${baseline.documentHeight}px new=${measurement.documentHeight}px`);
     }
     if (Math.abs(measurement.footer.height - baseline.footer.height) > 1) {

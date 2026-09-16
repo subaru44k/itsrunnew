@@ -68,7 +68,7 @@ itsrunnew/
 │   │   ├── TrackMap.vue       地図の遅延初期化、失敗表示、再試行、resize
 │   │   ├── map/               Leafletの描画・クラスタリング、地図の型とmarker button
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
-│   │   └── laptime/           PC・スマホ用マラソンペース表
+│   │   └── laptime/           マラソン比較表、日英文言、CanvasによるPNG出力
 │   ├── model/                 ペース表、トラック型・距離・経路URL、代替候補ranking
 │   ├── services/              同意状態、GA4の遅延loadと同意済みevent
 │   └── plugins/vuetify.ts     Vuetifyテーマとアイコン設定
@@ -76,6 +76,7 @@ itsrunnew/
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
+│   ├── pace-smoke.mjs         個人用ペース表の入力・保存・共有・PNG・日英responsive検証
 │   ├── generate-public-pages.mjs tracks.jsonから日英URLの標準sitemapを生成（hreflangはHTML metadataで提供）
 │   ├── generate-track-route-shells.mjs build後に日英ホーム・施設詳細HTML shellを生成
 │   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
@@ -198,7 +199,15 @@ docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約
 
 ### マラソンペース表
 
-`LapTime.vue`が目標タイム帯を選び、Piniaの`targetTimeIndex`を更新します。計算は `src/model/`、表示は `components/laptime/PcPaceTable.vue` と `PhonePaceTable.vue` が担当します。
+`LapTime.vue`は任意の目標タイム（1〜12時間）または1kmペース（2〜20分、秒単位）から、自分用の5kmごと・ハーフ・ゴール通過表と400m・1km・5km・10kmの練習時間を表示します。初回の目標は4時間、ペース入力の初回値は5分30秒です。モードごとの入力値はページを開いている間保持し、切替で目標タイムを丸め直しません。日本語・英語の文言は `components/laptime/pace-copy.ts` が管理します。スマートフォンでは単一目標を縦に表示し、下部の折りたたみ比較表には既存の `PcPaceTable.vue` / `PhonePaceTable.vue` とPiniaの`targetTimeIndex`による2時間〜6時間30分の帯選択を残します。
+
+計算と検証は `src/model/marathon.ts` / `marathon.test.ts` が担当します。フル42,195m・ハーフ21,097.5mを用い、通過時間は未丸めの値から直接計算して秒未満切り捨て、表示1kmペースは四捨五入します。既存比較表の `LapTimeCalculator.ts` もハーフと表示ペースを同じ方針へそろえています。空欄・小数・範囲外入力では結果を非表示にし、保存値を上書きしません。
+
+有効な `?goal=14400` または `?pace=330`（秒）の共有URLを、localStorageの `itsrun.marathon.v1`、既定4時間の順で優先します。両方のquery・配列・不正な値は案内付きで保存値または既定へ戻します。編集時はURLをreplaceし、戻る履歴を入力ごとに増やしません。共有リンクは現在のorigin・言語pathと計算用queryだけを含めます。canonicalはqueryを除いたページURLです。設定のリセットで保存値と計算用queryを削除し、保存やclipboardが使えない場合も計算と手動リンクコピーを利用できます。Privacyに保存と共有の扱いを日英で記載します。
+
+`components/laptime/pace-image.ts` は画面と同じ値からCanvasでPNGを生成し、外部通信・画像ライブラリなしでダウンロードします。練習時間から同じ言語のトラック検索へのリンクを提供します。今回の機能変更はページ内の計算・保存・共有とruntime metadataであり、既存の初期HTML配信・CloudFrontのrewrite構成は変更していません。
+
+`npm run test:pace` は起動済みのローカルPreview（既定4173）で入力・復元・共有優先・不正値・storage/clipboard拒否・画像保存・日英・PC/スマホ表示を検証し、画像とスクリーンショットを `/tmp/itsrun-pace-check`（`ITSRUN_PACE_OUTPUT`で変更可）へ保存します。ブラウザ実行ファイルは既存smokeと同じ `CHROME_PATH` を使います。
 
 ### 記録集
 
@@ -285,6 +294,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run test:smoke` | PC・スマホの全公開ルート、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
 | `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
 | `npm run test:map` | 起動済みの旧版4172・新版4173をPC/スマホで比較し、地図画像・参考初期表示時間・OSM帰属・keyboard操作・日付/言語切替時の再生成なし・tile通信403からの復帰を確認 |
+| `npm run test:pace` | 起動済みPreviewでペース表の計算・設定復元・共有・PNG保存・日英PC/スマホを確認 |
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
 | `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
@@ -313,7 +323,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 正式公開前のSEO、Search Console、GA4、広告停止、Privacy、HTTP redirect/404、運用確認は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照します。
 
-ビジュアル比較は、広告を無効化した旧版が`ITSRUN_OLD_URL`（既定 `http://127.0.0.1:4172`）、新版が`ITSRUN_NEW_URL`（既定 `http://127.0.0.1:4173`）で起動済みであることが前提です。画像は既定で`/tmp/itsrun-visual-comparison`へ出力されます。全画面高の差は100px以内、フッター高の差は1px以内、横方向のはみ出しは1px以内を合格条件としています。
+ビジュアル比較は、広告を無効化した旧版が`ITSRUN_OLD_URL`（既定 `http://127.0.0.1:4172`）、新版が`ITSRUN_NEW_URL`（既定 `http://127.0.0.1:4173`）で起動済みであることが前提です。画像は既定で`/tmp/itsrun-visual-comparison`へ出力されます。全画面高の差は100px以内、フッター高の差は1px以内、横方向のはみ出しは1px以内を合格条件としています。ペース表は個人用planner追加による高さの変更を意図しているため全画面高の旧版比較だけ対象外とし、横幅・フッター比較と `test:pace` の新レイアウト検証を行います。
 
 ## 9. 変更時の確認先
 

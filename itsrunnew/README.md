@@ -30,6 +30,7 @@ npm run validate:track-batches
 npm run validate:tracks
 npm run test:smoke
 npm run test:smoke:preview
+npm run test:pace
 ```
 
 `master`向けPull RequestではGitHub Actionsの `Node 24 validation` が、`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行します。CIはcommit済みavailability baselineを使用し、live collectorやAWS credentialsを必要としません。
@@ -49,6 +50,12 @@ npm run test:smoke:preview
 `src/components/TrackMap.vue`が地図の初期化・再試行・resizeを、`src/components/map/leaflet.ts`が描画を担当します。Leafletは遅延loadし、日付・言語変更では地図を再生成しません。
 
 `npm run build`後に`npm run preview -- --host 127.0.0.1 --port 4173`で確認します。`npm run test:smoke`で公開機能を、`npm run test:visual`で従来ページの表示を検証します。検索地図は`npm run test:map`で旧版4172・新版4173を比較します（`ITSRUN_OLD_URL` / `ITSRUN_NEW_URL`で変更可）。帰属、keyboard操作、日付・言語切替、tile通信403からの復帰を確認し、画像と計測JSONを`/tmp/itsrun-map-comparison`（`ITSRUN_MAP_OUTPUT`で変更可）へ出力します。初期表示時間は同意ボタン操作と800msの待機を含む単発の参考値で、厳密な速度比較には使いません。
+
+## マラソンペース表のローカル確認
+
+`/pace/marathon`（英語版 `/en/pace/marathon`）で、目標タイムまたは1kmペースから個人用の通過表と400m・1km・5km・10kmの練習時間を計算できます。既存の比較表は下部の折りたたみから利用できます。最後の設定はブラウザ内に保存し、共有リンクの有効な `goal` / `pace` query（秒）があれば優先します。「設定をリセット」で保存値と計算用queryを削除します。画像保存はブラウザ内でPNGを生成し、サーバーや追加依存を使いません。
+
+`VITE_ADSENSE_ENABLED=false npm run build` 後、`npm run preview -- --host 127.0.0.1 --port 4173` を起動し、`npm run test:pace` で入力・復元・共有・画像保存・日英PC/スマホを確認します。`ITSRUN_BASE_URL` / `CHROME_PATH`で接続先・Chromeを変更できます。スクリーンショットとPNGは `/tmp/itsrun-pace-check` に保存します（`ITSRUN_PACE_OUTPUT`で変更可）。この手順はローカル確認のみでデプロイしません。
 
 ## AWSプレビュー環境
 

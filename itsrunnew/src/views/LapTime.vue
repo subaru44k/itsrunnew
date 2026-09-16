@@ -13,7 +13,7 @@
       </fieldset>
       <p id="pace-input-help" :class="{ 'input-error': !settings }">{{ mode === 'goal' ? copy.goalRange : copy.paceRange }}</p>
       <div v-if="mode === 'goal'" class="presets" role="group" :aria-label="copy.presets">
-        <button v-for="value in [10800, 12600, 14400, 16200, 18000]" :key="value" type="button" :aria-pressed="settings?.seconds === value" @click="chooseGoal(value)">{{ formatDuration(value).slice(0, -3) }}</button>
+        <button v-for="value in [9000, 10800, 12600, 14400, 16200, 18000]" :key="value" type="button" :aria-pressed="settings?.seconds === value" @click="chooseGoal(value)">{{ formatDuration(value).slice(0, -3) }}</button>
       </div>
       <p class="storage-note">{{ storageFailed ? copy.storageFailed : copy.remember }} <button type="button" class="text-button" @click="reset">{{ copy.reset }}</button></p>
       <p v-if="invalidLink" class="input-error" role="status">{{ copy.invalidLink }}</p>

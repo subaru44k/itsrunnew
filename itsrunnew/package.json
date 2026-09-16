@@ -37,7 +37,11 @@
     "infra:production:certificate:deploy": "cdk deploy --app \"npx tsx infra/production-certificate-app.ts\" ItsRunProductionCertificateStack --require-approval never --outputs-file production-certificate-outputs.json",
     "infra:production:automation:synth": "cdk synth --app \"npx tsx infra/production-automation-app.ts\" ItsRunProductionAutomationStack",
     "infra:production:automation:deploy": "cdk deploy --app \"npx tsx infra/production-automation-app.ts\" ItsRunProductionAutomationStack --require-approval never --outputs-file production-automation-outputs.json",
-    "test:map": "node scripts/map-compare.mjs"
+    "test:map": "node scripts/map-compare.mjs",
+    "reports:install": "npm ci --prefix backend/field-reports",
+    "reports:synth": "cdk synth --app \"npx tsx infra/field-reports-app.ts\"",
+    "reports:deploy": "cdk deploy --app \"npx tsx infra/field-reports-app.ts\" --require-approval never",
+    "test:reports": "node scripts/field-reports-smoke.mjs"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

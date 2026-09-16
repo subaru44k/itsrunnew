@@ -32,6 +32,7 @@ jobs:
       PREVIEW_DISTRIBUTION_ID: E2F8WYHWRDA3NS
       PREVIEW_DOMAIN: d2xryux7a95b54.cloudfront.net
       PREVIEW_URL: https://d2xryux7a95b54.cloudfront.net
+      VITE_FIELD_REPORTS_API: ${{ vars.ITSRUN_PREVIEW_FIELD_REPORTS_API }}
       VITE_DEPLOY_TARGET: preview
       VITE_ADSENSE_ENABLED: 'false'
       CHROME_PATH: /usr/bin/google-chrome
@@ -47,6 +48,8 @@ jobs:
           cache-dependency-path: itsrunnew/package-lock.json
       - name: Install locked dependencies
         run: npm ci
+      - name: Install field report API test dependencies
+        run: npm run reports:install
       - name: Generate fresh availability range
         run: npm run collect:availability:range
       - name: Validate track expansion batches

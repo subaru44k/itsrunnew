@@ -17,6 +17,9 @@ export const productEventNames = [
   'availability_source_click',
   'official_site_click',
   'directions_click',
+  'field_report_ui_view',
+  'field_report_start',
+  'field_report_complete',
 ] as const;
 
 export type ProductEventName = typeof productEventNames[number];
@@ -98,7 +101,7 @@ export function trackPageView(path: string, title: string) {
   });
 }
 
-const privateParameterNames = /^(?:lat|lng|latitude|longitude|address|query|search_query)$/i;
+const privateParameterNames = /^(?:lat|lng|latitude|longitude|address|query|search_query|comment|client_?id|report_?id|ip)$/i;
 
 export function safeProductEventParameters(parameters: ProductEventParameters) {
   return Object.fromEntries(Object.entries(parameters).filter(([name, value]) => !privateParameterNames.test(name) && value != null));

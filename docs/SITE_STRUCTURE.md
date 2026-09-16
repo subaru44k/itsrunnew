@@ -24,7 +24,7 @@ Gitリポジトリのルートはこの文書の親ディレクトリです。�
 
 開発・build・collector実行には Node.js 22.13.0 以上とnpmを使用します。
 
-Firebase SDK、データベース、認証、APIサーバーはありません。生成物は静的ファイルだけです。
+フロントエンドと公式availabilityは静的ファイルです。Firebase・ユーザー認証・schedule APIはありません。匿名の現地レポートだけは独立したAPI Gateway / Lambda / DynamoDBを使います。
 
 ## 2. 実行時の全体像
 
@@ -65,6 +65,7 @@ itsrunnew/
 │   ├── components/
 │   │   ├── AdsDisplay.vue     共通広告serviceの準備後に表示するAdSenseスロット
 │   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
+│   │   ├── FieldReports.vue   対象日レポートの閲覧・匿名当日投稿・計測
 │   │   ├── TrackMap.vue       地図の遅延初期化、失敗表示、再試行、resize
 │   │   ├── map/               Leafletの描画・クラスタリング、地図の型とmarker button
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
@@ -72,6 +73,7 @@ itsrunnew/
 │   ├── model/                 ペース表、トラック型・距離・経路URL、代替候補ranking
 │   ├── services/              同意状態、GA4の遅延loadと同意済みevent
 │   └── plugins/vuetify.ts     Vuetifyテーマとアイコン設定
+├── backend/field-reports/      レポートAPI・DynamoDB保存・入力/連投制限・独立lockfile
 ├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
@@ -89,6 +91,7 @@ itsrunnew/
 │   ├── map-compare.mjs        地図の旧新PC/スマホ比較・帰属・keyboard操作・障害復帰
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
+    ├── field-reports-app.ts                独立Preview/ProductionレポートAPI stack
     ├── app.ts                              hosting CDKアプリのエントリー
     ├── itsrun-preview-stack.ts             S3、CloudFront、静的ファイル配備
     ├── automation-app.ts                   deploy role専用CDKエントリー
@@ -229,7 +232,7 @@ docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約
 
 Track Searchの中心価値は、指定日に近くで集中して走れる環境を見つけられることです。施設情報を公式サイトなしで完全に把握できることは目標にせず、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と公式確認導線を優先します。スパイク可否、料金、細かな条件は補助情報であり、網羅率の目標にしません。変化し得る条件を古い静的値で断定せず、確認不能ならunknownを保ちます。調査・更新時の具体的な優先順位は [`TRACK_DATA.md`](TRACK_DATA.md) を正本とします。
 
-施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや3択dropdownは設けません。routing API、backend、リアルタイムOverpass/JAAF/施設検索はありません。
+施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや3択dropdownは設けません。検索・予定取得用のrouting APIやbackend、リアルタイムOverpass/JAAF/施設検索はありません。
 
 availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、PDF text extractionを再利用します。structured HTML 7施設、calendar HTML 3施設、calendar JSON 1施設、固定規則9施設、weekly notice 1施設、PDF 12施設の計33施設を安全な自動判定対象とします。structured HTMLには共通ページを1回取得して施設名別に判定する日産スタジアム・日産フィールド小机と、WordPress月次noticeの西京極・柳島を含みます。calendar JSONは町田GIONスタジアムの対象月Event Organiser応答、weekly noticeは固定URLを上書きする山城の短期告知です。PDFには神奈川県立スポーツセンター・万博記念競技場・国府台・びんごを含みます。世田谷の不安定な日次導線、府中PDFのvector記号、予約・電話・予定なしsourceは理由付きunknownにします。staticな個人利用不可が公式規則で明示された施設だけは、日程欠落ではなく資格そのものを根拠に日別 `unavailable` を生成します。取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 
@@ -240,6 +243,12 @@ availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実�
 availability source調査は、アプリ外の [`../research/availability/availability-sources.json`](../research/availability/availability-sources.json) に133施設分の公式情報源・公開方式・推論条件を、[`../research/availability/availability-research.md`](../research/availability/availability-research.md) に初回調査と拡張追補を記録しています。27→33施設の高確度collector追加検証は [`../research/availability/high-confidence-collector-validation-batch-2-2026-09.md`](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md) に記録します。dataset/地理/source分布、PDF、future date、pipeline scalabilityは [`../research/track-expansion/dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md) と [`../research/track-expansion/phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、遡及品質監査は [`../research/track-expansion/current-51-audit.md`](../research/track-expansion/current-51-audit.md)、追加batchの候補判断と属性別evidenceは [`../research/track-expansion/batches/`](../research/track-expansion/batches/) に記録します。research JSONをUIが直接読むことはなく、静的施設データと頻繁に変わるavailability生成物を分離し、取得不能を利用不可と扱わない方針です。
 
 施設情報のsource確認日は日別availabilityの取得日と区別し、公開UIで「施設情報の確認日」と表示します。予定actionは施設別の `urls.schedule` を最優先し、未設定ならavailabilityの安定landing page、取得資料URLの順で選びます。差し替え型PDFは最新資料が掲載される公式pageへ、固定URLの資料を `urls.schedule` に指定した施設は資料へ直接案内します。取得時の資料URLとhashは証跡としてavailability datasetに保持します。
+
+### 現地確認レポート
+
+施設詳細の`components/FieldReports.vue`は、公式予定とは別の匿名現地レポートを表示します。対象日の新着20件と公開件数、空状態・通信エラーを表示し、日本時間の今日だけ「利用できた／一部利用できた／利用できなかった」と任意200文字コメントを投稿できます。別日では今日へ戻る導線を出し、APIも対象日を検証します。投稿時刻は利用時刻ではなく、公式availabilityを上書きしません。新しいSEOページ・route・canonical・sitemap変更はありません。
+
+`services/field-reports.ts`から`VITE_FIELD_REPORTS_API`の専用APIへ通信し、`backend/field-reports/`が検証・保存・制限を担当します。`infra/field-reports-app.ts`はPreview/Production別のHTTP API Gateway、Lambda、DynamoDB、Secrets Managerを定義し、既存hosting/DNS/証明書とは独立しています。投稿は365日、IPとブラウザIDの日替わりHMACによる制限レコードは約2日で期限切れになります。運営者のAWS認証CLIで投稿を非表示にできます。計測は既存同意方針の表示・開始・完了eventのみです。詳細、制限値、API契約、モデレーション、配備、施設allowlist更新は[`FIELD_REPORTS.md`](FIELD_REPORTS.md)が正本です。
 
 ### 広告
 
@@ -288,6 +297,10 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 | コマンド | 内容 |
 |---|---|
+| `npm run reports:install` | 現地レポートAPIの固定依存をインストール |
+| `npm run reports:synth -- -c environment=preview` | 独立レポートAPI stackを生成 |
+| `npm run reports:deploy -- -c environment=preview` | 独立レポートAPI stackを配備（productionも指定可） |
+| `npm run test:reports` | 起動済みPreviewで日英・スマホ・投稿/障害/日付切替をmock APIで検証 |
 | `npm run dev` | Vite開発サーバー |
 | `npm run build` | 標準XML sitemap生成（URL・要素構成をreadiness検証）、`vue-tsc --noEmit`、Vite build、施設詳細HTML shell生成 |
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |

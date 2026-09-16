@@ -34,6 +34,8 @@ jobs:
           cache-dependency-path: itsrunnew/package-lock.json
       - name: Install locked dependencies
         run: npm ci
+      - name: Install field report API dependencies
+        run: npm run reports:install
       - name: Validate track expansion batches
         run: npm run validate:track-batches
       - name: Validate Track Dataset

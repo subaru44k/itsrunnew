@@ -15,7 +15,7 @@ describe('product analytics contract', () => {
     expect(safeProductEventParameters({
       track_id: 'oda-field', selected_date: '2026-08-25', locale: 'ja',
       latitude: 35.1, longitude: 139.1, lat: '35.1', lng: '139.1',
-      address: 'example', query: 'home address', search_query: 'station name', empty: null,
+      comment: 'private text', clientId: 'anonymous-id', client_id: 'anonymous-id', report_id: 'report', ip: '192.0.2.1', address: 'example', query: 'home address', search_query: 'station name', empty: null,
     })).toEqual({ track_id: 'oda-field', selected_date: '2026-08-25', locale: 'ja' });
   });
 

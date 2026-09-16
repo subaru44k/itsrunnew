@@ -46,3 +46,7 @@ boolean値や件数は必要になった時点で追加し、未使用dimension�
 4. GA4の通常report反映には時間差があるため、配備直後はRealtimeを使用する。
 
 GA4 UI上のcustom definition/key event登録はrepositoryから自動変更しません。権限を持つ人が上記を一度登録します。
+
+## 現地レポート MVP
+
+`field_report_ui_view`は投稿フォームが実際に画面に入った時、`field_report_start`は最初の操作、`field_report_complete`はAPI保存成功時に送信します。付加値は`locale`、`track_id`、`selected_date`のみ。コメント、IP、ブラウザ匿名ID、投稿IDは送りません。既存のProduction限定・同意済みの方針を継承します。投稿機能は解析の同意に依存しません。

@@ -8,12 +8,12 @@ export default class LapTimeCalculator {
 
         return [
             this.goalTime.getTimeString(),
-            (new TimeContainer(0, 0, Math.floor(goalSeconds / 42.195))).getTimeString(),
+            (new TimeContainer(0, 0, Math.round(goalSeconds / 42.195))).getTimeString(),
             (new TimeContainer(0, 0, Math.floor(goalSeconds * 5 / 42.195))).getTimeString(),
             (new TimeContainer(0, 0, Math.floor(goalSeconds * 10/ 42.195))).getTimeString(),
             (new TimeContainer(0, 0, Math.floor(goalSeconds * 15/ 42.195))).getTimeString(),
             (new TimeContainer(0, 0, Math.floor(goalSeconds * 20/ 42.195))).getTimeString(),
-            (new TimeContainer(0, 0, Math.floor(goalSeconds * 21.098/ 42.195))).getTimeString(),
+            (new TimeContainer(0, 0, Math.floor(goalSeconds / 2))).getTimeString(),
             (new TimeContainer(0, 0, Math.floor(goalSeconds * 25/ 42.195))).getTimeString(),
             (new TimeContainer(0, 0, Math.floor(goalSeconds * 30/ 42.195))).getTimeString(),
             (new TimeContainer(0, 0, Math.floor(goalSeconds * 35/ 42.195))).getTimeString(),

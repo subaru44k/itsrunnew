@@ -196,7 +196,7 @@ try {
     await page.waitForURL(url => url.pathname === `/tracks/${odaTrack.id}` && url.searchParams.get('date') === today);
 
     await page.goto(`${baseUrl}/en/pace/marathon`, { waitUntil: 'domcontentloaded' });
-    await page.getByText('Lap Time for the Marathon', { exact: true }).waitFor();
+    await page.getByRole('heading', { name: 'Marathon pace table', exact: true }).waitFor();
     const marathonOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (marathonOverflow > 1) throw new Error(`Marathon page overflow at ${viewport.width}px: ${marathonOverflow}px`);
 

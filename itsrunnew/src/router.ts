@@ -39,10 +39,10 @@ const pages = {
   },
   marathon: {
     path: 'pace/marathon', component: () => import('./views/LapTime.vue'),
-    jaTitle: 'いつラン - マラソンのペース表。5kmごとのラップタイム表記。',
+    jaTitle: 'マラソンペース表｜目標タイム・1kmペースから通過時間を計算 - いつラン',
     enTitle: "It's Run - Marathon pace and lap-time table",
-    jaDescription: 'マラソンの5kmごとのラップタイムがひと目で分かります。',
-    enDescription: 'Marathon lap times at each 5 km from two to six and a half hours.',
+    jaDescription: '目標タイムや1kmペースから、5kmごと・ハーフの通過タイムを計算。設定の保存、共有リンク、画像保存、400mなど練習用の所要時間にも対応。',
+    enDescription: 'Calculate personal marathon splits from a finish time or pace per km. Save settings, share your plan, download a pace card, and check training times.',
   },
   nozomi: {
     path: 'nozomiantena/index', component: () => import('./views/NozomiAntena.vue'),

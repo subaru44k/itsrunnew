@@ -9,12 +9,12 @@
                 <th scope="col">10km</th>
                 <th scope="col">15km</th>
                 <th scope="col">20km</th>
-                <th scope="col">Half</th>
+                <th scope="col">{{ $t('pacetable.half') }}</th>
                 <th scope="col">25km</th>
                 <th scope="col">30km</th>
                 <th scope="col">35km</th>
                 <th scope="col">40km</th>
-                <th scope="col">Full</th>
+                <th scope="col">{{ $t('pacetable.finish') }}</th>
             </tr>
         </thead>
         <tbody>

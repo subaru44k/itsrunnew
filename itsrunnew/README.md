@@ -1,6 +1,6 @@
 # ItsRun
 
-ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify 4で構成し、Firebaseやその他のバックエンドには接続しません。競技場スケジュールは日付をブラウザ内で生成し、各時間帯を「情報なし」として表示します。
+ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify 4で構成し、Firebase・schedule backendには接続しません。匿名の現地レポートのみ独立したAWS APIへ接続します。競技場スケジュールは日付をブラウザ内で生成し、各時間帯を「情報なし」として表示します。
 
 ホーム `/`（英語版 `/en/`）では、東京・埼玉・神奈川・千葉・大阪・兵庫・京都・広島・山口・愛知・福岡の検証済み133施設をOpenStreetMap上から探せます。従来の `/tracks` と `/en/tracks` は日付queryを維持してホームへ移動します。各施設には共有可能な `/tracks/:trackId`（英語版 `/en/tracks/:trackId`）詳細ページがあり、織田フィールドは `/tracks/yoyogi-park-athletic-track` に統合しています。旧 `/oda-field` と英語版は、日付queryを維持して対応する施設詳細へ転送します。PC・スマホのメニューとホームの利用情報リンクも統合先へ案内します。施設詳細には工事案内、アクセス、工事前の使用感を保持します。現在地または地図上で指定した地点からの直線距離、今日から31日分の日付指定availability、利用不可表示switch、公式情報、API key不要のGoogle Maps経路リンクを提供します。通常表示は利用可能・一部利用可能・要確認を残し、選択日に明示的な利用不可だけを除外します。施設データと日付別availabilityは分離し、ブラウザからJAAF・Overpass・施設サイトへ検索リクエストは送りません。
 
@@ -83,3 +83,11 @@ Production workflowはfresh availabilityと全検証を実行してcontentだけ
 GA4は正式domainでアクセス解析へ同意した場合だけ読み込みます。Track Searchの操作event、privacy boundary、GA4管理画面で登録するcustom dimension/key event候補は [`../docs/ANALYTICS.md`](../docs/ANALYTICS.md) を参照してください。緯度・経度、住所、自由入力文字列は送信しません。
 
 `public/service-worker.js`は旧Firebase版のoffline cacheを削除して登録解除する移行専用ファイルです。新サイトのoffline cacheではありません。既存利用者を旧画面に残さないため、移行期間中は`no-cache`で配備します。
+
+## 現地確認レポート
+
+施設詳細に匿名の利用結果3択＋任意200文字コメントを追加しています。公式availabilityを変更せず、日本時間の今日だけ投稿できます。共有データのため、静的フロントエンドとは別にAPI Gateway / Lambda / DynamoDBを使います。
+
+`npm run reports:install`でAPI依存を準備し、`npm run reports:synth -- -c environment=preview`、`npm run reports:deploy -- -c environment=preview`で独立stackを配備します。出力API URLを`VITE_FIELD_REPORTS_API`へ設定してbuildします。未設定では投稿を無効化します。Productionは別stack・別データです。既存schedule backendは追加しません。
+
+単体テストは`npm test`、起動済みPreviewの機能検証は`npm run test:reports`。制限、保存期間、モデレーション、GitHub変数と配備手順は[FIELD_REPORTS.md](../docs/FIELD_REPORTS.md)を参照してください。

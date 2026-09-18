@@ -2,6 +2,17 @@
 
 この文書は、新しい作業セッションがコード全体を最初から調査せずに、サイトの構造・責務・制約を把握するための基準資料です。実装を変更したときは、ルートの [`AGENTS.md`](../AGENTS.md) の指示に従ってこの文書も更新してください。
 
+## エージェントのモデル方針
+
+主要モデルはGPT-6 Astra（`gpt-6-astra`、low）です。プロジェクト既定値は [`.codex/config.toml`](../.codex/config.toml) にあります。
+
+```toml
+model = "gpt-6-astra"
+model_reasoning_effort = "low"
+```
+
+Astraは要件、設計、曖昧さ、セキュリティや高リスクの判断、最終レビューと統合を担当します。Lunaへは、単純で明確な限定的・独立した低リスクの作業だけを、`gpt-5.6-luna`・`max`・`fork_turns = "none"` のclean spawnで委譲します。既定値ファイルを変更しても実行中のセッションは切り替わらず、委譲のノルマや不要なagentは設けません。手順は [`DELEGATION_WORKFLOW.md`](DELEGATION_WORKFLOW.md) を参照してください。
+
 ## 1. リポジトリとアプリケーションルート
 
 Gitリポジトリのルートはこの文書の親ディレクトリです。実際のWebアプリとCDKコードは `itsrunnew/` 以下にあります。npm、Vite、テスト、CDKの各コマンドは原則として `itsrunnew/` で実行します。
@@ -128,8 +139,9 @@ research/
     ├── coverage-gap-followups.*    完了済みbatchで採否記録がない未掲載施設の引継ぎ台帳
     └── track-source-audit.json     施設別のsource監査台帳
 
+.codex/config.toml                プロジェクト既定のGPT-6 Astra・low設定（実行中セッションは切り替えない）
 docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの施設追加品質ゲート
-docs/DELEGATION_WORKFLOW.md       Sol/Lunaの再評価checkpoint、handoff契約、review記録
+docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契約、review記録
 
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証

@@ -18,76 +18,17 @@ Do not operate Search Console, Analytics, hosting consoles, or other external ad
 
 ## Model routing and delegation
 
-Use GPT-5.6 Sol with high reasoning as the primary/orchestrator. Keep delegation selective: the goal is to route work to the model most likely to complete it correctly, not to maximize the number of subagents.
+Use **GPT-6 Astra with low reasoning** (`gpt-6-astra`, `low`) as the primary/orchestrator. Delegate simple, clearly defined work to **GPT-5.6 Luna with max reasoning** (`gpt-5.6-luna`, `max`). The project defaults are in [`.codex/config.toml`](.codex/config.toml). Changing these files does not switch an already-running session; do not claim a model/effort is active unless the session settings confirm it. Do not silently substitute another model or reasoning level.
 
-Delegation is an ongoing routing decision, not a one-time choice made from the initial request. Follow [`docs/DELEGATION_WORKFLOW.md`](docs/DELEGATION_WORKFLOW.md) for the required checkpoints, handoff contract, and review record.
+Astra owns requirements, acceptance criteria, task decomposition, architectural decisions, ambiguous or difficult debugging, security-sensitive or high-risk changes, final review, and integration. Once these decisions make a remaining task simple and bounded, consider handing it to Luna.
 
-Delegate to GPT-5.6 Luna with max reasoning only when the task is all of the following:
+Delegate to Luna only when the work is narrow, largely independent, low risk, straightforward to verify, and likely to succeed without repeated correction. Examples include mechanical edits, straightforward documentation, small implementations with fixed behavior, focused tests, and routine verification. Do not force delegation for tiny tasks or create unnecessary parallel agents; optimize for correctness and total effort rather than a delegation quota.
 
-- clearly defined;
-- narrow in scope;
-- largely independent;
-- straightforward to verify;
-- unlikely to require architectural judgment; and
-- likely to succeed in one pass.
+Reassess delegation after initial inspection, after requirements or design decisions are fixed, and before a separable implementation, documentation, or test phase. For a Luna handoff, explicitly set `model = "gpt-5.6-luna"`, `reasoning_effort = "max"`, and `fork_turns = "none"`. Supply the objective, exact file ownership, fixed decisions, non-goals, acceptance criteria, and verification commands. Keep concurrent edits in separate files.
 
-Good Luna tasks include:
+Review the actual diff and relevant verification evidence before accepting delegated work. Rerun checks when code/environment changed, evidence is incomplete or suspicious, or an identified risk requires it; do not automatically repeat every successful check. Ask for progress or blockers before interrupting a slow but progressing agent. Bring work back to Astra if it becomes ambiguous, stalls, is misunderstood, or requires repeated corrections. Report unavailable model/tool settings honestly rather than claiming delegation occurred.
 
-- locating files or references;
-- mechanical refactoring;
-- straightforward unit tests;
-- repetitive data or mapping updates;
-- documentation changes;
-- bounded implementation tasks; and
-- running tests and summarizing failures.
-
-Keep work in Sol when it involves any of the following:
-
-- architecture or design decisions;
-- ambiguous requirements;
-- difficult root-cause analysis or debugging;
-- security-sensitive or high-risk changes;
-- cross-cutting refactoring;
-- hard-to-detect correctness failures; or
-- work likely to require repeated review/fix cycles.
-
-Do not classify an entire feature as non-delegable merely because its design or final integration belongs in Sol. Split off bounded implementation, test, documentation, or mechanical work after Sol has resolved the architectural and UX decisions.
-
-### Required delegation checkpoints
-
-Sol must reassess delegation at each of these points:
-
-1. after the initial repository and requirements inspection;
-2. after architectural, UX, SEO, or data-contract decisions make the implementation contract concrete;
-3. before starting a separable implementation, test, documentation, or repetitive verification phase; and
-4. whenever a previously ambiguous subtask becomes narrow and objectively verifiable.
-
-A read-only Luna investigation does not satisfy the implementation-delegation expectation when a suitable implementation or test task becomes available later. Reuse that agent with a follow-up task when practical, or spawn a clean Luna task with the finalized contract.
-
-For a change task with multiple deliverables, if at any checkpoint at least one remaining work item meets all Luna criteria above, delegate at least one substantive implementation, test, or documentation work item to Luna Max. A lookup-only assignment or a command-only test run does not count as substantive when a bounded code or test change is suitable. If no such delegation is made, record the concrete reason in the final report; “Sol had already started implementing” or “the overall feature was complex” is not sufficient by itself.
-
-Do not delegate merely to reduce model cost. Optimize for total expected cost, including review and rework. If a task is likely to follow this pattern, Sol should perform the task directly:
-
-```text
-Luna implementation
-→ Sol review
-→ substantial correction
-→ another review
-```
-
-### Subagent context
-
-Prefer clean, minimal subagent context instead of blindly inheriting the whole conversation. For Sol-to-Luna delegation, prefer `fork_turns = "none"` and pass all task-specific context explicitly, including the objective, exact scope, relevant files, constraints, expected deliverable, and verification command or acceptance criteria.
-
-For delegated edits, also state the decisions that are already fixed, files or responsibilities the agent must not change, and what evidence should be returned. Prefer non-overlapping file ownership when Sol and Luna work concurrently.
-
-### Delegated-work verification
-
-- Never accept delegated code merely because the subagent claims success.
-- Prefer objective verification such as tests, type checking, linting, builds, static analysis, or deterministic output comparison.
-- Review the actual diff and verification evidence before integrating delegated work.
-- If a Luna task becomes unexpectedly ambiguous or complex, stop delegating it and bring the work back to Sol.
-- In the final report for a change task, summarize what each model changed, what Sol verified, and any defects or corrections Sol found in delegated work. If delegated work required no correction, say so explicitly.
+Follow [`docs/DELEGATION_WORKFLOW.md`](docs/DELEGATION_WORKFLOW.md) for the handoff and review procedure. Final change reports should briefly state the delegated scope, the primary review/verification, and any corrections.
 
 ## Distinguish the checkout from the published service
 

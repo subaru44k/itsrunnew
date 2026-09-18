@@ -41,7 +41,10 @@
     "reports:install": "npm ci --prefix backend/field-reports",
     "reports:synth": "cdk synth --app \"npx tsx infra/field-reports-app.ts\"",
     "reports:deploy": "cdk deploy --app \"npx tsx infra/field-reports-app.ts\" --require-approval never",
-    "test:reports": "node scripts/field-reports-smoke.mjs"
+    "test:reports": "node scripts/field-reports-smoke.mjs",
+    "test:daily": "node scripts/daily-check.mjs live",
+    "test:daily:fixtures": "node scripts/daily-check.mjs fixtures",
+    "validate:availability:fresh": "node scripts/availability/validate-fresh.mjs"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

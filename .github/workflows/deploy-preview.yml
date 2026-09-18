@@ -51,7 +51,10 @@ jobs:
       - name: Install field report API test dependencies
         run: npm run reports:install
       - name: Generate fresh availability range
+        id: availability
         run: npm run collect:availability:range
+      - name: Verify availability freshness and completeness
+        run: npm run validate:availability:fresh
       - name: Validate track expansion batches
         run: npm run validate:track-batches
       - name: Validate Track Dataset
@@ -63,6 +66,7 @@ jobs:
       - name: Build static site
         run: npm run build
       - name: Run local production smoke
+        id: local_smoke
         run: npm run test:smoke:preview
       - name: Configure GitHub OIDC credentials
         uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
@@ -84,6 +88,8 @@ jobs:
           DEPLOY_ENVIRONMENT: Preview
           DEPLOY_TRIGGER: ${{ github.event_name }}
           DEPLOYED_COMMIT: ${{ github.sha }}
+          AVAILABILITY_RESULT: ${{ steps.availability.outcome }}
+          LOCAL_SMOKE_RESULT: ${{ steps.local_smoke.outcome }}
           DEPLOY_RESULT: ${{ steps.deploy_content.outcome }}
           INVALIDATION_ID: ${{ steps.deploy_content.outputs.invalidation_id }}
           CLOUDFRONT_SMOKE_RESULT: ${{ steps.cloudfront_smoke.outcome }}

@@ -17,6 +17,8 @@ const summary = `## ItsRun ${environment} deployment
 |---|---|
 | Trigger | ${process.env.DEPLOY_TRIGGER ?? 'local'} |
 | Commit | \`${process.env.DEPLOYED_COMMIT ?? 'local'}\` |
+| Availability collection | ${process.env.AVAILABILITY_RESULT ?? 'not run'} |
+| Local smoke | ${process.env.LOCAL_SMOKE_RESULT ?? 'not run'} |
 | Availability range | ${manifest.startDate} – ${manifest.endDate} (${manifest.dates.length} days) |
 | Tracks | ${tracks.length} |
 | Availability totals | available ${counts.available}, partial ${counts.partially_available}, unavailable ${counts.unavailable}, unknown ${counts.unknown} |

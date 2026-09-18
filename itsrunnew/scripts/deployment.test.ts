@@ -33,3 +33,34 @@ describe('Preview deployment contract', () => {
     expect(deployScript).not.toContain("--paths '/*'");
   });
 });
+
+const productionWorkflow = readFileSync(new URL('../../.github/workflows/deploy-production.yml', import.meta.url), 'utf8');
+const validationWorkflow = readFileSync(new URL('../../.github/workflows/node-validation.yml', import.meta.url), 'utf8');
+describe('daily availability regression gates', () => {
+  it('requires fixture and live daily preflight on PR and master in the protected validation check', () => {
+    expect(validationWorkflow).toContain('name: Node 24 validation');
+    expect(validationWorkflow).toContain('pull_request:');
+    expect(validationWorkflow).toContain('push:');
+    expect(validationWorkflow).toContain('run: npm run test:daily:fixtures');
+    expect(validationWorkflow).toContain('run: npm run test:daily\n');
+    expect(validationWorkflow).not.toContain('continue-on-error:');
+    expect(validationWorkflow).toContain('CHROME_PATH: /usr/bin/google-chrome');
+  });
+  for (const [target, yaml] of [['Preview', workflow], ['Production', productionWorkflow]]) {
+    it(`${target} validates fresh generated data before building or deploying`, () => {
+      const collect = yaml.indexOf('run: npm run collect:availability:range');
+      const fresh = yaml.indexOf('run: npm run validate:availability:fresh');
+      const build = yaml.indexOf('run: npm run build');
+      const smoke = yaml.indexOf('run: npm run test:smoke:preview');
+      const credentials = yaml.indexOf('name: Configure GitHub OIDC credentials');
+      expect(collect).toBeGreaterThan(-1);
+      expect(fresh).toBeGreaterThan(collect);
+      expect(build).toBeGreaterThan(fresh);
+      expect(smoke).toBeGreaterThan(build);
+      expect(credentials).toBeGreaterThan(smoke);
+      expect(yaml).not.toContain('continue-on-error:');
+      expect(yaml).toContain('AVAILABILITY_RESULT: ${{ steps.availability.outcome }}');
+      expect(yaml).toContain('LOCAL_SMOKE_RESULT: ${{ steps.local_smoke.outcome }}');
+    });
+  }
+});

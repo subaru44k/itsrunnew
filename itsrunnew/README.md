@@ -91,3 +91,9 @@ GA4は正式domainでアクセス解析へ同意した場合だけ読み込み�
 `npm run reports:install`でAPI依存を準備し、`npm run reports:synth -- -c environment=preview`、`npm run reports:deploy -- -c environment=preview`で独立stackを配備します。出力API URLを`VITE_FIELD_REPORTS_API`へ設定してbuildします。未設定では投稿を無効化します。Productionは別stack・別データです。既存schedule backendは追加しません。
 
 単体テストは`npm test`、起動済みPreviewの機能検証は`npm run test:reports`。制限、保存期間、モデレーション、GitHub変数と配備手順は[FIELD_REPORTS.md](../docs/FIELD_REPORTS.md)を参照してください。
+
+## 各変更時のdaily更新検証
+
+通常のunit・lint・buildに加え、`npm run test:daily:fixtures` と `npm run test:daily` を実行します。前者は4status・戸田が利用不可の日と全施設unknownの回帰検証、後者は公式sourceの実収集・当日31日分の鮮度と完全性・build・PC/スマホsmokeです。両方とも一時workspaceを使い、checkoutのデータ・distは変更せず、AWSへ配備しません。Node 24、インストール済み依存、Chromeが必要です（Linuxは`CHROME_PATH=/usr/bin/google-chrome`）。PR/masterの`Node 24 validation`でも両方を必須実行します。
+
+日次deployは`validate:availability:fresh`を収集直後に実行し、古い・不完全なデータや合成fixtureの公開を拒否します。失敗調査と公開後の確認手順は[DAILY_VERIFICATION.md](../docs/DAILY_VERIFICATION.md)を参照してください。

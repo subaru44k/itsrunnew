@@ -16,12 +16,33 @@ const adPattern = /googlesyndication|doubleclick|googletagmanager|google-analyti
 const availabilityManifest = JSON.parse(readFileSync(new URL('../src/data/availability/manifest.json', import.meta.url), 'utf8'));
 const trackDataset = JSON.parse(readFileSync(new URL('../src/data/tracks.json', import.meta.url), 'utf8'));
 const datasetForDate = date => JSON.parse(readFileSync(new URL(`../src/data/availability/${date}.json`, import.meta.url), 'utf8'));
+const availabilityStatuses = ['available', 'partially_available', 'unknown', 'unavailable'];
+const statusLabels = {
+  available: '利用可能',
+  partially_available: '一部利用可能',
+  unknown: '要確認',
+  unavailable: '利用不可',
+};
+const englishStatusLabels = {
+  available: 'Available',
+  partially_available: 'Partly available',
+  unknown: 'Needs confirmation',
+  unavailable: 'Unavailable',
+};
+const effectiveStatus = item => {
+  const expiresAt = Date.parse(item.freshness?.expiresAt ?? '');
+  return Number.isFinite(expiresAt) && Date.now() < expiresAt ? item.status : 'unknown';
+};
 const statusCounts = dataset => {
-  const statuses = dataset.facilities.map(item => Date.now() < new Date(item.freshness.expiresAt).getTime() ? item.status : 'unknown');
+  const counts = Object.fromEntries(availabilityStatuses.map(status => [status, 0]));
+  for (const item of dataset.facilities) {
+    const status = effectiveStatus(item);
+    if (!(status in counts)) throw new Error(`Unknown availability status in ${dataset.date}: ${status}`);
+    counts[status] += 1;
+  }
   return {
-    candidates: statuses.filter(status => status !== 'unavailable').length,
-    unavailable: statuses.filter(status => status === 'unavailable').length,
-    unknown: statuses.filter(status => status === 'unknown').length,
+    ...counts,
+    candidates: counts.available + counts.partially_available + counts.unknown,
   };
 };
 const tokyoToday = new Intl.DateTimeFormat('en-CA', {
@@ -29,24 +50,60 @@ const tokyoToday = new Intl.DateTimeFormat('en-CA', {
 }).format(new Date());
 const today = availabilityManifest.dates.includes(tokyoToday) ? tokyoToday : availabilityManifest.startDate;
 const todayIndex = availabilityManifest.dates.indexOf(today);
-const tomorrow = availabilityManifest.dates[Math.min(todayIndex + 1, availabilityManifest.dates.length - 1)];
+if (todayIndex < 0) throw new Error(`Smoke date ${today} is missing from the availability manifest`);
+const tomorrow = availabilityManifest.dates[todayIndex + 1] ?? today;
+const hasDistinctTomorrow = tomorrow !== today;
 const saturday = availabilityManifest.dates.find((date, index) => index >= todayIndex && new Date(`${date}T12:00:00+09:00`).getUTCDay() === 6);
 const todayDataset = datasetForDate(today);
 const todayCounts = statusCounts(todayDataset);
 const tomorrowCounts = statusCounts(datasetForDate(tomorrow));
-const effectiveStatus = item => Date.now() < new Date(item.freshness.expiresAt).getTime() ? item.status : 'unknown';
-const representativeTracks = Object.fromEntries(['available', 'partially_available', 'unknown', 'unavailable'].map(status => {
+const representativeTracks = Object.fromEntries(availabilityStatuses.map(status => {
   const record = todayDataset.facilities.find(item => effectiveStatus(item) === status);
   const track = trackDataset.find(item => item.id === record?.trackId);
-  if (!track) throw new Error(`No representative ${status} track is available for detail-page smoke testing`);
   return [status, track];
 }));
 const todaTrack = trackDataset.find(item => item.id === 'toda-sports-center-track');
 if (!todaTrack) throw new Error('Toda Sports Center track is required for map-action smoke testing');
+const todaRecord = todayDataset.facilities.find(item => item.trackId === todaTrack.id);
+if (!todaRecord) throw new Error('Toda Sports Center availability is missing from the selected-date dataset');
+const todaStatus = effectiveStatus(todaRecord);
 const odaTrack = trackDataset.find(item => item.id === 'yoyogi-park-athletic-track');
 if (!odaTrack) throw new Error('Oda Field track is required for canonical-route smoke testing');
+const odaRecord = todayDataset.facilities.find(item => item.trackId === odaTrack.id);
+if (!odaRecord) throw new Error('Oda Field availability is missing from the selected-date dataset');
+const odaStatus = effectiveStatus(odaRecord);
 const currentYear = new Date().getFullYear();
 const waitForSelectedDate = (page, date) => page.waitForFunction(expected => new URL(location.href).searchParams.get('date') === expected, date);
+const availabilityClass = status => `availability--${status.replace('_', '-')}`;
+const expandAllFacilityRows = async (page, english = false) => {
+  const moreLabel = english ? 'Show more in this prefecture' : 'この都道府県をさらに表示';
+  for (const toggle of await page.locator('.prefecture-toggle').all()) {
+    if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+  }
+  while (await page.getByRole('button', { name: moreLabel, exact: true }).count()) {
+    await page.getByRole('button', { name: moreLabel, exact: true }).first().click();
+  }
+};
+const renderedStatusCounts = page => page.locator('.facility-row').evaluateAll((rows, statuses) => {
+  const counts = Object.fromEntries(statuses.map(status => [status, 0]));
+  for (const row of rows) {
+    const status = statuses.find(candidate => row.querySelector(`.${candidate}`));
+    if (status) counts[status] += 1;
+  }
+  return counts;
+}, availabilityStatuses.map(availabilityClass));
+const assertRenderedStatusCounts = async (page, expected, context) => {
+  const actual = await renderedStatusCounts(page);
+  for (const status of availabilityStatuses) {
+    const className = availabilityClass(status);
+    if (actual[className] !== expected[status]) {
+      throw new Error(`${context} ${status} rows did not match dataset: expected ${expected[status]}, rendered ${actual[className]}`);
+    }
+  }
+};
+
+console.log(`Availability coverage ${today}: ${availabilityStatuses.map(status => `${status}=${todayCounts[status]}${representativeTracks[status] ? ` (${representativeTracks[status].id})` : ' (no representative)'}`).join(', ')}`);
+if (!saturday) console.log(`Skipping Saturday shortcut coverage because ${today}–${availabilityManifest.endDate} has no Saturday on or after the selected date`);
 
 try {
   const sitemapResponse = await fetch(`${baseUrl}/sitemap.xml`);
@@ -170,7 +227,7 @@ try {
     await page.goto(`${baseUrl}/tracks/${odaTrack.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '織田フィールド（代々木公園陸上競技場）', exact: true }).waitFor();
     await page.getByRole('heading', { name: '2026年11月30日まで利用停止予定', exact: true }).waitFor();
-    await page.getByRole('heading', { name: 'この日の代替候補', exact: true }).waitFor();
+    await page.getByRole('heading', { name: odaStatus === 'unavailable' ? 'この日の代替候補' : 'この日の周辺トラック', exact: true }).waitFor();
     if (await page.locator('.related-section .alternative-link').count() !== 5) throw new Error('Oda Field did not use the shared five-item ranked alternatives');
     await page.getByText('平常時の使用感（工事前）', { exact: true }).waitFor();
     await page.getByText('原宿駅から徒歩圏内にある競技場。非常に立地がよく、火水金土と21時まで利用可能で、利用料金も無料ということで、該当日の19時以降は仕事帰りの社会人や大学生でごった返す。', { exact: true }).waitFor();
@@ -245,32 +302,45 @@ try {
     });
     await page.getByRole('button', { name: '詳細を閉じる', exact: true }).click();
     await page.locator('.detail-card').waitFor({ state: 'detached' });
-    for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
-    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
-    await page.locator('.facility-row .availability--available').first().waitFor();
-    await page.locator('.facility-row .availability--partially-available').first().waitFor();
+    await expandAllFacilityRows(page);
+    await assertRenderedStatusCounts(page, { ...todayCounts, unavailable: 0 }, 'Today candidate filter');
     if (await page.locator('.facility-row .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities were unexpectedly removed from candidate results');
     if (await page.locator('.facility-row .availability--unavailable').count() !== 0) throw new Error('Candidate filter should hide explicitly unavailable facilities');
 
     await page.getByLabel('本日利用不可の施設も表示').check();
     await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length);
     // Toggling unavailable facilities can add rows beyond a prefecture's previous
-    // pagination limit, so expand the newly visible rows before counting badges.
-    for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
-    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
+    // pagination limit, so expand the newly visible rows before counting badges or selecting Toda.
+    await expandAllFacilityRows(page);
+    await assertRenderedStatusCounts(page, todayCounts, 'Today all-facility filter');
     if (await page.locator('.facility-row .availability--unavailable').count() !== todayCounts.unavailable) throw new Error('Unavailable switch did not show unavailable facilities');
-    await page.locator('.facility-row').filter({ hasText: '千葉県総合スポーツセンター 陸上競技場' }).locator('button').click();
+
+    const chibaCard = page.locator('.facility-row').filter({ hasText: '千葉県総合スポーツセンター 陸上競技場' });
+    await chibaCard.locator('button').click();
     await page.locator('.detail-card').getByText('個人利用不可', { exact: true }).waitFor();
     await page.getByRole('button', { name: '詳細を閉じる', exact: true }).click();
+
     await page.getByLabel('本日利用不可の施設も表示').uncheck();
     await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, todayCounts.candidates);
+    await expandAllFacilityRows(page);
+    await assertRenderedStatusCounts(page, { ...todayCounts, unavailable: 0 }, 'Today candidate filter after unavailable toggle');
     if (await page.locator('.facility-row .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities disappeared when unavailable facilities were hidden');
-    const selectedCard = page.locator('.facility-row').filter({ hasText: '戸田市スポーツセンター 陸上競技場' });
+    if (await page.locator('.facility-row .availability--unavailable').count() !== 0) throw new Error('Candidate filter should hide explicitly unavailable facilities after toggle');
+
+    // Re-enable the full list after the candidate assertions: Toda may be unavailable
+    // for the selected date and therefore absent from the default candidate rows.
+    await page.getByLabel('本日利用不可の施設も表示').check();
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length);
+    await expandAllFacilityRows(page);
+    await assertRenderedStatusCounts(page, todayCounts, 'Today all-facility filter before Toda selection');
+
+    const selectedCard = page.locator('.facility-row').filter({ hasText: todaTrack.name.ja });
     const selectedCardButton = selectedCard.locator('button');
     await selectedCardButton.click();
     if (await selectedCardButton.getAttribute('aria-pressed') !== 'true') throw new Error('Selected facility card state is not exposed');
     await page.locator('.detail-card').waitFor({ state: 'visible' });
-    await page.locator('.detail-card .today-availability').waitFor();
+    await page.locator(`.detail-card .today-availability.${availabilityClass(todaStatus)}`).waitFor();
+    if (await page.locator(`.detail-card .today-availability.${availabilityClass(todaStatus)}`).count() !== 1) throw new Error(`Toda detail status did not match the selected-date dataset: expected ${todaStatus}`);
     const pdfScheduleLink = page.getByRole('link', { name: '確認方法を見る', exact: true });
     if (await pdfScheduleLink.count() && (await pdfScheduleLink.getAttribute('href')) !== 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/') throw new Error('Toda availability source link did not use the official stable landing page');
     await page.getByRole('link', { name: '公式サイト', exact: true }).waitFor();
@@ -331,23 +401,28 @@ try {
     await page.locator('.map-tools').getByRole('button', { name: '現在地から探す', exact: true }).click();
     await page.getByText(/現在地の利用が許可されませんでした|現在地を取得できません/).waitFor();
     if (await page.locator('#track-map').getAttribute('data-zoom') !== zoomBeforeLocationFailure) throw new Error('Location failure unexpectedly reset the map view');
-    for (const toggle of await page.locator('.prefecture-toggle').all()) if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
-    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
+    await expandAllFacilityRows(page);
 
     await page.getByRole('button', { name: '明日', exact: true }).click();
     await waitForSelectedDate(page, tomorrow);
     await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, tomorrowCounts.candidates);
-    await page.getByText('明日利用可能', { exact: true }).first().waitFor();
+    await expandAllFacilityRows(page);
+    await assertRenderedStatusCounts(page, { ...tomorrowCounts, unavailable: 0 }, 'Tomorrow candidate filter');
+    if (hasDistinctTomorrow && tomorrowCounts.available > 0) await page.getByText('明日利用可能', { exact: true }).first().waitFor();
     if (await page.locator('.facility-row .availability--unknown').count() !== tomorrowCounts.unknown) throw new Error('Future unknown facilities were unexpectedly removed');
-    await page.getByLabel('明日利用不可の施設も表示').check();
-    while (await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).count()) await page.getByRole('button', { name: 'この都道府県をさらに表示', exact: true }).first().click();
+    const tomorrowUnavailableLabel = hasDistinctTomorrow ? '明日利用不可の施設も表示' : '本日利用不可の施設も表示';
+    await page.getByLabel(tomorrowUnavailableLabel).check();
+    await expandAllFacilityRows(page);
+    await assertRenderedStatusCounts(page, tomorrowCounts, 'Tomorrow all-facility filter');
     const renderedUnavailable = await page.locator('.facility-row .availability--unavailable').count();
     if (renderedUnavailable !== tomorrowCounts.unavailable) throw new Error(`Selected-date unavailable filter did not update: expected ${tomorrowCounts.unavailable}, rendered ${renderedUnavailable}`);
 
-    await page.getByRole('button', { name: '土曜', exact: true }).click();
-    await waitForSelectedDate(page, saturday);
+    if (saturday) {
+      await page.getByRole('button', { name: '土曜', exact: true }).click();
+      await waitForSelectedDate(page, saturday);
+    }
 
-    const selectedFuture = availabilityManifest.dates[7];
+    const selectedFuture = availabilityManifest.dates[Math.min(7, availabilityManifest.dates.length - 1)] ?? today;
     await page.getByLabel('利用日を選ぶ').fill(selectedFuture);
     await page.getByLabel('利用日を選ぶ').dispatchEvent('change');
     await waitForSelectedDate(page, selectedFuture);
@@ -364,7 +439,10 @@ try {
     await page.goto(`${baseUrl}/en/tracks?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
     await page.getByText('Based on official sources. Schedules can change, so check before visiting. “Needs confirmation” does not mean unavailable.', { exact: true }).waitFor();
-    await page.getByText('Tomorrow available', { exact: true }).first().waitFor();
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, tomorrowCounts.candidates);
+    await expandAllFacilityRows(page, true);
+    await assertRenderedStatusCounts(page, { ...tomorrowCounts, unavailable: 0 }, 'English tomorrow candidate filter');
+    if (hasDistinctTomorrow && tomorrowCounts.available > 0) await page.getByText('Tomorrow available', { exact: true }).first().waitFor();
     if (new URL(page.url()).pathname !== '/en/') throw new Error('/en/tracks did not canonicalize to the English home route');
 
     await page.goto(`${baseUrl}/en/?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
@@ -390,20 +468,21 @@ try {
       return location.hash === '#2020' && top >= 48 && top <= 80;
     });
 
-    const statusLabels = {
-      available: '利用可能',
-      partially_available: '一部利用可能',
-      unknown: '要確認',
-      unavailable: '利用不可',
-    };
-    await page.goto(`${baseUrl}/tracks/${representativeTracks.available.id}`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: statusLabels.available, exact: true }).waitFor();
+    const canonicalStatus = availabilityStatuses.find(status => representativeTracks[status]);
+    if (!canonicalStatus) throw new Error('No valid availability representative is available for canonical detail smoke testing');
+    const canonicalRepresentative = representativeTracks[canonicalStatus];
+    await page.goto(`${baseUrl}/tracks/${canonicalRepresentative.id}`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: statusLabels[canonicalStatus], exact: true }).waitFor();
     if (new URL(page.url()).searchParams.has('date')) throw new Error('Track detail without date unexpectedly added a date query');
     if (await page.getByLabel('日付を選ぶ').inputValue() !== today) throw new Error('Track detail without date did not default to today');
-    if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${representativeTracks.available.id}`) throw new Error('Track detail canonical unexpectedly includes a date query');
+    if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${canonicalRepresentative.id}`) throw new Error('Track detail canonical unexpectedly includes a date query');
 
-    for (const status of ['available', 'partially_available', 'unknown', 'unavailable']) {
+    for (const status of availabilityStatuses) {
       const representative = representativeTracks[status];
+      if (!representative) {
+        console.log(`Skipping ${status} representative detail coverage for ${today}: no effective-status record`);
+        continue;
+      }
       await page.goto(`${baseUrl}/tracks/${representative.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
       await page.getByRole('heading', { name: statusLabels[status], exact: true }).waitFor();
       await page.getByRole('heading', { name: status === 'unavailable' ? 'この日の代替候補' : 'この日の周辺トラック', exact: true }).waitFor();
@@ -425,21 +504,34 @@ try {
       }
     }
 
-    await page.goto(`${baseUrl}/en/tracks/${representativeTracks.unavailable.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: 'Nearby alternatives for this date', exact: true }).waitFor();
-    const englishAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
-    if (!englishAlternativeHref?.startsWith('/en/tracks/') || !englishAlternativeHref.includes(`date=${today}`)) throw new Error('English alternative link did not preserve locale and date');
-    await page.getByRole('link', { name: 'View location on map', exact: true }).click();
-    await page.waitForURL(url => url.pathname === '/en/' && url.hash === '#track-map-section'
-      && url.searchParams.get('date') === today
-      && url.searchParams.get('track') === representativeTracks.unavailable.id);
-    await page.locator('#track-map .track-marker--selected').waitFor();
-    await page.locator('.detail-card .today-availability.availability--unavailable').waitFor();
-    await page.waitForFunction(() => {
-      const target = document.getElementById('track-map-section');
-      const top = target?.getBoundingClientRect().top ?? -1;
-      return document.activeElement === target && top >= 48 && top <= 100;
-    });
+    const englishStatus = representativeTracks.unavailable
+      ? 'unavailable'
+      : availabilityStatuses.find(status => status !== 'unavailable' && representativeTracks[status]);
+    if (!englishStatus) {
+      console.log(`Skipping English representative detail coverage for ${today}: no effective-status record`);
+    } else {
+      const englishRepresentative = representativeTracks[englishStatus];
+      const englishAvailabilityClass = availabilityClass(englishStatus);
+      await page.goto(`${baseUrl}/en/tracks/${englishRepresentative.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
+      await page.locator(`.availability-panel.${englishAvailabilityClass}`).waitFor();
+      await page.getByRole('heading', { name: englishStatusLabels[englishStatus], exact: true }).waitFor();
+      await page.getByRole('heading', { name: englishStatus === 'unavailable' ? 'Nearby alternatives for this date' : 'Nearby tracks for this date', exact: true }).waitFor();
+      const englishUrgent = await page.locator('.related-section').evaluate(element => element.classList.contains('related-section--urgent'));
+      if (englishUrgent !== (englishStatus === 'unavailable')) throw new Error(`English ${englishStatus} detail alternative emphasis is incorrect`);
+      const englishAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
+      if (!englishAlternativeHref?.startsWith('/en/tracks/') || !englishAlternativeHref.includes(`date=${today}`)) throw new Error('English alternative link did not preserve locale and date');
+      await page.getByRole('link', { name: 'View location on map', exact: true }).click();
+      await page.waitForURL(url => url.pathname === '/en/' && url.hash === '#track-map-section'
+        && url.searchParams.get('date') === today
+        && url.searchParams.get('track') === englishRepresentative.id);
+      await page.locator('#track-map .track-marker--selected').waitFor();
+      await page.locator(`.detail-card .today-availability.${englishAvailabilityClass}`).waitFor();
+      await page.waitForFunction(() => {
+        const target = document.getElementById('track-map-section');
+        const top = target?.getBoundingClientRect().top ?? -1;
+        return document.activeElement === target && top >= 48 && top <= 100;
+      });
+    }
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();

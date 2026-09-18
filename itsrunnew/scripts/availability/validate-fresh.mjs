@@ -1,0 +1,11 @@
+import { readFile } from 'node:fs/promises';
+import { validateFreshRange } from './freshness.mjs';
+const read = async path => JSON.parse(await readFile(new URL(`../../src/data/${path}`, import.meta.url), 'utf8'));
+const manifest = await read('availability/manifest.json');
+const tracks = await read('tracks.json');
+const datasets = await Promise.all(manifest.dates.map(date => read(`availability/${date}.json`)));
+validateFreshRange(manifest, datasets, tracks.map(track => track.id));
+console.log(`Fresh availability verified: ${manifest.startDate} -> ${manifest.endDate}; ${tracks.length} tracks per day; generated ${manifest.generatedAt}`);
+const counts = {};
+for (const item of datasets[0].facilities) counts[item.status] = (counts[item.status] ?? 0) + 1;
+console.log(`Today's availability: ${JSON.stringify(counts)}`);

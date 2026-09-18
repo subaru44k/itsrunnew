@@ -122,3 +122,7 @@ npm run test:smoke
 ```
 
 Use `npm run test:visual` when changing layout or styling and an ad-disabled legacy baseline is available, as described in `docs/SITE_STRUCTURE.md`. After an authorized preview deployment, run the smoke test against the CloudFront URL as well.
+
+### Daily job regression gate (required for every change)
+
+Before completing any application, data, collector, build, test, or workflow change, run `npm run test:daily:fixtures` and `npm run test:daily` from `itsrunnew/`, in addition to the normal checks. The first verifies four statuses, Toda unavailable, and all-unknown data in isolated temporary builds; the second performs live collection, freshness/completeness validation, build, and desktop/mobile smoke without deploying. Do not claim daily compatibility based only on unit tests or a committed availability snapshot. Both checks also run inside the required `Node 24 validation` CI check. Follow [`docs/DAILY_VERIFICATION.md`](docs/DAILY_VERIFICATION.md) for failure triage and post-deployment verification. Record any check that could not run; never bypass it with continue-on-error.

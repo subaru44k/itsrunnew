@@ -77,6 +77,8 @@ itsrunnew/
 ├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
+│   ├── daily-check.mjs        一時workspaceでdaily実収集／合成データのbuild・smokeを検証
+│   ├── daily-fixtures.mjs     戸田利用不可・4status／全unknownの回帰データ
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
 │   ├── pace-smoke.mjs         個人用ペース表の入力・保存・共有・PNG・日英responsive検証
 │   ├── generate-public-pages.mjs tracks.jsonから日英URLの標準sitemapを生成（hreflangはHTML metadataで提供）
@@ -307,6 +309,9 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
 | `npm run test:smoke` | PC・スマホの全公開ルート、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
+| `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |
+| `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusと全unknownの2シナリオをbuild・smoke |
+| `npm run validate:availability:fresh` | JST当日開始・連続31日・6時間以内の生成・施設ID/期限/statusと合成データ混入を検査 |
 | `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
 | `npm run test:map` | 起動済みの旧版4172・新版4173をPC/スマホで比較し、地図画像・参考初期表示時間・OSM帰属・keyboard操作・日付/言語切替時の再生成なし・tile通信403からの復帰を確認 |
 | `npm run test:pace` | 起動済みPreviewでペース表の計算・設定復元・共有・PNG保存・日英PC/スマホを確認 |
@@ -330,11 +335,13 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
-`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。commit済みavailability baselineを使うためlive collector、AWS権限、secretsは必要としません。
+`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて`test:daily:fixtures`と`test:daily`を同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。Chromeと外部sourceへのnetworkが必要ですがAWS権限・secretsは不要です。各変更での必須手順と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
 
 `.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、content-only S3 sync、targeted CloudFront invalidation、CloudFront smokeまでを実行します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 
 `.github/workflows/deploy-production.yml`は同じ安全な生成・検証・content-only deployをProduction専用role/targetで行います。`PRODUCTION_DEPLOY_ENABLED=true`になるまで全triggerでskipし、Productionだけ広告を有効にします。master push・手動・毎日05:30 JSTを持ち、Production全体でconcurrencyを1つにします。
+
+両deployは収集直後に`validate:availability:fresh`で当日31日分の完全性・鮮度を検査し、summaryで収集とlocal smokeの成否を別々に表示します。smokeはstatusごとの実データ件数と一覧の折りたたみ・ページ送りを考慮し、特定施設を選ぶ前に利用不可表示も有効化します。
 
 正式公開前のSEO、Search Console、GA4、広告停止、Privacy、HTTP redirect/404、運用確認は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照します。
 

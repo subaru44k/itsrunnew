@@ -6,6 +6,16 @@ Before investigating or changing this repository, read [`docs/SITE_STRUCTURE.md`
 
 The Git repository root contains the application in `itsrunnew/`. Run application, test, and CDK commands from that directory unless a command explicitly says otherwise.
 
+## Browser and Computer Use policy
+
+Default to no in-app browser, Computer Use, or GUI automation. Prefer repository code and CLI-based evidence such as tests, lint/type checking, builds, `curl`/HTTP requests, logs, and programmatic inspection.
+
+Prefer Playwright or other automated browser tests when they are sufficient to verify browser behavior, including the repository's smoke and visual tests. Use the in-app browser, Computer Use, or GUI automation only for visual, browser-specific, or interactive behavior that cannot be adequately verified by code, CLI, HTTP, or automated browser tests.
+
+When browser interaction is necessary, minimize context and usage: limit it to the target pages and required actions, do not browse unrelated pages, and avoid repeated views or refresh loops. Separate implementation and automated verification from browser checking; finish the code and automated checks first, then perform only the targeted browser check needed for confidence.
+
+Do not operate Search Console, Analytics, hosting consoles, or other external admin services unless the user explicitly requests it. When required data is available only there, prefer asking the user to retrieve and share it rather than operating the console directly. Choose the lowest-cost verification method that retains the necessary confidence, and document any residual uncertainty.
+
 ## Model routing and delegation
 
 Use GPT-5.6 Sol with high reasoning as the primary/orchestrator. Keep delegation selective: the goal is to route work to the model most likely to complete it correctly, not to maximize the number of subagents.

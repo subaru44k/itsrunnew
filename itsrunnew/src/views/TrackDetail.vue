@@ -1,7 +1,7 @@
 <template>
   <v-container v-if="track" class="track-detail-page">
     <nav class="breadcrumbs" :aria-label="isEnglish ? 'Breadcrumb' : 'パンくずリスト'">
-      <router-link :to="searchPath">{{ isEnglish ? 'Track Finder' : 'トラック検索' }}</router-link><span aria-hidden="true">/</span><span>{{ localizedName(track) }}</span>
+      <CanonicalLink :to="searchPath">{{ isEnglish ? 'Track Finder' : 'トラック検索' }}</CanonicalLink><span aria-hidden="true">/</span><span>{{ localizedName(track) }}</span>
     </nav>
 
     <header class="detail-hero">
@@ -49,7 +49,7 @@
         <p v-if="availability?.status === 'unavailable'" class="alternative-eyebrow">{{ isEnglish ? 'FIND AN ALTERNATIVE' : '代わりを探す' }}</p>
         <h2>{{ relatedHeading }}</h2>
         <p class="related-intro">{{ relatedDescription }}</p>
-        <router-link v-for="item in related" :key="item.track.id" class="alternative-link" :to="candidateDetailPath(item.track)" @click="trackRelatedFacility(item.track)">
+        <CanonicalLink v-for="item in related" :key="item.track.id" class="alternative-link" :to="candidateDetailPath(item.track)" @click="trackRelatedFacility(item.track)">
           <span class="alternative-main">
             <strong>{{ localizedName(item.track) }}</strong>
             <span :class="['availability-badge', `availability--${item.availability.status.replace('_', '-')}`]">
@@ -57,7 +57,7 @@
             </span>
           </span>
           <span class="alternative-distance">{{ formatDistance(item.distance) }}</span>
-        </router-link>
+        </CanonicalLink>
         <v-btn class="nearby-search-action white-text" color="indigo" variant="flat" prepend-icon="mdi-map-search" :to="nearbySearchPath" @click="trackDetailEvent('view_on_map_click', { source: 'nearby_alternatives' })">
           {{ isEnglish ? 'Compare nearby tracks from here' : 'この施設を基準に周辺を比較' }}
         </v-btn>
@@ -128,6 +128,7 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import FieldReports from '../components/FieldReports.vue';
+import CanonicalLink from '../components/CanonicalLink.vue';
 import { availabilityDataset, availabilityForTrack, localDateKey, type AvailabilityDataset, type AvailabilityStatus } from '../model/availability';
 import { availabilityActionUrl } from '../model/availability-link';
 import { addDateOnlyDays, availabilityManifest, loadAvailabilityDate, normalizeSelectedDate } from '../model/availability-range';
@@ -155,7 +156,7 @@ function trackFinderRoute(query: Record<string, string | undefined>, hash?: stri
   };
 }
 function queryString(value: unknown) { return typeof value === 'string' ? value : undefined; }
-const searchPath = computed(() => trackFinderRoute({ date: selectedDate.value }));
+const searchPath = computed(() => trackFinderRoute({ date: route.query.date == null ? undefined : selectedDate.value }));
 const facilityMapPath = computed(() => trackFinderRoute({
   date: selectedDate.value,
   track: track.value?.id,
@@ -190,7 +191,7 @@ watch([() => track.value?.id, selectedDate, () => dataset.value.date, () => avai
 }, { immediate: true });
 
 function localizedName(item: TrackFacility) { return isEnglish.value ? item.name.en : item.name.ja; }
-function candidateDetailPath(item: TrackFacility) { return { path: trackDetailPath(item, locale.value), query: { date: selectedDate.value } }; }
+function candidateDetailPath(item: TrackFacility) { return { path: trackDetailPath(item, locale.value), query: { date: route.query.date == null ? undefined : selectedDate.value } }; }
 function formatDistance(distance: number) { return distance < 1 ? `${Math.round(distance * 1000)} m` : `${distance.toFixed(1)} km`; }
 function statusIconFor(status: AvailabilityStatus) { return ({ available: 'mdi-check-circle', partially_available: 'mdi-clock-outline', unknown: 'mdi-help-circle-outline', unavailable: 'mdi-close-circle' })[status]; }
 function statusLabelFor(status: AvailabilityStatus) {

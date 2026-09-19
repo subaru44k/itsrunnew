@@ -1,0 +1,82 @@
+{
+  "yumenoshima": {
+    "path": "yumenoshima",
+    "component": "Yumenoshima",
+    "jaTitle": "いつラン - 夢の島陸上競技場を個人利用する人のための利用時間確認ページ",
+    "enTitle": "It's Run - Check the availability of Yumenoshima Athletics Stadium",
+    "jaDescription": "夢の島陸上競技場の開放日・利用可能時間を確認できます。",
+    "enDescription": "The available dates and times at Yumenoshima Athletics Stadium can be checked on this page."
+  },
+  "komazawa": {
+    "path": "komazawa",
+    "component": "Komazawa",
+    "jaTitle": "いつラン - 駒沢オリンピック公園陸上競技場を個人利用する人のための利用時間確認ページ",
+    "enTitle": "It's Run - Check the availability of Komazawa Olympic Park Athletic Stadium",
+    "jaDescription": "駒沢オリンピック公園陸上競技場の開放日・利用可能時間を確認できます。",
+    "enDescription": "The available dates and times at Komazawa Olympic Park Athletic Stadium can be checked on this page."
+  },
+  "todoroki": {
+    "path": "todoroki",
+    "component": "Todoroki",
+    "jaTitle": "いつラン - 等々力陸上競技場を個人利用する人のための利用時間確認ページ",
+    "enTitle": "It's Run - Check the availability of Kawasaki Todoroki Stadium",
+    "jaDescription": "等々力陸上競技場の開放日・利用可能時間を確認できます。",
+    "enDescription": "The available dates and times at Kawasaki Todoroki Stadium can be checked on this page."
+  },
+  "marathon": {
+    "path": "pace/marathon",
+    "component": "LapTime",
+    "jaTitle": "マラソンペース表｜目標タイム・1kmペースから通過時間を計算 - いつラン",
+    "enTitle": "It's Run - Marathon pace and lap-time table",
+    "jaDescription": "目標タイムや1kmペースから、5kmごと・ハーフの通過タイムを計算。設定の保存、共有リンク、画像保存、400mなど練習用の所要時間にも対応。",
+    "enDescription": "Calculate personal marathon splits from a finish time or pace per km. Save settings, share your plan, download a pace card, and check training times."
+  },
+  "nozomi": {
+    "path": "nozomiantena/index",
+    "component": "NozomiAntena",
+    "jaTitle": "陸上 田中希実選手の記録集 - 大会出場日、種目、タイム等の結果まとめ",
+    "enTitle": "Race results of Nozomi Tanaka",
+    "jaDescription": "田中希実選手の2020年以降の出走を、世界大会、地方大会、記録会、駅伝、ペースメーカーまで時系列でまとめた非公式記録集。",
+    "enDescription": "An unofficial race archive of Japanese runner Nozomi Tanaka from 2020, including local meetings, relays and pacing appearances."
+  },
+  "ryuji": {
+    "path": "ryuji-miura/index",
+    "component": "RyujiMiura",
+    "jaTitle": "陸上 三浦龍司選手の記録集 - 2020年以降の大会出場日、種目、タイム等の結果まとめ",
+    "enTitle": "Race results of Ryuji Miura",
+    "jaDescription": "三浦龍司選手の2020年以降の出走を、世界大会、国内の大学競技会、記録会、クロスカントリー、ロードまで時系列でまとめた非公式記録集。",
+    "enDescription": "An unofficial race archive of Japanese steeplechaser Ryuji Miura from 2020, including local meetings, university competitions and road races."
+  },
+  "tracks": {
+    "path": "",
+    "component": "TrackSearch",
+    "jaTitle": "個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン",
+    "enTitle": "Find tracks for individual use by date and location - ItsRun",
+    "jaDescription": "いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。",
+    "enDescription": "When your usual venue is closed or you are training somewhere new, compare tracks for individual use by date, location, availability and facilities."
+  },
+  "about": {
+    "path": "about",
+    "component": "About",
+    "jaTitle": "いつランについて - サイトのコンテンツと運営方針",
+    "enTitle": "About ItsRun - Content and editorial policy",
+    "jaDescription": "いつランのトラック検索、競技場情報、ラップタイム、記録集と運営方針を説明します。",
+    "enDescription": "Learn about ItsRun’s track finder, venue guides, pace tools, records, and editorial policy."
+  },
+  "trackGuide": {
+    "path": "tracks/guide",
+    "component": "TrackGuide",
+    "jaTitle": "トラック検索の使い方 - 利用状況・距離・施設情報の見方",
+    "enTitle": "How to use Track Finder - Availability, distance and facility details",
+    "jaDescription": "日付、検索の基準地点、利用可能・要確認などの表示とトラック条件の見方を説明します。",
+    "enDescription": "How to select a date and search origin, read availability, and compare track facilities."
+  },
+  "privacy": {
+    "path": "privacy",
+    "component": "Privacy",
+    "jaTitle": "プライバシーポリシー - いつラン",
+    "enTitle": "Privacy policy - ItsRun",
+    "jaDescription": "いつランにおけるGoogle Analytics、現在地情報、外部サービス等の取扱いを説明します。",
+    "enDescription": "How ItsRun handles Google Analytics, browser geolocation, and external services."
+  }
+}

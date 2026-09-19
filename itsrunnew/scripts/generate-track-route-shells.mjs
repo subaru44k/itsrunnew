@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const tracks = JSON.parse(await readFile(resolve(root, 'src/data/tracks.json'), 'utf8'));
+const pageMetadata = JSON.parse(await readFile(resolve(root, 'src/data/page-metadata.json'), 'utf8'));
 const template = await readFile(resolve(root, 'dist/index.html'), 'utf8');
 const localeMessages = {
   ja: JSON.parse(await readFile(resolve(root, 'src/locales/ja.json'), 'utf8')),
@@ -97,20 +98,19 @@ function pageShell({ path, locale, title, description, alternateJa, alternateEn,
   return html;
 }
 
-const fixedShells = [
-  {
-    path: '/', locale: 'ja',
-    title: '個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン',
-    description: 'いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。',
-    alternateJa: '/', alternateEn: '/en/', body: staticHomeContent('ja'),
-  },
-  {
-    path: '/en/', locale: 'en',
-    title: 'Find tracks for individual use by date and location - ItsRun',
-    description: 'When your usual venue is closed or you are training somewhere new, compare tracks for individual use by date, location, availability and facilities.',
-    alternateJa: '/', alternateEn: '/en/', body: staticHomeContent('en'),
-  },
-];
+const fixedShells = Object.entries(pageMetadata).flatMap(([key, page]) => ['ja', 'en'].map(locale => {
+  const prefix = locale === 'en' ? '/en' : '';
+  const path = page.path ? `${prefix}/${page.path}` : (locale === 'en' ? '/en/' : '/');
+  return {
+    path,
+    locale,
+    title: page[`${locale}Title`],
+    description: page[`${locale}Description`],
+    alternateJa: page.path ? `/${page.path}` : '/',
+    alternateEn: page.path ? `/en/${page.path}` : '/en/',
+    body: key === 'tracks' ? staticHomeContent(locale) : undefined,
+  };
+}));
 
 for (const page of fixedShells) {
   const directory = resolve(root, `dist${page.path}`);

@@ -4,24 +4,18 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import type { Construct } from 'constructs';
+import pageMetadata from '../src/data/page-metadata.json';
 
 export interface ItsRunProductionStackProps extends cdk.StackProps {
   domainName?: string;
   certificateArn?: string;
 }
 
-const applicationRoutes = [
-  '/', '/en/',
-  '/yumenoshima', '/en/yumenoshima',
-  '/komazawa', '/en/komazawa',
-  '/todoroki', '/en/todoroki',
-  '/pace/marathon', '/en/pace/marathon',
-  '/nozomiantena/index', '/en/nozomiantena/index',
-  '/ryuji-miura/index', '/en/ryuji-miura/index',
-  '/about', '/en/about',
-  '/tracks/guide', '/en/tracks/guide',
-  '/privacy', '/en/privacy',
-];
+const applicationRoutes = Object.values(pageMetadata).flatMap(page => {
+  const jaPath = page.path ? `/${page.path}` : '/';
+  const enPath = page.path ? `/en/${page.path}` : '/en/';
+  return [jaPath, enPath];
+});
 
 function routerFunctionCode() {
   return `function queryString(query) {
@@ -62,13 +56,12 @@ function handler(event) {
   if (aliases[request.uri]) return redirect(aliases[request.uri], request.querystring);
   var routes = ${JSON.stringify(applicationRoutes)};
   if (routes.indexOf(request.uri) !== -1) {
-    var routeShells = ['/en/'];
-    if (routeShells.indexOf(request.uri) !== -1) {
+    if (request.uri === '/') {
+      request.uri = '/index.html';
+    } else {
       var shellPath = request.uri;
       if (shellPath.charAt(shellPath.length - 1) === '/') shellPath = shellPath.slice(0, -1);
       request.uri = shellPath + '/index.html';
-    } else {
-      request.uri = '/index.html';
     }
     return request;
   }

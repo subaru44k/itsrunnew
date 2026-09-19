@@ -48,7 +48,7 @@ npm run test:pace
 
 `collect:availability:range` は東京の当日から31日分を `src/data/availability/manifest.json` と日別JSONへ生成します。同一HTML/PDF、月次JSON、WordPress noticeをcacheし、日数分の重複fetchやPDF抽出を避けます。単日debug用 `npm run collect:availability -- --date YYYY-MM-DD` も維持しています。現在33/133施設を安全な自動判定対象とし、取得不能・予定未公開・期限切れ・形式変更は利用不可にせず「要確認」へ降格します。内訳と各sourceの意味は [`../docs/AVAILABILITY.md`](../docs/AVAILABILITY.md) と [`../research/availability/high-confidence-collector-validation-batch-2-2026-09.md`](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md) を参照してください。通常のbuild/devは外部sourceへアクセスしません。
 
-`npm run build` はsitemapと施設詳細ページ用の静的HTML shellも生成します。`test:smoke` は `npm run preview` が `http://127.0.0.1:4173` で起動していることを前提にします。Track Datasetのschema、raw OSM (`../data/osm/tracks.json`、`expansion-candidates.json`、`coverage-followup-2026-08.json`) と公開データの役割、調査・更新手順、既知の制限、ODbL/JAAF/OSM tileの注意点は [`../docs/TRACK_DATA.md`](../docs/TRACK_DATA.md) を参照してください。33施設時点の調査は [`dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md)、51候補への品質優先の追補は [`phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、全候補の遡及監査と50施設への補正は [`current-51-audit.md`](../research/track-expansion/current-51-audit.md)、以後の追加判断は [`batches/`](../research/track-expansion/batches/) にあります。
+`npm run build` はsitemapと日英の全固定ページ・施設詳細ページ用の静的HTML shellも生成します。`test:smoke` は `npm run preview` が `http://127.0.0.1:4173` で起動していることを前提にします。Track Datasetのschema、raw OSM (`../data/osm/tracks.json`、`expansion-candidates.json`、`coverage-followup-2026-08.json`) と公開データの役割、調査・更新手順、既知の制限、ODbL/JAAF/OSM tileの注意点は [`../docs/TRACK_DATA.md`](../docs/TRACK_DATA.md) を参照してください。33施設時点の調査は [`dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md)、51候補への品質優先の追補は [`phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、全候補の遡及監査と50施設への補正は [`current-51-audit.md`](../research/track-expansion/current-51-audit.md)、以後の追加判断は [`batches/`](../research/track-expansion/batches/) にあります。
 
 施設を追加・再調査するときは、候補発見、公式source、属性別evidence、個人利用status、availability分類、collector判定、review手順を定めた [`../docs/TRACK_EXPANSION_PLAYBOOK.md`](../docs/TRACK_EXPANSION_PLAYBOOK.md) に従ってください。初期施設も例外にせず、確認できない値は推測せずunknownを維持します。
 
@@ -108,3 +108,9 @@ GA4は正式domainでアクセス解析へ同意した場合だけ読み込み�
 通常のunit・lint・buildに加え、`npm run test:daily:fixtures` と `npm run test:daily` を実行します。前者は4status・戸田が利用不可の日と全施設unknownの回帰検証、後者は公式sourceの実収集・当日31日分の鮮度と完全性・build・PC/スマホsmokeです。両方とも一時workspaceを使い、checkoutのデータ・distは変更せず、AWSへ配備しません。Node 24、インストール済み依存、Chromeが必要です（Linuxは`CHROME_PATH=/usr/bin/google-chrome`）。PR/masterの`Node 24 validation`でも両方を必須実行します。
 
 日次deployは`validate:availability:fresh`を収集直後に実行し、古い・不完全なデータや合成fixtureの公開を拒否します。失敗調査と公開後の確認手順は[DAILY_VERIFICATION.md](../docs/DAILY_VERIFICATION.md)を参照してください。
+
+### 正規URLの検証
+
+日付未指定のホームURLはそのまま今日を表示します。通常の施設リンクはqueryなしのhrefを持ち、通常クリックでは選択済みの日付・地点を引き継ぎます。条件込みの共有は遷移後のアドレスバーURLで行えます。`test:smoke`は日英・PC/スマホで正規href、日付自動付与なし、未来日・地点の引継ぎと再読込を検証します。
+
+固定ページのmetadataは`src/data/page-metadata.json`からrouterと全固定ページのHTML shellへ供給します。Productionの固定ページrewriteを変更する場合は、contentを先に配備してから、既存domain・certificateを維持したRouteFunctionのみのCDK更新を行います。詳細は[`PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md)を参照してください。

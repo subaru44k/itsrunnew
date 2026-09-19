@@ -54,10 +54,18 @@ aws s3 cp dist/service-worker.js "s3://$PRODUCTION_BUCKET/service-worker.js" \
 
 invalidation_id="$(aws cloudfront create-invalidation \
   --distribution-id "$PRODUCTION_DISTRIBUTION_ID" \
-  --paths '/' '/index.html' '/sitemap.xml' '/service-worker.js' '/en/' '/tracks' '/en/tracks' \
-    '/tracks/guide' '/en/tracks/guide' '/tracks/*' '/en/tracks/*' \
-    '/tracks/yoyogi-park-athletic-track' '/en/tracks/yoyogi-park-athletic-track' '/oda-field' '/oda-field/' '/en/oda-field' '/en/oda-field/' '/nozomiantena/index' '/en/nozomiantena/index' \
-    '/ryuji-miura/index' '/en/ryuji-miura/index' \
+  --paths '/' '/index.html' '/sitemap.xml' '/service-worker.js' '/en/' '/en/index.html' '/tracks' '/en/tracks' \
+    '/yumenoshima' '/yumenoshima/index.html' '/en/yumenoshima' '/en/yumenoshima/index.html' \
+    '/komazawa' '/komazawa/index.html' '/en/komazawa' '/en/komazawa/index.html' \
+    '/todoroki' '/todoroki/index.html' '/en/todoroki' '/en/todoroki/index.html' \
+    '/pace/marathon' '/pace/marathon/index.html' '/en/pace/marathon' '/en/pace/marathon/index.html' \
+    '/nozomiantena/index' '/nozomiantena/index/index.html' '/en/nozomiantena/index' '/en/nozomiantena/index/index.html' \
+    '/ryuji-miura/index' '/ryuji-miura/index/index.html' '/en/ryuji-miura/index' '/en/ryuji-miura/index/index.html' \
+    '/about' '/about/index.html' '/en/about' '/en/about/index.html' \
+    '/tracks/guide' '/tracks/guide/index.html' '/en/tracks/guide' '/en/tracks/guide/index.html' \
+    '/privacy' '/privacy/index.html' '/en/privacy' '/en/privacy/index.html' \
+    '/tracks/*' '/en/tracks/*' \
+    '/tracks/yoyogi-park-athletic-track' '/en/tracks/yoyogi-park-athletic-track' '/oda-field' '/oda-field/' '/en/oda-field' '/en/oda-field/' \
   --query Invalidation.Id \
   --output text)"
 aws cloudfront wait invalidation-completed --distribution-id "$PRODUCTION_DISTRIBUTION_ID" --id "$invalidation_id"

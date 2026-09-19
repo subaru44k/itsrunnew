@@ -64,6 +64,7 @@ itsrunnew/
 │   ├── App.vue                共通シェル、メニュー、言語切替、フッター
 │   ├── router.ts              全ルート、SEOメタ情報、言語、ハッシュスクロール
 │   ├── store.ts               Pinia状態、日付生成、情報なしスケジュール、ペース選択
+│   ├── data/page-metadata.json 固定ページのpath・日英metadata（routerとHTML shellで共有）
 │   ├── data/tracks.json       公式情報で検証済みの公開用Track Dataset
 │   ├── data/nozomi-results.json 田中希実選手の2020年以降の大会結果
 │   ├── data/ryuji-results.json  三浦龍司選手の2020年以降の大会結果
@@ -74,6 +75,7 @@ itsrunnew/
 │   ├── locales/               ja.json / en.json
 │   ├── views/                 ルート単位のページ（TrackSearch / TrackDetailを含む）
 │   ├── components/
+│   │   ├── CanonicalLink.vue 通常リンクの正規hrefとクリック時の検索条件引継ぎ
 │   │   ├── AdsDisplay.vue     共通広告serviceの準備後に表示するAdSenseスロット
 │   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
 │   │   ├── FieldReports.vue   対象日レポートの閲覧・匿名当日投稿・計測
@@ -93,7 +95,7 @@ itsrunnew/
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
 │   ├── pace-smoke.mjs         個人用ペース表の入力・保存・共有・PNG・日英responsive検証
 │   ├── generate-public-pages.mjs tracks.jsonから日英URLの標準sitemapを生成（hreflangはHTML metadataで提供）
-│   ├── generate-track-route-shells.mjs build後に日英ホーム・施設詳細HTML shellを生成
+│   ├── generate-track-route-shells.mjs build後に日英固定ページ・施設詳細HTML shellを生成
 │   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
 │   ├── deploy-production.sh   Production対象をguardしたS3 syncとinvalidation
 │   ├── deployment-summary.mjs GitHub Actions run summary生成
@@ -167,7 +169,7 @@ docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契�
 
 ## 5. 公開ルート
 
-ルートの正本は `src/router.ts` の `pages` です。各ページは日本語パスと、同じ末尾に `/en/` を付けた英語パスを持ちます。
+固定ページのpath・title・descriptionの正本は `src/data/page-metadata.json`、componentの対応とルーティングは `src/router.ts` です。各ページは日本語パスと、同じ末尾に `/en/` を付けた英語パスを持ちます。
 
 | 日本語 | 英語 | View | 用途 |
 |---|---|---|---|
@@ -187,7 +189,7 @@ docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契�
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。織田フィールドの旧URLは末尾スラッシュの有無を問わず、Production CloudFrontで日付などのqueryを保持したHTTP 301を返します。Vue Routerでも同じ転送先へquery・hashを維持します。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。Productionは実HTTP 404、PreviewのSPA fallbackはHTTP 200です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英ホームと全施設詳細のHTML shellを生成します。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは英語ホームと施設詳細を各shellへrewriteし、それ以外の既知routeは共通`index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英の全固定ページと全施設詳細のHTML shellを生成します。固定ページは共有metadataからcanonical・title・description・hreflang・OGPを設定し、初期HTMLとruntimeの指定をそろえます。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは既知の固定ページと施設詳細をそれぞれのHTML shellへrewriteし、ルート`/`だけを`/index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
@@ -224,7 +226,7 @@ docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契�
 
 有効な `?goal=14400` または `?pace=330`（秒）の共有URLを、localStorageの `itsrun.marathon.v1`、既定4時間の順で優先します。両方のquery・配列・不正な値は案内付きで保存値または既定へ戻します。編集時はURLをreplaceし、戻る履歴を入力ごとに増やしません。共有リンクは現在のorigin・言語pathと計算用queryだけを含めます。canonicalはqueryを除いたページURLです。設定のリセットで保存値と計算用queryを削除し、保存やclipboardが使えない場合も計算と手動リンクコピーを利用できます。Privacyに保存と共有の扱いを日英で記載します。
 
-`components/laptime/pace-image.ts` は画面と同じ値からCanvasでPNGを生成し、外部通信・画像ライブラリなしでダウンロードします。練習時間から同じ言語のトラック検索へのリンクを提供します。今回の機能変更はページ内の計算・保存・共有とruntime metadataであり、既存の初期HTML配信・CloudFrontのrewrite構成は変更していません。
+`components/laptime/pace-image.ts` は画面と同じ値からCanvasでPNGを生成し、外部通信・画像ライブラリなしでダウンロードします。練習時間から同じ言語のトラック検索へのリンクを提供します。ペース表の初期HTMLも日英の専用shellで配信し、canonical・metadataはruntimeと同じ値にします。
 
 `npm run test:pace` は起動済みのローカルPreview（既定4173）で入力・復元・共有優先・不正値・storage/clipboard拒否・画像保存・日英・PC/スマホ表示を検証し、画像とスクリーンショットを `/tmp/itsrun-pace-check`（`ITSRUN_PACE_OUTPUT`で変更可）へ保存します。ブラウザ実行ファイルは既存smokeと同じ `CHROME_PATH` を使います。
 
@@ -235,6 +237,10 @@ docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契�
 `RyujiMiura.vue`は `src/data/ryuji-results.json` を読み、三浦龍司選手の2020年以降67レースを表示します。3000m障害を中心に、1500m、3000m、5000m、10000m、クロスカントリー、10マイル、ハーフマラソンを含みます。World Athleticsに掲載された国際大会だけでなく、順天堂大学競技会、関東インカレ、織田幹雄記念、ホクレン、日体大長距離競技会など国内の記録会も同じ時系列に収録し、年度・種類・大会名／種目で絞り込めます。各行の大会名は確認可能な公式結果へのリンクです。収集範囲と更新時の注意点は [`../research/ryuji-miura/2020-onward-report.md`](../research/ryuji-miura/2020-onward-report.md) に記録しています。
 
 2025年分の収集経緯と個別出典は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
+
+### 正規URLと検索条件の引継ぎ
+
+日付未指定のホームはURLを書き換えず今日を表示します。明示された不正・範囲外の日付は従来どおり有効な日付へ補正し、日付選択・地点選択・施設focus・共有用queryも維持します。通常の施設詳細リンク（一覧、選択card、織田導線、周辺候補）と詳細からのパンくずは`CanonicalLink.vue`を使用し、HTMLのhrefはqueryなしの正規pathです。通常クリックとEnterによるアプリ内遷移では、明示選択済みの日付と必要な検索基準座標を従来どおりqueryで引き継ぎ、遷移後のアドレスバーURLを共有・再読込できます。日付未指定の通常遷移では日付を追加しません。リンクのアドレスをコピー、修飾キー、新しいタブで開く等のブラウザ標準操作は正規hrefを使用して既定の今日を表示します。条件込みで共有する場合はアドレスバーのURLを使います。地図上の位置・周辺比較の操作リンクは日付・座標・focus用queryとanchorを維持します。robots.txtによる遮断やquery URLのnoindex化、hashへの全面移行は行いません。
 
 ### 陸上トラック検索
 
@@ -316,11 +322,11 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run reports:deploy -- -c environment=preview` | 独立レポートAPI stackを配備（productionも指定可） |
 | `npm run test:reports` | 起動済みPreviewで日英・スマホ・投稿/障害/日付切替をmock APIで検証 |
 | `npm run dev` | Vite開発サーバー |
-| `npm run build` | 標準XML sitemap生成（URL・要素構成をreadiness検証）、`vue-tsc --noEmit`、Vite build、施設詳細HTML shell生成 |
+| `npm run build` | 標準XML sitemap生成（URL・要素構成をreadiness検証）、`vue-tsc --noEmit`、Vite build、固定ページ・施設詳細HTML shell生成 |
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
-| `npm run test:smoke` | PC・スマホの全公開ルート、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
+| `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
 | `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |
 | `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusと全unknownの2シナリオをbuild・smoke |
 | `npm run validate:availability:fresh` | JST当日開始・連続31日・6時間以内の生成・施設ID/期限/statusと合成データ混入を検査 |

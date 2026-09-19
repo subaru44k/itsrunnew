@@ -18,7 +18,7 @@
     </header>
 
     <p class="oda-discovery-link">
-      <router-link data-oda-discovery-link :to="odaDiscoveryPath">{{ isEnglish ? 'Oda Field closure and facility information' : '織田フィールドの利用情報' }}</router-link>
+      <CanonicalLink data-oda-discovery-link :to="odaDiscoveryPath">{{ isEnglish ? 'Oda Field closure and facility information' : '織田フィールドの利用情報' }}</CanonicalLink>
     </p>
 
     <v-alert v-if="locationMessage" :type="locationError ? 'warning' : 'success'" variant="tonal" class="mb-3" closable>
@@ -108,7 +108,7 @@
         <p v-if="selectedTrack.individualUse.note" class="track-note">{{ selectedTrack.individualUse.note }}</p>
         <p class="official-warning">{{ isEnglish ? 'Conditions may change. Check the official website before visiting.' : '利用条件は変わることがあります。お出かけ前に公式サイトをご確認ください。' }}</p>
         <div class="detail-actions">
-          <v-btn class="detail-action action-detail" color="blue-grey-darken-3" variant="flat" prepend-icon="mdi-information-outline" :to="detailRoute(selectedTrack)">{{ isEnglish ? 'Facility page' : '施設ページ' }}</v-btn>
+          <CanonicalLink button class="detail-action action-detail" color="blue-grey-darken-3" variant="flat" prepend-icon="mdi-information-outline" :to="detailRoute(selectedTrack)">{{ isEnglish ? 'Facility page' : '施設ページ' }}</CanonicalLink>
           <v-btn v-if="availabilityActionUrl(selectedTrack)" class="detail-action action-schedule" color="amber-lighten-4" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityActionUrl(selectedTrack)" target="_blank" rel="noopener" @click="trackOutbound('availability_source_click', selectedTrack)">{{ availabilityActionLabel(selectedAvailability) }}</v-btn>
           <v-btn class="detail-action action-official" color="indigo" variant="flat" prepend-icon="mdi-open-in-new" :href="selectedTrack.urls.official" target="_blank" rel="noopener" @click="trackOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
           <v-btn class="detail-action action-directions" color="teal-darken-2" variant="outlined" prepend-icon="mdi-directions" :href="directionsUrl(selectedTrack, distanceOrigin)" target="_blank" rel="noopener" @click="trackOutbound('directions_click', selectedTrack)">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
@@ -130,7 +130,7 @@
             <strong class="facility-distance">{{ formatDistance(item.distance!) }}</strong>
             <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
           </button>
-          <router-link :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></router-link>
+          <CanonicalLink :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></CanonicalLink>
         </article>
         <v-btn v-if="distanceListLimit < sortedTracks.length" class="load-more" variant="outlined" color="indigo" @click="distanceListLimit += 12">
           {{ isEnglish ? 'Show more facilities' : 'さらに施設を表示' }}
@@ -149,7 +149,7 @@
                 <span class="facility-main"><strong>{{ localizedName(item.track) }}</strong><small>{{ compactSummary(item.track) }}</small></span>
                 <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
               </button>
-              <router-link :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></router-link>
+              <CanonicalLink :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></CanonicalLink>
             </article>
             <v-btn v-if="prefectureLimit(group.name) < group.items.length" class="load-more" variant="text" color="indigo" @click="showMorePrefecture(group.name)">
               {{ isEnglish ? 'Show more in this prefecture' : 'この都道府県をさらに表示' }}
@@ -173,6 +173,7 @@
 
 <script setup lang="ts">
 import TrackMap from '../components/TrackMap.vue';
+import CanonicalLink from '../components/CanonicalLink.vue';
 import type { MapState } from '../components/map/types';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -211,7 +212,7 @@ const sunday = nextWeekdayDate(today, 0);
 const selectedDate = ref(normalizeSelectedDate(route.query.date, today));
 const odaDiscoveryPath = computed(() => ({
   path: trackDetailPath(trackById(ODA_TRACK_ID)!, locale.value),
-  query: { date: selectedDate.value },
+  query: { date: route.query.date == null ? undefined : selectedDate.value },
 }));
 const selectedDataset = ref<AvailabilityDataset>(availabilityDataset);
 const availabilityLoading = ref(false);
@@ -296,7 +297,7 @@ if (initialCoordinates) {
 
 watch(() => route.query.date, async value => {
   const normalized = normalizeSelectedDate(value, today);
-  if (value !== normalized) {
+  if (value != null && value !== normalized) {
     await router.replace({ path: route.path, query: { ...route.query, date: normalized } });
     return;
   }
@@ -482,7 +483,7 @@ function showMorePrefecture(name: string) { prefectureListLimits.value = { ...pr
 function detailRoute(track: TrackFacility) {
   return {
     path: trackDetailPath(track, locale.value),
-    query: { date: selectedDate.value, lat: route.query.lat, lng: route.query.lng },
+    query: { date: route.query.date == null ? undefined : selectedDate.value, lat: route.query.lat, lng: route.query.lng },
   };
 }
 

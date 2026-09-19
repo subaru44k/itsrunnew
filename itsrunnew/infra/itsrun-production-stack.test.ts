@@ -3,6 +3,7 @@ import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vitest';
 import { runInNewContext } from 'node:vm';
 import { ItsRunProductionStack } from './itsrun-production-stack';
+import pageMetadata from '../src/data/page-metadata.json';
 
 const environment = { account: '470447451992', region: 'ap-northeast-1' };
 
@@ -72,6 +73,25 @@ describe('ItsRunProductionStack', () => {
       const destination = handler({ request: { uri: `${prefix}/tracks/yoyogi-park-athletic-track`, querystring: {} } });
       expect(destination.uri).toBe(`${prefix}/tracks/yoyogi-park-athletic-track/index.html`);
       expect(destination.statusCode).toBeUndefined();
+    }
+  });
+
+  it('rewrites every fixed route to its own shell while keeping the root at index.html', () => {
+    const app = new App();
+    const template = Template.fromStack(new ItsRunProductionStack(app, 'FixedRouteShells', { env: environment }));
+    const functions = Object.values(template.findResources('AWS::CloudFront::Function'));
+    const code = functions.find(resource => resource.Properties.FunctionCode.includes('function redirect('))!.Properties.FunctionCode;
+    const handler = runInNewContext(`${code}; handler`);
+    const fixedRoutes = Object.values(pageMetadata).flatMap(page => [
+      page.path ? `/${page.path}` : '/',
+      page.path ? `/en/${page.path}` : '/en/',
+    ]);
+
+    for (const route of fixedRoutes) {
+      const response = handler({ request: { uri: route, querystring: {} } });
+      const shellPath = route === '/' ? '/index.html' : `${route.replace(/\/$/, '')}/index.html`;
+      expect(response.uri).toBe(shellPath);
+      expect(response.statusCode).toBeUndefined();
     }
   });
 

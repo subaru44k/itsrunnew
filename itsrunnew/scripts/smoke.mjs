@@ -147,7 +147,8 @@ try {
     await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     const odaDiscoveryHref = await page.locator('[data-oda-discovery-link], .oda-discovery-link a').getAttribute('href');
-    if (!odaDiscoveryHref?.startsWith(`/tracks/${odaTrack.id}?date=${today}`)) throw new Error('Japanese home Oda discovery link is missing the canonical detail path or selected date');
+    if (odaDiscoveryHref !== `/tracks/${odaTrack.id}`) throw new Error('Japanese home Oda discovery link is not canonical');
+    if (new URL(page.url()).searchParams.has('date')) throw new Error('Home without a date automatically added one');
     const previewBuild = (await page.locator('meta[name="robots"]').getAttribute('content')) === 'noindex,nofollow';
     await page.getByRole('dialog', { name: 'アクセス解析の設定' }).waitFor();
     const consentOverlapsHero = await page.evaluate(() => {
@@ -281,7 +282,9 @@ try {
 
     const tracksResponse = await page.goto(`${baseUrl}/tracks`, { waitUntil: 'domcontentloaded' });
     if (expectEdgeRouting && !tracksResponse?.request().redirectedFrom()) throw new Error('/tracks did not return an edge redirect');
-    await waitForSelectedDate(page, today);
+    await page.locator('.date-controls input[type="date"]').waitFor();
+    if (await page.locator('.date-controls input').inputValue() !== today) throw new Error('/tracks without a date did not default to today');
+    if (new URL(page.url()).searchParams.has('date')) throw new Error('/tracks without a date automatically added one');
     if (new URL(page.url()).pathname !== '/') throw new Error('/tracks did not canonicalize to the home route');
     await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
     await page.getByText('公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。', { exact: true }).waitFor();
@@ -358,7 +361,7 @@ try {
     await page.waitForURL(url => url.pathname === '/tracks/toda-sports-center-track');
     await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
     const detailBreadcrumbHref = await page.locator('.breadcrumbs').getByRole('link', { name: 'トラック検索', exact: true }).getAttribute('href');
-    if (detailBreadcrumbHref !== `/?date=${today}`) throw new Error('Track detail breadcrumb unexpectedly focuses the map or a facility');
+    if (detailBreadcrumbHref !== '/') throw new Error('Track detail breadcrumb unexpectedly focuses the map or a facility');
     await page.getByRole('link', { name: '地図上の位置を見る', exact: true }).click();
     await page.waitForURL(url => url.pathname === '/' && url.hash === '#track-map-section'
       && url.searchParams.get('date') === today
@@ -449,7 +452,7 @@ try {
     await waitForSelectedDate(page, tomorrow);
     await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
     const englishOdaDiscoveryHref = await page.locator('[data-oda-discovery-link], .oda-discovery-link a').getAttribute('href');
-    if (!englishOdaDiscoveryHref?.startsWith(`/en/tracks/${odaTrack.id}?date=${tomorrow}`)) throw new Error('English home Oda discovery link is missing the canonical detail path or selected date');
+    if (englishOdaDiscoveryHref !== `/en/tracks/${odaTrack.id}`) throw new Error('English home Oda discovery link is not canonical');
 
     await page.goto(`${baseUrl}/nozomiantena/index`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: '2020', exact: true }).first().click();
@@ -488,7 +491,7 @@ try {
       await page.getByRole('heading', { name: status === 'unavailable' ? 'この日の代替候補' : 'この日の周辺トラック', exact: true }).waitFor();
       if (await page.locator('.related-section .alternative-link').count() !== 5) throw new Error(`${status} detail did not render five ranked alternatives`);
       const firstAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
-      if (!firstAlternativeHref?.includes(`date=${today}`)) throw new Error(`${status} alternative link did not preserve the selected date`);
+      if (!firstAlternativeHref?.startsWith('/tracks/') || firstAlternativeHref.includes('?')) throw new Error(`${status} alternative link is not canonical`);
       const nearbySearchHref = await page.getByRole('link', { name: 'この施設を基準に周辺を比較', exact: true }).getAttribute('href');
       if (!nearbySearchHref?.includes(`date=${today}`) || !nearbySearchHref.includes('lat=') || !nearbySearchHref.includes('lng=')) throw new Error(`${status} nearby map search is missing the selected date or origin`);
       if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${representative.id}`) throw new Error(`${status} detail canonical unexpectedly includes a date query`);
@@ -519,7 +522,7 @@ try {
       const englishUrgent = await page.locator('.related-section').evaluate(element => element.classList.contains('related-section--urgent'));
       if (englishUrgent !== (englishStatus === 'unavailable')) throw new Error(`English ${englishStatus} detail alternative emphasis is incorrect`);
       const englishAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
-      if (!englishAlternativeHref?.startsWith('/en/tracks/') || !englishAlternativeHref.includes(`date=${today}`)) throw new Error('English alternative link did not preserve locale and date');
+      if (!englishAlternativeHref?.startsWith('/en/tracks/') || englishAlternativeHref.includes('?')) throw new Error('English alternative link is not canonical');
       await page.getByRole('link', { name: 'View location on map', exact: true }).click();
       await page.waitForURL(url => url.pathname === '/en/' && url.hash === '#track-map-section'
         && url.searchParams.get('date') === today
@@ -531,6 +534,41 @@ try {
         const top = target?.getBoundingClientRect().top ?? -1;
         return document.activeElement === target && top >= 48 && top <= 100;
       });
+    }
+
+    // Document links stay canonical; activating a link preserves selected state.
+    // Exercise both languages and future dates so default-today behavior cannot
+    // accidentally make a dropped date look correct.
+    for (const prefix of ['', '/en']) {
+      await page.goto(`${baseUrl}${prefix}/`, { waitUntil: 'domcontentloaded' });
+      await page.locator('.date-controls input[type="date"]').waitFor();
+      if (new URL(page.url()).search) throw new Error('Bare home gained a query');
+      await page.locator('[data-oda-discovery-link]').click();
+      await page.waitForURL(url => url.pathname === `${prefix}/tracks/${odaTrack.id}`);
+      if (new URL(page.url()).search) throw new Error('Default facility navigation added a date');
+      await page.goto(`${baseUrl}${prefix}/?date=${tomorrow}&lat=35.8414&lng=139.8626`, { waitUntil: 'domcontentloaded' });
+      const detailLink = page.locator('.facility-row a').first();
+      await detailLink.waitFor();
+      const href = await detailLink.getAttribute('href');
+      if (!href?.startsWith(`${prefix}/tracks/`) || href.includes('?')) throw new Error('Search result href is not canonical');
+      if (prefix) await detailLink.press('Enter');
+      else await detailLink.click();
+      await page.waitForURL(url => url.pathname === href && url.searchParams.get('date') === tomorrow && url.searchParams.get('lat') === '35.8414' && url.searchParams.get('lng') === '139.8626');
+      await page.locator('.date-panel input[type="date"]').waitFor();
+      if (await page.locator('.date-panel input').inputValue() !== tomorrow) throw new Error('Facility navigation lost selected date');
+      // Address-bar sharing/reloading retains the context.
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.locator('.date-panel input[type="date"]').waitFor();
+      if (await page.locator('.date-panel input').inputValue() !== tomorrow) throw new Error('Shared facility URL lost selected date');
+      const alternative = page.locator('.alternative-link').first();
+      const alternativeHref = await alternative.getAttribute('href');
+      if (!alternativeHref || alternativeHref.includes('?')) throw new Error('Alternative href is not canonical');
+      await alternative.click();
+      await page.waitForURL(url => url.pathname === alternativeHref && url.searchParams.get('date') === tomorrow);
+      await page.locator('.breadcrumbs a').click();
+      await page.waitForURL(url => url.pathname === `${prefix}/` && url.searchParams.get('date') === tomorrow);
+      await page.locator('.date-controls input[type="date"]').waitFor();
+      if (await page.locator('.date-controls input').inputValue() !== tomorrow) throw new Error('Breadcrumb lost selected date');
     }
 
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });

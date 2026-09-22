@@ -44,4 +44,4 @@ smokeは実データに存在するstatusと件数を検証し、存在しない
 
 ## 公開方式変更の運用監視
 
-日次gateの成功と各施設の取得成功は別に扱う。`availability-monitor.yml` は毎日07:15 JSTに独立収集し、施設別の取得/解析異常・同じ対象日の判定数低下・Production更新停止を監視する。異常/復旧メールと前回状態artifactの設定は [AVAILABILITY_MONITORING.md](AVAILABILITY_MONITORING.md) を参照。monitorはdeployのgateにせず、既存のunknown許容を維持する。Gmail送信処理のmock検証 `npm run test:monitor:email` はNode 24 validationにも含める。
+日次gateの成功と各施設の取得成功は別に扱う。`availability-monitor.yml` は毎日09:30 JSTに独立収集し、施設別の取得/解析異常・同じ対象日の判定数低下・Production更新停止を監視する。異常/復旧メールと前回状態artifactの設定は [AVAILABILITY_MONITORING.md](AVAILABILITY_MONITORING.md) を参照。monitorはdeployのgateにせず、既存のunknown許容を維持する。Gmail送信処理のmock検証 `npm run test:monitor:email` はNode 24 validationにも含める。

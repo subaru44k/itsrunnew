@@ -34,6 +34,7 @@ if (input) {
     return readJson(join(input, `${date}.json`));
   }));
 } else {
+  if (process.env.ITSRUN_REQUIRE_AI_KEY === 'true' && !process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is required for trusted monitoring collection');
   const result = await collectAvailabilityRange(tokyoDay(now.toISOString()), 31, { now, fetchImpl: createMonitorFetch() });
   datasets = result.datasets;
   const dates = datasets.map(dataset => dataset.date);

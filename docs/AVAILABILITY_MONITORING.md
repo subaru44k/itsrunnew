@@ -2,9 +2,9 @@
 
 ## 目的と実行経路
 
-`.github/workflows/availability-monitor.yml` は毎日07:15 JSTと手動実行で、公式sourceの31日分をメモリ内へ収集する。Production/Previewの配備とは独立し、`src/data/availability`、公開ファイル、AWS、domainを変更しない。Productionが停止していても監視を実行できるよう、deploy生成物の再利用ではなく独立収集とする。同一run内のsource cacheは通常collectorと共通。通常build/devは従来どおり外部通信しない。
+`.github/workflows/availability-monitor.yml` は毎日09:30 JSTと手動実行で、公式sourceの31日分をメモリ内へ収集する。Production/Previewの配備とは独立し、`src/data/availability`、公開ファイル、AWS、domainを変更しない。Productionが停止していても監視を実行できるよう、deploy生成物の再利用ではなく独立収集とする。同一run内のsource cacheは通常collectorと共通。AI 8施設は既存deployと同じActions cacheを再利用し、cache miss時は既存のLuna読解を実行する。masterの収集stepに限って既存の `OPENAI_API_KEY` を渡し、欠落時は全施設の形式変更と誤認せずjobを失敗させる。PDF画像化用Popplerも導入する。通常build/devは従来どおり外部通信しない。
 
-`monitor-fetch.ts` は監視だけで用いる再試行wrapper、`health.ts` は状態比較、`monitor.ts` は収集・検証・出力、`monitor-github.mjs` は前回成功runのartifactとProduction最終成功時刻の取得、`monitor-email.py` はGmailのSMTP over TLSによる通知を担当する。Node 24、Python 3標準ライブラリ、GitHub CLI（ActionsのUbuntu runnerに付属）を使う。SMTP認証情報をcollectorへ渡さない。
+`monitor-fetch.ts` は監視だけで用いる再試行wrapper、`health.ts` は状態比較、`monitor.ts` は収集・検証・出力、`monitor-github.mjs` は前回成功runのartifactとProduction最終成功時刻の取得、`monitor-email.py` はGmailのSMTP over TLSによる通知を担当する。Node 24、Poppler、Python 3標準ライブラリ、GitHub CLI（ActionsのUbuntu runnerに付属）を使う。SMTP認証情報をcollectorへ渡さない。
 
 このworkflowはmasterだけで実行でき、concurrencyで直列化する。`contents: read` と `actions: read` のみを付与し、Issue作成・AWS認証・Gitへの自動commitは行わない。
 
@@ -40,7 +40,7 @@ GitHub Actions全体の停止、監視workflow自体の未起動、Gmailの停�
    - `AVAILABILITY_ALERT_TO`: 宛先1件（送信元と同一でもよい）
 3. 変更をmasterに反映した後、variable `AVAILABILITY_MONITOR_ENABLED=true` を設定して `Availability monitor` を `send_test_email=true` で手動実行する。
 4. 初回のreport/state artifactを確認する。正常施設は基準を作り、明確な取得・解析異常は初回から通知する。宛先の受信を確認する。`send_test_email=true` を選んだ手動実行では状態変化がなくても接続テストメールを送る。通常の日次実行では送らない。
-5. 次回runで同じ異常の通知が抑制されること、07:15 JSTのschedule runが動くことを確認する。停止する場合はvariableをfalseへ戻す。
+5. 次回runで同じ異常の通知が抑制されること、09:30 JSTのschedule runが動くことを確認する。停止する場合はvariableをfalseへ戻す。
 
 SMTPは `smtp.gmail.com:465` の証明書検証付きTLS、接続timeoutは30秒。Python標準ライブラリ以外のメール依存は追加しない。[Gmail SMTP仕様](https://developers.google.com/workspace/gmail/imap/imap-smtp)
 
@@ -57,7 +57,7 @@ npm run monitor:availability -- --previous /tmp/itsrun-monitor-first/state.json 
 npm run test:monitor:email
 ```
 
-デフォルト出力先はOSの一時ディレクトリ。ローカル実行はメールもGitHub APIも呼ばない。`--input /path/to/availability` で既存のmanifestと31日JSONを読み、再収集せず比較できる。ただし通常のfreshness gateを通る当日・6時間以内の実データが必要で、synthetic公開fixtureは拒否する。前回stateを明示指定した場合、存在しなければ失敗する。`--pipeline /path/to/pipeline.json` は `{ "enabled": true, "lastSuccessAt": null }` の形式の配備証跡を受け取る。`lastSuccessAt` は最終成功のISO時刻文字列、成功履歴がなければnullとする。
+デフォルト出力先はOSの一時ディレクトリ。ローカル実行はメールもGitHub APIも呼ばない。AI処理は通常collectorと共通で、`OPENAI_API_KEY` があればcache miss時にAPIを使用する。keyless/cacheなしではAI施設がextraction_failedになるため、ローカルの検知件数をそのまま公開sourceの障害件数と解釈しない。`--input /path/to/availability` で既存のmanifestと31日JSONを読み、再収集せず比較できる。ただし通常のfreshness gateを通る当日・6時間以内の実データが必要で、synthetic公開fixtureは拒否する。前回stateを明示指定した場合、存在しなければ失敗する。`--pipeline /path/to/pipeline.json` は `{ "enabled": true, "lastSuccessAt": null }` の形式の配備証跡を受け取る。`lastSuccessAt` は最終成功のISO時刻文字列、成功履歴がなければnullとする。
 
 実メールの到達テストはActionsの手動実行で `send_test_email=true` を選ぶ。ローカルでは機密値を環境変数へ安全に設定した上で、monitorの出力に対して `python3 scripts/availability/monitor-email.py /path/to/output --test` を実行する。件名・本文に接続テストと明記し、通知すべき状態変化がある場合はその内容も同じメールに含める。
 
@@ -65,4 +65,4 @@ npm run test:monitor:email
 
 ## 残る限界
 
-HTTP成功・既知statusを返したまま起きる凡例の意味変更、別施設の表の誤読、古い資料の読み続けは、この状態比較だけでは網羅しない。source hashは調査証跡で、hash変更自体を異常扱いにしない。施設別の公開予定時刻・月次公開期限や、資料の構造・凡例の追加検証は今後の拡張とし、現段階では日次2回の比較で減少を確定する。AIによる自動修正・新規collector採用・施設予定の自動上書きは行わない。
+HTTP成功・既知statusを返したまま起きる凡例の意味変更、別施設の表の誤読、古い資料の読み続けは、この状態比較だけでは網羅しない。source hashは調査証跡で、hash変更自体を異常扱いにしない。施設別の公開予定時刻・月次公開期限や、資料の構造・凡例の追加検証は今後の拡張とし、現段階では日次2回の比較で減少を確定する。既存collectorのAI読解は使用するが、監視結果による自動修正・新規collector採用・施設予定の自動上書きは行わない。

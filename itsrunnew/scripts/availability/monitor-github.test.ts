@@ -52,11 +52,14 @@ describe('monitor history restoration', () => {
 
 const workflow = await readFile(new URL('../../../.github/workflows/availability-monitor.yml', import.meta.url), 'utf8');
 it('runs monitoring independently without deploy permissions and persists only after email succeeds', () => {
-  expect(workflow).toContain("cron: '15 22 * * *'");
+  expect(workflow).toContain("cron: '30 0 * * *'");
   expect(workflow).toContain("github.ref == 'refs/heads/master'");
   expect(workflow).toContain('actions: read');
   expect(workflow).not.toMatch(/id-token:|issues:|continue-on-error|deploy:production:content/);
   expect(workflow.indexOf('Save delivered state')).toBeGreaterThan(workflow.indexOf('python3 scripts/availability/monitor-email.py'));
   expect(workflow).toContain('if-no-files-found: error');
   expect(workflow).toContain('retention-days: 90');
+  expect(workflow).toContain('Install PDF rendering tools');
+  expect(workflow).toContain("ITSRUN_REQUIRE_AI_KEY: 'true'");
+  expect(workflow).toContain('availability-ai-v1-${{ runner.os }}-');
 });

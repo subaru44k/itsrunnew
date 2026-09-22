@@ -8,8 +8,8 @@ on:
         type: boolean
         default: false
   schedule:
-    # 07:15 JST, after both content deployment windows.
-    - cron: '15 22 * * *'
+    # 09:30 JST, after the 08:15 Production refresh.
+    - cron: '30 0 * * *'
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
   monitor:
     if: github.ref == 'refs/heads/master' && vars.AVAILABILITY_MONITOR_ENABLED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: itsrunnew
@@ -36,6 +36,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: itsrunnew/package-lock.json
+      - name: Install PDF rendering tools
+        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
       - name: Install locked dependencies
         run: npm ci
       - name: Restore last delivered state and check Production update
@@ -43,7 +45,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PRODUCTION_DEPLOY_ENABLED: ${{ vars.PRODUCTION_DEPLOY_ENABLED }}
         run: node scripts/availability/monitor-github.mjs "$RUNNER_TEMP/availability-monitor-input"
+      - name: Restore shared AI reading cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: itsrunnew/.cache/availability-ai
+          key: availability-ai-v1-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            availability-ai-v1-${{ runner.os }}-
       - name: Collect and compare facility health without deployment
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ITSRUN_REQUIRE_AI_KEY: 'true'
         run: |
           args=(--output "$RUNNER_TEMP/availability-monitor" --pipeline "$RUNNER_TEMP/availability-monitor-input/pipeline.json")
           if [ -f "$RUNNER_TEMP/availability-monitor-input/previous/state.json" ]; then

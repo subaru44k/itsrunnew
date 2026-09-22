@@ -127,7 +127,7 @@ function dateParts(date: string) {
 
 export async function extractPdf(bytes: Uint8Array): Promise<ExtractedPdf> {
   try {
-    const task = getDocument({ data: bytes, useWorkerFetch: false, isEvalSupported: false, useSystemFonts: true });
+    const task = getDocument({ data: bytes, useWorkerFetch: false, useSystemFonts: true });
     const document = await task.promise;
     const items: PdfTextItem[] = [];
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {

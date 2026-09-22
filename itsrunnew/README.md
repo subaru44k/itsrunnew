@@ -23,7 +23,7 @@ Astraは要件・設計・曖昧さ・高リスク判断・最終レビューと
 
 ## ローカル実行
 
-Node.js 22.13.0 以上とnpmが必要です。
+Node.js 22.13.0 以上とnpmが必要です。AI資料のPDFを画像化するcollectorにはPopplerの `pdfinfo` / `pdftoppm` が必要です（macOS: `brew install poppler`、Ubuntu: `sudo apt-get install poppler-utils`）。通常のbuildは外部sourceを取得しません。
 
 ```sh
 npm install
@@ -44,9 +44,9 @@ npm run test:smoke:preview
 npm run test:pace
 ```
 
-`master`向けPull RequestではGitHub Actionsの `Node 24 validation` が、`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行します。CIはcommit済みavailability baselineを使用し、live collectorやAWS credentialsを必要としません。
+`master`向けPull RequestではGitHub Actionsの `Node 24 validation` が、`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行します。続けてdaily fixturesとlive daily gateも実行します。CIはrepository secretをAIへ渡さず、cache missのAI施設はunknownになるため、外部AI推論のfreshnessを証明しません。trusted deployだけがcollection stepへ`OPENAI_API_KEY`を渡します。
 
-`collect:availability:range` は東京の当日から31日分を `src/data/availability/manifest.json` と日別JSONへ生成します。同一HTML/PDF、月次JSON、WordPress noticeをcacheし、日数分の重複fetchやPDF抽出を避けます。単日debug用 `npm run collect:availability -- --date YYYY-MM-DD` も維持しています。現在33/133施設を安全な自動判定対象とし、取得不能・予定未公開・期限切れ・形式変更は利用不可にせず「要確認」へ降格します。内訳と各sourceの意味は [`../docs/AVAILABILITY.md`](../docs/AVAILABILITY.md) と [`../research/availability/high-confidence-collector-validation-batch-2-2026-09.md`](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md) を参照してください。通常のbuild/devは外部sourceへアクセスしません。
+`collect:availability:range` は東京の当日から31日分を `src/data/availability/manifest.json` と日別JSONへ生成します。同一HTML/PDF、月次JSON、WordPress noticeをcacheし、日数分の重複fetchやPDF抽出を避けます。単日debug用 `npm run collect:availability -- --date YYYY-MM-DD` も維持しています。133施設を掲載し、そのうちlegacy 33施設＋追加10施設（Luna AI 8施設、決定論的個人利用ICS 2施設）の43施設を安全な自動判定対象とします。これは毎日のpositive件数ではなく、対象日を判定できる実装数です。取得不能・予定未公開・期限切れ・形式変更・AIのkeyless cache missは利用不可にせず「要確認」へ降格します。AIは`gpt-5.6-luna`のreasoning `none`で施設ごとに公式資料一式を入力に1回実行し、`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）へcacheします。source/prompt/model/schema/対象月全日付がcache keyに含まれ、runtimeにAstraはありません。内訳と各sourceの意味は [`../docs/AVAILABILITY.md`](../docs/AVAILABILITY.md)、[`../research/availability/ai-adoption-2026-09.json`](../research/availability/ai-adoption-2026-09.json)、[`../research/availability/ai-collector-integration-2026-09.md`](../research/availability/ai-collector-integration-2026-09.md) を参照してください。通常のbuild/devは外部sourceへアクセスしません。
 
 `npm run build` はsitemapと日英の全固定ページ・施設詳細ページ用の静的HTML shellも生成します。`test:smoke` は `npm run preview` が `http://127.0.0.1:4173` で起動していることを前提にします。Track Datasetのschema、raw OSM (`../data/osm/tracks.json`、`expansion-candidates.json`、`coverage-followup-2026-08.json`) と公開データの役割、調査・更新手順、既知の制限、ODbL/JAAF/OSM tileの注意点は [`../docs/TRACK_DATA.md`](../docs/TRACK_DATA.md) を参照してください。33施設時点の調査は [`dataset-expansion-report.md`](../research/track-expansion/dataset-expansion-report.md)、51候補への品質優先の追補は [`phase2-expansion-report.md`](../research/track-expansion/phase2-expansion-report.md)、全候補の遡及監査と50施設への補正は [`current-51-audit.md`](../research/track-expansion/current-51-audit.md)、以後の追加判断は [`batches/`](../research/track-expansion/batches/) にあります。
 
@@ -89,7 +89,7 @@ Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false
 
 ProductionはPreviewとは別の、versioning・retain有効のprivate S3 + CloudFrontとして段階的に構築します。最初はCloudFront default domainでnoindex・GA4無効の確認を行い、Route 53へ既存DNS recordを複製・委任してから`us-east-1` ACM certificateとCloudFrontの`itsrun.info` alternate domainを追加します。最後に旧Firebase Aを先に削除せず、Route 53のA/AAAAをCloudFront Aliasへ原子的に切り替えます。
 
-Production workflowはfresh availabilityと全検証を実行してcontentだけを配備し、Google CMPを伴うAdSenseを読み込みます。コマンド、OIDC role、GitHub variables、DNS切替、旧Firebaseへのrollbackは [`../docs/PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md) を参照してください。
+Production workflowは毎日05:30 JSTと08:15 JSTにfresh availabilityと全検証を実行してcontentだけを配備し、Google CMPを伴うAdSenseを読み込みます。trusted collection stepだけがrepository secret `OPENAI_API_KEY`を使用し、キャッシュがない場合や資料・指示などの入力が変わった場合にLunaへ再推論します。コマンド、OIDC role、GitHub variables、DNS切替、旧Firebaseへのrollbackは [`../docs/PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md) を参照してください。
 
 GA4は正式domainでアクセス解析へ同意した場合だけ読み込みます。Track Searchの操作event、privacy boundary、GA4管理画面で登録するcustom dimension/key event候補は [`../docs/ANALYTICS.md`](../docs/ANALYTICS.md) を参照してください。緯度・経度、住所、自由入力文字列は送信しません。
 

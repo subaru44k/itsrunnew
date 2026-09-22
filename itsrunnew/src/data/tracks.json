@@ -737,7 +737,7 @@
     "urls": {
       "official": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/",
       "individualUse": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/",
-      "schedule": "https://www.se-sports.or.jp/news/10334/"
+      "schedule": "https://www.se-sports.or.jp/facility/sougou/"
     },
     "externalIds": {
       "jaaf": "133060",
@@ -756,6 +756,11 @@
         "url": "https://www.jaaf.or.jp/pdf/about/rule/2025/38.pdf",
         "type": "jaaf-candidate",
         "verifiedAt": "2026-08-24"
+      },
+      {
+        "url": "https://www.se-sports.or.jp/facility/sougou/",
+        "type": "official",
+        "verifiedAt": "2026-09-22"
       }
     ]
   },
@@ -2490,7 +2495,7 @@
     "urls": {
       "official": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
       "individualUse": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
-      "schedule": null
+      "schedule": "https://www.ogino-park.jp/?p=1007"
     },
     "externalIds": {
       "jaaf": null,
@@ -2501,6 +2506,11 @@
         "url": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
         "type": "official",
         "verifiedAt": "2026-08-25"
+      },
+      {
+        "url": "https://www.ogino-park.jp/?p=1007",
+        "type": "official",
+        "verifiedAt": "2026-09-22"
       }
     ]
   },
@@ -2533,9 +2543,9 @@
     "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" },
     "certification": { "jaafCertified": true, "jaafClass": 3 },
     "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "陸上個人利用可能日を公式案内で確認", "spikesAllowed": null, "note": "個人利用日は月ごとに変更" },
-    "urls": { "official": "https://ichiharazaidan-s.com/", "individualUse": "https://ichiharazaidan-s.com/", "schedule": "https://ichiharazaidan-s.com/" },
+    "urls": { "official": "https://vonds.net/access/", "individualUse": "https://vonds.net/access/", "schedule": "https://vonds.net/access/" },
     "externalIds": { "jaaf": "10191", "osm": [] },
-    "sources": [{ "url": "https://ichiharazaidan-s.com/", "type": "official", "verifiedAt": "2026-08-27" }, { "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=", "type": "jaaf-candidate", "verifiedAt": "2026-08-27" }]
+    "sources": [{ "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=", "type": "jaaf-candidate", "verifiedAt": "2026-08-27" }, { "url": "https://vonds.net/access/", "type": "official", "verifiedAt": "2026-09-22" }]
   },
   {
     "id": "narita-nakadai-athletic-stadium",
@@ -2878,8 +2888,24 @@
     "location": { "latitude": 34.4390738, "longitude": 132.3930453, "address": "広島県広島市安佐南区大塚西5丁目1番1号" },
     "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" }, "certification": { "jaafCertified": true, "jaafClass": 3 },
     "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "月間予定の個人利用日を確認", "spikesAllowed": null, "note": "個人利用は補助競技場で実施" },
-    "urls": { "official": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki", "individualUse": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2", "schedule": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2" },
-    "externalIds": { "jaaf": "10171", "osm": [] }, "sources": [{ "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2", "type": "official", "verifiedAt": "2026-08-28" }, { "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=", "type": "jaaf-candidate", "verifiedAt": "2026-08-28" }]
+    "urls": { "official": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki", "individualUse": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2", "schedule": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki" },
+    "externalIds": { "jaaf": "10171", "osm": [] }, "sources": [
+      {
+        "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2",
+        "type": "official",
+        "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki",
+        "type": "official",
+        "verifiedAt": "2026-09-22"
+      }
+    ]
   },
   {
     "id": "fukuyama-tsuken-rose-stadium", "name": { "ja": "福山通運ローズスタジアム（竹ケ端運動公園陸上競技場）", "en": "Fukuyama Tsuken Rose Stadium" },
@@ -2918,8 +2944,29 @@
     "location": { "latitude": 34.1616187, "longitude": 131.4340715, "address": "山口県山口市維新公園4丁目1番1号" },
     "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" }, "certification": { "jaafCertified": true, "jaafClass": 3 },
     "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "専用利用がない日の個人利用案内を確認", "spikesAllowed": null, "note": "主競技場ではなく補助競技場" },
-    "urls": { "official": "https://www.ishin100.com/main/", "individualUse": "https://www.ishin100.com/main/info_mirasta_kojin_20260817/", "schedule": "https://www.ishin100.com/main/" },
-    "externalIds": { "jaaf": "10054", "osm": [] }, "sources": [{ "url": "https://www.ishin100.com/main/info_mirasta_kojin_20260817/", "type": "official", "verifiedAt": "2026-08-28" }, { "url": "https://www.ishin100.com/main/guide/gu-user/", "type": "official", "verifiedAt": "2026-08-28" }, { "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=", "type": "jaaf-candidate", "verifiedAt": "2026-08-28" }]
+    "urls": { "official": "https://www.ishin100.com/main/", "individualUse": "https://www.ishin100.com/main/", "schedule": "https://www.ishin100.com/main/" },
+    "externalIds": { "jaaf": "10054", "osm": [] }, "sources": [
+      {
+        "url": "https://www.ishin100.com/main/info_mirasta_kojin_20260817/",
+        "type": "official",
+        "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.ishin100.com/main/guide/gu-user/",
+        "type": "official",
+        "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.ishin100.com/main/",
+        "type": "official",
+        "verifiedAt": "2026-09-22"
+      }
+    ]
   },
   {
     "id": "shunan-city-athletic-stadium", "name": { "ja": "周南市陸上競技場", "en": "Shunan City Athletic Stadium" },
@@ -2998,8 +3045,24 @@
     "location": { "latitude": 33.5865573, "longitude": 130.4660041, "address": "福岡県福岡市博多区東平尾公園2丁目1番2号" },
     "track": { "lengthMeters": 400, "lanes": 8, "surface": "all-weather" }, "certification": { "jaafCertified": true, "jaafClass": 3 },
     "individualUse": { "status": "available", "feeYen": null, "feeUnit": null, "openingHours": "週間・月間の個人利用日を確認", "spikesAllowed": null, "note": "主競技場とは独立した補助競技場" },
-    "urls": { "official": "https://www.midorimachi.jp/park/detail.php?code=205003", "individualUse": "https://www.midorimachi.jp/whatsnew/detail.php?id=768", "schedule": "https://www.midorimachi.jp/whatsnew/detail.php?id=768" },
-    "externalIds": { "jaaf": "10630", "osm": [] }, "sources": [{ "url": "https://www.midorimachi.jp/whatsnew/detail.php?id=768", "type": "official", "verifiedAt": "2026-08-28" }, { "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=", "type": "jaaf-candidate", "verifiedAt": "2026-08-28" }]
+    "urls": { "official": "https://www.midorimachi.jp/higashihirao/", "individualUse": "https://www.midorimachi.jp/higashihirao/guides/", "schedule": "https://www.midorimachi.jp/higashihirao/" },
+    "externalIds": { "jaaf": "10630", "osm": [] }, "sources": [
+      {
+        "url": "https://www.midorimachi.jp/whatsnew/detail.php?id=768",
+        "type": "official",
+        "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=",
+        "type": "jaaf-candidate",
+        "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.midorimachi.jp/higashihirao/",
+        "type": "official",
+        "verifiedAt": "2026-09-22"
+      }
+    ]
   },
   {
     "id": "honjo-athletic-stadium", "name": { "ja": "黒崎播磨陸上競技場 in HONJO（本城陸上競技場）", "en": "Honjo Athletic Stadium" },
@@ -3397,7 +3460,7 @@
     "urls": {
       "official": "https://www.city.chita.lg.jp/docs/2023092800011/",
       "individualUse": "https://www.city.chita.lg.jp/docs/2023092800011/",
-      "schedule": "https://www.city.chita.lg.jp/docs/2023092800011/"
+      "schedule": "https://www.chita-sports.com/info/105/"
     },
     "externalIds": {
       "jaaf": "10078",
@@ -3415,6 +3478,11 @@
         "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=",
         "type": "jaaf-candidate",
         "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.chita-sports.com/info/105/",
+        "type": "official",
+        "verifiedAt": "2026-09-22"
       }
     ]
   },
@@ -4028,7 +4096,7 @@
     "urls": {
       "official": "https://www.kobe-park.or.jp/sougou/outline/",
       "individualUse": "https://shisetsu.mizuno.jp/m-7303/guide",
-      "schedule": "https://shisetsu.mizuno.jp/m-7303"
+      "schedule": "https://www.kobe-park.or.jp/sougou/facilities/auxiliary_field"
     },
     "externalIds": {
       "jaaf": "10564",
@@ -4051,6 +4119,11 @@
         "url": "https://www.jaaf.or.jp/pdf/about/rule/2026/38.pdf?260406=",
         "type": "jaaf-candidate",
         "verifiedAt": "2026-08-28"
+      },
+      {
+        "url": "https://www.kobe-park.or.jp/sougou/facilities/auxiliary_field",
+        "type": "official",
+        "verifiedAt": "2026-09-22"
       }
     ]
   },

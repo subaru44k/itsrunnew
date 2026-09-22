@@ -34,6 +34,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: itsrunnew/package-lock.json
+      - name: Install PDF rendering tools
+        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
       - name: Install locked dependencies
         run: npm ci
       - name: Install field report API dependencies

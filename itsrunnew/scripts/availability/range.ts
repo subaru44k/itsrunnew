@@ -1,6 +1,7 @@
 import type { AvailabilityDataset } from '../../src/model/availability';
 import { collectAvailability } from './collectors';
 import { createPdfCollector } from './pdf';
+import { collectAdditionalAvailability } from './additional';
 
 type FetchLike = typeof fetch;
 
@@ -53,9 +54,14 @@ export async function collectAvailabilityRange(from: string, days: number, optio
   const now = options.now ?? new Date();
   const cached = createCachedFetch(options.fetchImpl ?? fetch);
   const pdfCollector = createPdfCollector(cached.fetch);
+  const additional = await collectAdditionalAvailability(dates, { now, fetchImpl: cached.fetch });
   const datasets: AvailabilityDataset[] = [];
   for (const date of dates) {
-    const facilities = await collectAvailability(date, { now, fetchImpl: cached.fetch, pdfCollector });
+    const legacy = await collectAvailability(date, { now, fetchImpl: cached.fetch, pdfCollector });
+    const additions = additional.filter(record => record.date === date);
+    const replacementIds = new Set(additions.map(record => record.trackId));
+    const facilities = [...legacy.filter(record => !replacementIds.has(record.trackId)), ...additions]
+      .sort((a, b) => a.trackId.localeCompare(b.trackId));
     datasets.push({ schemaVersion: 1, date, timezone: 'Asia/Tokyo', generatedAt: now.toISOString(), facilities });
   }
   return { datasets, stats: cached.stats };

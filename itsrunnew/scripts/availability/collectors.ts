@@ -6,7 +6,7 @@ import { tracks } from '../../src/model/tracks';
 import { parseChigasakiNotice, parseNishikyogokuNotice, parseYamashiroNotice, type NoticeParseResult } from './notices';
 
 type FetchLike = typeof fetch;
-type PublicationFormat = 'structured_html' | 'calendar_html' | 'calendar_json' | 'weekly_notice' | 'fixed_schedule' | 'pdf' | 'reservation_system' | 'phone_only' | 'no_schedule_found';
+type PublicationFormat = 'structured_html' | 'calendar_html' | 'calendar_json' | 'calendar_ics' | 'weekly_notice' | 'fixed_schedule' | 'pdf' | 'reservation_system' | 'phone_only' | 'no_schedule_found';
 
 interface CollectorContext {
   date: string;

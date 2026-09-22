@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -25,6 +25,7 @@ export async function restoreMonitorInputs({ repository, directory, productionEn
     // Only a successful monitor has delivered its notifications and saved a usable
     // baseline. Expiry, deletion and download failures must not reset deduplication.
     await gh(['run', 'download', String(previous.databaseId), '--repo', repository, '--name', 'availability-monitor-state', '--dir', join(directory, 'previous')]);
+    await access(join(directory, 'previous', 'state.json'));
     console.log(`Restored monitor baseline from run ${previous.databaseId}`);
   } else console.log('First successful monitor baseline: no history yet');
   let production;

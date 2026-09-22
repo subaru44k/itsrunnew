@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -19,7 +19,11 @@ describe('monitor history restoration', () => {
     const directory = await scratch();
     const gh = vi.fn().mockResolvedValueOnce('[{"databaseId":3},{"databaseId":2}]')
       .mockResolvedValueOnce('{"jobs":[{"conclusion":"skipped"}]}')
-      .mockResolvedValueOnce('{"jobs":[{"conclusion":"success"}]}').mockResolvedValueOnce('');
+      .mockResolvedValueOnce('{"jobs":[{"conclusion":"success"}]}').mockImplementationOnce(async () => {
+        await mkdir(join(directory, 'previous'));
+        await writeFile(join(directory, 'previous', 'state.json'), '{}');
+        return '';
+      });
     await restoreMonitorInputs({ repository: 'owner/repo', directory, productionEnabled: false, gh });
     expect(gh.mock.calls.at(-1)?.[0]).toEqual(['run', 'download', '2', '--repo', 'owner/repo', '--name', 'availability-monitor-state', '--dir', join(directory, 'previous')]);
     expect(JSON.parse(await readFile(join(directory, 'pipeline.json'), 'utf8'))).toEqual({ enabled: false, lastSuccessAt: null });
@@ -28,6 +32,11 @@ describe('monitor history restoration', () => {
     const directory = await scratch();
     const gh = vi.fn().mockResolvedValueOnce('[{"databaseId":2}]').mockResolvedValueOnce('{"jobs":[{"conclusion":"success"}]}').mockRejectedValueOnce(new Error('artifact expired'));
     await expect(restoreMonitorInputs({ repository: 'owner/repo', directory, productionEnabled: false, gh })).rejects.toThrow('artifact expired');
+  });
+  it('rejects a downloaded artifact that does not contain state.json', async () => {
+    const directory = await scratch();
+    const gh = vi.fn().mockResolvedValueOnce('[{"databaseId":2}]').mockResolvedValueOnce('{"jobs":[{"conclusion":"success"}]}').mockResolvedValueOnce('');
+    await expect(restoreMonitorInputs({ repository: 'owner/repo', directory, productionEnabled: false, gh })).rejects.toThrow(/ENOENT/);
   });
   it('does not count skipped Production jobs as a successful update', async () => {
     const directory = await scratch();

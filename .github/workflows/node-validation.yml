@@ -46,6 +46,8 @@ jobs:
         run: npm run validate:tracks
       - name: Run unit tests
         run: npm test
+      - name: Verify monitoring email without sending
+        run: npm run test:monitor:email
       - name: Run lint and type checks
         run: npm run lint
       - name: Build static site

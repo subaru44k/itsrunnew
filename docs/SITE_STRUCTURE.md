@@ -102,7 +102,7 @@ itsrunnew/
 │   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
 │   ├── validate-track-batches.mjs 候補台帳の全件disposition・件数整合検証
-│   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF/AI/ICS collector、range/cache、config、fixture、unit test
+│   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF/AI/ICS collector、range/cache、config、fixture、unit test、独立収集監視・Gmail通知
 │   ├── map-compare.mjs        地図の旧新PC/スマホ比較・帰属・keyboard操作・障害復帰
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
@@ -150,7 +150,8 @@ docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契�
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
 ├── deploy-preview.yml           master push・手動・日次のPreview content deploy
-└── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
+├── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
+└── availability-monitor.yml     独立した日次収集監視・履歴artifact・異常/復旧メール
 ```
 
 `dist/`、`cdk.out/`、`cdk-outputs.json`は生成物であり、実装の正本ではありません。
@@ -286,6 +287,12 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、日付・施設・検索基準・公式確認・経路などのTrack Search主要操作eventを固定schemaで送ります。Geolocationの緯度経度、住所、自由入力文字列は送信せず、送信直前にもprivate parameter名を除外します。event一覧とGA4管理画面でのcustom dimension/key event候補は [`ANALYTICS.md`](ANALYTICS.md) が正本です。PrivacyページはAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPとGoogleの関連方針への導線を日英で説明します。
 
+### Availability収集状態の監視
+
+`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、監視専用fetchで一時障害を1回再試行、鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。
+
+`monitor-github.mjs` が前回成功runのstate artifactを復元し、`monitor-email.py` がGmail SMTP over TLSで異常・変化・復旧を1通にまとめます。状態不変時は通知しません。Secretsは送信元・アプリパスワード・宛先の3つで、collectorには渡しません。メール成功後に90日保持のstateを保存し、reportは失敗時も30日保持します。監視基盤の障害は失敗runごとに別メールを試み、SMTP障害はActions失敗にします。Node 24・Poppler・Python 3標準ライブラリ・GitHub CLIを使用します。AI読解は既存deployと同じcacheを復元し、masterの収集stepだけへ既存OPENAI_API_KEYを渡します。欠落時は監視jobを失敗させます。AWS認証、公開データ更新、deploy停止、Issue作成は行いません。設定、再現コマンド、履歴破損時の挙動、監視自体の未起動を検知できない制限は [`AVAILABILITY_MONITORING.md`](AVAILABILITY_MONITORING.md) を参照してください。
+
 ## 7. AWS検証環境
 
 `infra/itsrun-preview-stack.ts`の `ItsRunPreviewStack` が次を作成します。
@@ -338,6 +345,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
 | `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
+| `npm run monitor:availability` | 独立した実収集・施設別状態比較を一時ディレクトリへ出力（配備・メールなし） |
+| `npm run test:monitor:email` | Python標準ライブラリによるGmail送信をmockで検証（実送信なし） |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
 | `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋日別availability JSONを生成 |
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |
@@ -355,7 +364,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
-`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて`test:daily:fixtures`と`test:daily`を同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployだけがcollection stepへ`OPENAI_API_KEY`を渡します。Chromeと外部sourceへのnetworkが必要です。各変更での必須手順と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
+`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて`test:daily:fixtures`と`test:daily`を同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。Chromeと外部sourceへのnetworkが必要です。各変更での必須手順と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
 
 `.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、content-only S3 sync、targeted CloudFront invalidation、CloudFront smokeまでを実行します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 

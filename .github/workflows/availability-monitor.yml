@@ -1,0 +1,101 @@
+name: Availability monitor
+
+on:
+  workflow_dispatch:
+    inputs:
+      send_test_email:
+        description: Send a connection test even if no facility state changed
+        type: boolean
+        default: false
+  schedule:
+    # 09:30 JST, after the 08:15 Production refresh.
+    - cron: '30 0 * * *'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: itsrun-availability-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    if: github.ref == 'refs/heads/master' && vars.AVAILABILITY_MONITOR_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: itsrunnew
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: itsrunnew/package-lock.json
+      - name: Install PDF rendering tools
+        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Restore last delivered state and check Production update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRODUCTION_DEPLOY_ENABLED: ${{ vars.PRODUCTION_DEPLOY_ENABLED }}
+        run: node scripts/availability/monitor-github.mjs "$RUNNER_TEMP/availability-monitor-input"
+      - name: Restore shared AI reading cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: itsrunnew/.cache/availability-ai
+          key: availability-ai-v1-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            availability-ai-v1-${{ runner.os }}-
+      - name: Collect and compare facility health without deployment
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ITSRUN_REQUIRE_AI_KEY: 'true'
+        run: |
+          args=(--output "$RUNNER_TEMP/availability-monitor" --pipeline "$RUNNER_TEMP/availability-monitor-input/pipeline.json")
+          if [ -f "$RUNNER_TEMP/availability-monitor-input/previous/state.json" ]; then
+            args+=(--previous "$RUNNER_TEMP/availability-monitor-input/previous/state.json")
+          fi
+          npm run monitor:availability -- "${args[@]}"
+      - name: Email only new or changed incidents and recoveries
+        id: email
+        env:
+          SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
+          AVAILABILITY_SMTP_USER: ${{ secrets.AVAILABILITY_SMTP_USER }}
+          AVAILABILITY_SMTP_APP_PASSWORD: ${{ secrets.AVAILABILITY_SMTP_APP_PASSWORD }}
+          AVAILABILITY_ALERT_TO: ${{ secrets.AVAILABILITY_ALERT_TO }}
+        run: |
+          args=("$RUNNER_TEMP/availability-monitor")
+          if [ "$SEND_TEST_EMAIL" = 'true' ]; then args+=(--test); fi
+          python3 scripts/availability/monitor-email.py "${args[@]}"
+      - name: Save delivered state for the next comparison
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: availability-monitor-state
+          path: ${{ runner.temp }}/availability-monitor/state.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Email monitoring infrastructure failure
+        if: failure() && steps.email.outcome != 'failure'
+        env:
+          AVAILABILITY_SMTP_USER: ${{ secrets.AVAILABILITY_SMTP_USER }}
+          AVAILABILITY_SMTP_APP_PASSWORD: ${{ secrets.AVAILABILITY_SMTP_APP_PASSWORD }}
+          AVAILABILITY_ALERT_TO: ${{ secrets.AVAILABILITY_ALERT_TO }}
+        run: |
+          node scripts/availability/monitor-failure.mjs "$RUNNER_TEMP/availability-monitor-failure"
+          python3 scripts/availability/monitor-email.py "$RUNNER_TEMP/availability-monitor-failure"
+      - name: Save diagnostic report even if email fails
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: availability-monitor-report
+          path: |
+            ${{ runner.temp }}/availability-monitor/report.md
+            ${{ runner.temp }}/availability-monitor/events.json
+          if-no-files-found: warn
+          retention-days: 30

@@ -41,3 +41,7 @@ smokeは実データに存在するstatusと件数を検証し、存在しない
 初期調査では実行log・公開revision・失敗境界を主担当で調査。契約確定後、`scripts/smoke.mjs` の日別status・一覧表示に関する修正をLuna Maxへ委任。主担当は隔離したdaily検証コマンド、fixture、鮮度ゲート、CI、文書と最終検証を担当する。実diffのreviewと検証結果は作業報告に記録する。
 
 主担当のdiff reviewでは、利用不可を再び隠す既存assertionの維持、日付付きの戸田ラベルとの整合、織田の代替候補見出しのstatus依存を修正した。英語一覧の折りたたみ・ページ送りと翌日status検証の仕上げは主担当へ戻した。委任範囲はsmokeに限定し、アプリの表示・collector判定ロジックは変更していない。
+
+## 公開方式変更の運用監視
+
+日次gateの成功と各施設の取得成功は別に扱う。`availability-monitor.yml` は毎日09:30 JSTに独立収集し、施設別の取得/解析異常・同じ対象日の判定数低下・Production更新停止を監視する。異常/復旧メールと前回状態artifactの設定は [AVAILABILITY_MONITORING.md](AVAILABILITY_MONITORING.md) を参照。monitorはdeployのgateにせず、既存のunknown許容を維持する。Gmail送信処理のmock検証 `npm run test:monitor:email` はNode 24 validationにも含める。

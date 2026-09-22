@@ -44,7 +44,7 @@ npm run test:smoke:preview
 npm run test:pace
 ```
 
-`master`向けPull RequestではGitHub Actionsの `Node 24 validation` が、`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行します。続けてdaily fixturesとlive daily gateも実行します。CIはrepository secretをAIへ渡さず、cache missのAI施設はunknownになるため、外部AI推論のfreshnessを証明しません。trusted deployだけがcollection stepへ`OPENAI_API_KEY`を渡します。
+`master`向けPull RequestではGitHub Actionsの `Node 24 validation` が、`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行します。続けてdaily fixturesとlive daily gateも実行します。CIはrepository secretをAIへ渡さず、cache missのAI施設はunknownになるため、外部AI推論のfreshnessを証明しません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。 外部sourceへのnetwork、Poppler、Python 3（監視メールのmock検証）が必要ですが、CI検証にAWS credentialsやSMTP secretsは不要です。
 
 `collect:availability:range` は東京の当日から31日分を `src/data/availability/manifest.json` と日別JSONへ生成します。同一HTML/PDF、月次JSON、WordPress noticeをcacheし、日数分の重複fetchやPDF抽出を避けます。単日debug用 `npm run collect:availability -- --date YYYY-MM-DD` も維持しています。133施設を掲載し、そのうちlegacy 33施設＋追加10施設（Luna AI 8施設、決定論的個人利用ICS 2施設）の43施設を安全な自動判定対象とします。これは毎日のpositive件数ではなく、対象日を判定できる実装数です。取得不能・予定未公開・期限切れ・形式変更・AIのkeyless cache missは利用不可にせず「要確認」へ降格します。AIは`gpt-5.6-luna`のreasoning `none`で施設ごとに公式資料一式を入力に1回実行し、`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）へcacheします。source/prompt/model/schema/対象月全日付がcache keyに含まれ、runtimeにAstraはありません。内訳と各sourceの意味は [`../docs/AVAILABILITY.md`](../docs/AVAILABILITY.md)、[`../research/availability/ai-adoption-2026-09.json`](../research/availability/ai-adoption-2026-09.json)、[`../research/availability/ai-collector-integration-2026-09.md`](../research/availability/ai-collector-integration-2026-09.md) を参照してください。通常のbuild/devは外部sourceへアクセスしません。
 
@@ -114,3 +114,9 @@ GA4は正式domainでアクセス解析へ同意した場合だけ読み込み�
 日付未指定のホームURLはそのまま今日を表示します。通常の施設リンクはqueryなしのhrefを持ち、通常クリックでは選択済みの日付・地点を引き継ぎます。条件込みの共有は遷移後のアドレスバーURLで行えます。`test:smoke`は日英・PC/スマホで正規href、日付自動付与なし、未来日・地点の引継ぎと再読込を検証します。
 
 固定ページのmetadataは`src/data/page-metadata.json`からrouterと全固定ページのHTML shellへ供給します。Productionの固定ページrewriteを変更する場合は、contentを先に配備してから、既存domain・certificateを維持したRouteFunctionのみのCDK更新を行います。詳細は[`PRODUCTION_DEPLOYMENT.md`](../docs/PRODUCTION_DEPLOYMENT.md)を参照してください。
+
+## Availabilityの公開方式変更を検知する監視
+
+`npm run monitor:availability` で当日31日分を独立収集し、施設別の状態・unknown理由・source証跡を一時ディレクトリへ保存します。`--previous /path/to/state.json --output /path/to/output` で同じ対象日の変化を比較できます。ローカル実行はメール・配備・公開データ更新を行いません。
+
+GitHub Actionsの `Availability monitor` は毎日09:30 JSTに取得/解析異常、判定日数の減少、Production更新停止を検知し、新規・変化・復旧だけGmailから通知します。Secrets `AVAILABILITY_SMTP_USER`、`AVAILABILITY_SMTP_APP_PASSWORD`、`AVAILABILITY_ALERT_TO` とvariable `AVAILABILITY_MONITOR_ENABLED=true` が必要です。状態はメール成功後にartifactへ保存し、同じ施設障害の繰り返し通知を抑えます。Python 3標準ライブラリとGitHub CLIを使用し、`npm run test:monitor:email` は実送信なしで送信処理を検証します。設定・監視範囲・障害復旧と残る制限は [AVAILABILITY_MONITORING.md](../docs/AVAILABILITY_MONITORING.md) を参照してください。

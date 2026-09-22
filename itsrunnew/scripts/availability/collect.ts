@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { collectAvailability } from './collectors';
+import { collectAvailabilityRange } from './range';
 
 function tokyoDateKey(date = new Date()) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
@@ -12,7 +12,7 @@ const date = dateIndex >= 0 ? process.argv[dateIndex + 1] : tokyoDateKey();
 if (!date) throw new Error('--date requires YYYY-MM-DD');
 
 const now = new Date();
-const facilities = await collectAvailability(date, { now });
+const facilities = (await collectAvailabilityRange(date, 1, { now })).datasets[0].facilities;
 const dataset = { schemaVersion: 1, date, timezone: 'Asia/Tokyo', generatedAt: now.toISOString(), facilities };
 const scriptDirectory = fileURLToPath(new URL('.', import.meta.url));
 const output = resolve(scriptDirectory, '../../src/data/availability.json');

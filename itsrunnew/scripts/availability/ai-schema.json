@@ -1,0 +1,113 @@
+{
+  "type": "object",
+  "properties": {
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "partially_available",
+              "unavailable",
+              "unknown"
+            ]
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "end": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "last_entry": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "start",
+                "end",
+                "scope",
+                "last_entry"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "quote_or_symbol": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "source",
+                "location",
+                "quote_or_symbol"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "unknown_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "status",
+          "periods",
+          "conditions",
+          "evidence",
+          "unknown_reason"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "records"
+  ],
+  "additionalProperties": false
+}

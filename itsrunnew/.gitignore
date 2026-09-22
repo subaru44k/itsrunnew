@@ -26,3 +26,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Local AI source readings (never part of the static website)
+/.cache/

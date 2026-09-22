@@ -102,7 +102,7 @@ itsrunnew/
 │   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
 │   ├── validate-track-batches.mjs 候補台帳の全件disposition・件数整合検証
-│   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF collector、range/cache、config、fixture、unit test
+│   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF collector、range/cache、config、fixture、unit test、独立収集監視・Gmail通知
 │   ├── map-compare.mjs        地図の旧新PC/スマホ比較・帰属・keyboard操作・障害復帰
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
@@ -148,7 +148,8 @@ docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契�
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
 ├── deploy-preview.yml           master push・手動・日次のPreview content deploy
-└── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
+├── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
+└── availability-monitor.yml     独立した日次収集監視・履歴artifact・異常/復旧メール
 ```
 
 `dist/`、`cdk.out/`、`cdk-outputs.json`は生成物であり、実装の正本ではありません。
@@ -284,6 +285,12 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、日付・施設・検索基準・公式確認・経路などのTrack Search主要操作eventを固定schemaで送ります。Geolocationの緯度経度、住所、自由入力文字列は送信せず、送信直前にもprivate parameter名を除外します。event一覧とGA4管理画面でのcustom dimension/key event候補は [`ANALYTICS.md`](ANALYTICS.md) が正本です。PrivacyページはAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPとGoogleの関連方針への導線を日英で説明します。
 
+### Availability収集状態の監視
+
+`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日07:15 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、監視専用fetchで一時障害を1回再試行、鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。
+
+`monitor-github.mjs` が前回成功runのstate artifactを復元し、`monitor-email.py` がGmail SMTP over TLSで異常・変化・復旧を1通にまとめます。状態不変時は通知しません。Secretsは送信元・アプリパスワード・宛先の3つで、collectorには渡しません。メール成功後に90日保持のstateを保存し、reportは失敗時も30日保持します。監視基盤の障害は失敗runごとに別メールを試み、SMTP障害はActions失敗にします。Node 24・Python 3標準ライブラリ・GitHub CLIを使用し、AWS認証、公開データ更新、deploy停止、Issue作成は行いません。設定、再現コマンド、履歴破損時の挙動、監視自体の未起動を検知できない制限は [`AVAILABILITY_MONITORING.md`](AVAILABILITY_MONITORING.md) を参照してください。
+
 ## 7. AWS検証環境
 
 `infra/itsrun-preview-stack.ts`の `ItsRunPreviewStack` が次を作成します。
@@ -336,6 +343,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
 | `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
+| `npm run monitor:availability` | 独立した実収集・施設別状態比較を一時ディレクトリへ出力（配備・メールなし） |
+| `npm run test:monitor:email` | Python標準ライブラリによるGmail送信をmockで検証（実送信なし） |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
 | `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋日別availability JSONを生成 |
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |

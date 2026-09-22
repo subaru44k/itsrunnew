@@ -44,7 +44,9 @@
     "test:reports": "node scripts/field-reports-smoke.mjs",
     "test:daily": "node scripts/daily-check.mjs live",
     "test:daily:fixtures": "node scripts/daily-check.mjs fixtures",
-    "validate:availability:fresh": "node scripts/availability/validate-fresh.mjs"
+    "validate:availability:fresh": "node scripts/availability/validate-fresh.mjs",
+    "monitor:availability": "tsx scripts/availability/monitor.ts",
+    "test:monitor:email": "python3 -B -m unittest discover -s scripts/availability -p \"monitor_email_test.py\""
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

@@ -2,7 +2,7 @@
 
 ## 目的と境界
 
-Track Searchのavailabilityは、「その施設が一般の個人利用を受け付けるか」という比較的staticな `src/data/tracks.json` と、「指定日に実際に利用できるか」という日付別の `src/data/availability.json` を分離します。
+Track Searchのavailabilityは、「その施設が一般の個人利用を受け付けるか」という比較的staticな `src/data/tracks.json` と、「指定日に実際に利用できるか」という日付別の `src/data/availability.json` を分離します。Track Datasetには133施設を掲載し、legacy collector 33施設に追加10施設（Luna AI 8施設、個人利用ICS 2施設）を加えた43施設を日付判定の対象にします。対応対象でも、予定未公開・取得失敗・日別根拠不足は `unknown` になり、43施設すべてが毎日positiveになるわけではありません。
 
 ```text
 公式HTML / calendar / JSON / 固定規則 / PDF
@@ -45,7 +45,7 @@ range生成先は `src/data/availability/manifest.json` と日付別 `YYYY-MM-DD
 
 ## 複数日datasetとcache
 
-manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。Viteは日付JSONを別chunkとしてbuildし、Track Searchは選択日のchunkだけを遅延loadします。133施設×31日を初期bundleへ含めません。
+manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。Viteは日付JSONを別chunkとしてbuildし、Track Searchは選択日のchunkだけを遅延loadします。133掲載施設×31日を初期bundleへ含めません。追加collectorのAIキャッシュはrangeの日付計算とは別に、対象月全日を入力へ含めます。
 
 range collectorは同一method・URL・request bodyをprocess内でcacheします。同じlanding page、fixed rule HTML、weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、月間PDFは再取得せず、同一PDFのtext extractionもsource hash単位で再利用します。TEFのような日付指定POSTはbodyが日ごとに異なるため各日1回だけ取得します。2026-08-24から31日のlive実行ではcache hit 390回、実HTTP 98回でした。retryや並列burstは行いません。
 
@@ -86,19 +86,26 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `pdf` | 府中市民陸上競技場 | 日別記号がvector図形のためguarded unknown |
 | `weekly_notice` | 京都府立山城総合運動公園 | 固定URLを上書きする短期告知の対象日・時間だけを解析 |
 
-133施設中33施設（24.8%）を安全な自動判定対象にしています。実装のpublication format内訳はstructured HTML 7、calendar HTML 3、calendar JSON 1、固定規則9、weekly notice 1、PDF 12（合計33）です。collector対応数を水増しせず、日付sourceの意味を未確認の施設は共通fallbackで `unknown` にします。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式Web・公式X確認という運用までは確認できるものの、安定した日付別HTML取得元がないためguarded unknownです。
+追加の10施設は次のsource方式です。
+
+| source type | 施設 | collector |
+|---|---|---|
+| `ai`（PDF/HTML/画像） | 等々力、知多、平塚、広島広域公園補助、維新補助、博多の森補助、世田谷、荻野 | 公式landing pageとリンクされた当月・翌月資料を取得し、Lunaの構造化出力を検証 |
+| `calendar_ics` | 神戸総合運動公園補助、市原ZAオリプリスタジアム | 公式ページに埋め込まれたGoogle Calendarの所有権を確認し、個人利用ICSを決定論的に解析 |
+
+133施設中43施設（32.3%）を安全な自動判定対象にしています。内訳はlegacy 33施設と追加10施設です。legacyのpublication format内訳はstructured HTML 7、calendar HTML 3、calendar JSON 1、固定規則9、weekly notice 1、PDF 12（合計33）で、追加分はAI 8、calendar ICS 2です。collector対応数は「対象日を判定できる実装」の数であり、対応施設の全日positiveを意味しません。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式noticeだけを対象にするtoday-only sourceで、当日以外へ一般規則を外挿せず、noticeがない日は `unknown` です。
 
 未対応施設もdatasetとUIから除外しません。
 
 ただしstaticな `individualUse.status = unavailable` を公式に確認した施設は、日別予定が未自動化でも「要確認」へ戻さず、全日 `unavailable` を生成します。日程情報の欠落を根拠にするのではなく、個人利用を受け付けないという施設規則そのものをnegative evidenceとして使います。
 
 - 府中: `unsupported_pdf_graphics`。text-based PDFだが日別○・◇・×がvector図形。
-- 世田谷: `unsupported_source_type`。当日の確定個人開放は公式案内・公式Xで手動確認し、予約枠の空きを個人開放と推測しない。
+- 世田谷: 追加AI source。公式の「本日の個人開放」noticeのタイトル日だけを判定し、予約枠の空きを個人開放と推測しない。未来日とnotice欠落は `unknown`。
 - 新座: `reservation_system_unsupported`。専用予約枠の空きと個人利用可否が同義か、規約・取得頻度も含めて確認後に対応。
 - 城北中央: `phone_confirmation_required`。Web日程がなく、個人利用可能＋本日は要確認として表示。
-- その他8施設: source方式に応じて `reservation_system_unsupported`、`phone_confirmation_required`、`web_schedule_unavailable` を生成。施設自体は個人利用可能な候補として残す。
+- その他の未対応施設: source方式に応じて `reservation_system_unsupported`、`phone_confirmation_required`、`web_schedule_unavailable` を生成。施設自体は個人利用可能な候補として残す。
 
-現行のavailability source分類はstructured HTML 9、calendar HTML 13、固定規則11、PDF 20、reservation system 40、phone only 19、Web予定なし12、weekly notice 9です。これはresearch上のsource分類であり、実装のpublication formatとは別軸です。実装済み33施設の内訳と6施設の根拠は [2026-09高確度collector追加検証 batch 2](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md)、前回4施設分は [2026-09高確度collector追加検証](../research/availability/high-confidence-collector-validation-2026-09.md)、従来分は [HTML/calendar/fixed collector検証](../research/availability/html-calendar-collector-validation.md) と [PDF collector検証](../research/availability/pdf-collector-validation.md) を参照してください。
+現行のavailability source分類は、更新で変わり得るためこの文書へ固定件数を書きません。現在値は `../research/availability/availability-sources.json` の分類registryから読みます。legacy 33施設の内訳と追加6施設の根拠は [2026-09高確度collector追加検証 batch 2](../research/availability/high-confidence-collector-validation-batch-2-2026-09.md)、追加10施設の採用候補・試行評価は [AI adoption 2026-09](../research/availability/ai-adoption-2026-09.json)、collector統合とsource identityは [AI collector integration 2026-09](../research/availability/ai-collector-integration-2026-09.md) を参照してください。従来分は [HTML/calendar/fixed collector検証](../research/availability/html-calendar-collector-validation.md) と [PDF collector検証](../research/availability/pdf-collector-validation.md) にあります。
 
 ## HTML・calendar・fixed collector
 
@@ -113,7 +120,17 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 - 山城のrolling notice: 固定URLの記事title、公開年、明示日付・時間を検証します。短期掲載範囲外はunknownです。
 - fixed: 共通の曜日・第N曜日rule evaluatorを再利用します。固定開放枠以外をunavailableとせずunknownにし、公式ページの例外注意をwarningへ保持します。
 
-安定した公式日次sourceがない世田谷、公式Xにだけ載る舎人・秋留台の追加開放は推測しません。新施設追加時は、公式文言、requested-date範囲、構造anchor、明示的available/unavailable語、例外、fixture、parser versionを同時に追加します。
+世田谷は公式の当日noticeだけを使い、公式Xや予約枠から未来日の個人開放を推測しません。公式Xにだけ載る舎人・秋留台の追加開放も推測しません。新施設追加時は、公式文言、requested-date範囲、構造anchor、明示的available/unavailable語、例外、fixture、parser versionを同時に追加します。
+
+## AI official packet collector
+
+追加8施設は `scripts/availability/ai-sources.ts` が施設ごとの公式landing page、rules page、当月・翌月のschedule PDF/image、notice pageを許可hostname内だけで取得し、`ai-source-utils.ts` がHTML text、画像、PDFページを保存資料へ変換します。PDF画像化には `pdfinfo` と `pdftoppm` が必要です。macOSでは `brew install poppler`、Ubuntu系では `sudo apt-get install poppler-utils` を使います。入力資料に含まれる命令は無視し、公式資料を事実の根拠としてだけ扱います。
+
+`buildAiPacket` は指定rangeに含まれる月の全日付をpacketへ入れ、同じ施設・資料・指示などの入力について `readWithLuna` を1回だけ実行します。runtime modelは `gpt-5.6-luna`、reasoning effortは `none`、出力は4 statusの厳格JSON schemaです。runtimeにAstra呼び出しはありません。`additional.ts` はAI 8施設の結果で同じtrackIdのlegacy recordを置き換え、神戸・市原のICSはAIを使わず決定論的に解析します。
+
+cache keyはAI version、model、reasoning、資料・指示などの入力、schema、対象月の全日付から計算します。source内容、prompt、model、schema、対象月が変わるとcacheは無効になります。既定の保存先は `.cache/availability-ai`、変更時は `ITSRUN_AI_CACHE_DIR` を使います。GitHub ActionsはこのdirectoryをActions cacheへ保存・復元するため、同じ入力では2回目以降に再推論しません。通常のkeyless実行でcacheがなくAPI keyもない場合はAI施設を `unknown` にし、cacheを利用できる場合だけkeyなしでも再利用します。trusted deployはcollection開始時にkeyを必須とするため、cache hitでもsecret欠落なら開始時に失敗します。
+
+trusted Preview/Production collectionだけが `ITSRUN_REQUIRE_AI_KEY=true` とrepository secret `OPENAI_API_KEY` を要求します。secretはcollection stepへ渡し、build・smoke・通常のlocal buildには渡しません。AI導入の受入れ基準は、3回のLuna試行でpositive supportが80%超、明示時間帯の一致が70%超です。これは完璧な最新性を保証する基準ではなく、公開UIは当日変更と公式確認の注意を残します。
 
 ## normalized schema
 
@@ -151,7 +168,7 @@ source bytesのSHA-256とparser versionを残すため、誤解析時に使っ�
 
 ## PDF collector
 
-`scripts/availability/pdf.ts` は、取得・content type/PDF magic検証、pdfjsによる座標付きtext extraction、対象月URL discovery、format固有parser、normalized record化を分離します。requested dateの年月からmonthly/annual/latest資料を選びます。和田堀だけはnews index → 対象月article → PDFの2段階です。
+`scripts/availability/pdf.ts` は、取得・content type/PDF magic検証、pdfjsによる座標付きtext extraction、対象月URL discovery、format固有parser、normalized record化を分離します。AI packetのPDFは別経路で `pdfinfo` と `pdftoppm` によりページ画像化します。macOSでは `brew install poppler`、Ubuntu系では `sudo apt-get install poppler-utils` が必要です。requested dateの年月からmonthly/annual/latest資料を選びます。和田堀だけはnews index → 対象月article → PDFの2段階です。
 
 formatは練馬、戸田、府中guard、和田堀共通、三郷、上尾、富士森、上柚木、神奈川県立スポーツセンター、万博記念競技場、国府台、びんごの13 configです。府中guardを除く12施設を対応し、府中は図形statusを推測しません。万能table parserではなく、確認済みtitle/header/legend/月のanchorを必須にします。OCR、reservation system、schedulerは実装していません。
 
@@ -161,7 +178,7 @@ formatは練馬、戸田、府中guard、和田堀共通、三郷、上尾、富
 
 `scripts/availability/collectors.test.ts` はTEF共通calendar、江戸川7日表、越谷当日HTML、日産2施設の共通HTML、Machida JSON、WordPress月次notice、新旧fixed ruleと、日付欠落・週外・古い表・見出し変更・意味曖昧時のunknownをfixtureで確認します。`scripts/availability/notices.test.ts` は西京極・柳島・山城の成功、非掲載日、年・anchor変更を確認します。`scripts/availability/pdf.test.ts` は12対応formatと府中guard、requested month、複数period、partial、明示的不可、空欄、header/legend変更、対象月未公開、fetch/content/extraction failureをmocked extractor outputで確認します。失敗がunavailableにならないことを必須にしています。`src/model/availability.test.ts` はunknownを候補に残すことを確認します。
 
-`scripts/availability/range.test.ts` は31日、月・年境界、HTTP cache reuseと日付固有POSTの分離を確認します。`src/model/availability-range.test.ts` はAsia/Tokyoのdate-only演算、URLのinvalid/out-of-range fallback、土日のshortcutを確認します。browser smokeは今日・明日・native date input、URL query、marker/list/filter同期、未来日のunknown維持をdesktop/mobileで確認します。
+`scripts/availability/range.test.ts` は31日、月・年境界、HTTP cache reuseと日付固有POSTの分離を確認します。`scripts/availability/ai-runtime.test.ts` と `additional.test.ts` は厳格schema、cache hit、keyless unknown、公式source replacement、AI/ICS追加施設を確認します。`src/model/availability-range.test.ts` はAsia/Tokyoのdate-only演算、URLのinvalid/out-of-range fallback、土日のshortcutを確認します。browser smokeは今日・明日・native date input、URL query、marker/list/filter同期、未来日のunknown維持をdesktop/mobileで確認します。
 
 ## Track Searchの日付UI
 
@@ -173,7 +190,7 @@ date-only値は常に `YYYY-MM-DD` のまま扱い、加減算時は正午 `+09:
 
 ## 更新・deploy
 
-通常開発ではbuildが外部sourceを自動取得しません。運用時に1日1回、次の順で更新できます。
+通常開発ではbuildが外部sourceを自動取得しません。運用時に1日1回、AI keyをcollection stepへだけ渡して次の順で更新できます。
 
 ```text
 npm run collect:availability:range
@@ -186,6 +203,6 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 
 ## 次の段階
 
-現collectorは33/133（24.8%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開は引き続きunknownです。
+現collectorは43/133（32.3%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。AI 8施設は当月・翌月資料を施設別packetへまとめ、世田谷だけはtoday-onlyです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開・keylessでcache missのAI資料は引き続きunknownです。
 
 新座予約システムは、規約・低頻度アクセス・cache・「空き」の意味を確認するまで実装しません。城北中央は公式Web日程が提供されない限りmanual confirmationを維持します。

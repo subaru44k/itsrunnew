@@ -20,11 +20,13 @@
 - `infra/itsrun-production-certificate-stack.ts`: 委任済みHosted Zoneで検証する`us-east-1` ACM certificate。
 - `infra/itsrun-production-automation-stack.ts`: protected masterだけを信頼するcontent-only GitHub OIDC role。
 - `scripts/deploy-production.sh`: account、tag、origin、aliasをguardするS3 syncとtargeted invalidation。
-- `.github/workflows/deploy-production.yml`: master、手動、05:30 JST。repository variable `PRODUCTION_DEPLOY_ENABLED=true`になるまでjobは実行しない。
+- `.github/workflows/deploy-production.yml`: master、手動、05:30 JST、08:15 JST。08:15 runは世田谷のtoday-only noticeを拾う。repository variable `PRODUCTION_DEPLOY_ENABLED=true`になるまでjobは実行しない。
 
 ## Build and cache behavior
 
-Production workflowはfresh 31-day availability、Track Dataset validation、unit test、lint、build、local smokeを終えてからOIDC credentialsを取得します。Production buildはGoogle CMPを伴う広告を有効にします。
+Production workflowはPoppler（`pdfinfo` / `pdftoppm`）を導入し、Actions cacheから`.cache/availability-ai`を復元してfresh 31-day availabilityを生成します。AIは施設ごとに公式資料と対象月全日付をまとめ、`gpt-5.6-luna`・reasoning `none`で公式資料一式を入力に1回実行します。source/prompt/model/schema/full-month datesが変わった場合だけcache keyが無効になります。Track Dataset validation、unit test、lint、build、local smokeを終えてからOIDC credentialsを取得します。Production buildはGoogle CMPを伴う広告を有効にします。AI keyはcollection stepだけに渡します。
+
+trusted collection stepはrepository secret `OPENAI_API_KEY` と `ITSRUN_REQUIRE_AI_KEY=true` を要求します。通常のlocal buildは外部sourceを取得せず、keylessでcache missのAI施設はunknownです。PDFをAI入力へ変換するため、runnerにはPopplerをインストールします。runtimeはAstraを呼び出しません。
 
 - `index.html`: `no-cache`
 - hashed `assets/`: `public,max-age=31536000,immutable`
@@ -76,7 +78,7 @@ CloudFrontの更新が`Deployed`になり、default domainと`Host: itsrun.info`
 ### 4. Cutover verification
 
 - certificate、`/`、`/en/`、全既知route、旧URL 301、未知URL 404
-- 33 tracks、future date、unknown保持、公式・経路link
+- 43 supported tracks（掲載133施設のうちlegacy 33＋追加AI/ICS 10）、future date、unknown保持、公式・経路link
 - `robots.txt`、`sitemap.xml`、canonical、OGP、`ads.txt`
 - 同意前GA4なし、同意後GA4あり、広告なし
 - cache metadata、CloudFront errors、availability daily run

@@ -19,7 +19,7 @@ const port = process.env.ITSRUN_PREVIEW_PORT ?? await new Promise((resolvePort, 
     reservation.close(error => error ? reject(error) : resolvePort(String(assignedPort)));
   });
 });
-const env = { ...process.env, ITSRUN_PREVIEW_PORT: port, VITE_DEPLOY_TARGET: 'preview', VITE_ADSENSE_ENABLED: 'false', VITE_FIELD_REPORTS_API: '', ITSRUN_EXPECT_EDGE_ROUTING: 'false' };
+const env = { ...process.env, ITSRUN_AI_CACHE_DIR: process.env.ITSRUN_AI_CACHE_DIR ?? join(source, '.cache/availability-ai'), ITSRUN_PREVIEW_PORT: port, VITE_DEPLOY_TARGET: 'preview', VITE_ADSENSE_ENABLED: 'false', VITE_FIELD_REPORTS_API: '', ITSRUN_EXPECT_EDGE_ROUTING: 'false' };
 const run = command => new Promise((resolveRun, reject) => {
   console.log(`Daily check (${mode}): npm run ${command}`);
   const child = spawn('npm', ['run', command], { cwd: app, env, stdio: 'inherit' });
@@ -28,7 +28,7 @@ const run = command => new Promise((resolveRun, reject) => {
 });
 try {
   // Exclude local credentials/config and generated/dependency directories.
-  await cp(source, app, { recursive: true, filter: path => !['node_modules', 'dist', 'cdk.out', '.git'].includes(basename(path)) && !basename(path).startsWith('.env') });
+  await cp(source, app, { recursive: true, filter: path => !['node_modules', 'dist', 'cdk.out', '.git', '.cache'].includes(basename(path)) && !basename(path).startsWith('.env') });
   for (const name of ['data', 'research', '.github']) await cp(resolve(source, '..', name), join(scratch, name), { recursive: true });
   await symlink(join(source, 'node_modules'), join(app, 'node_modules'), 'dir');
   if (mode === 'live') {

@@ -14,6 +14,8 @@ function argument(name: string) {
   return index >= 0 ? process.argv[index + 1] : undefined;
 }
 
+if (process.env.ITSRUN_REQUIRE_AI_KEY === 'true' && !process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is required for trusted deployment collection');
+
 const from = argument('--from') ?? tokyoDateKey();
 const days = Number(argument('--days') ?? '31');
 const now = new Date();

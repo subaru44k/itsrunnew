@@ -6,6 +6,12 @@ Before investigating or changing this repository, read [`docs/SITE_STRUCTURE.md`
 
 The Git repository root contains the application in `itsrunnew/`. Run application, test, and CDK commands from that directory unless a command explicitly says otherwise.
 
+## Check the Git base before making changes
+
+Before editing files or creating commits, identify the current branch and worktree, check for uncommitted changes, run `git fetch origin master`, and compare `HEAD` with `origin/master`. For new work intended to build on the current mainline, start from the fetched `origin/master`. If a clean local `master` is only behind, fast-forward it with `git pull --ff-only origin master` before starting.
+
+Do not require every task to run on `master` or require local commits to be pushed first. Existing feature branches, worktrees, and local commits may be intentional. If the checkout is ahead, diverged, or has uncommitted changes, preserve them and decide how to incorporate the latest `origin/master` before editing; do not reset, overwrite, or automatically rebase someone else's work. State the branch and remaining difference when it affects the result. If the fetch fails, disclose that the remote base could not be verified.
+
 ## Browser and Computer Use policy
 
 Default to no in-app browser, Computer Use, or GUI automation. Prefer repository code and CLI-based evidence such as tests, lint/type checking, builds, `curl`/HTTP requests, logs, and programmatic inspection.

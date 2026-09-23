@@ -225,9 +225,9 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 `NozomiAntena.vue`は `src/data/nozomi-results.json` を読み、2020年から現在までのトラック、室内、ロードの大会結果を表示します。予選・決勝と同日複数種目は別レコードです。World Athleticsの大会記録を基礎にし、統計DBへ載りにくい駅伝区間、ペースメーカー、ゲスト出走、国内オープン種目をView内の補足レコードとして保持します。年度・種類・大会名／種目で絞り込め、地方大会、ロード・駅伝、役割付き出走をタグで識別できます。本文は現状、日本語で直接記述されています。
 
-`RyujiMiura.vue`は `src/data/ryuji-results.json` を読み、三浦龍司選手の2020年以降67レースを表示します。3000m障害を中心に、1500m、3000m、5000m、10000m、クロスカントリー、10マイル、ハーフマラソンを含みます。World Athleticsに掲載された国際大会だけでなく、順天堂大学競技会、関東インカレ、織田幹雄記念、ホクレン、日体大長距離競技会など国内の記録会も同じ時系列に収録し、年度・種類・大会名／種目で絞り込めます。各行の大会名は確認可能な公式結果へのリンクです。収集範囲と更新時の注意点は [`../research/ryuji-miura/2020-onward-report.md`](../research/ryuji-miura/2020-onward-report.md) に記録しています。
+`RyujiMiura.vue`は `src/data/ryuji-results.json` を読み、三浦龍司選手の2020年以降68レースを表示します。3000m障害を中心に、1500m、3000m、5000m、10000m、クロスカントリー、10マイル、ハーフマラソンを含みます。World Athleticsに掲載された国際大会だけでなく、順天堂大学競技会、関東インカレ、織田幹雄記念、ホクレン、日体大長距離競技会など国内の記録会も同じ時系列に収録し、年度・種類・大会名／種目で絞り込めます。各行の大会名は確認可能な公式結果へのリンクです。収集範囲と更新時の注意点は [`../research/ryuji-miura/2020-onward-report.md`](../research/ryuji-miura/2020-onward-report.md) に記録しています。
 
-2025年分の収集経緯と個別出典は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
+2025年分の収集経緯と個別出典、および2026年9月の追加確認は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
 
 ### 正規URLと検索条件の引継ぎ
 

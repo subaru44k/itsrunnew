@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-09-08",
+    "competition": "62° Palio Città della Quercia",
+    "discipline": "1500 Metres",
+    "event": "1500",
+    "round": "F",
+    "place": 5,
+    "mark": "4:03.00",
+    "city": "Rovereto",
+    "country": "ITA",
+    "indoor": false,
+    "competitionId": 7234845,
+    "category": "B"
+  },
+  {
     "date": "2026-08-23",
     "competition": "Silesia Kamila Skolimowska Memorial",
     "discipline": "5000 Metres",

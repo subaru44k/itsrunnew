@@ -1,0 +1,67 @@
+[
+  {
+    "key": "yamashiro",
+    "file": "sources/round2/yamashiro.html",
+    "url": "https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/",
+    "savedAt": "2026-09-21T10:50:05.051268+00:00",
+    "sha256": "be6d5e5f953f1026094f780eebb16c0a423f5f5be53350bcd20e767343b30cb4",
+    "bytes": 56113,
+    "derived_text": {
+      "file": "sources/round2/yamashiro.txt",
+      "sha256": "878d9d5c00c35b27b8fcddae4f10d72db21ce640080994b630a2b8f85a7d84e6",
+      "method": "HTMLParser text extraction, block newlines and cell separators; script/style excluded"
+    }
+  },
+  {
+    "key": "nishikyogoku",
+    "file": "sources/round2/nishikyogoku.json",
+    "url": "https://www.kyoto-sports.or.jp/wp-json/wp/v2/posts?search=%E8%A5%BF%E4%BA%AC%E6%A5%B5%20%E9%99%B8%E4%B8%8A%E3%83%88%E3%83%A9%E3%83%83%E3%82%AF%20%E4%B8%80%E8%88%AC%E9%96%8B%E6%94%BE%E6%97%A5&per_page=10&_fields=date%2Cmodified%2Clink%2Ctitle%2Ccontent",
+    "savedAt": "2026-09-21T10:50:04.724838+00:00",
+    "sha256": "a469b24726002693188b65cb07ce9e9b95070ec9fbb68668c1e0b648d54747ee",
+    "bytes": 50681,
+    "derived_text": {
+      "file": "sources/round2/nishikyogoku.txt",
+      "sha256": "634b1f87fa89edd92679b1fe795253680f0266ea36b08ec5a4ce00adbcd861af",
+      "method": "HTMLParser text extraction, block newlines and cell separators; WordPress posts[0] title+content only"
+    }
+  },
+  {
+    "key": "chigasaki",
+    "file": "sources/round2/chigasaki.json",
+    "url": "https://www.ys-park.jp/wp-json/wp/v2/posts?search=%E9%99%B8%E4%B8%8A%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8&per_page=10&_fields=date%2Cmodified%2Clink%2Ctitle%2Ccontent",
+    "savedAt": "2026-09-21T10:50:07.199794+00:00",
+    "sha256": "4e703ca59edd500e729a323eb9b0cdb30654fe8275344e0ccb754b146861f7f7",
+    "bytes": 46163,
+    "derived_text": {
+      "file": "sources/round2/chigasaki.txt",
+      "sha256": "8c78616214222df348b79f8a9badfff22ff1d97c795d42d174451fdefb287506",
+      "method": "HTMLParser text extraction, block newlines and cell separators; WordPress posts[0] title+content only"
+    }
+  },
+  {
+    "key": "nissan",
+    "file": "sources/round2/nissan.html",
+    "url": "https://www.nissan-stadium.jp/track/index.php",
+    "savedAt": "2026-09-21T10:50:04.644822+00:00",
+    "sha256": "b96b0ed78c61ec5c8bfe37282eda811243271ced5f562c4546ac4e9cbdc7f091",
+    "bytes": 16499,
+    "derived_text": {
+      "file": "sources/round2/nissan.txt",
+      "sha256": "148f29aeaa2790ab103abfff0e472a88a4e16064d229884440a76549ec1bc192",
+      "method": "HTMLParser text extraction, block newlines and cell separators; script/style excluded"
+    }
+  },
+  {
+    "key": "musashino",
+    "file": "sources/round2/musashino.html",
+    "url": "https://www.musashino.or.jp/sports/kaihou/index.html",
+    "savedAt": "2026-09-21T10:50:04.645433+00:00",
+    "sha256": "a3f6de62c78c001361b5fb4ba02a58055b79aeb203aa6e4f14fcb23bf7b9fa6d",
+    "bytes": 22665,
+    "derived_text": {
+      "file": "sources/round2/musashino.txt",
+      "sha256": "d956c3831c1837ed8642559122115065b19493552e613c4fb3aea2eaa29d9eb3",
+      "method": "HTMLParser text extraction, block newlines and cell separators; script/style excluded"
+    }
+  }
+]

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-09-22",
+  "publicIntegration": false,
+  "candidates": [
+    {
+      "round": 3,
+      "key": "todoroki",
+      "trackId": "todoroki-athletic-stadium",
+      "facility": "Uvanceとどろきスタジアム by Fujitsu（主競技場。補助競技場は対象外）",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 0.7857142857142857,
+      "state": "accuracy-criterion-passed; collector integration pending"
+    },
+    {
+      "round": 3,
+      "key": "chita",
+      "trackId": "b-food-science-1969-chita-stadium",
+      "facility": "Bフードサイエンス1969知多スタジアム（陸上競技場）",
+      "meanPositiveDayPrecision": 0.9331349206349207,
+      "meanExactHoursPrecision": 0.7978174603174604,
+      "state": "accuracy-criterion-passed; collector integration pending"
+    },
+    {
+      "round": 4,
+      "key": "hiratsuka",
+      "trackId": "lemon-gas-stadium-hiratsuka-track",
+      "facility": "レモンガススタジアム平塚",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 1.0,
+      "state": "accuracy-criterion-passed; collector integration pending"
+    },
+    {
+      "round": 4,
+      "key": "hiroshima",
+      "trackId": "hiroshima-koiki-park-auxiliary-stadium",
+      "facility": "広島広域公園補助競技場",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 1.0,
+      "state": "accuracy-criterion-passed; collector integration pending"
+    },
+    {
+      "round": 4,
+      "key": "ishin",
+      "trackId": "ishin-centennial-park-auxiliary-stadium",
+      "facility": "維新百年記念公園補助陸上競技場",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 0.9777777777777777,
+      "state": "accuracy-criterion-passed; collector integration pending"
+    },
+    {
+      "round": 4,
+      "key": "kobe",
+      "trackId": "kobe-sports-park-auxiliary-stadium",
+      "facility": "神戸総合運動公園補助競技場",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 1.0,
+      "state": "accuracy-criterion-passed; collector integration pending"
+    },
+    {
+      "round": 5,
+      "key": "hakata",
+      "trackId": "hakata-no-mori-auxiliary-athletic-stadium",
+      "facility": "博多の森補助競技場",
+      "meanPositiveDayPrecision": 0.96875,
+      "meanExactHoursPrecision": 0.84375,
+      "state": "accuracy-criterion-passed; collector integration pending",
+      "evaluationLimitations": "Monthly auxiliary general-opening header, after-event rule; lower recall and one weak run. General-opening-heading interpretation recorded."
+    },
+    {
+      "round": 5,
+      "key": "setagaya",
+      "trackId": "setagaya-general-sports-track",
+      "facility": "世田谷区立総合運動場陸上競技場",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 1.0,
+      "state": "accuracy-criterion-passed; collector integration pending",
+      "evaluationLimitations": "Only current-day positive sample; daily-only deployment scope, futureunknown; sample too narrow to infer broad100% accuracy."
+    },
+    {
+      "round": 5,
+      "key": "ogino",
+      "trackId": "ogino-sports-park-track",
+      "facility": "荻野運動公園競技場",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 0.9655172413793104,
+      "state": "accuracy-criterion-passed; collector integration pending",
+      "evaluationLimitations": "All runs add unsupported13-21 onOct28. Same error retained; overall agreedmeans stillpass."
+    },
+    {
+      "round": 5,
+      "key": "ichihara",
+      "trackId": "ichihara-za-oripri-stadium",
+      "facility": "ゼットエーオリプリスタジアム",
+      "meanPositiveDayPrecision": 1.0,
+      "meanExactHoursPrecision": 1.0,
+      "state": "accuracy-criterion-passed; collector integration pending",
+      "evaluationLimitations": "Current operator public personal-useICS discovered. All-day date placement is not24h; DESCRIPTIONcontainsactualslots; deterministic conversion candidate."
+    }
+  ]
+}

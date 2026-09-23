@@ -1,0 +1,2098 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-22",
+  "protocol": {
+    "createdAt": "2026-09-21T22:07:21.298736+00:00",
+    "horizon": [
+      "2026-09-22",
+      "2026-09-23",
+      "2026-09-24",
+      "2026-09-25",
+      "2026-09-26",
+      "2026-09-27",
+      "2026-09-28",
+      "2026-09-29",
+      "2026-09-30",
+      "2026-10-01",
+      "2026-10-02",
+      "2026-10-03",
+      "2026-10-04",
+      "2026-10-05",
+      "2026-10-06",
+      "2026-10-07",
+      "2026-10-08",
+      "2026-10-09",
+      "2026-10-10",
+      "2026-10-11",
+      "2026-10-12",
+      "2026-10-13",
+      "2026-10-14",
+      "2026-10-15",
+      "2026-10-16",
+      "2026-10-17",
+      "2026-10-18",
+      "2026-10-19",
+      "2026-10-20",
+      "2026-10-21",
+      "2026-10-22"
+    ],
+    "lunaModel": "gpt-5.6-luna",
+    "lunaReasoning": "none",
+    "lunaIndependentRuns": 3,
+    "astraModel": "gpt-6-astra",
+    "astraReasoning": "low",
+    "reference": "blinded Astra followed by primary source review; not human gold",
+    "acceptance": {
+      "meanPositiveDayPrecision": ">0.80",
+      "meanExactHoursAmongPredictedPositive": ">0.70",
+      "mean": "arithmetic mean of three per-run fractions; not pooled",
+      "positive": "available or partially_available",
+      "exactHours": "union of intervals; ignores status subdivision, last_entry and wording",
+      "zeroPredictedPositive": "undefined; cannot establish acceptance",
+      "missingDates": "unknown operational fallback; coverage reported separately"
+    },
+    "scope": "research evaluation, no publication/deployment; previous Fuchu rejection remains",
+    "inputRules": "unchanged shared v2 from round3; no facility-specific prompt tuning"
+  },
+  "packets": [
+    {
+      "key": "matsudo",
+      "trackId": "matsudo-sports-park-track",
+      "facility": "松戸運動公園 陸上競技場",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/matsudo.txt",
+          "name": "matsudo.txt",
+          "type": "text",
+          "sha256": "45ef27c4c10c54b99d01c3d660275495806ed2fdc907184181de0a6fba7d3981"
+        },
+        {
+          "file": "sources/round4/matsudo-rules-1.png",
+          "name": "matsudo-rules-1.png",
+          "type": "image",
+          "sha256": "0edbb8fe4e1a4647441378a0364a14770f1852ce6a00c3d94b3c5204e837183e"
+        },
+        {
+          "file": "sources/round4/matsudo-rules-2.png",
+          "name": "matsudo-rules-2.png",
+          "type": "image",
+          "sha256": "19a6d17bfd6a292258f000e9f5a897a5a6973461a9a8d5562a334fec98b35a47"
+        },
+        {
+          "file": "sources/round4/matsudo-personal-1.png",
+          "name": "matsudo-personal-1.png",
+          "type": "image",
+          "sha256": "01e88ab8d71689a44f044ef58f6907e0d44372ef9304a3f9fa0fd585f647ab3a"
+        },
+        {
+          "file": "sources/round4/matsudo-personal-2.png",
+          "name": "matsudo-personal-2.png",
+          "type": "image",
+          "sha256": "f1ef26fa19f8a43f76353cc57118e1577d88990f2ebc88939efa5f43bfdb61e1"
+        },
+        {
+          "file": "sources/round4/matsudo-personal-3.png",
+          "name": "matsudo-personal-3.png",
+          "type": "image",
+          "sha256": "643fd01f951deff78eebcaa7ddfe995290e11e8aa54177a2effac91796d361c5"
+        }
+      ],
+      "cases": [
+        {
+          "id": "matsudo-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "matsudo-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "matsudo-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "matsudo-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "matsudo-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "matsudo-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "matsudo-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "matsudo-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "matsudo-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "matsudo-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "matsudo-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "matsudo-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "matsudo-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "matsudo-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "matsudo-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "matsudo-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "matsudo-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "matsudo-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "matsudo-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "matsudo-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "matsudo-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "matsudo-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "matsudo-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "matsudo-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "matsudo-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "matsudo-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "matsudo-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "matsudo-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "matsudo-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "matsudo-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "matsudo-2026-10-22",
+          "date": "2026-10-22"
+        },
+        {
+          "id": "matsudo-2026-10-26",
+          "date": "2026-10-26"
+        },
+        {
+          "id": "matsudo-2026-11-01",
+          "date": "2026-11-01"
+        }
+      ]
+    },
+    {
+      "key": "odawara",
+      "trackId": "odawara-shiroyama-athletic-stadium",
+      "facility": "城山陸上競技場（小田原）",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/odawara-rules.txt",
+          "name": "odawara-rules.txt",
+          "type": "text",
+          "sha256": "543180d2dedd1f09542e4b70e24dea4b6c15feb3ce647332aaa72fabfe3e56ae"
+        },
+        {
+          "file": "sources/round4/odawara-schedule-1.png",
+          "name": "odawara-schedule-1.png",
+          "type": "image",
+          "sha256": "3543b1cc98d61a2c8e2f7001304b663be771ce84d9b6e2aa23b43778a4ffbfcd"
+        },
+        {
+          "file": "sources/round4/odawara-schedule-2.png",
+          "name": "odawara-schedule-2.png",
+          "type": "image",
+          "sha256": "2b8cc383256d298f5b8724cd1192dd91f7123ef5a0802fc2b770c46b8e702fda"
+        }
+      ],
+      "cases": [
+        {
+          "id": "odawara-2026-09-12",
+          "date": "2026-09-12"
+        },
+        {
+          "id": "odawara-2026-09-18",
+          "date": "2026-09-18"
+        },
+        {
+          "id": "odawara-2026-09-19",
+          "date": "2026-09-19"
+        },
+        {
+          "id": "odawara-2026-09-20",
+          "date": "2026-09-20"
+        },
+        {
+          "id": "odawara-2026-09-21",
+          "date": "2026-09-21"
+        },
+        {
+          "id": "odawara-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "odawara-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "odawara-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "odawara-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "odawara-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "odawara-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "odawara-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "odawara-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "odawara-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "odawara-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "odawara-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "odawara-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "odawara-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "odawara-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "odawara-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "odawara-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "odawara-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "odawara-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "odawara-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "odawara-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "odawara-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "odawara-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "odawara-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "odawara-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "odawara-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "odawara-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "odawara-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "odawara-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "odawara-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "odawara-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "odawara-2026-10-22",
+          "date": "2026-10-22"
+        },
+        {
+          "id": "odawara-2026-10-25",
+          "date": "2026-10-25"
+        },
+        {
+          "id": "odawara-2026-10-31",
+          "date": "2026-10-31"
+        },
+        {
+          "id": "odawara-2026-11-01",
+          "date": "2026-11-01"
+        }
+      ]
+    },
+    {
+      "key": "hiratsuka",
+      "trackId": "lemon-gas-stadium-hiratsuka-track",
+      "facility": "レモンガススタジアム平塚",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/hiratsuka-schedule.txt",
+          "name": "hiratsuka-schedule.txt",
+          "type": "text",
+          "sha256": "3ba9cd0aa43b7eccc509d15920fd870a2a4d2bd4320b177fc0eaceac43451dd8"
+        }
+      ],
+      "cases": [
+        {
+          "id": "hiratsuka-2026-09-18",
+          "date": "2026-09-18"
+        },
+        {
+          "id": "hiratsuka-2026-09-19",
+          "date": "2026-09-19"
+        },
+        {
+          "id": "hiratsuka-2026-09-20",
+          "date": "2026-09-20"
+        },
+        {
+          "id": "hiratsuka-2026-09-21",
+          "date": "2026-09-21"
+        },
+        {
+          "id": "hiratsuka-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "hiratsuka-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "hiratsuka-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "hiratsuka-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "hiratsuka-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "hiratsuka-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "hiratsuka-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "hiratsuka-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "hiratsuka-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "hiratsuka-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "hiratsuka-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "hiratsuka-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "hiratsuka-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "hiratsuka-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "hiratsuka-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "hiratsuka-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "hiratsuka-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "hiratsuka-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "hiratsuka-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "hiratsuka-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "hiratsuka-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "hiratsuka-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "hiratsuka-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "hiratsuka-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "hiratsuka-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "hiratsuka-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "hiratsuka-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "hiratsuka-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "hiratsuka-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "hiratsuka-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "hiratsuka-2026-10-22",
+          "date": "2026-10-22"
+        }
+      ]
+    },
+    {
+      "key": "heiwadai",
+      "trackId": "heiwadai-athletic-stadium",
+      "facility": "平和台陸上競技場",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/heiwadai.txt",
+          "name": "heiwadai.txt",
+          "type": "text",
+          "sha256": "3375e183b19ac017c2e4157cd5a1127e0fefd52f400f0f2f6aa4b118037d6a29"
+        },
+        {
+          "file": "sources/round4/heiwadai-schedule-1.png",
+          "name": "heiwadai-schedule-1.png",
+          "type": "image",
+          "sha256": "f378f2bc83a61d66946ce191006dbdf948b9a7aca4bb588d212510a68d99cdb5"
+        },
+        {
+          "file": "sources/round4/heiwadai-rules-1.png",
+          "name": "heiwadai-rules-1.png",
+          "type": "image",
+          "sha256": "9a00db0a7d3e76a6ec2e3d675227f35e5746494716e358ed3c12296ec14fbcc2"
+        }
+      ],
+      "cases": [
+        {
+          "id": "heiwadai-2026-09-01",
+          "date": "2026-09-01"
+        },
+        {
+          "id": "heiwadai-2026-09-05",
+          "date": "2026-09-05"
+        },
+        {
+          "id": "heiwadai-2026-09-06",
+          "date": "2026-09-06"
+        },
+        {
+          "id": "heiwadai-2026-09-13",
+          "date": "2026-09-13"
+        },
+        {
+          "id": "heiwadai-2026-09-19",
+          "date": "2026-09-19"
+        },
+        {
+          "id": "heiwadai-2026-09-20",
+          "date": "2026-09-20"
+        },
+        {
+          "id": "heiwadai-2026-09-21",
+          "date": "2026-09-21"
+        },
+        {
+          "id": "heiwadai-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "heiwadai-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "heiwadai-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "heiwadai-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "heiwadai-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "heiwadai-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "heiwadai-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "heiwadai-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "heiwadai-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "heiwadai-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "heiwadai-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "heiwadai-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "heiwadai-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "heiwadai-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "heiwadai-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "heiwadai-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "heiwadai-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "heiwadai-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "heiwadai-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "heiwadai-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "heiwadai-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "heiwadai-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "heiwadai-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "heiwadai-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "heiwadai-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "heiwadai-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "heiwadai-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "heiwadai-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "heiwadai-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "heiwadai-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "heiwadai-2026-10-22",
+          "date": "2026-10-22"
+        }
+      ]
+    },
+    {
+      "key": "hiroshima",
+      "trackId": "hiroshima-koiki-park-auxiliary-stadium",
+      "facility": "広島広域公園補助競技場",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/hiroshima-use.txt",
+          "name": "hiroshima-use.txt",
+          "type": "text",
+          "sha256": "7e23e88d00bde30fb8cd5db4d4750a43de9582ca7de6d50c75acd779ded00444"
+        },
+        {
+          "file": "sources/round4/hiroshima-notice.txt",
+          "name": "hiroshima-notice.txt",
+          "type": "text",
+          "sha256": "0c9b6757ea510a2ec5ecf007c177707164ac122d0ff43f2e26b4b8d81ce443da"
+        },
+        {
+          "file": "sources/round4-b/rendered/hiroshima-koiki-park-auxiliary-stadium-sep-1.png",
+          "name": "hiroshima-koiki-park-auxiliary-stadium-sep-1.png",
+          "type": "image",
+          "sha256": "fbe97e3435c26afa319c4698449e5614bcae4cf9887e5472aeeebb29f55a46a6"
+        },
+        {
+          "file": "sources/round4-b/rendered/hiroshima-koiki-park-auxiliary-stadium-oct-1.png",
+          "name": "hiroshima-koiki-park-auxiliary-stadium-oct-1.png",
+          "type": "image",
+          "sha256": "1108e89836de0951e281e43c83f73ca34dbeeb781edd5771036b3e4be1d12493"
+        },
+        {
+          "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep-notice-2.png",
+          "name": "hiroshima-koiki-park-auxiliary-stadium-sep-notice-2.png",
+          "type": "image",
+          "sha256": "662dbae68551850cbc884cb63106dd2bb0bbeedb4fb024f864394fa297debee6"
+        },
+        {
+          "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep-notice-3.png",
+          "name": "hiroshima-koiki-park-auxiliary-stadium-sep-notice-3.png",
+          "type": "image",
+          "sha256": "73bb55f84121fa601a20380335fbf410dbfb7abddd9e298ba9ef21c759de010c"
+        }
+      ],
+      "cases": [
+        {
+          "id": "hiroshima-2026-09-01",
+          "date": "2026-09-01"
+        },
+        {
+          "id": "hiroshima-2026-09-05",
+          "date": "2026-09-05"
+        },
+        {
+          "id": "hiroshima-2026-09-12",
+          "date": "2026-09-12"
+        },
+        {
+          "id": "hiroshima-2026-09-21",
+          "date": "2026-09-21"
+        },
+        {
+          "id": "hiroshima-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "hiroshima-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "hiroshima-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "hiroshima-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "hiroshima-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "hiroshima-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "hiroshima-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "hiroshima-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "hiroshima-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "hiroshima-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "hiroshima-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "hiroshima-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "hiroshima-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "hiroshima-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "hiroshima-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "hiroshima-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "hiroshima-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "hiroshima-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "hiroshima-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "hiroshima-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "hiroshima-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "hiroshima-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "hiroshima-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "hiroshima-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "hiroshima-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "hiroshima-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "hiroshima-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "hiroshima-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "hiroshima-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "hiroshima-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "hiroshima-2026-10-22",
+          "date": "2026-10-22"
+        },
+        {
+          "id": "hiroshima-2026-10-31",
+          "date": "2026-10-31"
+        },
+        {
+          "id": "hiroshima-2026-11-01",
+          "date": "2026-11-01"
+        }
+      ]
+    },
+    {
+      "key": "mihama",
+      "trackId": "mihama-sports-park-athletic-stadium",
+      "facility": "美浜町運動公園 陸上競技場",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/mihama-notice.txt",
+          "name": "mihama-notice.txt",
+          "type": "text",
+          "sha256": "16985c84dd599c823d4a3256b70737ee99d54198cc487ec8739baeb617474ca6"
+        },
+        {
+          "file": "sources/round4/mihama-rules.txt",
+          "name": "mihama-rules.txt",
+          "type": "text",
+          "sha256": "359447edb303303f6e53bea7dbce21d7e92468c68558fa59f1bb2d94089c2ebc"
+        },
+        {
+          "file": "sources/round4/mihama-closure.txt",
+          "name": "mihama-closure.txt",
+          "type": "text",
+          "sha256": "4450cfdc45dceea3d852e6921a6087f85d751c1937f89859a421c4bdc5762588"
+        },
+        {
+          "file": "sources/round4/mihama-sep-1.png",
+          "name": "mihama-sep-1.png",
+          "type": "image",
+          "sha256": "2aa4ddde4c27da9ff1a831d3df9b7b7bb0b902d240d3ce53b6dc41668489dd64"
+        }
+      ],
+      "cases": [
+        {
+          "id": "mihama-2026-09-01",
+          "date": "2026-09-01"
+        },
+        {
+          "id": "mihama-2026-09-07",
+          "date": "2026-09-07"
+        },
+        {
+          "id": "mihama-2026-09-08",
+          "date": "2026-09-08"
+        },
+        {
+          "id": "mihama-2026-09-09",
+          "date": "2026-09-09"
+        },
+        {
+          "id": "mihama-2026-09-10",
+          "date": "2026-09-10"
+        },
+        {
+          "id": "mihama-2026-09-11",
+          "date": "2026-09-11"
+        },
+        {
+          "id": "mihama-2026-09-12",
+          "date": "2026-09-12"
+        },
+        {
+          "id": "mihama-2026-09-13",
+          "date": "2026-09-13"
+        },
+        {
+          "id": "mihama-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "mihama-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "mihama-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "mihama-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "mihama-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "mihama-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "mihama-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "mihama-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "mihama-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "mihama-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "mihama-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "mihama-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "mihama-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "mihama-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "mihama-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "mihama-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "mihama-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "mihama-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "mihama-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "mihama-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "mihama-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "mihama-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "mihama-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "mihama-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "mihama-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "mihama-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "mihama-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "mihama-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "mihama-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "mihama-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "mihama-2026-10-22",
+          "date": "2026-10-22"
+        },
+        {
+          "id": "mihama-2026-10-31",
+          "date": "2026-10-31"
+        },
+        {
+          "id": "mihama-2026-11-01",
+          "date": "2026-11-01"
+        }
+      ]
+    },
+    {
+      "key": "ishin",
+      "trackId": "ishin-centennial-park-auxiliary-stadium",
+      "facility": "維新百年記念公園補助陸上競技場",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/ishin.txt",
+          "name": "ishin.txt",
+          "type": "text",
+          "sha256": "2cc1cab74f92e4d8a9edacf96e02cbb56644ca1e62d8a243c41b52bf71605fda"
+        },
+        {
+          "file": "sources/round4/ishin-sep.png",
+          "name": "ishin-sep.png",
+          "type": "image",
+          "sha256": "f5a06256dbc96fc7b57870b8fbbde27fab538ff758d75f1e9c02857fdd848d7f"
+        },
+        {
+          "file": "sources/round4/ishin-oct.png",
+          "name": "ishin-oct.png",
+          "type": "image",
+          "sha256": "1739ab979544ab1ebae0dbbf20d7540e4f51ebe2b25d5513535d1cd494cfeba7"
+        }
+      ],
+      "cases": [
+        {
+          "id": "ishin-2026-09-03",
+          "date": "2026-09-03"
+        },
+        {
+          "id": "ishin-2026-09-07",
+          "date": "2026-09-07"
+        },
+        {
+          "id": "ishin-2026-09-10",
+          "date": "2026-09-10"
+        },
+        {
+          "id": "ishin-2026-09-12",
+          "date": "2026-09-12"
+        },
+        {
+          "id": "ishin-2026-09-14",
+          "date": "2026-09-14"
+        },
+        {
+          "id": "ishin-2026-09-17",
+          "date": "2026-09-17"
+        },
+        {
+          "id": "ishin-2026-09-19",
+          "date": "2026-09-19"
+        },
+        {
+          "id": "ishin-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "ishin-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "ishin-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "ishin-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "ishin-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "ishin-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "ishin-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "ishin-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "ishin-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "ishin-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "ishin-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "ishin-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "ishin-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "ishin-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "ishin-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "ishin-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "ishin-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "ishin-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "ishin-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "ishin-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "ishin-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "ishin-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "ishin-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "ishin-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "ishin-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "ishin-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "ishin-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "ishin-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "ishin-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "ishin-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "ishin-2026-10-22",
+          "date": "2026-10-22"
+        },
+        {
+          "id": "ishin-2026-10-26",
+          "date": "2026-10-26"
+        },
+        {
+          "id": "ishin-2026-10-29",
+          "date": "2026-10-29"
+        },
+        {
+          "id": "ishin-2026-11-01",
+          "date": "2026-11-01"
+        }
+      ]
+    },
+    {
+      "key": "kobe",
+      "trackId": "kobe-sports-park-auxiliary-stadium",
+      "facility": "神戸総合運動公園補助競技場",
+      "metadata": "資料取得日: 2026-09-22 JST。保存された資料のみを参照。日時の曜日は暦計算してよい。",
+      "sources": [
+        {
+          "file": "sources/round4/kobe-rules.txt",
+          "name": "kobe-rules.txt",
+          "type": "text",
+          "sha256": "71b212db90700ef3afecd4733435ba0edff07da2164764ef485d3ba65c73156c"
+        },
+        {
+          "file": "sources/round4/kobe-calendar.txt",
+          "name": "kobe-calendar.txt",
+          "type": "text",
+          "sha256": "177daa4c9f89b5a87c100e4ff2c514d14942d016d97e51077a54ede4164c9814"
+        }
+      ],
+      "cases": [
+        {
+          "id": "kobe-2026-09-01",
+          "date": "2026-09-01"
+        },
+        {
+          "id": "kobe-2026-09-04",
+          "date": "2026-09-04"
+        },
+        {
+          "id": "kobe-2026-09-11",
+          "date": "2026-09-11"
+        },
+        {
+          "id": "kobe-2026-09-14",
+          "date": "2026-09-14"
+        },
+        {
+          "id": "kobe-2026-09-16",
+          "date": "2026-09-16"
+        },
+        {
+          "id": "kobe-2026-09-18",
+          "date": "2026-09-18"
+        },
+        {
+          "id": "kobe-2026-09-22",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "kobe-2026-09-23",
+          "date": "2026-09-23"
+        },
+        {
+          "id": "kobe-2026-09-24",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "kobe-2026-09-25",
+          "date": "2026-09-25"
+        },
+        {
+          "id": "kobe-2026-09-26",
+          "date": "2026-09-26"
+        },
+        {
+          "id": "kobe-2026-09-27",
+          "date": "2026-09-27"
+        },
+        {
+          "id": "kobe-2026-09-28",
+          "date": "2026-09-28"
+        },
+        {
+          "id": "kobe-2026-09-29",
+          "date": "2026-09-29"
+        },
+        {
+          "id": "kobe-2026-09-30",
+          "date": "2026-09-30"
+        },
+        {
+          "id": "kobe-2026-10-01",
+          "date": "2026-10-01"
+        },
+        {
+          "id": "kobe-2026-10-02",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "kobe-2026-10-03",
+          "date": "2026-10-03"
+        },
+        {
+          "id": "kobe-2026-10-04",
+          "date": "2026-10-04"
+        },
+        {
+          "id": "kobe-2026-10-05",
+          "date": "2026-10-05"
+        },
+        {
+          "id": "kobe-2026-10-06",
+          "date": "2026-10-06"
+        },
+        {
+          "id": "kobe-2026-10-07",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "kobe-2026-10-08",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "kobe-2026-10-09",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "kobe-2026-10-10",
+          "date": "2026-10-10"
+        },
+        {
+          "id": "kobe-2026-10-11",
+          "date": "2026-10-11"
+        },
+        {
+          "id": "kobe-2026-10-12",
+          "date": "2026-10-12"
+        },
+        {
+          "id": "kobe-2026-10-13",
+          "date": "2026-10-13"
+        },
+        {
+          "id": "kobe-2026-10-14",
+          "date": "2026-10-14"
+        },
+        {
+          "id": "kobe-2026-10-15",
+          "date": "2026-10-15"
+        },
+        {
+          "id": "kobe-2026-10-16",
+          "date": "2026-10-16"
+        },
+        {
+          "id": "kobe-2026-10-17",
+          "date": "2026-10-17"
+        },
+        {
+          "id": "kobe-2026-10-18",
+          "date": "2026-10-18"
+        },
+        {
+          "id": "kobe-2026-10-19",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "kobe-2026-10-20",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "kobe-2026-10-21",
+          "date": "2026-10-21"
+        },
+        {
+          "id": "kobe-2026-10-22",
+          "date": "2026-10-22"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "key": "matsudo",
+      "url": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html",
+      "resolvedUrl": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html",
+      "file": "sources/round4/matsudo.html",
+      "sha256": "e88fc2ea863fc2f7af819ec46b91d9938c0076f11e39f24c0ed453dcb9dc0f41",
+      "retrievedAt": "2026-09-21T22:04:15.280643+00:00"
+    },
+    {
+      "key": "odawara",
+      "url": "https://www.city.odawara.kanagawa.jp/field/lifelong/sports/sport-f/shiroyama-stadium/",
+      "resolvedUrl": "https://www.city.odawara.kanagawa.jp/field/lifelong/sports/sport-f/shiroyama-stadium/",
+      "file": "sources/round4/odawara.html",
+      "sha256": "5b417b1ab678ddef5128912daec98b090efacb6a395483544bffda6859982c4e",
+      "retrievedAt": "2026-09-21T22:04:30.360121+00:00"
+    },
+    {
+      "key": "hiratsuka",
+      "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+      "resolvedUrl": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+      "file": "sources/round4/hiratsuka.html",
+      "sha256": "213b9ff71b20828c2441ebb9c3fdb12810cb7b7007975cf938ef26592a2568f7",
+      "retrievedAt": "2026-09-21T22:04:30.486884+00:00"
+    },
+    {
+      "key": "neyagawa",
+      "url": "https://neyagawa.osaka-park.or.jp/1287",
+      "resolvedUrl": "https://neyagawa.osaka-park.or.jp/1287",
+      "file": "sources/round4/neyagawa.html",
+      "sha256": "9aa430b2dd1086040033a571e3db4ecb8b0fe6018d0635a28542b5c306afdf19",
+      "retrievedAt": "2026-09-21T22:04:30.708664+00:00"
+    },
+    {
+      "key": "matsudo-rules",
+      "url": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.files/ryoukinnriyoubi.pdf",
+      "resolvedUrl": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.files/ryoukinnriyoubi.pdf",
+      "file": "sources/round4/matsudo-rules.pdf",
+      "sha256": "81fcc6a624901c3c8108c28c41ce3b7c27f4b420bd48b8e148076a1461ba9d2e",
+      "retrievedAt": "2026-09-21T22:04:45.349238+00:00"
+    },
+    {
+      "key": "matsudo-personal",
+      "url": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.files/kojinn.pdf",
+      "resolvedUrl": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.files/kojinn.pdf",
+      "file": "sources/round4/matsudo-personal.pdf",
+      "sha256": "901c3462fd93a5f1dbec1cedfeb6fb672afd64d0f44b40c10e4dbeac66410fe0",
+      "retrievedAt": "2026-09-21T22:04:45.707557+00:00"
+    },
+    {
+      "key": "hiratsuka-schedule",
+      "url": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html",
+      "resolvedUrl": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html",
+      "file": "sources/round4/hiratsuka-schedule.html",
+      "sha256": "c7d0f13dcf2860aabe3a4f029d9cc9a8728c11b9335dd66d518bda6fa13479d2",
+      "retrievedAt": "2026-09-21T22:04:45.833256+00:00"
+    },
+    {
+      "key": "odawara-manager",
+      "url": "https://odawaraarena.main.jp/index.htm",
+      "resolvedUrl": "https://odawaraarena.main.jp/index.htm",
+      "file": "sources/round4/odawara-manager.html",
+      "sha256": "f74a821c401a4e7a54a2956bcfa015a378f90a0517f4998fad264eea5fb4ecaa",
+      "retrievedAt": "2026-09-21T22:04:45.948394+00:00"
+    },
+    {
+      "key": "odawara-schedule",
+      "url": "https://odawaraarena.main.jp/pdf/shiroyama_list.pdf",
+      "resolvedUrl": "https://odawaraarena.main.jp/pdf/shiroyama_list.pdf",
+      "file": "sources/round4/odawara-schedule.pdf",
+      "sha256": "33c93b43e29877336722a1c7eb1d6aa31a9f4664f677ed3c782945ef3a21f6bb",
+      "retrievedAt": "2026-09-21T22:05:06.041499+00:00"
+    },
+    {
+      "key": "odawara-rules",
+      "url": "https://odawaraarena.main.jp/odawara_shiroyama.htm",
+      "resolvedUrl": "https://odawaraarena.main.jp/odawara_shiroyama.htm",
+      "file": "sources/round4/odawara-rules.html",
+      "sha256": "f29602d2d072a4fc39f4217e9794bae211293ec4592547c5fe7c9fc588e505a1",
+      "retrievedAt": "2026-09-21T22:05:06.133793+00:00"
+    },
+    {
+      "key": "neyagawa-home",
+      "url": "https://neyagawa.osaka-park.or.jp/",
+      "resolvedUrl": "https://neyagawa.osaka-park.or.jp/",
+      "file": "sources/round4/neyagawa-home.html",
+      "sha256": "691f0d09c5d6e66e714d2f33df912d202a40eb54c6f7d5e52c74f1c5a8fbb46c",
+      "retrievedAt": "2026-09-21T22:05:06.394534+00:00"
+    },
+    {
+      "key": "neyagawa-apply",
+      "url": "https://neyagawa.osaka-park.or.jp/sports_app",
+      "resolvedUrl": "https://neyagawa.osaka-park.or.jp/sports_app",
+      "file": "sources/round4/neyagawa-apply.html",
+      "sha256": "91d6c773e4d3a99b1c67548a6898cef8b4c11d6c5dc37c2f72417b11f38a7b5f",
+      "retrievedAt": "2026-09-21T22:05:06.630447+00:00"
+    },
+    {
+      "key": "iwana",
+      "url": "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
+      "resolvedUrl": "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
+      "file": "sources/round4/iwana.html",
+      "sha256": "4579ab21eaa8816b3aa2bdead4937fafd54e9a1300c6806787c20dc3a29228b9",
+      "retrievedAt": "2026-09-21T22:05:44.719109+00:00"
+    },
+    {
+      "key": "neyagawa-mizuno",
+      "url": "https://shisetsu.mizuno.jp/m-7118",
+      "resolvedUrl": "https://shisetsu.mizuno.jp/m-7118",
+      "file": "sources/round4/neyagawa-mizuno.html",
+      "sha256": "9b8ebb6fd40c97d91fa80800520e2f5782a81e0702f3908ba0c85e6348ddb89e",
+      "retrievedAt": "2026-09-21T22:06:07.105396+00:00"
+    },
+    {
+      "key": "heiwadai",
+      "url": "https://www.midorimachi.jp/maiduru/guides/",
+      "resolvedUrl": "https://www.midorimachi.jp/maiduru/guides/",
+      "file": "sources/round4/heiwadai.html",
+      "sha256": "8d63ef25f3295e652e26aaa58717236337ee12743084c55e207e0608b28ce0e8",
+      "retrievedAt": "2026-09-21T22:06:07.418135+00:00"
+    },
+    {
+      "key": "heiwadai-schedule",
+      "url": "https://www.midorimachi.jp/images/park/260908154838467.pdf",
+      "resolvedUrl": "https://www.midorimachi.jp/images/park/260908154838467.pdf",
+      "file": "sources/round4/heiwadai-schedule.pdf",
+      "sha256": "b3f1ae35ffdf2f14c7fa660ac77ee097c128c2d038a4045202527e46fda74d97",
+      "retrievedAt": "2026-09-21T22:06:17.182546+00:00"
+    },
+    {
+      "key": "heiwadai-rules",
+      "url": "https://midorimachi.jp/maiduru/images/parknews/260821101118233.pdf",
+      "resolvedUrl": "https://www.midorimachi.jp/maiduru/images/parknews/260821101118233.pdf",
+      "file": "sources/round4/heiwadai-rules.pdf",
+      "sha256": "a6f2e17856ff628f0410b972a2dfccde0371ce0b625f95fe5de102d42384f360",
+      "retrievedAt": "2026-09-21T22:06:18.225105+00:00"
+    },
+    {
+      "key": "ishin",
+      "url": "https://www.ishin100.com/main/info_mirasta_kojin_20260817/",
+      "resolvedUrl": "https://www.ishin100.com/main/info_mirasta_kojin_20260914/",
+      "file": "sources/round4/ishin.html",
+      "sha256": "ed1fde7c1aec0a38131193f62dfde33d8cf988631bd94f53d9b0e1e9186ea9d7",
+      "retrievedAt": "2026-09-21T22:09:16.475071+00:00"
+    },
+    {
+      "key": "ishin-sep",
+      "url": "https://www.ishin100.com/main/wp-content/uploads/info_hojyoriku_202609_20260907.png",
+      "resolvedUrl": "https://www.ishin100.com/main/wp-content/uploads/info_hojyoriku_202609_20260907.png",
+      "file": "sources/round4/ishin-sep.png",
+      "sha256": "f5a06256dbc96fc7b57870b8fbbde27fab538ff758d75f1e9c02857fdd848d7f",
+      "retrievedAt": "2026-09-21T22:09:37.307207+00:00"
+    },
+    {
+      "key": "ishin-oct",
+      "url": "https://www.ishin100.com/main/wp-content/uploads/info_hokyoriku_202610_20260918.png",
+      "resolvedUrl": "https://www.ishin100.com/main/wp-content/uploads/info_hokyoriku_202610_20260918.png",
+      "file": "sources/round4/ishin-oct.png",
+      "sha256": "1739ab979544ab1ebae0dbbf20d7540e4f51ebe2b25d5513535d1cd494cfeba7",
+      "retrievedAt": "2026-09-21T22:09:37.610316+00:00"
+    }
+  ],
+  "sourceDiscoveryB": {
+    "schemaVersion": 1,
+    "scope": "Round 4-B official source discovery only; retrieved 2026-09-21 UTC; no answer labels or public availability decisions",
+    "retrievedAt": "2026-09-21T22:15:18Z",
+    "notes": [
+      "Files under sources/round4-b are original HTML, PDF, image, and public ICS responses unless kind is derived-render.",
+      "Derived PDF renders are complete-page PNGs made with the bundled pdftoppm at scale-to 1800.",
+      "The assessment fields describe only whether a dated positive schedule source was found; they do not evaluate any target date."
+    ],
+    "facilities": [
+      {
+        "key": "hattori-ryokuchi-athletics-stadium",
+        "name": "服部緑地 陸上競技場",
+        "officialLandingUrl": "https://hattori-ryokuchi.com/guide/sports/",
+        "documents": [
+          {
+            "file": "sources/round4-b/hattori-ryokuchi-athletics-stadium.html",
+            "kind": "original-html",
+            "url": "https://hattori-ryokuchi.com/guide/sports/",
+            "sha256": "6baec5963ea75e3e391c6818a331ac11c62f1ddcb15ee07a0d75c3b6c3829e59",
+            "retrievedAt": "2026-09-21T22:04:55.156Z",
+            "notes": "Official facility page. The track individual-use section states 09:00-17:00 and links the official Instagram account for individual-use dates."
+          },
+          {
+            "file": "sources/round4-b/hattori-ryokuchi-athletics-stadium-instagram.html",
+            "kind": "original-html",
+            "url": "https://www.instagram.com/hattori.sports.ws/",
+            "sha256": "102edae39bf3b0f6b64a5fd310f824ac2d1a142b9946ae20ac908d1b822d53eb",
+            "retrievedAt": "2026-09-21T22:06:15.016Z",
+            "notes": "Official linked Instagram profile HTML. The public profile description says individual-use updates are posted periodically and gives general weekend caveat text, but no date-specific September/October schedule table or post image was available in the saved HTML."
+          }
+        ],
+        "sourceAvailabilityAssessment": {
+          "datedPositiveScheduleFound": false,
+          "positiveRunningHoursFound": [
+            "09:00-17:00"
+          ],
+          "applicablePeriod": "The landing page gives a general track individual-use period only; it does not specify dates.",
+          "blocker": "No day-specific positive schedule was available from the official linked pages retrievable without GUI/API access. Do not infer open days."
+        }
+      },
+      {
+        "key": "hiroshima-koiki-park-auxiliary-stadium",
+        "name": "広島広域公園 補助競技場",
+        "officialLandingUrl": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki",
+        "documents": [
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium.html",
+            "kind": "original-html",
+            "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki",
+            "sha256": "7feabbf4fbdc59486cb51c83ab8ffbb63cdb7becd2d1f7af871991086014b308",
+            "retrievedAt": "2026-09-21T22:04:55.363Z",
+            "notes": "Official facility landing page. It links the September and October 2026 monthly event PDFs and the September individual-use notice."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-use.html",
+            "kind": "original-html",
+            "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/",
+            "sha256": "2ad0d18ceeaa38dea74e34a8cf3be84a91178e63d814502d33c463f0afffc96c",
+            "retrievedAt": "2026-09-21T22:06:14.295Z",
+            "notes": "Official use-and-fees index linking the auxiliary-stadium individual-use page."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-use-senyo-2.html",
+            "kind": "original-html",
+            "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2",
+            "sha256": "02b1b57a28f5b2c6f8f35876fae8ad637f541f851bbcaea44f3bb4b754b17485",
+            "retrievedAt": "2026-09-21T22:11:01.064Z",
+            "notes": "Official individual-use rules: track use only, dates are to be checked in the monthly schedule, general facility time 09:00-21:00 with auxiliary-stadium note of 17:00 until seasonal variation, and detailed restrictions."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep-notice.html",
+            "kind": "original-html",
+            "url": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/info/9yue-bu-zhu-jing-ji-chang-ge-ren-li-yong-ke-neng-ri-noozhi-rase",
+            "sha256": "fbea9a842d97547d13550a238cdab2da5db3ff6f34269730cada98285e253728",
+            "retrievedAt": "2026-09-21T22:06:14.130Z",
+            "notes": "Official September 2026 auxiliary-stadium individual-use notice page. It links the dated calendar images 2.png and 3.png and a park Instagram poster."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep-notice-2.png",
+            "kind": "original-image",
+            "url": "https://www.sports-or.city.hiroshima.jp/application/files/4517/8746/0799/2.png",
+            "sha256": "662dbae68551850cbc884cb63106dd2bb0bbeedb4fb024f864394fa297debee6",
+            "retrievedAt": "2026-09-21T22:09:56.099Z",
+            "notes": "Official linked September calendar image. It contains date-specific daily time cells for 2026-09-01 through 2026-09-30."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep-notice-3.png",
+            "kind": "original-image",
+            "url": "https://www.sports-or.city.hiroshima.jp/application/files/7717/8746/0859/3.png",
+            "sha256": "73bb55f84121fa601a20380335fbf410dbfb7abddd9e298ba9ef21c759de010c",
+            "retrievedAt": "2026-09-21T22:09:56.144Z",
+            "notes": "Official linked individual-use rules/map image. It states the maximum usable time as 09:00-21:00 and shows track-zone restrictions."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep-notice-4.png",
+            "kind": "original-image",
+            "url": "https://www.sports-or.city.hiroshima.jp/application/files/4917/8746/1197/Guang_Dao_Guang_Yu_Gong_Yuan__2.png",
+            "sha256": "a64057631dbebbe31abd6a82b354d04b5af315a266aa7d5cc7130a2b55092a61",
+            "retrievedAt": "2026-09-21T22:09:56.264Z",
+            "notes": "Official linked park Instagram announcement image; retained as part of the dated notice source set."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep.pdf",
+            "kind": "original-pdf",
+            "url": "https://www.sports-or.city.hiroshima.jp/application/files/6417/8713/9360/kouiki202609.pdf",
+            "sha256": "a4ee06d709461aa570aa7893a86f3520bc65d3fde4d3cc94b68dfb137cfcc09d",
+            "retrievedAt": "2026-09-21T22:06:14.346Z",
+            "notes": "Official one-page September 2026 event schedule PDF linked from the facility landing page."
+          },
+          {
+            "file": "sources/round4-b/rendered/hiroshima-koiki-park-auxiliary-stadium-sep-1.png",
+            "kind": "derived-render",
+            "derivedFrom": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-sep.pdf",
+            "sha256": "fbe97e3435c26afa319c4698449e5614bcae4cf9887e5472aeeebb29f55a46a6",
+            "retrievedAt": "2026-09-21T22:08:38.686Z",
+            "notes": "Complete-page visual render for review."
+          },
+          {
+            "file": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-oct.pdf",
+            "kind": "original-pdf",
+            "url": "https://www.sports-or.city.hiroshima.jp/application/files/1317/8972/7425/kouiki202610.pdf",
+            "sha256": "7d910e783e884cd634a5003e934e7e881f2efbe917ecd6f52bc34bdf1b1f986e",
+            "retrievedAt": "2026-09-21T22:06:14.581Z",
+            "notes": "Official one-page October 2026 event schedule PDF linked from the facility landing page."
+          },
+          {
+            "file": "sources/round4-b/rendered/hiroshima-koiki-park-auxiliary-stadium-oct-1.png",
+            "kind": "derived-render",
+            "derivedFrom": "sources/round4-b/hiroshima-koiki-park-auxiliary-stadium-oct.pdf",
+            "sha256": "1108e89836de0951e281e43c83f73ca34dbeeb781edd5771036b3e4be1d12493",
+            "retrievedAt": "2026-09-21T22:08:41.132Z",
+            "notes": "Complete-page visual render for review."
+          }
+        ],
+        "sourceAvailabilityAssessment": {
+          "datedPositiveScheduleFound": true,
+          "positiveRunningHoursFound": [
+            "Date-specific time cells are present in the September notice image; the linked rules image states maximum 09:00-21:00."
+          ],
+          "applicablePeriod": "2026-09 notice image plus official 2026-09 and 2026-10 monthly schedule PDFs.",
+          "caveat": "Monthly PDFs are event schedules; the dated individual-use calendar is the September notice image. No October individual-use calendar image was found in the saved linked material."
+        }
+      },
+      {
+        "key": "mihama-sports-park-athletic-stadium",
+        "name": "美浜町運動公園 陸上競技場",
+        "officialLandingUrl": "https://mihama-sportspark.aichi.jp/",
+        "documents": [
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium.html",
+            "kind": "original-html",
+            "url": "https://mihama-sportspark.aichi.jp/",
+            "sha256": "fcb5a7c2a8ab39c1cd0eb0a9f01bf9b653a931de044cf3c9f97046bd5a978f63",
+            "retrievedAt": "2026-09-21T22:04:56.229Z",
+            "notes": "Official landing page. It lists the dated September individual-use notice, the September/October event schedule, the reservation calendar, and the 9/13-10/31 restriction notice."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-individual-sep.html",
+            "kind": "original-html",
+            "url": "https://mihama-sportspark.aichi.jp/news/%e3%80%908%e6%9c%88%e5%88%86%e3%80%91%e5%80%8b%e4%ba%ba%e5%88%a9%e7%94%a8%e5%b0%82%e7%94%a8%e6%97%a5%e3%83%bb%e6%99%82%e9%96%93%e5%b8%af%e3%81%ae%e4%ba%88%e5%ae%9a/",
+            "sha256": "fc15d23b2b0f232717fad0d84d52ba071edf90023836f1f7af03ad92b1dc9760",
+            "retrievedAt": "2026-09-21T22:06:15.631Z",
+            "notes": "Official 2026-09-07 article. It links the September personal-use grid, says symbols vary by event/discipline, and says weekly updates are published."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-weekly.html",
+            "kind": "original-html",
+            "url": "https://mihama-sportspark.aichi.jp/news/%e3%80%907-2%ef%bd%9e7-7%e3%80%91%e4%bb%8a%e9%80%b1%e3%81%ae%e5%80%8b%e4%ba%ba%e5%88%a9%e7%94%a8%e5%b0%82%e7%94%a8%e6%97%a5%e3%83%bb%e6%99%82%e9%96%93%e5%b8%af/",
+            "sha256": "a66c2317c80b781236a89d6487f015d2736f6e812dcbafe915f1a2a2a4d6a9c1",
+            "retrievedAt": "2026-09-21T22:11:02.266Z",
+            "notes": "Official linked weekly individual-use article route; retained for the site's stated weekly-update workflow."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-individual-sep.pdf",
+            "kind": "original-pdf",
+            "url": "https://mihama-sportspark.aichi.jp/wp-content/uploads/2026/09/20260907現在_陸上競技場個人利用予定【9月分】.pdf",
+            "sha256": "a07d609aeaeaa2ae6fb87cff1a275a40c0f222f1f752e57a4be56a967e116e09",
+            "retrievedAt": "2026-09-21T22:10:38.308Z",
+            "notes": "Official one-page 2026 September personal-use grid. The legend includes available, unavailable, and possible symbols with a 09:00-21:00 time grid."
+          },
+          {
+            "file": "sources/round4-b/rendered/mihama-sports-park-athletic-stadium-individual-sep-1.png",
+            "kind": "derived-render",
+            "derivedFrom": "sources/round4-b/mihama-sports-park-athletic-stadium-individual-sep.pdf",
+            "sha256": "2aa4ddde4c27da9ff1a831d3df9b7b7bb0b902d240d3ce53b6dc41668489dd64",
+            "retrievedAt": "2026-09-21T22:12:01.044Z",
+            "notes": "Complete-page visual render for review."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-restrictions.html",
+            "kind": "original-html",
+            "url": "https://mihama-sportspark.aichi.jp/news/%e3%80%909-13%ef%bd%9e10-31%e3%80%91%e6%84%9b%e7%9f%a5%e3%83%bb%e5%90%8d%e5%8f%a4%e5%b1%8b2026%e5%a4%a7%e4%bc%9a%e6%9c%9f%e9%96%93%e4%b8%ad%e3%81%ae%e5%88%a9%e7%94%a8%e5%88%b6%e9%99%90%e3%81%ab/",
+            "sha256": "68cc9d4a6b448e66c85e44a278dfae38855d88b6d4dca4f0b5070cb5d438d6a8",
+            "retrievedAt": "2026-09-21T22:06:16.663Z",
+            "notes": "Official 2026-09-14 restriction notice. It states that no individual-use or dedicated-use time is provided during 2026-09-13 through 2026-10-31."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-restrictions.jpg",
+            "kind": "original-image",
+            "url": "https://mihama-sportspark.aichi.jp/wp-content/uploads/2026/07/2026-07-07-095704.jpg",
+            "sha256": "5cc9b999b35ae1786c5fd81c0820eee876c09186b82676f1262e2680f023b50d",
+            "retrievedAt": "2026-09-21T22:13:09.361Z",
+            "notes": "Official image linked by the restriction notice showing the 2026-09-13 to 2026-10-31 restricted area."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-booking-current.html",
+            "kind": "original-html",
+            "url": "https://mihama-sportspark.aichi.jp/news/%e3%80%9012-26%e7%8f%be%e5%9c%a8%e3%80%912024%ef%bc%88%e4%bb%a4%e5%92%8c6%ef%bc%89%e5%b9%b4%e5%ba%a6%e9%99%b8%e4%b8%8a%e7%ab%b6%e6%8a%80%e5%a0%b4%e3%81%ae%e4%ba%88%e7%b4%84%e7%8a%b6%e6%b3%81%e3%82%ab%e3%83%ac%e3%83%b3%e3%83%80%e3%83%bc/",
+            "sha256": "065c2fe83dad8347c34287ba64fee701b4c4b8bfb0a764d0accdce01339b82fd",
+            "retrievedAt": "2026-09-21T22:09:57.282Z",
+            "notes": "Official 2026-09-14 reservation-calendar article; reservation context only and not treated as individual-use evidence."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-contact.html",
+            "kind": "original-html",
+            "url": "https://mihama-sportspark.aichi.jp/contact/",
+            "sha256": "971c84dfda9ef2f04ef89bc4844430642653af1060da5d3510f0feef970724cd",
+            "retrievedAt": "2026-09-21T22:11:01.173Z",
+            "notes": "Official facility contact/use-information page linked by the individual-use article."
+          },
+          {
+            "file": "sources/round4-b/mihama-sports-park-athletic-stadium-events-sep-oct.html",
+            "kind": "original-html",
+            "url": "https://mihama-sportspark.aichi.jp/news/%e3%80%9010%e6%9c%88%e5%88%86%e3%80%91%e4%b8%bb%e3%81%aa%e5%a4%a7%e4%bc%9a%e3%83%bb%e3%82%a4%e3%83%99%e3%83%b3%e3%83%88%e3%82%b9%e3%82%b1%e3%82%b8%e3%83%a5%e3%83%bc%e3%83%ab/",
+            "sha256": "6b7614d5913dde8e9a0620302c5fe91061f6418d0d070e992e05b21f401ebbf0",
+            "retrievedAt": "2026-09-21T22:09:57.301Z",
+            "notes": "Official 2026-08-31/09-01 article covering September and October event periods; it names the 9/6 event and the 9/13-10/31 tournament period."
+          }
+        ],
+        "sourceAvailabilityAssessment": {
+          "datedPositiveScheduleFound": true,
+          "positiveRunningHoursFound": [
+            "The September grid uses a 09:00-21:00 half-hour time grid and marks daily cells with the official symbols."
+          ],
+          "applicablePeriod": "2026-09-07 dated personal-use grid; restriction notice covers 2026-09-13 through 2026-10-31.",
+          "caveat": "The article warns that usable time differs by discipline and that the schedule can change; no October personal-use grid was found."
+        }
+      },
+      {
+        "key": "kobe-sports-park-auxiliary-stadium",
+        "name": "神戸総合運動公園 補助競技場",
+        "officialLandingUrl": "https://www.kobe-park.or.jp/sougou/outline/",
+        "documents": [
+          {
+            "file": "sources/round4-b/kobe-sports-park-auxiliary-stadium.html",
+            "kind": "original-html",
+            "url": "https://www.kobe-park.or.jp/sougou/outline/",
+            "sha256": "ba573dcf7e2bfa56e735bc9de975bad4eeaea59281147ff343958f9c4876b2bc",
+            "retrievedAt": "2026-09-21T22:04:56.048Z",
+            "notes": "Official outline page listing the auxiliary stadium and linking facility details and events."
+          },
+          {
+            "file": "sources/round4-b/kobe-sports-park-auxiliary-stadium-detail.html",
+            "kind": "original-html",
+            "url": "https://www.kobe-park.or.jp/sougou/facilities/auxiliary_field",
+            "sha256": "a28959961c1aec68fe7424013a1a38bff0966af64114b73580f3a8d9fc1002f1",
+            "retrievedAt": "2026-09-21T22:06:16.448Z",
+            "notes": "Official auxiliary-stadium page. It states 09:00-17:00 facility hours, individual use until 19:00 on non-Sunday/holiday dates in April-October, and individual calendar periods AM 09:00-12:00, PM 13:00-17:00, night 17:00-19:00. The page embeds the public individual-use and event Google calendars."
+          },
+          {
+            "file": "sources/round4-b/kobe-sports-park-auxiliary-stadium-events.html",
+            "kind": "original-html",
+            "url": "https://www.kobe-park.or.jp/sougou/event/",
+            "sha256": "ca5408fc5ceff911eb73e68b0696852a01313365d3b9d0314a93c50979e160ea",
+            "retrievedAt": "2026-09-21T22:06:15.636Z",
+            "notes": "Official facility events page retained for event-calendar context."
+          },
+          {
+            "file": "sources/round4-b/kobe-sports-park-auxiliary-stadium-individual.ics",
+            "kind": "original-ics",
+            "url": "https://calendar.google.com/calendar/ical/6839e510499b92515acff5b1a86d68201ee1ad7fd0f714261f0e08a58c18f272%40group.calendar.google.com/public/basic.ics",
+            "sha256": "6a8bdd105dfea2d14cb38dcbb99a2ae48032285365b8692f6a5ca3a1c78b1b59",
+            "retrievedAt": "2026-09-21T22:13:09.733Z",
+            "notes": "Public ICS fetched from the official embedded individual-use calendar. It contains dated 2026-09 entries with official AM, PM, and night labels plus explicit no-use entries."
+          },
+          {
+            "file": "sources/round4-b/kobe-sports-park-auxiliary-stadium-events.ics",
+            "kind": "original-ics",
+            "url": "https://calendar.google.com/calendar/ical/9f5263699d2da814dd60139ef5591e9290a1479b4373b07b570ffc815da1505c%40group.calendar.google.com/public/basic.ics",
+            "sha256": "d61801b8164cf3e2ac46be87ac7490660628b928110c99fcc3498bc6f6d7d67e",
+            "retrievedAt": "2026-09-21T22:13:09.449Z",
+            "notes": "Public ICS fetched from the official embedded events calendar for context about dated events and facility conflicts."
+          },
+          {
+            "file": "sources/round4-b/kobe-sports-park-auxiliary-stadium-calendar.html",
+            "kind": "original-html",
+            "url": "https://www.kobe-park.or.jp/sougou/calendar",
+            "sha256": "e54c781114e59c6a8f7af1b5ebda3fe1634e4d3604d706b5ec303eed75758ed4",
+            "retrievedAt": "2026-09-21T22:06:16.439Z",
+            "notes": "Official current events-calendar page linking the September 2026 event PDF and image."
+          },
+          {
+            "file": "sources/round4-b/kobe-sports-park-current-events.pdf",
+            "kind": "original-pdf",
+            "url": "https://www.kobe-park.or.jp/sougou/wp-content/uploads/2026/08/a23e77c337d0ce6621856d0c78b0146c-1.pdf",
+            "sha256": "7ba4e3a0335053e92fa29afaa0af05de49104a2b68594ce4cc33dcd284c455d2",
+            "retrievedAt": "2026-09-21T22:13:09.882Z",
+            "notes": "Official one-page September 2026 event-calendar PDF linked by the calendar page."
+          },
+          {
+            "file": "sources/round4-b/kobe-sports-park-current-events.jpg",
+            "kind": "original-image",
+            "url": "https://www.kobe-park.or.jp/sougou/wp-content/uploads/2026/08/a23e77c337d0ce6621856d0c78b0146c.jpg",
+            "sha256": "820f48b07fbe8367cddc3c47375dad6223cc64d5bcc5a0ae0cfa3c6052eff9c3",
+            "retrievedAt": "2026-09-21T22:13:09.451Z",
+            "notes": "Original image version of the official September 2026 event calendar."
+          },
+          {
+            "file": "sources/round4-b/rendered/kobe-sports-park-current-events-1.png",
+            "kind": "derived-render",
+            "derivedFrom": "sources/round4-b/kobe-sports-park-current-events.pdf",
+            "sha256": "78bb3feb9605ec559ba2c47b694e414230c7cf10286f4787ce41fac58ca924f8",
+            "retrievedAt": "2026-09-21T22:14:10.816Z",
+            "notes": "Complete-page visual render for review."
+          }
+        ],
+        "sourceAvailabilityAssessment": {
+          "datedPositiveScheduleFound": true,
+          "positiveRunningHoursFound": [
+            "09:00-12:00 AM",
+            "13:00-17:00 PM",
+            "17:00-19:00 night in April-October"
+          ],
+          "applicablePeriod": "Official facility page plus public individual-use ICS containing dated September 2026 entries.",
+          "caveat": "The fetched individual-use feed contains dated September entries and no October 2026 entries; event ICS/PDF is context only."
+        }
+      }
+    ]
+  },
+  "kobeICS": {
+    "url": "https://calendar.google.com/calendar/ical/6839e510499b92515acff5b1a86d68201ee1ad7fd0f714261f0e08a58c18f272%40group.calendar.google.com/public/basic.ics",
+    "sha256": "5045e60dc1339e442ba9039a98dd2fdfae8640aaefb3b9e1899b2eb91c71991a",
+    "retrievedAt": "2026-09-21T22:15:23.116714+00:00",
+    "file": "sources/round4/kobe-individual.ics"
+  },
+  "audit": {
+    "reference": "blinded Codex Astra followed by primary full-source review; not human gold",
+    "recordCount": 301,
+    "astraRecordChanges": [],
+    "primaryPrereadCorrections": [
+      {
+        "facility": "mihama",
+        "reason": "Primary preread misread clock labels as cell centres. Full PDF confirms 09:00 at left edge of first white hourly cell; 30 labels and circles are at cell centres. Correct intervals match independent Astra. Sep10 morning ends16:00, Sep11 morning ends16:00 and resumes17:00. Preserve original preread unchanged."
+      }
+    ],
+    "notes": [
+      "Heiwadai blank schedule and partial events do not provide explicit positive hours; no artificial positive gold.",
+      "Hiroshima September-specific21:00 overrides generic seasonal17:00; October blank events unknown.",
+      "Kobe all-day ICS markers are dates; AM/PM/night map to published rules. No October events means unknown.",
+      "Ishin October source contains future change labels despite September retrieval; frozen input preserved; blue explicitly open slots used."
+    ],
+    "allInputHashesVerified": true,
+    "exact301IdsAndDatesVerified": true
+  },
+  "usage": {
+    "calls": 24,
+    "inputTokens": 248130,
+    "cachedInputTokens": 165372,
+    "cacheWriteTokens": 82686,
+    "outputTokens": 129666,
+    "estimatedUSD": 0.17959253999999997,
+    "pricingUSDPerMillion": {
+      "input": 0.2,
+      "cachedInput": 0.02,
+      "cacheWrite": 0.25,
+      "output": 1.2
+    }
+  },
+  "resultHashes": {
+    "results/round4/astra-a-records.json": "d258a6f8ee07d68fc48ac5d7b869309eb34a445048b1c8d81dad9559db421b21",
+    "results/round4/astra-b-records.json": "64d8c3749866c8ea470f86d6b4beec514d5e64db419495217d6550dbe9c532ae",
+    "results/round4/astra-c-records.json": "10072c39a9bcee70e8e28c480f5145ecf47a8ef3fce34d4a2e045efccf827e79",
+    "results/round4/luna-heiwadai-1-records.json": "41386413dc085a6ec3a7260c6921c4903a63dd75d0987c508e238dc72345391e",
+    "results/round4/luna-heiwadai-1.json": "05ba4d3dd96872e2bcdde86d7674faba7447f9bd6dde914bbf6782d3f4662a62",
+    "results/round4/luna-heiwadai-2-records.json": "ce99a77d84ace1e85cfd58ef4230b242719d7384aa5e175fdbd3c052198b9a10",
+    "results/round4/luna-heiwadai-2.json": "5b158216c9f257b561ac4002d55cce8dbfddd95ed78500e87f1a3f72da907ede",
+    "results/round4/luna-heiwadai-3-records.json": "f8f3a79fe0a3dc941dfb23adad869bbd85a4cb4087c82f7eb8c036e537768e69",
+    "results/round4/luna-heiwadai-3.json": "823481b640ca33af157b1fe776dfde56e7f6ccbef93165e93a73cea496e1111b",
+    "results/round4/luna-hiratsuka-1-records.json": "d870785d891037099f5e9f904355a927e3f78399ab610fd699edf93ed77e167f",
+    "results/round4/luna-hiratsuka-1.json": "62508a27a1fa696a7f6cf20526e8788db5da97f7044b8fc987800107aebac853",
+    "results/round4/luna-hiratsuka-2-records.json": "aa5391a6ecd7f494796572b093c95a7091d04b656bc2f54044a07d724266bacb",
+    "results/round4/luna-hiratsuka-2.json": "f710218465e25417038e7e152c47a753de1efcaa5950f413885785448a8bf045",
+    "results/round4/luna-hiratsuka-3-records.json": "11baee120790cfd90070d66a0abec1980f7527773b76279eba6b57481123de4c",
+    "results/round4/luna-hiratsuka-3.json": "9f3677ed51a37a0f15f0c395622fed5e563e67c85dc3382b7ca266dd6caa1ce3",
+    "results/round4/luna-hiroshima-1-records.json": "a3112d02fc978dc22ea06a395a96a0efd8f0892bf13590b53dc04f51ad98e5f1",
+    "results/round4/luna-hiroshima-1.json": "df6159468f872b29912c745798a35f2e9bb92170561fb95c427df46d04993cf7",
+    "results/round4/luna-hiroshima-2-records.json": "49e18fec7a87a2bb44e44123eb66ea65f02f63a102cf03a7ed7c7034477a8f37",
+    "results/round4/luna-hiroshima-2.json": "5fa476061108cafe0e8ed91e8c0fddf6705dfb02a439f6d20ec9ba54d5ce9156",
+    "results/round4/luna-hiroshima-3-records.json": "4756404821c5d8f7227823370af86a28f7f8e6690a8adfd1d3fd636a2e99cfe6",
+    "results/round4/luna-hiroshima-3.json": "efbc559325d9e1ebbcf08b80a014177a6192fa39839e6ef504f861dbccc7763c",
+    "results/round4/luna-ishin-1-records.json": "c0fc9df7e8e72b28aa57139abb10d1a3747f4a7eb03a69a9b8712f33490a5abe",
+    "results/round4/luna-ishin-1.json": "0b6c0d59dfbf973a5d9683678c6a1115fff2b2b1bc669a26fe5f82c806fa44f4",
+    "results/round4/luna-ishin-2-records.json": "efd94b5df1f461457b4e1a3af8d70cdc8a0f67ecd686e465851a14bc08ef990a",
+    "results/round4/luna-ishin-2.json": "6693161573be3d915dc6897afbe0e4ac68e4e32775bbb6a0dab9d285e6ded3dd",
+    "results/round4/luna-ishin-3-records.json": "940f47e6f7c70b3026a9d92a6425edbedd30260b3784965c8c261dccea0b5e77",
+    "results/round4/luna-ishin-3.json": "88086d2e7297569e3922ee89acc10f92f1cce9f1b0f4a9494c633af4e6dc1d8c",
+    "results/round4/luna-kobe-1-records.json": "ca4d10de3b33fdd1125dba3d5ad736973af20563366c3fe3c974af6492671bc6",
+    "results/round4/luna-kobe-1.json": "89f6836ef9e2afb27c391c837b6530bed06ef434c04cea79bdbc837d38bc1d08",
+    "results/round4/luna-kobe-2-records.json": "5d9db8485c2b701c18ba11b0adc0473b782651e8af7b62c4b6b8795d299b4249",
+    "results/round4/luna-kobe-2.json": "b1b8f4bd462368d96963b5576b574439ee6aac454add5f635e023509ce1afcff",
+    "results/round4/luna-kobe-3-records.json": "0a8f39553fbcf8d2c3b8883d74a991b15a2d160b99f1bc0994d0290686f9f647",
+    "results/round4/luna-kobe-3.json": "2322b2e5e8f846308eb445fb29cc239d45bc7d981ff85b3b0cc0ead90af71cc2",
+    "results/round4/luna-matsudo-1-records.json": "ee70f858abcb3b70b03586a750be3286be9c5d7d096260c99fcdf673d06927d3",
+    "results/round4/luna-matsudo-1.json": "3837a39670318110125eb0a04b600cd42b5dfd73ce19ae073c2b8c41f9609ff8",
+    "results/round4/luna-matsudo-2-records.json": "5b01e5da54485ced7429e9636cdc1e644d79a3893559417591075377fe52d3e6",
+    "results/round4/luna-matsudo-2.json": "3a7e5e6a73948c8e8a2e9e8b7921bb7c81ba7a2727fea430ca02ac4ed7ec7691",
+    "results/round4/luna-matsudo-3-records.json": "24a850fbb7aa0b9d5d3e4b01b7f5c52b8013ace62e410d120fe7442358e19b2f",
+    "results/round4/luna-matsudo-3.json": "4769c6a018f464c450a15783eb2e5da16a3936d93a611c6114d28abd7c729887",
+    "results/round4/luna-mihama-1-records.json": "96abf3516c8bd0f9b3eef8d1226fef13fe1dc9dd42961efb50890e7633911102",
+    "results/round4/luna-mihama-1.json": "5efcff58a7a44df7a0bfadc40d83aba6ab09c8866da0f1a3a9776c7c38c4f3c8",
+    "results/round4/luna-mihama-2-records.json": "4c01ca57623e92c6dee3cc5f7078ba74ce6b3d91089919af2a85b8c4081030ff",
+    "results/round4/luna-mihama-2.json": "ef82093c2fc8b0bb60fa980b2bd3d6f83e6ff5c4f80dda1c6e0a3668454e8c79",
+    "results/round4/luna-mihama-3-records.json": "5bea876718d65fea938bd3e4242241d7f14b1e217c7a766c144df2e9e2fab0fe",
+    "results/round4/luna-mihama-3.json": "5350c4a62986d70fd6fc0d7d9aeea6deded3807e5f99cd5869e0ef618ffbfd7e",
+    "results/round4/luna-odawara-1-records.json": "1e89ff28768d618257978ddf27863dff9b256a2bf92464ba3dfe99767a5b877a",
+    "results/round4/luna-odawara-1.json": "20df9e01c4017f46e607bc86805ad92328cb24feaf4b7e7070dd63633b4018e8",
+    "results/round4/luna-odawara-2-records.json": "c1fa9f0eca937c9462084f12d878a3a3da49d42a242d3c23e8ac1d6a623eed63",
+    "results/round4/luna-odawara-2.json": "8bf5af582d0577289a00e55ef6bbd9f2c2b75d8b03807316dde880188711a283",
+    "results/round4/luna-odawara-3-records.json": "52d4f346076ab985cd5a706f0133b4540adad7fdbf182b8fd87a11f5414e3e63",
+    "results/round4/luna-odawara-3.json": "6e5b6e989c314a256572e8bba89cf0b7db7aa3a9aebdc76e6dfa882250df3ce2",
+    "results/round4/primary-adjudications.json": "7272ea8878087fc7ba03b0f0c47093183f87bee705b606733415ec4b83cf5aee",
+    "results/round4/primary-preread.json": "a93741f61c303ac205e5f9963974deabfe6be2c862680bb4c3f46ecaa23afc9c",
+    "results/round4/primary-reviewed-reference.json": "abcd2f545ecae8a6c4aec4c8eac35046a2eea2c20d2ae862063318509476b2f9"
+  }
+}

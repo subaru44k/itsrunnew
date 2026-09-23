@@ -92,6 +92,10 @@ GA4は正式domainでアクセス解析へ同意した場合だけ読み込み�
 
 単体テストは`npm test`、起動済みPreviewの機能検証は`npm run test:reports`。制限、保存期間、モデレーション、GitHub変数と配備手順は[FIELD_REPORTS.md](../docs/FIELD_REPORTS.md)を参照してください。
 
+## AvailabilityのAI読解調査
+
+availabilityのAI読解を人手で評価するローカル入力画面は、リポジトリルートから `python3 research/availability/luna-feasibility/annotator.py` で起動します。`http://127.0.0.1:8766` で保存資料を見ながら判定を入力し、既存の判定表へ保存できます。Python 3標準ライブラリのみで動き、APIキーは不要です。公開アプリのbuild・配備対象には含みません。使い方と検証は[調査README](../research/availability/luna-feasibility/README.md)を参照してください。
+
 ## 各変更時のdaily更新検証
 
 通常のunit・lint・buildに加え、`npm run test:daily:fixtures` と `npm run test:daily` を実行します。前者は4status・戸田が利用不可の日と全施設unknownの回帰検証、後者は公式sourceの実収集・当日31日分の鮮度と完全性・build・PC/スマホsmokeです。両方とも一時workspaceを使い、checkoutのデータ・distは変更せず、AWSへ配備しません。Node 24、インストール済み依存、Chromeが必要です（Linuxは`CHROME_PATH=/usr/bin/google-chrome`）。PR/masterの`Node 24 validation`でも両方を必須実行します。

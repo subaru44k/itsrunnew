@@ -1,3 +1,0 @@
-# Project defaults; simple delegated tasks explicitly use Luna with max reasoning.
-model = "gpt-6-astra"
-model_reasoning_effort = "low"

@@ -10,17 +10,6 @@ ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify
 
 開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md) を参照してください。
 
-## エージェントのモデル方針
-
-主要モデルはGPT-6 Astra（`gpt-6-astra`、low）です。既定値は [`.codex/config.toml`](../.codex/config.toml) にあります。
-
-```toml
-model = "gpt-6-astra"
-model_reasoning_effort = "low"
-```
-
-Astraは要件・設計・曖昧さ・高リスク判断・最終レビューと統合を担当します。Lunaへは、単純で明確な限定的・独立した低リスクで検証可能な作業だけを、`gpt-5.6-luna`・`max`・`fork_turns = "none"` のclean spawnで委譲します。既定値ファイルを変更しても実行中のセッションは切り替わらず、委譲のノルマや不要なagentは設けません。詳細は [`../docs/DELEGATION_WORKFLOW.md`](../docs/DELEGATION_WORKFLOW.md) を参照してください。
-
 ## ローカル実行
 
 Node.js 22.13.0 以上とnpmが必要です。AI資料のPDFを画像化するcollectorにはPopplerの `pdfinfo` / `pdftoppm` が必要です（macOS: `brew install poppler`、Ubuntu: `sudo apt-get install poppler-utils`）。通常のbuildは外部sourceを取得しません。

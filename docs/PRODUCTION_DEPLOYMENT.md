@@ -24,7 +24,7 @@
 
 ## Build and cache behavior
 
-Production workflowはPoppler（`pdfinfo` / `pdftoppm`）を導入し、Actions cacheから`.cache/availability-ai`を復元してfresh 31-day availabilityを生成します。AIは施設ごとに公式資料と対象月全日付をまとめ、`gpt-5.6-luna`・reasoning `none`で公式資料一式を入力に1回実行します。source/prompt/model/schema/full-month datesが変わった場合だけcache keyが無効になります。Track Dataset validation、unit test、lint、build、local smokeを終えてからOIDC credentialsを取得します。Production buildはGoogle CMPを伴う広告を有効にします。AI keyはcollection stepだけに渡します。
+Production workflowはPoppler（`pdfinfo` / `pdftoppm`）を導入し、Actions cacheから`.cache/availability-ai`を復元してfresh 31-day availabilityを生成します。AIは施設ごとに公式資料と対象月全日付をまとめ、公式資料一式を入力に1回実行します。等々力・維新補助は`gpt-6-luna`・reasoning `medium`、知多・平塚・荻野は`gpt-6-luna`・`low`、広島補助・博多の森補助・世田谷は`gpt-5.6-luna`・`none`で読み取ります。公式sourceの取得は従来どおり順番に行い、AI読解だけ最大3件を並列実行します。source/prompt/model/effort/schema/full-month datesが変わった場合だけcache keyが無効になります。Track Dataset validation、unit test、lint、build、local smokeを終えてからOIDC credentialsを取得します。Production buildはGoogle CMPを伴う広告を有効にします。AI keyはcollection stepだけに渡します。
 
 trusted collection stepはrepository secret `OPENAI_API_KEY` と `ITSRUN_REQUIRE_AI_KEY=true` を要求します。通常のlocal buildは外部sourceを取得せず、keylessでcache missのAI施設はunknownです。PDFをAI入力へ変換するため、runnerにはPopplerをインストールします。runtimeはAstraを呼び出しません。
 

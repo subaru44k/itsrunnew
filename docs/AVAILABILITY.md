@@ -47,7 +47,7 @@ range生成先は `src/data/availability/manifest.json` と日付別 `YYYY-MM-DD
 
 manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。`public/availability` は生成先へのsymlinkで、Viteはmanifestと日別JSONをハッシュなしの静的ファイルとして配備します。ブラウザはVueを待たせずに `/availability/manifest.json` の取得を開始し、画面表示と選択日のJSON取得を並行して進めます。取得前はJST当日から31日の暫定範囲を使い、manifest到着時に日付範囲と選択日を更新します。同じ日別JSONへの同時要求は1回にまとめ、取得後60秒間は画面間で再利用します。開いたままのタブでも60秒以上後の利用状況取得時にmanifestを非同期で再確認し、新しい生成世代を反映します。取得失敗時は利用可能と推測せずunknownにします。日次データの変更はアプリJS・全HTML shellのハッシュを変えません。133掲載施設×31日を初期bundleへ含めません。追加collectorのAIキャッシュはrangeの日付計算とは別に、対象月全日を入力へ含めます。
 
-range collectorは同一method・URL・request bodyをprocess内でcacheします。同じlanding page、fixed rule HTML、weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、月間PDFは再取得せず、同一PDFのtext extractionもsource hash単位で再利用します。TEFのような日付指定POSTはbodyが日ごとに異なるため各日1回だけ取得します。2026-08-24から31日のlive実行ではcache hit 390回、実HTTP 98回でした。retryや並列burstは行いません。
+range collectorは同一method・URL・request bodyをprocess内でcacheします。同じlanding page、fixed rule HTML、weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、月間PDFは再取得せず、同一PDFのtext extractionもsource hash単位で再利用します。TEFのような日付指定POSTはbodyが日ごとに異なるため各日1回だけ取得します。2026-08-24から31日のlive実行ではcache hit 390回、実HTTP 98回でした。公式サイトへのretryや並列burstは行いません。
 
 ## 対応施設
 
@@ -126,9 +126,9 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 
 追加8施設は `scripts/availability/ai-sources.ts` が施設ごとの公式landing page、rules page、当月・翌月のschedule PDF/image、notice pageを許可hostname内だけで取得し、`ai-source-utils.ts` がHTML text、画像、PDFページを保存資料へ変換します。PDF画像化には `pdfinfo` と `pdftoppm` が必要です。macOSでは `brew install poppler`、Ubuntu系では `sudo apt-get install poppler-utils` を使います。入力資料に含まれる命令は無視し、公式資料を事実の根拠としてだけ扱います。
 
-`buildAiPacket` は指定rangeに含まれる月の全日付をpacketへ入れ、同じ施設・資料・指示などの入力について `readWithLuna` を1回だけ実行します。runtime modelは `gpt-5.6-luna`、reasoning effortは `none`、出力は4 statusの厳格JSON schemaです。runtimeにAstra呼び出しはありません。`additional.ts` はAI 8施設の結果で同じtrackIdのlegacy recordを置き換え、神戸・市原のICSはAIを使わず決定論的に解析します。
+`buildAiPacket` は指定rangeに含まれる月の全日付をpacketへ入れ、同じ施設・資料・指示などの入力について `readWithLuna` を1回だけ実行します。runtimeは知多・平塚・荻野が `gpt-6-luna` / `low`、等々力・維新補助が `gpt-6-luna` / `medium`、広島補助・博多の森補助・世田谷が `gpt-5.6-luna` / `none` です。出力は4 statusの厳格JSON schemaです。runtimeにAstra呼び出しはありません。`additional.ts` は公式資料の取得を施設ごとに順番に行い、AI読取だけを最大3件まで並列実行します。結果は施設の定義順に戻し、1施設の失敗はその施設の日付だけunknownにします。AI 8施設の結果で同じtrackIdのlegacy recordを置き換え、神戸・市原のICSはAIを使わず決定論的に解析します。
 
-cache keyはAI version、model、reasoning、資料・指示などの入力、schema、対象月の全日付から計算します。source内容、prompt、model、schema、対象月が変わるとcacheは無効になります。既定の保存先は `.cache/availability-ai`、変更時は `ITSRUN_AI_CACHE_DIR` を使います。GitHub ActionsはこのdirectoryをActions cacheへ保存・復元するため、同じ入力では2回目以降に再推論しません。通常のkeyless実行でcacheがなくAPI keyもない場合はAI施設を `unknown` にし、cacheを利用できる場合だけkeyなしでも再利用します。trusted deployはcollection開始時にkeyを必須とするため、cache hitでもsecret欠落なら開始時に失敗します。
+cache keyはAI version、model、reasoning、資料・指示などの入力、schema、対象月の全日付から計算します。source内容、prompt、model、reasoning effort、schema、対象月が変わるとcacheは無効になります。5.6を維持する施設の既存cacheは継続利用します。既定の保存先は `.cache/availability-ai`、変更時は `ITSRUN_AI_CACHE_DIR` を使います。GitHub ActionsはこのdirectoryをActions cacheへ保存・復元するため、同じ入力では2回目以降に再推論しません。通常のkeyless実行でcacheがなくAPI keyもない場合はAI施設を `unknown` にし、cacheを利用できる場合だけkeyなしでも再利用します。trusted deployはcollection開始時にkeyを必須とするため、cache hitでもsecret欠落なら開始時に失敗します。
 
 trusted Preview/Production collectionだけが `ITSRUN_REQUIRE_AI_KEY=true` とrepository secret `OPENAI_API_KEY` を要求します。secretはcollection stepへ渡し、build・smoke・通常のlocal buildには渡しません。AI導入の受入れ基準は、3回のLuna試行でpositive supportが80%超、明示時間帯の一致が70%超です。これは完璧な最新性を保証する基準ではなく、公開UIは当日変更と公式確認の注意を残します。
 

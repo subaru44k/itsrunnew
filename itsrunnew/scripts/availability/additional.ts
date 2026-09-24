@@ -1,7 +1,7 @@
 import { makeRecord, unknownRecord } from './collectors';
 import type { TrackAvailability } from '../../src/model/availability';
 import { aiFacilities, buildAiPacket } from './ai-sources';
-import { AI_VERSION, digest, readWithLuna } from './ai-runtime';
+import { aiReadingConfig, digest, readWithLuna } from './ai-runtime';
 import { officialFetch, htmlText, decodeEntities } from './ai-source-utils';
 import { parsePersonalIcs } from './personal-ics';
 
@@ -26,6 +26,7 @@ export const additionalTrackIds = [
   ...aiFacilities,
   ...personalCalendarFacilities,
 ].map((c) => c.trackId);
+const MAX_CONCURRENT_AI_READINGS = 3;
 export async function collectAdditionalAvailability(
   dates: string[],
   options: {
@@ -38,102 +39,126 @@ export async function collectAdditionalAvailability(
 ) {
   const now = options.now ?? new Date();
   const fetchImpl = options.fetchImpl ?? fetch;
-  const records: TrackAvailability[] = [];
+  const aiRecords: Promise<TrackAvailability[]>[] = [];
+  const activeReadings = new Set<Promise<TrackAvailability[]>>();
   for (const config of aiFacilities) {
+    const reading = aiReadingConfig(config.key);
     const base = {
       trackId: config.trackId,
       now,
       url: config.landing,
       landingPageUrl: config.landing,
       publicationFormat: 'structured_html' as const,
-      collector: `luna-none-${config.key}`,
-      parserVersion: AI_VERSION,
+      collector: reading.collector,
+      parserVersion: reading.version,
     };
-    try {
-      const packet = await buildAiPacket(config, dates, now, fetchImpl);
-      const result = await readWithLuna(packet, {
-        apiKey: options.apiKey,
-        fetchImpl: options.apiFetchImpl,
-        cacheDirectory: options.cacheDirectory,
-      });
-      const sourceHash = `sha256:${digest(JSON.stringify(packet.sources.map((s) => ({ url: s.url, hash: s.hash }))))}`;
-      console.log(
-        `AI availability ${config.key}: ${result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
-      );
-      for (const date of dates) {
-        const row = result.rows.get(date);
-        if (!row || row.status === 'unknown') {
-          records.push(
-            unknownRecord({
-              ...base,
-              date,
-              unknownReason: row
-                ? 'insufficient_information'
-                : 'outside_published_period',
-              sourceHash,
-              fetchedAt: now.toISOString(),
-              documentId: result.key,
-            }),
-          );
-          continue;
-        }
-        records.push(
-          makeRecord({
-            ...base,
-            date,
-            status: row.status,
-            url:
-              packet.sources.find((s) =>
-                row.evidence.some((e) => e.source === s.name),
-              )?.url ??
-              packet.sources.find((s) => s.kind === 'image')?.url ??
-              packet.sources[0].url,
-            sourceHash,
-            fetchedAt: now.toISOString(),
-            documentId: result.key,
-            publicationFormat: packet.sources.some((s) =>
-              /\.pdf(?:\?|$)/i.test(s.url),
-            )
-              ? 'pdf'
-              : 'structured_html',
-            confidence: 'medium',
-            periods: row.periods.map((p) => ({
-              from: p.start,
-              to: p.end,
-              status: 'available',
-              scope: 'unknown',
-              eligibility: 'unknown',
-              conditions: [
-                ...row.conditions,
-                ...(p.last_entry ? [`最終入場 ${p.last_entry}`] : []),
-                p.scope,
-              ],
-            })),
-            warnings: [
-              ...row.conditions,
-              '予定や利用条件は変更されることがあります。お出かけ前に施設の最新情報をご確認ください。',
-            ],
-          }),
-        );
-      }
-    } catch (error) {
+    const unavailable = (error: unknown) => {
       // Deliberately fixed public warning; API/request internals never enter the website.
       console.warn(
         `AI availability ${config.key}: unavailable (${error instanceof Error && /^AI |^Official |^Too many |^.*not found$/.test(error.message) ? error.message : 'source or reading failed'})`,
       );
-      for (const date of dates)
-        records.push(
-          unknownRecord({
-            ...base,
-            date,
-            unknownReason: 'extraction_failed',
-            warnings: [
-              '公式資料から利用時間を確認できませんでした。公式情報をご確認ください。',
-            ],
-          }),
-        );
+      return dates.map((date) =>
+        unknownRecord({
+          ...base,
+          date,
+          unknownReason: 'extraction_failed',
+          warnings: [
+            '公式資料から利用時間を確認できませんでした。公式情報をご確認ください。',
+          ],
+        }),
+      );
+    };
+    let packet: Awaited<ReturnType<typeof buildAiPacket>>;
+    try {
+      // Keep official source requests sequential; only overlap model readings.
+      packet = await buildAiPacket(config, dates, now, fetchImpl);
+    } catch (error) {
+      aiRecords.push(Promise.resolve(unavailable(error)));
+      continue;
     }
+    if (activeReadings.size >= MAX_CONCURRENT_AI_READINGS)
+      await Promise.race(activeReadings);
+    const task = (async (): Promise<TrackAvailability[]> => {
+      try {
+        const result = await readWithLuna(packet, {
+          apiKey: options.apiKey,
+          fetchImpl: options.apiFetchImpl,
+          cacheDirectory: options.cacheDirectory,
+        });
+        const sourceHash = `sha256:${digest(JSON.stringify(packet.sources.map((s) => ({ url: s.url, hash: s.hash }))))}`;
+        console.log(
+          `AI availability ${config.key}: ${result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
+        );
+        const facilityRecords: TrackAvailability[] = [];
+        for (const date of dates) {
+          const row = result.rows.get(date);
+          if (!row || row.status === 'unknown') {
+            facilityRecords.push(
+              unknownRecord({
+                ...base,
+                date,
+                unknownReason: row
+                  ? 'insufficient_information'
+                  : 'outside_published_period',
+                sourceHash,
+                fetchedAt: now.toISOString(),
+                documentId: result.key,
+              }),
+            );
+            continue;
+          }
+          facilityRecords.push(
+            makeRecord({
+              ...base,
+              date,
+              status: row.status,
+              url:
+                packet.sources.find((s) =>
+                  row.evidence.some((e) => e.source === s.name),
+                )?.url ??
+                packet.sources.find((s) => s.kind === 'image')?.url ??
+                packet.sources[0].url,
+              sourceHash,
+              fetchedAt: now.toISOString(),
+              documentId: result.key,
+              publicationFormat: packet.sources.some((s) =>
+                /\.pdf(?:\?|$)/i.test(s.url),
+              )
+                ? 'pdf'
+                : 'structured_html',
+              confidence: 'medium',
+              periods: row.periods.map((p) => ({
+                from: p.start,
+                to: p.end,
+                status: 'available',
+                scope: 'unknown',
+                eligibility: 'unknown',
+                conditions: [
+                  ...row.conditions,
+                  ...(p.last_entry ? [`最終入場 ${p.last_entry}`] : []),
+                  p.scope,
+                ],
+              })),
+              warnings: [
+                ...row.conditions,
+                '予定や利用条件は変更されることがあります。お出かけ前に施設の最新情報をご確認ください。',
+              ],
+            }),
+          );
+        }
+        return facilityRecords;
+      } catch (error) {
+        return unavailable(error);
+      }
+    })();
+    activeReadings.add(task);
+    void task.then(
+      () => activeReadings.delete(task),
+      () => activeReadings.delete(task),
+    );
+    aiRecords.push(task);
   }
+  const records = (await Promise.all(aiRecords)).flat();
   for (const config of personalCalendarFacilities) {
     const base = {
       trackId: config.trackId,

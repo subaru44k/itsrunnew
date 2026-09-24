@@ -1,4 +1,5 @@
-import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,11 +27,20 @@ const run = command => new Promise((resolveRun, reject) => {
   child.once('error', reject);
   child.once('exit', (code, signal) => code === 0 ? resolveRun() : reject(new Error(`${command} failed (${signal ?? code})`)));
 });
+async function appBuildSignature() {
+  const assets = (await readdir(join(app, 'dist/assets'))).sort();
+  const index = await readFile(join(app, 'dist/index.html'));
+  const route = await readFile(join(app, 'dist/tracks/guide/index.html'));
+  return createHash('sha256').update(JSON.stringify(assets)).update(index).update(route).digest('hex');
+}
 try {
   // Exclude local credentials/config and generated/dependency directories.
   await cp(source, app, { recursive: true, filter: path => !['node_modules', 'dist', 'cdk.out', '.git', '.cache'].includes(basename(path)) && !basename(path).startsWith('.env') });
   for (const name of ['data', 'research', '.github']) await cp(resolve(source, '..', name), join(scratch, name), { recursive: true });
   await symlink(join(source, 'node_modules'), join(app, 'node_modules'), 'dir');
+  // Ensure the copied public link follows this isolated workspace's generated data.
+  await rm(join(app, 'public/availability'), { force: true });
+  await symlink('../src/data/availability', join(app, 'public/availability'), 'dir');
   if (mode === 'live') {
     await run('collect:availability:range');
     await run('validate:availability:fresh');
@@ -40,6 +50,7 @@ try {
   } else {
     const tracks = JSON.parse(await readFile(join(app, 'src/data/tracks.json'), 'utf8'));
     const baseline = JSON.parse(await readFile(join(app, 'src/data/availability.json'), 'utf8'));
+    let firstBuildSignature;
     for (const scenario of ['mixed', 'unknown']) {
       console.log(`Daily regression scenario: ${scenario}`);
       const { manifest, datasets } = makeDailyFixture(tracks, baseline, scenario);
@@ -51,6 +62,11 @@ try {
       await writeFile(join(app, 'src/data/availability.json'), JSON.stringify(datasets[0]));
       await run('validate:tracks');
       await run('build');
+      const signature = await appBuildSignature();
+      if (firstBuildSignature && signature !== firstBuildSignature) {
+        throw new Error('Daily data changed application assets or HTML shells');
+      }
+      firstBuildSignature = signature;
       await run('test:smoke:preview');
     }
   }

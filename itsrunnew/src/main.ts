@@ -8,7 +8,10 @@ import './styles.css';
 import { trackPageView, updateAnalyticsConsent } from './services/analytics';
 import { analyticsConsent } from './services/privacy-consent';
 import { initializeAdvertising } from './services/advertising';
+import { loadAvailabilityManifest } from './model/availability-range';
 
+// Date availability can load alongside the manifest; it must not delay the app shell.
+void loadAvailabilityManifest().catch(() => { /* Date files fail closed to unknown when unavailable. */ });
 createApp(App).use(createPinia()).use(i18n).use(vuetify).use(router).mount('#app');
 
 watch(analyticsConsent, value => {

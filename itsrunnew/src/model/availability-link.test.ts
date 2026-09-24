@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { availabilityDataset, type TrackAvailability } from './availability';
+import type { TrackAvailability } from './availability';
+import availabilityFixture from '../data/availability.json';
 import { availabilityActionUrl } from './availability-link';
 import { tracks, type TrackFacility } from './tracks';
 
 const baseTrack = tracks[0];
-const baseAvailability = availabilityDataset.facilities[0];
+const baseAvailability = availabilityFixture.facilities[0] as TrackAvailability;
 
 function trackWithUrls(overrides: Partial<TrackFacility['urls']>): TrackFacility {
   return { ...baseTrack, urls: { ...baseTrack.urls, ...overrides } };

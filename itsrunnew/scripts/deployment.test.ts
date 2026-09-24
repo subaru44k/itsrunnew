@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 const workflow = readFileSync(new URL('../../.github/workflows/deploy-preview.yml', import.meta.url), 'utf8');
 const deployScript = readFileSync(new URL('./deploy-preview.sh', import.meta.url), 'utf8');
+const previewStack = readFileSync(new URL('../infra/itsrun-preview-stack.ts', import.meta.url), 'utf8');
 
 describe('Preview deployment contract', () => {
   it('supports master, manual, and 05:00 JST daily triggers with one deployment at a time', () => {
@@ -22,15 +23,12 @@ describe('Preview deployment contract', () => {
     expect(workflow).toContain("VITE_ADSENSE_ENABLED: 'false'");
   });
 
-  it('preserves cache metadata and invalidates only entry routes', () => {
-    expect(deployScript).toContain("public,max-age=31536000,immutable");
-    expect(deployScript).toContain("public,max-age=300");
-    expect(deployScript).toContain("--cache-control 'no-cache'");
-    expect(deployScript).toContain('dist/service-worker.js');
-    expect(deployScript).toContain("--paths '/' '/index.html' '/sitemap.xml' '/service-worker.js' '/en/' '/tracks' '/en/tracks'");
-    expect(deployScript).toContain("'/tracks/yoyogi-park-athletic-track' '/en/tracks/yoyogi-park-athletic-track'");
-    expect(deployScript).toContain("'/nozomiantena/index' '/en/nozomiantena/index' '/ryuji-miura/index' '/en/ryuji-miura/index'");
-    expect(deployScript).not.toContain("--paths '/*'");
+  it('guards the target before invoking the shared diff-based content deployer', () => {
+    expect(deployScript).toContain('Unexpected Preview bucket.');
+    expect(deployScript).toContain('node scripts/deploy-content.mjs "$PREVIEW_BUCKET" "$PREVIEW_DISTRIBUTION_ID"');
+    expect(deployScript).not.toContain('create-invalidation');
+    expect(previewStack).not.toContain('BucketDeployment');
+    expect(previewStack).not.toContain("'/*'");
   });
 });
 

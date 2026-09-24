@@ -86,9 +86,14 @@ jobs:
           role-to-assume: ${{ env.PREVIEW_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
           role-session-name: itsrun-preview-${{ github.run_id }}
-      - name: Deploy content and invalidate entry routes
+      - name: Deploy changed content and invalidate changed URLs
         id: deploy_content
         run: npm run deploy:preview:content
+      - name: Verify published page and Service Worker bytes
+        id: published_bytes
+        env:
+          ITSRUN_BASE_URL: ${{ env.PREVIEW_URL }}
+        run: node scripts/verify-deployed-content.mjs
       - name: Verify CloudFront Preview
         id: cloudfront_smoke
         env:
@@ -104,6 +109,10 @@ jobs:
           LOCAL_SMOKE_RESULT: ${{ steps.local_smoke.outcome }}
           DEPLOY_RESULT: ${{ steps.deploy_content.outcome }}
           INVALIDATION_ID: ${{ steps.deploy_content.outputs.invalidation_id }}
+          INVALIDATION_PATHS: ${{ steps.deploy_content.outputs.invalidation_paths }}
+          CHANGED_FILES: ${{ steps.deploy_content.outputs.changed_files }}
+          REMOVED_FILES: ${{ steps.deploy_content.outputs.removed_files }}
           CLOUDFRONT_SMOKE_RESULT: ${{ steps.cloudfront_smoke.outcome }}
+          PUBLISHED_BYTES_RESULT: ${{ steps.published_bytes.outcome }}
           DEPLOY_URL: ${{ env.PREVIEW_URL }}
         run: npm run deployment:summary

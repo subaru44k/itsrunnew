@@ -193,6 +193,7 @@ import { availabilityActionUrl as resolveAvailabilityActionUrl } from '../model/
 import {
   addDateOnlyDays,
   availabilityManifest,
+  availabilityManifestStatus,
   isGeneratedDate,
   loadAvailabilityDate,
   nextWeekdayDate,
@@ -295,9 +296,9 @@ if (initialCoordinates) {
   referencePointSource.value = 'map';
 }
 
-watch(() => route.query.date, async value => {
+watch([() => route.query.date, () => availabilityManifest.generatedAt, availabilityManifestStatus], async ([value]) => {
   const normalized = normalizeSelectedDate(value, today);
-  if (value != null && value !== normalized) {
+  if (availabilityManifestStatus.value !== 'loading' && value != null && value !== normalized) {
     await router.replace({ path: route.path, query: { ...route.query, date: normalized } });
     return;
   }

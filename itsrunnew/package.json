@@ -25,7 +25,7 @@
     "deploy:production:content": "bash scripts/deploy-production.sh",
     "deployment:summary": "node scripts/deployment-summary.mjs",
     "infra:synth": "npm run build && cdk synth",
-    "infra:deploy": "npm run build && cdk deploy --require-approval never --outputs-file cdk-outputs.json",
+    "infra:deploy": "cdk deploy --require-approval never --outputs-file cdk-outputs.json",
     "infra:destroy": "cdk destroy",
     "infra:automation:synth": "cdk synth --app \"npx tsx infra/automation-app.ts\"",
     "infra:automation:deploy": "cdk deploy --app \"npx tsx infra/automation-app.ts\" ItsRunPreviewAutomationStack --require-approval never",

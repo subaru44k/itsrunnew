@@ -10,17 +10,6 @@ ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify
 
 開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md) を参照してください。
 
-## エージェントのモデル方針
-
-主要モデルはGPT-6 Astra（`gpt-6-astra`、low）です。既定値は [`.codex/config.toml`](../.codex/config.toml) にあります。
-
-```toml
-model = "gpt-6-astra"
-model_reasoning_effort = "low"
-```
-
-Astraは要件・設計・曖昧さ・高リスク判断・最終レビューと統合を担当します。Lunaへは、単純で明確な限定的・独立した低リスクで検証可能な作業だけを、`gpt-5.6-luna`・`max`・`fork_turns = "none"` のclean spawnで委譲します。既定値ファイルを変更しても実行中のセッションは切り替わらず、委譲のノルマや不要なagentは設けません。詳細は [`../docs/DELEGATION_WORKFLOW.md`](../docs/DELEGATION_WORKFLOW.md) を参照してください。
-
 ## ローカル実行
 
 Node.js 22.13.0 以上とnpmが必要です。AI資料のPDFを画像化するcollectorにはPopplerの `pdfinfo` / `pdftoppm` が必要です（macOS: `brew install poppler`、Ubuntu: `sudo apt-get install poppler-utils`）。通常のbuildは外部sourceを取得しません。
@@ -102,6 +91,10 @@ GA4は正式domainでアクセス解析へ同意した場合だけ読み込み�
 `npm run reports:install`でAPI依存を準備し、`npm run reports:synth -- -c environment=preview`、`npm run reports:deploy -- -c environment=preview`で独立stackを配備します。出力API URLを`VITE_FIELD_REPORTS_API`へ設定してbuildします。未設定では投稿を無効化します。Productionは別stack・別データです。既存schedule backendは追加しません。
 
 単体テストは`npm test`、起動済みPreviewの機能検証は`npm run test:reports`。制限、保存期間、モデレーション、GitHub変数と配備手順は[FIELD_REPORTS.md](../docs/FIELD_REPORTS.md)を参照してください。
+
+## AvailabilityのAI読解調査
+
+availabilityのAI読解を人手で評価するローカル入力画面は、リポジトリルートから `python3 research/availability/luna-feasibility/annotator.py` で起動します。`http://127.0.0.1:8766` で保存資料を見ながら判定を入力し、既存の判定表へ保存できます。Python 3標準ライブラリのみで動き、APIキーは不要です。公開アプリのbuild・配備対象には含みません。使い方と検証は[調査README](../research/availability/luna-feasibility/README.md)を参照してください。
 
 ## 各変更時のdaily更新検証
 

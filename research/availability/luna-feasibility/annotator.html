@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>保存資料の判定ワークスペース</title>
+    <link rel="stylesheet" href="/annotator.css">
+    <script src="/annotator.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell" id="app">
+      <header class="app-header">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">調</span>
+          <div>
+            <p class="eyebrow">LOCAL RESEARCH WORKSPACE</p>
+            <h1>保存資料の判定</h1>
+          </div>
+        </div>
+        <span class="local-badge">ローカル・研究用</span>
+      </header>
+
+      <div class="workspace-grid">
+        <aside class="sidebar" aria-label="調査対象の選択">
+          <section class="sidebar-section facility-section" aria-labelledby="facility-heading">
+            <div class="section-kicker">01 / 対象を選ぶ</div>
+            <h2 id="facility-heading">施設</h2>
+            <label class="field-label" for="facility-select">施設を選択</label>
+            <select id="facility-select" name="facility" autocomplete="off" disabled>
+              <option value="">読み込み中…</option>
+            </select>
+            <p class="facility-summary" id="facility-summary">資料と判定記録を読み込んでいます。</p>
+          </section>
+
+          <section class="sidebar-section progress-section" aria-labelledby="progress-heading">
+            <div class="section-kicker">02 / 進み具合</div>
+            <div class="progress-heading-row">
+              <h2 id="progress-heading">判定の進み具合</h2>
+              <span class="progress-total" id="progress-total">— / —</span>
+            </div>
+            <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+            <dl class="progress-list" id="progress-summary">
+              <div><dt>記入済み</dt><dd id="progress-complete">—</dd></div>
+              <div><dt>途中</dt><dd id="progress-in-progress">—</dd></div>
+              <div><dt>未記入</dt><dd id="progress-unstarted">—</dd></div>
+            </dl>
+          </section>
+
+          <section class="sidebar-section dates-section" aria-labelledby="dates-heading">
+            <div class="section-kicker">03 / 対象日</div>
+            <div class="dates-heading-row">
+              <h2 id="dates-heading">10件のケース</h2>
+              <span class="dates-hint">保存状況</span>
+            </div>
+            <div class="date-list" id="date-list" role="list" aria-label="対象日の一覧">
+              <p class="loading-note">対象日を読み込んでいます。</p>
+            </div>
+            <div class="status-legend" aria-label="対象日の保存状況の凡例">
+              <span><i class="legend-dot legend-dot--done" aria-hidden="true"></i>記入済み</span>
+              <span><i class="legend-dot legend-dot--partial" aria-hidden="true"></i>途中</span>
+              <span><i class="legend-dot legend-dot--empty" aria-hidden="true"></i>未記入</span>
+            </div>
+          </section>
+        </aside>
+
+        <main class="main-content">
+          <section class="guidance-panel" aria-labelledby="guidance-heading">
+            <div class="guidance-icon" aria-hidden="true">i</div>
+            <div>
+              <h2 id="guidance-heading">資料を読んだ範囲だけを記録してください</h2>
+              <p>対象日の保存資料から、一般の個人ランナーがトラックを使えるかを判定します。記載がないことを利用不可とは推測しません。</p>
+              <div class="guidance-details">
+                <span><strong>未記入</strong>：まだ資料を確認していない</span>
+                <span><strong>判断不能</strong>：確認したが、資料だけでは決められない</span>
+                <span><strong>一部利用可</strong>：終日ではなく、明示された時間や条件がある</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="live-region" id="save-status" role="status" aria-live="polite">準備しています。</div>
+          <div class="error-region" id="error-status" role="alert" aria-live="assertive" hidden></div>
+
+          <section class="case-heading" aria-labelledby="case-heading">
+            <div>
+              <p class="section-kicker">現在のケース</p>
+              <h2 id="case-heading">対象日を読み込んでいます…</h2>
+              <p class="case-meta" id="case-meta">—</p>
+            </div>
+            <span class="dirty-pill" id="dirty-pill" hidden>未保存の変更</span>
+          </section>
+
+          <div class="case-grid">
+            <section class="source-panel panel" aria-labelledby="sources-heading">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">根拠を確認する</p>
+                  <h2 id="sources-heading">参照資料</h2>
+                </div>
+                <span class="source-count" id="source-count">—</span>
+              </div>
+              <div class="source-tabs" id="source-tabs" role="tablist" aria-label="参照資料の切り替え">
+                <p class="loading-note">資料を読み込んでいます。</p>
+              </div>
+              <div class="source-viewer" id="source-viewer" aria-live="polite">
+                <div class="empty-state">
+                  <span class="empty-state-icon" aria-hidden="true">↗</span>
+                  <p>参照資料を選択してください。</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="annotation-panel panel" aria-labelledby="annotation-heading">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">判定を残す</p>
+                  <h2 id="annotation-heading">人手判定</h2>
+                </div>
+                <span class="required-note">すべて任意</span>
+              </div>
+
+              <form id="annotation-form" novalidate>
+                <fieldset class="form-section status-fieldset">
+                  <legend>判定 <span class="legend-help">資料から読み取れる範囲</span></legend>
+                  <div class="status-options" id="status-options"></div>
+                </fieldset>
+
+                <div class="form-section">
+                  <label class="form-label" for="time-input">利用可能時間 <span class="label-help">例：09:00-12:00; 17:00-21:00</span></label>
+                  <div class="input-with-actions">
+                    <input id="time-input" name="time" type="text" autocomplete="off" placeholder="時間が明示されている場合に記入" disabled>
+                    <div class="quick-actions" id="time-shortcuts" aria-label="利用可能時間の入力補助">
+                      <button type="button" class="quick-button" id="time-none-button" data-time-value="なし" disabled>なし</button>
+                      <button type="button" class="quick-button" id="time-unknown-button" data-time-value="不明" disabled>不明</button>
+                    </div>
+                  </div>
+                  <p class="field-help">資料にない時刻は推測せず、「不明」と記入します。利用不可なら「なし」と記入できます。</p>
+                </div>
+
+                <div class="form-section">
+                  <label class="form-label" for="conditions-input">条件</label>
+                  <textarea id="conditions-input" name="conditions" rows="3" placeholder="利用資格、最終入場、時間制限、当日確認など" disabled></textarea>
+                </div>
+
+                <div class="form-section evidence-section">
+                  <label class="form-label" for="evidence-input">根拠箇所</label>
+                  <textarea id="evidence-input" name="evidence" rows="5" placeholder="ファイル名とページ・表・行、短い引用を記入" disabled></textarea>
+                  <p class="field-help">完了扱いには判定と根拠箇所の両方が必要です。判断不能でも、決められない理由を残します。</p>
+                </div>
+
+                <div class="form-section">
+                  <label class="form-label" for="notes-input">迷った点・メモ <span class="label-help">任意</span></label>
+                  <textarea id="notes-input" name="notes" rows="3" placeholder="迷った点、資料間の関係、あとで確認したいこと" disabled></textarea>
+                </div>
+
+                <div class="form-section copy-section">
+                  <button type="button" class="secondary-button copy-previous-button" id="copy-previous-button" disabled>前のケースから空欄へコピー</button>
+                  <p class="field-help">判定はコピーしません。日付固有の根拠か確認してから保存してください。</p>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="primary-button" id="save-button" disabled>保存する</button>
+                  <button type="button" class="primary-button primary-button--next" id="save-next-button" disabled>保存して次へ <span aria-hidden="true">→</span></button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </main>
+      </div>
+
+      <footer class="app-footer">
+        <p>保存資料の人手判定用。対象日ごとの根拠を残し、公開データには直接接続しません。</p>
+        <button type="button" class="text-button" id="retry-button" hidden>再読み込み</button>
+      </footer>
+    </div>
+  </body>
+</html>

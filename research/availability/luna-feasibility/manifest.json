@@ -1,0 +1,125 @@
+{
+  "purpose": "Frozen human/model evaluation inputs; not production data",
+  "files": [
+    {
+      "file": "sources/fuchu-calendar.pdf",
+      "url": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.files/reiwa8nennkarennda.pdf",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:39:49.080351+00:00",
+      "bytes": 137436,
+      "sha256": "c78b626a20e29f82f1c95a37cab21be33468bbe96deee3010620d38243f0aa3f"
+    },
+    {
+      "file": "sources/fuchu-calendar.png",
+      "url": null,
+      "derivedFrom": "sources/fuchu-calendar.pdf",
+      "savedAt": "2026-09-19T23:40:12.532944+00:00",
+      "bytes": 336065,
+      "sha256": "1c241cbe9d26305728dc35b37a5aae9f327fbcf3800f6cea98c97221a1b742c4"
+    },
+    {
+      "file": "sources/fuchu.html",
+      "url": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:39:29.954148+00:00",
+      "bytes": 27231,
+      "sha256": "6977b814d835970e24c7eba6d4c0c0bc6175bbdb0fcbf22855b49792f53605b2"
+    },
+    {
+      "file": "sources/fuchu.txt",
+      "url": null,
+      "derivedFrom": "sources/fuchu.html",
+      "savedAt": "2026-09-19T23:43:10.804707+00:00",
+      "bytes": 8916,
+      "sha256": "e85a5a2119968be82fc4ec995a6829f07a83342ea2d8fae13fc9f8762d65ea68"
+    },
+    {
+      "file": "sources/hirakata.html",
+      "url": "https://shisetsu.mizuno.jp/mss-7292/guide",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:39:30.535440+00:00",
+      "bytes": 76101,
+      "sha256": "16559e67bcca7c8771eec41088c8ecbeadd4abf9d360423e79b51bdab259b933"
+    },
+    {
+      "file": "sources/hirakata.txt",
+      "url": null,
+      "derivedFrom": "sources/hirakata.html",
+      "savedAt": "2026-09-19T23:43:10.833529+00:00",
+      "bytes": 28696,
+      "sha256": "8cec720712240bb12819bbaf0b15913ac2279b3c3ec5c0dfaece522b405a09cb"
+    },
+    {
+      "file": "sources/okazaki-news.html",
+      "url": "https://www.ryuhoku-sf.jp/news/index.php",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:39:49.172649+00:00",
+      "bytes": 11204,
+      "sha256": "3f51660dff02ca93b5db982fbc9284ee4333aa6e54457cf795fd2b69fd9ef102"
+    },
+    {
+      "file": "sources/okazaki-personal.html",
+      "url": "https://www.ryuhoku-sf.jp/news/detail.php?no=603&ref=/news/index.php",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:40:21.159938+00:00",
+      "bytes": 12466,
+      "sha256": "e678f269354f2264c0ae94b8aeb0351cfeeeaeef2cf3459fbaddd528c06894c6"
+    },
+    {
+      "file": "sources/okazaki-personal.txt",
+      "url": null,
+      "derivedFrom": "sources/okazaki-personal.html",
+      "savedAt": "2026-09-19T23:43:10.836977+00:00",
+      "bytes": 2578,
+      "sha256": "2c790faf2d1371d7bcb94481b18b6f1aff94933b8d8bbcf806caaef5782d2ac3"
+    },
+    {
+      "file": "sources/okazaki-restrictions.html",
+      "url": "https://www.ryuhoku-sf.jp/news/detail.php?no=573&ref=/news/index.php",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:40:21.292172+00:00",
+      "bytes": 12158,
+      "sha256": "2895ec78315a0635a18756d5ca436a58952022cb74a32b3f7604dca35420c845"
+    },
+    {
+      "file": "sources/okazaki-restrictions.pdf",
+      "url": "https://www.ryuhoku-sf.jp/news/data/%E4%BB%A4%E5%92%8C%EF%BC%98%E5%B9%B4%E5%BA%A6%E9%BE%8D%E5%8C%97%E7%B7%8F%E5%90%88%E9%81%8B%E5%8B%95%E5%A0%B4%E6%96%BD%E8%A8%AD%E4%BC%91%E6%AD%A2%E6%9C%9F%E9%96%93%EF%BC%886%E6%9C%8830%E6%97%A5%E5%A4%89%E6%9B%B4%EF%BC%89.pdf",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:41:26.253147+00:00",
+      "bytes": 440876,
+      "sha256": "b0e3f3940f5bdf5f8b5e348380e2537aee99cbcf1a2d6d2a633d019bbda9d124"
+    },
+    {
+      "file": "sources/okazaki-restrictions.png",
+      "url": null,
+      "derivedFrom": "sources/okazaki-restrictions.pdf",
+      "savedAt": "2026-09-19T23:41:35.211673+00:00",
+      "bytes": 151964,
+      "sha256": "fddc50886462a40d91d9cca51f5fdacc1eb5561ed7e734c09418ef826713b70e"
+    },
+    {
+      "file": "sources/okazaki-restrictions.txt",
+      "url": null,
+      "derivedFrom": "sources/okazaki-restrictions.html",
+      "savedAt": "2026-09-19T23:43:10.839843+00:00",
+      "bytes": 2389,
+      "sha256": "47266ec658a825822c2d8759abc5b78f6c7587c5507e71f96b7b136d642152f6"
+    },
+    {
+      "file": "sources/okazaki-week.jpg",
+      "url": "https://www.ryuhoku-sf.jp/news/data/9%E6%9C%8815%E6%97%A5%EF%BD%9E.jpg",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:41:26.074437+00:00",
+      "bytes": 167802,
+      "sha256": "0d76b6959782cc1d9966258dc3fc019ac2fcac77aa6d4e40abcb617af55e3629"
+    },
+    {
+      "file": "sources/okazaki.html",
+      "url": "https://www.ryuhoku-sf.jp/calender/",
+      "derivedFrom": null,
+      "savedAt": "2026-09-19T23:39:30.346978+00:00",
+      "bytes": 15844,
+      "sha256": "cdc91146ad822dcc8484d034aeada2e3343d987c3cd3633628706feab9efc3f6"
+    }
+  ]
+}

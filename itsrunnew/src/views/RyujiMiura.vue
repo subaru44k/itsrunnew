@@ -9,7 +9,7 @@
         <div><strong>{{ steepleCount }}</strong><span>3000m障害</span></div>
         <div><strong>2020–{{ latestYear }}</strong><span>収録期間</span></div>
       </div>
-      <p class="updated">最終確認：2026年8月23日（2026年シーズンは途中）</p>
+      <p class="updated">最終確認：2026年9月20日（2026年シーズンは途中、9月5日までの結果）</p>
     </header>
 
     <AdsDisplay slot="6879016191" />
@@ -133,6 +133,7 @@ const names: Array<[RegExp, string]> = [
   [/Seashore Group Doha Meeting/, 'ドーハDL'],
   [/Wanda Diamond League Xiamen/, '廈門DL'],
   [/Weltklasse Zürich/, 'チューリヒDL'],
+  [/Allianz Memorial van Damme/, 'ダイヤモンドリーグ・ファイナル（ブリュッセル）'],
   [/Athletissima Lausanne/, 'ローザンヌDL'],
   [/Prefontaine Classic/, 'プレフォンテーンクラシック'],
   [/Tokorozawa Games/, '所沢競技会'],

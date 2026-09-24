@@ -2,17 +2,6 @@
 
 この文書は、新しい作業セッションがコード全体を最初から調査せずに、サイトの構造・責務・制約を把握するための基準資料です。実装を変更したときは、ルートの [`AGENTS.md`](../AGENTS.md) の指示に従ってこの文書も更新してください。
 
-## エージェントのモデル方針
-
-主要モデルはGPT-6 Astra（`gpt-6-astra`、low）です。プロジェクト既定値は [`.codex/config.toml`](../.codex/config.toml) にあります。
-
-```toml
-model = "gpt-6-astra"
-model_reasoning_effort = "low"
-```
-
-Astraは要件、設計、曖昧さ、セキュリティや高リスクの判断、最終レビューと統合を担当します。Lunaへは、単純で明確な限定的・独立した低リスクの作業だけを、`gpt-5.6-luna`・`max`・`fork_turns = "none"` のclean spawnで委譲します。既定値ファイルを変更しても実行中のセッションは切り替わらず、委譲のノルマや不要なagentは設けません。手順は [`DELEGATION_WORKFLOW.md`](DELEGATION_WORKFLOW.md) を参照してください。
-
 ## 1. リポジトリとアプリケーションルート
 
 Gitリポジトリのルートはこの文書の親ディレクトリです。実際のWebアプリとCDKコードは `itsrunnew/` 以下にあります。npm、Vite、テスト、CDKの各コマンドは原則として `itsrunnew/` で実行します。
@@ -129,7 +118,8 @@ research/
 │   ├── html-calendar-collector-validation.md HTML/calendar/fixed拡張9施設のlive比較・coverage
 │   ├── high-confidence-collector-validation-batch-2-2026-09.md 6施設の追加collector、source、safe semantics、coverage検証
 │   ├── ai-adoption-2026-09.json       追加10施設の試行評価と採用基準
-│   └── ai-collector-integration-2026-09.md AI source identity、cache、運用境界
+│   ├── ai-collector-integration-2026-09.md AI source identity、cache、運用境界
+│   └── luna-feasibility/           AI読解の人手判定、試行記録、ローカル入力・採点・shadow試験
 ├── nozomi-tanaka/
 │   ├── 2025-trial-results.json    田中希実選手2025年出走の出典・確度付き試験収集データ
 │   └── 2025-trial-report.md       収集結果、情報源、継続更新方式の評価
@@ -143,9 +133,8 @@ research/
     ├── coverage-gap-followups.*    完了済みbatchで採否記録がない未掲載施設の引継ぎ台帳
     └── track-source-audit.json     施設別のsource監査台帳
 
-.codex/config.toml                プロジェクト既定のGPT-6 Astra・low設定（実行中セッションは切り替えない）
 docs/TRACK_EXPANSION_PLAYBOOK.md  候補発見から公開・再検証までの施設追加品質ゲート
-docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契約、review記録
+docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方針の退避記録
 
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
@@ -237,9 +226,9 @@ docs/DELEGATION_WORKFLOW.md       Astra/Lunaの再評価checkpoint、handoff契�
 
 `NozomiAntena.vue`は `src/data/nozomi-results.json` を読み、2020年から現在までのトラック、室内、ロードの大会結果を表示します。予選・決勝と同日複数種目は別レコードです。World Athleticsの大会記録を基礎にし、統計DBへ載りにくい駅伝区間、ペースメーカー、ゲスト出走、国内オープン種目をView内の補足レコードとして保持します。年度・種類・大会名／種目で絞り込め、地方大会、ロード・駅伝、役割付き出走をタグで識別できます。本文は現状、日本語で直接記述されています。
 
-`RyujiMiura.vue`は `src/data/ryuji-results.json` を読み、三浦龍司選手の2020年以降67レースを表示します。3000m障害を中心に、1500m、3000m、5000m、10000m、クロスカントリー、10マイル、ハーフマラソンを含みます。World Athleticsに掲載された国際大会だけでなく、順天堂大学競技会、関東インカレ、織田幹雄記念、ホクレン、日体大長距離競技会など国内の記録会も同じ時系列に収録し、年度・種類・大会名／種目で絞り込めます。各行の大会名は確認可能な公式結果へのリンクです。収集範囲と更新時の注意点は [`../research/ryuji-miura/2020-onward-report.md`](../research/ryuji-miura/2020-onward-report.md) に記録しています。
+`RyujiMiura.vue`は `src/data/ryuji-results.json` を読み、三浦龍司選手の2020年以降68レースを表示します。3000m障害を中心に、1500m、3000m、5000m、10000m、クロスカントリー、10マイル、ハーフマラソンを含みます。World Athleticsに掲載された国際大会だけでなく、順天堂大学競技会、関東インカレ、織田幹雄記念、ホクレン、日体大長距離競技会など国内の記録会も同じ時系列に収録し、年度・種類・大会名／種目で絞り込めます。各行の大会名は確認可能な公式結果へのリンクです。収集範囲と更新時の注意点は [`../research/ryuji-miura/2020-onward-report.md`](../research/ryuji-miura/2020-onward-report.md) に記録しています。
 
-2025年分の収集経緯と個別出典は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
+2025年分の収集経緯と個別出典、および2026年9月の追加確認は、アプリ外の [`../research/nozomi-tanaka/2025-trial-results.json`](../research/nozomi-tanaka/2025-trial-results.json) と [`../research/nozomi-tanaka/2025-trial-report.md`](../research/nozomi-tanaka/2025-trial-report.md) に残しています。公開ページは非公式アーカイブであり、公開記録のない出走には未収録の可能性があることを明示します。
 
 ### 正規URLと検索条件の引継ぎ
 
@@ -292,6 +281,20 @@ availability source調査は、アプリ外の [`../research/availability/availa
 `availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、監視専用fetchで一時障害を1回再試行、鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。
 
 `monitor-github.mjs` が前回成功runのstate artifactを復元し、`monitor-email.py` がGmail SMTP over TLSで異常・変化・復旧を1通にまとめます。状態不変時は通知しません。Secretsは送信元・アプリパスワード・宛先の3つで、collectorには渡しません。メール成功後に90日保持のstateを保存し、reportは失敗時も30日保持します。監視基盤の障害は失敗runごとに別メールを試み、SMTP障害はActions失敗にします。Node 24・Poppler・Python 3標準ライブラリ・GitHub CLIを使用します。AI読解は既存deployと同じcacheを復元し、masterの収集stepだけへ既存OPENAI_API_KEYを渡します。欠落時は監視jobを失敗させます。AWS認証、公開データ更新、deploy停止、Issue作成は行いません。設定、再現コマンド、履歴破損時の挙動、監視自体の未起動を検知できない制限は [`AVAILABILITY_MONITORING.md`](AVAILABILITY_MONITORING.md) を参照してください。
+
+### AI availability読解の予備調査
+
+以下は2026年9月22日までの採用評価の経緯です。公開collectorへの導入状況は前述のavailability節を参照してください。
+
+`research/availability/luna-feasibility/` にLuna reasoning noneの読解評価用README、人手判定表30件、資料URL・hashのmanifest、API試行結果を保存しています。公式PDF・画像・HTMLと閲覧用派生物はGit対象外の同ディレクトリの `sources/` に保存します。2026-09-20にAPIで3施設×3回を試行し、リクエスト・応答・使用量と実験スクリプトをGit対象外の `results/` に保存しました。2026-09-21に府中10件の人手記入との比較・再確認案を `fuchu-review.md` に記録し、分類2件の再確認待ちです。岡崎10件との比較は `okazaki-review.md` に記録し、休止告知の全施設対象行に基づく3件はユーザー確認後に判定表へ修正済みです。修正前の表と初回比較を保持しています。判定一致と引用元の誤りは分離して記録しています。枚方の人手10件との比較は `hirakata-review.md` に記録し、3回とも全件unknownで一致しました。日別情報不足と時間説明の不整合を記録し、公開collectorやavailability生成への接続はありません。第2回は5施設29日についてLuna noneのAPI 3回とCodex内Astra lowの独立1回を比較し、`round2-report.md`・`round2-comparison.md` に記録しました。資料hashは `round2-manifest.json`、原本はGit対象外の `sources/round2/`、実験入力・回答・集計は `results/round2/` に保存します。非掲載の不可断定・条件欠落・分類定義の揺れがあり、無確認公開は見送ります。初期資料の偏りと別週・別月での追加評価手順は同READMEを参照してください。
+
+第3回は未対応5施設188件についてLuna noneを3回、Codex Astra lowを独立1回実行し、全施設を採用保留としました。`round3-report.md`・`round3-comparison.md`・`round3-manifest.json` が調査記録です。`compare_round3.py` はGit対象外の `results/round3/` の固定回答を比較し、Astraの原資料確認による2件の訂正は生回答と分離します。`shadow_collect.py` は承認ファイル内のレビュー済み記録とHTTPS資料hashを再取得検証する有限の非公開試験器です。資料変更・取得失敗・未承認・未検証日はunknownとし、出力先は `local-state/shadow/<run-id>/` に限定、上書きを拒否します。新規資料のAI推論・定期実行・公開データへの接続はありません。第3回は全施設未承認で2回実行し、利用可能日の増加0件を確認しました。`test_shadow_collect.py` と入力画面テストの計11件、daily fixtures/live両gateが成功しています。実行方法は研究READMEを参照してください。
+
+2026-09-22に採用基準を「3回それぞれの使える日裏付け率の算術平均 >80%、時間区間完全一致率の算術平均 >70%」へ変更しました。上記全施設保留は旧基準の履歴です。第4回の未対応8施設301件×3回では平塚・広島広域公園補助・維新百年記念公園補助・神戸総合運動公園補助が通過し、第3回の等々力・知多と合わせた候補6施設を `adoption-candidates.json` に記録しました。`round4-report.md` と `round4-manifest.json` が結果・資料hash・使用量を保持します。`score_candidate_runs.py --round-dir <results/roundN>` はAPIを呼ばず固定回答から `metrics.json` を生成し、日付欠落・指定外・ID不一致と今後31日の増加を分離します。`test_candidate_metrics.py` が閾値・平均・時間区間・欠落等を検証します。原資料はGit対象外の `sources/round4/`・`sources/round4-b/`、生回答と参照回答は `results/round4/`。第4回評価時点では公開collectorへのAI接続・配備は未実施でした。
+
+2026-09-21に府中は現状の単純読み取りを不採用とし、費用対効果から施設別チューニングを進めず岡崎龍北・枚方のannotationへ進む判断を記録しました。研究用の `annotator.py` はPython 3標準ライブラリのHTTP serverを127.0.0.1:8766に起動し、`annotator.html` / `annotator.js` / `annotator.css` の資料閲覧・入力画面を配信します。`GET /api/annotations` が人手表を読み込み、同一originの `POST /api/annotations` がrevisionを検証して対象行だけをatomic保存します。保存前のバックアップはGit対象外の `local-state/backups/` に保持します。PDFのHTTP routeは保存済みの全ページPNGを使うHTMLプレビューを返し、`?download=1` のときだけ原本PDFをattachmentで返します。プレビューは同一originのiframeにも表示でき、内蔵PDF viewerに依存しません。配信は画面assetと明示的な資料allowlistに限定し、AI回答・キー・任意ファイルを配信しません。公開アプリのroute・backend・buildとは独立し、APIキーや外部通信は不要です。起動・保存方法、隔離コピーを使う保存テストは調査READMEを参照してください。
+
+第5回は残り13施設のうち資料が揃った11施設434件をLuna noneで3回独立実行し、Codex Astra lowの盲検読解と原資料照合で評価しました。博多の森補助・世田谷・荻野・市原の4施設が通過し、累計候補は10施設です。6施設は時間帯基準未満（ギオン主競技場は資料解釈で採否が変わる境界例）、寝屋川・服部緑地・たけびし主競技場は正の利用枠を評価する情報不足です。`round5-report.md`・`round5-manifest.json` に試行差・再現率・参照回答の曖昧さ・費用・source hashを記録し、原資料はGit対象外の `sources/round5/`・`sources/round5-a/`、回答と集計は `results/round5/` に保存します。市原の公開ICSは日付で機械抽出した同一資料を両モデルへ渡しました。世田谷は当日1日だけの正例で、朝の資料公開時刻を組み込み時に考慮する必要があります。第5回評価時点では候補10施設の公開collectorへの接続・配備は未実施でした。その後8施設をAI、2施設をICSで実装し、自動判定対象は計43施設になりました。
 
 ## 7. AWS検証環境
 

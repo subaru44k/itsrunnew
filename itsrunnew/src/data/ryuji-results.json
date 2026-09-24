@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-09-05",
+    "competition": "Allianz Memorial van Damme",
+    "event": "3KSC",
+    "round": "F",
+    "place": 8,
+    "mark": "8:17.31",
+    "city": "Brussels",
+    "country": "BEL",
+    "indoor": false,
+    "competitionId": 7214029,
+    "category": "GW"
+  },
+  {
     "date": "2026-08-23",
     "competition": "Silesia Kamila Skolimowska Memorial",
     "event": "3KSC",

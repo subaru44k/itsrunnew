@@ -6,6 +6,12 @@ Before investigating or changing this repository, read [`docs/SITE_STRUCTURE.md`
 
 The Git repository root contains the application in `itsrunnew/`. Run application, test, and CDK commands from that directory unless a command explicitly says otherwise.
 
+## Check the Git base before making changes
+
+Before editing files or creating commits, identify the current branch and worktree, check for uncommitted changes, run `git fetch origin master`, and compare `HEAD` with `origin/master`. For new work intended to build on the current mainline, start from the fetched `origin/master`. If a clean local `master` is only behind, fast-forward it with `git pull --ff-only origin master` before starting.
+
+Do not require every task to run on `master` or require local commits to be pushed first. Existing feature branches, worktrees, and local commits may be intentional. If the checkout is ahead, diverged, or has uncommitted changes, preserve them and decide how to incorporate the latest `origin/master` before editing; do not reset, overwrite, or automatically rebase someone else's work. State the branch and remaining difference when it affects the result. If the fetch fails, disclose that the remote base could not be verified.
+
 ## Browser and Computer Use policy
 
 Default to no in-app browser, Computer Use, or GUI automation. Prefer repository code and CLI-based evidence such as tests, lint/type checking, builds, `curl`/HTTP requests, logs, and programmatic inspection.
@@ -15,20 +21,6 @@ Prefer Playwright or other automated browser tests when they are sufficient to v
 When browser interaction is necessary, minimize context and usage: limit it to the target pages and required actions, do not browse unrelated pages, and avoid repeated views or refresh loops. Separate implementation and automated verification from browser checking; finish the code and automated checks first, then perform only the targeted browser check needed for confidence.
 
 Do not operate Search Console, Analytics, hosting consoles, or other external admin services unless the user explicitly requests it. When required data is available only there, prefer asking the user to retrieve and share it rather than operating the console directly. Choose the lowest-cost verification method that retains the necessary confidence, and document any residual uncertainty.
-
-## Model routing and delegation
-
-Use **GPT-6 Astra with low reasoning** (`gpt-6-astra`, `low`) as the primary/orchestrator. Delegate simple, clearly defined work to **GPT-5.6 Luna with max reasoning** (`gpt-5.6-luna`, `max`). The project defaults are in [`.codex/config.toml`](.codex/config.toml). Changing these files does not switch an already-running session; do not claim a model/effort is active unless the session settings confirm it. Do not silently substitute another model or reasoning level.
-
-Astra owns requirements, acceptance criteria, task decomposition, architectural decisions, ambiguous or difficult debugging, security-sensitive or high-risk changes, final review, and integration. Once these decisions make a remaining task simple and bounded, consider handing it to Luna.
-
-Delegate to Luna only when the work is narrow, largely independent, low risk, straightforward to verify, and likely to succeed without repeated correction. Examples include mechanical edits, straightforward documentation, small implementations with fixed behavior, focused tests, and routine verification. Do not force delegation for tiny tasks or create unnecessary parallel agents; optimize for correctness and total effort rather than a delegation quota.
-
-Reassess delegation after initial inspection, after requirements or design decisions are fixed, and before a separable implementation, documentation, or test phase. For a Luna handoff, explicitly set `model = "gpt-5.6-luna"`, `reasoning_effort = "max"`, and `fork_turns = "none"`. Supply the objective, exact file ownership, fixed decisions, non-goals, acceptance criteria, and verification commands. Keep concurrent edits in separate files.
-
-Review the actual diff and relevant verification evidence before accepting delegated work. Rerun checks when code/environment changed, evidence is incomplete or suspicious, or an identified risk requires it; do not automatically repeat every successful check. Ask for progress or blockers before interrupting a slow but progressing agent. Bring work back to Astra if it becomes ambiguous, stalls, is misunderstood, or requires repeated corrections. Report unavailable model/tool settings honestly rather than claiming delegation occurred.
-
-Follow [`docs/DELEGATION_WORKFLOW.md`](docs/DELEGATION_WORKFLOW.md) for the handoff and review procedure. Final change reports should briefly state the delegated scope, the primary review/verification, and any corrections.
 
 ## Distinguish the checkout from the published service
 

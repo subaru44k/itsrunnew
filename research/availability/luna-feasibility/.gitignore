@@ -1,0 +1,5 @@
+sources/
+.env*
+results/
+local-state/
+__pycache__/

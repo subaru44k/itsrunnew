@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, it, expect, vi } from 'vitest';
 import {
   AI_MODEL,
+  aiReadingConfig,
   readWithLuna,
   validateRows,
   type AiPacket,
@@ -39,6 +40,23 @@ const packet: AiPacket = {
   ],
 };
 describe('AI reading boundary', () => {
+  it('routes only reviewed facilities to the selected GPT-6 effort', () => {
+    for (const key of ['chita', 'hiratsuka', 'ogino'])
+      expect(aiReadingConfig(key)).toMatchObject({
+        model: 'gpt-6-luna',
+        effort: 'low',
+      });
+    for (const key of ['todoroki', 'ishin'])
+      expect(aiReadingConfig(key)).toMatchObject({
+        model: 'gpt-6-luna',
+        effort: 'medium',
+      });
+    for (const key of ['hiroshima', 'hakata', 'setagaya'])
+      expect(aiReadingConfig(key)).toMatchObject({
+        model: AI_MODEL,
+        effort: 'none',
+      });
+  });
   it('keeps valid dates, ignores wrong IDs, drops missing/duplicate/outside dates without repairing', () => {
     expect(
       validateRows(
@@ -112,6 +130,53 @@ describe('AI reading boundary', () => {
       );
       await readWithLuna(packet, { ...options, instructions: 'new-rule' });
       expect(fetchImpl).toHaveBeenCalledTimes(3);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+  it('requests and verifies selected GPT-6 efforts', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'itsrun-ai-routing-test-'));
+    const fetchImpl = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const request = JSON.parse(String(init?.body));
+      expect(request.model).toBe('gpt-6-luna');
+      expect(['low', 'medium']).toContain(request.reasoning.effort);
+      return Response.json({
+        status: 'completed',
+        model: request.model,
+        reasoning: request.reasoning,
+        output: [
+          {
+            content: [
+              {
+                type: 'output_text',
+                text: JSON.stringify({ records: [row()] }),
+              },
+            ],
+          },
+        ],
+        usage: { input_tokens: 10 },
+      });
+    });
+    try {
+      const options = {
+        apiKey: 'test-key',
+        fetchImpl: fetchImpl as typeof fetch,
+        cacheDirectory: directory,
+        instructions: 'fixed',
+      };
+      for (const [key, effort] of [
+        ['chita', 'low'],
+        ['todoroki', 'medium'],
+      ] as const) {
+        const selectedPacket = { ...packet, key };
+        expect((await readWithLuna(selectedPacket, options)).cacheHit).toBe(false);
+        expect((await readWithLuna(selectedPacket, options)).cacheHit).toBe(true);
+        const request = JSON.parse(
+          String(fetchImpl.mock.calls.at(-1)?.[1]?.body),
+        );
+        expect(request.reasoning).toEqual({ effort });
+      }
+      expect(fetchImpl).toHaveBeenCalledTimes(2);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

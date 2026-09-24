@@ -10,7 +10,7 @@ ItsRunのPreviewは、既存の非公開S3 bucketとCloudFront default domainへ
 - `workflow_dispatch`
 - 毎日20:00 UTC（05:00 JST）
 
-PRの `Node 24 validation` とは分離しています。deploy jobはPoppler（`pdfinfo` / `pdftoppm`）を導入し、`.cache/availability-ai`のActions cacheを復元し、同じ実行内のHTTP取得を共有して31日availabilityを生成します。AIは公式資料を施設ごとの入力にまとめ、`gpt-5.6-luna`・reasoning `none`で1回読み、source/prompt/model/schema/full-month datesが変わるとcache keyが変わります。Track Dataset検証、unit test、lint/type check、build、local smokeを通した後にだけAWS credentialsを取得します。Preview全体でconcurrency groupを1つにし、同時deployを防止します。
+PRの `Node 24 validation` とは分離しています。deploy jobはPoppler（`pdfinfo` / `pdftoppm`）を導入し、`.cache/availability-ai`のActions cacheを復元し、同じ実行内のHTTP取得を共有して31日availabilityを生成します。AIは公式資料を施設ごとの入力にまとめ、等々力・維新補助は`gpt-6-luna`・`medium`、知多・平塚・荻野は`gpt-6-luna`・`low`、残り3施設は`gpt-5.6-luna`・`none`で1回読みます。公式sourceの取得は順番に行い、AI読解だけ最大3件を並列実行します。source/prompt/model/effort/schema/full-month datesが変わるとcache keyが変わります。Track Dataset検証、unit test、lint/type check、build、local smokeを通した後にだけAWS credentialsを取得します。Preview全体でconcurrency groupを1つにし、同時deployを防止します。
 
 fresh collection stepだけがrepository secret `OPENAI_API_KEY` と `ITSRUN_REQUIRE_AI_KEY=true` を受け取ります。通常のlocal buildやAWS deploy stepへsecretを渡しません。cache hitなら再推論しませんが、trusted deployはcacheの有無にかかわらず開始時にkeyを必須とし、未設定なら失敗します。
 

@@ -1,11 +1,13 @@
 # Luna availability feasibility pilot
 
+2026-09-24の `gpt-6-luna` / reasoning `none` の同一入力比較は [gpt6-none-comparison-2026-09-24.md](gpt6-none-comparison-2026-09-24.md) を参照。`low`・`medium` と最新資料まで調べた施設別切替は [gpt6-effort-and-routing-2026-09-24.md](gpt6-effort-and-routing-2026-09-24.md) を参照。モデル名だけの一括置換は見送り、採点で現行以上だった5施設を選んだ。公開availabilityデータと配備はこの調査では変更していない。
+
 このディレクトリは2026年9月22日までの採用評価の履歴です。その後、候補10施設のうち8施設をLuna AI、2施設をICSでcollectorに実装しました。現行の動作と運用境界は [`docs/AVAILABILITY.md`](../../../docs/AVAILABILITY.md) と [`ai-collector-integration-2026-09.md`](../ai-collector-integration-2026-09.md) を参照してください。以下の「未実施」や「次」は評価時点の記録です。
 
 2026-09-20に公式資料を保存。同日、Luna APIで3施設×3回の解析を実行済み。府中10件は人手記入済みで、[比較・再確認案](fuchu-review.md)を作成。分類2件の再確認待ち。岡崎10件も記入済みで、[比較・再確認案](okazaki-review.md)を作成。3件は休止告知の全施設対象行に基づきユーザー確認済みで、判定表へ修正を反映した。枚方10件も記入済みで、[比較結果](hirakata-review.md)は全件判断不能で一致、修正不要。
 実行結果の概要は [API試行結果](pilot-report.md) を参照。個別回答は人手判定へ影響しないようGit対象外のresults/に分離する。
 第2回は5施設29日をLuna none（3回）とCodex内Astra low（独立1回）で比較済み。[結果と制限](round2-report.md)、[全件比較](round2-comparison.md)を参照。statusは23/29・29/29・29/29で一致したが、非掲載の不可断定・条件欠落・分類定義の揺れがあり、無確認公開は見送る。
-対象設定は `gpt-5.6-luna` / `reasoning.effort: none`。別設定で代用しない。
+第2回当時の対象設定は `gpt-5.6-luna` / `reasoning.effort: none`。当時の比較を別設定で代用しない。
 
 ## 最初に行うこと
 

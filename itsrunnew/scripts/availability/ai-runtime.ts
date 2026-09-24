@@ -5,6 +5,32 @@ import schema from './ai-schema.json';
 
 export const AI_MODEL = 'gpt-5.6-luna';
 export const AI_VERSION = 'luna-none-v2-production-1';
+const AI_MODEL_6 = 'gpt-6-luna';
+// Reviewed against the existing 5.6 readings; see research/availability/luna-feasibility/gpt6-effort-and-routing-2026-09-24.md.
+const lowFacilities = new Set(['chita', 'hiratsuka', 'ogino']);
+const mediumFacilities = new Set(['todoroki', 'ishin']);
+export function aiReadingConfig(key: string) {
+  if (lowFacilities.has(key))
+    return {
+      model: AI_MODEL_6,
+      effort: 'low' as const,
+      version: 'luna-low-v3-production-1',
+      collector: `luna-low-${key}`,
+    };
+  if (mediumFacilities.has(key))
+    return {
+      model: AI_MODEL_6,
+      effort: 'medium' as const,
+      version: 'luna-medium-v3-production-1',
+      collector: `luna-medium-${key}`,
+    };
+  return {
+    model: AI_MODEL,
+    effort: 'none' as const,
+    version: AI_VERSION,
+    collector: `luna-none-${key}`,
+  };
+}
 export interface AiSource {
   name: string;
   url: string;
@@ -113,15 +139,16 @@ export async function readWithLuna(
     instructions?: string;
   } = {},
 ) {
+  const reading = aiReadingConfig(packet.key);
   const instructions =
     options.instructions ??
     (await readFile(new URL('./ai-instructions.txt', import.meta.url), 'utf8'));
   // Hash semantic input, not acquisition time or volatile HTML markup. Full calendar months keep the key stable across daily horizons.
   const key = digest(
     JSON.stringify({
-      version: AI_VERSION,
-      model: AI_MODEL,
-      reasoning: 'none',
+      version: reading.version,
+      model: reading.model,
+      reasoning: reading.effort,
       instructions,
       schema,
       packet,
@@ -135,7 +162,7 @@ export async function readWithLuna(
   const filename = resolve(directory, `${key}.json`);
   try {
     const cached = JSON.parse(await readFile(filename, 'utf8'));
-    if (cached.key === key && cached.version === AI_VERSION) {
+    if (cached.key === key && cached.version === reading.version) {
       const rows = validateRows(cached.result, packet.dates);
       if (rows.size) return { rows, cacheHit: true, key, usage: null };
     }
@@ -172,8 +199,8 @@ export async function readWithLuna(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: AI_MODEL,
-        reasoning: { effort: 'none' },
+        model: reading.model,
+        reasoning: { effort: reading.effort },
         instructions,
         input: [{ role: 'user', content }],
         text: {
@@ -195,8 +222,8 @@ export async function readWithLuna(
   const body = await response.json();
   if (
     body.status !== 'completed' ||
-    body.model !== AI_MODEL ||
-    body.reasoning?.effort !== 'none'
+    body.model !== reading.model ||
+    body.reasoning?.effort !== reading.effort
   )
     throw new Error('AI response incomplete or model mismatch');
   const text = (body.output ?? [])
@@ -220,8 +247,8 @@ export async function readWithLuna(
     temporary,
     JSON.stringify({
       key,
-      version: AI_VERSION,
-      model: AI_MODEL,
+      version: reading.version,
+      model: reading.model,
       createdAt: new Date().toISOString(),
       result,
       usage: body.usage,

@@ -149,4 +149,44 @@ describe('additional availability integration', () => {
       await rm(directory, { recursive: true, force: true });
     }
   });
+  it('overlaps at most three AI readings and keeps facility order', async () => {
+    vi.mocked(readWithLuna).mockClear();
+    const releases: (() => void)[] = [];
+    let active = 0;
+    let peak = 0;
+    vi.mocked(readWithLuna).mockImplementation(async (packet) => {
+      active++;
+      peak = Math.max(peak, active);
+      if (releases.length < 3)
+        await new Promise<void>((resolve) => releases.push(resolve));
+      active--;
+      return { key: packet.key, cacheHit: true, usage: null, rows: new Map() };
+    });
+    const collecting = collectAdditionalAvailability(dates, {
+      now,
+      fetchImpl: officialFetch as typeof fetch,
+    });
+    await vi.waitFor(() => expect(releases).toHaveLength(3), { timeout: 5000 });
+    expect(readWithLuna).toHaveBeenCalledTimes(3);
+    releases[0]();
+    await vi.waitFor(
+      () =>
+        expect(vi.mocked(readWithLuna).mock.calls.length).toBeGreaterThanOrEqual(
+          4,
+        ),
+      { timeout: 5000 },
+    );
+    releases[1]();
+    releases[2]();
+    const records = await collecting;
+    expect(peak).toBe(3);
+    expect(readWithLuna).toHaveBeenCalledTimes(aiFacilities.length);
+    expect(
+      records
+        .slice(0, dates.length * aiFacilities.length)
+        .map((record) => record.trackId),
+    ).toEqual(
+      aiFacilities.flatMap((facility) => dates.map(() => facility.trackId)),
+    );
+  });
 });

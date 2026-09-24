@@ -236,10 +236,13 @@ try {
       const query = `?date=${today}&tag=a%26b#legacy-section`;
       await page.goto(`${baseUrl}${legacyPath}${query}`, { waitUntil: 'domcontentloaded' });
       const expectedPath = legacyPath.startsWith('/en/') ? `/en/tracks/${odaTrack.id}` : `/tracks/${odaTrack.id}`;
-      await page.waitForURL(url => url.pathname === expectedPath
-        && url.searchParams.get('date') === today
-        && url.searchParams.get('tag') === 'a&b'
-        && url.hash === '#legacy-section');
+      await page.waitForFunction(({ path, date }) => {
+        const url = new URL(location.href);
+        return url.pathname === path
+          && url.searchParams.get('date') === date
+          && url.searchParams.get('tag') === 'a&b'
+          && url.hash === '#legacy-section';
+      }, { path: expectedPath, date: today });
     }
 
     await page.goto(`${baseUrl}/tracks/${odaTrack.id}?date=${today}`, { waitUntil: 'domcontentloaded' });

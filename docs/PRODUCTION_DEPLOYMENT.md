@@ -19,7 +19,7 @@
 - `infra/itsrun-production-dns-stack.ts`: `itsrun.info` public Hosted Zone。既存recordを複製する前に委任してはいけない。
 - `infra/itsrun-production-certificate-stack.ts`: 委任済みHosted Zoneで検証する`us-east-1` ACM certificate。
 - `infra/itsrun-production-automation-stack.ts`: protected masterだけを信頼するcontent-only GitHub OIDC role。
-- `scripts/deploy-production.sh`: account、tag、origin、aliasをguardするS3 syncとtargeted invalidation。
+- `scripts/deploy-production.sh`: account、tag、origin、aliasをguardし、前回成功時の生成物SHA-256との差分だけをS3へ反映・無効化する。
 - `.github/workflows/deploy-production.yml`: master、手動、05:30 JST、08:15 JST。08:15 runは世田谷のtoday-only noticeを拾う。repository variable `PRODUCTION_DEPLOY_ENABLED=true`になるまでjobは実行しない。
 
 ## Build and cache behavior
@@ -31,7 +31,10 @@ trusted collection stepはrepository secret `OPENAI_API_KEY` と `ITSRUN_REQUIRE
 - `index.html`: `no-cache`
 - hashed `assets/`: `public,max-age=31536000,immutable`
 - その他: `public,max-age=300`
-- invalidation: `/`, `/index.html`, `/en/`, Track Searchの入口・ガイド・施設詳細、`/oda-field`, `/en/oda-field`
+- `service-worker.js`: `no-cache`
+- invalidation: 更新・削除された既存URLだけ。新しいハッシュ付きassetは未キャッシュのため対象外。HTML shellは直接パスとCloudFront Functionがrewriteする元のrouteを含める。施設詳細の全shellが変わる配備だけは日英の`/tracks/*`・`/en/tracks/*`にまとめる。availabilityの複数ファイル変更は専用prefix `/availability/*` の1パスにまとめ、差分なしなら0パス。
+
+前回の無効化完了後に保存したS3内の`.itsrun-deploy/manifest-v1.json`と今回の`dist/`をSHA-256で比較します。初回は既存S3 objectを一時ディレクトリへ取得してhashを比較し、既存と同じ内容は再送信・無効化しません。削除済みの非assetだけを削除し、旧ハッシュ付きassetは既存タブ用に保持します。無効化が完了するまでmanifestを更新しないため、途中失敗したrunは次回に再試行します。workflowは公開後に`/`・`/service-worker.js`・変更された非assetのURLを取得し、生成物と本文一致を検証します。summaryには変更・削除ファイル数と無効化パス数を記録します。
 
 ## Staged rollout
 

@@ -23,7 +23,10 @@ const summary = `## ItsRun ${environment} deployment
 | Tracks | ${tracks.length} |
 | Availability totals | available ${counts.available}, partial ${counts.partially_available}, unavailable ${counts.unavailable}, unknown ${counts.unknown} |
 | S3 deployment | ${process.env.DEPLOY_RESULT ?? 'not run'} |
+| Changed / removed files | ${process.env.CHANGED_FILES ?? 'unknown'} / ${process.env.REMOVED_FILES ?? 'unknown'} |
+| Invalidation paths | ${process.env.INVALIDATION_PATHS ?? 'unknown'} |
 | CloudFront invalidation | ${process.env.INVALIDATION_ID || 'not created'} |
+| Published byte comparison | ${process.env.PUBLISHED_BYTES_RESULT ?? 'not run'} |
 | CloudFront smoke | ${process.env.CLOUDFRONT_SMOKE_RESULT ?? 'not run'} |
 | URL | ${process.env.DEPLOY_URL ?? defaultUrl} |
 `;

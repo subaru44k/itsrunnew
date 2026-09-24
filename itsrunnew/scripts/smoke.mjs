@@ -115,6 +115,23 @@ try {
     throw new Error('Sitemap does not contain the canonical Oda detail URLs exclusively');
   }
 
+  const startupPage = await browser.newPage();
+  let releaseManifest;
+  const manifestGate = new Promise(resolve => { releaseManifest = resolve; });
+  await startupPage.route('**/availability/manifest.json', async route => {
+    await manifestGate;
+    await route.continue();
+  });
+  try {
+    const dateRequest = startupPage.waitForRequest(request => /\/availability\/\d{4}-\d{2}-\d{2}\.json$/.test(new URL(request.url()).pathname));
+    await startupPage.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
+    await startupPage.locator('.track-hero').waitFor();
+    await dateRequest;
+  } finally {
+    releaseManifest();
+    await startupPage.close();
+  }
+
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport });
     page.on('request', request => requests.push(request.url()));
@@ -219,10 +236,13 @@ try {
       const query = `?date=${today}&tag=a%26b#legacy-section`;
       await page.goto(`${baseUrl}${legacyPath}${query}`, { waitUntil: 'domcontentloaded' });
       const expectedPath = legacyPath.startsWith('/en/') ? `/en/tracks/${odaTrack.id}` : `/tracks/${odaTrack.id}`;
-      await page.waitForURL(url => url.pathname === expectedPath
-        && url.searchParams.get('date') === today
-        && url.searchParams.get('tag') === 'a&b'
-        && url.hash === '#legacy-section');
+      await page.waitForFunction(({ path, date }) => {
+        const url = new URL(location.href);
+        return url.pathname === path
+          && url.searchParams.get('date') === date
+          && url.searchParams.get('tag') === 'a&b'
+          && url.hash === '#legacy-section';
+      }, { path: expectedPath, date: today });
     }
 
     await page.goto(`${baseUrl}/tracks/${odaTrack.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
@@ -560,6 +580,7 @@ try {
       await page.reload({ waitUntil: 'domcontentloaded' });
       await page.locator('.date-panel input[type="date"]').waitFor();
       if (await page.locator('.date-panel input').inputValue() !== tomorrow) throw new Error('Shared facility URL lost selected date');
+      await page.locator('.related-section[data-availability-loaded="true"]').waitFor();
       const alternative = page.locator('.alternative-link').first();
       const alternativeHref = await alternative.getAttribute('href');
       if (!alternativeHref || alternativeHref.includes('?')) throw new Error('Alternative href is not canonical');

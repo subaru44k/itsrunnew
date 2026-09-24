@@ -31,38 +31,6 @@ distribution_origin="$(aws cloudfront get-distribution --id "$PREVIEW_DISTRIBUTI
 [[ "$distribution_domain" == "$PREVIEW_DOMAIN" && "$distribution_status" == 'Deployed' ]] || { echo 'Preview distribution identity or status does not match.' >&2; exit 1; }
 [[ "$distribution_origin" == "$PREVIEW_BUCKET.s3.$AWS_REGION.amazonaws.com" ]] || { echo 'Preview distribution origin does not match.' >&2; exit 1; }
 
-aws s3 sync dist "s3://$PREVIEW_BUCKET" \
-  --delete \
-  --exclude 'index.html' \
-  --exclude 'assets/*' \
-  --cache-control 'public,max-age=300' \
-  --only-show-errors
-aws s3 sync dist/assets "s3://$PREVIEW_BUCKET/assets" \
-  --delete \
-  --cache-control 'public,max-age=31536000,immutable' \
-  --only-show-errors
-aws s3 cp dist/index.html "s3://$PREVIEW_BUCKET/index.html" \
-  --cache-control 'no-cache' \
-  --content-type 'text/html' \
-  --only-show-errors
-aws s3 cp dist/service-worker.js "s3://$PREVIEW_BUCKET/service-worker.js" \
-  --cache-control 'no-cache' \
-  --content-type 'application/javascript' \
-  --only-show-errors
+node scripts/deploy-content.mjs "$PREVIEW_BUCKET" "$PREVIEW_DISTRIBUTION_ID"
 
-invalidation_id="$(aws cloudfront create-invalidation \
-  --distribution-id "$PREVIEW_DISTRIBUTION_ID" \
-  --paths '/' '/index.html' '/sitemap.xml' '/service-worker.js' '/en/' '/tracks' '/en/tracks' \
-    '/tracks/yoyogi-park-athletic-track' '/en/tracks/yoyogi-park-athletic-track' '/oda-field' '/oda-field/' '/en/oda-field' '/en/oda-field/' \
-    '/nozomiantena/index' '/en/nozomiantena/index' '/ryuji-miura/index' '/en/ryuji-miura/index' \
-  --query Invalidation.Id \
-  --output text)"
-aws cloudfront wait invalidation-completed --distribution-id "$PREVIEW_DISTRIBUTION_ID" --id "$invalidation_id"
-invalidation_status="$(aws cloudfront get-invalidation --distribution-id "$PREVIEW_DISTRIBUTION_ID" --id "$invalidation_id" --query Invalidation.Status --output text)"
-[[ "$invalidation_status" == 'Completed' ]] || { echo 'CloudFront invalidation did not complete.' >&2; exit 1; }
-
-if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  printf 'invalidation_id=%s\n' "$invalidation_id" >> "$GITHUB_OUTPUT"
-fi
-
-printf 'Preview content deployed; invalidation %s completed.\n' "$invalidation_id"
+printf 'Preview content deployment finished.\n'

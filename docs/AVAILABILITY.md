@@ -45,7 +45,7 @@ range生成先は `src/data/availability/manifest.json` と日付別 `YYYY-MM-DD
 
 ## 複数日datasetとcache
 
-manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。Viteは日付JSONを別chunkとしてbuildし、Track Searchは選択日のchunkだけを遅延loadします。133掲載施設×31日を初期bundleへ含めません。追加collectorのAIキャッシュはrangeの日付計算とは別に、対象月全日を入力へ含めます。
+manifestは `schemaVersion`、`timezone`、`generatedAt`、`startDate`、`endDate`、31個の `dates` を持ちます。各日付ファイルは既存の単日schemaをそのまま保持します。`public/availability` は生成先へのsymlinkで、Viteはmanifestと日別JSONをハッシュなしの静的ファイルとして配備します。ブラウザはVueを待たせずに `/availability/manifest.json` の取得を開始し、画面表示と選択日のJSON取得を並行して進めます。取得前はJST当日から31日の暫定範囲を使い、manifest到着時に日付範囲と選択日を更新します。同じ日別JSONへの同時要求は1回にまとめ、取得後60秒間は画面間で再利用します。開いたままのタブでも60秒以上後の利用状況取得時にmanifestを非同期で再確認し、新しい生成世代を反映します。取得失敗時は利用可能と推測せずunknownにします。日次データの変更はアプリJS・全HTML shellのハッシュを変えません。133掲載施設×31日を初期bundleへ含めません。追加collectorのAIキャッシュはrangeの日付計算とは別に、対象月全日を入力へ含めます。
 
 range collectorは同一method・URL・request bodyをprocess内でcacheします。同じlanding page、fixed rule HTML、weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、月間PDFは再取得せず、同一PDFのtext extractionもsource hash単位で再利用します。TEFのような日付指定POSTはbodyが日ごとに異なるため各日1回だけ取得します。2026-08-24から31日のlive実行ではcache hit 390回、実HTTP 98回でした。retryや並列burstは行いません。
 

@@ -1,9 +1,7 @@
-import * as path from 'node:path';
 import * as cdk from 'aws-cdk-lib';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import type { Construct } from 'constructs';
 
 export class ItsRunPreviewStack extends cdk.Stack {
@@ -33,15 +31,6 @@ export class ItsRunPreviewStack extends cdk.Stack {
         { httpStatus: 403, responseHttpStatus: 200, responsePagePath: '/index.html', ttl: cdk.Duration.seconds(0) },
         { httpStatus: 404, responseHttpStatus: 200, responsePagePath: '/index.html', ttl: cdk.Duration.seconds(0) },
       ],
-    });
-
-    new s3deploy.BucketDeployment(this, 'DeployWebsite', {
-      sources: [s3deploy.Source.asset(path.join(process.cwd(), 'dist'))],
-      destinationBucket: siteBucket,
-      distribution,
-      distributionPaths: ['/*'],
-      prune: true,
-      cacheControl: [s3deploy.CacheControl.fromString('public,max-age=300')],
     });
 
     cdk.Tags.of(this).add('Project', 'ItsRun');

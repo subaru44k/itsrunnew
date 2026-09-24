@@ -31,14 +31,17 @@ npm run infra:automation:deploy
 
 ## Content deployment
 
-`scripts/deploy-preview.sh` はaccount、region、bucket tags、distribution domain/status/originを検証してから次を実行します。
+`scripts/deploy-preview.sh` はaccount、region、bucket tags、distribution domain/status/originを検証してから、共通の`scripts/deploy-content.mjs`を実行します。前回の無効化完了後に保存したS3内の`.itsrun-deploy/manifest-v1.json`（各ファイルのSHA-256）と今回の`dist/`を比較します。変更・新規ファイルだけを送信し、削除済みの非assetファイルを削除します。旧ハッシュ付きassetは既存タブが参照できるよう保持します。初回は旧配備のS3 objectを一時ディレクトリへ取得してhashを比較し、既存と同じ内容は再送信・無効化しません。
 
 - non-hashed files: `public,max-age=300`
 - hashed `assets/`: `public,max-age=31536000,immutable`
 - `index.html`: `no-cache`
-- S3 sync: current `dist/`にない旧objectを削除
-- targeted invalidation: `/`, `/index.html`, `/en/`, `/tracks`, `/en/tracks`, `/oda-field`, `/en/oda-field`
+- `service-worker.js`: `no-cache`
+- 更新・削除された既存URLだけをCloudFrontで無効化する。新しいハッシュ付きassetは未キャッシュのため対象外。HTML shellは直接URLと公開routeの両方を含める。施設詳細の全shellが変わる配備だけは日英それぞれの`/tracks/*`・`/en/tracks/*`にまとめる。availabilityが複数ファイル変わる日は専用prefix `/availability/*` の1パスにまとめる。無変更なら無効化しない。
+- 無効化が完了するまでmanifestを更新しない。失敗時の再実行は同じ差分を再送信・再無効化する。
 
-invalidation完了後、workflowはCloudFront URLに対して既存のdesktop/mobile smokeを実行します。run summaryにはtrigger、commit、availability range、track数、status集計、S3/invalidation/smoke結果を記録します。
+invalidation完了後、workflowはCloudFrontから`/`、`/service-worker.js`、変更された非assetの本文を取得して`dist/`と照合し、既存のdesktop/mobile smokeを実行します。run summaryにはtrigger、commit、availability range、track数、status集計、変更・削除ファイル数、無効化パス数、S3/invalidation/smoke結果を記録します。
 
-個別sourceの取得・解析失敗はcollectorの安全規則によりunknownへ降格できます。range生成、dataset検証、test、lint、build、local smoke、OIDC、S3 sync、invalidation、CloudFront smokeのいずれかが失敗した場合はjob全体を失敗させます。key未設定ならtrusted Preview collectionは開始時に失敗し、AI施設だけを前回のpositiveで埋め戻しません。
+Preview hosting CDK stackは基盤のみ管理します。`npm run infra:deploy`の後、content workflowまたは上記scriptで公開します。旧CDK BucketDeploymentをstackから外しても、その削除時に既存S3 objectは保持されます。
+
+個別sourceの取得・解析失敗はcollectorの安全規則によりunknownへ降格できます。range生成、dataset検証、test、lint、build、local smoke、OIDC、差分S3配備、invalidation、公開本文照合、CloudFront smokeのいずれかが失敗した場合はjob全体を失敗させます。key未設定ならtrusted Preview collectionは開始時に失敗し、AI施設だけを前回のpositiveで埋め戻しません。

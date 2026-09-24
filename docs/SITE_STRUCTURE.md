@@ -76,7 +76,7 @@ itsrunnew/
 │   ├── services/              同意状態、GA4の遅延loadと同意済みevent
 │   └── plugins/vuetify.ts     Vuetifyテーマとアイコン設定
 ├── backend/field-reports/      レポートAPI・DynamoDB保存・入力/連投制限・独立lockfile
-├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像
+├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像、availability生成先へのsymlink
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── daily-check.mjs        一時workspaceでdaily実収集／合成データのbuild・smokeを検証
@@ -85,8 +85,10 @@ itsrunnew/
 │   ├── pace-smoke.mjs         個人用ペース表の入力・保存・共有・PNG・日英responsive検証
 │   ├── generate-public-pages.mjs tracks.jsonから日英URLの標準sitemapを生成（hreflangはHTML metadataで提供）
 │   ├── generate-track-route-shells.mjs build後に日英固定ページ・施設詳細HTML shellを生成
-│   ├── deploy-preview.sh      Preview対象をguardしたS3 syncとinvalidation
-│   ├── deploy-production.sh   Production対象をguardしたS3 syncとinvalidation
+│   ├── deploy-preview.sh      Preview対象をguardした差分content配備
+│   ├── deploy-production.sh   Production対象をguardした差分content配備
+│   ├── deploy-content.mjs     生成物hash差分からS3更新とCloudFront無効化を実行
+│   ├── verify-deployed-content.mjs 公開URLの本文をdistと照合
 │   ├── deployment-summary.mjs GitHub Actions run summary生成
 │   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
@@ -236,7 +238,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 ### 陸上トラック検索
 
-`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。ヒーローには「現在地から探す」を主action、「場所を地図で選ぶ」を代替actionとして配置し、現在地は端末内で距離順計算に使い、背景地図の配信元には表示範囲のリクエストが届くことを許可要求前に明示します。初期地図は検索後の縮尺とmarker密度を理解できるよう、新宿周辺を「表示例」と明記してzoom 13で表示し、現在地点markerや架空の距離順は付けません。「掲載エリア全体を見る」は全掲載施設を余白付きの`fitBounds`で収め、最大zoom 7とするため、PC・スマートフォンの表示幅と掲載地域の拡張へ自動追従します。Leaflet tileは低彩度表示とし、zoom 12以下では従来のgridで近接markerをcluster化します。施設とclusterは44pxのHTML buttonで操作でき、施設名と利用状況の読み上げに対応します。選択施設はclusterから分離して保持します。「掲載エリア全体を見る」は検索後も利用できます。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順へ切り替えて地図へscroll/focusし、拒否・取得不能・timeout時は現在の地図表示を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有でき、共有URLでは指定地点をzoom 13で中央表示します。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。スマートフォンでは施設名を最大2行で表示します。一覧とmap detailからstable IDの施設詳細へ移動できます。`TrackDetail.vue` は選択日availability、仕様、公式導線に加え、`track-alternatives.ts`で同日の利用状況とHaversine直線距離をscore化した周辺5施設を表示します。statusの距離penaltyは利用可0 km相当、一部利用可6 km相当、要確認30 km相当、利用不可60 km相当で、確認済みの候補を強く優先しつつ、極端に遠い施設より近い要確認を残します。同scoreでは利用可、一部利用可、要確認、利用不可の順、次に距離、stable IDで決定します。候補linkは選択日の`date` queryを維持します。詳細の「地図上の位置を見る」は`track` queryで対象施設を選択し、「この施設を基準に周辺を比較」は対象施設の座標を`lat` / `lng`検索基準として渡します。両actionは`#track-map-section`へ直接scrollし、programmatic focusも同sectionへ移すため、PC・スマートフォンとも検索基準操作と地図から開始できます。`track`で明示focusされた施設は、選択日に利用不可で通常filterから外れる場合もmarkerとdetail cardを保持します。breadcrumbの「トラック検索」は選択日だけを維持する通常のページ遷移で、地図anchorや施設選択を持ちません。対象施設が利用不可なら候補欄を強調し、スマートフォンでもavailability直後・施設諸元より前へ配置します。要確認は候補に残して利用不可と明確に区別し、各status badgeと公式確認の注意を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
+`TrackSearch.vue` は日本語・英語のホームであり、従来の `/tracks` と `/en/tracks` からもaliasとして表示します。Leafletと標準OpenStreetMap tilesで地図を表示し、`src/data/tracks.json` の検証済み施設だけをmarkerと一覧へ描画します。ヒーローには「現在地から探す」を主action、「場所を地図で選ぶ」を代替actionとして配置し、現在地は端末内で距離順計算に使い、背景地図の配信元には表示範囲のリクエストが届くことを許可要求前に明示します。初期地図は検索後の縮尺とmarker密度を理解できるよう、新宿周辺を「表示例」と明記してzoom 13で表示し、現在地点markerや架空の距離順は付けません。「掲載エリア全体を見る」は全掲載施設を余白付きの`fitBounds`で収め、最大zoom 7とするため、PC・スマートフォンの表示幅と掲載地域の拡張へ自動追従します。Leaflet tileは低彩度表示とし、zoom 12以下では従来のgridで近接markerをcluster化します。施設とclusterは44pxのHTML buttonで操作でき、施設名と利用状況の読み上げに対応します。選択施設はclusterから分離して保持します。「掲載エリア全体を見る」は検索後も利用できます。ブラウザのGeolocation APIはユーザー操作時だけ呼び出し、成功時は検索基準地点marker・地図移動・Haversine直線距離順へ切り替えて地図へscroll/focusし、拒否・取得不能・timeout時は現在の地図表示を維持します。「地図から基準地点を選ぶ」も同じmarkerと距離起点を使い、`lat` / `lng` queryで共有でき、共有URLでは指定地点をzoom 13で中央表示します。住所geocodingや座標を外部analyticsへ送る処理はありません。基準地点がない一覧は都道府県別accordion、設定後は12件ずつの距離順です。スマートフォンでは施設名を最大2行で表示します。一覧とmap detailからstable IDの施設詳細へ移動できます。`TrackDetail.vue` は選択日availability、仕様、公式導線に加え、`track-alternatives.ts`で同日の利用状況とHaversine直線距離をscore化した周辺5施設を表示します。statusの距離penaltyは利用可0 km相当、一部利用可6 km相当、要確認30 km相当、利用不可60 km相当で、確認済みの候補を強く優先しつつ、極端に遠い施設より近い要確認を残します。同scoreでは利用可、一部利用可、要確認、利用不可の順、次に距離、stable IDで決定します。候補linkは選択日の`date` queryを維持します。詳細の「地図上の位置を見る」は`track` queryで対象施設を選択し、「この施設を基準に周辺を比較」は対象施設の座標を`lat` / `lng`検索基準として渡します。両actionは`#track-map-section`へ直接scrollし、programmatic focusも同sectionへ移すため、PC・スマートフォンとも検索基準操作と地図から開始できます。`track`で明示focusされた施設は、選択日に利用不可で通常filterから外れる場合もmarkerとdetail cardを保持します。breadcrumbの「トラック検索」は選択日だけを維持する通常のページ遷移で、地図anchorや施設選択を持ちません。対象施設が利用不可なら候補欄を強調し、スマートフォンでもavailability直後・施設諸元より前へ配置します。施設詳細の候補欄は日別JSON読込後に `data-availability-loaded=true` を示し、smokeは候補linkの遷移検証前にこれを待ちます。要確認は候補に残して利用不可と明確に区別し、各status badgeと公式確認の注意を表示します。単一markerを選ぶと施設を地図中央へ移し、固定header分の余白を残して詳細card先頭へscrollします。`?track=:trackId` は施設focus専用で距離起点とは分離します。同一path内の日付・施設・基準地点query更新ではrouterが画面上端へ戻らず、各操作元componentのfocus/scrollを維持します。
 
 地図の責務は`components/TrackMap.vue`と`components/map/{types,leaflet}.ts`に分離し、日付・距離・施設選択・URLは`TrackSearch.vue`が維持します。Leafletはdynamic importで遅延loadし、日付・言語変更では地図を再生成しません。背景は従来と同じ低彩度のOSM標準タイルです。検索基準地点の表示は背後のmarkerやclusterへのpointer操作を遮りません。ResizeObserverで詳細card開閉や画面幅変更に追従します。初期化前の地図移動は保持して起動後に適用し、unmount時はobserver・地図を解放します。地図初期化は15秒timeout、tile errorでは短い案内と再試行を提供し、一覧・日付・現在地による距離計算は使用可能です。OpenStreetMapの帰属を地図上に残し、Privacyの日英説明はIP・表示範囲の通信を明記します。
 
@@ -244,7 +246,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 Track Searchの中心価値は、指定日に近くで集中して走れる環境を見つけられることです。施設情報を公式サイトなしで完全に把握できることは目標にせず、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と公式確認導線を優先します。スパイク可否、料金、細かな条件は補助情報であり、網羅率の目標にしません。変化し得る条件を古い静的値で断定せず、確認不能ならunknownを保ちます。調査・更新時の具体的な優先順位は [`TRACK_DATA.md`](TRACK_DATA.md) を正本とします。
 
-施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `src/data/availability/manifest.json` と日付別JSONを `src/model/availability-range.ts` / `availability.ts` が対象日・期限込みで遅延loadし、利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧を表示します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや3択dropdownは設けません。検索・予定取得用のrouting APIやbackend、リアルタイムOverpass/JAAF/施設検索はありません。
+施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `public/availability` が生成先の `src/data/availability/` を静的公開し、`src/model/availability-range.ts` がmanifestと選択日JSONを並行して安定URLから取得します。manifest取得はVue起動を待たせず、完了時は反応的に日付範囲と選択日を更新します。日別JSONは同時要求と画面間移動で共有し、同じ生成世代なら60秒間メモリで再利用します。開いたままのタブでも60秒以上後の利用状況取得時にmanifestを非同期で再確認し、新しい生成世代を反映します。取得失敗時はunknownに落とし、日次データ変更でアプリJSや全HTML shellを更新しません。`availability.ts` は対象日・期限込みで利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧へ反映します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや3択dropdownは設けません。検索・予定取得用のrouting APIやbackend、リアルタイムOverpass/JAAF/施設検索はありません。
 
 availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、PDF text extractionを再利用します。legacy 33施設に、公式資料一式を入力に1施設1回実行する `gpt-5.6-luna`（reasoning `none`）のAI 8施設と、決定論的ICS 2施設を加えた43施設を安全な自動判定対象とします。世田谷AI sourceだけは当日noticeの日付を対象にするtoday-onlyです。AI packetのPDF画像化には `pdfinfo` / `pdftoppm`（macOS: `brew install poppler`、Ubuntu: `sudo apt-get install poppler-utils`）が必要です。AI cacheは `.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）に保存し、資料・指示などの入力、model、schema、full-month datesの変更で無効化します。runtimeにAstra呼び出しはありません。通常のlocal keyless実行でcache miss、取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。trusted deployはcollection開始時にkeyを必須とし、通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 
@@ -308,8 +310,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 ```
 
 - S3のパブリックアクセスは全面遮断、S3管理暗号化、SSL必須。
-- `dist/`をS3へ同期し、削除済みファイルもpruneする。
-- デプロイ時にCloudFrontの`/*`を無効化する。
+- hosting stackはS3/CloudFrontの基盤のみ作成し、contentはdeploy scriptが配備する。旧BucketDeploymentは削除時に既存objectを保持する。
+- content deployは前回成功時のSHA-256 manifestと`dist/`を比較して変更分だけS3へ送信し、削除済みの非assetをpruneする。旧ハッシュ付きassetは既存タブ用に保持する。CloudFront無効化は更新・削除された既存URLだけに限定し、新しいハッシュ付きassetは未キャッシュなので省く。施設詳細の全shell変更時は日英prefixを各1パス、availabilityの複数ファイル変更時は`/availability/*`の1パスへまとめ、差分なしなら作成しない。
 - SPA対応のため、S3由来の403/404を`/index.html`の200へ変換する。
 - CDK出力は`VerificationUrl`、`DistributionId`、`BucketName`。
 - スタック名は`ItsRunPreviewStack`、既定リージョンは`ap-northeast-1`。
@@ -353,10 +355,10 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
 | `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋日別availability JSONを生成 |
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |
-| `npm run infra:deploy` | ビルドして検証スタックへ配備、`cdk-outputs.json`へ出力 |
+| `npm run infra:deploy` | 検証用hosting stackのみ配備し、`cdk-outputs.json`へ出力。contentは別途content deployで配備 |
 | `npm run infra:destroy` | 検証スタックを削除 |
-| `npm run deploy:preview:content` | guard後に既存Preview S3へcontent syncし、targeted invalidationを完了まで待機 |
-| `npm run deploy:production:content` | Productionのaccount/tag/origin/aliasをguardしてcontent syncとtargeted invalidation（sitemap・旧日英織田URLを含む）を行う |
+| `npm run deploy:preview:content` | guard後に前回成功時のhashとの差分だけを既存Preview S3へ反映し、必要な公開URLだけを無効化・完了まで待機 |
+| `npm run deploy:production:content` | Productionのaccount/tag/origin/aliasをguardして同じ差分配備を行う |
 | `npm run deployment:summary` | availability範囲・status・deploy結果のActions summaryを生成 |
 | `npm run infra:automation:synth` | GitHub OIDC deploy role専用stackを生成 |
 | `npm run infra:automation:deploy` | hosting stackへ触れずdeploy role専用stackだけを配備 |
@@ -369,9 +371,9 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて`test:daily:fixtures`と`test:daily`を同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。Chromeと外部sourceへのnetworkが必要です。各変更での必須手順と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
 
-`.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、content-only S3 sync、targeted CloudFront invalidation、CloudFront smokeまでを実行します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
+`.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、SHA-256差分によるcontent配備、変更URLのCloudFront invalidation、公開本文照合、CloudFront smokeまでを実行します。差分なしではinvalidationを省略します。HTML shellは直接URLとrewrite前の公開URLを対象にし、Service Workerも変更時に無効化します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 
-`.github/workflows/deploy-production.yml`は同じ安全な生成・検証・content-only deployをProduction専用role/targetで行います。`PRODUCTION_DEPLOY_ENABLED=true`になるまで全triggerでskipし、Productionだけ広告を有効にします。master push・手動・毎日05:30 JSTと08:15 JSTを持ち、Production全体でconcurrencyを1つにします。両scheduleともcollection stepへ`OPENAI_API_KEY`を渡し、Setagayaのtoday-only noticeを拾う08:15 runを追加しています。
+`.github/workflows/deploy-production.yml`は同じ安全な生成・検証・差分content配備、公開本文照合をProduction専用role/targetで行います。`PRODUCTION_DEPLOY_ENABLED=true`になるまで全triggerでskipし、Productionだけ広告を有効にします。master push・手動・毎日05:30 JSTと08:15 JSTを持ち、Production全体でconcurrencyを1つにします。両scheduleともcollection stepへ`OPENAI_API_KEY`を渡し、Setagayaのtoday-only noticeを拾う08:15 runを追加しています。
 
 両deployは収集直後に`validate:availability:fresh`で当日31日分の完全性・鮮度を検査し、summaryで収集とlocal smokeの成否を別々に表示します。smokeはstatusごとの実データ件数と一覧の折りたたみ・ページ送りを考慮し、特定施設を選ぶ前に利用不可表示も有効化します。
 

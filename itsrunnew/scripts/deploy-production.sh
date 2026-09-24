@@ -33,47 +33,6 @@ else
   [[ "$PRODUCTION_DOMAIN" == "$distribution_domain" ]] || { echo 'Production verification domain does not match.' >&2; exit 1; }
 fi
 
-aws s3 sync dist "s3://$PRODUCTION_BUCKET" \
-  --delete \
-  --exclude 'index.html' \
-  --exclude 'assets/*' \
-  --cache-control 'public,max-age=300' \
-  --only-show-errors
-aws s3 sync dist/assets "s3://$PRODUCTION_BUCKET/assets" \
-  --delete \
-  --cache-control 'public,max-age=31536000,immutable' \
-  --only-show-errors
-aws s3 cp dist/index.html "s3://$PRODUCTION_BUCKET/index.html" \
-  --cache-control 'no-cache' \
-  --content-type 'text/html' \
-  --only-show-errors
-aws s3 cp dist/service-worker.js "s3://$PRODUCTION_BUCKET/service-worker.js" \
-  --cache-control 'no-cache' \
-  --content-type 'application/javascript' \
-  --only-show-errors
+node scripts/deploy-content.mjs "$PRODUCTION_BUCKET" "$PRODUCTION_DISTRIBUTION_ID"
 
-invalidation_id="$(aws cloudfront create-invalidation \
-  --distribution-id "$PRODUCTION_DISTRIBUTION_ID" \
-  --paths '/' '/index.html' '/sitemap.xml' '/service-worker.js' '/en/' '/en/index.html' '/tracks' '/en/tracks' \
-    '/yumenoshima' '/yumenoshima/index.html' '/en/yumenoshima' '/en/yumenoshima/index.html' \
-    '/komazawa' '/komazawa/index.html' '/en/komazawa' '/en/komazawa/index.html' \
-    '/todoroki' '/todoroki/index.html' '/en/todoroki' '/en/todoroki/index.html' \
-    '/pace/marathon' '/pace/marathon/index.html' '/en/pace/marathon' '/en/pace/marathon/index.html' \
-    '/nozomiantena/index' '/nozomiantena/index/index.html' '/en/nozomiantena/index' '/en/nozomiantena/index/index.html' \
-    '/ryuji-miura/index' '/ryuji-miura/index/index.html' '/en/ryuji-miura/index' '/en/ryuji-miura/index/index.html' \
-    '/about' '/about/index.html' '/en/about' '/en/about/index.html' \
-    '/tracks/guide' '/tracks/guide/index.html' '/en/tracks/guide' '/en/tracks/guide/index.html' \
-    '/privacy' '/privacy/index.html' '/en/privacy' '/en/privacy/index.html' \
-    '/tracks/*' '/en/tracks/*' \
-    '/tracks/yoyogi-park-athletic-track' '/en/tracks/yoyogi-park-athletic-track' '/oda-field' '/oda-field/' '/en/oda-field' '/en/oda-field/' \
-  --query Invalidation.Id \
-  --output text)"
-aws cloudfront wait invalidation-completed --distribution-id "$PRODUCTION_DISTRIBUTION_ID" --id "$invalidation_id"
-invalidation_status="$(aws cloudfront get-invalidation --distribution-id "$PRODUCTION_DISTRIBUTION_ID" --id "$invalidation_id" --query Invalidation.Status --output text)"
-[[ "$invalidation_status" == 'Completed' ]] || { echo 'CloudFront invalidation did not complete.' >&2; exit 1; }
-
-if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  printf 'invalidation_id=%s\n' "$invalidation_id" >> "$GITHUB_OUTPUT"
-fi
-
-printf 'Production content deployed to %s; invalidation %s completed.\n' "$PRODUCTION_URL" "$invalidation_id"
+printf 'Production content deployment finished.\n'

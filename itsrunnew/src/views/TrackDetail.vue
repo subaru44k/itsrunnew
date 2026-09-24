@@ -45,7 +45,7 @@
         <small>{{ freshnessLabel }}</small>
       </section>
 
-      <aside :class="['related-section', { 'related-section--urgent': availability?.status === 'unavailable' }]">
+      <aside :class="['related-section', { 'related-section--urgent': availability?.status === 'unavailable' }]" :data-availability-loaded="dataset.date === selectedDate && dataset.facilities.length > 0">
         <p v-if="availability?.status === 'unavailable'" class="alternative-eyebrow">{{ isEnglish ? 'FIND AN ALTERNATIVE' : '代わりを探す' }}</p>
         <h2>{{ relatedHeading }}</h2>
         <p class="related-intro">{{ relatedDescription }}</p>
@@ -131,7 +131,7 @@ import FieldReports from '../components/FieldReports.vue';
 import CanonicalLink from '../components/CanonicalLink.vue';
 import { availabilityDataset, availabilityForTrack, localDateKey, type AvailabilityDataset, type AvailabilityStatus } from '../model/availability';
 import { availabilityActionUrl } from '../model/availability-link';
-import { addDateOnlyDays, availabilityManifest, loadAvailabilityDate, normalizeSelectedDate } from '../model/availability-range';
+import { addDateOnlyDays, availabilityManifest, availabilityManifestStatus, loadAvailabilityDate, normalizeSelectedDate } from '../model/availability-range';
 import { rankTrackAlternatives } from '../model/track-alternatives';
 import { ODA_TRACK_ID, directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
 import { trackProductEvent, type ProductEventName, type ProductEventParameters } from '../services/analytics';
@@ -177,10 +177,18 @@ const related = computed(() => !track.value ? [] : rankTrackAlternatives(tracks
     availability: availabilityForTrack(item.id, selectedDate.value, new Date(), dataset.value),
   }))));
 let lastDetailView = '';
+let loadSequence = 0;
 
-watch(() => route.query.date, async value => {
+watch([() => route.query.date, () => availabilityManifest.generatedAt, availabilityManifestStatus], async ([value]) => {
+  const sequence = ++loadSequence;
   selectedDate.value = normalizeSelectedDate(value, today);
-  try { dataset.value = await loadAvailabilityDate(selectedDate.value); } catch { dataset.value = availabilityDataset; }
+  const date = selectedDate.value;
+  try {
+    const loaded = await loadAvailabilityDate(date);
+    if (sequence === loadSequence) dataset.value = loaded;
+  } catch {
+    if (sequence === loadSequence) dataset.value = availabilityDataset;
+  }
 }, { immediate: true });
 watch([() => track.value?.id, selectedDate, () => dataset.value.date, () => availability.value?.status], ([trackId, date, datasetDate, status]) => {
   if (!trackId || !status || datasetDate !== date) return;

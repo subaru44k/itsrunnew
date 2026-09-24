@@ -1,5 +1,3 @@
-import rawAvailability from '../data/availability.json';
-
 export type AvailabilityStatus = 'available' | 'partially_available' | 'unavailable' | 'unknown';
 export type AvailabilityPeriodStatus = 'available' | 'unavailable' | 'unknown';
 export type UnknownReason =
@@ -66,7 +64,14 @@ export interface AvailabilityDataset {
   facilities: TrackAvailability[];
 }
 
-export const availabilityDataset = rawAvailability as AvailabilityDataset;
+// Safe initial state while the published date-specific JSON is loading.
+export const availabilityDataset: AvailabilityDataset = {
+  schemaVersion: 1,
+  date: localDateKey(),
+  timezone: 'Asia/Tokyo',
+  generatedAt: new Date(0).toISOString(),
+  facilities: [],
+};
 
 export function localDateKey(date = new Date()) {
   return new Intl.DateTimeFormat('en-CA', {

@@ -88,9 +88,15 @@ jobs:
           role-to-assume: ${{ env.PRODUCTION_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
           role-session-name: itsrun-production-${{ github.run_id }}
-      - name: Deploy content and invalidate entry routes
+      - name: Deploy changed content and invalidate changed URLs
         id: deploy_content
         run: npm run deploy:production:content
+      - name: Verify published page and Service Worker bytes
+        id: published_bytes
+        env:
+          ITSRUN_BASE_URL: ${{ env.PRODUCTION_URL }}
+          ITSRUN_EXPECT_EDGE_ROUTING: 'true'
+        run: node scripts/verify-deployed-content.mjs
       - name: Verify Production CloudFront
         id: cloudfront_smoke
         env:
@@ -107,6 +113,10 @@ jobs:
           LOCAL_SMOKE_RESULT: ${{ steps.local_smoke.outcome }}
           DEPLOY_RESULT: ${{ steps.deploy_content.outcome }}
           INVALIDATION_ID: ${{ steps.deploy_content.outputs.invalidation_id }}
+          INVALIDATION_PATHS: ${{ steps.deploy_content.outputs.invalidation_paths }}
+          CHANGED_FILES: ${{ steps.deploy_content.outputs.changed_files }}
+          REMOVED_FILES: ${{ steps.deploy_content.outputs.removed_files }}
           CLOUDFRONT_SMOKE_RESULT: ${{ steps.cloudfront_smoke.outcome }}
+          PUBLISHED_BYTES_RESULT: ${{ steps.published_bytes.outcome }}
           DEPLOY_URL: ${{ env.PRODUCTION_URL }}
         run: npm run deployment:summary

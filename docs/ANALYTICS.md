@@ -9,7 +9,7 @@ ItsRunはGA4 property `G-YNLS7KQXYW`へ、同意済みの正式domain利用者�
 | `date_select` | 日付shortcut/native input | `selected_date`, `source`, `locale` |
 | `facility_select` | 地図・一覧・近隣施設から施設を選択 | `track_id`, `source`, `selected_date`, `availability_status`, `locale` |
 | `facility_detail_view` | 独立した施設詳細を表示 | `track_id`, `selected_date`, `availability_status`, `locale` |
-| `view_on_map_click` | 施設詳細から地図へ戻る | `track_id`, `selected_date`, `locale` |
+| `view_on_map_click` | 施設詳細から選択施設と周辺検索の地図へ進む | `track_id`, `selected_date`, `source`, `locale` |
 | `use_location` | 現在地取得を要求 | `action`, `selected_date`, `locale` |
 | `use_location_result` | 現在地取得の結果 | `result`, `selected_date`, `locale` |
 | `search_origin_select` | 現在地または地図上の地点を距離基準にする | `origin_type`, `selected_date`, `locale` |

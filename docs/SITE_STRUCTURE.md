@@ -340,7 +340,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
-| `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認 |
+| `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ |
 | `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |
 | `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusと全unknownの2シナリオをbuild・smoke |
 | `npm run validate:availability:fresh` | JST当日開始・連続31日・6時間以内の生成・施設ID/期限/statusと合成データ混入を検査 |

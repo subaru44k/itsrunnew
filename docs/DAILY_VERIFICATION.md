@@ -1,5 +1,9 @@
 # Daily availability 更新の検証
 
+## 2026-09-25 のスモークテスト競合
+
+`7ed92cb` の通常smokeとlive dailyは、未来日・基準地点付きの施設一覧リンクを確認する `scripts/smoke.mjs` のURL待機で失敗した。リンクのhrefを読んでから `.facility-row a`.first() をクリックするまでに日別JSONが反映され、利用不可施設が消えて先頭の施設が変わっていた。診断時、期待したhrefは三郷、実際の遷移先は松戸で、日付・座標queryは保たれていた。`waitForURL` を `waitForFunction` に替えるだけでは期待先の不一致は解消しない。修正後は選択日の有効statusから求める掲載件数と読み込み表示の終了を待ち、同じ一覧状態でhref取得とクリックを行う。全unknown fixtureでは一覧の並びが変わらないため、この競合を検出できなかった。
+
 ## 2026-09-18 の障害
 
 Production run [35284711731](https://github.com/subaru44k/itsrunnew/actions/runs/35284711731) と Preview run [35283081159](https://github.com/subaru44k/itsrunnew/actions/runs/35283081159)、revision `bd9fbc9` は、31日分の収集・unit test・buildに成功した後、local smokeで停止した。利用不可の施設を非表示に戻してから戸田市スポーツセンターを選択しており、その日のstatusがunavailableになると対象DOMが存在しなかった。S3への配備はskipされ、生成済みの新しいavailabilityは公開されなかった。

@@ -567,6 +567,12 @@ try {
       await page.waitForURL(url => url.pathname === `${prefix}/tracks/${odaTrack.id}`);
       if (new URL(page.url()).search) throw new Error('Default facility navigation added a date');
       await page.goto(`${baseUrl}${prefix}/?date=${tomorrow}&lat=35.8414&lng=139.8626`, { waitUntil: 'domcontentloaded' });
+      // The first row can change when the date JSON hides unavailable tracks.
+      // Wait for that data to reach the list before reading and activating its link.
+      await page.waitForFunction(expected => {
+        const count = Number.parseInt(document.querySelector('.facility-heading strong')?.textContent ?? '', 10);
+        return count === expected && !document.querySelector('[aria-label="availability loading"]');
+      }, tomorrowCounts.candidates);
       const detailLink = page.locator('.facility-row a').first();
       await detailLink.waitFor();
       const href = await detailLink.getAttribute('href');

@@ -6,13 +6,10 @@
 
     <header class="detail-hero">
       <div>
-        <p class="track-eyebrow">TRACK DETAILS</p>
+        <p class="track-eyebrow">{{ isEnglish ? 'AVAILABILITY & FACILITY' : '利用予定・施設情報' }}</p>
         <h1>{{ localizedName(track) }}</h1>
         <p>{{ track.location.address }}</p>
       </div>
-      <v-btn color="white" class="back-search" prepend-icon="mdi-map-search" :to="facilityMapPath" @click="trackDetailEvent('view_on_map_click')">
-        {{ isEnglish ? 'View location on map' : '地図上の位置を見る' }}
-      </v-btn>
     </header>
 
     <section v-if="isOda" class="oda-closure" aria-labelledby="oda-closure-heading">
@@ -26,23 +23,31 @@
       </v-alert>
     </section>
 
-    <section class="date-panel" :aria-label="isEnglish ? 'Use date' : '利用日'">
-      <strong>{{ isEnglish ? 'Use date' : '利用日' }}</strong>
-      <div class="date-actions">
-        <v-btn size="small" :variant="selectedDate === today ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(today, 'today')">{{ isEnglish ? 'Today' : '今日' }}</v-btn>
-        <v-btn size="small" :variant="selectedDate === tomorrow ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(tomorrow, 'tomorrow')">{{ isEnglish ? 'Tomorrow' : '明日' }}</v-btn>
-        <label><span>{{ isEnglish ? 'Choose date' : '日付を選ぶ' }}</span><input :value="selectedDate" type="date" :min="availabilityManifest.startDate" :max="availabilityManifest.endDate" @change="onDateInput" /></label>
-      </div>
-    </section>
-
     <main class="detail-layout">
       <section :class="['availability-panel', availabilityClass]">
-        <small class="official-information-label availability-source-label">{{ isEnglish ? 'Official information' : '公式情報' }}</small>
-        <span>{{ selectedDateLabel }}</span>
-        <h2><v-icon :icon="statusIcon" size="22" /> {{ statusLabel }}</h2>
-        <p>{{ statusDescription }}</p>
-        <ul v-if="availablePeriods.length"><li v-for="period in availablePeriods" :key="period">{{ period }}</li></ul>
-        <small>{{ freshnessLabel }}</small>
+        <div class="date-panel" :aria-label="isEnglish ? 'Use date' : '利用日'">
+          <strong>{{ isEnglish ? 'Use date' : '利用日' }}</strong>
+          <div class="date-actions">
+            <v-btn size="small" :variant="selectedDate === today ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(today, 'today')">{{ isEnglish ? 'Today' : '今日' }}</v-btn>
+            <v-btn size="small" :variant="selectedDate === tomorrow ? 'flat' : 'outlined'" color="indigo" @click="chooseDate(tomorrow, 'tomorrow')">{{ isEnglish ? 'Tomorrow' : '明日' }}</v-btn>
+            <label><span>{{ isEnglish ? 'Choose date' : '日付を選ぶ' }}</span><input :value="selectedDate" type="date" :min="availabilityManifest.startDate" :max="availabilityManifest.endDate" @change="onDateInput" /></label>
+          </div>
+        </div>
+        <div class="availability-result" aria-live="polite">
+          <small class="official-information-label availability-source-label">{{ isEnglish ? 'Official information' : '公式情報' }}</small>
+          <span>{{ selectedDateLabel }}</span>
+          <h2><v-icon :icon="statusIcon" size="22" /> {{ statusLabel }}</h2>
+          <p>{{ statusDescription }}</p>
+          <ul v-if="availablePeriods.length"><li v-for="period in availablePeriods" :key="period">{{ period }}</li></ul>
+          <small>{{ freshnessLabel }}</small>
+        </div>
+        <div class="availability-actions">
+          <v-btn v-if="availabilityUrl" color="amber-lighten-4" class="schedule-action" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityUrl" target="_blank" rel="noopener" @click="trackDetailEvent('availability_source_click')">{{ isEnglish ? 'View latest schedule on official site' : '最新の利用予定を公式サイトで見る' }}</v-btn>
+          <v-btn color="indigo" class="white-text map-nearby-action" variant="flat" prepend-icon="mdi-map-search" :to="nearbySearchPath" @click="trackDetailEvent('view_on_map_click', { source: 'detail_primary_map' })">
+            {{ isEnglish ? 'View this track and nearby tracks on map' : 'この施設と周辺を地図で見る' }}
+          </v-btn>
+        </div>
+        <p class="availability-caution">{{ isEnglish ? 'Schedules can change. Check the official information before visiting.' : '予定は変更されることがあります。訪問前に公式情報をご確認ください。' }}</p>
       </section>
 
       <aside :class="['related-section', { 'related-section--urgent': availability?.status === 'unavailable' }]" :data-availability-loaded="dataset.date === selectedDate && dataset.facilities.length > 0">
@@ -58,9 +63,6 @@
           </span>
           <span class="alternative-distance">{{ formatDistance(item.distance) }}</span>
         </CanonicalLink>
-        <v-btn class="nearby-search-action white-text" color="indigo" variant="flat" prepend-icon="mdi-map-search" :to="nearbySearchPath" @click="trackDetailEvent('view_on_map_click', { source: 'nearby_alternatives' })">
-          {{ isEnglish ? 'Compare nearby tracks from here' : 'この施設を基準に周辺を比較' }}
-        </v-btn>
         <p class="related-note">{{ isEnglish ? '“Needs confirmation” is not the same as unavailable. Check the official information before visiting.' : '「要確認」は利用不可ではありません。訪問前に公式情報をご確認ください。' }}</p>
       </aside>
 
@@ -110,10 +112,9 @@
         </template>
 
         <section class="source-section">
-          <h2>{{ isEnglish ? 'Check before visiting' : '利用前に確認' }}</h2>
-          <p>{{ isEnglish ? 'Schedules and rules can change. Please confirm the latest information from the facility.' : '予定や利用条件は変更されることがあります。お出かけ前に施設の最新情報をご確認ください。' }}</p>
+          <h2>{{ isEnglish ? 'Official site and directions' : '公式サイト・経路' }}</h2>
+          <p>{{ isEnglish ? 'Check the facility rules and directions before visiting.' : '施設の利用条件や行き方を確認できます。' }}</p>
           <div class="primary-actions">
-            <v-btn v-if="availabilityUrl" color="amber-lighten-4" class="schedule-action" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityUrl" target="_blank" rel="noopener" @click="trackDetailEvent('availability_source_click')">{{ isEnglish ? 'View latest schedule on official site' : '最新の利用予定を公式サイトで見る' }}</v-btn>
             <v-btn color="indigo" variant="flat" class="white-text" prepend-icon="mdi-open-in-new" :href="track.urls.official" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click')">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
             <v-btn color="teal-darken-2" variant="outlined" class="directions-action" prepend-icon="mdi-directions" :href="directionsUrl(track)" target="_blank" rel="noopener" @click="trackDetailEvent('directions_click')">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
           </div>
@@ -155,16 +156,10 @@ function trackFinderRoute(query: Record<string, string | undefined>, hash?: stri
     ...(hash ? { hash } : {}),
   };
 }
-function queryString(value: unknown) { return typeof value === 'string' ? value : undefined; }
 const searchPath = computed(() => trackFinderRoute({ date: route.query.date == null ? undefined : selectedDate.value }));
-const facilityMapPath = computed(() => trackFinderRoute({
-  date: selectedDate.value,
-  track: track.value?.id,
-  lat: queryString(route.query.lat),
-  lng: queryString(route.query.lng),
-}, mapSectionHash));
 const nearbySearchPath = computed(() => trackFinderRoute({
   date: selectedDate.value,
+  track: track.value?.id,
   lat: track.value?.location.latitude.toFixed(4),
   lng: track.value?.location.longitude.toFixed(4),
 }, mapSectionHash));
@@ -272,5 +267,82 @@ const odaNoticeUrl = computed(() => track.value?.urls.schedule ?? track.value?.u
 </script>
 
 <style scoped>
-.track-detail-page { max-width: 1080px; padding-block: 24px 56px; }.breadcrumbs { display: flex; gap: 8px; margin-bottom: 12px; color: #666; font-size: 13px; }.detail-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 24px; color: white; background: linear-gradient(135deg,#283593,#00897b); border-radius: 12px; }.detail-hero h1 { margin: 3px 0 8px; font-size: clamp(27px,5vw,40px); }.detail-hero p { margin: 0; }.track-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .14em; }.back-search { min-height: 44px; color: #283593!important; font-weight: 700; }.oda-closure { margin-top: 16px; }.oda-closure .v-alert { padding: 18px; color: #6d3e00!important; }.oda-closure .v-alert :deep(.v-alert__content), .oda-closure .v-alert :deep(.v-alert-title) { color: #6d3e00!important; }.oda-closure h2 { margin: 0 0 8px; font-size: 22px; }.oda-closure p { margin: 0 0 10px; }.oda-closure .v-btn { min-height: 44px; }.date-panel { padding: 14px; margin: 14px 0; border: 1px solid #d9dce8; border-radius: 10px; }.date-actions { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; margin-top: 8px; }.date-actions label { display: flex; color: #555; font-size: 12px; flex-direction: column; }.date-actions input { min-height: 36px; padding: 5px 9px; border: 1px solid #9da3b4; border-radius: 5px; }.detail-layout { display: grid; grid-template-areas: 'availability related' 'content related'; grid-template-columns: minmax(0,2fr) minmax(280px,1fr); gap: 0 20px; }.availability-panel,.info-section,.source-section,.related-section { padding: 20px; margin-bottom: 16px; border: 1px solid #d9dce8; border-radius: 12px; background: white; }.availability-panel { grid-area: availability; border-left: 6px solid; }.availability-source-label { display: block; margin-bottom: 4px; color: #4e5668; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }.availability-panel h2 { display: flex; align-items: center; gap: 6px; margin: 5px 0; }.detail-content { grid-area: content; }.availability--available { border-left-color:#00897b;background:#e0f2f1}.availability--partially-available{border-left-color:#f9a825;background:#fff8e1}.availability--unknown{border-left-color:#78909c;background:#eceff1}.availability--unavailable{border-left-color:#c62828;background:#ffebee}.facts { margin:0 }.facts div { display:grid; grid-template-columns:130px 1fr; gap:12px; padding:9px 0; border-bottom:1px solid #eceef3 }.facts dt{color:#666}.facts dd{margin:0;font-weight:600}.track-note{padding:10px;background:#fff8e1;border-radius:6px}.primary-actions{display:flex;flex-wrap:wrap;gap:8px}.primary-actions .v-btn{min-height:44px}.schedule-action{color:#4e342e!important;border:1px solid #d99000}.white-text{color:white!important}.directions-action{color:#00695c!important}.related-section { grid-area:related;height:fit-content }.related-section--urgent { border:2px solid #c62828;background:#fff8f7;box-shadow:0 4px 16px rgba(120,20,20,.12) }.related-section h2 { margin:0 0 8px;font-size:21px }.alternative-eyebrow { margin:0 0 4px;color:#a51f1f;font-size:12px;font-weight:800;letter-spacing:.1em }.related-intro { margin:0 0 10px;color:#555 }.alternative-link { display:flex;min-height:64px;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 2px;border-bottom:1px solid #dfe2eb;text-decoration:none }.alternative-main { display:flex;min-width:0;align-items:flex-start;flex-direction:column;gap:6px }.alternative-main strong { color:#283593;line-height:1.35 }.availability-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap }.availability-badge.availability--available { color:#00695c;background:#e0f2f1 }.availability-badge.availability--partially-available { color:#7a4d00;background:#fff3cd }.availability-badge.availability--unknown { color:#455a64;background:#eceff1 }.availability-badge.availability--unavailable { color:#8e1717;background:#ffebee }.alternative-distance { color:#555;white-space:nowrap }.nearby-search-action { width:100%;height:auto!important;min-height:48px;margin-top:16px;white-space:normal }.nearby-search-action :deep(.v-btn__content) { white-space:normal }.related-note { margin:10px 0 0;color:#666;font-size:12px;line-height:1.5 }.oda-official-name { margin: 0 0 12px; font-weight: 700; }.oda-map-wrap { position: relative; width: 100%; max-width: 800px; padding-top: min(75%,600px); margin: 0 auto 18px; overflow: hidden; border-radius: 8px; }.oda-map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }.oda-facility-section h3 { margin: 14px 0 4px; font-size: 17px; }.oda-facility-section h3 + p { margin: 0 0 5px; }.oda-opinions-section p { margin: 0 0 12px; }.oda-opinions-section .experience-note { padding: 10px 12px; color: #5d4037; background: #fff8e1; border-radius: 6px; }@media(max-width:700px){.track-detail-page{padding:12px 10px 40px}.detail-hero{align-items:stretch;flex-direction:column}.back-search{align-self:flex-start}.detail-layout{grid-template-areas:'availability' 'related' 'content';grid-template-columns:1fr}.related-section{padding:18px}.facts div{grid-template-columns:110px 1fr}.oda-map-wrap{padding-top:90%}}
+.track-detail-page { max-width: 1080px; padding-block: 24px 56px; }
+.breadcrumbs { display: flex; gap: 8px; margin-bottom: 12px; color: #666; font-size: 13px; }
+.detail-hero { padding: 20px 24px; color: white; background: linear-gradient(135deg,#283593,#00897b); border-radius: 12px; }
+.detail-hero h1 { margin: 3px 0 8px; font-size: clamp(27px,5vw,40px); }
+.detail-hero p { margin: 0; }
+.track-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+.oda-closure { margin-top: 16px; }
+.oda-closure .v-alert { padding: 18px; color: #6d3e00!important; }
+.oda-closure .v-alert :deep(.v-alert__content), .oda-closure .v-alert :deep(.v-alert-title) { color: #6d3e00!important; }
+.oda-closure h2 { margin: 0 0 8px; font-size: 22px; }
+.oda-closure p { margin: 0 0 10px; }
+.oda-closure .v-btn { min-height: 44px; }
+.detail-layout { display: grid; grid-template-areas: 'availability related' 'content related'; grid-template-columns: minmax(0,2fr) minmax(280px,1fr); gap: 0 20px; margin-top: 14px; }
+.availability-panel,.info-section,.source-section,.related-section { padding: 20px; margin-bottom: 16px; border: 1px solid #d9dce8; border-radius: 12px; background: white; }
+.availability-panel { grid-area: availability; border-left: 6px solid; }
+.date-panel { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #cbd3dc; }
+.date-panel strong { display: block; }
+.date-actions { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.date-actions .v-btn { min-height: 44px; }
+.date-actions label { display: flex; min-width: 150px; color: #46505b; font-size: 12px; flex-direction: column; }
+.date-actions input { min-height: 44px; padding: 5px 9px; border: 1px solid #7c8799; border-radius: 5px; background: white; }
+.availability-source-label { display: block; margin-bottom: 4px; color: #4e5668; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.availability-result h2 { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
+.availability-result p { margin: 4px 0 8px; }
+.availability-result ul { margin: 6px 0 8px; padding-left: 22px; }
+.availability-result small:last-child { display: block; }
+.availability-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.availability-actions .v-btn { min-height: 44px; height: auto!important; padding-block: 8px; white-space: normal; }
+.availability-actions :deep(.v-btn__content) { white-space: normal; text-align: center; }
+.schedule-action { color: #4e342e!important; border: 1px solid #d99000; }
+.availability-caution { margin: 10px 0 0; color: #45505d; font-size: 12px; line-height: 1.5; }
+.map-nearby-action { min-width: 220px; }
+.detail-content { grid-area: content; }
+.availability--available { border-left-color:#00897b; background:#e0f2f1; }
+.availability--partially-available { border-left-color:#f9a825; background:#fff8e1; }
+.availability--unknown { border-left-color:#78909c; background:#eceff1; }
+.availability--unavailable { border-left-color:#c62828; background:#ffebee; }
+.facts { margin: 0; }
+.facts div { display: grid; grid-template-columns: 130px 1fr; gap: 12px; padding: 9px 0; border-bottom: 1px solid #eceef3; }
+.facts dt { color: #666; }
+.facts dd { margin: 0; font-weight: 600; }
+.track-note { padding: 10px; background: #fff8e1; border-radius: 6px; }
+.primary-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.primary-actions .v-btn { min-height: 44px; }
+.white-text { color: white!important; }
+.directions-action { color: #00695c!important; }
+.related-section { grid-area: related; height: fit-content; }
+.related-section--urgent { border: 2px solid #c62828; background: #fff8f7; box-shadow: 0 4px 16px rgba(120,20,20,.12); }
+.related-section h2 { margin: 0 0 8px; font-size: 21px; }
+.alternative-eyebrow { margin: 0 0 4px; color: #a51f1f; font-size: 12px; font-weight: 800; letter-spacing: .1em; }
+.related-intro { margin: 0 0 10px; color: #555; }
+.alternative-link { display: flex; min-height: 64px; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 12px 2px; border-bottom: 1px solid #dfe2eb; text-decoration: none; }
+.alternative-main { display: flex; min-width: 0; align-items: flex-start; flex-direction: column; gap: 6px; }
+.alternative-main strong { color: #283593; line-height: 1.35; }
+.availability-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 7px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.availability-badge.availability--available { color: #00695c; background: #e0f2f1; }
+.availability-badge.availability--partially-available { color: #7a4d00; background: #fff3cd; }
+.availability-badge.availability--unknown { color: #455a64; background: #eceff1; }
+.availability-badge.availability--unavailable { color: #8e1717; background: #ffebee; }
+.alternative-distance { color: #555; white-space: nowrap; }
+.related-note { margin: 10px 0 0; color: #666; font-size: 12px; line-height: 1.5; }
+.oda-official-name { margin: 0 0 12px; font-weight: 700; }
+.oda-map-wrap { position: relative; width: 100%; max-width: 800px; padding-top: min(75%,600px); margin: 0 auto 18px; overflow: hidden; border-radius: 8px; }
+.oda-map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.oda-facility-section h3 { margin: 14px 0 4px; font-size: 17px; }
+.oda-facility-section h3 + p { margin: 0 0 5px; }
+.oda-opinions-section p { margin: 0 0 12px; }
+.oda-opinions-section .experience-note { padding: 10px 12px; color: #5d4037; background: #fff8e1; border-radius: 6px; }
+@media(max-width:700px) {
+  .track-detail-page { padding: 12px 10px 40px; }
+  .detail-hero { padding: 18px; }
+  .detail-layout { grid-template-areas: 'availability' 'related' 'content'; grid-template-columns: 1fr; }
+  .availability-panel,.related-section { padding: 16px; }
+  .availability-actions { flex-direction: column; }
+  .availability-actions .v-btn { width: 100%; }
+  .facts div { grid-template-columns: 110px 1fr; }
+  .oda-map-wrap { padding-top: 90%; }
+}
 </style>

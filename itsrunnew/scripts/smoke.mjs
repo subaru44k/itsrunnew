@@ -254,8 +254,8 @@ try {
     await page.getByText('原宿駅から徒歩圏内にある競技場。非常に立地がよく、火水金土と21時まで利用可能で、利用料金も無料ということで、該当日の19時以降は仕事帰りの社会人や大学生でごった返す。', { exact: true }).waitFor();
     await page.getByRole('heading', { name: '施設・トラック情報', exact: true }).waitFor();
     await page.getByRole('heading', { name: '織田フィールドの情報', exact: true }).waitFor();
-    const odaNearbyHref = await page.getByRole('link', { name: 'この施設を基準に周辺を比較', exact: true }).getAttribute('href');
-    if (!odaNearbyHref?.startsWith(`/?date=${today}`) || !odaNearbyHref.includes('lat=35.6669') || !odaNearbyHref.includes('lng=139.6941')) throw new Error('Oda Field nearby search link is missing canonical home path or selected date');
+    const odaMapHref = await page.getByRole('link', { name: 'この施設と周辺を地図で見る', exact: true }).getAttribute('href');
+    if (!odaMapHref?.startsWith(`/?date=${today}`) || !odaMapHref.includes(`track=${odaTrack.id}`) || !odaMapHref.includes('lat=35.6669') || !odaMapHref.includes('lng=139.6941') || !odaMapHref.endsWith('#track-map-section')) throw new Error('Oda Field map link is missing the selected facility, date, origin, or map focus');
     const odaNoticeHref = await page.getByRole('link', { name: '公式の利用停止案内を見る', exact: true }).getAttribute('href');
     if (odaNoticeHref !== odaTrack.urls.schedule) throw new Error('Oda closure notice does not point to the official schedule notice');
     if (await page.locator('.oda-closure').getByText('12月1日の自動的な再開を前提にせず', { exact: false }).count() !== 1) throw new Error('Oda closure caveat is missing');
@@ -382,36 +382,28 @@ try {
     await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
     const detailBreadcrumbHref = await page.locator('.breadcrumbs').getByRole('link', { name: 'トラック検索', exact: true }).getAttribute('href');
     if (detailBreadcrumbHref !== '/') throw new Error('Track detail breadcrumb unexpectedly focuses the map or a facility');
-    await page.getByRole('link', { name: '地図上の位置を見る', exact: true }).click();
+    await page.getByRole('link', { name: 'この施設と周辺を地図で見る', exact: true }).click();
     await page.waitForURL(url => url.pathname === '/' && url.hash === '#track-map-section'
       && url.searchParams.get('date') === today
-      && url.searchParams.get('track') === 'toda-sports-center-track');
+      && url.searchParams.get('track') === todaTrack.id
+      && url.searchParams.get('lat') === todaTrack.location.latitude.toFixed(4)
+      && url.searchParams.get('lng') === todaTrack.location.longitude.toFixed(4));
     await page.locator('#track-map .track-marker--selected').waitFor();
+    await page.locator('#track-map .search-origin-dot').waitFor();
     await page.locator('.detail-card').waitFor({ state: 'visible' });
     await page.waitForFunction(() => {
       const target = document.getElementById('track-map-section');
       const top = target?.getBoundingClientRect().top ?? -1;
       return document.activeElement === target && top >= 48 && top <= 100;
     });
-    if (new URL(page.url()).searchParams.has('lat') || new URL(page.url()).searchParams.has('lng')) throw new Error('Facility map action unexpectedly added a search origin');
     if (await page.locator('.map-tools').getByRole('button', { name: '現在地から探す', exact: true }).count() !== 1) throw new Error('Search-origin controls are not grouped above the map');
-
-    await page.goto(`${baseUrl}/tracks/toda-sports-center-track?date=${today}`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: '戸田市スポーツセンター 陸上競技場', exact: true }).waitFor();
-    await page.getByRole('link', { name: 'この施設を基準に周辺を比較', exact: true }).click();
-    await page.waitForURL(url => url.pathname === '/' && url.hash === '#track-map-section'
-      && url.searchParams.get('date') === today
-      && !url.searchParams.has('track')
-      && url.searchParams.get('lat') === todaTrack.location.latitude.toFixed(4)
-      && url.searchParams.get('lng') === todaTrack.location.longitude.toFixed(4));
-    await page.locator('#track-map .search-origin-dot').waitFor();
     await page.waitForFunction(() => {
       const target = document.getElementById('track-map-section');
       const top = target?.getBoundingClientRect().top ?? -1;
       return document.activeElement === target
         && top >= 48 && top <= 100
-        && document.querySelector('#track-map')?.getAttribute('data-zoom') === '13'
-        && !document.querySelector('.detail-card');
+        && document.querySelector('#track-map')?.getAttribute('data-zoom') === '14'
+        && !!document.querySelector('.detail-card');
     });
 
     await page.getByRole('button', { name: '地図から基準地点を選ぶ', exact: true }).click();
@@ -420,6 +412,7 @@ try {
     await page.getByText('選択した地点から近い順に並べました。', { exact: true }).waitFor();
     await page.getByRole('button', { name: '基準地点を解除', exact: true }).click();
     await page.waitForFunction(() => !new URL(location.href).searchParams.has('lat') && !new URL(location.href).searchParams.has('lng'));
+    await page.waitForFunction(() => document.querySelector('#track-map')?.getAttribute('data-zoom') === '14');
     const zoomBeforeLocationFailure = await page.locator('#track-map').getAttribute('data-zoom');
     await page.locator('.map-tools').getByRole('button', { name: '現在地から探す', exact: true }).click();
     await page.getByText(/現在地の利用が許可されませんでした|現在地を取得できません/).waitFor();
@@ -509,21 +502,31 @@ try {
       await page.goto(`${baseUrl}/tracks/${representative.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
       await page.getByRole('heading', { name: statusLabels[status], exact: true }).waitFor();
       await page.getByRole('heading', { name: status === 'unavailable' ? 'この日の代替候補' : 'この日の周辺トラック', exact: true }).waitFor();
+      const officialSchedule = page.locator('.availability-panel .schedule-action');
+      if (await officialSchedule.count() !== 1 || !(await officialSchedule.getAttribute('href'))?.startsWith('https://')) throw new Error(`${status} detail does not show an official schedule link next to availability`);
+      if (await page.locator('.source-section .schedule-action').count() !== 0) throw new Error(`${status} detail still places the schedule action below facility information`);
+      const mapAction = page.locator('.availability-panel .map-nearby-action');
+      if (await mapAction.count() !== 1) throw new Error(`${status} detail does not show one combined map action`);
+      const mapHref = await mapAction.getAttribute('href');
+      if (!mapHref?.includes(`date=${today}`) || !mapHref.includes(`track=${representative.id}`) || !mapHref.includes('lat=') || !mapHref.includes('lng=') || !mapHref.endsWith('#track-map-section')) throw new Error(`${status} combined map link lost its date, selected facility, origin, or map focus`);
       if (await page.locator('.related-section .alternative-link').count() !== 5) throw new Error(`${status} detail did not render five ranked alternatives`);
       const firstAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
       if (!firstAlternativeHref?.startsWith('/tracks/') || firstAlternativeHref.includes('?')) throw new Error(`${status} alternative link is not canonical`);
-      const nearbySearchHref = await page.getByRole('link', { name: 'この施設を基準に周辺を比較', exact: true }).getAttribute('href');
-      if (!nearbySearchHref?.includes(`date=${today}`) || !nearbySearchHref.includes('lat=') || !nearbySearchHref.includes('lng=')) throw new Error(`${status} nearby map search is missing the selected date or origin`);
+      if (await page.getByRole('link', { name: 'この施設と周辺を地図で見る', exact: true }).count() !== 1) throw new Error(`${status} detail has duplicate or missing map actions`);
       if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${representative.id}`) throw new Error(`${status} detail canonical unexpectedly includes a date query`);
       const emphasized = await page.locator('.related-section').evaluate(element => element.classList.contains('related-section--urgent'));
       if (emphasized !== (status === 'unavailable')) throw new Error(`${status} detail alternative emphasis is incorrect`);
       if (viewport.width < 800) {
         const mobileOrder = await page.evaluate(() => ({
           availability: document.querySelector('.availability-panel')?.getBoundingClientRect().top ?? 0,
+          officialSchedule: document.querySelector('.availability-panel .schedule-action')?.getBoundingClientRect().top ?? 0,
+          mapAction: document.querySelector('.availability-panel .map-nearby-action')?.getBoundingClientRect().top ?? 0,
           alternatives: document.querySelector('.related-section')?.getBoundingClientRect().top ?? 0,
           information: document.querySelector('.info-section')?.getBoundingClientRect().top ?? 0,
         }));
         if (!(mobileOrder.availability < mobileOrder.alternatives && mobileOrder.alternatives < mobileOrder.information)) throw new Error(`${status} mobile alternatives are not placed immediately after availability`);
+        if (!(mobileOrder.availability < mobileOrder.officialSchedule && mobileOrder.officialSchedule < mobileOrder.alternatives)) throw new Error(`${status} mobile official schedule is not adjacent to availability`);
+        if (!(mobileOrder.officialSchedule < mobileOrder.mapAction && mobileOrder.mapAction < mobileOrder.alternatives)) throw new Error(`${status} mobile map action is not before the alternative list`);
       }
     }
 
@@ -539,15 +542,20 @@ try {
       await page.locator(`.availability-panel.${englishAvailabilityClass}`).waitFor();
       await page.getByRole('heading', { name: englishStatusLabels[englishStatus], exact: true }).waitFor();
       await page.getByRole('heading', { name: englishStatus === 'unavailable' ? 'Nearby alternatives for this date' : 'Nearby tracks for this date', exact: true }).waitFor();
+      await page.locator('.availability-panel').getByRole('link', { name: 'View latest schedule on official site', exact: true }).waitFor();
+      await page.locator('.availability-panel').getByRole('link', { name: 'View this track and nearby tracks on map', exact: true }).waitFor();
       const englishUrgent = await page.locator('.related-section').evaluate(element => element.classList.contains('related-section--urgent'));
       if (englishUrgent !== (englishStatus === 'unavailable')) throw new Error(`English ${englishStatus} detail alternative emphasis is incorrect`);
       const englishAlternativeHref = await page.locator('.related-section .alternative-link').first().getAttribute('href');
       if (!englishAlternativeHref?.startsWith('/en/tracks/') || englishAlternativeHref.includes('?')) throw new Error('English alternative link is not canonical');
-      await page.getByRole('link', { name: 'View location on map', exact: true }).click();
+      await page.getByRole('link', { name: 'View this track and nearby tracks on map', exact: true }).click();
       await page.waitForURL(url => url.pathname === '/en/' && url.hash === '#track-map-section'
         && url.searchParams.get('date') === today
-        && url.searchParams.get('track') === englishRepresentative.id);
+        && url.searchParams.get('track') === englishRepresentative.id
+        && url.searchParams.get('lat') === englishRepresentative.location.latitude.toFixed(4)
+        && url.searchParams.get('lng') === englishRepresentative.location.longitude.toFixed(4));
       await page.locator('#track-map .track-marker--selected').waitFor();
+      await page.locator('#track-map .search-origin-dot').waitFor();
       await page.locator(`.detail-card .today-availability.${englishAvailabilityClass}`).waitFor();
       await page.waitForFunction(() => {
         const target = document.getElementById('track-map-section');

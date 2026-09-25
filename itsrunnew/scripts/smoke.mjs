@@ -402,7 +402,7 @@ try {
       const top = target?.getBoundingClientRect().top ?? -1;
       return document.activeElement === target
         && top >= 48 && top <= 100
-        && Number(document.querySelector('#track-map')?.getAttribute('data-zoom')) >= 13
+        && document.querySelector('#track-map')?.getAttribute('data-zoom') === '14'
         && !!document.querySelector('.detail-card');
     });
 
@@ -412,6 +412,7 @@ try {
     await page.getByText('選択した地点から近い順に並べました。', { exact: true }).waitFor();
     await page.getByRole('button', { name: '基準地点を解除', exact: true }).click();
     await page.waitForFunction(() => !new URL(location.href).searchParams.has('lat') && !new URL(location.href).searchParams.has('lng'));
+    await page.waitForFunction(() => document.querySelector('#track-map')?.getAttribute('data-zoom') === '14');
     const zoomBeforeLocationFailure = await page.locator('#track-map').getAttribute('data-zoom');
     await page.locator('.map-tools').getByRole('button', { name: '現在地から探す', exact: true }).click();
     await page.getByText(/現在地の利用が許可されませんでした|現在地を取得できません/).waitFor();

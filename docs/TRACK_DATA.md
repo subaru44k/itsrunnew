@@ -41,7 +41,7 @@ JAAF一覧は転載元データとしてではなく、公認施設候補の発�
 
 ## schema
 
-各施設は、外部IDに依存しない `id`、日英名称、緯度経度・住所、トラック長・レーン・路面、JAAF公認状態、個人利用状態・料金・時間・スパイク、公式・個人利用・予定URL、JAAF/OSM外部ID、複数の `sources` を持ちます。各sourceには `url`、`type`、`verifiedAt` が必須です。
+各施設は、外部IDに依存しない `id`、日英名称、緯度経度・住所、トラック長・レーン・路面、JAAF公認状態、個人利用状態・料金・時間・スパイク、公式・個人利用・予定URL、JAAF/OSM外部ID、複数の `sources` を持ちます。各sourceには `url`、`type`、`verifiedAt` が必須です。`verifiedAt` は公式sourceのHTTP応答と読取可能な本文を最後に確認した日であり、全属性を確定した日ではありません。定期再確認で本文を読めた公式sourceだけ日付を進めます。
 
 `individualUse.status` は `available`、`temporarily-unavailable`、`unavailable`、`unknown` のいずれかです。料金0円と不明を区別するため、無料は `0`、不明は `null` です。JAAFの公認期間後を再確認できない場合、`jaafCertified` は推測せず `null` とします。
 

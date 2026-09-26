@@ -52,24 +52,62 @@ class ReverificationTest(unittest.TestCase):
         self.assertEqual(changed[1:], rows[1:])
         self.assertLess(len(updated) - len(original), 3)
 
-    def test_baseline_does_not_publish_without_a_previous_hash(self):
+    def test_baseline_records_source_dates_without_attribute_changes(self):
         with tempfile.TemporaryDirectory() as directory:
-            output = pathlib.Path(directory) / 'output'
-            state = pathlib.Path(directory) / 'missing.json'
+            root = pathlib.Path(directory)
+            output = root / 'output'
+            state = root / 'missing.json'
+            data = root / 'tracks.json'
+            data.write_text(monitor.TRACKS.read_text())
             args = type('Args', (), {'date': '2026-09-26', 'state': state, 'output': output, 'api_key': 'test'})()
             def fetched(url):
                 return {'url': url, 'finalUrl': url, 'mime': 'text/html', 'status': 'ok', 'text': '公式施設案内。個人利用について記載しています。' * 5, 'links': []}
             def discovery(*_):
                 return {'status': 'ok', 'candidateUrl': '', 'reason': '', 'searchCalls': 1, 'usage': {}, 'costUpperUsd': 0.01}
-            with patch.object(monitor, 'fetch_one', side_effect=fetched), patch.object(monitor, 'discover', side_effect=discovery), patch.object(monitor, 'ask_model', side_effect=AssertionError('baseline must not call AI')):
+            with patch.object(monitor, 'TRACKS', data), patch.object(monitor, 'fetch_one', side_effect=fetched), patch.object(monitor, 'discover', side_effect=discovery), patch.object(monitor, 'ask_model', side_effect=AssertionError('baseline must not call AI')):
                 monitor.run(args)
             report = json.loads((output / 'report.json').read_text())
             saved = json.loads((output / 'state.json').read_text())
             self.assertEqual(report['facilityCount'], 133)
             self.assertEqual(report['apiCalls'], 20)
             self.assertEqual(report['changed'], [])
+            self.assertEqual(len(report['sourceDatesRefreshed']), sum(
+                any(source['type'] == 'official' and source['verifiedAt'] < '2026-09-26' for source in track['sources'])
+                for track in json.loads(monitor.TRACKS.read_text())
+            ))
             self.assertEqual(len(saved['discoveryChecked']), 20)
             self.assertTrue(saved['sources'])
+
+    def test_unchanged_readable_source_refreshes_date_without_ai(self):
+        track = json.loads(monitor.TRACKS.read_text())[0]
+        audit = next(row for row in json.loads(monitor.AUDIT.read_text())['records'] if row['trackId'] == track['id'])
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            data = root / 'tracks.json'
+            data.write_text(json.dumps([track], ensure_ascii=False, indent=2))
+            audit_path = root / 'audit.json'
+            audit_path.write_text(json.dumps({'records': [audit]}, ensure_ascii=False))
+            urls = monitor.make_urls(track, audit)
+            text = '同じ公式本文' * 10
+            state = root / 'state.json'
+            state.write_text(json.dumps({
+                'schemaVersion': 1, 'observedAt': '2026-09-25',
+                'sources': {url: {'textHash': monitor.semantic_hash(text), 'finalUrl': url} for url in urls},
+                'discoveryChecked': {track['id']: '2026-09-26'},
+                'annualCostUpper': {'2026': 0},
+            }))
+            args = type('Args', (), {'date': '2026-09-26', 'state': state, 'output': root / 'out', 'api_key': 'test'})()
+            def fetched(url):
+                return {'url': url, 'finalUrl': url, 'mime': 'text/html', 'status': 'ok', 'text': text, 'links': []}
+            with patch.object(monitor, 'TRACKS', data), patch.object(monitor, 'AUDIT', audit_path), patch.object(monitor, 'fetch_one', side_effect=fetched), patch.object(monitor, 'ask_model', side_effect=AssertionError('unchanged source must not call AI')):
+                monitor.run(args)
+            changed = json.loads(data.read_text())[0]
+            report = json.loads((args.output / 'report.json').read_text())
+            self.assertEqual(report['changed'], [])
+            self.assertEqual(report['apiCalls'], 0)
+            self.assertEqual(report['sourceDatesRefreshed'], [{'trackId': track['id'], 'sourceCount': 1}])
+            self.assertEqual(changed['sources'][0]['verifiedAt'], '2026-09-26')
+            self.assertEqual(changed['sources'][1]['verifiedAt'], track['sources'][1]['verifiedAt'])
 
     def test_changed_source_needs_exact_quote_and_second_review(self):
         track = json.loads(monitor.TRACKS.read_text())[0]
@@ -120,6 +158,8 @@ class ReverificationTest(unittest.TestCase):
             with patch.object(monitor, 'TRACKS', data), patch.object(monitor, 'AUDIT', audit_path), patch.object(monitor, 'fetch_one', side_effect=fetched), patch.object(monitor, 'ask_model', side_effect=AssertionError('unchanged sources must not call AI')):
                 monitor.run(args)
             self.assertEqual(json.loads((args.output / 'report.json').read_text())['apiCalls'], 0)
+            current_sources = json.loads(data.read_text())[0]['sources']
+            self.assertEqual(next(row for row in current_sources if row['url'] == urls[0])['verifiedAt'], track['sources'][0]['verifiedAt'])
 
     def test_persistent_total_source_loss_downgrades_to_unknown(self):
         track = json.loads(monitor.TRACKS.read_text())[0]

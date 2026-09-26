@@ -118,7 +118,7 @@ GitHub Actionsの `Availability monitor` は毎日09:30 JSTに取得/解析異�
 
 ## 静的施設情報の自動再確認
 
-`Facility reverification` workflowは毎週日曜11:15 JSTに登録済みの公式施設・個人利用資料を取得し、本文変更、redirect、期限到来を確認します。新しい公式資料の検索は各施設につき365日ごとに行い、1回の実行では最大20施設です。確認には `gpt-6-luna` の `xhigh` を使います。確定値を変更する場合は原文引用・属性型・独立した再判定を通過した差分だけをPRへ入れ、`Node 24 validation`成功後に自動マージします。全ての既知資料を28日間読めない場合は個人利用statusを `unknown` に下げます。facility ID、名称、座標、日別availabilityはこのworkflowで自動変更しません。
+`Facility reverification` workflowは毎週日曜11:15 JSTに登録済みの公式施設・個人利用資料を取得し、本文変更、redirect、期限到来を確認します。新しい公式資料の検索は各施設につき365日ごとに行い、1回の実行では最大20施設です。確認には `gpt-6-luna` の `xhigh` を使います。本文を読めた公式sourceは値が変わらなくても `verifiedAt` を更新します。この日付は公式資料の読取日であり、全属性を確定した日ではありません。確認日だけのpushはS3に配置し、施設ページのCloudFront invalidationは省略して通常のcache期限を待ちます。確定値を変更する場合は原文引用・属性型・独立した再判定を通過した差分だけをPRへ入れ、`Node 24 validation`成功後に自動マージします。全ての既知資料を28日間読めない場合は個人利用statusを `unknown` に下げます。facility ID、名称、座標、日別availabilityはこのworkflowで自動変更しません。
 
 workflowには既存の `OPENAI_API_KEY` に加え、このrepositoryだけにインストールしたGitHub Appの `REVERIFICATION_APP_CLIENT_ID` と `REVERIFICATION_APP_PRIVATE_KEY` secrets、およびrepositoryのauto-merge設定が必要です。GitHub Appへはrepository Contents・Pull requestsのwriteだけを付与します。source fingerprintと暦年の保守的なAPI費推計は `automation/facility-reverification-state` branchで保持し、推計$4.80に達した年は新たなAI確認を止めて未処理対象を繰り越します。reportはActions summaryと90日保持のartifactに残します。2026-09-26の133施設試走、検索料の実測と年間見積もりは[初回試走レポート](../research/track-expansion/reverification-initial-trial-2026-09-26.md)を参照してください。
 

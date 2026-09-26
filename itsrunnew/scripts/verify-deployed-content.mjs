@@ -6,10 +6,11 @@ const baseUrl = process.env.ITSRUN_BASE_URL;
 if (!baseUrl) throw new Error('ITSRUN_BASE_URL is required');
 const production = process.env.ITSRUN_EXPECT_EDGE_ROUTING === 'true';
 const plan = JSON.parse(readFileSync('.cache/deployment-plan.json', 'utf8'));
-const checks = new Map([['/', 'index.html'], ['/service-worker.js', 'service-worker.js']]);
+const dateOnlyDeferred = (plan.deferredPaths?.length ?? 0) > 0;
+const checks = new Map(dateOnlyDeferred ? [] : [['/', 'index.html'], ['/service-worker.js', 'service-worker.js']]);
 
 for (const key of plan.changed) {
-  if (key.startsWith('assets/')) continue;
+  if (key.startsWith('assets/') || (dateOnlyDeferred && !key.startsWith('availability/'))) continue;
   checks.set(`/${key}`, key);
   if (production && key.endsWith('/index.html')) {
     const route = `/${key.slice(0, -'/index.html'.length)}`;
@@ -30,4 +31,6 @@ async function worker() {
   }
 }
 await Promise.all(Array.from({ length: Math.min(8, entries.length) }, () => worker()));
-process.stdout.write(`Verified ${entries.length} published URL bodies, including / and /service-worker.js.\n`);
+process.stdout.write(dateOnlyDeferred
+  ? `Verified ${entries.length} non-deferred published URL bodies; date-only pages will refresh after cache expiry.\n`
+  : `Verified ${entries.length} published URL bodies, including / and /service-worker.js.\n`);

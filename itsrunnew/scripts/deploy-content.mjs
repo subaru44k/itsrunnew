@@ -69,6 +69,16 @@ export function planDeployment(previous, current) {
   return { changed, removed, paths: [...new Set([...invalidationPaths(affected), ...grouped])].sort() };
 }
 
+export function deferFacilityDatePaths(plan, dateOnly) {
+  if (!dateOnly) return { ...plan, deferredPaths: [] };
+  return {
+    ...plan,
+    // The daily availability files keep their normal freshness behavior.
+    paths: plan.paths.filter(path => path.startsWith('/availability/')),
+    deferredPaths: plan.paths.filter(path => !path.startsWith('/availability/')),
+  };
+}
+
 function previousManifest(bucket, temporaryDirectory) {
   const path = join(temporaryDirectory, 'previous.json');
   try {
@@ -116,7 +126,10 @@ export function deploy({ bucket, distribution }) {
   try {
     const current = buildManifest();
     const previous = previousManifest(bucket, temporaryDirectory);
-    const plan = planDeployment(previous.files, current);
+    const plan = deferFacilityDatePaths(
+      planDeployment(previous.files, current),
+      process.env.ITSRUN_DEFER_FACILITY_DATE_INVALIDATION === 'true',
+    );
     for (const key of plan.changed) upload(bucket, key);
     for (const key of plan.removed) aws('s3api', 'delete-object', '--bucket', bucket, '--key', key);
 
@@ -130,7 +143,8 @@ export function deploy({ bucket, distribution }) {
         '--id', invalidationId, '--query', 'Invalidation.Status', '--output', 'text');
       if (status !== 'Completed') throw new Error(`CloudFront invalidation ${invalidationId} did not complete.`);
     }
-    // Commit only after every invalidation succeeds. A failed run retries the same paths.
+    // Commit after required invalidations succeed. Deferred date-only paths become
+    // visible when their normal CloudFront cache lifetime ends.
     const manifestFile = join(temporaryDirectory, 'current.json');
     if (previous.migrated || plan.changed.length || plan.removed.length) {
       writeFileSync(manifestFile, JSON.stringify({ version: 1, files: current }));
@@ -144,7 +158,8 @@ export function deploy({ bucket, distribution }) {
     output('changed_files', plan.changed.length);
     output('removed_files', plan.removed.length);
     process.stdout.write(`Content: ${plan.changed.length} changed, ${plan.removed.length} removed; ` +
-      `CloudFront: ${plan.paths.length} paths${invalidationId ? ` (${invalidationId} completed)` : ' (skipped)'}.\n`);
+      `CloudFront: ${plan.paths.length} paths${invalidationId ? ` (${invalidationId} completed)` : ' (skipped)'}` +
+      `${plan.deferredPaths.length ? `; ${plan.deferredPaths.length} date-only paths deferred` : ''}.\n`);
   } finally {
     rmSync(temporaryDirectory, { recursive: true, force: true });
   }

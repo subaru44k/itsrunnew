@@ -187,6 +187,34 @@ def replace_sources(raw, track_id, source_rows):
     return candidate
 
 
+def replace_source_check_dates(raw, track_id, updates):
+    """Advance selected source dates without reformatting the source array."""
+    start, end = record_span(raw, track_id)
+    seen = set()
+    def patch_object(match):
+        literal = match.group(0)
+        try:
+            row = json.loads(literal)
+        except json.JSONDecodeError:
+            return literal
+        url = row.get('url')
+        if row.get('type') != 'official' or url not in updates:
+            return literal
+        old = json.dumps(row['verifiedAt'])
+        new = json.dumps(updates[url])
+        changed, count = re.subn(r'("verifiedAt"\s*:\s*)' + re.escape(old), lambda found: found.group(1) + new, literal)
+        if count != 1:
+            raise ValueError(f'{track_id}: source date missing for {url}')
+        seen.add(url)
+        return changed
+    updated = re.sub(r'\{[^{}]*\}', patch_object, raw[start:end])
+    if seen != set(updates):
+        raise ValueError(f'{track_id}: expected source dates for {set(updates) - seen}')
+    candidate = raw[:start] + updated + raw[end:]
+    json.loads(candidate)
+    return candidate
+
+
 def run(args):
     day = dt.date.fromisoformat(args.date) if args.date else today_jst()
     tracks = json.loads(TRACKS.read_text())
@@ -212,7 +240,7 @@ def run(args):
             failures.pop(url, None)
         else:
             failures.setdefault(url, day.isoformat())
-    report = {'date': day.isoformat(), 'facilityCount': len(tracks), 'sourceCount': len(urls), 'changed': [], 'unresolved': [], 'discoveries': [], 'costUpperUsd': 0.0, 'apiCalls': 0, 'searchCalls': 0}
+    report = {'date': day.isoformat(), 'facilityCount': len(tracks), 'sourceCount': len(urls), 'changed': [], 'sourceDatesRefreshed': [], 'unresolved': [], 'discoveries': [], 'costUpperUsd': 0.0, 'apiCalls': 0, 'searchCalls': 0}
     raw = TRACKS.read_text()
     last_run = dt.date.fromisoformat(state['observedAt']) if state.get('observedAt') else None
     discovery_checked = dict(state.get('discoveryChecked', {}))
@@ -358,12 +386,26 @@ def run(args):
             pending[track['id']] = day.isoformat()
         else:
             pending.pop(track['id'], None)
+    # A source's verifiedAt records when its actual response and readable body
+    # were checked, even when the semantic hash and facility values did not change.
+    # Apply this after field edits so new source rows from an accepted edit survive.
+    for track in json.loads(raw):
+        updates = {}
+        for source_row in track['sources']:
+            result = fetched.get(source_row['url'])
+            if (source_row['type'] == 'official' and result
+                    and result['status'] == 'ok' and len(result['text']) > 20
+                    and source_row['verifiedAt'] < day.isoformat()):
+                updates[source_row['url']] = day.isoformat()
+        if updates:
+            raw = replace_source_check_dates(raw, track['id'], updates)
+            report['sourceDatesRefreshed'].append({'trackId': track['id'], 'sourceCount': len(updates)})
     report['costUpperUsd'] = round(cost - starting_cost, 6)
     state = {'schemaVersion': STATE_VERSION, 'observedAt': day.isoformat(), 'sources': current, 'failedSince': failures, 'additionalUrls': additional, 'discoveryChecked': discovery_checked, 'brokenDiscoveryChecked': broken_checked, 'pending': pending, 'annualCostUpper': {**state.get('annualCostUpper', {}), year: round(cost, 6)}}
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / 'state.json').write_text(json.dumps(state, ensure_ascii=False, indent=2) + '\n')
     (args.output / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
-    if report['changed']:
+    if report['changed'] or report['sourceDatesRefreshed']:
         if getattr(args, 'dry_run', False):
             (args.output / 'proposed-tracks.json').write_text(raw)
         else:

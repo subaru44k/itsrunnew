@@ -11,6 +11,8 @@ def render(report):
         '',
         f"Checked on {report['date']} (JST). AI calls: {report['apiCalls']}; billed search actions: {report['searchCalls']}; conservative API cost for this run: ${report['costUpperUsd']:.4f}.",
         '',
+        f"Readable official sources had their check dates refreshed for {len(report.get('sourceDatesRefreshed', []))} facilities. This records a successful source read, not a confirmation that every listed facility attribute has evidence.",
+        '',
         'Affirmative field changes require an exact quote from a fetched official source and an independent Luna xhigh confirmation. A separate conservative rule can downgrade individual-use status to unknown after every known official source has been unreadable for 28 days. The required Node 24 validation check must pass before auto-merge.',
         '',
     ]

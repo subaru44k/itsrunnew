@@ -56,8 +56,15 @@ class PageText(html.parser.HTMLParser):
 
 
 def fetch_one(url):
-    request = urllib.request.Request(url, headers={'User-Agent': 'ItsRun facility-source-monitor/1.0 (+https://itsrun.info)', 'Accept': 'text/html,application/pdf;q=0.9,*/*;q=0.5'})
+    agents = (
+        'ItsRun facility-source-monitor/1.0 (+https://itsrun.info)',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    )
     for attempt in range(2):
+        request = urllib.request.Request(url, headers={
+            'User-Agent': agents[attempt], 'Accept': 'text/html,application/xhtml+xml,application/pdf;q=0.9,*/*;q=0.5',
+            'Accept-Language': 'ja,en;q=0.8',
+        })
         try:
             with urllib.request.urlopen(request, timeout=12) as response:
                 body = response.read(8_000_001)
@@ -91,7 +98,8 @@ def fetch_one(url):
             }
         except (urllib.error.URLError, TimeoutError, ValueError, subprocess.TimeoutExpired) as error:
             if attempt == 1:
-                return {'url': url, 'status': 'error', 'error': type(error).__name__}
+                reason = f'HTTP {error.code}' if isinstance(error, urllib.error.HTTPError) else type(error).__name__
+                return {'url': url, 'status': 'error', 'error': reason}
             time.sleep(1)
 
 

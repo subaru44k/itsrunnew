@@ -1,15 +1,36 @@
 import json
+import io
+import email.message
 import pathlib
 import sys
 import tempfile
 import unittest
+import urllib.error
 from unittest.mock import patch
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import monitor
+import trial
 
 
 class ReverificationTest(unittest.TestCase):
+    def test_source_fetch_retries_http_block_with_browser_agent(self):
+        class Response(io.BytesIO):
+            url = 'https://example.org/facility'
+            headers = email.message.Message()
+            headers['Content-Type'] = 'text/html; charset=utf-8'
+        requests = []
+        def open_url(request, timeout):
+            requests.append(request)
+            if len(requests) == 1:
+                raise urllib.error.HTTPError(request.full_url, 403, 'blocked', {}, None)
+            return Response(b'<h1>Official facility information</h1>')
+        with patch.object(trial.urllib.request, 'urlopen', side_effect=open_url), patch.object(trial.time, 'sleep'):
+            result = trial.fetch_one('https://example.org/facility')
+        self.assertEqual(result['status'], 'ok')
+        self.assertEqual(len(requests), 2)
+        self.assertIn('Mozilla', requests[1].get_header('User-agent'))
+
     def test_expiry_after_short_and_cross_month_ranges(self):
         self.assertIn('2026-10-01', monitor.due_dates({'individualUse': {'note': '2026年9月7日〜30日は利用休止'}}))
         self.assertIn('2026-12-01', monitor.due_dates({'individualUse': {'note': '2026年7月1日〜11月30日まで休止'}}))

@@ -283,7 +283,10 @@ def run(args):
         if not (changed or recovered or dated or retry or track['id'] in discovered_ids or not sources):
             continue
         if not sources:
-            report['unresolved'].append({'trackId': track['id'], 'reason': 'no-readable-source'})
+            report['unresolved'].append({
+                'trackId': track['id'], 'reason': 'no-readable-source',
+                'sourceFailures': [{'url': url, 'error': fetched[url].get('error', 'short-source')} for url in track_urls],
+            })
             pending[track['id']] = day.isoformat()
             all_missing_for_28_days = track_urls and all(
                 url in failures and (day - dt.date.fromisoformat(failures[url])).days >= 28

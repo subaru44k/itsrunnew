@@ -12,6 +12,8 @@ Before editing files or creating commits, identify the current branch and worktr
 
 Do not require every task to run on `master` or require local commits to be pushed first. Existing feature branches, worktrees, and local commits may be intentional. If the checkout is ahead, diverged, or has uncommitted changes, preserve them and decide how to incorporate the latest `origin/master` before editing; do not reset, overwrite, or automatically rebase someone else's work. State the branch and remaining difference when it affects the result. If the fetch fails, disclose that the remote base could not be verified.
 
+After a PR from the current task is merged into `master`, run `git fetch origin master`. If this worktree is clean and can safely return to its local `master`, switch to `master`, run `git pull --ff-only origin master`, and verify that `HEAD` equals `origin/master`. Do not switch away from an active branch with unfinished work, or force an update when local `master` is dirty, ahead, diverged, or checked out in another worktree. In those cases, preserve the Git state and report why synchronization was deferred.
+
 ## Browser and Computer Use policy
 
 Default to no in-app browser, Computer Use, or GUI automation. Prefer repository code and CLI-based evidence such as tests, lint/type checking, builds, `curl`/HTTP requests, logs, and programmatic inspection.

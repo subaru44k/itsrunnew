@@ -80,6 +80,7 @@ class ReverificationTest(unittest.TestCase):
 
     def test_unchanged_readable_source_refreshes_date_without_ai(self):
         track = json.loads(monitor.TRACKS.read_text())[0]
+        track['sources'][0]['verifiedAt'] = '2026-08-24'
         audit = next(row for row in json.loads(monitor.AUDIT.read_text())['records'] if row['trackId'] == track['id'])
         with tempfile.TemporaryDirectory() as directory:
             root = pathlib.Path(directory)

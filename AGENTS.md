@@ -57,7 +57,9 @@ Also update `itsrunnew/README.md` when user-facing setup, technology-stack, veri
 
 ## Expected verification
 
-For application changes, normally run from `itsrunnew/`:
+For documentation-only changes (including `AGENTS.md`), inspect the diff, check links or commands touched, and run `git diff --check`. Do not run application or daily regression tests solely for these changes.
+
+For application changes, select checks based on the affected behavior. Normally verify the following from `itsrunnew/`, locally or through CI for the same PR revision:
 
 ```sh
 npm run build
@@ -68,6 +70,6 @@ npm run test:smoke
 
 Use `npm run test:visual` when changing layout or styling and an ad-disabled legacy baseline is available, as described in `docs/SITE_STRUCTURE.md`. After an authorized preview deployment, run the smoke test against the CloudFront URL as well.
 
-### Daily job regression gate (required for every change)
+### Daily job regression gate
 
-Before completing any application, data, collector, build, test, or workflow change, run `npm run test:daily:fixtures` and `npm run test:daily` from `itsrunnew/`, in addition to the normal checks. The first verifies four statuses, Toda unavailable, and all-unknown data in isolated temporary builds; the second performs live collection, freshness/completeness validation, build, and desktop/mobile smoke without deploying. Do not claim daily compatibility based only on unit tests or a committed availability snapshot. Both checks also run inside the required `Node 24 validation` CI check. Follow [`docs/DAILY_VERIFICATION.md`](docs/DAILY_VERIFICATION.md) for failure triage and post-deployment verification. Record any check that could not run; never bypass it with continue-on-error.
+Run `npm run test:daily:fixtures` and `npm run test:daily` for changes that can affect facility availability collection, Track Dataset IDs or status, availability display or filtering, daily smoke tests, or the build/deploy pipeline. The first verifies four statuses, Toda unavailable, and all-unknown data in isolated temporary builds; the second performs live collection, freshness/completeness validation, build, and desktop/mobile smoke without deploying. For unrelated code, use focused checks instead of requiring both daily suites locally. A successful `Node 24 validation` run for the same PR revision satisfies these gates; do not repeat them locally without a concrete reason. CI keeps both suites for non-documentation changes and skips application checks for Markdown-only changes. Do not claim daily compatibility based only on unit tests or a committed availability snapshot. Follow [`docs/DAILY_VERIFICATION.md`](docs/DAILY_VERIFICATION.md) for failure triage and post-deployment verification. Record any check that could not run; never bypass it with continue-on-error.

@@ -28,33 +28,73 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Check changed files and whitespace
+        id: change_scope
+        working-directory: .
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [[ -z "$BASE_SHA" ]] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            echo 'docs_only=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git diff --check "$BASE_SHA" HEAD
+          changed_files="$(git diff --name-only "$BASE_SHA" HEAD)"
+          if [[ -z "$changed_files" ]]; then
+            echo 'docs_only=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          while IFS= read -r path; do
+            case "$path" in
+              *.md) ;;
+              *) echo 'docs_only=false' >> "$GITHUB_OUTPUT"; exit 0 ;;
+            esac
+          done <<< "$changed_files"
+          echo 'docs_only=true' >> "$GITHUB_OUTPUT"
       - name: Set up Node 24
+        if: steps.change_scope.outputs.docs_only != 'true'
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: itsrunnew/package-lock.json
       - name: Install PDF rendering tools
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
       - name: Install locked dependencies
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm ci
       - name: Install field report API dependencies
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run reports:install
       - name: Validate track expansion batches
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run validate:track-batches
       - name: Validate Track Dataset
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run validate:tracks
       - name: Run unit tests
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm test
       - name: Verify monitoring email without sending
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:monitor:email
       - name: Verify facility reverification without external API calls
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:reverification
       - name: Run lint and type checks
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run lint
       - name: Build static site
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run build
       - name: Verify daily regression scenarios
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:daily:fixtures
       - name: Verify live daily availability pipeline without deployment
+        if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:daily

@@ -10,9 +10,9 @@ Production run [35284711731](https://github.com/subaru44k/itsrunnew/actions/runs
 
 前日のProduction run [35161161499](https://github.com/subaru44k/itsrunnew/actions/runs/35161161499) は公開後の英語smokeで `Tomorrow available` 待機に失敗した。日別statusの有無と都道府県の折りたたみ・ページ送りに依存したassertionも修正対象とした。
 
-## 各変更で実行するゲート
+## availabilityに関わる変更で実行するゲート
 
-アプリケーションディレクトリ `itsrunnew/` で実行する。Node 24、`npm ci`、`npm run reports:install`、Chrome、Popplerの `pdfinfo` / `pdftoppm` が必要。macOSでは `brew install poppler`、Ubuntu系では `sudo apt-get install poppler-utils` を使う。Linuxでは `CHROME_PATH=/usr/bin/google-chrome` を指定する。
+施設のavailability収集、Track DatasetのID・status、availabilityの表示・絞り込み、daily smoke、build/deployの経路を変えるときに適用する。Markdownだけの変更や無関係なコード変更のためにローカルで両daily suiteを実行する必要はない。アプリケーションディレクトリ `itsrunnew/` で実行する。Node 24、`npm ci`、`npm run reports:install`、Chrome、Popplerの `pdfinfo` / `pdftoppm` が必要。macOSでは `brew install poppler`、Ubuntu系では `sudo apt-get install poppler-utils` を使う。Linuxでは `CHROME_PATH=/usr/bin/google-chrome` を指定する。
 
 ```sh
 npm test
@@ -25,7 +25,7 @@ npm run test:daily
 - `test:daily:fixtures`: JST当日から31日間の合成データでbuildとPC/モバイルの全smokeを実行。mixedでは4statusを網羅し、戸田を当日unavailable・翌日availableにする。unknownでは全施設をunknownとし、公式取得不能時の安全な表示とstatus欠落を検証する。
 - `test:daily`: 実際の公式sourceから31日分を収集し、鮮度・全施設の完全性・Track Datasetを検証してbuildと全smokeを実行する。AWSへ配備しない。AI 8施設は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）を一時workspaceの外へ置いてcacheを継続利用できる。keylessでcache missのAI施設はunknownになるため、CIでのdaily成功は外部AI推論のfreshnessを証明しない。
 - 両コマンドとも一時ディレクトリへソースをコピーし、インストール済み依存を共有する。live dailyのAI cacheだけは`ITSRUN_AI_CACHE_DIR`で指定したpersistent directoryを参照し、一時workspaceのコピー対象から除外する。checkoutのavailability・distや`.env`には触れない。合成データを公開する経路を設けず、deployの鮮度ゲートでも合成データを拒否する。通常終了・失敗時に一時領域を削除する。
-- `Node 24 validation` check内で両コマンドをすべてのmaster向けPRとmaster pushに実行する。CIは`OPENAI_API_KEY`を外部AIへ渡さないため、keyless cache missを含むdaily gateの成功を外部AI推論の検証結果と扱わない。unit/lint/buildだけの成功もdaily互換性の確認と扱わない。
+- `Node 24 validation` checkはMarkdownだけのmaster向けPR・master pushでは差分確認のみ行い、アプリ・daily suiteを省略する。その他の変更では安全側に両コマンドを実行する。同じPR revisionのCI結果が確認できれば、理由のないローカル再実行は不要。CIは`OPENAI_API_KEY`を外部AIへ渡さないため、keyless cache missを含むdaily gateの成功を外部AI推論の検証結果と扱わない。unit/lint/buildだけの成功もdaily互換性の確認と扱わない。
 
 両deploy workflowは収集直後に `validate:availability:fresh` を実行する。JST当日始まりの連続31日、6時間以内の生成時刻、全施設IDの重複・欠落、日付・timezone・期限・statusを検査し、不完全または古い生成物を公開しない。取得不能は従来どおりunknownであり、全4statusの存在を公開条件にしない。
 
@@ -33,8 +33,8 @@ smokeは実データに存在するstatusと件数を検証し、存在しない
 
 ## 修正の公開と完了判定
 
-1. PRで上記checkの成功を確認する。回帰テストをskipやcontinue-on-errorで隠さない。
-2. レビュー後のmaster反映でPreview/Production deployが起動する。公開の承認範囲を確認し、通常のcontent deployのみを使用する。
+1. 関連コードを変更したPRでは上記checkの成功を確認する。MarkdownだけのPRでは意図した差分確認のみを行い、関連コードの回帰テストをskipやcontinue-on-errorで隠さない。
+2. 関連コードのmaster反映でPreview/Production deployが起動する。Markdownだけのpushでは起動せず、日次scheduleは継続する。公開の承認範囲を確認し、通常のcontent deployのみを使用する。
 3. 両runでavailability収集・local smoke・S3 deployment・CloudFront smokeの成功を確認する。summaryには収集とlocal smokeの成否も表示する。
 4. 翌日のschedule runでも生成日と公開結果を確認する。再失敗時はrun URL、revision、失敗step、JST対象日を記録する。
 

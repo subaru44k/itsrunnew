@@ -78,7 +78,7 @@
       "feeUnit": "一般開放時",
       "openingHours": "一般開放予定を確認",
       "spikesAllowed": null,
-      "note": "2026年8月から年度末まで改修工事予定。指定日の利用可否はavailabilityで判定"
+      "note": "2026年10月から年度末まで第二期改修工事予定。工期中は一般・貸切とも利用不可。"
     },
     "urls": {
       "official": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/",
@@ -95,7 +95,7 @@
       {
         "url": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/",
         "type": "official",
-        "verifiedAt": "2026-08-24"
+        "verifiedAt": "2026-09-26"
       }
     ]
   },

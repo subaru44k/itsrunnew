@@ -1,0 +1,1048 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-09-26",
+  "sources": {
+    "https://www.nissan-stadium.jp/track/index.php": {
+      "textHash": "14aaa73bc11d7308cd47f9930183fe3efea8ca370cfbeba415e8e15563d4b3ac",
+      "finalUrl": "https://www.nissan-stadium.jp/track/index.php",
+      "mime": "text/html"
+    },
+    "https://ichiharazaidan-s.com/": {
+      "textHash": "8420af4f53b2270fe01a9a2fd2b25a2cb85f5af4039ebaaf8c205691adbfebb0",
+      "finalUrl": "https://ichiharazaidan-s.com/",
+      "mime": "text/html"
+    },
+    "https://www.city.inzai.lg.jp/0000021103.html": {
+      "textHash": "036d8782ad4ae0c7de38e176750b4c03597e3e74966b94eb0dbb53fc19876197",
+      "finalUrl": "https://www.city.inzai.lg.jp/0000021103.html",
+      "mime": "text/html"
+    },
+    "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html": {
+      "textHash": "2c7f9f9481cb5beaf55c682f0399e56a2aaea9a9e1a5aed0b422ed8e19275a67",
+      "finalUrl": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html",
+      "mime": "text/html"
+    },
+    "https://www.shunan-srt.jp/facilities/pdf/price.pdf?202602": {
+      "textHash": "cf0bcbc73a97ccf2b917251e6a85d64c7ca758909a4e999fe8a86a146c936bc4",
+      "finalUrl": "https://www.shunan-srt.jp/facilities/pdf/price.pdf?202602",
+      "mime": "application/pdf"
+    },
+    "https://www.tokyo-park.or.jp/park/toneri/facility/": {
+      "textHash": "043e2a656bc56b9035a0dd66936a80c1d9453d746037f8949822f2d2ef751351",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/toneri/facility/",
+      "mime": "text/html"
+    },
+    "https://www.ogino-park.jp/?p=1007": {
+      "textHash": "3e9981c646f2a48ad57e434a8c3712c5f704dc592ce19cf9d4d2433d95750a08",
+      "finalUrl": "https://www.ogino-park.jp/?p=1007",
+      "mime": "text/html"
+    },
+    "https://www.cue-net.or.jp/kouen/toso/annai/stadium.html": {
+      "textHash": "250e2eafee8e7030b4901c15c31ef82cc6d717ee1eeee3bf7071d7fadc43095b",
+      "finalUrl": "https://www.cue-net.or.jp/kouen/toso/annai/stadium.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kawagoe.saitama.jp/kurashi/sports/1003244/1003246.html": {
+      "textHash": "c1c2660a9d82109ce527ec59d20b06a8ac3914397b0ffec5f0e84ae2e3875a04",
+      "finalUrl": "https://www.city.kawagoe.saitama.jp/kurashi/sports/1003244/1003246.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kawagoe.saitama.jp/reiki_int/reiki_honbun/e302RG00000908.html": {
+      "textHash": "08a239b811b80b48cb593004804cf7dddfef13734e19eded3632bfe3230404a2",
+      "finalUrl": "https://www.city.kawagoe.saitama.jp/reiki_int/reiki_honbun/e302RG00000908.html",
+      "mime": "text/html"
+    },
+    "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html": {
+      "textHash": "e787b0af44d56e1c65f0475733a28251d9d24d299ed32c82cd9af837e43a3b98",
+      "finalUrl": "https://www.city.saitama.lg.jp/004/006/003/003/p033423.html",
+      "mime": "text/html"
+    },
+    "https://www.cue-net.or.jp/kouen/sportscenter/riyou/index.html": {
+      "textHash": "abd3feada1fec1e2035e2e08250176ed4c3d23398823b644ff1c0107a78edded",
+      "finalUrl": "https://www.cue-net.or.jp/kouen/sportscenter/riyou/index.html",
+      "mime": "text/html"
+    },
+    "https://www.ishin100.com/main/guide/gu-user/": {
+      "textHash": "9b950cc677f89760847652fb7b4f2355017c176e3928c09e687b56aa89a3c0ba",
+      "finalUrl": "https://www.ishin100.com/main/guide/gu-user/",
+      "mime": "text/html"
+    },
+    "https://ppp.seika-spc.co.jp/h-hiroshima/": {
+      "textHash": "444063989986ca3aad8f6ee78d447b14e9c014334220bcdcda48ca87ff4df562",
+      "finalUrl": "https://ppp.seika-spc.co.jp/26hiroshima/",
+      "mime": "text/html"
+    },
+    "https://www.city.kameoka.kyoto.jp/soshiki/33/3776.html": {
+      "textHash": "071ee0f7d292d244fadd20f31c8ba6658629f969d74d5180dcde9a025c76525c",
+      "finalUrl": "https://www.city.kameoka.kyoto.jp/soshiki/33/3776.html",
+      "mime": "text/html"
+    },
+    "https://www.spofure-kasugai.or.jp/sports/asamiya/charge/": {
+      "textHash": "fee38723ad0e5fad0330c8a81f3a801ae6233bbc71a0a251e4bc4003476e80e3",
+      "finalUrl": "https://www.spofure-kasugai.or.jp/sports/asamiya/charge/",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/yoyogi/news/2026/7_1_11_30.html": {
+      "textHash": "d0f3d2601fb77971e56c2b37bae572ccabb46236442bab3cdea89f024894cdaa",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/yoyogi/news/2026/7_1_11_30.html",
+      "mime": "text/html"
+    },
+    "https://www.town.hyogo-taishi.lg.jp/soshikikarasagasu/tyouminntaiikukan/sougoukouennriyou/7776.html": {
+      "textHash": "307188a8df18f774a5f83cf578a0b4e0151aeb7dd28ed33594d982853acfe77b",
+      "finalUrl": "https://www.town.hyogo-taishi.lg.jp/soshikikarasagasu/tyouminntaiikukan/sougoukouennriyou/7776.html",
+      "mime": "text/html"
+    },
+    "https://shisetsu.mizuno.jp/m-7303/guide": {
+      "textHash": "3852b9d5b122df6b7ec91d73b3f3ecb3bccbf86fab5c46cc68792a1f35678bcd",
+      "finalUrl": "https://shisetsu.mizuno.jp/m-7303/guide",
+      "mime": "text/html"
+    },
+    "https://www.tef.or.jp/kopgp/stadium/": {
+      "textHash": "1525e0da84b6e684706c56cd25c6bce4302109cbd7e6e23225221e96b37511f1",
+      "finalUrl": "https://www.tef.or.jp/kopgp/stadium/",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/akatsuka/": {
+      "textHash": "4abebd018d438e04226f82c4c9c94169013fe090a340328688d53682aa3f6f7a",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/akatsuka/",
+      "mime": "text/html"
+    },
+    "https://www.city.ichikawa.lg.jp/page/4184.html": {
+      "textHash": "959b77b8d0f284f775077a5170e1922294296873fd2507edbf428a41c420d7f5",
+      "finalUrl": "https://www.city.ichikawa.lg.jp/page/4184.html",
+      "mime": "text/html"
+    },
+    "https://www.cue-net.or.jp/kouen/sportscenter/annai/stadium.html": {
+      "textHash": "f7eb7a8fde29c3c9465fb63973e8e018b11e3835739008a1bfd36a93164b68df",
+      "finalUrl": "https://www.cue-net.or.jp/kouen/sportscenter/annai/stadium.html",
+      "mime": "text/html"
+    },
+    "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033": {
+      "textHash": "1200448593578c9fb19df94995b072717c4e99562539f19daf31f3e4b38932e0",
+      "finalUrl": "https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033",
+      "mime": "text/html"
+    },
+    "https://www.city.kisarazu.lg.jp/kurashi/shisetsuannai/sports_recreation/6585.html": {
+      "textHash": "c43bc23088a52719969e7cee5c891a67d9f51b36638bfd8141b0397e9261a26d",
+      "finalUrl": "https://www.city.kisarazu.lg.jp/kurashi/shisetsuannai/sports_recreation/6585.html",
+      "mime": "text/html"
+    },
+    "https://www.city.iwakuni.lg.jp/site/atago/27490.html": {
+      "textHash": "87cceccd4e6bba503cb64702268806007031cf40bb4e9b37357525b03dd42d2e",
+      "finalUrl": "https://www.city.iwakuni.lg.jp/site/atago/27490.html",
+      "mime": "text/html"
+    },
+    "https://www.tef.or.jp/kopgp/stadium/?no=tab2": {
+      "textHash": "1525e0da84b6e684706c56cd25c6bce4302109cbd7e6e23225221e96b37511f1",
+      "finalUrl": "https://www.tef.or.jp/kopgp/stadium/?no=tab2",
+      "mime": "text/html"
+    },
+    "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html": {
+      "textHash": "2eb08ccf43703f0473b1ac08c3d4d84a18a3720d836f800cbe2fe20c0c0f341d",
+      "finalUrl": "https://www.city.asaka.lg.jp/soshiki/41/chuourikujou.html",
+      "mime": "text/html"
+    },
+    "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html": {
+      "textHash": "4085128003e911370fec5455bd17812746e35bc8caffe11f707f461fa7d5ca32",
+      "finalUrl": "https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html",
+      "mime": "text/html"
+    },
+    "https://himeji-machishin.jp/sports/shisetsu/hime-riku/": {
+      "textHash": "3e4176f6c3070e0e3ac1fcc24f5616d471042d37b11a37928085ee9083a4dbe4",
+      "finalUrl": "https://himeji-machishin.jp/sports/shisetsu/hime-riku/",
+      "mime": "text/html"
+    },
+    "https://www.togane-bunspo.or.jp/arena/facility/togane_arena/athletic_field/": {
+      "textHash": "aa6e6fbad86ce7a84274c4aa3b80992d7a4760af5a3f537d7bff064e95a5f57f",
+      "finalUrl": "https://www.togane-bunspo.or.jp/arena/facility/togane_arena/athletic_field/",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-park.jp/%E9%81%8B%E5%8B%95%E6%96%BD%E8%A8%AD/": {
+      "textHash": "5441f83cbdffb987a87cd61d3274ed44a6c0f8f6387533f469f0a643d1aec6ed",
+      "finalUrl": "https://www.kyoto-park.jp/%E9%81%8B%E5%8B%95%E6%96%BD%E8%A8%AD/",
+      "mime": "text/html"
+    },
+    "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html": {
+      "textHash": "2e0a7d9e866913143554a8a7771db8f1761b9e7d4f2e51de0205ac312e6fd6c9",
+      "finalUrl": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/johoku-chuo/": {
+      "textHash": "9964ba488df7b12f1972eac7de5948540190b1df739bae3ba7a964a203e9a961",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/johoku-chuo/",
+      "mime": "text/html"
+    },
+    "https://neyagawa.osaka-park.or.jp/1287": {
+      "textHash": "b3977dd88a04d9c5fce2adc0b17a53a79b1238d32cc9c9ec6b2fd878ea14568b",
+      "finalUrl": "https://neyagawa.osaka-park.or.jp/1287",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/wadabori/facility/": {
+      "textHash": "2a9d542dcd73286e8a4d892ac3a405c33453c22c950a4f7f4c0aff4d7653e189",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/wadabori/facility/",
+      "mime": "text/html"
+    },
+    "https://shisetsu.mizuno.jp/m-7103/guide": {
+      "textHash": "0e59915e2293590c841171c96e6aec7b9f25cf17346415dead8ab1645526fcf4",
+      "finalUrl": "https://shisetsu.mizuno.jp/m-7103/guide",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/akatsuka/facility/": {
+      "textHash": "b02be79be2bc4f2c11a8ebdd5bc39928b432c733e47006449effc3457250b082",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/akatsuka/facility/",
+      "mime": "text/html"
+    },
+    "https://www.kobe-park.or.jp/sougou/outline/": {
+      "textHash": "d5cf4c7cfee6117b779171f8d1dac4c8b20fe6040ea64353beab6b6450aab626",
+      "finalUrl": "https://www.kobe-park.or.jp/sougou/outline/",
+      "mime": "text/html"
+    },
+    "https://www.city.kurume.fukuoka.jp/1060manabi/2040sports/3010shisetsu/4060trackandfield/2015-0513-1033-553.html": {
+      "textHash": "8d85f121622cc984122876645ad40291ad44c4cb5efb2150885c9aa7c4a4003f",
+      "finalUrl": "https://www.city.kurume.fukuoka.jp/1060manabi/2040sports/3010shisetsu/4060trackandfield/2015-0513-1033-553.html",
+      "mime": "text/html"
+    },
+    "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/kashiwanoha/": {
+      "textHash": "d5bf7df109a7cd45c00e34e6ee87265f9a6a8a783a4954ada9b93a9b1b74ccda",
+      "finalUrl": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/kashiwanoha/",
+      "mime": "text/html"
+    },
+    "https://www.city.sakai.lg.jp/reiki/reiki_honbun/s000RG00000462.html": {
+      "textHash": "169ca0ad0dda6cd7d6a17cda16412d9e69a27124076646fa43cbbccb088d558d",
+      "finalUrl": "https://www.city.sakai.lg.jp/reiki/reiki_honbun/s000RG00000462.html",
+      "mime": "text/html"
+    },
+    "https://cityono.jp/index.php?pid=areo": {
+      "textHash": "14214e6b1e34531051e89c385f5a3aaec34dac2860cbe985f26fce320362ff55",
+      "finalUrl": "https://cityono.jp/index.php?pid=areo",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/oizumi-chuo/": {
+      "textHash": "9515a49688f9f144edfe554fb4271e63b8157ad1ad45af16e853535b6e422a77",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/oizumi-chuo/",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4": {
+      "textHash": "7dae3fbb6f4eb8af1ba7216f777faa150f856d2679d6ccd1934ca04e3dec53ec",
+      "finalUrl": "https://www.kyoto-sports.or.jp/facilities/detail.php?id=4",
+      "mime": "text/html"
+    },
+    "https://www.city.funabashi.lg.jp/funabashistyle/jp/003/p042318.html": {
+      "textHash": "b3b350815124092f5c8bff1777eae97a7339eb5db3076c03493e0bf76c09e306",
+      "finalUrl": "https://www.city.funabashi.lg.jp/funabashistyle/jp/003/p042318.html",
+      "mime": "text/html"
+    },
+    "https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html": {
+      "textHash": "377571c7f2d4ca4bc9793db054c5909a36b1ee340ebd7f795c804a20ed2845b2",
+      "finalUrl": "https://www.city.machida.tokyo.jp/bunka/sport/sport/gion-stadium/sport06.html",
+      "mime": "text/html"
+    },
+    "https://www.hyogo-park.or.jp/mikisougou/contents/sisetsu/sports.html": {
+      "textHash": "ec26344745d2b0c837a0071aecb152bf504b2d2d7263069211615ec28c732621",
+      "finalUrl": "https://www.hyogo-park.or.jp/mikisougou/contents/sisetsu/sports.html",
+      "mime": "text/html"
+    },
+    "https://www.city.shimonoseki.lg.jp/soshiki/66/3779.html": {
+      "textHash": "b7c0a2d100f42f8c1098a562fbf285c52c070dde3738983e40f1ed022c41ec84",
+      "finalUrl": "https://www.city.shimonoseki.lg.jp/soshiki/66/3779.html",
+      "mime": "text/html"
+    },
+    "https://www.city.suita.osaka.jp/shisei/shisetsu/1019118/1020470.html": {
+      "textHash": "3a00b08e1fcd92de0ba62261f37ada06f3e7c18148e0c312c18a50b27ad3f8d2",
+      "finalUrl": "https://www.city.suita.osaka.jp/shisei/shisetsu/1019118/1020470.html",
+      "mime": "text/html"
+    },
+    "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html": {
+      "textHash": "eb3d0d68df0351f7f93f9d25a148513ffdd371bb09154e7372051880e4aec6fd",
+      "finalUrl": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/sports-c.html",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/": {
+      "textHash": "677c196dfc1e1e670b56924463ed30ba65563041d2ac8d605384f34d4095c26e",
+      "finalUrl": "https://www.kyoto-park.jp/2022/03/31/%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%A0%B4%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/",
+      "mime": "text/html"
+    },
+    "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/": {
+      "textHash": "fd1242acf3b4d11306024691165ee5eeb97dbbb17da9534b7b60fcc011f94b1f",
+      "finalUrl": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-sports.or.jp/public_html/wp-content/uploads/2023/02/toji%20housing%20field%20ryokin.pdf": {
+      "textHash": "6bf9a697f3c93ac31b8f5a58a54c4deb4d2780f647df27c1eeed5f0739daf2cb",
+      "finalUrl": "https://www.kyoto-sports.or.jp/wp-content/uploads/2023/02/2409tojihousingfield_ryokin.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.kakogawa-sports.jp/facilities/field/index.html": {
+      "textHash": "ca9c392ba146f9b1d26eb21c2f70981548b16e33901ba16a35ff586c5f255123",
+      "finalUrl": "https://www.kakogawa-sports.jp/facilities/field/index.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kisarazu.lg.jp/soshiki/kenkokodomo/sportsshinko/1/2439.html": {
+      "textHash": "ca5440737e3e38dc8b725151fe364f7f2d5d7c1580a31c28f14700789c015bda",
+      "finalUrl": "https://www.city.kisarazu.lg.jp/soshiki/kenkokodomo/sportsshinko/1/2439.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kawasaki.jp/530/page/0000020718.html": {
+      "textHash": "3455011a528cf3eaf2166dc6b5ecd0200849b7237f8e874e477a4c6d1a1add3a",
+      "finalUrl": "https://www.city.kawasaki.jp/530/page/0000020718.html",
+      "mime": "text/html"
+    },
+    "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm": {
+      "textHash": "84e24f6588c2b4f7b11db6e1602e0058f5f71631b03902e0443f4e0770f83a4c",
+      "finalUrl": "https://itinomiya.sports.coocan.jp/rikuzyou/rikuzyounew.htm",
+      "mime": "text/html"
+    },
+    "https://www.park-narita.jp/shisetsu/riyoryokin/nakadai/": {
+      "textHash": "1598924a496de799acf490da348bdf846a2b6dfc91edf824e49aef7c8ea90900",
+      "finalUrl": "https://www.park-narita.jp/shisetsu/riyoryokin/nakadai/",
+      "mime": "text/html"
+    },
+    "https://shisetsu.mizuno.jp/mss-7292/guide": {
+      "textHash": "a4196beb9f4e2088accf3ce3e260122cb65cb23fda896a879e7bc41687deb051",
+      "finalUrl": "https://shisetsu.mizuno.jp/mss-7292/guide",
+      "mime": "text/html"
+    },
+    "https://www.city.yamato.lg.jp/gyosei/yamatoshiinfo/kokyoshisetsu/sports/13930.html": {
+      "textHash": "a2da135d83a2453a0f004b4df6b957b01fcec8ad5c66f4aee672ca8a92e232a9",
+      "finalUrl": "https://www.city.yamato.lg.jp/gyosei/yamatoshiinfo/kokyoshisetsu/sports/13930.html",
+      "mime": "text/html"
+    },
+    "https://www.city.fukuyama.hiroshima.jp/soshiki/sports/4739.html": {
+      "textHash": "4b773f2c15df00c8e10823b92191d7645671711e3cbd0df353d99576f109b7a8",
+      "finalUrl": "https://www.city.fukuyama.hiroshima.jp/soshiki/sports/4739.html",
+      "mime": "text/html"
+    },
+    "https://parks.or.jp/kumagaya/guide/001/001816.html": {
+      "textHash": "4ab068f25d02ea95cc4968ec70cb1c67d432af52fd919b7fa5beeff24162f055",
+      "finalUrl": "https://parks.or.jp/kumagaya/guide/001/001816.html",
+      "mime": "text/html"
+    },
+    "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html": {
+      "textHash": "0bf66dcda0c6e69705cce3610f1e1e58b4d291fc229d99bb8f39cbaae58f9e42",
+      "finalUrl": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html",
+      "mime": "text/html"
+    },
+    "https://www.city.chiba.jp/toshi/koenryokuchi/kanri/aobanomorisupo-tupuraza.html": {
+      "textHash": "f7e194a3468ecde1e6158ce53a6e6f6b6717683a3825d866c366eacca2b929bc",
+      "finalUrl": "https://www.city.chiba.jp/toshi/koenryokuchi/kanri/aobanomorisupo-tupuraza.html",
+      "mime": "text/html"
+    },
+    "https://www.city.yamato.lg.jp/gyosei/soshik/10/yokuarushitsumon_kaitoshu/12403.html": {
+      "textHash": "9f6f224078f8bd15674f19a719a2b35eeccc83c7ac12535cfc47ed67b493f26b",
+      "finalUrl": "https://www.city.yamato.lg.jp/gyosei/soshik/10/yokuarushitsumon_kaitoshu/12403.html",
+      "mime": "text/html"
+    },
+    "https://www.city.chigasaki.kanagawa.jp/shisetsu_info/s_sports/1028429.html": {
+      "textHash": "ec13d72707e470dc2e64f194302885abe3da7fa2c5036c9855658a2a26951157",
+      "finalUrl": "https://www.city.chigasaki.kanagawa.jp/shisetsu_info/s_sports/1028429.html",
+      "mime": "text/html"
+    },
+    "https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/midori-koen/koen/koen/sport/mituzawa.html": {
+      "textHash": "b7c9799eac2a45cf922d3391d58645f47d4e1dd5c782ee5f5e37c5a35d930fda",
+      "finalUrl": "https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/midori-koen/koen/koen/sport/mituzawa.html",
+      "mime": "text/html"
+    },
+    "https://ppp.seika-spc.co.jp/hiro-miyoshi/%E5%96%B6%E6%A5%AD%E6%99%82%E9%96%93%E3%83%BB%E6%96%99%E9%87%91/": {
+      "textHash": "6391877022a37e78ce45be5d61f198357d2770bced2964feff6c0884b586ee1a",
+      "finalUrl": "https://ppp.seika-spc.co.jp/hiro-miyoshi/%E5%96%B6%E6%A5%AD%E6%99%82%E9%96%93%E3%83%BB%E6%96%99%E9%87%91/",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/inokashira/facility/": {
+      "textHash": "5fbbbed277abb09a91cec0ce6d9ae486faf1a1150a4629c4eab4a799877c0b3b",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/inokashira/facility/",
+      "mime": "text/html"
+    },
+    "https://www2.city.katsushika.lg.jp/institution/1030225/1000098/1006941/1017969.html": {
+      "textHash": "5fd9d8494d86eafb902d6ef0fb70c47e912fb962b691336b1c10ed1a98c84c81",
+      "finalUrl": "https://www2.city.katsushika.lg.jp/institution/1030225/1000098/1006941/1017969.html",
+      "mime": "text/html"
+    },
+    "https://shisetsu.mizuno.jp/m-7411/guide": {
+      "textHash": "259a0e0217050292b81b53b708ed60ef479ba817f2c1992532564b55ce7e733b",
+      "finalUrl": "https://shisetsu.mizuno.jp/m-7411/guide",
+      "mime": "text/html"
+    },
+    "https://www.nissan-stadium.jp/sp/track/index.php": {
+      "textHash": "a2e2921e8699452669e09b975d7ba71e061a0c2f3dfac1a26b29e691f77ecfde",
+      "finalUrl": "https://www.nissan-stadium.jp/sp/track/index.php",
+      "mime": "text/html"
+    },
+    "https://www.sports-or.city.hiroshima.jp/facilities/kouiki": {
+      "textHash": "72f791547142a701bb5490def24dea1a6c603762482fffe92235e61f79ed166c",
+      "finalUrl": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki",
+      "mime": "text/html"
+    },
+    "https://www.ryuhoku-sf.jp/calender/": {
+      "textHash": "ce36926ce0b1ee7ffc84eb5ffe5e50460c2d90e4b80b510a67fccb776cb202b1",
+      "finalUrl": "https://www.ryuhoku-sf.jp/calender/",
+      "mime": "text/html"
+    },
+    "https://www.city.gamagori.lg.jp/site/koenground/guidance.html": {
+      "textHash": "966c12a57ca11c7ce427054ae55811d01cced969c9b05051f5ce5eab8df5545c",
+      "finalUrl": "https://www.city.gamagori.lg.jp/site/koenground/guidance.html",
+      "mime": "text/html"
+    },
+    "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html": {
+      "textHash": "7e522231546832ec101ec6cd84a28ed9a973fce79ac25bcc8ada2c8ec041f409",
+      "finalUrl": "https://www.city.itabashi.tokyo.jp/bunka/1005245/okugai/1005266.html",
+      "mime": "text/html"
+    },
+    "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html": {
+      "textHash": "b3cb52353bbd23d5ddae74eb016424bf6802ff1061a6b11344841158c49ccf2a",
+      "finalUrl": "https://www.city.edogawa.tokyo.jp/e028/kuseijoho/gaiyo/shisetsuguide/bunya/sportsshisetsu/rikujokyogijo/index.html",
+      "mime": "text/html"
+    },
+    "https://www.parks.or.jp/saitamasuijo/guide/000/000017.html": {
+      "textHash": "5db170edc6b562808723b0a7a822f03f6160ff0dd7aaab96c51bba678bdf612d",
+      "finalUrl": "https://www.parks.or.jp/saitamasuijo/guide/000/000017.html",
+      "mime": "text/html"
+    },
+    "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/documents/parkguide.pdf": {
+      "textHash": "149938319f0ad2c5a06cf019f758b3238cc25a54ae320b5f4cdcfdffa2a7df28",
+      "finalUrl": "https://www.pref.chiba.lg.jp/kouen/toshikouen/guidemap/documents/parkguide.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.city.takatsuki.osaka.jp/uploaded/attachment/59195.pdf": {
+      "textHash": "5ccceeea385552edff2032284d7464c08f0dccce5634e8be6e36536a3cf9953d",
+      "finalUrl": "https://www.city.takatsuki.osaka.jp/uploaded/attachment/59195.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html": {
+      "textHash": "bab901767e4ee2e1084e13f6956013323e72b2e6d5da584286ef4e11ad19ffda",
+      "finalUrl": "https://www.parks.or.jp/saitamasuijo/guide/006/006231.html",
+      "mime": "text/html"
+    },
+    "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html": {
+      "textHash": "64f4fff5bc7fe72fb3966b5202e80f3540f4c871eac8fa4f215ce512890e24ad",
+      "finalUrl": "https://www.city.sagamihara.kanagawa.jp/shisei/1026875/faq/kouen/1001619.html",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/": {
+      "textHash": "d16776035c18eadf1af69b0e729e99806cffb3b46295d510388b70176f2913ae",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/akirudai/facility/": {
+      "textHash": "c7ddef823bc8f7c1cab9dbf6e5279de4bfa3164bed3116fa5572dbda59a2083d",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/akirudai/facility/",
+      "mime": "text/html"
+    },
+    "https://www.city.kure.lg.jp/soshiki/43/saihaichi.html": {
+      "textHash": "c4e740c94c747a3e614e1c932dd7d43cbc65c2dca924a6e8dc366d9df958bad3",
+      "finalUrl": "https://www.city.kure.lg.jp/soshiki/43/saihaichi.html",
+      "mime": "text/html"
+    },
+    "https://honjo-park.com/fa_rikujo.html": {
+      "textHash": "04d2cd618e550692362680d3573d12bf4063a1553523d68483245d693521b0d3",
+      "finalUrl": "https://honjo-park.com/fa_rikujo.html",
+      "mime": "text/html"
+    },
+    "https://www.city.shunan.lg.jp/soshiki/16/140189.html": {
+      "textHash": "746356404ce97e4d2fc8784836a41fa0c20a8fb9c28ee432b47285f93ebf2ade",
+      "finalUrl": "https://www.city.shunan.lg.jp/soshiki/16/140189.html",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-sports.or.jp/wp-content/uploads/2023/03/70b294765118a03b92902e24380cc241.pdf": {
+      "textHash": "549e023049d463d883bb3a740c56e14e8728c1ab6a7136914e47f4601d458aa0",
+      "finalUrl": "https://www.kyoto-sports.or.jp/wp-content/uploads/2023/03/70b294765118a03b92902e24380cc241.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.city.okazaki.lg.jp/bunka/sports_shisetsu/1004863/1012575.html": {
+      "textHash": "28798567fcf21f8433e66fdb0fdfecdefe172c25851e26ee1ed4f0bba52e47be",
+      "finalUrl": "https://www.city.okazaki.lg.jp/bunka/sports_shisetsu/1004863/1012575.html",
+      "mime": "text/html"
+    },
+    "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html": {
+      "textHash": "ef2d8026f795ab1aa3276e6cda04bae78006f67414f60456247cd9772c2fcc9f",
+      "finalUrl": "https://www.city.toyokawa.lg.jp/shisetsu/sports_sushisetsu/16547.html",
+      "mime": "text/html"
+    },
+    "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/riyouhouhou_kyougijoukojin.pdf": {
+      "textHash": "c56e043ddd61434f78228f29156a0d6d3ea0cce25fe98f95186981fa8c8b5921",
+      "finalUrl": "https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/riyouhouhou_kyougijoukojin.pdf",
+      "mime": "application/pdf"
+    },
+    "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/": {
+      "textHash": "e32a66e08f5191206e1136c1a25066cd6406b3a796d2b4a5e9208fb52456e29b",
+      "finalUrl": "https://toda-zaidan.org/sportscenter/shisetsu_sc/fieldtrack/",
+      "mime": "text/html"
+    },
+    "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html": {
+      "textHash": "9fcd77f122761c2d3c3fe1fbbb4e4534cd8a7bcde9610f6544580e9541393ae6",
+      "finalUrl": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
+      "mime": "text/html"
+    },
+    "https://www.ys-park.jp/2025/09/01/15698/": {
+      "textHash": "9b7115ee04f44b9da9a3420ff4a55c9e21a6fd6e8d643027c50589d06ca81c11",
+      "finalUrl": "https://www.ys-park.jp/2025/09/01/15698/",
+      "mime": "text/html"
+    },
+    "https://www.chita-sports.com/info/105/": {
+      "textHash": "0c98c110b33d2e6ea2e5cc8795611d9b65f807267175c5ec69c15d866bbf45e9",
+      "finalUrl": "https://www.chita-sports.com/info/105/",
+      "mime": "text/html"
+    },
+    "https://www.city.kama.lg.jp/uploaded/attachment/5237.pdf": {
+      "textHash": "eeb15c24e0db38a610df7be19ca30720749d3ae5bde835bf3e3057894b04ace2",
+      "finalUrl": "https://www.city.kama.lg.jp/uploaded/attachment/5237.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html": {
+      "textHash": "1568e807cdf0576420d08ea0ad7799842e46976031bca1bb203ef7a8fa882b59",
+      "finalUrl": "https://www.city.atsugi.kanagawa.jp/kurashi_tetsuzuki/online/4/1/1/11036.html",
+      "mime": "text/html"
+    },
+    "https://www.midorimachi.jp/higashihirao/guides/": {
+      "textHash": "f99666686a09387fb7460cd5ebf2b8625f3cebf90b017ad508bd6fa427eb9883",
+      "finalUrl": "https://www.midorimachi.jp/higashihirao/guides/",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-sports.or.jp/category/cat_topics/": {
+      "textHash": "e7390d1a5fc8859d8a6cfd8bac307286513a224075be49dd1d8b5d4f1a9e1ba6",
+      "finalUrl": "https://www.kyoto-sports.or.jp/category/cat_topics/",
+      "mime": "text/html"
+    },
+    "https://www.city.hadano.kanagawa.jp/soshiki/9/1062/1/3755.html": {
+      "textHash": "69478e3a76225a4aae6342607e7afcf745d319098d62d1a29c324d5f738dfc7c",
+      "finalUrl": "https://www.city.hadano.kanagawa.jp/soshiki/9/1062/1/3755.html",
+      "mime": "text/html"
+    },
+    "https://www.cue-net.or.jp/kouen/sportscenter/map/index.html": {
+      "textHash": "47da838e2ec66cebdb828f7afedcb54edcb21b531c74fc619368184c3ccb0649",
+      "finalUrl": "https://www.cue-net.or.jp/kouen/sportscenter/map/index.html",
+      "mime": "text/html"
+    },
+    "https://www.kobe-park.or.jp/sougou/facilities/auxiliary_field": {
+      "textHash": "13deb1d06ce2205c67ec28dbe482db786782cb885e55488bf8e53a802b8d30ed",
+      "finalUrl": "https://www.kobe-park.or.jp/sougou/facilities/auxiliary_field/",
+      "mime": "text/html"
+    },
+    "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html": {
+      "textHash": "6131f7c5c64ad265960ad531bc4f40bead50ef890764783a1b74a82c62fb0750",
+      "finalUrl": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html",
+      "mime": "text/html"
+    },
+    "https://www.pref.hiroshima.lg.jp/site/miyoshisportspark/index.html": {
+      "textHash": "ac548bf5c4bf4e6f65339d909cbd87aeae727e0156f03aa71a91ec34fc39a5af",
+      "finalUrl": "https://www.pref.hiroshima.lg.jp/site/miyoshisportspark/index.html",
+      "mime": "text/html"
+    },
+    "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html": {
+      "textHash": "2378699a3f8213ae0bcb66b6b25288f1da660182d5192c98622743ab4bcc827b",
+      "finalUrl": "https://www.city.sakura.lg.jp/soshiki/shogaisportska/217/20065.html",
+      "mime": "text/html"
+    },
+    "https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html": {
+      "textHash": "152445806ccd7b3bc5cd532cad641af91a28118804cfdf18ddc067816371ed7f",
+      "finalUrl": "https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/johoku-chuo/facility/": {
+      "textHash": "e4655f66d9ac75cbbef0b7377344c88512017b65b48226a0d197842fafda7844",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/johoku-chuo/facility/",
+      "mime": "text/html"
+    },
+    "https://www.city.sakura.lg.jp/material/files/group/33/kyugijo_4.pdf": {
+      "textHash": "c7a1251d709edd721ffb1d9f3fdc8ad61841c832b73e06241c3e2066e9520d62",
+      "finalUrl": "https://www.city.sakura.lg.jp/material/files/group/33/kyugijo_4.pdf",
+      "mime": "application/pdf"
+    },
+    "https://mizuho-loop.jp/equipment/equipment02/": {
+      "textHash": "b383bfa290f86e169e3f76dfc2917de2bf47a7790eb29105a4e386d03059a669",
+      "finalUrl": "https://mizuho-loop.jp/equipment/equipment02/",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/inokashira/": {
+      "textHash": "6b3e73147d6e246278b2ce95addaa94a3f4960e051ee7037a2990f13cd5c1612",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/inokashira/",
+      "mime": "text/html"
+    },
+    "https://www.city.kariya.lg.jp/shisetsu/sports_park/wavestadium/1005553.html": {
+      "textHash": "59647e12798f1415e54dbe52aa091b8379035443b674e3a1a5a2309e33125ec1",
+      "finalUrl": "https://www.city.kariya.lg.jp/shisetsu/sports_park/wavestadium/1005553.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kure.lg.jp/uploaded/attachment/93594.pdf": {
+      "textHash": "cce15b3571051451497440d97140a65ed9d70ec6a7c86925e411a50ff6f9d7f3",
+      "finalUrl": "https://www.city.kure.lg.jp/uploaded/attachment/93594.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html": {
+      "textHash": "f4c4546a948f350835af59afec748c97b0c0b309f206e8c59a22d84f543e6efb",
+      "finalUrl": "https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/yoyogi/": {
+      "textHash": "5ae4fa4f5cf1267082aa53b7aad59c1f8a37bff0a82e6d8c73a8d77bd360dcdd",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/yoyogi/",
+      "mime": "text/html"
+    },
+    "https://www.city.shobara.hiroshima.jp/main/industry/cat/post_1332.html": {
+      "textHash": "89cb03c19e098d6fff1ec69441821b742fc6b98b70e24eb87b0a563a02f3f035",
+      "finalUrl": "https://www.city.shobara.hiroshima.jp/main/industry/cat/post_1332.html",
+      "mime": "text/html"
+    },
+    "https://www.city.urayasu.lg.jp/shisetsu/sports/1008738.html": {
+      "textHash": "3def81b5a3c1aa69d6ca93bac1258e06f1d93c7f7e87a61fa6b554b35544fe19",
+      "finalUrl": "https://www.city.urayasu.lg.jp/shisetsu/sports/1008738.html",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/yoyogi/facility/": {
+      "textHash": "c80b2b68990d6263ef0d6f4753b1cb19535c877f495bb2bcb0cfa563844efdef",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/yoyogi/facility/",
+      "mime": "text/html"
+    },
+    "https://bingo-sportspark.com/guide.html": {
+      "textHash": "b6eb67c8a33cba7f296c6ae6a8e084f42faba7918bb32f95ea7f98b08cce15d4",
+      "finalUrl": "https://bingo-sportspark.com/guide.html",
+      "mime": "text/html"
+    },
+    "https://www.misato-hall.com/2095.htm": {
+      "textHash": "132664f6ed772edeced56dbc4bf21d052f964b6c55c15fc986adb2b7ff95b661",
+      "finalUrl": "https://www.misato-hall.com/2095.htm",
+      "mime": "text/html"
+    },
+    "https://www.city.higashiosaka.lg.jp/0000007053.html": {
+      "textHash": "d8226ef87e9e5b811bfa21e6e7484918f421d886997b288585f485c7e2cb30eb",
+      "finalUrl": "https://www.city.higashiosaka.lg.jp/0000007053.html",
+      "mime": "text/html"
+    },
+    "https://www.ishin100.com/main/info_mirasta_kojin_20260817/": {
+      "textHash": "4818cb6c50d5c279f10ed8dc278c7fe88bec09f6cfa57bfc736910ff044bd903",
+      "finalUrl": "https://www.ishin100.com/main/info_mirasta_kojin_20260914/",
+      "mime": "text/html"
+    },
+    "https://shisetsu.mizuno.jp/m-7103/news/page/25592": {
+      "textHash": "ed002002d643df68179ec1bd89755f717038df1242cbefe7eb42a4f17e950bf3",
+      "finalUrl": "https://shisetsu.mizuno.jp/m-7103/news/page/25592",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/": {
+      "textHash": "04431e26a5cd7f44f448740ed429e784724524f92429595913de0520012473e2",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/higashiyamato-minami/facility/",
+      "mime": "text/html"
+    },
+    "https://www.city.kameoka.kyoto.jp/soshiki/33/3781.html": {
+      "textHash": "a97178141022fd192e246f8bab8d65ceea911a80dcab0880479261dd00dc9818",
+      "finalUrl": "https://www.city.kameoka.kyoto.jp/soshiki/33/3781.html",
+      "mime": "text/html"
+    },
+    "https://www.city.toyohashi.lg.jp/secure/101480/ryoukin%28athletics%29.pdf": {
+      "textHash": "f74dfb920fb27bce616c26cbda1bfff8418de558a8c90b056814810eb1593673",
+      "finalUrl": "https://www.city.toyohashi.lg.jp/secure/101480/ryoukin%28athletics%29.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.midorimachi.jp/maiduru/guides/": {
+      "textHash": "66f891826248e134cf60a4df2cc2e7b97c885b48cd166fd6fefb19a3e6f43aad",
+      "finalUrl": "https://www.midorimachi.jp/maiduru/guides/",
+      "mime": "text/html"
+    },
+    "https://www.city.toyohashi.lg.jp/5228.htm": {
+      "textHash": "17b0c5b2837c1dab915b97e87f32186efdb3dd0ad0ac4f9ea6405aa7d3cf2845",
+      "finalUrl": "https://www.city.toyohashi.lg.jp/5228.htm",
+      "mime": "text/html"
+    },
+    "https://www.city.suita.osaka.jp/bunka/1018347/1021077/1037323.html": {
+      "textHash": "ab928d449f014d92c9a3cefa693ca7aac609039496055445d5fcc8e48e0505ff",
+      "finalUrl": "https://www.city.suita.osaka.jp/bunka/1018347/1021077/1037323.html",
+      "mime": "text/html"
+    },
+    "https://www.ys-park.jp/user-guide/athletics/": {
+      "textHash": "2292484a2221613f14ced18515c6e7f9517116ccfdac41dfde31ee90891673f6",
+      "finalUrl": "https://www.ys-park.jp/user-guide/athletics/",
+      "mime": "text/html"
+    },
+    "https://www.city.hirakata.osaka.jp/0000005130.html": {
+      "textHash": "6b16ec2567bdead852541c04f9644df5484eb565aaff000c01b5f3d8778aa553",
+      "finalUrl": "https://www.city.hirakata.osaka.jp/0000005130.html",
+      "mime": "text/html"
+    },
+    "https://www.city.yachiyo.lg.jp/soshiki/79/4817.html": {
+      "textHash": "eb13bbb4880e3fd33566175732af1ac62594905c66e970ffe203e6fd41af81d3",
+      "finalUrl": "https://www.city.yachiyo.lg.jp/soshiki/79/4817.html",
+      "mime": "text/html"
+    },
+    "https://www.city.takatsuki.osaka.jp/soshiki/61/4495.html": {
+      "textHash": "01aceb2b058023ea769823c5d0b42ec035958c3387de9ee287894d5a3bc0a92c",
+      "finalUrl": "https://www.city.takatsuki.osaka.jp/soshiki/61/4495.html",
+      "mime": "text/html"
+    },
+    "https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html": {
+      "textHash": "cf9fd37ee97afc7f159ecddbbfbc24e0a85de3e6ff8d1c4c9455d57da42fe65c",
+      "finalUrl": "https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html",
+      "mime": "text/html"
+    },
+    "https://www.city.omuta.lg.jp/kiji0032594/index.html": {
+      "textHash": "150e84d9ff7d3324cb891eac50219e9a54f8da7d15ffc18c3e2ee7b9c802aee5",
+      "finalUrl": "https://www.city.omuta.lg.jp/kiji0032594/index.html",
+      "mime": "text/html"
+    },
+    "https://www.city.shobara.hiroshima.jp/d1w_reiki/H417901010184/H417901010184_j.html": {
+      "textHash": "1ed8d30b5a330b81cc29c461158755cd2f0f3d5234d196f4e5bf4aff566ffb3b",
+      "finalUrl": "https://www.city.shobara.hiroshima.jp/d1w_reiki/H417901010184/H417901010184_j.html",
+      "mime": "text/html"
+    },
+    "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html": {
+      "textHash": "5a080fdcc01c812faeffa0254ad61ac4451dd45485f528ca77d9c5f78c86b240",
+      "finalUrl": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
+      "mime": "text/html"
+    },
+    "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html": {
+      "textHash": "7b84ecff6df488d18681f6b708411a38944cbf4843251e26802ebf923da3d90c",
+      "finalUrl": "https://www.city.toyooka.lg.jp/kurashi/shogaisports/sports/1019458/1001370/1001373.html",
+      "mime": "text/html"
+    },
+    "https://www.fureai-kouen.com/fureaikouen/sports/": {
+      "textHash": "11e2ed6f86b104e40b61a8549e54def800d223c127d1438b6db12a6c2fda934a",
+      "finalUrl": "https://www.fureai-kouen.com/fureaikouen/sports/",
+      "mime": "text/html"
+    },
+    "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html": {
+      "textHash": "4c56f1df04feb2b6e16c9162ca29c5075cada93330e6f8c90903763c65f19535",
+      "finalUrl": "https://www.city.ako.lg.jp/reiki/reiki_honbun/k314RG00000569.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kawasaki.jp/shisei/category/288-6-10-0-0-0-0-0-0-0.html": {
+      "textHash": "69f8c922941402f4dbecf510f2f2962e1f699574ff157f694ccb1b41d6b1fee5",
+      "finalUrl": "https://www.city.kawasaki.jp/shisei/category/288-6-10-0-0-0-0-0-0-0.html",
+      "mime": "text/html"
+    },
+    "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html": {
+      "textHash": "7936eacfc6a5cc20eb3435724944c17fd246b9e55f986740d96ad7181cb67aeb",
+      "finalUrl": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html",
+      "mime": "text/html"
+    },
+    "https://www.midorimachi.jp/whatsnew/detail.php?id=768": {
+      "textHash": "17f1e5a03d0ca4f9f960b3055a4ec92f0ea683d147fb883081d37967a8215dd9",
+      "finalUrl": "https://www.midorimachi.jp/whatsnew/detail.php?id=768",
+      "mime": "text/html"
+    },
+    "https://www.se-sports.or.jp/facility/sougou/": {
+      "textHash": "9a03234149f62da27cba6bd66ffa3a1875d133f9484b32863673abba1fb83552",
+      "finalUrl": "https://www.se-sports.or.jp/facility/sougou/",
+      "mime": "text/html"
+    },
+    "https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html": {
+      "textHash": "6475d66cf176e83b0833637a7fd670ff9c22a9aa2c42719d8d79869c2d7ce68b",
+      "finalUrl": "https://www.city.kyotango.lg.jp/top/soshiki/kyoikuiinkai/syogaigakusyu/1/1/13659.html",
+      "mime": "text/html"
+    },
+    "https://www.midorimachi.jp/higashihirao/": {
+      "textHash": "e9476c13dea598e622214ee64c9f93305e4a283f4dc85341e9fbf4f5ad1e459d",
+      "finalUrl": "https://www.midorimachi.jp/higashihirao/",
+      "mime": "text/html"
+    },
+    "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2": {
+      "textHash": "14e598c1d293d0a85bb9337f6fc62dfd9ad8f7211cfb3a58ce5bcda368034202",
+      "finalUrl": "https://www.sports-or.city.hiroshima.jp/facilities/kouiki/use/senyo-2",
+      "mime": "text/html"
+    },
+    "https://www.city.kama.lg.jp/site/sport-shisetsu/13373.html": {
+      "textHash": "31217fc41cae153e9519fd65ba6c579c0200f7aeb6d7b01e8e30e4f7b0beb2d6",
+      "finalUrl": "https://www.city.kama.lg.jp/site/sport-shisetsu/13373.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kitakyushu.lg.jp/files/000933477.pdf": {
+      "textHash": "7bc4bfbd2b77e595f0a705f8fbbe30c12575efc6596fd086c76a16d2adb81933",
+      "finalUrl": "https://www.city.kitakyushu.lg.jp/files/000933477.pdf",
+      "mime": "application/pdf"
+    },
+    "https://playground.suita-shisetsu.com/facility/": {
+      "textHash": "6fd01c3c158d103f6fc9b5162701a18a34980167480fd9f4d76765b35fd38b26",
+      "finalUrl": "https://playground.suita-shisetsu.com/facility/",
+      "mime": "text/html"
+    },
+    "https://hanazono-centralparks-hos.com/": {
+      "textHash": "3ac05a4b888379f94ecda1929477cc9ac2cab45447354b301767830a2168175c",
+      "finalUrl": "https://hanazono-centralparks-hos.com/",
+      "mime": "text/html"
+    },
+    "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html": {
+      "textHash": "97d5488fa580b9231bd67323ec9349fb76edc8dd42a2d1d42bc07d78cf26bc73",
+      "finalUrl": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/unndoukouen.html",
+      "mime": "text/html"
+    },
+    "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/ryoukin/undoukouen.html": {
+      "textHash": "75bdd9d1b2746d28cc291999a126fc2ef4bc7e02a3f6d498a5f25577563bf2fa",
+      "finalUrl": "https://www.city.matsudo.chiba.jp/shisetsu-guide/sports/ryoukin/undoukouen.html",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-park.jp/application/": {
+      "textHash": "63ec1d912edad4bc59865f9e41ddee07726c35f7cbf13020104c66b87b96b1b4",
+      "finalUrl": "https://www.kyoto-park.jp/application/",
+      "mime": "text/html"
+    },
+    "https://www.city.hofu.yamaguchi.jp/reiki1/reiki_honbun/m407RG00000485.html": {
+      "textHash": "9daab43e2e84d6f244962982f08e836a4d937eeefed1026ed697935d0b9c2f55",
+      "finalUrl": "https://www.city.hofu.yamaguchi.jp/reiki1/reiki_honbun/m407RG00000485.html",
+      "mime": "text/html"
+    },
+    "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html": {
+      "textHash": "618fb6e2f83b5a7624b50f7b881a1772449e083343227b192cdac2cbc792548a",
+      "finalUrl": "https://www.city.toyota.aichi.jp/shisei/shisetsu/sports/kouen/1073839/1007668/1006129.html",
+      "mime": "text/html"
+    },
+    "https://shisetsu.mizuno.jp/m-7506-0002/guide": {
+      "textHash": "2b9c44d9702d378af9f7bfe24f5bc146c29eca36b37aed71736cc3a9eb3557b3",
+      "finalUrl": "https://shisetsu.mizuno.jp/m-7506-0002/guide",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/": {
+      "textHash": "0cd03d72636ecb6863ac3d94cf7f27e0dff2a4e5d2a9af3e6b6e7c1575ffa792",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/hikarigaoka/facility/",
+      "mime": "text/html"
+    },
+    "https://www.musashino.or.jp/sports/1001550/1001570.html": {
+      "textHash": "b9c7b18c1d2b3a83d39332784e0dd45b07f61bf05231b560a0b9ba2305cf29fb",
+      "finalUrl": "https://www.musashino.or.jp/sports/1001550/1001570.html",
+      "mime": "text/html"
+    },
+    "https://www.city.iwakuni.lg.jp/soshiki/19/28779.html": {
+      "textHash": "663477eff58df2f0fde1ea45a369357c2edb3c55f5eb7e2955e831c91f780c32",
+      "finalUrl": "https://www.city.iwakuni.lg.jp/soshiki/19/28779.html",
+      "mime": "text/html"
+    },
+    "https://www.nissan-stadium.jp/": {
+      "textHash": "fdc4a0da663c72c840d9038c4013059bfdbd36b4ccffbd65172a09314f47f3ea",
+      "finalUrl": "https://www.nissan-stadium.jp/",
+      "mime": "text/html"
+    },
+    "https://www.pref.saitama.lg.jp/spo-navi/shisetsu/higashimatsuyama/track-and-field.html": {
+      "textHash": "d51a583813445e005e1454d56afc4204fc816b1e54e51d1fc8eaed4fb3c932aa",
+      "finalUrl": "https://www.pref.saitama.lg.jp/spo-navi/shisetsu/higashimatsuyama/track-and-field.html",
+      "mime": "text/html"
+    },
+    "https://www.ishin100.com/main/": {
+      "textHash": "ec483e4e5d9690020390f70788fe602e3c4e708681f566ff534f5f1a5b1fa8fc",
+      "finalUrl": "https://www.ishin100.com/main/",
+      "mime": "text/html"
+    },
+    "https://www.ryuhoku-sf.jp/shisetsu/stadium.html": {
+      "textHash": "9ec34eb9544d43ed0be7ec1e0e156120abaacb676fdb5d6f43d95d38b57a9dcb",
+      "finalUrl": "https://www.ryuhoku-sf.jp/shisetsu/stadium.html",
+      "mime": "text/html"
+    },
+    "https://www.city.narita.chiba.jp/bunka_sports/page327600.html": {
+      "textHash": "ad37978b922b979a55a5860a5f9bda19c8e0ae15436ce8814affa367232899ee",
+      "finalUrl": "https://www.city.narita.chiba.jp/bunka_sports/page327600.html",
+      "mime": "text/html"
+    },
+    "https://hyogo-akashipark.jp/aboutpark/sport/": {
+      "textHash": "c73909ec0bc3588d27fa85d7fb6cf7ff86134ccfcf2aa2b19064ed3ff8ae81c7",
+      "finalUrl": "https://hyogo-akashipark.jp/aboutpark/sport/",
+      "mime": "text/html"
+    },
+    "https://www.kyoto-tanbapark.or.jp/sports/page02.html": {
+      "textHash": "b3ad7dbd4b664ea4fa2ed6d02f477ceaf45a5123059bbd0dce8f5f6cdb3bce04",
+      "finalUrl": "https://www.kyoto-tanbapark.or.jp/sports/page02.html",
+      "mime": "text/html"
+    },
+    "https://bingo-sportspark.com/fee.html": {
+      "textHash": "7ee33ef02ea1a07e526f1132eb50961d21c8739ea2f21c43085c8bece295e24a",
+      "finalUrl": "https://bingo-sportspark.com/fee.html",
+      "mime": "text/html"
+    },
+    "https://www.town.hyogo-taishi.lg.jp/shisetsu/5753.html": {
+      "textHash": "d74d5991d4d24baf428e7fafece4fb7225d4d4a5a1c796d242d2a69b85489710",
+      "finalUrl": "https://www.town.hyogo-taishi.lg.jp/shisetsu/5753.html",
+      "mime": "text/html"
+    },
+    "https://www.city.sakai.lg.jp/yoyakuanai/bunrui/sports/kanaokarikujo.html": {
+      "textHash": "8dbb186f94edc16bdd7b770ca904305a95667402e98ee6bfa232585dd84683fe",
+      "finalUrl": "https://www.city.sakai.lg.jp/yoyakuanai/bunrui/sports/kanaokarikujo.html",
+      "mime": "text/html"
+    },
+    "https://www.city.ichikawa.lg.jp/page/4185.html": {
+      "textHash": "59bc62463bdad5cc43e4204018f5d143290615a5a9900358f0122adf6aa406b5",
+      "finalUrl": "https://www.city.ichikawa.lg.jp/page/4185.html",
+      "mime": "text/html"
+    },
+    "https://www.city.ube.yamaguchi.jp/koukyouannai/bunkakyouiku/taiikushisetsu/1009960.html": {
+      "textHash": "a9661157b0c17b98b0fe855078c7dc2b81cff3f174e05d8c842edcf54ad398bd",
+      "finalUrl": "https://www.city.ube.yamaguchi.jp/koukyouannai/bunkakyouiku/taiikushisetsu/1009960.html",
+      "mime": "text/html"
+    },
+    "https://www.city.handa.lg.jp/bunka/sports/1002825/1002831/1002833.html": {
+      "textHash": "bfdde8d3e00bf53e0726c50eedd1f53a2c71736b26a5ee9ce5d59e560baeb527",
+      "finalUrl": "https://www.city.handa.lg.jp/bunka/sports/1002825/1002831/1002833.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kitakyushu.lg.jp/contents/924_00833.html": {
+      "textHash": "f8e0efc33365c68e70da53d1351357e36c1ebafa37fbc5a203422c3f6eeb0747",
+      "finalUrl": "https://www.city.kitakyushu.lg.jp/contents/924_00833.html",
+      "mime": "text/html"
+    },
+    "https://www.city.kamagaya.chiba.jp/sisetsu/sports-shisetsu/rikujou.html": {
+      "textHash": "f02280dc49f5ae60f3d9bfc370f5c8d325aade1eadc47c51a05d5ec868098491",
+      "finalUrl": "https://www.city.kamagaya.chiba.jp/sisetsu/sports-shisetsu/rikujou.html",
+      "mime": "text/html"
+    },
+    "https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html": {
+      "textHash": "82c91b176819437b94ae8d19c65f41f13e1ff8c53261defd73b6872a8da997d7",
+      "finalUrl": "https://www.tokyo-park.or.jp/park/akirudai/news/2024/park_info_1.html",
+      "mime": "text/html"
+    },
+    "https://shisetsu.mizuno.jp/m-7507-0001/guide": {
+      "textHash": "1def937db8d6bb06f16fda7225bcebccf0405e36b18c075e6769056aa8828fbc",
+      "finalUrl": "https://shisetsu.mizuno.jp/m-7507-0001/guide",
+      "mime": "text/html"
+    },
+    "https://ppp.seika-spc.co.jp/h-hiroshima/wp-content/uploads/riyoukitei.pdf": {
+      "textHash": "444063989986ca3aad8f6ee78d447b14e9c014334220bcdcda48ca87ff4df562",
+      "finalUrl": "https://ppp.seika-spc.co.jp/26hiroshima/",
+      "mime": "text/html"
+    },
+    "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html": {
+      "textHash": "3acd5afaed7339486cf97b8d4dedb5631639fa482dc8f4b250cf72d28a588540",
+      "finalUrl": "https://www.cue-net.or.jp/kouen/sportscenter/annai/substadium.html",
+      "mime": "text/html"
+    },
+    "https://www.city.odawara.kanagawa.jp/global-image/units/491580/1-20210702113919.pdf": {
+      "textHash": "e9eb5181dc9f065d1e05a8456cea723e5b7f5a82c195ddc6091917da0029db29",
+      "finalUrl": "https://www.city.odawara.kanagawa.jp/global-image/units/491580/1-20210702113919.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html": {
+      "textHash": "76659e2ed668718bc1862d4d79e153be2c2cc42eeb9b6bd2d0f827367c8b7ebc",
+      "finalUrl": "https://www.city.anjo.aichi.jp/tanoshimu/sports/2022/anjo-athleticfield.html",
+      "mime": "text/html"
+    },
+    "https://www.city.edogawa.tokyo.jp/e028/sports/sports/parasports/dekirusengen/dekirusengen/rikujo.html": {
+      "textHash": "a69535ac045abd20b76bf1f1252b65f10b2637bf6a83eba2961d75ffe27a8697",
+      "finalUrl": "https://www.city.edogawa.tokyo.jp/e028/sports/sports/parasports/dekirusengen/dekirusengen/rikujo.html",
+      "mime": "text/html"
+    },
+    "https://www.city.odawara.kanagawa.jp/field/lifelong/sports/sport-f/shiroyama-stadium/": {
+      "textHash": "e647a8bdc4c03dbecbcc5fc035d07c22b0bf7e86b8439a5eb6f19b748a7e6ce7",
+      "finalUrl": "https://www.city.odawara.kanagawa.jp/field/lifelong/sports/sport-f/shiroyama-stadium/",
+      "mime": "text/html"
+    },
+    "https://www.tef.or.jp/tmg/stadium/": {
+      "textHash": "6e41174e6ab57823b6319dbff8db5241dc5149548d7f18aef9390d240cc39023",
+      "finalUrl": "https://www.tef.or.jp/tmg/stadium/",
+      "mime": "text/html"
+    },
+    "https://kawaspo.jp/pages/24/": {
+      "textHash": "45a0bf22f882784bc76b2d9cae475dd4aca33b997b4024b5980b58059e20b1cd",
+      "finalUrl": "https://kawaspo.jp/pages/24/",
+      "mime": "text/html"
+    },
+    "https://www.city.funabashi.lg.jp/gakushu/006/p032792.html": {
+      "textHash": "923efa8230d2b6ff5a32a16f0cb987dbf31efd8a1610f8ca8ea7befb904be826",
+      "finalUrl": "https://www.city.funabashi.lg.jp/gakushu/006/p032792.html",
+      "mime": "text/html"
+    },
+    "https://www.parks.or.jp/kumagaya/": {
+      "textHash": "04cb57e24a6266ac39ac664ee57f685928f07b246aa7179ccdbd4387f34de997",
+      "finalUrl": "https://www.parks.or.jp/kumagaya/",
+      "mime": "text/html"
+    },
+    "https://www.city.chita.lg.jp/docs/2023092800011/": {
+      "textHash": "a18bf940c1e60f744fdd8546594693cbb861177d34051bf722af8b56d5b1f598",
+      "finalUrl": "https://www.city.chita.lg.jp/docs/2023092800011/",
+      "mime": "text/html"
+    },
+    "https://itinomiya.sports.coocan.jp/rikutebiki.pdf": {
+      "textHash": "d34a217331d9b1b3599a17ebcc6bf0589df871971bd25723767456d1ab10d90d",
+      "finalUrl": "https://itinomiya.sports.coocan.jp/rikutebiki.pdf",
+      "mime": "application/pdf"
+    },
+    "https://www.city.kasugai.lg.jp/bunka/sports/asamiya/index.html": {
+      "textHash": "fb4f5a2fd225898449abb9089f2a2221ab20064d818cd7c3b87ce15a31144303",
+      "finalUrl": "https://www.city.kasugai.lg.jp/bunka/sports/asamiya/index.html",
+      "mime": "text/html"
+    },
+    "https://himeji-machishin.jp/sports/shisetsu/hime-riku/ryokin/": {
+      "textHash": "02c02e16fce26da748a52101e9a8a35cedb67915ff7cc811481cde96f0315330",
+      "finalUrl": "https://himeji-machishin.jp/sports/shisetsu/hime-riku/ryokin/",
+      "mime": "text/html"
+    },
+    "https://s-kanrikousha.com/undoutop.html": {
+      "textHash": "be54254da882f0b69f4a71e71d04020470b28b57d6ffe651cd186cfdd6f47368",
+      "finalUrl": "https://s-kanrikousha.com/undoutop.html",
+      "mime": "text/html"
+    },
+    "https://www.city.ogori.fukuoka.jp/204/1039/1799": {
+      "textHash": "c7139627cfb416d205553487dbc8a0dd7fb253fe402447fdeff0b11465dc051d",
+      "finalUrl": "https://www.city.ogori.fukuoka.jp/204/1039/1799",
+      "mime": "text/html"
+    },
+    "https://www.ys-park.jp/2026/09/01/17617/": {
+      "textHash": "16a3805f8939a9da1187970dee2fb566c1c75c07a5cc9496f67c551781b2133a",
+      "finalUrl": "https://www.ys-park.jp/2026/09/01/17617/",
+      "mime": "text/html"
+    },
+    "https://a-stadium.jpn.org/news.html": {
+      "textHash": "4e6bb17e69b941c436f30d092739adb12d688778baf68e8bdc6d9f7af1b47b1e",
+      "finalUrl": "https://a-stadium.jpn.org/news.html",
+      "mime": "text/html"
+    },
+    "https://information.konamisportsclub.jp/trust/niiza/sportspark/": {
+      "textHash": "7ff3ead28990e1fe89fb8724d390dc5858e763f2ecde93d2e7b25c3fb256f369",
+      "finalUrl": "https://information.konamisportsclub.jp/trust/niiza/sportspark/",
+      "mime": "text/html"
+    }
+  },
+  "failedSince": {
+    "https://mihama-sportspark.aichi.jp/": "2026-09-26",
+    "https://aspf.or.jp/park/docs/yoyaku_rikujo_kojin.pdf": "2026-09-26",
+    "https://www.pref.chiba.lg.jp/bousaik/press/2025/documents/12_matsudoundoukouen.pdf": "2026-09-26",
+    "https://www.nozuta-park.com/calender.html": "2026-09-26",
+    "https://www.sports-tokyo-info.metro.tokyo.lg.jp/seisaku/sports_facility_r4/data/sports_facility_r05_01.pdf": "2026-09-26",
+    "https://www.aichi-koen.com/shinshiro/shinshiro-shisetsu/rikujoukyougijou/": "2026-09-26",
+    "https://www1.g-reiki.net/city.kamagaya/reiki_honbun/g025RG00000525.html": "2026-09-26",
+    "https://hattori-ryokuchi.com/faq/": "2026-09-26",
+    "https://www.expo70-park.jp/sports/facility/arena/": "2026-09-26",
+    "https://www.aspf.or.jp/park/stadium.html": "2026-09-26",
+    "https://www.pref.chiba.lg.jp/bousaik/press/2025/documents/21_kashiwanoha.pdf": "2026-09-26",
+    "https://kamiyugi-park.jp/guide/price/": "2026-09-26",
+    "https://kouen-kyougijyou.kosi-kanri.com/": "2026-09-26",
+    "https://hattori-ryokuchi.com/guide/sports/": "2026-09-26",
+    "https://tokyo-south-seaside-parks.com/sports-athletics/": "2026-09-26",
+    "https://kawasaki-todoroki-park.co.jp/guide/track-and-field/": "2026-09-26",
+    "https://mihama-sportspark.aichi.jp/news/%E3%80%90%E5%80%8B%E4%BA%BA%E5%88%A9%E7%94%A8%E3%80%91%E3%81%AE%E3%81%94%E6%A1%88%E5%86%85/": "2026-09-26",
+    "https://hofu-spc.com/guide/fee-athleticfield/": "2026-09-26",
+    "https://vonds.net/access/": "2026-09-26"
+  },
+  "additionalUrls": {
+    "niiza-general-sports-park-track": [
+      "https://information.konamisportsclub.jp/trust/niiza/sportspark/"
+    ]
+  },
+  "discoveryChecked": {
+    "nerima-general-sports-park": "2026-09-26",
+    "hikarigaoka-park-track": "2026-09-26",
+    "oizumi-chuo-park-track": "2026-09-26",
+    "johoku-chuo-park-track": "2026-09-26",
+    "akatsuka-park-track": "2026-09-26",
+    "musashino-athletic-track": "2026-09-26",
+    "inokashira-park-track": "2026-09-26",
+    "toda-sports-center-track": "2026-09-26",
+    "asaka-chuo-park-track": "2026-09-26",
+    "niiza-general-sports-park-track": "2026-09-26",
+    "yoyogi-park-athletic-track": "2026-09-26",
+    "tokyo-metropolitan-gymnasium-track": "2026-09-26",
+    "koto-yumenoshima-athletic-stadium": "2026-09-26",
+    "komazawa-olympic-park-track": "2026-09-26",
+    "setagaya-general-sports-track": "2026-09-26",
+    "oi-central-seaside-park-track": "2026-09-26",
+    "toneri-park-athletic-track": "2026-09-26",
+    "edogawa-athletic-stadium": "2026-09-26",
+    "okudo-sports-center-track": "2026-09-26",
+    "shingashi-athletic-track": "2026-09-26"
+  },
+  "brokenDiscoveryChecked": {},
+  "pending": {
+    "oi-central-seaside-park-track": "2026-09-26",
+    "koshigaya-shirakobato-track": "2026-09-26",
+    "todoroki-athletic-stadium": "2026-09-26",
+    "expo70-commemorative-stadium": "2026-09-26",
+    "hattori-ryokuchi-athletics-stadium": "2026-09-26",
+    "amagasaki-memorial-park-athletics-stadium": "2026-09-26",
+    "shinshiro-general-park-athletic-stadium": "2026-09-26",
+    "mihama-sports-park-athletic-stadium": "2026-09-26"
+  },
+  "annualCostUpper": {
+    "2026": 1.338448
+  }
+}

@@ -468,6 +468,8 @@ try {
     if (englishOdaDiscoveryHref !== `/en/tracks/${odaTrack.id}`) throw new Error('English home Oda discovery link is not canonical');
 
     await page.goto(`${baseUrl}/nozomiantena/index`, { waitUntil: 'domcontentloaded' });
+    await page.getByText('4:06.14', { exact: true }).waitFor();
+    await page.getByText('32:41.54', { exact: true }).waitFor();
     await page.getByRole('link', { name: '2020', exact: true }).first().click();
     await page.waitForFunction(() => {
       const target = document.getElementById('2020');

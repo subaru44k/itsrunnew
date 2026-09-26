@@ -1,0 +1,109 @@
+name: Facility reverification
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Sunday 11:15 JST. Each run catches up on dates missed by delayed schedules.
+    - cron: '15 2 * * 0'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: itsrun-facility-reverification
+  cancel-in-progress: false
+
+jobs:
+  reverify:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out master
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: itsrunnew/package-lock.json
+      - name: Install locked dependencies
+        working-directory: itsrunnew
+        run: npm ci
+      - name: Load previous source state
+        run: |
+          if git fetch origin automation/facility-reverification-state; then
+            git show FETCH_HEAD:research/track-expansion/reverification-state.json > "$RUNNER_TEMP/facility-state.json"
+          fi
+      - name: Check official sources and due dates
+        working-directory: itsrunnew
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python3 scripts/reverification/monitor.py --state "$RUNNER_TEMP/facility-state.json" --output "$RUNNER_TEMP/facility-reverification"
+      - name: Save source state on its separate branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh auth setup-git
+          if git fetch origin automation/facility-reverification-state; then
+            git worktree add -b facility-state "$RUNNER_TEMP/facility-state-worktree" FETCH_HEAD
+          else
+            git worktree add -b facility-state "$RUNNER_TEMP/facility-state-worktree" HEAD
+          fi
+          cp "$RUNNER_TEMP/facility-reverification/state.json" "$RUNNER_TEMP/facility-state-worktree/research/track-expansion/reverification-state.json"
+          git -C "$RUNNER_TEMP/facility-state-worktree" config user.name 'itsrun-facility-reverification[bot]'
+          git -C "$RUNNER_TEMP/facility-state-worktree" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$RUNNER_TEMP/facility-state-worktree" add research/track-expansion/reverification-state.json
+          if ! git -C "$RUNNER_TEMP/facility-state-worktree" diff --cached --quiet; then
+            git -C "$RUNNER_TEMP/facility-state-worktree" commit -m 'Update facility source fingerprints'
+            git -C "$RUNNER_TEMP/facility-state-worktree" push origin HEAD:refs/heads/automation/facility-reverification-state
+          fi
+      - name: Build update summary
+        working-directory: itsrunnew
+        run: |
+          python3 scripts/reverification/report.py "$RUNNER_TEMP/facility-reverification/report.json" "$RUNNER_TEMP/facility-reverification/pr-body.md"
+          cat "$RUNNER_TEMP/facility-reverification/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Detect public data update
+        id: changes
+        run: |
+          if git diff --quiet -- itsrunnew/src/data/tracks.json; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create narrowly scoped GitHub App token for data updates
+        id: app-token
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.REVERIFICATION_APP_CLIENT_ID }}
+          private-key: ${{ secrets.REVERIFICATION_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: Open and auto-merge validated data PR
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh auth setup-git
+          branch="automation/facility-update-${GITHUB_RUN_ID}"
+          git switch -c "$branch"
+          git config user.name 'itsrun-facility-reverification[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add itsrunnew/src/data/tracks.json
+          git commit -m 'Update verified facility information'
+          git push origin "HEAD:refs/heads/$branch"
+          gh pr create --base master --head "$branch" --title 'Update verified facility information' --body-file "$RUNNER_TEMP/facility-reverification/pr-body.md"
+          gh pr merge "$branch" --auto --squash --delete-branch
+      - name: Save audit report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: facility-reverification-report
+          path: |
+            ${{ runner.temp }}/facility-reverification/report.json
+            ${{ runner.temp }}/facility-reverification/pr-body.md
+          if-no-files-found: warn
+          retention-days: 90

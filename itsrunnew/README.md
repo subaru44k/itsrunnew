@@ -115,3 +115,11 @@ availabilityのAI読解を人手で評価するローカル入力画面は、リ
 `npm run monitor:availability` で当日31日分を独立収集し、施設別の状態・unknown理由・source証跡を一時ディレクトリへ保存します。`--previous /path/to/state.json --output /path/to/output` で同じ対象日の変化を比較できます。ローカル実行はメール・配備・公開データ更新を行いません。
 
 GitHub Actionsの `Availability monitor` は毎日09:30 JSTに取得/解析異常、判定日数の減少、Production更新停止を検知し、新規・変化・復旧だけGmailから通知します。Secrets `AVAILABILITY_SMTP_USER`、`AVAILABILITY_SMTP_APP_PASSWORD`、`AVAILABILITY_ALERT_TO` とvariable `AVAILABILITY_MONITOR_ENABLED=true` が必要です。状態はメール成功後にartifactへ保存し、同じ施設障害の繰り返し通知を抑えます。Python 3標準ライブラリとGitHub CLIを使用し、`npm run test:monitor:email` は実送信なしで送信処理を検証します。設定・監視範囲・障害復旧と残る制限は [AVAILABILITY_MONITORING.md](../docs/AVAILABILITY_MONITORING.md) を参照してください。
+
+## 静的施設情報の自動再確認
+
+`Facility reverification` workflowは毎週日曜11:15 JSTに登録済みの公式施設・個人利用資料を取得し、本文変更、redirect、期限到来を確認します。新しい公式資料の検索は各施設につき365日ごとに行い、1回の実行では最大20施設です。確認には `gpt-6-luna` の `xhigh` を使います。確定値を変更する場合は原文引用・属性型・独立した再判定を通過した差分だけをPRへ入れ、`Node 24 validation`成功後に自動マージします。全ての既知資料を28日間読めない場合は個人利用statusを `unknown` に下げます。facility ID、名称、座標、日別availabilityはこのworkflowで自動変更しません。
+
+workflowには既存の `OPENAI_API_KEY` に加え、このrepositoryだけにインストールしたGitHub Appの `REVERIFICATION_APP_CLIENT_ID` と `REVERIFICATION_APP_PRIVATE_KEY` secrets、およびrepositoryのauto-merge設定が必要です。GitHub Appへはrepository Contents・Pull requestsのwriteだけを付与します。source fingerprintと暦年の保守的なAPI費推計は `automation/facility-reverification-state` branchで保持し、推計$4.80に達した年は新たなAI確認を止めて未処理対象を繰り越します。reportはActions summaryと90日保持のartifactに残します。2026-09-26の133施設試走、検索料の実測と年間見積もりは[初回試走レポート](../research/track-expansion/reverification-initial-trial-2026-09-26.md)を参照してください。
+
+外部APIを使わないローカルの回帰検証は `npm run test:reverification`。APIキーを環境変数へ設定した上で `python3 scripts/reverification/trial.py --output .cache/reverification/new-trial.json` を実行すると、公開データを変更せず133施設を再試走できます。既存のoutputを指定すると完了分は再利用されます。

@@ -48,6 +48,8 @@ jobs:
         run: npm test
       - name: Verify monitoring email without sending
         run: npm run test:monitor:email
+      - name: Verify facility reverification without external API calls
+        run: npm run test:reverification
       - name: Run lint and type checks
         run: npm run lint
       - name: Build static site

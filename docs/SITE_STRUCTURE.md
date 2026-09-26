@@ -94,6 +94,7 @@ itsrunnew/
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
 │   ├── validate-track-batches.mjs 候補台帳の全件disposition・件数整合検証
 │   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF/AI/ICS collector、range/cache、config、fixture、unit test、独立収集監視・Gmail通知
+│   ├── reverification/        静的施設資料の初回試走、週次変更検知、Luna xhigh照合、出典探索、保守的な公開差分とPythonテスト
 │   ├── map-compare.mjs        地図の旧新PC/スマホ比較・帰属・keyboard操作・障害復帰
 │   └── visual-compare.mjs     広告なし旧版との全画面比較
 └── infra/
@@ -132,6 +133,8 @@ research/
     ├── dataset-expansion-report.md 33施設時点のcoverage・PDF・pipeline評価
     ├── phase2-expansion-report.md  51候補への品質優先拡張（現在50施設）
     ├── current-51-audit.md         全51候補の遡及品質監査
+    ├── reverification-luna-evaluation-2026-09-26.md 施設再確認向けLuna各推論設定の公式資料試験と費用試算
+    ├── reverification-initial-trial-2026-09-26.md 133施設の初回試走・検索試料・年間運用費と限界
     ├── coverage-gap-followups.*    完了済みbatchで採否記録がない未掲載施設の引継ぎ台帳
     └── track-source-audit.json     施設別のsource監査台帳
 
@@ -142,7 +145,8 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
 ├── deploy-preview.yml           master push・手動・日次のPreview content deploy
 ├── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
-└── availability-monitor.yml     独立した日次収集監視・履歴artifact・異常/復旧メール
+├── availability-monitor.yml     独立した日次収集監視・履歴artifact・異常/復旧メール
+└── facility-reverification.yml  週次の静的施設資料監視・出典探索・自動更新PR
 ```
 
 `dist/`、`cdk.out/`、`cdk-outputs.json`は生成物であり、実装の正本ではありません。
@@ -260,6 +264,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 施設情報のsource確認日は日別availabilityの取得日と区別し、公開UIで「施設情報の確認日」と表示します。予定actionは施設別の `urls.schedule` を最優先し、未設定ならavailabilityの安定landing page、取得資料URLの順で選びます。差し替え型PDFは最新資料が掲載される公式pageへ、固定URLの資料を `urls.schedule` に指定した施設は資料へ直接案内します。取得時の資料URLとhashは証跡としてavailability datasetに保持します。
 
+静的施設情報の再確認は `scripts/reverification/` と `.github/workflows/facility-reverification.yml` が担当します。初回133施設の公開変更なし試走は登録済み214 URLを直接取得し、Luna xhighで13属性を照合してAPI usageを記録しました。週次workflowは公式施設・個人利用sourceを直接取得し、本文hash・redirect・読取復旧、公開文中の期限到来を検知します。情報源の再探索は施設ごとに365日後、1回のworkflowで最大20施設をLuna xhighのWeb検索へ回し、14日以上読めないURLを優先します。本文変更時の公開差分は原文引用、型、独立した2回目のAI判定を満たした属性だけに限り、全sourceを28日間読めないときは個人利用statusだけunknownへ下げます。施設削除、名称・座標、日別availabilityは自動変更しません。source fingerprint、再試行、実際のWeb検索action、保守的なAPI費を `automation/facility-reverification-state` branchの `research/track-expansion/reverification-state.json` に保存し、暦年$4.80の推計上限で新しいAI呼び出しを停止します。2026年の開始残高には初回試験費を切り上げた$1.00を算入します。公開データ変更はGitHub Appの最小権限tokenでPRを作り、必須CI通過後のauto-mergeがmasterのPreview/Production deployを起動します。実行reportはActions artifactとsummaryへ残します。
+
 ### 現地確認レポート
 
 施設詳細の`components/FieldReports.vue`は、公式予定とは別の匿名現地レポートを表示します。対象日の新着20件と公開件数、空状態・通信エラーを表示し、日本時間の今日だけ「利用できた／一部利用できた／利用できなかった」と任意200文字コメントを投稿できます。別日では今日へ戻る導線を出し、APIも対象日を検証します。投稿時刻は利用時刻ではなく、公式availabilityを上書きしません。新しいSEOページ・route・canonical・sitemap変更はありません。
@@ -354,6 +360,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
 | `npm run monitor:availability` | 独立した実収集・施設別状態比較を一時ディレクトリへ出力（配備・メールなし） |
 | `npm run test:monitor:email` | Python標準ライブラリによるGmail送信をmockで検証（実送信なし） |
+| `npm run test:reverification` | 静的施設情報の期限・引用・差分・source消失を外部APIなしで検証 |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
 | `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋日別availability JSONを生成 |
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |
@@ -371,7 +378,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
-`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて`test:daily:fixtures`と`test:daily`を同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。Chromeと外部sourceへのnetworkが必要です。各変更での必須手順と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
+`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushで、`itsrunnew/` をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて`test:daily:fixtures`と`test:daily`を同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。Chromeと外部sourceへのnetworkが必要です。各変更での必須手順と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
 
 `.github/workflows/deploy-preview.yml` は `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、SHA-256差分によるcontent配備、変更URLのCloudFront invalidation、公開本文照合、CloudFront smokeまでを実行します。差分なしではinvalidationを省略します。HTML shellは直接URLとrewrite前の公開URLを対象にし、Service Workerも変更時に無効化します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 

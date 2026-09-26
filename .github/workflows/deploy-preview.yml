@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '**/*.md'
   workflow_dispatch:
   schedule:
     # 05:00 JST. GitHub Actions cron uses UTC.

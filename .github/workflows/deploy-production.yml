@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '**/*.md'
   workflow_dispatch:
   schedule:
     # 05:30 and 08:15 JST; the second run picks up same-day Setagaya notices.

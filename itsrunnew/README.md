@@ -35,7 +35,7 @@ npm run test:smoke:preview
 npm run test:pace
 ```
 
-`master`向けPull RequestではGitHub Actionsの `Node 24 validation` が、`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行します。続けてdaily fixturesとlive daily gateも実行します。CIはrepository secretをAIへ渡さず、cache missのAI施設はunknownになるため、外部AI推論のfreshnessを証明しません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。 外部sourceへのnetwork、Poppler、Python 3（監視メールのmock検証）が必要ですが、CI検証にAWS credentialsやSMTP secretsは不要です。
+`master`向けPull RequestのGitHub Actions `Node 24 validation` は、Markdownだけの差分では空白確認を行い、Node setup・依存install・アプリ/dailyテストを省略します。それ以外の変更では`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行し、daily fixturesとlive daily gateも続けます。CIはrepository secretをAIへ渡さず、cache missのAI施設はunknownになるため、外部AI推論のfreshnessを証明しません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストには外部sourceへのnetwork、Poppler、Python 3（監視メールのmock検証）が必要ですが、CI検証にAWS credentialsやSMTP secretsは不要です。
 
 `collect:availability:range` は東京の当日から31日分を `src/data/availability/manifest.json` と日別JSONへ生成します。`public/availability` を通じて安定したJSON URLで公開し、日次更新だけではアプリJSや全ページのHTML shellを変えません。ブラウザはmanifestを待たずに画面を起動し、選択日のJSONを並行取得します。同じ日付のデータは画面間で短時間再利用し、開いたままのタブでも後の画面操作でmanifestを再確認し、更新分を取り直します。同一HTML/PDF、月次JSON、WordPress noticeをcacheし、日数分の重複fetchやPDF抽出を避けます。単日debug用 `npm run collect:availability -- --date YYYY-MM-DD` も維持しています。133施設を掲載し、そのうちlegacy 33施設＋追加10施設（Luna AI 8施設、決定論的個人利用ICS 2施設）の43施設を安全な自動判定対象とします。これは毎日のpositive件数ではなく、対象日を判定できる実装数です。取得不能・予定未公開・期限切れ・形式変更・AIのkeyless cache missは利用不可にせず「要確認」へ降格します。AIは知多・平塚・荻野を`gpt-6-luna` `low`、等々力・維新補助を`gpt-6-luna` `medium`、残る3施設を`gpt-5.6-luna` `none`で読みます。施設ごとに公式資料一式を1回入力します。公式資料は順番に取得し、AI読取は最大3件まで同時に実行して結果を施設順に戻します。読取結果は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）へcacheします。source/prompt/model/effort/schema/対象月全日付がcache keyに含まれ、runtimeにAstraはありません。比較根拠は [`../research/availability/luna-feasibility/gpt6-effort-and-routing-2026-09-24.md`](../research/availability/luna-feasibility/gpt6-effort-and-routing-2026-09-24.md)、内訳と各sourceの意味は [`../docs/AVAILABILITY.md`](../docs/AVAILABILITY.md)、[`../research/availability/ai-adoption-2026-09.json`](../research/availability/ai-adoption-2026-09.json)、[`../research/availability/ai-collector-integration-2026-09.md`](../research/availability/ai-collector-integration-2026-09.md) を参照してください。通常のbuild/devは外部sourceへアクセスしません。
 
@@ -72,7 +72,7 @@ npm run infra:deploy
 
 デプロイ後のURLは `cdk-outputs.json` の `VerificationUrl` で確認できます。プレビュー環境を削除する場合は `npm run infra:destroy` を実行します。
 
-GitHub Actionsはmaster push、手動実行、毎日05:00 JSTにfresh availabilityを生成し、既存Previewへcontent-only deployします。前回成功時の生成物SHA-256との差分だけS3へ反映し、変更URLだけをCloudFrontで無効化します。差分なしなら無効化せず、公開ページとService Workerの本文を配備後に照合します。GitHub OIDCの専用role、cache metadata、concurrency、failure handlingは [`../docs/PREVIEW_DEPLOYMENT.md`](../docs/PREVIEW_DEPLOYMENT.md) を参照してください。`infra:deploy`はhosting基盤のみ更新し、contentは別途deployします。
+GitHub ActionsはMarkdownだけのpushを除くmaster push、手動実行、毎日05:00 JSTにfresh availabilityを生成し、既存Previewへcontent-only deployします。前回成功時の生成物SHA-256との差分だけS3へ反映し、変更URLだけをCloudFrontで無効化します。差分なしなら無効化せず、公開ページとService Workerの本文を配備後に照合します。GitHub OIDCの専用role、cache metadata、concurrency、failure handlingは [`../docs/PREVIEW_DEPLOYMENT.md`](../docs/PREVIEW_DEPLOYMENT.md) を参照してください。`infra:deploy`はhosting基盤のみ更新し、contentは別途deployします。
 
 Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false` を使用します。Production workflowだけが `VITE_ADSENSE_ENABLED=true` で、アクセス解析の選択後に全route共通のAdSenseタグを読み込みます。広告・Cookieの選択はGoogle CMP、アクセス解析の選択はサイト内UIがそれぞれ担当し、両画面は同時に表示しません。
 
@@ -98,9 +98,9 @@ GA4は正式domainでアクセス解析へ同意した場合だけ読み込み�
 
 availabilityのAI読解を人手で評価するローカル入力画面は、リポジトリルートから `python3 research/availability/luna-feasibility/annotator.py` で起動します。`http://127.0.0.1:8766` で保存資料を見ながら判定を入力し、既存の判定表へ保存できます。Python 3標準ライブラリのみで動き、APIキーは不要です。公開アプリのbuild・配備対象には含みません。使い方と検証は[調査README](../research/availability/luna-feasibility/README.md)を参照してください。
 
-## 各変更時のdaily更新検証
+## availabilityに関わる変更時のdaily更新検証
 
-通常のunit・lint・buildに加え、`npm run test:daily:fixtures` と `npm run test:daily` を実行します。前者は4status・戸田が利用不可の日と全施設unknownの回帰検証、後者は公式sourceの実収集・当日31日分の鮮度と完全性・build・PC/スマホsmokeです。両方とも一時workspaceを使い、checkoutのデータ・distは変更せず、AWSへ配備しません。Node 24、インストール済み依存、Chromeが必要です（Linuxは`CHROME_PATH=/usr/bin/google-chrome`）。PR/masterの`Node 24 validation`でも両方を必須実行します。
+availability収集、Track DatasetのID・status、availabilityの表示・絞り込み、daily smoke、build/deployの経路に影響する変更では、通常のunit・lint・buildに加え、`npm run test:daily:fixtures` と `npm run test:daily` を確認します。前者は4status・戸田が利用不可の日と全施設unknownの回帰検証、後者は公式sourceの実収集・当日31日分の鮮度と完全性・build・PC/スマホsmokeです。両方とも一時workspaceを使い、checkoutのデータ・distは変更せず、AWSへ配備しません。Node 24、インストール済み依存、Chromeが必要です（Linuxは`CHROME_PATH=/usr/bin/google-chrome`）。同じPR revisionのCI結果を確認できればローカルで重複実行する必要はありません。CIはMarkdownだけの変更でアプリ/dailyテストを省略し、その他の変更では両方を実行します。
 
 日次deployは`validate:availability:fresh`を収集直後に実行し、古い・不完全なデータや合成fixtureの公開を拒否します。失敗調査と公開後の確認手順は[DAILY_VERIFICATION.md](../docs/DAILY_VERIFICATION.md)を参照してください。
 

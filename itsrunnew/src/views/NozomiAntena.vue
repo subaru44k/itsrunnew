@@ -9,7 +9,7 @@
         <div><strong>{{ localCount }}</strong><span>国内小規模・地域大会</span></div>
         <div><strong>2020–{{ latestYear }}</strong><span>収録期間</span></div>
       </div>
-      <p class="updated">最終確認：2026年9月20日（2026年シーズンは途中、9月13日までの結果）</p>
+      <p class="updated">最終確認：2026年9月27日（2026年シーズンは途中、9月26日までの結果）</p>
     </header>
 
     <AdsDisplay slot="6879016191" />
@@ -18,7 +18,7 @@
       <h2>記録の見方</h2>
       <p>予選・決勝、同日の複数種目は別レースです。「地域・記録会」は、競技生活の流れが見える国内の記録会、大学競技会、地方GPなどをまとめています。ペースメーカーやゲストランは役割を明記しました。</p>
       <div class="legend">
-        <span class="tag tag-major">五輪・世界大会</span><span class="tag tag-local">地域・記録会</span><span class="tag tag-road">ロード・駅伝</span><span class="tag tag-special">ペース・ゲスト</span><span class="tag tag-indoor">室内</span>
+        <span class="tag tag-major">主要国際大会</span><span class="tag tag-local">地域・記録会</span><span class="tag tag-road">ロード・駅伝</span><span class="tag tag-special">ペース・ゲスト</span><span class="tag tag-indoor">室内</span>
       </div>
     </section>
 
@@ -26,7 +26,7 @@
       <h2>記録を探す</h2>
       <div class="filter-grid">
         <label>年度<select v-model="selectedYear"><option value="all">全年度</option><option v-for="year in years" :key="year" :value="String(year)">{{ year }}年</option></select></label>
-        <label>種類<select v-model="selectedKind"><option value="all">すべて</option><option value="major">五輪・世界大会</option><option value="local">地域・記録会</option><option value="road">ロード・駅伝</option><option value="special">ペース・ゲスト</option><option value="indoor">室内</option></select></label>
+        <label>種類<select v-model="selectedKind"><option value="all">すべて</option><option value="major">主要国際大会</option><option value="local">地域・記録会</option><option value="road">ロード・駅伝</option><option value="special">ペース・ゲスト</option><option value="indoor">室内</option></select></label>
         <label>大会名・種目<input v-model.trim="query" type="search" placeholder="例：日体大、1500、駅伝"></label>
       </div>
       <p>{{ filteredResults.length }}件を表示</p>
@@ -59,6 +59,7 @@
       <ul>
         <li><a href="https://worldathletics.org/athletes/japan/nozomi-tanaka-14632538" target="_blank" rel="noopener noreferrer">World Athletics 選手プロフィール</a></li>
         <li><a href="https://www.jaaf.or.jp/athletes/profile/nozomi_tanaka/" target="_blank" rel="noopener noreferrer">日本陸上競技連盟 選手プロフィール</a></li>
+        <li><a href="https://www.jaaf.or.jp/asian-games/2026/news/article/24151/" target="_blank" rel="noopener noreferrer">日本陸上競技連盟 愛知・名古屋2026アジア競技大会リザルト</a></li>
         <li><a href="https://non-tanaka.jp/" target="_blank" rel="noopener noreferrer">田中希実オフィシャルサイト</a></li>
       </ul>
       <p class="notice">このページは非公式で、完全性を保証するものではありません。特にペースメーカー、公開記録を残さないゲスト出走、駅伝区間には未収録の可能性があります。誤りや未掲載情報はサイト下部の連絡先からお知らせください。</p>
@@ -75,6 +76,8 @@ import rawResults from '@/data/nozomi-results.json';
 type Race = { id?: string; date: string; competition: string; event: string; round?: string; place?: number | null; mark?: string; city?: string; country?: string; indoor?: boolean; competitionId?: number; category?: string; kind?: 'major'|'local'|'road'|'special'; role?: 'pacer'|'guest'|'relay'; note?: string; sourceUrl?: string };
 
 const extras: Race[] = [
+  { date:'2026-09-26',competition:'愛知・名古屋2026アジア競技大会',event:'1500',place:3,mark:'4:06.14',city:'名古屋',country:'JPN',kind:'major',note:'銅メダル',sourceUrl:'https://www.jaaf.or.jp/asian-games/2026/news/article/24151/' },
+  { date:'2026-09-24',competition:'愛知・名古屋2026アジア競技大会',event:'10000',place:2,mark:'32:41.54',city:'名古屋',country:'JPN',kind:'major',note:'銀メダル',sourceUrl:'https://www.jaaf.or.jp/asian-games/2026/news/article/24151/' },
   { date:'2026-09-13',competition:'74th All Japan Corporate Teams Athletics Championships',event:'800',place:1,mark:'2:02.18',city:'京都',country:'JPN',kind:'local',note:'大会新記録',sourceUrl:'https://gold.jaic.org/jaic/member/kyoto/zenjitsu2026/rel150.html' },
   { date:'2026-07-04',competition:'ホクレン・ディスタンスチャレンジ2026 士別大会',event:'5000',place:1,mark:'15:00.61',city:'士別',country:'JPN',kind:'local',sourceUrl:'https://non-tanaka.jp/' },
   { date:'2026-07-04',competition:'ホクレン・ディスタンスチャレンジ2026 士別大会',event:'1500',place:1,mark:'4:08.53',city:'士別',country:'JPN',kind:'local',sourceUrl:'https://non-tanaka.jp/' },
@@ -96,7 +99,7 @@ const extras: Race[] = [
 const results = ([...(rawResults as Race[]), ...extras] as Race[]).map((race,index) => ({ ...race, id:`${race.date}-${race.event}-${index}`, sourceUrl: race.sourceUrl ?? (race.competitionId ? `https://worldathletics.org/competition/calendar-results/results/${race.competitionId}` : 'https://worldathletics.org/athletes/japan/nozomi-tanaka-14632538') })).sort((a,b) => b.date.localeCompare(a.date));
 const selectedYear=ref('all'), selectedKind=ref('all'), query=ref('');
 const years=[...new Set(results.map(r=>Number(r.date.slice(0,4))))].sort((a,b)=>b-a), latestYear=years[0];
-const isMajor=(r:Race)=>/Olympic|World Athletics Championships|World Athletics Indoor Championships|IAAF World Championships/.test(r.competition);
+const isMajor=(r:Race)=>r.kind==='major'||/Olympic|World Athletics Championships|World Athletics Indoor Championships|IAAF World Championships/.test(r.competition);
 const isRoad=(r:Race)=>r.kind==='road'||['1MR','5RR'].includes(r.event)||/Road|Ekiden|駅伝|Cross Country/.test(r.competition);
 const isLocal=(r:Race)=>r.kind==='local'||(!isMajor(r)&&!isRoad(r)&&r.country==='JPN'&&['C','D','E','F'].includes(r.category??'F'));
 const matchesKind=(r:Race,k:string)=>k==='major'?isMajor(r):k==='local'?isLocal(r):k==='road'?isRoad(r):k==='special'?r.kind==='special':k==='indoor'?r.indoor===true:true;
@@ -111,7 +114,7 @@ function eventLabel(r:Race){const labels:Record<string,string>={'1MR':'1マイ�
 function roundLabel(round?:string){if(!round||round==='F'||/^F\d+$/.test(round))return '';if(round.startsWith('SF'))return `準決勝 ${round}`;if(round.startsWith('H'))return `予選 ${round}`;return round}
 function placeLabel(r:Race){if(r.role==='pacer')return 'ペース';if(r.role==='guest')return 'ゲスト';return r.place?`${r.place}位`:'—'}
 function locationLabel(r:Race){return [r.city,r.country&&r.country!=='JPN'?r.country:''].filter(Boolean).join(' / ')}
-function tagsFor(r:Race){const tags:Array<{key:string,label:string}>=[];if(isMajor(r))tags.push({key:'major',label:'世界大会'});if(isLocal(r))tags.push({key:'local',label:'地域・記録会'});if(isRoad(r))tags.push({key:'road',label:r.role==='relay'?'駅伝':'ロード'});if(r.kind==='special')tags.push({key:'special',label:r.role==='pacer'?'ペース':'ゲスト'});if(r.indoor)tags.push({key:'indoor',label:'室内'});return tags.length?tags:[{key:'international',label:r.country==='JPN'?'国内主要':'海外'}]}
+function tagsFor(r:Race){const tags:Array<{key:string,label:string}>=[];if(isMajor(r))tags.push({key:'major',label:'主要国際大会'});if(isLocal(r))tags.push({key:'local',label:'地域・記録会'});if(isRoad(r))tags.push({key:'road',label:r.role==='relay'?'駅伝':'ロード'});if(r.kind==='special')tags.push({key:'special',label:r.role==='pacer'?'ペース':'ゲスト'});if(r.indoor)tags.push({key:'indoor',label:'室内'});return tags.length?tags:[{key:'international',label:r.country==='JPN'?'国内主要':'海外'}]}
 </script>
 
 <style scoped>

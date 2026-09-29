@@ -317,7 +317,7 @@ export function parseMisatoPdf(pdf: ExtractedPdf, date: string): PdfParseResult 
       throw new PdfCollectorError('source_changed', 'Misato closure cell does not span all time slots');
     if (target.item.y < upper && target.item.y > lower) return {
       status: 'unavailable', periods: [period(null, null, 'unavailable', ['explicit_facility_suspension'])],
-      warnings: ['公式PDFの結合セルに整備休場中と明記', '整備状況により休場が延長される場合があります。公式情報をご確認ください。'], confidence: 'high',
+      warnings: ['整備のため休場中です。', '整備状況により休場が延長される場合があります。公式情報をご確認ください。'], confidence: 'high',
     };
   }
   // All date rows have equal spacing in this template. Use half a row above day

@@ -287,6 +287,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、日付・施設・検索基準・公式確認・経路などのTrack Search主要操作eventを固定schemaで送ります。Geolocationの緯度経度、住所、自由入力文字列は送信せず、送信直前にもprivate parameter名を除外します。event一覧とGA4管理画面でのcustom dimension/key event候補は [`ANALYTICS.md`](ANALYTICS.md) が正本です。PrivacyページはAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPとGoogleの関連方針への導線を日英で説明します。
 
+維新補助のAI collectorは公式告知内の対象月の予定画像を取得し、ファイル名の `hojyoriku`・`hokyoriku`・`hozyoriku` を許容します。2026年9月28日更新の10月画像は `hozyoriku` で公開されています。月と補助競技場のファイル名を照合し、対象外の月や主競技場の画像をAI入力に混ぜません。
+
 ### Availability収集状態の監視
 
 `availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、監視専用fetchで一時障害を1回再試行、鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。

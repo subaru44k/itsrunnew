@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFile } from 'node:fs/promises';
 import {
   createPdfCollector,
   extractPdf,
@@ -151,6 +152,35 @@ describe('PDF availability parsers', () => {
     const result = parseMisatoPdf(misato, '2026-08-24');
     expect(result.status).toBe('partially_available');
     expect(result.periods.map(value => value.status)).toEqual(['unavailable', 'unavailable', 'available']);
+  });
+
+  it('excludes shared-use heading notes from Misato day one', () => {
+    const pdf = document(misato.text.split('\n'), [
+      item('1', 58, 620), item('2', 58, 603), item('3', 58, 586),
+      item('※共用利用は18時まで', 251, 639), item('共用利用', 150, 603),
+    ]);
+    expect(parseMisatoPdf(pdf, '2026-08-01')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
+    expect(parseMisatoPdf(pdf, '2026-08-02').periods[0].status).toBe('available');
+  });
+
+  it('reads Misato merged closure bounds from official PDF graphics without closing adjacent dates', async () => {
+    const cases = [
+      { file: 'misato-202609-closure.pdf', month: '09', first: 22, last: 30, adjacent: '2026-09-21' },
+      { file: 'misato-202610-closure.pdf', month: '10', first: 1, last: 9, adjacent: '2026-10-10' },
+    ];
+    for (const c of cases) {
+      const bytes = await readFile(new URL(`./fixtures/${c.file}`, import.meta.url));
+      const pdf = await extractPdf(new Uint8Array(bytes), { tableRules: true });
+      for (let day = c.first; day <= c.last; day++) {
+        expect(parseMisatoPdf(pdf, `2026-${c.month}-${String(day).padStart(2, '0')}`)).toMatchObject({
+          status: 'unavailable', periods: [{ from: null, to: null, status: 'unavailable', conditions: ['explicit_facility_suspension'] }],
+        });
+      }
+      expect(parseMisatoPdf(pdf, c.adjacent).status).toBe('partially_available');
+      expect(parseMisatoPdf(pdf, c.adjacent).warnings).toContain('整備状況により休場が延長される場合があります。公式情報をご確認ください。');
+      expect(() => parseMisatoPdf({ ...pdf, horizontalRules: [] }, c.adjacent)).toThrow(/closure cell boundaries missing/);
+      expect(() => parseMisatoPdf({ ...pdf, verticalRules: [...pdf.verticalRules!, { x: 300, fromY: 0, toY: 800, page: 1 }] }, c.adjacent)).toThrow(/does not span all time slots/);
+    }
   });
 
   it('requires an explicit Ageo individual-use listing', () => {

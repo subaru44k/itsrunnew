@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { AvailabilityPeriod, AvailabilityStatus, UnknownReason } from '../../src/model/availability';
 
 type FetchLike = typeof fetch;
@@ -16,6 +16,8 @@ export interface ExtractedPdf {
   pageCount: number;
   items: PdfTextItem[];
   text: string;
+  horizontalRules?: Array<{ fromX: number; toX: number; y: number; page: number }>;
+  verticalRules?: Array<{ x: number; fromY: number; toY: number; page: number }>;
 }
 
 export interface PdfParseResult {
@@ -125,14 +127,73 @@ function dateParts(date: string) {
   return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
 }
 
-export async function extractPdf(bytes: Uint8Array): Promise<ExtractedPdf> {
+// PDF.js 6 represents paths as move(0), line(1), curve(2/3), close(4).
+// Keep only axis-aligned rectangular rules; other graphics cannot define closures.
+function rectangularRules(operators: { fnArray: number[]; argsArray: unknown[][] }, page: number) {
+  const rules: NonNullable<ExtractedPdf['horizontalRules']> = [];
+  const verticalRules: NonNullable<ExtractedPdf['verticalRules']> = [];
+  let matrix = [1, 0, 0, 1, 0, 0];
+  const stack: number[][] = [];
+  for (let i = 0; i < operators.fnArray.length; i++) {
+    const op = operators.fnArray[i];
+    const args = operators.argsArray[i];
+    if (op === OPS.save) stack.push([...matrix]);
+    else if (op === OPS.restore) matrix = stack.pop() ?? [1, 0, 0, 1, 0, 0];
+    else if (op === OPS.transform) {
+      const [a, b, c, d, e, f] = args as number[];
+      const [ma, mb, mc, md, me, mf] = matrix;
+      matrix = [ma * a + mc * b, mb * a + md * b, ma * c + mc * d, mb * c + md * d, ma * e + mc * f + me, mb * e + md * f + mf];
+    } else if (op === OPS.constructPath) {
+      const paths = args[1] as Float32Array[];
+      for (const path of paths) {
+        let points: Array<{ x: number; y: number }> = [];
+        let straight = true;
+        for (let j = 0; j < path.length;) {
+          const command = path[j++];
+          if (command === 0 || command === 1) {
+            if (command === 0) { points = []; straight = true; }
+            const x = path[j++], y = path[j++];
+            points.push({ x: matrix[0] * x + matrix[2] * y + matrix[4], y: matrix[1] * x + matrix[3] * y + matrix[5] });
+          } else if (command === 2 || command === 3) {
+            straight = false;
+            j += command === 2 ? 6 : 4;
+          } else if (command === 4) {
+            if (straight && points.length === 4 && points.every((p, k) => {
+              const next = points[(k + 1) % 4];
+              return Math.abs(p.x - next.x) < 0.01 || Math.abs(p.y - next.y) < 0.01;
+            })) {
+              const xs = points.map(p => p.x), ys = points.map(p => p.y);
+              const fromX = Math.min(...xs), toX = Math.max(...xs);
+              const fromY = Math.min(...ys), toY = Math.max(...ys);
+              if (toX - fromX > 200 && Math.max(...ys) - Math.min(...ys) <= 2.5)
+                rules.push({ fromX, toX, y: (Math.min(...ys) + Math.max(...ys)) / 2, page });
+              if (toY - fromY > 10 && toX - fromX <= 2.5)
+                verticalRules.push({ x: (fromX + toX) / 2, fromY, toY, page });
+            }
+            points = [];
+          } else break;
+        }
+      }
+    }
+  }
+  return { horizontalRules: rules, verticalRules };
+}
+
+export async function extractPdf(bytes: Uint8Array, options: { tableRules?: boolean } = {}): Promise<ExtractedPdf> {
   try {
     const task = getDocument({ data: bytes, useWorkerFetch: false, useSystemFonts: true });
     const document = await task.promise;
     const items: PdfTextItem[] = [];
+    const horizontalRules: NonNullable<ExtractedPdf['horizontalRules']> = [];
+    const verticalRules: NonNullable<ExtractedPdf['verticalRules']> = [];
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent();
+      if (options.tableRules) {
+        const rules = rectangularRules(await page.getOperatorList(), pageNumber);
+        horizontalRules.push(...rules.horizontalRules);
+        verticalRules.push(...rules.verticalRules);
+      }
       for (const raw of content.items) {
         if (!('str' in raw) || !normalize(raw.str)) continue;
         items.push({ text: normalize(raw.str), x: raw.transform[4], y: raw.transform[5], width: raw.width, page: pageNumber });
@@ -140,7 +201,7 @@ export async function extractPdf(bytes: Uint8Array): Promise<ExtractedPdf> {
     }
     const cleaned = uniqueItems(items);
     if (!cleaned.length) throw new PdfCollectorError('extraction_failed', 'PDF contains no extractable text');
-    return { pageCount: document.numPages, items: cleaned, text: cleaned.map(item => item.text).join('\n') };
+    return { pageCount: document.numPages, items: cleaned, text: cleaned.map(item => item.text).join('\n'), ...(options.tableRules ? { horizontalRules, verticalRules } : {}) };
   } catch (error) {
     if (error instanceof PdfCollectorError) throw error;
     throw new PdfCollectorError('extraction_failed', `PDF extraction failed: ${String(error)}`);
@@ -237,7 +298,32 @@ export function parseMisatoPdf(pdf: ExtractedPdf, date: string): PdfParseResult 
   if (closure && Number(closure[1]) === month && Number(closure[3]) === month && day >= Number(closure[2]) && day <= Number(closure[4])) {
     return { status: 'unavailable', periods: [period(null, null, 'unavailable', ['explicit_facility_suspension'])], warnings: ['公式PDFの利用中止期間'], confidence: 'high' };
   }
-  const rows = itemsForDay(pageItems(pdf), day, text => /^(\d{1,2})$/.test(text) ? Number(text) : null, 85);
+  const items = pageItems(pdf);
+  const dates = dateRows(items, text => /^(\d{1,2})$/.test(text) ? Number(text) : null, 85);
+  const target = dates.find(row => row.day === day);
+  if (!target) throw new PdfCollectorError('source_changed', 'Target date row missing from Misato schedule');
+  const closureLabels = items.filter(item => item.x >= 120 && /整備休場中/.test(compact(item.text)));
+  for (const label of closureLabels) {
+    const rules = (pdf.horizontalRules ?? []).filter(rule => rule.page === label.page && rule.fromX <= 120 && rule.toX >= 510);
+    const upper = Math.min(...rules.filter(rule => rule.y > label.y).map(rule => rule.y));
+    const lower = Math.max(...rules.filter(rule => rule.y < label.y).map(rule => rule.y));
+    if (!Number.isFinite(upper) || !Number.isFinite(lower))
+      throw new PdfCollectorError('source_changed', 'Misato closure cell boundaries missing');
+    const verticals = (pdf.verticalRules ?? []).filter(rule => rule.page === label.page && rule.fromY < label.y && rule.toY > label.y);
+    const left = verticals.some(rule => rule.x >= 90 && rule.x <= 120 && rule.fromY <= lower + 2.5 && rule.toY >= upper - 2.5);
+    const right = verticals.some(rule => rule.x >= 510 && rule.x <= 560 && rule.fromY <= lower + 2.5 && rule.toY >= upper - 2.5);
+    const divided = verticals.some(rule => rule.x > 120 && rule.x < 510);
+    if (!left || !right || divided)
+      throw new PdfCollectorError('source_changed', 'Misato closure cell does not span all time slots');
+    if (target.item.y < upper && target.item.y > lower) return {
+      status: 'unavailable', periods: [period(null, null, 'unavailable', ['explicit_facility_suspension'])],
+      warnings: ['公式PDFの結合セルに整備休場中と明記', '整備状況により休場が延長される場合があります。公式情報をご確認ください。'], confidence: 'high',
+    };
+  }
+  // All date rows have equal spacing in this template. Use half a row above day
+  // one, excluding the shared-use notes in the column headings.
+  const firstRowUpper = dates.length > 1 ? dates[0].item.y + (dates[0].item.y - dates[1].item.y) / 2 : target.item.y + 3;
+  const rows = itemsForDay(items.filter(item => item.y <= firstRowUpper), day, text => /^(\d{1,2})$/.test(text) ? Number(text) : null, 85);
   if (!rows) throw new PdfCollectorError('source_changed', 'Target date row missing from Misato schedule');
   const cells = [
     { availableFrom: '09:00', unavailableFrom: '09:00', availableTo: '13:00', unavailableTo: '12:00', value: cellText(rows, 120, 260) },
@@ -245,11 +331,16 @@ export function parseMisatoPdf(pdf: ExtractedPdf, date: string): PdfParseResult 
     { availableFrom: '18:00', unavailableFrom: '18:00', availableTo: '21:00', unavailableTo: '21:00', value: cellText(rows, 405, 560) },
   ];
   const periods = cells.map(cell => {
-    if (cell.value.includes('共用利用')) return period(cell.availableFrom, cell.availableTo, 'available', ['shared_use_explicit']);
-    if (cell.value.includes('専用利用')) return period(cell.unavailableFrom, cell.unavailableTo, 'unavailable', ['exclusive_use']);
+    if (cell.value === '共用利用') return period(cell.availableFrom, cell.availableTo, 'available', ['shared_use_explicit']);
+    if (cell.value === '専用利用') return period(cell.unavailableFrom, cell.unavailableTo, 'unavailable', ['exclusive_use']);
     return period(cell.availableFrom, cell.availableTo, 'unknown', ['blank_is_reservable_not_individual_availability']);
   });
-  return { status: aggregate(periods), periods, unknownReason: aggregate(periods) === 'unknown' ? 'insufficient_information' : undefined, warnings: ['空欄は予約可能日であり個人利用可とは判定しない', '専用申請は10日前まで変更可能'], confidence: 'high' };
+  return {
+    status: aggregate(periods), periods, unknownReason: aggregate(periods) === 'unknown' ? 'insufficient_information' : undefined,
+    warnings: ['空欄は予約可能日であり個人利用可とは判定しない', '専用申請は10日前まで変更可能',
+      ...(closureLabels.length ? ['整備状況により休場が延長される場合があります。公式情報をご確認ください。'] : [])],
+    confidence: 'high',
+  };
 }
 
 export function parseAgeoPdf(pdf: ExtractedPdf, date: string): PdfParseResult {
@@ -565,7 +656,7 @@ export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'fuchu-citizen-athletic-track', name: '府中市民陸上競技場', landingPageUrl: 'https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html', discovery: 'annual_pdf_discovery', parser: 'fuchu-vector-calendar-guard', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-seibiyama-track', name: '和田堀公園 第二競技場（済美山運動場）', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-second', parserVersion: '1.0.0' },
-  { trackId: 'misato-senario-house-field', name: 'セナリオハウスフィールド三郷', landingPageUrl: 'https://www.misato-hall.com/module/3299.htm', discovery: 'monthly_pdf_discovery', parser: 'misato-three-slot-reservation', parserVersion: '1.0.0' },
+  { trackId: 'misato-senario-house-field', name: 'セナリオハウスフィールド三郷', landingPageUrl: 'https://www.misato-hall.com/module/3299.htm', discovery: 'monthly_pdf_discovery', parser: 'misato-three-slot-reservation', parserVersion: '1.1.0' },
   { trackId: 'ageo-athletic-stadium', name: '上尾運動公園 陸上競技場', landingPageUrl: 'https://www.parks.or.jp/saitamasuijo/guide/006/006231.html', discovery: 'monthly_pdf_discovery', parser: 'ageo-individual-use-list', parserVersion: '1.0.0' },
   { trackId: 'hachioji-fujimori-athletic-stadium', name: '東京フットボールセンター八王子富士森競技場', landingPageUrl: 'https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html', discovery: 'latest_pdf_discovery', parser: 'fujimori-multi-month-matrix', parserVersion: '1.0.0' },
   { trackId: 'kamiyugi-park-athletic-stadium', name: '上柚木公園陸上競技場', landingPageUrl: 'https://kamiyugi-park.jp/facility/athletics-stadium/', discovery: 'latest_pdf_discovery', parser: 'kamiyugi-multi-month-matrix', parserVersion: '1.0.0' },
@@ -703,8 +794,10 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
       if (!pdfUrl) throw new PdfCollectorError('schedule_not_published', `No PDF published for ${date}`, config.landingPageUrl);
       const source = await client.pdf(pdfUrl);
       const sourceHash = sha256(source.bytes);
-      if (!extractedBySource.has(sourceHash)) extractedBySource.set(sourceHash, extractImpl(source.bytes));
-      const extracted = await extractedBySource.get(sourceHash)!;
+      const tableRules = config.trackId === 'misato-senario-house-field';
+      const extractionKey = `${sourceHash}:${tableRules}`;
+      if (!extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));
+      const extracted = await extractedBySource.get(extractionKey)!;
       const result = parserFor(config, extracted, date);
       return {
         ...result,

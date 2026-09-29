@@ -289,6 +289,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 維新補助のAI collectorは公式告知内の対象月の予定画像を取得し、ファイル名の `hojyoriku`・`hokyoriku`・`hozyoriku` を許容します。2026年9月28日更新の10月画像は `hozyoriku` で公開されています。月と補助競技場のファイル名を照合し、対象外の月や主競技場の画像をAI入力に混ぜません。
 
+三郷のPDF collectorは通常の3時間帯の文字判定に加え、PDF.js 6の描画命令から罫線の座標を抽出します。`整備休場中` を含む結合セルが全時間帯を覆い、内部の縦罫線で分割されていないことを確認し、上下端で休場対象日を決め、隣接する通常利用日へ広げません。休場境界を確認できない資料はunknownへ降格します。1日目の行は通常の行間隔の半分で区切り、列見出しの共用利用時間を利用枠と誤認しません。罫線抽出は三郷のみで行い、公式原本の9月・10月PDFをfixtureとして抽出から判定まで回帰検証します。
+
 ### Availability収集状態の監視
 
 `availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、監視専用fetchで一時障害を1回再試行、鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。

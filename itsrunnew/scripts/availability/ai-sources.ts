@@ -184,7 +184,7 @@ export async function buildAiPacket(
       ...images(schedule.html, schedule.url),
     ].filter(
       (a) =>
-        /info_ho[kj]yoriku_\d{6}/.test(a.url) &&
+        /info_ho[kjz]yoriku_\d{6}/.test(a.url) &&
         dates.some((d) => a.url.includes(d.slice(0, 7).replace('-', ''))),
     );
     if (!found.length) throw new Error('Ishin auxiliary images not found');

@@ -206,3 +206,5 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 現collectorは43/133（32.3%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。AI 8施設は当月・翌月資料を施設別packetへまとめ、世田谷だけはtoday-onlyです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開・keylessでcache missのAI資料は引き続きunknownです。
 
 新座予約システムは、規約・低頻度アクセス・cache・「空き」の意味を確認するまで実装しません。城北中央は公式Web日程が提供されない限りmanual confirmationを維持します。
+
+range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信障害・408・429・5xxを1回再試行します。両試行で取得できなければunknownを維持し、HTTP status・失敗段階・通信error codeをqueryや認証情報なしでログへ残します。

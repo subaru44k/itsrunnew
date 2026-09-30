@@ -2,6 +2,7 @@ import { readdir, mkdir, unlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { collectAvailabilityRange } from './range';
+import { createMonitorFetch } from './monitor-fetch';
 
 function tokyoDateKey(date = new Date()) {
   return new Intl.DateTimeFormat('en-CA', {
@@ -19,7 +20,12 @@ if (process.env.ITSRUN_REQUIRE_AI_KEY === 'true' && !process.env.OPENAI_API_KEY)
 const from = argument('--from') ?? tokyoDateKey();
 const days = Number(argument('--days') ?? '31');
 const now = new Date();
-const result = await collectAvailabilityRange(from, days, { now });
+const result = await collectAvailabilityRange(from, days, {
+  now,
+  fetchImpl: createMonitorFetch(fetch, { onDiagnostic: diagnostic => {
+    console.warn(`Availability fetch: ${JSON.stringify(diagnostic)}`);
+  } }),
+});
 const scriptDirectory = fileURLToPath(new URL('.', import.meta.url));
 const dataRoot = resolve(scriptDirectory, '../../src/data');
 const outputDirectory = resolve(dataRoot, 'availability');

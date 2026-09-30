@@ -13,7 +13,7 @@
 - `fetch_failed`、`parse_failed`、`extraction_failed`、`invalid_content_type`、`source_changed`、`source_stale` は明確な異常として、初回から通知する。HTTP取得では一時的な通信障害・408・429・5xxを1回再試行する。Nodeの `UND_ERR_CONNECT_TIMEOUT` だけは同じ公式GET/HEADをcurlで取得する（HTTPS限定・証明書検証有効・20 MB/20秒・redirect 5回）。代替取得も失敗すればunknownを維持する。HTTP errorや証明書error、POSTへ代替取得を適用しない。取得の失敗段階（headers/body/http）、HTTP status、通信error code、再試行の復旧をActionsログとreport artifact内の `fetch-diagnostics.json` に残す。query・認証情報・応答本文・error messageは含めない。
 - 日付をそろえて、以前に判定できた日がunknownへ変わったか比較する。全判定日を失った場合、または3日以上かつ50%以上を失った場合を減少候補とする。別のJST日にも続いた場合に `coverage_drop` として通知する。同じ日に手動実行を繰り返しても確定しない。異常中も以前判定できた日付を保持する。
 - `unavailable` も「判定できた」に含める。初回から未対応、電話確認、期間外、予定未公開だけの施設は異常にしない。月替わりで範囲から外れた日や、前回存在しなかった未来日を減少に数えない。
-- 原因の組合せ・重要度が変わらない限り、日付・hash・URLの変更だけでは再通知しない。復旧には影響日の既知statusへの回復が必要。影響日がすべて過去になった場合も新しい既知statusが必要で、エラーが予定未公開に変わっただけでは復旧扱いにしない。掲載削除は「監視対象から削除」とし、復旧と区別する。
+- 原因の組合せ・重要度が変わらない限り、日付・hash・URLの変更だけでは再通知しない。復旧には、影響日のうち以前に判定できていた対象日の既知statusへの回復が必要。以前から要確認・未掲載だった日まで既知になることは要求しない。判定履歴がない場合も影響日の新しい既知statusを要求し、全unknownでは復旧させない。影響日がすべて過去になった場合も新しい既知statusが必要で、エラーが予定未公開に変わっただけでは復旧扱いにしない。掲載削除は「監視対象から削除」とし、復旧と区別する。
 - Production deployが有効な場合、直近のmasterの成功runが30時間以上前、または見つからない場合は `production_update_overdue` を通知する。配備失敗・起動漏れを間接的に捉える。成功runの時刻による監視であり、公開HTMLや公開データの直接検査ではない。
 - 異常発生・原因変化・復旧・監視対象削除を1通にまとめる。施設名、原因、影響日、最終正常確認、公式source URL、Actions実行URLを含める。変化がない日は送らない。全施設の状態とunknown理由別件数はActions summaryとreport artifactで確認できる。
 

@@ -88,10 +88,14 @@ export function evaluateHealth(datasets: AvailabilityDataset[], tracks: Array<{ 
       severity: failures.length ? 'error' : 'warning',
       since: old?.active?.since ?? now,
     } : null;
-    // A missing error message alone is not recovery: confirm the affected dates
-    // have known results, or, after those dates expire, new positive evidence.
+    // Previously unknown/unpublished dates must not block recovery forever.
+    // Require all previously known affected dates to recover. Without such a
+    // baseline, require new known evidence on an affected date (or a new date
+    // after expiry). Losing baseline dates and all-unknown data still block recovery.
     const oldAffected = old?.active?.affectedDates.filter(date => dates.includes(date)) ?? [];
-    const provenRecovery = oldAffected.length ? oldAffected.every(date => known.includes(date)) : known.length > 0;
+    const knownAffected = oldAffected.filter(date => baseline.includes(date));
+    const provenRecovery = knownAffected.length ? knownAffected.every(date => known.includes(date))
+      : oldAffected.length ? oldAffected.some(date => known.includes(date)) : known.length > 0;
     if (!active && old?.active && (!provenRecovery || loss)) active = old.active;
     const healthy = !active && !loss && known.length > 0;
     const reasons: Record<string, number> = {};

@@ -295,7 +295,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ### Availability収集状態の監視
 
-`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、range CLIと共通のfetchで一時障害を1回再試行・接続タイムアウト時のcurl代替取得を行い、失敗段階・HTTP status・安全な通信error code・再試行復旧をログと `fetch-diagnostics.json` artifactへ記録します。鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。
+`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、range CLIと共通のfetchで一時障害を1回再試行・接続タイムアウト時のcurl代替取得を行い、失敗段階・HTTP status・安全な通信error code・再試行復旧をログと `fetch-diagnostics.json` artifactへ記録します。鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には以前に判定できていた影響日の既知statusへの回復を要求し、以前から未掲載だった日は復旧を妨げません。判定履歴がない場合も新しい既知statusを要求し、全unknownでは復旧させません。Productionの最終成功から30時間超の更新停止も検知します。
 
 `monitor-github.mjs` が前回成功runのstate artifactを復元し、`monitor-email.py` がGmail SMTP over TLSで異常・変化・復旧を1通にまとめます。状態不変時は通知しません。Secretsは送信元・アプリパスワード・宛先の3つで、collectorには渡しません。メール成功後に90日保持のstateを保存し、reportは失敗時も30日保持します。監視基盤の障害は失敗runごとに別メールを試み、SMTP障害はActions失敗にします。Node 24・Poppler・Python 3標準ライブラリ・GitHub CLIを使用します。AI読解は既存deployと同じcacheを復元し、masterの収集stepだけへ既存OPENAI_API_KEYを渡します。欠落時は監視jobを失敗させます。AWS認証、公開データ更新、deploy停止、Issue作成は行いません。設定、再現コマンド、履歴破損時の挙動、監視自体の未起動を検知できない制限は [`AVAILABILITY_MONITORING.md`](AVAILABILITY_MONITORING.md) を参照してください。
 

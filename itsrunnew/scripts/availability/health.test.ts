@@ -365,6 +365,34 @@ describe('availability health monitoring', () => {
     expect(recovered.state.facilities[trackA.id].active).toBeNull();
   });
 
+  it('recovers prior known days without requiring unpublished days to become available', () => {
+    const healthyRange = (generatedAt: string) => makeRange([date1, date2], generatedAt, defaultTracks, {
+      [date2]: { [trackA.id]: { status: 'unknown', unknownReason: 'outside_published_period' } },
+    });
+    const initial = evaluateHealth(healthyRange(run1), defaultTracks);
+    const failed = evaluateHealth(makeRange([date1, date2], run2, defaultTracks, {
+      [date1]: { [trackA.id]: { status: 'unknown', unknownReason: 'fetch_failed' } },
+      [date2]: { [trackA.id]: { status: 'unknown', unknownReason: 'fetch_failed' } },
+    }), defaultTracks, initial.state);
+    const recovered = evaluateHealth(healthyRange(run3), defaultTracks, failed.state);
+    expect(recovered.events).toEqual([expect.objectContaining({ kind: 'recovered', trackId: trackA.id })]);
+    expect(recovered.state.facilities[trackA.id].active).toBeNull();
+    expect(recovered.state.facilities[trackA.id].statuses[date2]).toBe('unknown');
+  });
+
+  it('does not substitute a new known date for a lost known affected date', () => {
+    const initial = evaluateHealth([makeDataset(date1, run1)], defaultTracks);
+    const failed = evaluateHealth(makeRange([date1, date2], run2, defaultTracks, {
+      [date1]: { [trackA.id]: { status: 'unknown', unknownReason: 'fetch_failed' } },
+      [date2]: { [trackA.id]: { status: 'unknown', unknownReason: 'fetch_failed' } },
+    }), defaultTracks, initial.state);
+    const next = evaluateHealth(makeRange([date1, date2], run3, defaultTracks, {
+      [date1]: { [trackA.id]: { status: 'unknown', unknownReason: 'outside_published_period' } },
+    }), defaultTracks, failed.state);
+    expect(next.state.facilities[trackA.id].active).not.toBeNull();
+    expect(next.events.some(e => e.trackId === trackA.id && e.kind === 'recovered')).toBe(false);
+  });
+
   it('does not recover an expired finding while every new date remains unknown', () => {
     const failed = evaluateHealth([
       makeDataset('2026-09-01', run1, defaultTracks, {

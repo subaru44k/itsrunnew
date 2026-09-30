@@ -3,7 +3,7 @@ const DEFAULT_RETRY_DELAY_MS = 1_000;
 const DEFAULT_RETRY_AFTER_CAP_MS = 5_000;
 
 /**
- * Options for the monitoring-only fetch wrapper.
+ * Options for the bounded availability collection fetch wrapper.
  *
  * The wrapper is intended for collectAvailabilityRange, whose POST requests
  * are read-only calendar lookups; do not reuse it for mutating POST calls.
@@ -12,8 +12,9 @@ const DEFAULT_RETRY_AFTER_CAP_MS = 5_000;
  */
 export interface MonitorFetchDiagnostic {
   source: string;
-  attempt: number;
-  phase: 'headers' | 'body' | 'http' | 'recovered';
+  attempt?: number;
+  transport?: 'curl';
+  phase: 'headers' | 'body' | 'http' | 'recovered' | 'alternate' | 'alternate_response';
   status?: number;
   errorName?: string;
   errorCode?: string;
@@ -201,7 +202,7 @@ function externalCancellation(externalSignal: AbortSignal | null | undefined) {
 }
 
 /**
- * Create the bounded retry client used by the availability monitor.
+ * Create the bounded retry client used by official availability collection.
  *
  * Each attempt receives a new timeout signal. The caller's signal is carried
  * through for explicit cancellation, except for TimeoutError signals: those
@@ -252,7 +253,7 @@ export function createMonitorFetch(fetchImpl: typeof fetch = fetch, options: Mon
         }
         // Collectors classify TypeError as a fetch failure, whereas a raw
         // TimeoutError would otherwise be mistaken for a parser/source change.
-        if (timedOut) throw new TypeError('Monitoring fetch timed out', { cause: error });
+        if (timedOut) throw new TypeError('Availability source fetch timed out', { cause: error });
         throw error;
       }
 

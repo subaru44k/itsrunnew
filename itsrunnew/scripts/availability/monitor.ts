@@ -2,7 +2,7 @@ import { appendFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promise
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { collectAvailabilityRange } from './range';
-import { createMonitorFetch } from './monitor-fetch';
+import { createMonitorFetch, type MonitorFetchDiagnostic } from './monitor-fetch';
 import { evaluateHealth, evaluatePipeline, renderHealthReport, tokyoDay, validateHealthState, type HealthState } from './health';
 import { validateFreshRange } from './freshness.mjs';
 
@@ -25,6 +25,7 @@ if (previousPath) {
 }
 const output = resolve(argument('--output') ?? await mkdtemp(join(tmpdir(), 'itsrun-availability-monitor-')));
 const input = argument('--input');
+const diagnostics: MonitorFetchDiagnostic[] = [];
 let datasets;
 let manifest;
 if (input) {
@@ -35,7 +36,10 @@ if (input) {
   }));
 } else {
   if (process.env.ITSRUN_REQUIRE_AI_KEY === 'true' && !process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is required for trusted monitoring collection');
-  const result = await collectAvailabilityRange(tokyoDay(now.toISOString()), 31, { now, fetchImpl: createMonitorFetch() });
+  const result = await collectAvailabilityRange(tokyoDay(now.toISOString()), 31, { now, fetchImpl: createMonitorFetch(fetch, { onDiagnostic: diagnostic => {
+    diagnostics.push(diagnostic);
+    console.warn(`Monitoring fetch: ${JSON.stringify(diagnostic)}`);
+  } }) });
   datasets = result.datasets;
   const dates = datasets.map(dataset => dataset.date);
   manifest = { schemaVersion: 1, timezone: 'Asia/Tokyo', generatedAt: now.toISOString(), startDate: dates[0], endDate: dates.at(-1), dates };
@@ -53,6 +57,7 @@ const runUrl = process.env.GITHUB_RUN_ID ? `${process.env.GITHUB_SERVER_URL}/${p
 const report = renderHealthReport(state, events, runUrl);
 await mkdir(output, { recursive: true });
 await writeFile(join(output, 'state.json'), `${JSON.stringify(state, null, 2)}\n`);
+await writeFile(join(output, 'fetch-diagnostics.json'), `${JSON.stringify(diagnostics, null, 2)}\n`);
 await writeFile(join(output, 'events.json'), `${JSON.stringify(events, null, 2)}\n`);
 await writeFile(join(output, 'report.md'), report);
 await writeFile(join(output, 'notification.txt'), report.split('## 施設別の状態')[0]);

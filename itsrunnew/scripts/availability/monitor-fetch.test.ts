@@ -40,6 +40,34 @@ describe('monitor fetch', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 
+  it('records safe failure evidence and retry recovery without request secrets', async () => {
+    const onDiagnostic = vi.fn();
+    const error = new TypeError('secret-token', { cause: { code: 'ENOTFOUND', message: 'private details' } });
+    const fetchImpl = vi.fn().mockRejectedValueOnce(error).mockResolvedValueOnce(new Response('ok'));
+    const pending = createMonitorFetch(fetchImpl as typeof fetch, { retryDelayMs: 0, onDiagnostic })(
+      'https://user:password@example.test/calendar?token=secret-token', { headers: { Authorization: 'secret-header' } },
+    );
+    await vi.advanceTimersByTimeAsync(0);
+    await pending;
+    expect(onDiagnostic.mock.calls.map(([d]) => d)).toEqual([
+      { source: 'https://example.test/calendar', attempt: 1, phase: 'headers', status: undefined, errorName: 'TypeError', errorCode: 'ENOTFOUND' },
+      { source: 'https://example.test/calendar', attempt: 2, phase: 'recovered', status: 200 },
+    ]);
+    expect(JSON.stringify(onDiagnostic.mock.calls)).not.toMatch(/secret|password|private/);
+  });
+
+  it('records persistent HTTP failures separately from network errors', async () => {
+    const onDiagnostic = vi.fn();
+    const fetchImpl = vi.fn().mockImplementation(async () => new Response('busy', { status: 503 }));
+    const pending = createMonitorFetch(fetchImpl as typeof fetch, { retryDelayMs: 0, onDiagnostic })('https://example.test/source');
+    await vi.advanceTimersByTimeAsync(0);
+    await pending;
+    expect(onDiagnostic.mock.calls.map(([d]) => d)).toEqual([
+      { source: 'https://example.test/source', attempt: 1, phase: 'http', status: 503 },
+      { source: 'https://example.test/source', attempt: 2, phase: 'http', status: 503 },
+    ]);
+  });
+
   it('does not retry a non-retryable 404 response', async () => {
     const notFound = new Response('missing', { status: 404 });
     const fetchImpl = vi.fn().mockResolvedValue(notFound);

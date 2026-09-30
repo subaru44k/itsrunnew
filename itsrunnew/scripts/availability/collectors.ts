@@ -509,7 +509,7 @@ export function parseNissanTrack(
 // other collectors while retaining a facility-specific exported name.
 export const parseNissan = parseNissanTrack;
 
-const MACHIDA_PARSER_VERSION = '1.0.0';
+const MACHIDA_PARSER_VERSION = '1.1.0';
 const MACHIDA_COLLECTOR = 'machida-gion-eventorganiser-json';
 const MACHIDA_SCHEDULE_WARNING = '※町田GIONスタジアム（町田市立陸上競技場）等の利用予定は変更する場合がございます。';
 const MACHIDA_TRACK_ID = 'machida-gion-stadium';
@@ -517,11 +517,13 @@ const MACHIDA_TRACK_ID = 'machida-gion-stadium';
 type MachidaEventKind = 'personal' | 'dedicated' | 'break';
 
 interface MachidaIsoDateTime {
+  clock: string;
   dateKey: string;
   timestamp: number;
 }
 
 interface MachidaParsedEvent {
+  allDay: boolean;
   kind: MachidaEventKind;
   start: MachidaIsoDateTime;
   end: MachidaIsoDateTime;
@@ -569,6 +571,7 @@ function parseMachidaIsoDateTime(value: unknown, field: string): MachidaIsoDateT
   const minute = Number(match[5]);
   const second = Number(match[6] ?? '0');
   const millisecond = Number((match[7] ?? '').padEnd(3, '0') || '0');
+  if (second !== 0 || millisecond !== 0 || (match[8] && match[8] !== '+09:00')) throw new Error(`Machida event ${field} is not a minute-aligned Japan-local time`);
   if (hour > 23 || minute > 59 || second > 59) throw new Error(`Machida event ${field} has an invalid time`);
   if (match[8]) {
     const offset = /[+-](\d{2}):(\d{2})/.exec(match[8]);
@@ -579,7 +582,7 @@ function parseMachidaIsoDateTime(value: unknown, field: string): MachidaIsoDateT
   if (Number.isNaN(timestamp) || parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) {
     throw new Error(`Machida event ${field} has an invalid calendar date`);
   }
-  return { dateKey: `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`, timestamp };
+  return { clock: `${match[4]}:${match[5]}`, dateKey: `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`, timestamp };
 }
 
 function normalizeMachidaDigits(text: string) {
@@ -630,13 +633,13 @@ function parseMachidaEvent(value: unknown): MachidaParsedEvent | null {
   if (categoryKinds.length === 0) return null;
   if (categoryKinds.length !== 1) throw new Error(`Machida event ${title} has contradictory categories`);
   const kind = categoryKinds[0];
-  if (event.allDay !== true) throw new Error(`Machida event ${title} is not an all-day event`);
+  if (typeof event.allDay !== 'boolean') throw new Error(`Machida event ${title} has no all-day flag`);
   if (typeof event.description !== 'string') throw new Error(`Machida event ${title} has no description`);
   const description = stripHtml(event.description);
   if (kind === 'personal' && !/スタジアムの個人利用が可能(?:です|となります|になります)?(?=$|[。！、,\s　])/.test(description)) {
     throw new Error('Machida personal event has no explicit stadium-use wording');
   }
-  if (kind === 'dedicated' && !/スタジアムは(?:終日)?専用利用日(?:となります|です)?(?=$|[。！、,\s　])/.test(description)) {
+  if (kind === 'dedicated' && !/スタジアムは(?:終日|下記時間\s*)?(?:専用)?専用利用日(?:となります|です)?(?=$|[。！、,\s　])/.test(description)) {
     throw new Error('Machida dedicated event has no explicit dedicated-use wording');
   }
   if (kind === 'break' && !/スタジアム(?:は)?休場日(?:となります|です)?(?=$|[。！、,\s　])/.test(description)) {
@@ -644,11 +647,20 @@ function parseMachidaEvent(value: unknown): MachidaParsedEvent | null {
   }
   const start = parseMachidaIsoDateTime(event.start, 'start');
   const end = parseMachidaIsoDateTime(event.end, 'end');
-  if (end.timestamp <= start.timestamp || end.dateKey <= start.dateKey) throw new Error(`Machida event ${title} has an invalid end-exclusive range`);
+  if (end.timestamp <= start.timestamp || (event.allDay && end.dateKey <= start.dateKey)) throw new Error(`Machida event ${title} has an invalid end-exclusive range`);
   const ranges = machidaTimeRanges(description);
   if (kind === 'personal' && ranges.length !== 1) throw new Error('Machida personal event must have one explicit time range');
   if (kind !== 'personal' && ranges.length > 1) throw new Error(`Machida ${kind} event has contradictory time ranges`);
-  return { kind, start, end, from: ranges[0]?.from ?? null, to: ranges[0]?.to ?? null };
+  if (event.allDay) {
+    if (start.clock !== '00:00' || end.clock !== '00:00') throw new Error('Machida all-day event has non-midnight bounds');
+  } else {
+    // Timed entries must describe the same single-day interval in both fields.
+    if (start.dateKey !== end.dateKey || ranges.length !== 1
+      || ranges[0].from !== start.clock || ranges[0].to !== end.clock) {
+      throw new Error('Machida timed event disagrees with its explicit time range');
+    }
+  }
+  return { allDay: event.allDay, kind, start, end, from: ranges[0]?.from ?? null, to: ranges[0]?.to ?? null };
 }
 
 function machidaUnknown(context: MachidaParseContext, sourceUrl: string, unknownReason: UnknownReason, warnings: string[] = []) {
@@ -743,7 +755,9 @@ export function parseMachidaGion(
     return machidaUnknown(context, sourceUrl, 'parse_failed', [String(error)]);
   }
 
-  const dateEvents = parsedEvents.filter(event => event.start.dateKey <= requestedDate && requestedDate < event.end.dateKey);
+  const dateEvents = parsedEvents.filter(event => event.allDay
+    ? event.start.dateKey <= requestedDate && requestedDate < event.end.dateKey
+    : event.start.dateKey === requestedDate);
   if (dateEvents.some(event => event.start.dateKey < requestedBounds.start || event.start.dateKey >= requestedBounds.end)) {
     return machidaUnknown(context, sourceUrl, 'parse_failed', ['A relevant event started outside the requested month.']);
   }
@@ -755,13 +769,19 @@ export function parseMachidaGion(
     }
   }
   if (dateEvents.length === 0) return machidaUnknown(context, sourceUrl, 'outside_published_period');
-  if (dateEvents.length !== 1) return machidaUnknown(context, sourceUrl, 'parse_failed', ['Multiple relevant events matched the requested date.']);
-  const event = dateEvents[0];
-  if (event.kind === 'personal') {
-    return machidaRecord(context, sourceUrl, 'partially_available', [publicPeriod(event.from, event.to, 'full_track', ['explicit_personal_use_event'], 'public')]);
+  const periods = dateEvents.sort((a, b) => a.start.timestamp - b.start.timestamp).map(event => {
+    if (event.kind === 'personal') return publicPeriod(event.from, event.to, 'full_track', ['explicit_personal_use_event'], 'public');
+    const conditions = event.kind === 'dedicated' ? ['explicit_dedicated_use_event'] : ['explicit_facility_closure'];
+    return unavailablePeriod(event.from, event.to, conditions);
+  });
+  if (dateEvents.some(event => event.kind === 'personal')) {
+    return machidaRecord(context, sourceUrl, 'partially_available', periods);
   }
-  const conditions = event.kind === 'dedicated' ? ['explicit_dedicated_use_event'] : ['explicit_facility_closure'];
-  return machidaRecord(context, sourceUrl, 'unavailable', [unavailablePeriod(event.from, event.to, conditions)]);
+  // A timed exclusive booking alone says nothing about the rest of the day.
+  if (!dateEvents.some(event => event.allDay)) {
+    return { ...machidaUnknown(context, sourceUrl, 'insufficient_information'), periods };
+  }
+  return machidaRecord(context, sourceUrl, 'unavailable', periods);
 }
 
 export const parseMachidaGionEvents = parseMachidaGion;

@@ -10,7 +10,7 @@
 
 ## 検知と通知
 
-- `fetch_failed`、`parse_failed`、`extraction_failed`、`invalid_content_type`、`source_changed`、`source_stale` は明確な異常として、初回から通知する。監視のHTTP取得では一時的な通信障害・408・429・5xxを1回再試行する。
+- `fetch_failed`、`parse_failed`、`extraction_failed`、`invalid_content_type`、`source_changed`、`source_stale` は明確な異常として、初回から通知する。監視のHTTP取得では一時的な通信障害・408・429・5xxを1回再試行する。取得の失敗段階（headers/body/http）、HTTP status、通信error code、再試行の復旧をActionsログとreport artifact内の `fetch-diagnostics.json` に残す。query・認証情報・応答本文・error messageは含めない。
 - 日付をそろえて、以前に判定できた日がunknownへ変わったか比較する。全判定日を失った場合、または3日以上かつ50%以上を失った場合を減少候補とする。別のJST日にも続いた場合に `coverage_drop` として通知する。同じ日に手動実行を繰り返しても確定しない。異常中も以前判定できた日付を保持する。
 - `unavailable` も「判定できた」に含める。初回から未対応、電話確認、期間外、予定未公開だけの施設は異常にしない。月替わりで範囲から外れた日や、前回存在しなかった未来日を減少に数えない。
 - 原因の組合せ・重要度が変わらない限り、日付・hash・URLの変更だけでは再通知しない。復旧には影響日の既知statusへの回復が必要。影響日がすべて過去になった場合も新しい既知statusが必要で、エラーが予定未公開に変わっただけでは復旧扱いにしない。掲載削除は「監視対象から削除」とし、復旧と区別する。
@@ -25,7 +25,7 @@
 
 メール送信（または変化なし）が成功してからstateを保存し、次回は成功したmonitor runのstateだけを読む。無効化中の全job skip runは飛ばす。過去runがない初回だけ基準なしで開始する。artifactが期限切れ・欠落・取得失敗・不正な場合は、正常として基準をリセットせずjobを失敗させる。成功runの検索上限は100件で、全件skipなら手動復旧を要求する。
 
-`availability-monitor-report` artifact（30日保持）はメール失敗時もreportとeventsを保持する。履歴取得・collector実行・state保存など監視基盤の失敗は、別の失敗メールを試みる。この基盤障害通知は失敗runごとで、施設別の重複抑制とは別扱い。メール送信そのものが失敗した場合は再度同じSMTP送信を試みず、Actionsを失敗にする。`continue-on-error` は使わない。
+`availability-monitor-report` artifact（30日保持）はメール失敗時もreport・events・fetch-diagnosticsを保持する。履歴取得・collector実行・state保存など監視基盤の失敗は、別の失敗メールを試みる。この基盤障害通知は失敗runごとで、施設別の重複抑制とは別扱い。メール送信そのものが失敗した場合は再度同じSMTP送信を試みず、Actionsを失敗にする。`continue-on-error` は使わない。
 
 GitHub Actions全体の停止、監視workflow自体の未起動、Gmailの停止は、このworkflow自身からメール通知できない。Actionsの失敗通知も受け取れる設定にし、厳密な未起動検知が必要になったら別基盤のheartbeat監視を追加する。
 

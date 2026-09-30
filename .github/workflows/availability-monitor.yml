@@ -97,5 +97,6 @@ jobs:
           path: |
             ${{ runner.temp }}/availability-monitor/report.md
             ${{ runner.temp }}/availability-monitor/events.json
+            ${{ runner.temp }}/availability-monitor/fetch-diagnostics.json
           if-no-files-found: warn
           retention-days: 30

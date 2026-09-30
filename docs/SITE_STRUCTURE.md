@@ -289,11 +289,13 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 維新補助のAI collectorは公式告知内の対象月の予定画像を取得し、ファイル名の `hojyoriku`・`hokyoriku`・`hozyoriku` を許容します。2026年9月28日更新の10月画像は `hozyoriku` で公開されています。月と補助競技場のファイル名を照合し、対象外の月や主競技場の画像をAI入力に混ぜません。
 
+町田のEvent Organiser collectorは終日イベントに加え、同日の時間指定イベントを本文の時間枠と照合して採用します。重ならない専用利用と個人利用を併記し、時間指定の専用利用だけでは終日利用不可にしません。2026年9月・10月の公式JSONをfixtureとして検証します。
+
 三郷のPDF collectorは通常の3時間帯の文字判定に加え、PDF.js 6の描画命令から罫線の座標を抽出します。`整備休場中` を含む結合セルが全時間帯を覆い、内部の縦罫線で分割されていないことを確認し、上下端で休場対象日を決め、隣接する通常利用日へ広げません。休場境界を確認できない資料はunknownへ降格します。1日目の行は通常の行間隔の半分で区切り、列見出しの共用利用時間を利用枠と誤認しません。罫線抽出は三郷のみで行い、公式原本の9月・10月PDFをfixtureとして抽出から判定まで回帰検証します。
 
 ### Availability収集状態の監視
 
-`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、監視専用fetchで一時障害を1回再試行、鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。
+`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、監視専用fetchで一時障害を1回再試行し、失敗段階・HTTP status・安全な通信error code・再試行復旧をログと `fetch-diagnostics.json` artifactへ記録します。鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には既知statusへの回復を要求します。Productionの最終成功から30時間超の更新停止も検知します。
 
 `monitor-github.mjs` が前回成功runのstate artifactを復元し、`monitor-email.py` がGmail SMTP over TLSで異常・変化・復旧を1通にまとめます。状態不変時は通知しません。Secretsは送信元・アプリパスワード・宛先の3つで、collectorには渡しません。メール成功後に90日保持のstateを保存し、reportは失敗時も30日保持します。監視基盤の障害は失敗runごとに別メールを試み、SMTP障害はActions失敗にします。Node 24・Poppler・Python 3標準ライブラリ・GitHub CLIを使用します。AI読解は既存deployと同じcacheを復元し、masterの収集stepだけへ既存OPENAI_API_KEYを渡します。欠落時は監視jobを失敗させます。AWS認証、公開データ更新、deploy停止、Issue作成は行いません。設定、再現コマンド、履歴破損時の挙動、監視自体の未起動を検知できない制限は [`AVAILABILITY_MONITORING.md`](AVAILABILITY_MONITORING.md) を参照してください。
 

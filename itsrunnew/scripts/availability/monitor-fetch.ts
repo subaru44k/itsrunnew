@@ -10,7 +10,18 @@ const DEFAULT_RETRY_AFTER_CAP_MS = 5_000;
  * It retries at most once and never retries a request method outside GET,
  * HEAD, and that collector POST shape.
  */
+export interface MonitorFetchDiagnostic {
+  source: string;
+  attempt: number;
+  phase: 'headers' | 'body' | 'http' | 'recovered';
+  status?: number;
+  errorName?: string;
+  errorCode?: string;
+}
+
 export interface MonitorFetchOptions {
+  /** Safe request evidence; excludes query strings, headers, bodies and error messages. */
+  onDiagnostic?: (diagnostic: MonitorFetchDiagnostic) => void;
   /** Timeout applied independently to every attempt. Defaults to 30 seconds. */
   timeoutMs?: number;
   /** Delay before a retry when Retry-After is absent or invalid. */
@@ -28,6 +39,23 @@ interface AttemptSignal {
 
 interface RetryDelayResult {
   ignoredTimeout: boolean;
+}
+
+function diagnosticSource(input: RequestInfo | URL) {
+  try {
+    const url = new URL(input instanceof Request ? input.url : String(input));
+    return `${url.origin}${url.pathname}`;
+  } catch { return 'invalid-source-url'; }
+}
+
+function diagnosticError(error: unknown) {
+  const object = error && typeof error === 'object' ? error as { name?: unknown; code?: unknown; cause?: unknown } : {};
+  const cause = object.cause && typeof object.cause === 'object' ? object.cause as { code?: unknown } : {};
+  const code = cause.code ?? object.code;
+  return {
+    errorName: ['TypeError', 'Error', 'TimeoutError', 'AbortError'].includes(String(object.name)) ? String(object.name) : 'Error',
+    errorCode: typeof code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(code) ? code : undefined,
+  };
 }
 
 function finiteNonNegative(value: number | undefined, fallback: number) {
@@ -206,6 +234,8 @@ export function createMonitorFetch(fetchImpl: typeof fetch = fetch, options: Mon
         // collectors consume text/bytes after fetch resolves its headers.
         await drainResponse(response);
       } catch (error) {
+        options.onDiagnostic?.({ source: diagnosticSource(input), attempt: attemptNumber + 1,
+          phase: response ? 'body' : 'headers', status: response?.status, ...diagnosticError(error) });
         attempt.cleanup();
         if (response) await releaseResponse(response);
 
@@ -228,6 +258,8 @@ export function createMonitorFetch(fetchImpl: typeof fetch = fetch, options: Mon
 
       attempt.cleanup();
       if (!response) throw new Error('Fetch returned no response');
+      if (response.status >= 400) options.onDiagnostic?.({ source: diagnosticSource(input), attempt: attemptNumber + 1, phase: 'http', status: response.status });
+      else if (response.ok && attemptNumber > 0) options.onDiagnostic?.({ source: diagnosticSource(input), attempt: attemptNumber + 1, phase: 'recovered', status: response.status });
       if (attemptNumber === 0 && canRetry && retryableStatus(response.status)) {
         await releaseResponse(response);
         const delay = await waitForRetry(retryAfterMs(response, retryDelayMs, retryAfterCapMs), externalSignal, ignoreExternalTimeout);

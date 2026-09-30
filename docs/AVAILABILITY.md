@@ -115,7 +115,7 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 - 江戸川: 公式指定管理者の7日表について、掲載上の「本日」が取得日の東京日付と一致すること、requested dateが公開7日内であること、3区分headerを検証します。
 - 越谷: トップページの明示日付と「個人利用できます」の時間を検証します。対象日不一致や文言欠落はunknownです。
 - 日産: 共通の公式ページを1回だけ取得し、日産スタジアムと日産フィールド小机の完全一致する施設名、実施日、時間、年情報を検証します。未掲載日や古い年の告知はunknownです。
-- Machida Event Organiser JSON: 対象月のstart/end、イベントtitle・category・説明文・ISO日時を検証し、個人利用の明示時間だけをpartial、専用利用・休場の明示範囲だけをunavailableにします。イベントなし、対象月外、矛盾、重複、形式変更はunknownです。
+- Machida Event Organiser JSON: 対象月のstart/end、イベントtitle・category・説明文・ISO日時を検証し、個人利用の明示時間だけをpartial、専用利用・休場の明示範囲だけをunavailableにします。時間指定イベントは同日内で開始・終了と本文の時間枠が一致する場合だけ採用し、重ならない専用利用と個人利用を同日に表示します。専用利用の時間枠だけでは終日利用不可にせずunknownを保ちます。イベントなし、対象月外、矛盾、重複、形式変更はunknownです。
 - WordPress月次notice: 西京極は補助競技場の施設名と年月、柳島は記事title・年月・明示日時を検証します。記事内の非掲載日や検索結果の欠落を利用不可とは解釈しません。
 - 山城のrolling notice: 固定URLの記事title、公開年、明示日付・時間を検証します。短期掲載範囲外はunknownです。
 - fixed: 共通の曜日・第N曜日rule evaluatorを再利用します。固定開放枠以外をunavailableとせずunknownにし、公式ページの例外注意をwarningへ保持します。

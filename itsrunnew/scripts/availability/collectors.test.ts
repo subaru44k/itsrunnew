@@ -184,6 +184,51 @@ describe('availability collectors', () => {
     });
   });
 
+  it('reads the official September/October calendars including split timed days', () => {
+    expect(parseMachidaGion(fixture('machida-gion-202609.json'), { date: '2026-09-30', now })).toMatchObject({
+      status: 'partially_available', periods: [{ from: '09:00', to: '18:00', status: 'available' }],
+    });
+    const october = fixture('machida-gion-202610.json');
+    expect(parseMachidaGion(october, { date: '2026-10-01', now })).toMatchObject({
+      status: 'partially_available', periods: [{ from: '09:00', to: '17:00', status: 'available' }],
+    });
+    expect(parseMachidaGion(october, { date: '2026-10-09', now })).toMatchObject({
+      status: 'partially_available', periods: [
+        { from: '09:00', to: '11:00', status: 'unavailable' },
+        { from: '12:00', to: '17:00', status: 'available' },
+      ],
+    });
+    expect(parseMachidaGion(october, { date: '2026-10-31', now })).toMatchObject({
+      status: 'partially_available', periods: [
+        { from: '09:00', to: '12:00', status: 'available' },
+        { from: '13:00', to: '17:00', status: 'unavailable' },
+      ],
+    });
+    expect(parseMachidaGion(october, { date: '2026-10-03', now }).status).toBe('unavailable');
+    expect(parseMachidaGion(october, { date: '2026-10-05', now }).status).toBe('unavailable');
+  });
+
+  it('rejects conflicting timed fields/overlaps and keeps a lone booking unknown', () => {
+    const events = JSON.parse(fixture('machida-gion-202610.json')) as Array<Record<string, unknown>>;
+    const personal = events.find(e => e.start === '2026-10-09T12:00:00')!;
+    const dedicated = events.find(e => e.start === '2026-10-09T09:00:00')!;
+    expect(parseMachidaGion([dedicated], { date: '2026-10-09', now })).toMatchObject({
+      status: 'unknown', unknownReason: 'insufficient_information',
+      periods: [{ from: '09:00', to: '11:00', status: 'unavailable' }],
+    });
+    for (const invalid of [
+      { ...personal, end: '2026-10-09T16:00:00' },
+      { ...personal, start: '2026-10-09T12:00:01' },
+      { ...personal, start: '2026-10-09T12:00:00Z' },
+      { ...personal, end: '2026-10-10T17:00:00' },
+      { ...personal, allDay: true },
+      { ...personal, description: '個人利用について確認が必要です。12:00-17:00' },
+    ]) {
+      expect(parseMachidaGion([invalid], { date: '2026-10-09', now })).toMatchObject({ status: 'unknown', unknownReason: 'parse_failed' });
+    }
+    expect(parseMachidaGion([personal, personal], { date: '2026-10-09', now })).toMatchObject({ status: 'unknown', unknownReason: 'parse_failed' });
+  });
+
   it('uses a month-bounded Machida endpoint and represents the facility once', async () => {
     const calls: string[] = [];
     const fetchImpl = (async (input: string | URL | Request) => {

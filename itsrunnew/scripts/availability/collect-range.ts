@@ -1,3 +1,4 @@
+import { execFile } from 'node:child_process';
 import { readdir, mkdir, unlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
@@ -24,6 +25,11 @@ const result = await collectAvailabilityRange(from, days, {
   now,
   fetchImpl: createMonitorFetch(fetch, { onDiagnostic: diagnostic => {
     console.warn(`Availability fetch: ${JSON.stringify(diagnostic)}`);
+    if (process.env.ITSRUN_DIAGNOSE_CURL === 'true' && diagnostic.phase === 'headers' && diagnostic.attempt === 2) {
+      execFile('curl', ['-sS', '--max-time', '15', '-o', '/dev/null', '-w', '%{http_code}', diagnostic.source], { timeout: 16000 }, (error, stdout) => {
+        console.warn(`Availability curl probe: ${JSON.stringify({ source: diagnostic.source, status: stdout.trim(), code: error?.code ?? null })}`);
+      });
+    }
   } }),
 });
 const scriptDirectory = fileURLToPath(new URL('.', import.meta.url));

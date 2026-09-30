@@ -96,6 +96,8 @@ jobs:
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:daily:fixtures
       - name: Verify live daily availability pipeline without deployment
+        env:
+          ITSRUN_DIAGNOSE_CURL: 'true'
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:daily
 
@@ -109,9 +111,13 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 24
+      - run: npm ci
+        working-directory: itsrunnew
       - name: Compare Node and curl source connectivity
+        working-directory: itsrunnew
         run: |
-          node --input-type=module <<'JS'
+          node --import ./node_modules/tsx/dist/loader.mjs --input-type=module <<'JS'
+          import './scripts/availability/range.ts';
           import { lookup } from 'node:dns/promises';
           import { execFile } from 'node:child_process';
           import { promisify } from 'node:util';

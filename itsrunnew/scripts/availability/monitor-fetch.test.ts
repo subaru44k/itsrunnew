@@ -68,6 +68,14 @@ describe('monitor fetch', () => {
     ]);
   });
 
+  it('does not describe an allowlisted manual redirect as a failure', async () => {
+    const onDiagnostic = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(null, { status: 301, headers: { Location: '/new' } }));
+    await createMonitorFetch(fetchImpl as typeof fetch, { onDiagnostic })('https://example.test/source', { redirect: 'manual' });
+    expect(onDiagnostic).not.toHaveBeenCalled();
+    expect(fetchImpl).toHaveBeenCalledOnce();
+  });
+
   it('does not retry a non-retryable 404 response', async () => {
     const notFound = new Response('missing', { status: 404 });
     const fetchImpl = vi.fn().mockResolvedValue(notFound);

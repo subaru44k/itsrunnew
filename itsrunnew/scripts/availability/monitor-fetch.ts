@@ -258,8 +258,8 @@ export function createMonitorFetch(fetchImpl: typeof fetch = fetch, options: Mon
 
       attempt.cleanup();
       if (!response) throw new Error('Fetch returned no response');
-      if (!response.ok) options.onDiagnostic?.({ source: diagnosticSource(input), attempt: attemptNumber + 1, phase: 'http', status: response.status });
-      else if (attemptNumber > 0) options.onDiagnostic?.({ source: diagnosticSource(input), attempt: attemptNumber + 1, phase: 'recovered', status: response.status });
+      if (response.status >= 400) options.onDiagnostic?.({ source: diagnosticSource(input), attempt: attemptNumber + 1, phase: 'http', status: response.status });
+      else if (response.ok && attemptNumber > 0) options.onDiagnostic?.({ source: diagnosticSource(input), attempt: attemptNumber + 1, phase: 'recovered', status: response.status });
       if (attemptNumber === 0 && canRetry && retryableStatus(response.status)) {
         await releaseResponse(response);
         const delay = await waitForRetry(retryAfterMs(response, retryDelayMs, retryAfterCapMs), externalSignal, ignoreExternalTimeout);

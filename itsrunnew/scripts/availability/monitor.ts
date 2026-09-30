@@ -2,7 +2,8 @@ import { appendFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promise
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { collectAvailabilityRange } from './range';
-import { createMonitorFetch, type MonitorFetchDiagnostic } from './monitor-fetch';
+import { type MonitorFetchDiagnostic } from './monitor-fetch';
+import { createSourceFetch } from './source-fetch';
 import { evaluateHealth, evaluatePipeline, renderHealthReport, tokyoDay, validateHealthState, type HealthState } from './health';
 import { validateFreshRange } from './freshness.mjs';
 
@@ -36,7 +37,7 @@ if (input) {
   }));
 } else {
   if (process.env.ITSRUN_REQUIRE_AI_KEY === 'true' && !process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is required for trusted monitoring collection');
-  const result = await collectAvailabilityRange(tokyoDay(now.toISOString()), 31, { now, fetchImpl: createMonitorFetch(fetch, { onDiagnostic: diagnostic => {
+  const result = await collectAvailabilityRange(tokyoDay(now.toISOString()), 31, { now, fetchImpl: createSourceFetch(fetch, { onDiagnostic: diagnostic => {
     diagnostics.push(diagnostic);
     console.warn(`Monitoring fetch: ${JSON.stringify(diagnostic)}`);
   } }) });

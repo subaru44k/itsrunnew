@@ -14,7 +14,7 @@ ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify
 
 ## ローカル実行
 
-Node.js 22.13.0 以上とnpmが必要です。AI資料のPDFを画像化するcollectorにはPopplerの `pdfinfo` / `pdftoppm` が必要です（macOS: `brew install poppler`、Ubuntu: `sudo apt-get install poppler-utils`）。通常のbuildは外部sourceを取得しません。
+Node.js 22.13.0 以上とnpmが必要です。AI資料のPDFを画像化するcollectorにはPopplerの `pdfinfo` / `pdftoppm` が必要です（macOS: `brew install poppler`、Ubuntu: `sudo apt-get install poppler-utils`）。Nodeの接続タイムアウト時に公式資料を代替取得するため、range CLIと監視にはcurlも必要です（macOS・Actions Ubuntuの標準環境に付属）。HTTPS・証明書検証を維持し、curlでも取得できない場合はunknownを保ちます。通常のbuildは外部sourceを取得しません。
 
 ```sh
 npm install

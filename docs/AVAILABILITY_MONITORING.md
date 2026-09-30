@@ -4,13 +4,13 @@
 
 `.github/workflows/availability-monitor.yml` は毎日09:30 JSTと手動実行で、公式sourceの31日分をメモリ内へ収集する。Production/Previewの配備とは独立し、`src/data/availability`、公開ファイル、AWS、domainを変更しない。Productionが停止していても監視を実行できるよう、deploy生成物の再利用ではなく独立収集とする。同一run内のsource cacheは通常collectorと共通。AI 8施設は既存deployと同じActions cacheを再利用し、cache miss時は既存のLuna読解を実行する。masterの収集stepに限って既存の `OPENAI_API_KEY` を渡し、欠落時は全施設の形式変更と誤認せずjobを失敗させる。PDF画像化用Popplerも導入する。通常build/devは従来どおり外部通信しない。
 
-`monitor-fetch.ts` は監視だけで用いる再試行wrapper、`health.ts` は状態比較、`monitor.ts` は収集・検証・出力、`monitor-github.mjs` は前回成功runのartifactとProduction最終成功時刻の取得、`monitor-email.py` はGmailのSMTP over TLSによる通知を担当する。Node 24、Poppler、Python 3標準ライブラリ、GitHub CLI（ActionsのUbuntu runnerに付属）を使う。SMTP認証情報をcollectorへ渡さない。
+`monitor-fetch.ts` はbounded retry wrapper、`source-fetch.ts` はrange CLIと監視で共有する接続タイムアウト時のcurl代替取得、`health.ts` は状態比較、`monitor.ts` は収集・検証・出力、`monitor-github.mjs` は前回成功runのartifactとProduction最終成功時刻の取得、`monitor-email.py` はGmailのSMTP over TLSによる通知を担当する。Node 24、Poppler、Python 3標準ライブラリ、GitHub CLI（ActionsのUbuntu runnerに付属）を使う。SMTP認証情報をcollectorへ渡さない。
 
 このworkflowはmasterだけで実行でき、concurrencyで直列化する。`contents: read` と `actions: read` のみを付与し、Issue作成・AWS認証・Gitへの自動commitは行わない。
 
 ## 検知と通知
 
-- `fetch_failed`、`parse_failed`、`extraction_failed`、`invalid_content_type`、`source_changed`、`source_stale` は明確な異常として、初回から通知する。監視のHTTP取得では一時的な通信障害・408・429・5xxを1回再試行する。取得の失敗段階（headers/body/http）、HTTP status、通信error code、再試行の復旧をActionsログとreport artifact内の `fetch-diagnostics.json` に残す。query・認証情報・応答本文・error messageは含めない。
+- `fetch_failed`、`parse_failed`、`extraction_failed`、`invalid_content_type`、`source_changed`、`source_stale` は明確な異常として、初回から通知する。HTTP取得では一時的な通信障害・408・429・5xxを1回再試行する。Nodeの `UND_ERR_CONNECT_TIMEOUT` だけは同じ公式GET/HEADをcurlで取得する（HTTPS限定・証明書検証有効・20 MB/20秒・redirect 5回）。代替取得も失敗すればunknownを維持する。HTTP errorや証明書error、POSTへ代替取得を適用しない。取得の失敗段階（headers/body/http）、HTTP status、通信error code、再試行の復旧をActionsログとreport artifact内の `fetch-diagnostics.json` に残す。query・認証情報・応答本文・error messageは含めない。
 - 日付をそろえて、以前に判定できた日がunknownへ変わったか比較する。全判定日を失った場合、または3日以上かつ50%以上を失った場合を減少候補とする。別のJST日にも続いた場合に `coverage_drop` として通知する。同じ日に手動実行を繰り返しても確定しない。異常中も以前判定できた日付を保持する。
 - `unavailable` も「判定できた」に含める。初回から未対応、電話確認、期間外、予定未公開だけの施設は異常にしない。月替わりで範囲から外れた日や、前回存在しなかった未来日を減少に数えない。
 - 原因の組合せ・重要度が変わらない限り、日付・hash・URLの変更だけでは再通知しない。復旧には影響日の既知statusへの回復が必要。影響日がすべて過去になった場合も新しい既知statusが必要で、エラーが予定未公開に変わっただけでは復旧扱いにしない。掲載削除は「監視対象から削除」とし、復旧と区別する。

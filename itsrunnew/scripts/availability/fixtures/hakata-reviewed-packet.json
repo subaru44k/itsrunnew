@@ -1,0 +1,80 @@
+{
+  "key": "hakata",
+  "trackId": "hakata-no-mori-auxiliary-athletic-stadium",
+  "name": "博多の森補助競技場（メインは対象外）",
+  "landingPageUrl": "https://www.midorimachi.jp/higashihirao/",
+  "sources": [
+    {
+      "name": "hakata-1",
+      "url": "https://www.midorimachi.jp/higashihirao/",
+      "kind": "text",
+      "content": "",
+      "hash": "b0b1a21b20dff5ca8ab83952b49ac2f09465a293863add7e8c6dc1fe2048d2f5"
+    },
+    {
+      "name": "hakata-2",
+      "url": "https://www.midorimachi.jp/higashihirao/guides/",
+      "kind": "text",
+      "content": "",
+      "hash": "7edfd87f6470e1e0055a6ffb3027a9247de10f2c11594ba58d8e8059683d78ed"
+    },
+    {
+      "name": "hakata-3-page-1.png",
+      "url": "https://www.midorimachi.jp/higashihirao/images/parknews/260512133125820.pdf",
+      "kind": "image",
+      "content": "",
+      "mime": "image/png",
+      "hash": "4f99d6d23db3bed4493512c3ffa00363add1c00519e4439ca7d5b260fc60e762"
+    },
+    {
+      "name": "hakata-3-page-2.png",
+      "url": "https://www.midorimachi.jp/higashihirao/images/parknews/260512133125820.pdf",
+      "kind": "image",
+      "content": "",
+      "mime": "image/png",
+      "hash": "7176a711299e51c669805199ebe9942b53f9bdcf0cbe8817a00eb67723c171c5"
+    },
+    {
+      "name": "hakata-5-page-1.png",
+      "url": "https://www.midorimachi.jp/higashihirao/images/park/261002141825533.pdf",
+      "kind": "image",
+      "content": "",
+      "mime": "image/png",
+      "hash": "b9fb03216295c97bdd0f68f180189dea585b16c9c584d999e7c7501393677f86"
+    }
+  ],
+  "dates": [
+    "2026-10-01",
+    "2026-10-02",
+    "2026-10-03",
+    "2026-10-04",
+    "2026-10-05",
+    "2026-10-06",
+    "2026-10-07",
+    "2026-10-08",
+    "2026-10-09",
+    "2026-10-10",
+    "2026-10-11",
+    "2026-10-12",
+    "2026-10-13",
+    "2026-10-14",
+    "2026-10-15",
+    "2026-10-16",
+    "2026-10-17",
+    "2026-10-18",
+    "2026-10-19",
+    "2026-10-20",
+    "2026-10-21",
+    "2026-10-22",
+    "2026-10-23",
+    "2026-10-24",
+    "2026-10-25",
+    "2026-10-26",
+    "2026-10-27",
+    "2026-10-28",
+    "2026-10-29",
+    "2026-10-30",
+    "2026-10-31",
+    "2026-11-01"
+  ]
+}

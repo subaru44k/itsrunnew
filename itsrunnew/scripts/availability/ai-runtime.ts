@@ -142,15 +142,9 @@ export async function readWithLuna(
   } = {},
 ) {
   const reading = aiReadingConfig(packet.key);
-  const baseInstructions =
+  const instructions =
     options.instructions ??
     (await readFile(new URL('./ai-instructions.txt', import.meta.url), 'utf8'));
-  // A tournament ending before closing time is not a full-day closure.
-  // This facility's official guide and monthly table explicitly reopen after events.
-  const instructions =
-    packet.key === 'hakata'
-      ? `${baseInstructions}\n博多の森補助競技場の個別照合：公式利用方法の『大会終了まで一般開放はいたしません』と予定表の『大会の終了後から』は終日利用不可を意味しない。対象月の一般開放時間と補助競技場欄の大会予定終了時刻を照合し、終了後の開放が明示されている日は閉場までの枠をpartially_availableで返す。大会終了時刻は予定であり実際の終了状況による旨をconditionsに残す。『一般開放はありません』等の個別日の明示的な中止注記があればそちらを優先してunavailableとする。メインや他施設の大会は補助競技場の予定へ混ぜない。`
-      : baseInstructions;
   // Hash semantic input, not acquisition time or volatile HTML markup. Full calendar months keep the key stable across daily horizons.
   const key = digest(
     JSON.stringify({

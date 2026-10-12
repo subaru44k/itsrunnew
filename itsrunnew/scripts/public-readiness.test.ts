@@ -36,7 +36,7 @@ describe('public launch readiness', () => {
   it('exposes an absolute sitemap without alias or date-query duplication', () => {
     expect(robots).toContain('Sitemap: https://itsrun.info/sitemap.xml');
     const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-    expect(locations).toHaveLength(20 + tracks.length * 2);
+    expect(locations).toHaveLength(14 + tracks.length * 2);
     expect(new Set(locations).size).toBe(locations.length);
     expect(locations).toContain('https://itsrun.info/');
     expect(locations).toContain('https://itsrun.info/en/privacy');
@@ -48,6 +48,10 @@ describe('public launch readiness', () => {
     expect(locations).toContain('https://itsrun.info/en/tracks/yoyogi-park-athletic-track');
     expect(locations).not.toContain('https://itsrun.info/oda-field');
     expect(locations).not.toContain('https://itsrun.info/en/oda-field');
+    for (const path of ['yumenoshima', 'komazawa', 'todoroki']) {
+      expect(locations).not.toContain(`https://itsrun.info/${path}`);
+      expect(locations).not.toContain(`https://itsrun.info/en/${path}`);
+    }
     expect(locations).not.toContain('https://itsrun.info/tracks');
     expect(locations.every(location => !location.includes('?'))).toBe(true);
 

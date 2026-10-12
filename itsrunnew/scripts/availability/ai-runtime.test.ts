@@ -262,6 +262,54 @@ describe('AI reading boundary', () => {
       await rm(directory, { recursive: true, force: true });
     }
   });
+  it('includes the official Hakata post-event opening rule in requests and cache identity', async () => {
+    const directory = await mkdtemp(
+      join(tmpdir(), 'itsrun-hakata-instructions-'),
+    );
+    const fetchImpl = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const request = JSON.parse(String(init?.body));
+      expect(request.instructions).toContain(
+        '大会終了まで一般開放はいたしません',
+      );
+      expect(request.instructions).toContain('partially_available');
+      expect(request.instructions).toContain('一般開放はありません');
+      return Response.json({
+        status: 'completed',
+        model: AI_MODEL,
+        reasoning: { effort: 'none' },
+        output: [
+          {
+            content: [
+              {
+                type: 'output_text',
+                text: JSON.stringify({
+                  records: packet.dates.map((date) => ({
+                    ...row(date),
+                    id: `hakata-${date}`,
+                  })),
+                }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+    try {
+      const options = {
+        apiKey: 'test',
+        instructions: 'shared',
+        cacheDirectory: directory,
+        fetchImpl: fetchImpl as typeof fetch,
+      };
+      const selected = { ...packet, key: 'hakata' };
+      const reading = await readWithLuna(selected, options);
+      expect(reading.rows.size).toBe(2);
+      expect((await readWithLuna(selected, options)).cacheHit).toBe(true);
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
   it('does not return incomplete model responses', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'itsrun-ai-test-'));
     try {

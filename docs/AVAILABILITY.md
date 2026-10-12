@@ -132,6 +132,9 @@ cache keyはAI version、model、reasoning、資料・指示などの入力、sc
 
 trusted Preview/Production collectionだけが `ITSRUN_REQUIRE_AI_KEY=true` とrepository secret `OPENAI_API_KEY` を要求します。secretはcollection stepへ渡し、build・smoke・通常のlocal buildには渡しません。AI導入の受入れ基準は、3回のLuna試行でpositive supportが80%超、明示時間帯の一致が70%超です。これは完璧な最新性を保証する基準ではなく、公開UIは当日変更と公式確認の注意を残します。
 
+博多の森補助競技場のAI読解は、公式利用方法・月表に明示された大会終了後の一般開放を個別照合します。大会が閉場前に終了する予定日は終了後の枠を一部利用可能として扱い、実際の大会終了状況による注意を残します。「一般開放はありません」という個別の中止注記は優先します。この施設だけの読解指示はcache keyへ含め、旧指示のcacheを再利用しません。
+
+
 ## normalized schema
 
 トップレベルは `schemaVersion`、対象 `date`、`timezone`、`generatedAt`、Track Dataset全施設（現在133施設）の `facilities` を持ちます。各recordは次を持ちます。

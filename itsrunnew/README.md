@@ -123,3 +123,5 @@ GitHub Actionsの `Availability monitor` は毎日09:30 JSTに取得/解析異�
 workflowには既存の `OPENAI_API_KEY` に加え、このrepositoryだけにインストールしたGitHub Appの `REVERIFICATION_APP_CLIENT_ID` と `REVERIFICATION_APP_PRIVATE_KEY` secrets、およびrepositoryのauto-merge設定が必要です。GitHub Appへはrepository Contents・Pull requestsのwriteだけを付与します。source fingerprintと暦年の保守的なAPI費推計は `automation/facility-reverification-state` branchで保持し、推計$4.80に達した年は新たなAI確認を止めて未処理対象を繰り越します。reportはActions summaryと90日保持のartifactに残します。2026-09-26の133施設試走、検索料の実測と年間見積もりは[初回試走レポート](../research/track-expansion/reverification-initial-trial-2026-09-26.md)を参照してください。
 
 外部APIを使わないローカルの回帰検証は `npm run test:reverification`。APIキーを環境変数へ設定した上で `python3 scripts/reverification/trial.py --output .cache/reverification/new-trial.json` を実行すると、公開データを変更せず133施設を再試走できます。既存のoutputを指定すると完了分は再利用されます。
+
+AI availabilityのcacheは施設ID・全対象日・内容を検証して再利用します。不完全な回答は不足日だけ再読解（1施設最大2回のrequest）し、完全な結果のみ保存します。残る欠落・検証落ちは「公開期間外」ではなく解析失敗としてunknownを維持します。詳細は[AVAILABILITY.md](../docs/AVAILABILITY.md#ai-official-packet-collector)を参照してください。

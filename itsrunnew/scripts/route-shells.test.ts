@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, expect, it } from 'vitest';
+import guides from '../src/data/legacy-facility-guides.json';
+import ja from '../src/locales/ja.json';
+import en from '../src/locales/en.json';
 import pageMetadata from '../src/data/page-metadata.json';
 
 const execFileAsync = promisify(execFile);
@@ -24,6 +27,7 @@ describe('fixed route shells', () => {
         mkdir(join(workspace, 'dist'), { recursive: true }),
       ]);
       await Promise.all([
+        copyFile(join(repositoryRoot, 'src/data/legacy-facility-guides.json'), join(workspace, 'src/data/legacy-facility-guides.json')),
         copyFile(join(repositoryRoot, 'src/data/tracks.json'), join(workspace, 'src/data/tracks.json')),
         copyFile(join(repositoryRoot, 'src/data/page-metadata.json'), join(workspace, 'src/data/page-metadata.json')),
         copyFile(join(repositoryRoot, 'src/locales/ja.json'), join(workspace, 'src/locales/ja.json')),
@@ -47,6 +51,21 @@ describe('fixed route shells', () => {
           expect(html).toContain(`<link rel="alternate" hreflang="ja" href="https://itsrun.info${alternateJa}">`);
           expect(html).toContain(`<link rel="alternate" hreflang="en" href="https://itsrun.info${alternateEn}">`);
           expect(html).toContain(`<link rel="alternate" hreflang="x-default" href="https://itsrun.info${alternateJa}">`);
+        }
+      }
+      for (const [id, guide] of Object.entries(guides)) {
+        for (const locale of ['ja', 'en'] as const) {
+          const prefix = locale === 'en' ? '/en' : '';
+          const html = await readFile(join(workspace, `dist${prefix}/tracks/${id}/index.html`), 'utf8');
+          const copy = (locale === 'en' ? en : ja)[guide.localeKey as 'yume' | 'komazawa' | 'todoroki'];
+          expect(html).toContain('data-legacy-facility');
+          expect(html).toContain(escapeHtml(copy.access_1));
+          if ('tel' in copy) expect(html).toContain(escapeHtml(copy.tel));
+          if ('opinion_1' in copy) {
+            expect(html).toContain(escapeHtml(copy.opinion_1));
+            expect(html).toContain(locale === 'en' ? 'do not describe current availability' : '現在の利用状況や設備・混雑を示すものではありません');
+          }
+          expect(html).toContain(`<link rel="canonical" href="https://itsrun.info${prefix}/tracks/${id}">`);
         }
       }
     } finally {

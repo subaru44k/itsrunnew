@@ -2,12 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://itsrun.info/</loc><changefreq>daily</changefreq></url>
   <url><loc>https://itsrun.info/en/</loc></url>
-  <url><loc>https://itsrun.info/yumenoshima</loc><changefreq>daily</changefreq></url>
-  <url><loc>https://itsrun.info/en/yumenoshima</loc></url>
-  <url><loc>https://itsrun.info/komazawa</loc><changefreq>daily</changefreq></url>
-  <url><loc>https://itsrun.info/en/komazawa</loc></url>
-  <url><loc>https://itsrun.info/todoroki</loc><changefreq>daily</changefreq></url>
-  <url><loc>https://itsrun.info/en/todoroki</loc></url>
   <url><loc>https://itsrun.info/pace/marathon</loc><changefreq>daily</changefreq></url>
   <url><loc>https://itsrun.info/en/pace/marathon</loc></url>
   <url><loc>https://itsrun.info/nozomiantena/index</loc><changefreq>daily</changefreq></url>

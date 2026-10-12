@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const tracks = JSON.parse(await readFile(resolve(root, 'src/data/tracks.json'), 'utf8'));
+const legacyFacilityGuides = JSON.parse(await readFile(resolve(root, 'src/data/legacy-facility-guides.json'), 'utf8'));
 const pageMetadata = JSON.parse(await readFile(resolve(root, 'src/data/page-metadata.json'), 'utf8'));
 const template = await readFile(resolve(root, 'dist/index.html'), 'utf8');
 const localeMessages = {
@@ -33,6 +34,16 @@ function distanceKm(a, b) {
   const value = Math.sin(latitudeDelta / 2) ** 2
     + Math.cos(radians(a.latitude)) * Math.cos(radians(b.latitude)) * Math.sin(longitudeDelta / 2) ** 2;
   return 6371 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+}
+
+function staticLegacyGuide(track, locale) {
+  const guide = legacyFacilityGuides[track.id];
+  if (!guide) return '';
+  const copy = localeMessages[locale][guide.localeKey];
+  const access = [copy.access_1, copy.contact_1, copy.tel].filter(Boolean).map(value => `<p>${escapeHtml(value)}</p>`).join('');
+  const opinions = Object.entries(copy).filter(([key]) => /^opinion_\d+$/.test(key)).map(([, value]) => `<p>${escapeHtml(value)}</p>`).join('');
+  const note = locale === 'en' ? 'These impressions are from the former facility page and do not describe current availability or conditions. Check the latest official information before visiting.' : '以下は旧施設ページの体験談です。現在の利用状況や設備・混雑を示すものではありません。訪問前に最新の公式情報をご確認ください。';
+  return `<section data-legacy-facility><h2>${locale === 'en' ? 'Facility and access' : '施設・アクセス'}</h2><p>${escapeHtml(copy.official_name)}</p>${access}<p><a href="${escapeHtml(`https://www.google.com/maps/search/?api=1&query=${track.location.latitude},${track.location.longitude}`)}">${locale === 'en' ? 'Open map' : '地図を見る'}</a></p></section>${opinions ? `<section><h2>${locale === 'en' ? 'Past runner impressions' : '過去の使用感'}</h2><p>${note}</p>${opinions}</section>` : ''}`;
 }
 
 function staticTrackDetailContent(track, locale) {
@@ -75,7 +86,7 @@ function staticTrackDetailContent(track, locale) {
     .join('');
   const odaOpinionsContent = isOda ? `<section><h2>${opinionsHeading}</h2><p>${opinionNote}</p>${opinions}</section>` : '';
   const nearbyContent = `<section><h2>${heading}</h2><p>${description}</p><ul>${nearbyLinks}</ul><p><a href="${prefix}/">${locale === 'en' ? 'Search all tracks' : 'すべてのトラックを探す'}</a></p></section>`;
-  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${nearbyContent}${odaFacilityContent}${odaOpinionsContent}</main></div>`;
+  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${nearbyContent}${odaFacilityContent}${odaOpinionsContent}${staticLegacyGuide(track, locale)}</main></div>`;
 }
 
 function pageShell({ path, locale, title, description, alternateJa, alternateEn, body }) {

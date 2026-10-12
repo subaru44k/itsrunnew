@@ -1,9 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import i18n from './i18n';
 import { useAppStore } from './store';
-import Yumenoshima from './views/Yumenoshima.vue';
-import Komazawa from './views/Komazawa.vue';
-import Todoroki from './views/Todoroki.vue';
 import About from './views/About.vue';
 import Privacy from './views/Privacy.vue';
 import NotFound from './views/NotFound.vue';
@@ -17,9 +14,6 @@ const SITE_ORIGIN = PUBLIC_SITE_ORIGIN;
 const SOCIAL_IMAGE = `${SITE_ORIGIN}/img/itsrun-og.jpg`;
 
 const pageComponents = {
-  Yumenoshima,
-  Komazawa,
-  Todoroki,
   LapTime: () => import('./views/LapTime.vue'),
   NozomiAntena: () => import('./views/NozomiAntena.vue'),
   RyujiMiura: () => import('./views/RyujiMiura.vue'),
@@ -49,10 +43,17 @@ routes.push(
   { path: '/en/tracks/:trackId', name: 'track-detail-en', component: TrackDetail, meta: { locale: 'en' } },
   { path: '/oda-field', redirect: to => ({ path: `/tracks/${ODA_TRACK_ID}`, query: to.query, hash: to.hash }) },
   { path: '/en/oda-field', redirect: to => ({ path: `/en/tracks/${ODA_TRACK_ID}`, query: to.query, hash: to.hash }) },
+  { path: '/yumenoshima', redirect: to => ({ path: '/tracks/koto-yumenoshima-athletic-stadium', query: to.query, hash: to.hash }) },
+  { path: '/en/yumenoshima', redirect: to => ({ path: '/en/tracks/koto-yumenoshima-athletic-stadium', query: to.query, hash: to.hash }) },
+  { path: '/komazawa', redirect: to => ({ path: '/tracks/komazawa-olympic-park-track', query: to.query, hash: to.hash }) },
+  { path: '/en/komazawa', redirect: to => ({ path: '/en/tracks/komazawa-olympic-park-track', query: to.query, hash: to.hash }) },
+  { path: '/todoroki', redirect: to => ({ path: '/tracks/todoroki-athletic-stadium', query: to.query, hash: to.hash }) },
+  { path: '/en/todoroki', redirect: to => ({ path: '/en/tracks/todoroki-athletic-stadium', query: to.query, hash: to.hash }) },
   { path: '/tracks', redirect: to => ({ path: '/', query: to.query, hash: to.hash }) },
   { path: '/en/tracks', redirect: to => ({ path: '/en/', query: to.query, hash: to.hash }) },
   { path: '/index.html', redirect: '/' },
-  { path: '/komazawa_olympic', redirect: '/komazawa' },
+  { path: '/komazawa_olympic', redirect: to => ({ path: '/tracks/komazawa-olympic-park-track', query: to.query, hash: to.hash }) },
+  { path: '/en/komazawa_olympic', redirect: to => ({ path: '/en/tracks/komazawa-olympic-park-track', query: to.query, hash: to.hash }) },
   { path: '/manage', redirect: '/' },
   { path: '/en/:pathMatch(.*)*', component: NotFound, meta: { locale: 'en', title: 'Page not found - ItsRun', description: 'The requested page could not be found.', canonicalPath: '/en/', alternateJa: '/', alternateEn: '/en/', noindex: true } },
   { path: '/:pathMatch(.*)*', component: NotFound, meta: { locale: 'ja', title: 'ページが見つかりません - いつラン', description: 'お探しのページは見つかりませんでした。', canonicalPath: '/', alternateJa: '/', alternateEn: '/en/', noindex: true } },

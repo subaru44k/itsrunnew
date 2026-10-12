@@ -232,6 +232,34 @@ try {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (overflow > 1) throw new Error(`Horizontal overflow at ${viewport.width}px: ${overflow}px`);
 
+    for (const [group, label, id] of [['東京都の競技場', '夢の島陸上競技場', 'koto-yumenoshima-athletic-stadium'], ['東京都の競技場', '駒沢オリンピック公園陸上競技場', 'komazawa-olympic-park-track'], ['神奈川県の競技場', '等々力陸上競技場', 'todoroki-athletic-stadium']]) {
+      await page.goto(`${baseUrl}/?date=${today}`, { waitUntil: 'domcontentloaded' });
+      if (viewport.width < 800) {
+        await page.getByRole('button', { name: 'メニュー', exact: true }).click();
+        await page.locator('.v-navigation-drawer').getByText(group, { exact: true }).click();
+        await page.locator('.v-navigation-drawer').getByText(label, { exact: true }).click();
+      } else {
+        await page.getByRole('button', { name: group, exact: true }).click();
+        await page.locator('.v-overlay--active').getByText(label, { exact: true }).click();
+      }
+      await page.waitForURL(url => url.pathname === `/tracks/${id}` && url.searchParams.get('date') === today);
+      await page.locator('.legacy-facility-section').waitFor();
+    }
+
+    for (const [legacy, id] of [['yumenoshima', 'koto-yumenoshima-athletic-stadium'], ['komazawa', 'komazawa-olympic-park-track'], ['todoroki', 'todoroki-athletic-stadium'], ['komazawa_olympic', 'komazawa-olympic-park-track']]) {
+      for (const prefix of ['', '/en']) {
+        for (const suffix of ['', '/']) {
+          await page.goto(`${baseUrl}${prefix}/${legacy}${suffix}?date=${today}&tag=a%26b#legacy-section`, { waitUntil: 'domcontentloaded' });
+          await page.waitForURL(url => url.pathname === `${prefix}/tracks/${id}` && url.searchParams.get('date') === today && url.searchParams.get('tag') === 'a&b' && url.hash === '#legacy-section');
+          await page.locator('.legacy-facility-section').waitFor();
+          if (legacy === 'yumenoshima' || legacy === 'todoroki') await page.locator('.legacy-opinions-section .experience-note').waitFor();
+          if (await page.locator('.schedule-table').count()) throw new Error('Legacy schedule survived consolidation');
+          const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+          if (canonical !== `https://itsrun.info${prefix}/tracks/${id}`) throw new Error('Legacy facility canonical is incorrect');
+        }
+      }
+    }
+
     for (const legacyPath of ['/oda-field', '/oda-field/', '/en/oda-field', '/en/oda-field/']) {
       const query = `?date=${today}&tag=a%26b#legacy-section`;
       await page.goto(`${baseUrl}${legacyPath}${query}`, { waitUntil: 'domcontentloaded' });
@@ -279,9 +307,9 @@ try {
     if (marathonOverflow > 1) throw new Error(`Marathon page overflow at ${viewport.width}px: ${marathonOverflow}px`);
 
     for (const [path, heading] of [
-      ['/yumenoshima', '夢の島陸上競技場 開放日'],
-      ['/komazawa', '駒沢オリンピック公園陸上競技場 開放日'],
-      ['/todoroki', '等々力陸上競技場 開放日'],
+      ['/tracks/koto-yumenoshima-athletic-stadium', '江東区夢の島競技場'],
+      ['/tracks/komazawa-olympic-park-track', '駒沢オリンピック公園総合運動場 陸上競技場'],
+      ['/tracks/todoroki-athletic-stadium', 'Uvanceとどろきスタジアム by Fujitsu'],
       ['/nozomiantena/index', '田中希実選手の記録集'],
       ['/ryuji-miura/index', '三浦龍司選手の記録集'],
       ['/en/', 'Find a track near you'],
@@ -293,7 +321,8 @@ try {
       ['/en/privacy', 'Privacy policy'],
     ]) {
       await page.goto(`${baseUrl}${path}`, { waitUntil: 'domcontentloaded' });
-      await page.getByText(heading, { exact: true }).waitFor();
+      if (path.startsWith('/tracks/')) await page.getByRole('heading', { name: heading, exact: true }).waitFor();
+      else await page.getByText(heading, { exact: true }).waitFor();
     }
 
     await page.goto(`${baseUrl}/?date=${today}&lat=35.68124&lng=139.76712`, { waitUntil: 'domcontentloaded' });

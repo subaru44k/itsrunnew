@@ -101,9 +101,9 @@ Production hostingとautomation stackの作成後、次を設定する。
 
 long-lived AWS keyやAWS secretは登録しない。
 
-## 織田フィールド統合の配備
+## 旧施設ページ統合の配備
 
-`/oda-field` と `/en/oda-field` は同じ言語の施設詳細へHTTP 301で転送します。末尾スラッシュにも対応し、queryを保持します。この変更はcontent deployだけでは反映されないため、現行のdomain・certificate ARNを指定したCDK差分でRouteFunctionだけが変更されることを確認してhosting stackを更新します。DNS・証明書・配信元を変更しません。転送先の施設詳細は既に存在するため、edge更新後に検証済みcontentを配備できます。公開後は旧URLのHTTP 301、転送先の本文・canonical・日英導線、旧URLを除いたsitemapを確認します。
+織田（`/oda-field`）、夢の島（`/yumenoshima`）、駒沢（`/komazawa`、`/komazawa_olympic`）、等々力（`/todoroki`）と英語版は同じ言語の施設詳細へHTTP 301で転送します。末尾スラッシュにも対応し、queryを保持します。この変更はcontent deployだけでは反映されないため、現行のdomain・certificate ARNを指定したCDK差分でRouteFunctionだけが変更されることを確認してhosting stackを更新します。DNS・証明書・配信元を変更しません。転送先の施設詳細は既に存在するため、edge更新後に検証済みcontentを配備できます。公開後は旧URLのHTTP 301、転送先の本文・canonical・日英導線、旧URLを除いたsitemapを確認します。
 
 ## 固定ページのcanonical修正の配備
 

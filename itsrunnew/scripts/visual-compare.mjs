@@ -8,9 +8,9 @@ const executablePath = process.env.CHROME_PATH ?? '/Applications/Google Chrome.a
 const adPattern = /googlesyndication|doubleclick|googletagmanager|google-analytics|googleadservices/i;
 const targets = [
   { name: 'oda-field', path: '/tracks/yoyogi-park-athletic-track', readyText: /^織田フィールド（代々木公園陸上競技場）$/ },
-  { name: 'yumenoshima', path: '/yumenoshima', readyText: '夢の島陸上競技場 開放日' },
-  { name: 'komazawa', path: '/komazawa', readyText: '駒沢オリンピック公園陸上競技場 開放日' },
-  { name: 'todoroki', path: '/todoroki', readyText: '等々力陸上競技場 開放日' },
+  { name: 'yumenoshima', path: '/tracks/koto-yumenoshima-athletic-stadium', readyText: '江東区夢の島競技場' },
+  { name: 'komazawa', path: '/tracks/komazawa-olympic-park-track', readyText: '駒沢オリンピック公園総合運動場 陸上競技場' },
+  { name: 'todoroki', path: '/tracks/todoroki-athletic-stadium', readyText: 'Uvanceとどろきスタジアム by Fujitsu' },
   { name: 'marathon', path: '/pace/marathon', readyText: /^(マラソンのラップタイム|マラソンペース表)$/ },
   { name: 'records', path: '/nozomiantena/index', readyText: '田中希実選手の記録集' },
 ];
@@ -37,7 +37,8 @@ try {
         });
         await page.route('**/*', route => adPattern.test(route.request().url()) ? route.abort() : route.continue());
         await page.goto(`${version.baseUrl}${target.path}`, { waitUntil: 'domcontentloaded' });
-        await page.getByText(target.readyText, { exact: true }).waitFor();
+        if (target.path.startsWith('/tracks/')) await page.getByRole('heading', { name: target.readyText, exact: true }).waitFor();
+        else await page.getByText(target.readyText, { exact: true }).waitFor();
         await page.addStyleTag({ content: `
           .adsbygoogle, iframe[id^="google_ads"], [id^="google_ads"] {
             display: none !important;
@@ -104,9 +105,9 @@ for (const measurement of measurements) {
       candidate.viewport === measurement.viewport
     );
     if (!baseline) throw new Error(`Baseline missing for ${measurement.page}/${measurement.viewport}`);
-    // The personal planner intentionally adds content above the legacy table.
-    // Retain overflow/footer checks; its new layout is covered by test:pace.
-    if (measurement.page !== 'marathon' && Math.abs(measurement.documentHeight - baseline.documentHeight) > 100) {
+    // The planner and consolidated facilities intentionally add content.
+    // Retain overflow/footer checks and screenshots for these pages.
+    if (!['marathon', 'yumenoshima', 'komazawa', 'todoroki'].includes(measurement.page) && Math.abs(measurement.documentHeight - baseline.documentHeight) > 100) {
       throw new Error(`Full-page height drift in ${measurement.page}/${measurement.viewport}: old=${baseline.documentHeight}px new=${measurement.documentHeight}px`);
     }
     if (Math.abs(measurement.footer.height - baseline.footer.height) > 1) {

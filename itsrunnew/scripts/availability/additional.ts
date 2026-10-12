@@ -99,7 +99,9 @@ export async function collectAdditionalAvailability(
                 date,
                 unknownReason: row
                   ? 'insufficient_information'
-                  : 'outside_published_period',
+                  : packet.dates.includes(date)
+                    ? 'extraction_failed'
+                    : 'outside_published_period',
                 sourceHash,
                 fetchedAt: now.toISOString(),
                 documentId: result.key,

@@ -5,8 +5,7 @@ const root = process.cwd();
 const tracks = JSON.parse(await readFile(resolve(root, 'src/data/tracks.json'), 'utf8'));
 const origin = 'https://itsrun.info';
 const staticPairs = [
-  ['', ''], ['yumenoshima', 'yumenoshima'],
-  ['komazawa', 'komazawa'], ['todoroki', 'todoroki'], ['pace/marathon', 'pace/marathon'],
+  ['', ''], ['pace/marathon', 'pace/marathon'],
   ['nozomiantena/index', 'nozomiantena/index'], ['ryuji-miura/index', 'ryuji-miura/index'], ['about', 'about'], ['tracks/guide', 'tracks/guide'], ['privacy', 'privacy'],
 ];
 

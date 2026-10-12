@@ -76,6 +76,19 @@ describe('ItsRunProductionStack', () => {
     }
   });
 
+  it('redirects all consolidated facility URLs directly to the language-matched detail', () => {
+    const template = Template.fromStack(new ItsRunProductionStack(new App(), 'LegacyRedirects', { env: environment }));
+    const code = Object.values(template.findResources('AWS::CloudFront::Function')).find(resource => resource.Properties.FunctionCode.includes('function redirect('))!.Properties.FunctionCode;
+    const handler = runInNewContext(`${code}; handler`);
+    const aliases = { yumenoshima: 'koto-yumenoshima-athletic-stadium', komazawa: 'komazawa-olympic-park-track', komazawa_olympic: 'komazawa-olympic-park-track', todoroki: 'todoroki-athletic-stadium' };
+    for (const [path, id] of Object.entries(aliases)) for (const prefix of ['', '/en']) for (const suffix of ['', '/']) {
+      const response = handler({ request: { uri: `${prefix}/${path}${suffix}`, querystring: { date: { value: '2026-10-12' }, tag: { multiValue: [{ value: 'a%26b' }, { value: '%E6%97%A5' }] } } } });
+      expect(response.statusCode).toBe(301);
+      expect(response.headers.location.value).toBe(`${prefix}/tracks/${id}?date=2026-10-12&tag=a%26b&tag=%E6%97%A5`);
+      expect(handler({ request: { uri: `${prefix}/tracks/${id}`, querystring: {} } }).uri).toBe(`${prefix}/tracks/${id}/index.html`);
+    }
+  });
+
   it('rewrites every fixed route to its own shell while keeping the root at index.html', () => {
     const app = new App();
     const template = Template.fromStack(new ItsRunProductionStack(app, 'FixedRouteShells', { env: environment }));

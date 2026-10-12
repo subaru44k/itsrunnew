@@ -86,10 +86,10 @@ const currentYear = new Date().getFullYear();
 const menuGroups = computed(() => [
   { title: t('menu.tokyo'), items: [
     { title: t('menu.oda'), path: `tracks/${ODA_TRACK_ID}` },
-    { title: t('menu.yume'), path: 'yumenoshima' },
-    { title: t('menu.komazawa'), path: 'komazawa' },
+    { title: t('menu.yume'), path: 'tracks/koto-yumenoshima-athletic-stadium' },
+    { title: t('menu.komazawa'), path: 'tracks/komazawa-olympic-park-track' },
   ] },
-  { title: t('menu.kanagawa'), items: [{ title: t('menu.todoroki'), path: 'todoroki' }] },
+  { title: t('menu.kanagawa'), items: [{ title: t('menu.todoroki'), path: 'tracks/todoroki-athletic-stadium' }] },
   { title: t('menu.find'), items: [{ title: t('menu.tracks'), path: '' }] },
   { title: t('menu.laptime'), items: [{ title: t('menu.marathon'), path: 'pace/marathon' }] },
   { title: t('menu.records'), items: [
@@ -105,7 +105,7 @@ function localizedPath(path: string, targetLocale = locale.value) {
 function navigate(path: string) {
   drawer.value = false;
   const routeLocation = { path: localizedPath(path) } as { path: string; query?: typeof route.query };
-  if (path === `tracks/${ODA_TRACK_ID}` && route.query.date) routeLocation.query = { date: route.query.date };
+  if (path.startsWith('tracks/') && route.query.date) routeLocation.query = { date: route.query.date };
   void router.push(routeLocation);
 }
 

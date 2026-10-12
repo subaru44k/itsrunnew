@@ -1,28 +1,4 @@
 {
-  "yumenoshima": {
-    "path": "yumenoshima",
-    "component": "Yumenoshima",
-    "jaTitle": "いつラン - 夢の島陸上競技場を個人利用する人のための利用時間確認ページ",
-    "enTitle": "It's Run - Check the availability of Yumenoshima Athletics Stadium",
-    "jaDescription": "夢の島陸上競技場の開放日・利用可能時間を確認できます。",
-    "enDescription": "The available dates and times at Yumenoshima Athletics Stadium can be checked on this page."
-  },
-  "komazawa": {
-    "path": "komazawa",
-    "component": "Komazawa",
-    "jaTitle": "いつラン - 駒沢オリンピック公園陸上競技場を個人利用する人のための利用時間確認ページ",
-    "enTitle": "It's Run - Check the availability of Komazawa Olympic Park Athletic Stadium",
-    "jaDescription": "駒沢オリンピック公園陸上競技場の開放日・利用可能時間を確認できます。",
-    "enDescription": "The available dates and times at Komazawa Olympic Park Athletic Stadium can be checked on this page."
-  },
-  "todoroki": {
-    "path": "todoroki",
-    "component": "Todoroki",
-    "jaTitle": "いつラン - 等々力陸上競技場を個人利用する人のための利用時間確認ページ",
-    "enTitle": "It's Run - Check the availability of Kawasaki Todoroki Stadium",
-    "jaDescription": "等々力陸上競技場の開放日・利用可能時間を確認できます。",
-    "enDescription": "The available dates and times at Kawasaki Todoroki Stadium can be checked on this page."
-  },
   "marathon": {
     "path": "pace/marathon",
     "component": "LapTime",

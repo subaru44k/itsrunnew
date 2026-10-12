@@ -53,6 +53,7 @@ itsrunnew/
 │   ├── App.vue                共通シェル、メニュー、言語切替、フッター
 │   ├── router.ts              全ルート、SEOメタ情報、言語、ハッシュスクロール
 │   ├── store.ts               Pinia状態、日付生成、情報なしスケジュール、ペース選択
+│   ├── data/legacy-facility-guides.json  統合した旧3施設のlocale keyと地図URL
 │   ├── data/page-metadata.json 固定ページのpath・日英metadata（routerとHTML shellで共有）
 │   ├── data/tracks.json       公式情報で検証済みの公開用Track Dataset
 │   ├── data/nozomi-results.json 田中希実選手の2020年以降の大会結果
@@ -158,7 +159,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 - PCではアプリバー内のドロップダウンメニュー、スマートフォンでは一時表示のナビゲーションドロワー。
 - 東京都の競技場、神奈川県の競技場、ラップタイム、記録集へのメニュー。
-- サイト名と「トラックを探す」はTrack Searchホームへ、東京都メニューの「織田フィールド」は `/tracks/yoyogi-park-athletic-track` の施設詳細へ遷移する。PC・スマホで同じ導線を使用し、ホーム本文にも利用情報への直接リンクを置く。
+- サイト名と「トラックを探す」はTrack Searchホームへ、東京都・神奈川県メニューの織田・夢の島・駒沢・等々力は対応するtrack詳細へ移動する。「織田フィールド」は `/tracks/yoyogi-park-athletic-track` の施設詳細へ遷移する。PC・スマホで同じ導線を使用し、ホーム本文にも利用情報への直接リンクを置く。
 - 日本語と英語を現在のパス・query・hashを維持して切り替えるボタン。
 - 本文先頭に、初回だけ表示されて本文へ重ならないアクセス解析同意バナー。
 - `router-view`で描画される本文。
@@ -177,31 +178,24 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 | `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 施設仕様、指定日availability、公式導線、利用状況と距離でrankingした周辺施設 |
 | `/tracks/guide` | `/en/tracks/guide` | `TrackGuide.vue` | 検索基準地点、利用状況、トラック条件の読み方 |
 | `/oda-field` | `/en/oda-field` | redirect | 同じ言語の `/tracks/yoyogi-park-athletic-track` へ統合。末尾スラッシュにも対応 |
-| `/yumenoshima` | `/en/yumenoshima` | `Yumenoshima.vue` | 夢の島陸上競技場 |
-| `/komazawa` | `/en/komazawa` | `Komazawa.vue` | 駒沢オリンピック公園陸上競技場 |
-| `/todoroki` | `/en/todoroki` | `Todoroki.vue` | 等々力陸上競技場 |
+| `/yumenoshima` | `/en/yumenoshima` | redirect | `/tracks/koto-yumenoshima-athletic-stadium`へ統合 |
+| `/komazawa` | `/en/komazawa` | redirect | `/tracks/komazawa-olympic-park-track`へ統合 |
+| `/todoroki` | `/en/todoroki` | redirect | `/tracks/todoroki-athletic-stadium`へ統合 |
 | `/pace/marathon` | `/en/pace/marathon` | `LapTime.vue` | マラソンのペース表 |
 | `/nozomiantena/index` | `/en/nozomiantena/index` | `NozomiAntena.vue` | 田中希実選手の記録集 |
 | `/ryuji-miura/index` | `/en/ryuji-miura/index` | `RyujiMiura.vue` | 三浦龍司選手の記録集 |
 | `/about` | `/en/about` | `About.vue` | サイト全体のコンテンツ、情報掲載方針、訂正窓口 |
 | `/privacy` | `/en/privacy` | `Privacy.vue` | GA4、現在地、広告、外部サービスの取扱い |
 
-`/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic` → `/komazawa`、削除済み `/manage` → `/` です。織田フィールドの旧URLは末尾スラッシュの有無を問わず、Production CloudFrontで日付などのqueryを保持したHTTP 301を返します。Vue Routerでも同じ転送先へquery・hashを維持します。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。Productionは実HTTP 404、PreviewのSPA fallbackはHTTP 200です。
+`/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic`（日英・末尾スラッシュ対応）→ 同じ言語の `/tracks/komazawa-olympic-park-track`、削除済み `/manage` → `/` です。織田・夢の島・駒沢・等々力の旧日英URLは末尾スラッシュの有無を問わず、Production CloudFrontで日付などのqueryを保持したHTTP 301を返します。Vue Routerでも同じ転送先へquery・hashを維持します。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。Productionは実HTTP 404、PreviewのSPA fallbackはHTTP 200です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英の全固定ページと全施設詳細のHTML shellを生成します。固定ページは共有metadataからcanonical・title・description・hreflang・OGPを設定し、初期HTMLとruntimeの指定をそろえます。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは既知の固定ページと施設詳細をそれぞれのHTML shellへrewriteし、ルート`/`だけを`/index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定14 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英の全固定ページと全施設詳細のHTML shellを生成します。固定ページは共有metadataからcanonical・title・description・hreflang・OGPを設定し、初期HTMLとruntimeの指定をそろえます。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは既知の固定ページと施設詳細をそれぞれのHTML shellへrewriteし、ルート`/`だけを`/index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
 ### 競技場ページ
 
-`Yumenoshima.vue`、`Komazawa.vue`、`Todoroki.vue`は同じ基本構造です。
-
-- ページ説明
-- `AdsDisplay.vue`による広告スロット
-- `Pagination.vue`とPC・スマートフォン別の週間スケジュール表
-- 競技場情報、Google Maps iframe、アクセス、連絡先、説明文
-
-競技場固有の文章は主に `src/locales/ja.json` と `en.json` にあります。
+夢の島・駒沢・等々力も `TrackDetail.vue` に統合しています。旧Viewは削除し、メニュー・sitemapは日英のtrack詳細へ統一します。旧URLはqueryを保持したProduction HTTP 301とVue Routerのquery・hash維持転送です。`legacy-facility-guides.json` のlocale key・Google Maps iframe URLを使い、旧ページのアクセス、夢の島・駒沢の連絡先、夢の島・等々力の使用感を表示します。使用感は過去の体験談であり、現在の利用状況・設備・混雑を保証しない旨を日英で明示します。初期HTMLにもアクセス・連絡先・使用感を含めます。日付別availability、周辺5施設、公式・経路導線は共通機能で、独立した旧週間表やページ固有広告枠はありません。
 
 織田フィールドの正規ページは `/tracks/yoyogi-park-athletic-track` です。共通の `TrackDetail.vue` に、2026年7月1日から11月30日までの利用停止予定と公式案内、アクセス・地図・連絡先、工事前のランナーの使用感を追加します。日付・availability・周辺5施設のrankingは他施設と共通の機能を使い、独立した旧週間表・近隣4施設の計算・ページ固有広告枠は持ちません。12月1日の自動的な再開を前提にしない注意と、使用感が現況ではない旨を保持します。日英の旧URLは転送のみとし、sitemapとサイト内リンクは正規ページへ統一します。日英ホームの初期HTMLにも織田フィールドへの通常のリンクを含め、施設詳細の初期HTMLには固有の案内を含めます。
 
@@ -275,7 +269,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ### 広告
 
-`services/advertising.ts`は `VITE_ADSENSE_ENABLED=true` の場合だけ、全route共通でGoogle AdSenseタグを読み込みます。`AdsDisplay.vue`は共通serviceが準備できた後だけ既存広告枠を初期化します。これによりホームのTrack SearchではGoogle CMPとAdSense Auto adsを利用でき、夢の島・駒沢・等々力・田中希実記録集には従来の明示的な上下広告枠も残ります。織田フィールドにはページ固有の広告枠を置きません。Production workflowはtrue、Preview workflowはfalseです。`ads.txt`とpublisher IDを維持し、AdSense管理画面で`itsrun.info`の確認、欧州規制メッセージ1件、米国州規制メッセージ1件の設定・公開が完了しています。
+`services/advertising.ts`は `VITE_ADSENSE_ENABLED=true` の場合だけ、全route共通でGoogle AdSenseタグを読み込みます。`AdsDisplay.vue`は共通serviceが準備できた後だけ既存広告枠を初期化します。これによりホームのTrack SearchではGoogle CMPとAdSense Auto adsを利用でき、田中希実記録集には従来の明示的な上下広告枠も残ります。織田・夢の島・駒沢・等々力の施設詳細にはページ固有の広告枠を置きません。Production workflowはtrue、Preview workflowはfalseです。`ads.txt`とpublisher IDを維持し、AdSense管理画面で`itsrun.info`の確認、欧州規制メッセージ1件、米国州規制メッセージ1件の設定・公開が完了しています。
 
 `public/service-worker.js`は新しいoffline機能ではなく、旧Firebase/Vue CLI版が利用者のブラウザへ登録したservice workerとCache Storageを除去する移行専用tombstoneです。activate時に旧cacheを削除し、登録解除後に既存windowをnetworkから再読込します。content deployではこのファイルを`no-cache`で配備し、CloudFront invalidationにも明示的に含めます。移行期間中は削除しません。
 
@@ -365,7 +359,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
 | `npm run test:map` | 起動済みの旧版4172・新版4173をPC/スマホで比較し、地図画像・参考初期表示時間・OSM帰属・keyboard操作・日付/言語切替時の再生成なし・tile通信403からの復帰を確認 |
 | `npm run test:pace` | 起動済みPreviewでペース表の計算・設定復元・共有・PNG保存・日英PC/スマホを確認 |
-| `npm run test:visual` | 旧版と新版の全6ページをPC・スマホで全画面撮影・寸法比較 |
+| `npm run test:visual` | 旧版と新版の対象6ページをPC・スマホで全画面撮影・寸法比較（統合施設の構成変更は意図した差分） |
 | `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
 | `npm run monitor:availability` | 独立した実収集・施設別状態比較を一時ディレクトリへ出力（配備・メールなし） |
@@ -398,7 +392,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 正式公開前のSEO、Search Console、GA4、広告停止、Privacy、HTTP redirect/404、運用確認は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照します。
 
-ビジュアル比較は、広告を無効化した旧版が`ITSRUN_OLD_URL`（既定 `http://127.0.0.1:4172`）、新版が`ITSRUN_NEW_URL`（既定 `http://127.0.0.1:4173`）で起動済みであることが前提です。画像は既定で`/tmp/itsrun-visual-comparison`へ出力されます。全画面高の差は100px以内、フッター高の差は1px以内、横方向のはみ出しは1px以内を合格条件としています。ペース表は個人用planner追加による高さの変更を意図しているため全画面高の旧版比較だけ対象外とし、横幅・フッター比較と `test:pace` の新レイアウト検証を行います。
+ビジュアル比較は、広告を無効化した旧版が`ITSRUN_OLD_URL`（既定 `http://127.0.0.1:4172`）、新版が`ITSRUN_NEW_URL`（既定 `http://127.0.0.1:4173`）で起動済みであることが前提です。画像は既定で`/tmp/itsrun-visual-comparison`へ出力されます。全画面高の差は100px以内、フッター高の差は1px以内、横方向のはみ出しは1px以内を合格条件としています。ペース表と統合した夢の島・駒沢・等々力は追加内容による高さの変更を意図しているため全画面高の旧版比較だけ対象外とし、横幅・フッター比較と `test:pace` の新レイアウト検証を行います。
 
 ## 9. 変更時の確認先
 

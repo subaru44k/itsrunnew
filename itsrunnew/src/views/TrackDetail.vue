@@ -111,6 +111,28 @@
           </section>
         </template>
 
+        <template v-if="legacyGuide">
+          <section class="info-section oda-facility-section legacy-facility-section">
+            <h2>{{ isEnglish ? 'Facility and access' : '施設・アクセス' }}</h2>
+            <p class="oda-official-name">{{ legacyText('official_name') }}</p>
+            <div class="oda-map-wrap">
+              <iframe :src="legacyGuide.mapUrl" :title="`${localizedName(track)} ${isEnglish ? 'map' : 'の地図'}`" loading="lazy" allowfullscreen></iframe>
+            </div>
+            <h3>{{ legacyText('access_title') }}</h3>
+            <p>{{ legacyText('access_1') }}</p>
+            <template v-if="legacyGuide.localeKey !== 'todoroki'">
+              <h3>{{ legacyText('contact') }}</h3>
+              <p>{{ legacyText('contact_1') }}</p>
+              <p>{{ legacyText('tel') }}</p>
+            </template>
+          </section>
+          <section v-if="legacyOpinionIndexes.length" class="info-section legacy-opinions-section">
+            <h2>{{ isEnglish ? 'Past runner impressions' : '過去の使用感' }}</h2>
+            <p class="experience-note">{{ isEnglish ? 'These impressions were written for the former facility page. They do not describe current availability or conditions; check the latest official information before visiting.' : '以下は旧施設ページに掲載していた体験談です。現在の利用状況や設備・混雑を示すものではありません。訪問前に最新の公式情報をご確認ください。' }}</p>
+            <p v-for="index in legacyOpinionIndexes" :key="index">{{ legacyText(`opinion_${index}`) }}</p>
+          </section>
+        </template>
+
         <section class="source-section">
           <h2>{{ isEnglish ? 'Official site and directions' : '公式サイト・経路' }}</h2>
           <p>{{ isEnglish ? 'Check the facility rules and directions before visiting.' : '施設の利用条件や行き方を確認できます。' }}</p>
@@ -128,6 +150,7 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import legacyFacilityGuides from '../data/legacy-facility-guides.json';
 import FieldReports from '../components/FieldReports.vue';
 import CanonicalLink from '../components/CanonicalLink.vue';
 import { availabilityDataset, availabilityForTrack, localDateKey, type AvailabilityDataset, type AvailabilityStatus } from '../model/availability';
@@ -143,6 +166,9 @@ const { locale, t } = useI18n();
 const isEnglish = computed(() => locale.value === 'en');
 const track = computed(() => trackById(route.params.trackId));
 const isOda = computed(() => track.value?.id === ODA_TRACK_ID);
+const legacyGuide = computed(() => legacyFacilityGuides[track.value?.id as keyof typeof legacyFacilityGuides]);
+const legacyText = (key: string) => t(`${legacyGuide.value?.localeKey}.${key}`);
+const legacyOpinionIndexes = computed(() => legacyGuide.value?.localeKey === 'yume' ? [1, 2, 3] : legacyGuide.value?.localeKey === 'todoroki' ? [1, 2] : []);
 const today = localDateKey();
 const tomorrow = addDateOnlyDays(today, 1);
 const selectedDate = ref(normalizeSelectedDate(route.query.date, today));
@@ -333,8 +359,8 @@ const odaNoticeUrl = computed(() => track.value?.urls.schedule ?? track.value?.u
 .oda-map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .oda-facility-section h3 { margin: 14px 0 4px; font-size: 17px; }
 .oda-facility-section h3 + p { margin: 0 0 5px; }
-.oda-opinions-section p { margin: 0 0 12px; }
-.oda-opinions-section .experience-note { padding: 10px 12px; color: #5d4037; background: #fff8e1; border-radius: 6px; }
+.oda-opinions-section p,.legacy-opinions-section p { margin: 0 0 12px; }
+.oda-opinions-section .experience-note,.legacy-opinions-section .experience-note { padding: 10px 12px; color: #5d4037; background: #fff8e1; border-radius: 6px; }
 @media(max-width:700px) {
   .track-detail-page { padding: 12px 10px 40px; }
   .detail-hero { padding: 18px; }

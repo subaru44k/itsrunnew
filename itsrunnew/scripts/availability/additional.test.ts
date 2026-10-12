@@ -64,7 +64,7 @@ describe('additional availability integration', () => {
         packet.dates.map((date) => [
           date,
           {
-            id: 'wrong-id-but-valid-date',
+            id: `${packet.key}-${date}`,
             date,
             status: 'partially_available',
             periods: [
@@ -120,6 +120,32 @@ describe('additional availability integration', () => {
       ).toBe('unknown');
     }
   });
+  it('reports rejected requested rows as extraction failures without mislabelling today-only dates', async () => {
+    vi.mocked(readWithLuna).mockResolvedValue({
+      key: 'partial',
+      cacheHit: false,
+      usage: null,
+      rows: new Map(),
+    });
+    const records = await collectAdditionalAvailability(dates, {
+      now,
+      apiKey: 'test',
+      fetchImpl: officialFetch as typeof fetch,
+    });
+    expect(
+      records.find(
+        (record) =>
+          record.trackId === 'hakata-no-mori-auxiliary-athletic-stadium',
+      )?.unknownReason,
+    ).toBe('extraction_failed');
+    expect(
+      records.find(
+        (record) =>
+          record.trackId === 'setagaya-general-sports-track' &&
+          record.date === dates[1],
+      )?.unknownReason,
+    ).toBe('outside_published_period');
+  });
   it('isolates reading failures and does not publish exception text', async () => {
     vi.mocked(readWithLuna).mockRejectedValue(
       new Error('credential-like-private-diagnostic'),
@@ -171,9 +197,9 @@ describe('additional availability integration', () => {
     releases[0]();
     await vi.waitFor(
       () =>
-        expect(vi.mocked(readWithLuna).mock.calls.length).toBeGreaterThanOrEqual(
-          4,
-        ),
+        expect(
+          vi.mocked(readWithLuna).mock.calls.length,
+        ).toBeGreaterThanOrEqual(4),
       { timeout: 5000 },
     );
     releases[1]();

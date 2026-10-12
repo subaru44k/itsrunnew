@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, writeFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it, expect, vi } from 'vitest';
@@ -62,8 +62,9 @@ describe('AI reading boundary', () => {
       validateRows(
         { records: [{ ...row(), id: 'wrong-id' }, row('2026-10-01')] },
         packet.dates,
+        packet.key,
       ).size,
-    ).toBe(1);
+    ).toBe(0);
     expect(validateRows({ records: [row(), row()] }, packet.dates).size).toBe(
       0,
     );
@@ -104,7 +105,9 @@ describe('AI reading boundary', () => {
             content: [
               {
                 type: 'output_text',
-                text: JSON.stringify({ records: [row()] }),
+                text: JSON.stringify({
+                  records: packet.dates.map((date) => row(date)),
+                }),
               },
             ],
           },
@@ -149,7 +152,12 @@ describe('AI reading boundary', () => {
             content: [
               {
                 type: 'output_text',
-                text: JSON.stringify({ records: [row()] }),
+                text: JSON.stringify({
+                  records: packet.dates.map((date) => ({
+                    ...row(date),
+                    id: `${request.input[0].content[0].text.includes('chita-') ? 'chita' : 'todoroki'}-${date}`,
+                  })),
+                }),
               },
             ],
           },
@@ -169,14 +177,87 @@ describe('AI reading boundary', () => {
         ['todoroki', 'medium'],
       ] as const) {
         const selectedPacket = { ...packet, key };
-        expect((await readWithLuna(selectedPacket, options)).cacheHit).toBe(false);
-        expect((await readWithLuna(selectedPacket, options)).cacheHit).toBe(true);
+        expect((await readWithLuna(selectedPacket, options)).cacheHit).toBe(
+          false,
+        );
+        expect((await readWithLuna(selectedPacket, options)).cacheHit).toBe(
+          true,
+        );
         const request = JSON.parse(
           String(fetchImpl.mock.calls.at(-1)?.[1]?.body),
         );
         expect(request.reasoning).toEqual({ effort });
       }
       expect(fetchImpl).toHaveBeenCalledTimes(2);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+  it('repairs missing/invalid dates from fresh and legacy cached readings', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'itsrun-ai-repair-'));
+    const requests: string[][] = [];
+    const fetchImpl = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const request = JSON.parse(String(init?.body));
+      const dates: string[] = JSON.parse(
+        request.input[0].content[0].text.split('対象日:')[1].split('\n')[0],
+      ).map((item: { date: string }) => item.date);
+      requests.push(dates);
+      const records =
+        requests.length === 1
+          ? [row(), { ...row('2026-09-23'), id: 'wrong-id' }]
+          : dates.map((date) => row(date));
+      return Response.json({
+        status: 'completed',
+        model: AI_MODEL,
+        reasoning: { effort: 'none' },
+        output: [
+          {
+            content: [
+              { type: 'output_text', text: JSON.stringify({ records }) },
+            ],
+          },
+        ],
+      });
+    });
+    try {
+      const options = {
+        apiKey: 'test',
+        cacheDirectory: directory,
+        instructions: 'fixed',
+        fetchImpl: fetchImpl as typeof fetch,
+      };
+      const repaired = await readWithLuna(packet, options);
+      expect(requests).toEqual([packet.dates, ['2026-09-23']]);
+      expect(repaired.rows.size).toBe(2);
+      expect((await readWithLuna(packet, options)).cacheHit).toBe(true);
+      const filename = join(directory, `${repaired.key}.json`);
+      const cached = JSON.parse(await readFile(filename, 'utf8'));
+      cached.result.records = [row()];
+      await writeFile(filename, JSON.stringify(cached));
+      requests.length = 0;
+      const restored = await readWithLuna(packet, options);
+      expect(restored.rows.size).toBe(2);
+      expect(requests).toEqual([['2026-09-23'], ['2026-09-23']]);
+      await rm(filename);
+      fetchImpl.mockImplementation(async () =>
+        Response.json({
+          status: 'completed',
+          model: AI_MODEL,
+          reasoning: { effort: 'none' },
+          output: [
+            {
+              content: [
+                {
+                  type: 'output_text',
+                  text: JSON.stringify({ records: [row()] }),
+                },
+              ],
+            },
+          ],
+        }),
+      );
+      expect((await readWithLuna(packet, options)).rows.size).toBe(1);
+      expect(await readdir(directory)).toEqual([]);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

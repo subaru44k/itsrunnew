@@ -72,6 +72,7 @@ const validTime = (value: unknown) =>
 export function validateRows(
   value: unknown,
   dates: string[],
+  facilityKey?: string,
 ): Map<string, AiRow> {
   if (
     !value ||
@@ -90,6 +91,7 @@ export function validateRows(
     if (
       !validDate(date) ||
       typeof row.id !== 'string' ||
+      (facilityKey !== undefined && row.id !== `${facilityKey}-${date}`) ||
       !['available', 'partially_available', 'unavailable', 'unknown'].includes(
         row.status,
       ) ||
@@ -160,87 +162,128 @@ export async function readWithLuna(
       '.cache/availability-ai',
   );
   const filename = resolve(directory, `${key}.json`);
+  let rows = new Map<string, AiRow>();
+  let usage: unknown = null;
   try {
     const cached = JSON.parse(await readFile(filename, 'utf8'));
     if (cached.key === key && cached.version === reading.version) {
-      const rows = validateRows(cached.result, packet.dates);
-      if (rows.size) return { rows, cacheHit: true, key, usage: null };
+      rows = validateRows(cached.result, packet.dates, packet.key);
+      if (rows.size === packet.dates.length)
+        return { rows, cacheHit: true, key, usage: null };
+      console.warn(
+        `AI availability ${packet.key}: incomplete cache; missing or invalid dates=${packet.dates.filter((date) => !rows.has(date)).join(',')}`,
+      );
     }
   } catch {
     /* A missing/corrupt cache is never a source of availability. */
   }
   const apiKey = options.apiKey ?? process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error('AI API key unavailable');
-  const content: Record<string, unknown>[] = [
-    {
-      type: 'input_text',
-      text: `${packet.name}\n対象日:${JSON.stringify(packet.dates.map((date) => ({ id: `${packet.key}-${date}`, date })))}\n保存された公式資料だけを参照。資料にある年月と対象施設を確認する。`,
-    },
-  ];
-  for (const source of packet.sources) {
-    content.push({ type: 'input_text', text: `資料ファイル: ${source.name}` });
-    content.push(
-      source.kind === 'text'
-        ? { type: 'input_text', text: source.content }
-        : {
-            type: 'input_image',
-            image_url: `data:${source.mime ?? 'image/png'};base64,${source.content}`,
-            detail: 'high',
-          },
-    );
+  if (!apiKey) {
+    if (rows.size) return { rows, cacheHit: true, key, usage: null };
+    throw new Error('AI API key unavailable');
   }
-  const response = await (options.fetchImpl ?? fetch)(
-    'https://api.openai.com/v1/responses',
-    {
-      method: 'POST',
-      signal: AbortSignal.timeout(180000),
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+  const requestReading = async (dates: string[]) => {
+    const content: Record<string, unknown>[] = [
+      {
+        type: 'input_text',
+        text: `${packet.name}\n対象日:${JSON.stringify(dates.map((date) => ({ id: `${packet.key}-${date}`, date })))}\n保存された公式資料だけを参照。資料にある年月と対象施設を確認する。`,
       },
-      body: JSON.stringify({
-        model: reading.model,
-        reasoning: { effort: reading.effort },
-        instructions,
-        input: [{ role: 'user', content }],
-        text: {
-          format: {
-            type: 'json_schema',
-            name: 'availability',
-            strict: true,
-            schema,
-          },
+    ];
+    for (const source of packet.sources) {
+      content.push({
+        type: 'input_text',
+        text: `資料ファイル: ${source.name}`,
+      });
+      content.push(
+        source.kind === 'text'
+          ? { type: 'input_text', text: source.content }
+          : {
+              type: 'input_image',
+              image_url: `data:${source.mime ?? 'image/png'};base64,${source.content}`,
+              detail: 'high',
+            },
+      );
+    }
+    const response = await (options.fetchImpl ?? fetch)(
+      'https://api.openai.com/v1/responses',
+      {
+        method: 'POST',
+        signal: AbortSignal.timeout(180000),
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
         },
-        max_output_tokens: 32000,
-        store: false,
-      }),
-    },
-  );
-  // Never publish/log response bodies or thrown request headers (credentials).
-  if (!response.ok)
-    throw new Error(`AI request failed (HTTP ${response.status})`);
-  const body = await response.json();
-  if (
-    body.status !== 'completed' ||
-    body.model !== reading.model ||
-    body.reasoning?.effort !== reading.effort
-  )
-    throw new Error('AI response incomplete or model mismatch');
-  const text = (body.output ?? [])
-    .flatMap(
-      (o: { content?: { type: string; text?: string }[] }) => o.content ?? [],
+        body: JSON.stringify({
+          model: reading.model,
+          reasoning: { effort: reading.effort },
+          instructions,
+          input: [{ role: 'user', content }],
+          text: {
+            format: {
+              type: 'json_schema',
+              name: 'availability',
+              strict: true,
+              schema,
+            },
+          },
+          max_output_tokens: 32000,
+          store: false,
+        }),
+      },
+    );
+    // Never publish/log response bodies or thrown request headers (credentials).
+    if (!response.ok)
+      throw new Error(`AI request failed (HTTP ${response.status})`);
+    const body = await response.json();
+    if (
+      body.status !== 'completed' ||
+      body.model !== reading.model ||
+      body.reasoning?.effort !== reading.effort
     )
-    .filter((c: { type: string }) => c.type === 'output_text')
-    .map((c: { text: string }) => c.text)
-    .join('');
-  let result: unknown;
-  try {
-    result = JSON.parse(text);
-  } catch {
-    throw new Error('AI output JSON invalid');
+      throw new Error('AI response incomplete or model mismatch');
+    const text = (body.output ?? [])
+      .flatMap(
+        (o: { content?: { type: string; text?: string }[] }) => o.content ?? [],
+      )
+      .filter((c: { type: string }) => c.type === 'output_text')
+      .map((c: { text: string }) => c.text)
+      .join('');
+    let result: unknown;
+    try {
+      result = JSON.parse(text);
+    } catch {
+      throw new Error('AI output JSON invalid');
+    }
+    usage = body.usage;
+    return validateRows(result, dates, packet.key);
+  };
+  // Retry only missing/invalid records once. Explicit unknowns are valid answers.
+  // Preserve validated dates, but never persist a partial reading.
+  for (
+    let attempt = 0;
+    attempt < 2 && rows.size < packet.dates.length;
+    attempt++
+  ) {
+    const missing = packet.dates.filter((date) => !rows.has(date));
+    try {
+      const received = await requestReading(missing);
+      for (const [date, row] of received) rows.set(date, row);
+    } catch (error) {
+      if (!rows.size) throw error;
+      console.warn(
+        `AI availability ${packet.key}: repair request failed; retaining validated dates`,
+      );
+      break;
+    }
+    if (rows.size < packet.dates.length)
+      console.warn(
+        `AI availability ${packet.key}: missing or invalid dates=${packet.dates.filter((date) => !rows.has(date)).join(',')}`,
+      );
   }
-  const rows = validateRows(result, packet.dates);
   if (!rows.size) throw new Error('AI output has no valid requested dates');
+  if (rows.size < packet.dates.length)
+    return { rows, cacheHit: false, key, usage };
+  const result = { records: packet.dates.map((date) => rows.get(date)!) };
   await mkdir(directory, { recursive: true });
   const temporary = `${filename}.${randomUUID()}.tmp`;
   await writeFile(
@@ -251,10 +294,10 @@ export async function readWithLuna(
       model: reading.model,
       createdAt: new Date().toISOString(),
       result,
-      usage: body.usage,
+      usage,
     }),
     { mode: 0o600 },
   );
   await rename(temporary, filename);
-  return { rows, cacheHit: false, key, usage: body.usage };
+  return { rows, cacheHit: false, key, usage };
 }

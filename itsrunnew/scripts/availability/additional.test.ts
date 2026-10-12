@@ -133,10 +133,8 @@ describe('additional availability integration', () => {
       fetchImpl: officialFetch as typeof fetch,
     });
     expect(
-      records.find(
-        (record) =>
-          record.trackId === 'hakata-no-mori-auxiliary-athletic-stadium',
-      )?.unknownReason,
+      records.find((record) => record.trackId === 'todoroki-athletic-stadium')
+        ?.unknownReason,
     ).toBe('extraction_failed');
     expect(
       records.find(
@@ -206,7 +204,7 @@ describe('additional availability integration', () => {
     releases[2]();
     const records = await collecting;
     expect(peak).toBe(3);
-    expect(readWithLuna).toHaveBeenCalledTimes(aiFacilities.length);
+    expect(readWithLuna).toHaveBeenCalledTimes(aiFacilities.length - 1);
     expect(
       records
         .slice(0, dates.length * aiFacilities.length)

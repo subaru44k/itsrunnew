@@ -4,6 +4,7 @@ import { aiFacilities, buildAiPacket } from './ai-sources';
 import { aiReadingConfig, digest, readWithLuna } from './ai-runtime';
 import { officialFetch, htmlText, decodeEntities } from './ai-source-utils';
 import { parsePersonalIcs } from './personal-ics';
+import { reviewedHakataReading } from './reviewed-hakata';
 
 export const personalCalendarFacilities = [
   {
@@ -49,10 +50,17 @@ export async function collectAdditionalAvailability(
       url: config.landing,
       landingPageUrl: config.landing,
       publicationFormat: 'structured_html' as const,
-      collector: reading.collector,
-      parserVersion: reading.version,
+      collector:
+        config.key === 'hakata'
+          ? 'reviewed-official-hakata'
+          : reading.collector,
+      parserVersion:
+        config.key === 'hakata' ? 'reviewed-hakata-202610-v1' : reading.version,
     };
-    const unavailable = (error: unknown) => {
+    const unavailable = (
+      error: unknown,
+      reason: 'extraction_failed' | 'source_changed' = 'extraction_failed',
+    ) => {
       // Deliberately fixed public warning; API/request internals never enter the website.
       console.warn(
         `AI availability ${config.key}: unavailable (${error instanceof Error && /^AI |^Official |^Too many |^.*not found$/.test(error.message) ? error.message : 'source or reading failed'})`,
@@ -61,7 +69,7 @@ export async function collectAdditionalAvailability(
         unknownRecord({
           ...base,
           date,
-          unknownReason: 'extraction_failed',
+          unknownReason: reason,
           warnings: [
             '公式資料から利用時間を確認できませんでした。公式情報をご確認ください。',
           ],
@@ -80,14 +88,22 @@ export async function collectAdditionalAvailability(
       await Promise.race(activeReadings);
     const task = (async (): Promise<TrackAvailability[]> => {
       try {
-        const result = await readWithLuna(packet, {
-          apiKey: options.apiKey,
-          fetchImpl: options.apiFetchImpl,
-          cacheDirectory: options.cacheDirectory,
-        });
+        const reviewed = reviewedHakataReading(packet);
+        if (config.key === 'hakata' && !reviewed)
+          return unavailable(
+            new Error('Hakata official schedule requires review'),
+            'source_changed',
+          );
+        const result =
+          reviewed ??
+          (await readWithLuna(packet, {
+            apiKey: options.apiKey,
+            fetchImpl: options.apiFetchImpl,
+            cacheDirectory: options.cacheDirectory,
+          }));
         const sourceHash = `sha256:${digest(JSON.stringify(packet.sources.map((s) => ({ url: s.url, hash: s.hash }))))}`;
         console.log(
-          `AI availability ${config.key}: ${result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
+          `AI availability ${config.key}: ${result.key.startsWith('reviewed-hakata-') ? 'reviewed official schedule' : result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
         );
         const facilityRecords: TrackAvailability[] = [];
         for (const date of dates) {
@@ -98,7 +114,10 @@ export async function collectAdditionalAvailability(
                 ...base,
                 date,
                 unknownReason: row
-                  ? 'insufficient_information'
+                  ? reviewed &&
+                    row.unknown_reason === 'outside_published_period'
+                    ? 'outside_published_period'
+                    : 'insufficient_information'
                   : packet.dates.includes(date)
                     ? 'extraction_failed'
                     : 'outside_published_period',

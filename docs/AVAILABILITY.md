@@ -132,7 +132,7 @@ cache keyはAI version、model、reasoning、資料・指示などの入力、sc
 
 trusted Preview/Production collectionだけが `ITSRUN_REQUIRE_AI_KEY=true` とrepository secret `OPENAI_API_KEY` を要求します。secretはcollection stepへ渡し、build・smoke・通常のlocal buildには渡しません。AI導入の受入れ基準は、3回のLuna試行でpositive supportが80%超、明示時間帯の一致が70%超です。これは完璧な最新性を保証する基準ではなく、公開UIは当日変更と公式確認の注意を残します。
 
-博多の森補助競技場のAI読解は、公式利用方法・月表に明示された大会終了後の一般開放を個別照合します。大会が閉場前に終了する予定日は終了後の枠を一部利用可能として扱い、実際の大会終了状況による注意を残します。「一般開放はありません」という個別の中止注記は優先します。この施設だけの読解指示はcache keyへ含め、旧指示のcacheを再利用しません。
+博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。取得した公式packet全資料のhashが確認済みhashと一致した場合だけ採用し、翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
 
 
 ## normalized schema

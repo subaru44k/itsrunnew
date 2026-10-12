@@ -125,3 +125,5 @@ workflowには既存の `OPENAI_API_KEY` に加え、このrepositoryだけに�
 外部APIを使わないローカルの回帰検証は `npm run test:reverification`。APIキーを環境変数へ設定した上で `python3 scripts/reverification/trial.py --output .cache/reverification/new-trial.json` を実行すると、公開データを変更せず133施設を再試走できます。既存のoutputを指定すると完了分は再利用されます。
 
 AI availabilityのcacheは施設ID・全対象日・内容を検証して再利用します。不完全な回答は不足日だけ再読解（1施設最大2回のrequest）し、完全な結果のみ保存します。残る欠落・検証落ちは「公開期間外」ではなく解析失敗としてunknownを維持します。詳細は[AVAILABILITY.md](../docs/AVAILABILITY.md#ai-official-packet-collector)を参照してください。
+
+博多の森補助競技場は現在、資料hashで照合する確認済み2026年10月日程を使用します。資料変更時は要確認へ落とし、[確認資料](scripts/availability/fixtures/hakata-reviewed-provenance.md)に従って新しい月表をレビューします。

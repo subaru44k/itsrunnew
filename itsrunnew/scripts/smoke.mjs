@@ -1,5 +1,6 @@
 import { chromium } from 'playwright-core';
 import { readFileSync } from 'node:fs';
+import { verifyFacilitySchedules } from './facility-schedule-smoke.mjs';
 
 const baseUrl = process.env.ITSRUN_BASE_URL ?? 'http://127.0.0.1:4173';
 const executablePath = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -276,7 +277,7 @@ try {
     await page.goto(`${baseUrl}/tracks/${odaTrack.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { name: '織田フィールド（代々木公園陸上競技場）', exact: true }).waitFor();
     await page.getByRole('heading', { name: '2026年11月30日まで利用停止予定', exact: true }).waitFor();
-    await page.getByRole('heading', { name: odaStatus === 'unavailable' ? 'この日の代替候補' : 'この日の周辺トラック', exact: true }).waitFor();
+    await page.getByRole('heading', { name: odaStatus === 'unavailable' ? 'この日の代替候補' : odaStatus === 'unknown' ? '利用可否が不明な日の近隣候補' : '近隣施設を比較する', exact: true }).waitFor();
     if (await page.locator('.related-section .alternative-link').count() !== 5) throw new Error('Oda Field did not use the shared five-item ranked alternatives');
     await page.getByText('平常時の使用感（工事前）', { exact: true }).waitFor();
     await page.getByText('原宿駅から徒歩圏内にある競技場。非常に立地がよく、火水金土と21時まで利用可能で、利用料金も無料ということで、該当日の19時以降は仕事帰りの社会人や大学生でごった返す。', { exact: true }).waitFor();
@@ -519,9 +520,10 @@ try {
     if (!canonicalStatus) throw new Error('No valid availability representative is available for canonical detail smoke testing');
     const canonicalRepresentative = representativeTracks[canonicalStatus];
     await page.goto(`${baseUrl}/tracks/${canonicalRepresentative.id}`, { waitUntil: 'domcontentloaded' });
+    await page.locator('.date-panel summary').click();
     await page.getByRole('heading', { name: statusLabels[canonicalStatus], exact: true }).waitFor();
     if (new URL(page.url()).searchParams.has('date')) throw new Error('Track detail without date unexpectedly added a date query');
-    if (await page.getByLabel('日付を選ぶ').inputValue() !== today) throw new Error('Track detail without date did not default to today');
+    if (await page.getByLabel('別の日付を選ぶ').inputValue() !== today) throw new Error('Track detail without date did not default to today');
     if ((await page.locator('link[rel="canonical"]').getAttribute('href')) !== `https://itsrun.info/tracks/${canonicalRepresentative.id}`) throw new Error('Track detail canonical unexpectedly includes a date query');
 
     for (const status of availabilityStatuses) {
@@ -532,7 +534,7 @@ try {
       }
       await page.goto(`${baseUrl}/tracks/${representative.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
       await page.getByRole('heading', { name: statusLabels[status], exact: true }).waitFor();
-      await page.getByRole('heading', { name: status === 'unavailable' ? 'この日の代替候補' : 'この日の周辺トラック', exact: true }).waitFor();
+      await page.getByRole('heading', { name: status === 'unavailable' ? 'この日の代替候補' : status === 'unknown' ? '利用可否が不明な日の近隣候補' : '近隣施設を比較する', exact: true }).waitFor();
       const officialSchedule = page.locator('.availability-panel .schedule-action');
       if (await officialSchedule.count() !== 1 || !(await officialSchedule.getAttribute('href'))?.startsWith('https://')) throw new Error(`${status} detail does not show an official schedule link next to availability`);
       if (await page.locator('.source-section .schedule-action').count() !== 0) throw new Error(`${status} detail still places the schedule action below facility information`);
@@ -572,8 +574,8 @@ try {
       await page.goto(`${baseUrl}/en/tracks/${englishRepresentative.id}?date=${today}`, { waitUntil: 'domcontentloaded' });
       await page.locator(`.availability-panel.${englishAvailabilityClass}`).waitFor();
       await page.getByRole('heading', { name: englishStatusLabels[englishStatus], exact: true }).waitFor();
-      await page.getByRole('heading', { name: englishStatus === 'unavailable' ? 'Nearby alternatives for this date' : 'Nearby tracks for this date', exact: true }).waitFor();
-      await page.locator('.availability-panel').getByRole('link', { name: 'View latest schedule on official site', exact: true }).waitFor();
+      await page.getByRole('heading', { name: englishStatus === 'unavailable' ? 'Nearby alternatives for this date' : englishStatus === 'unknown' ? 'Nearby options while availability is unconfirmed' : 'Compare nearby tracks', exact: true }).waitFor();
+      await page.locator('.availability-panel').getByRole('link', { name: 'Official schedule / contact information', exact: true }).waitFor();
       await page.locator('.availability-panel').getByRole('link', { name: 'View this track and nearby tracks on map', exact: true }).waitFor();
       const englishUrgent = await page.locator('.related-section').evaluate(element => element.classList.contains('related-section--urgent'));
       if (englishUrgent !== (englishStatus === 'unavailable')) throw new Error(`English ${englishStatus} detail alternative emphasis is incorrect`);
@@ -619,16 +621,17 @@ try {
       if (prefix) await detailLink.press('Enter');
       else await detailLink.click();
       await page.waitForURL(url => url.pathname === href && url.searchParams.get('date') === tomorrow && url.searchParams.get('lat') === '35.8414' && url.searchParams.get('lng') === '139.8626');
-      await page.locator('.date-panel input[type="date"]').waitFor();
-      if (await page.locator('.date-panel input').inputValue() !== tomorrow) throw new Error('Facility navigation lost selected date');
+      await page.locator('.date-picker input[type="date"]').waitFor();
+      if (await page.locator('.date-picker input').inputValue() !== tomorrow) throw new Error('Facility navigation lost selected date');
       // Address-bar sharing/reloading retains the context.
       await page.reload({ waitUntil: 'domcontentloaded' });
-      await page.locator('.date-panel input[type="date"]').waitFor();
-      if (await page.locator('.date-panel input').inputValue() !== tomorrow) throw new Error('Shared facility URL lost selected date');
+      await page.locator('.date-picker input[type="date"]').waitFor();
+      if (await page.locator('.date-picker input').inputValue() !== tomorrow) throw new Error('Shared facility URL lost selected date');
       await page.locator('.related-section[data-availability-loaded="true"]').waitFor();
       const alternative = page.locator('.alternative-link').first();
       const alternativeHref = await alternative.getAttribute('href');
       if (!alternativeHref || alternativeHref.includes('?')) throw new Error('Alternative href is not canonical');
+      if (!(await page.locator('.related-section').evaluate(element => element.open))) await page.locator('.related-section summary').click();
       await alternative.click();
       await page.waitForURL(url => url.pathname === alternativeHref && url.searchParams.get('date') === tomorrow);
       await page.locator('.breadcrumbs a').click();
@@ -656,6 +659,7 @@ try {
       await page.getByRole('button', { name: '解析に同意する', exact: true }).click();
       await analyticsRequest;
     }
+    await verifyFacilitySchedules(page, baseUrl, trackDataset);
     await page.close();
   }
 

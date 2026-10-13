@@ -94,8 +94,15 @@ export function evaluateHealth(datasets: AvailabilityDataset[], tracks: Array<{ 
     // after expiry). Losing baseline dates and all-unknown data still block recovery.
     const oldAffected = old?.active?.affectedDates.filter(date => dates.includes(date)) ?? [];
     const knownAffected = oldAffected.filter(date => baseline.includes(date));
-    const provenRecovery = knownAffected.length ? knownAffected.every(date => known.includes(date))
+    const knownDateRecovery = knownAffected.length ? knownAffected.every(date => known.includes(date))
       : oldAffected.length ? oldAffected.some(date => known.includes(date)) : known.length > 0;
+    // A resolved transport/parser failure may yield a legitimately uncertain day
+    // with concrete known slots. This is evidence of collection recovery, not
+    // evidence that lost daily coverage recovered. Never accept empty unknowns.
+    const parsedSlotRecovery = Boolean(old?.active && old.active.causes.every(cause => hardReasons.has(cause)) && !failures.length && records.some(record =>
+      oldAffected.includes(record.date) && record.status === 'unknown' && record.unknownReason === 'insufficient_information' &&
+      record.freshness.fetchedAt && Date.parse(record.freshness.fetchedAt) > Date.parse(previous!.generatedAt) && Date.parse(record.freshness.fetchedAt) <= Date.parse(now) && /^sha256:[a-f0-9]{64}$/.test(record.evidence.sourceHash ?? '') && record.periods.some(p => p.status !== 'unknown' && p.from && p.to && p.from < p.to)));
+    const provenRecovery = knownDateRecovery || parsedSlotRecovery;
     if (!active && old?.active && (!provenRecovery || loss)) active = old.active;
     const healthy = !active && !loss && known.length > 0;
     const reasons: Record<string, number> = {};

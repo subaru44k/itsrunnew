@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
+import { dirname, join, sep } from 'node:path';
+import { reviewedNerimaPdf, nerimaReviewedPdfHash, nerimaGuideUrl, nerimaReviewedGuideHash } from './nerima-reviewed';
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { AvailabilityPeriod, AvailabilityStatus, UnknownReason } from '../../src/model/availability';
 
@@ -57,6 +60,7 @@ export class PdfCollectorError extends Error {
 const normalize = (value: string) => value.normalize('NFKC').replace(/[\u00a0\s]+/g, ' ').trim();
 const compact = (value: string) => normalize(value).replace(/\s/g, '');
 const sha256 = (value: Uint8Array) => `sha256:${createHash('sha256').update(value).digest('hex')}`;
+const pdfJsRoot = dirname(createRequire(import.meta.url).resolve('pdfjs-dist/package.json'));
 const fullDayScope = 'full_track' as const;
 const publicEligibility = 'public' as const;
 
@@ -181,7 +185,7 @@ function rectangularRules(operators: { fnArray: number[]; argsArray: unknown[][]
 
 export async function extractPdf(bytes: Uint8Array, options: { tableRules?: boolean } = {}): Promise<ExtractedPdf> {
   try {
-    const task = getDocument({ data: bytes, useWorkerFetch: false, useSystemFonts: true });
+    const task = getDocument({ data: bytes, useWorkerFetch: false, useSystemFonts: true, cMapUrl: join(pdfJsRoot, 'cmaps') + sep, cMapPacked: true, standardFontDataUrl: join(pdfJsRoot, 'standard_fonts') + sep, wasmUrl: join(pdfJsRoot, 'wasm') + sep });
     const document = await task.promise;
     const items: PdfTextItem[] = [];
     const horizontalRules: NonNullable<ExtractedPdf['horizontalRules']> = [];
@@ -651,7 +655,7 @@ export function parseBingoSportsParkPdf(pdf: ExtractedPdf, date: string): PdfPar
 }
 
 export const pdfSourceConfigs: PdfSourceConfig[] = [
-  { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.0.0' },
+  { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.1.0' },
   { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.0.0' },
   { trackId: 'fuchu-citizen-athletic-track', name: '府中市民陸上競技場', landingPageUrl: 'https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html', discovery: 'annual_pdf_discovery', parser: 'fuchu-vector-calendar-guard', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.0.0' },
@@ -798,7 +802,15 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
       const extractionKey = `${sourceHash}:${tableRules}`;
       if (!extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));
       const extracted = await extractedBySource.get(extractionKey)!;
-      const result = parserFor(config, extracted, date);
+      let result: PdfParseResult;
+      if (config.trackId === 'nerima-general-sports-park' && sourceHash === nerimaReviewedPdfHash) {
+        const guide = await client.pdf(nerimaGuideUrl);
+        if (sha256(guide.bytes) !== nerimaReviewedGuideHash)
+          throw new PdfCollectorError('source_changed', 'Nerima image legend changed; review required', nerimaGuideUrl);
+        result = reviewedNerimaPdf(sourceHash, date)!;
+      } else {
+        result = parserFor(config, extracted, date);
+      }
       return {
         ...result,
         pdfUrl: source.finalUrl,

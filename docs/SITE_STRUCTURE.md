@@ -297,6 +297,8 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 町田のEvent Organiser collectorは終日イベントに加え、同日の時間指定イベントを本文の時間枠と照合して採用します。重ならない専用利用と個人利用を併記し、時間指定の専用利用だけでは終日利用不可にしません。2026年9月・10月の公式JSONをfixtureとして検証します。
 
+PDF文字抽出は `pdfjs-dist` に同梱されたCMap・standard_fonts・wasmをpackage解決したローカルdirectoryから読みます。Adobe-Japan1等の日本語font mappingを外部通信なしで処理します。練馬の2026-10-13週間表は日別statusが画像のため、`nerima-reviewed.ts` の週間表・凡例hashに一致する確認済み7日分だけを使います。半面と緑レーンの利用条件を保持し、週間表の17時終了と施設案内の18時終了の差はunknownとして残します。掲載外へ外挿せず、新しい画像形式の資料は再レビューまでunknownです。原本fixtureと凡例・時間差の回帰検証は `nerima-reviewed.test.ts`、根拠はfixtureのprovenance文書に記録します。
+
 三郷のPDF collectorは通常の3時間帯の文字判定に加え、PDF.js 6の描画命令から罫線の座標を抽出します。`整備休場中` を含む結合セルが全時間帯を覆い、内部の縦罫線で分割されていないことを確認し、上下端で休場対象日を決め、隣接する通常利用日へ広げません。休場境界を確認できない資料はunknownへ降格します。1日目の行は通常の行間隔の半分で区切り、列見出しの共用利用時間を利用枠と誤認しません。罫線抽出は三郷のみで行い、公式原本の9月・10月PDFをfixtureとして抽出から判定まで回帰検証します。
 
 博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。取得した公式packet全資料のhashが確認済みhashと一致した場合だけ採用し、翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
@@ -426,3 +428,5 @@ availability source調査は、アプリ外の [`../research/availability/availa
 | AWS構成・配備 | `infra/`, `cdk.json`, package scripts | README、synth、出力と本番境界、この文書 |
 
 この表にない変更でも、新しいセッションがシステムを理解するために必要な事実が変わるなら、この文書を同じコミットで更新します。
+
+取得・解析エラーだけのincidentは、日全体がunknownでも、実取得時刻・資料hashと時間付きの既知status枠がある `insufficient_information` を復旧証拠として扱います。未掲載・空のunknown・資料変更は復旧証拠にせず、日単位coverage_dropの復旧条件は緩めません。これにより、練馬の17〜18時の未確認を保持しながらPDF解析の復旧を検知できます。

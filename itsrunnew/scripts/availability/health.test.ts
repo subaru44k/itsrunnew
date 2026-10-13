@@ -288,7 +288,7 @@ describe('availability health monitoring', () => {
       {from:'09:00',to:'17:00',status:'unavailable',scope:'full_track',eligibility:'public',conditions:[]},
       {from:'17:00',to:'18:00',status:'unknown',scope:'unknown',eligibility:'unknown',conditions:[]},
     ];
-    parsed.facilities[0].evidence.sourceHash = 'sha256:reviewed';
+    parsed.facilities[0].evidence.sourceHash = `sha256:${'0'.repeat(64)}`;
     const recovery = evaluateHealth([parsed], defaultTracks, failed.state);
     expect(recovery.events[0]?.kind).toBe('recovered');
     expect(recovery.state.facilities[trackA.id].statuses[date1]).toBe('unknown');
@@ -296,6 +296,9 @@ describe('availability health monitoring', () => {
     const unproven = structuredClone(parsed);
     unproven.facilities[0].evidence.sourceHash = null;
     expect(evaluateHealth([unproven], defaultTracks, failed.state).events).toEqual([]);
+    const stale = structuredClone(parsed);
+    stale.facilities[0].freshness.fetchedAt = run1;
+    expect(evaluateHealth([stale], defaultTracks, failed.state).events).toEqual([]);
     const changed = structuredClone(parsed);
     changed.facilities[0].unknownReason = 'source_changed';
     expect(evaluateHealth([changed], defaultTracks, failed.state).state.facilities[trackA.id].active).not.toBeNull();

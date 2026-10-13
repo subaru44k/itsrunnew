@@ -101,7 +101,7 @@ export function evaluateHealth(datasets: AvailabilityDataset[], tracks: Array<{ 
     // evidence that lost daily coverage recovered. Never accept empty unknowns.
     const parsedSlotRecovery = Boolean(old?.active && old.active.causes.every(cause => hardReasons.has(cause)) && !failures.length && records.some(record =>
       oldAffected.includes(record.date) && record.status === 'unknown' && record.unknownReason === 'insufficient_information' &&
-      record.freshness.fetchedAt && record.evidence.sourceHash && record.periods.some(p => p.status !== 'unknown' && p.from && p.to && p.from < p.to)));
+      record.freshness.fetchedAt && Date.parse(record.freshness.fetchedAt) > Date.parse(previous!.generatedAt) && Date.parse(record.freshness.fetchedAt) <= Date.parse(now) && /^sha256:[a-f0-9]{64}$/.test(record.evidence.sourceHash ?? '') && record.periods.some(p => p.status !== 'unknown' && p.from && p.to && p.from < p.to)));
     const provenRecovery = knownDateRecovery || parsedSlotRecovery;
     if (!active && old?.active && (!provenRecovery || loss)) active = old.active;
     const healthy = !active && !loss && known.length > 0;

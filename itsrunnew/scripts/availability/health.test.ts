@@ -281,6 +281,28 @@ describe('availability health monitoring', () => {
     });
   });
 
+  it('recovers a parser failure with source-backed known slots without claiming full-day coverage', () => {
+    const failed = evaluateHealth([makeDataset(date1, run1, defaultTracks, {[trackA.id]: {status:'unknown', unknownReason:'extraction_failed'}})], defaultTracks);
+    const parsed = makeDataset(date1, run1Later, defaultTracks, {[trackA.id]: {status:'unknown', unknownReason:'insufficient_information'}});
+    parsed.facilities[0].periods = [
+      {from:'09:00',to:'17:00',status:'unavailable',scope:'full_track',eligibility:'public',conditions:[]},
+      {from:'17:00',to:'18:00',status:'unknown',scope:'unknown',eligibility:'unknown',conditions:[]},
+    ];
+    parsed.facilities[0].evidence.sourceHash = 'sha256:reviewed';
+    const recovery = evaluateHealth([parsed], defaultTracks, failed.state);
+    expect(recovery.events[0]?.kind).toBe('recovered');
+    expect(recovery.state.facilities[trackA.id].statuses[date1]).toBe('unknown');
+    expect(recovery.state.facilities[trackA.id].knownDates).toEqual([]);
+    const unproven = structuredClone(parsed);
+    unproven.facilities[0].evidence.sourceHash = null;
+    expect(evaluateHealth([unproven], defaultTracks, failed.state).events).toEqual([]);
+    const changed = structuredClone(parsed);
+    changed.facilities[0].unknownReason = 'source_changed';
+    expect(evaluateHealth([changed], defaultTracks, failed.state).state.facilities[trackA.id].active).not.toBeNull();
+    const coverage = structuredClone(failed.state);
+    coverage.facilities[trackA.id].active!.causes = ['coverage_drop'];
+    expect(evaluateHealth([parsed], defaultTracks, coverage).events).toEqual([]);
+  });
   it('uses the exact three-of-six loss boundary and ignores two-of-four losses', () => {
     const healthy = evaluateHealth(makeRange([...futureDates], run1), defaultTracks);
     const threeOfSix = evaluateHealth(makeRange(

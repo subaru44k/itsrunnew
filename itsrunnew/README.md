@@ -127,3 +127,5 @@ workflowには既存の `OPENAI_API_KEY` に加え、このrepositoryだけに�
 AI availabilityのcacheは施設ID・全対象日・内容を検証して再利用します。不完全な回答は不足日だけ再読解（1施設最大2回のrequest）し、完全な結果のみ保存します。残る欠落・検証落ちは「公開期間外」ではなく解析失敗としてunknownを維持します。詳細は[AVAILABILITY.md](../docs/AVAILABILITY.md#ai-official-packet-collector)を参照してください。
 
 博多の森補助競技場は現在、資料hashで照合する確認済み2026年10月日程を使用します。資料変更時は要確認へ落とし、[確認資料](scripts/availability/fixtures/hakata-reviewed-provenance.md)に従って新しい月表をレビューします。
+
+PDF collectorは `pdfjs-dist` 同梱CMap・標準font・wasmをローカルで使用します。練馬の画像形式の週間表は[確認済み資料と更新手順](scripts/availability/fixtures/nerima-20261013-provenance.md)に従い、資料hashを照合して公開範囲だけを判定します。

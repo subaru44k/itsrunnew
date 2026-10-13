@@ -68,6 +68,7 @@ itsrunnew/
 │   │   ├── CanonicalLink.vue 通常リンクの正規hrefとクリック時の検索条件引継ぎ
 │   │   ├── AdsDisplay.vue     共通広告serviceの準備後に表示するAdSenseスロット
 │   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
+│   │   ├── FacilitySchedule.vue 品質別の個人利用予定・判断カード・統合した日付詳細slot
 │   │   ├── FieldReports.vue   対象日レポートの閲覧・匿名当日投稿・計測
 │   │   ├── TrackMap.vue       地図の遅延初期化、失敗表示、再試行、resize
 │   │   ├── map/               Leafletの描画・クラスタリング、地図の型とmarker button
@@ -80,6 +81,7 @@ itsrunnew/
 ├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像、availability生成先へのsymlink
 ├── scripts/
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
+│   ├── facility-schedule-smoke.mjs 日英・品質別予定と情報密度・詳細開閉のブラウザ検証
 │   ├── daily-check.mjs        一時workspaceでdaily実収集／合成データのbuild・smokeを検証
 │   ├── daily-fixtures.mjs     戸田利用不可・4status／全unknownの回帰データ
 │   ├── smoke-preview.mjs      Vite Previewの起動・終了を含むsmoke wrapper
@@ -175,7 +177,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 |---|---|---|---|
 | `/` | `/en/` | `TrackSearch.vue` | 陸上トラック検索（ホーム） |
 | `/tracks` | `/en/tracks` | redirect | queryを維持してTrack Searchホームへ移動する互換URL |
-| `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 施設仕様、指定日availability、公式導線、利用状況と距離でrankingした周辺施設 |
+| `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 個人利用予定・確認方法、選択日詳細、施設仕様、公式導線と周辺候補 |
 | `/tracks/guide` | `/en/tracks/guide` | `TrackGuide.vue` | 検索基準地点、利用状況、トラック条件の読み方 |
 | `/oda-field` | `/en/oda-field` | redirect | 同じ言語の `/tracks/yoyogi-park-athletic-track` へ統合。末尾スラッシュにも対応 |
 | `/yumenoshima` | `/en/yumenoshima` | redirect | `/tracks/koto-yumenoshima-athletic-stadium`へ統合 |
@@ -189,7 +191,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic`（日英・末尾スラッシュ対応）→ 同じ言語の `/tracks/komazawa-olympic-park-track`、削除済み `/manage` → `/` です。織田・夢の島・駒沢・等々力の旧日英URLは末尾スラッシュの有無を問わず、Production CloudFrontで日付などのqueryを保持したHTTP 301を返します。Vue Routerでも同じ転送先へquery・hashを維持します。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。Productionは実HTTP 404、PreviewのSPA fallbackはHTTP 200です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、指定日availability、周辺の代替トラックを含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定14 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英の全固定ページと全施設詳細のHTML shellを生成します。固定ページは共有metadataからcanonical・title・description・hreflang・OGPを設定し、初期HTMLとruntimeの指定をそろえます。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは既知の固定ページと施設詳細をそれぞれのHTML shellへrewriteし、ルート`/`だけを`/index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン」、descriptionは「いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、個人利用スケジュールと確認方法を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定14 URLと全施設の日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英の全固定ページと全施設詳細のHTML shellを生成します。固定ページは共有metadataからcanonical・title・description・hreflang・OGPを設定し、初期HTMLとruntimeの指定をそろえます。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは既知の固定ページと施設詳細をそれぞれのHTML shellへrewriteし、ルート`/`だけを`/index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は `#2026` から `#2020` の年別アンカーを持ちます。
 
 ## 6. ページと機能
 
@@ -260,6 +262,16 @@ availability source調査は、アプリ外の [`../research/availability/availa
 施設情報のsource確認日は日別availabilityの取得日と区別し、公開UIで「施設情報の確認日」と表示します。確認日は公式sourceのHTTP応答と読取可能な本文を実際に確認した日であり、全属性の確定日ではありません。読めないsourceの確認日は進めません。予定actionは施設別の `urls.schedule` を最優先し、未設定ならavailabilityの安定landing page、取得資料URLの順で選びます。差し替え型PDFは最新資料が掲載される公式pageへ、固定URLの資料を `urls.schedule` に指定した施設は資料へ直接案内します。取得時の資料URLとhashは証跡としてavailability datasetに保持します。
 
 静的施設情報の再確認は `scripts/reverification/` と `.github/workflows/facility-reverification.yml` が担当します。初回133施設の公開変更なし試走は登録済み214 URLを直接取得し、Luna xhighで13属性を照合してAPI usageを記録しました。週次workflowは公式施設・個人利用sourceを直接取得し、本文hash・redirect・読取復旧、公開文中の期限到来を検知します。本文を読めた既存の公式sourceは内容が同じでも `verifiedAt` を実行日に進め、確認日のみのPRも作成します。公式HTTP取得は専用UAに加え一般的なブラウザUAで再試行し、全sourceを読めない施設ではURL別の失敗理由をreportへ残します。情報源の再探索は施設ごとに365日後、1回のworkflowで最大20施設をLuna xhighのWeb検索へ回し、14日以上読めないURLを優先します。本文変更時の公開差分は原文引用、型、独立した2回目のAI判定を満たした属性だけに限り、全sourceを28日間読めないときは個人利用statusだけunknownへ下げます。施設削除、名称・座標、日別availabilityは自動変更しません。source fingerprint、再試行、実際のWeb検索action、保守的なAPI費を `automation/facility-reverification-state` branchの `research/track-expansion/reverification-state.json` に保存し、暦年$4.80の推計上限で新しいAI呼び出しを停止します。2026年の開始残高には初回試験費を切り上げた$1.00を算入します。公開データ変更はGitHub Appの最小権限tokenでPRを作り、必須CI通過後のauto-mergeがmasterのPreview/Production deployを起動します。確認日だけのpushは差分検出で区別し、生成ファイルをS3へ配置しても施設ページ由来のCloudFront invalidationは行わず通常のcache期限を待ちます。日別availabilityのinvalidationは従来通りです。実行reportはActions artifactとsummaryへ残します。
+
+### 施設詳細の個人利用予定
+
+施設詳細は「この施設でいつ走れるか・どう確認するか」、ホームは「この日にどこで走れるか」を担当します。`components/FacilitySchedule.vue` は公開manifestの今日以降（最大31日）を4並列以下で読み、取得済みの日から順次表示し、共通の日別cacheと期限判定を使います。`model/facility-schedule.ts` は利用可・一部利用可・利用不可の判定済み日だけを抽出し、unknown・通信失敗・過去日は一覧に含めません。連続して判定できる施設は個人利用スケジュール、一部だけ判定できる施設は判定済み日数と未記載日が要確認である説明、全日unknownの施設は事前確認方法を優先します。電話確認・日別予定なし・期限切れとその他の取得不能を区別し、予定が公開されていないと一律には断定しません。
+
+上部の次回枠は公開範囲内の確認済み予定の短い要約であり、当日の終了済み枠を除外します。初期一覧は最大14件の判定済み日を「日付・利用可否・短い時間情報」の判断カードで表示し、PCは7列（中幅4列）、モバイルは2列とします。時間帯や条件を各日に列挙せず、同じ条件の連続枠だけを統合し、離れた時間帯は「2枠」などと表示します。残りの判定済み日程は展開できます。日付行から選択日queryと一つの詳細へ連動します。従来の指定日セクションはFacilityScheduleのslot内の折りたたみへ統合し、日付未指定の初期表示では詳細を閉じ、日付選択またはdate query付きの直接アクセスで開きます。native date inputは詳細の折りたたみの外、一覧の直後に常時表示し、一覧と重複する今日・明日ボタンは置きません。日付選択時はmanifest再確認・対象日取得・必要な一覧更新とDOM描画を待って詳細へスクロール／フォーカスします。直前の選択を連番で無効化し、古い選択や施設変更・離脱後にフォーカスを移しません。明示的な日付選択では古いhashを外し、現地レポートの今日へ戻るactionではレポートの表示位置を維持します。manifest確認中に取得済み一覧を消さず、同じ生成世代なら期限を再評価して再読み込みせず、世代変更は取得後にまとめて反映します。詳細に時間帯・対象レーン・利用資格・条件・warningsを保持し、collectorの機械的なcondition値は表示せず、年間定期利用者・用具不可等の制限は日英の利用者向け表現へ変換します。日付選択と現地レポート、料金、旧施設案内は維持します。施設詳細の注意書きでは、収集・PDF解析・空欄判定などの内部説明を表示時に除外します（元データには保持）。受付締切、資格、レーン・用具制限、予定変更など利用者に必要な注意は残し、必要な時間帯の確認案内は平易な表現へ置き換えます。未掲載日は利用不可と扱わず、公式情報への確認案内を表示します。
+
+公式予定・問い合わせ先actionを予定と統合詳細の直後に配置します。情報源の実取得時刻（またはfetch_failed時だけの取得試行時刻）は日本時間で表示します。電話確認・未対応sourceの毎日の生成時刻やruntime fallbackの現在時刻を最終確認と表示せず、取得時刻がない確認型施設では静的な「施設情報の確認日」を上部に出します。周辺候補はPC・モバイルとも予定パネルの後に配置し、利用状況に応じて比較用の折りたたみを開閉します。対象日の読み込み完了後、利用不可のときは開いて強調し、unknownでも確認先の選択肢として開きます。unknownは通常の外観と「利用可否が不明な日の近隣候補」という見出し・説明で、利用不可との違いを明示します。利用可能・一部利用可能では比較用の折りたたみを閉じます。候補には選択日を明記し、date queryとrankingを維持します。
+
+日英title・descriptionと静的HTML shellは個人利用予定・確認方法という検索意図を反映します。shellは日次のavailabilityを埋め込まず、確認不能時の問い合わせ方法と公式導線を提供し、日次データ変更でHTML更新を要求しません。品質別UI・判断カードの高さ・統合詳細の開閉・時間帯統合と機械値非表示・代替候補の開閉・常時表示の日付選択・同一／変更世代の遅延再取得とフォーカス・次回枠・取得失敗・期限切れの検証をunitと`scripts/facility-schedule-smoke.mjs`（通常smokeとdailyから実行する日英・PC/モバイルの通信mock）で行います。静的施設のnoteもshellへ含めます。
 
 ### 現地確認レポート
 

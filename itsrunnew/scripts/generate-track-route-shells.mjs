@@ -53,6 +53,11 @@ function staticTrackDetailContent(track, locale) {
     .map(candidate => ({ track: candidate, distance: distanceKm(track.location, candidate.location) }))
     .sort((left, right) => left.distance - right.distance || left.track.id.localeCompare(right.track.id))
     .slice(0, 5);
+  const useHeading = locale === 'en' ? 'Individual-use schedule and confirmation' : '個人利用スケジュール・確認方法';
+  const useAnswer = locale === 'en'
+    ? 'Confirmed individual-use dates and periods are shown when available. If future dates cannot be confirmed, check the official schedule or contact the facility before visiting. Unconfirmed does not mean unavailable.'
+    : '確認できた個人利用予定・時間帯を掲載します。今後の利用可否を確認できない場合は、訪問前に公式の予定や施設の問い合わせ先で確認してください。要確認は利用不可という意味ではありません。';
+  const useContent = `<section><h2>${useHeading}</h2><p>${useAnswer}</p>${track.individualUse.note ? `<p>${escapeHtml(track.individualUse.note)}</p>` : ''}<a href="${escapeHtml(track.urls.schedule || track.urls.individualUse || track.urls.official)}">${locale === 'en' ? 'Official schedule / contact information' : '公式の利用予定・問い合わせ先を確認'}</a></section>`;
   const nearbyLinks = nearby.map(item => `<li><a data-static-nearby-track href="${prefix}/tracks/${escapeHtml(item.track.id)}">${escapeHtml(item.track.name[locale])}</a> <span>${item.distance.toFixed(1)} km</span></li>`).join('');
   const heading = locale === 'en' ? 'Nearby tracks' : '近くのトラック';
   const description = locale === 'en'
@@ -86,7 +91,7 @@ function staticTrackDetailContent(track, locale) {
     .join('');
   const odaOpinionsContent = isOda ? `<section><h2>${opinionsHeading}</h2><p>${opinionNote}</p>${opinions}</section>` : '';
   const nearbyContent = `<section><h2>${heading}</h2><p>${description}</p><ul>${nearbyLinks}</ul><p><a href="${prefix}/">${locale === 'en' ? 'Search all tracks' : 'すべてのトラックを探す'}</a></p></section>`;
-  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${nearbyContent}${odaFacilityContent}${odaOpinionsContent}${staticLegacyGuide(track, locale)}</main></div>`;
+  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${useContent}${nearbyContent}${odaFacilityContent}${odaOpinionsContent}${staticLegacyGuide(track, locale)}</main></div>`;
 }
 
 function pageShell({ path, locale, title, description, alternateJa, alternateEn, body }) {
@@ -137,12 +142,12 @@ for (const track of tracks) {
     const isOda = track.id === ODA_TRACK_ID;
     const title = isOda
       ? (locale === 'en' ? 'Oda Field (Yoyogi Park Athletic Track) closure and nearby tracks - ItsRun' : '織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン')
-      : (locale === 'en' ? `${name} availability and nearby tracks - ItsRun` : `${name}の利用予定・周辺トラック - いつラン`);
+      : (locale === 'en' ? `${name} individual-use schedule and confirmation - ItsRun` : `${name}の個人利用スケジュール・確認方法 - いつラン`);
     const description = isOda
       ? (locale === 'en' ? 'Oda Field is scheduled to remain closed through November 30, 2026. Check the selected date and compare nearby tracks before your workout.' : '織田フィールド（代々木公園陸上競技場）は2026年11月30日まで利用停止予定です。指定日の状況と周辺の代替トラックを確認できます。')
       : (locale === 'en'
-        ? `Check ${name}'s date-specific availability and find useful nearby alternatives ranked by availability and distance.`
-        : `${name}の指定日ごとの利用状況を確認し、利用状況と距離を考慮した周辺の代替トラックを探せます。`);
+        ? `Check ${name}'s confirmed individual-use dates, available periods and how to confirm unpublished schedules. Compare nearby tracks for your chosen date.`
+        : `${name}の個人利用について、確認済みの予定・利用可能時間と、予定が分からない場合の確認方法を案内します。指定日の利用状況や周辺施設も確認できます。`);
     const canonical = `${origin}${path}`;
     const alternateJa = `${origin}/tracks/${track.id}`;
     const alternateEn = `${origin}/en/tracks/${track.id}`;

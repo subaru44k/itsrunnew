@@ -147,12 +147,29 @@ export async function buildAiPacket(
         dates.some((d) => a.url.includes(d.slice(0, 7).replace('-', ''))),
     ))
       await asset(a.url);
-    const notices = anchors.filter(
+    const personalNotices = (items: typeof anchors) => items.filter(
       (a) =>
         /補助競技場.*個人利用/.test(a.label) &&
         /\/info\//.test(a.url) &&
         relevant(a.label),
     );
+    let notices = personalNotices(anchors);
+    let listingHtml = page.html;
+    let listingUrl = page.url;
+    if (!notices.length) {
+      // The homepage only keeps recent posts; discover older current-month notices
+      // through its official index link without adding the index to AI/cache input.
+      const indexLink = anchors.find((a) =>
+        new URL(a.url).pathname.replace(/\/$/, '') === '/facilities/kouiki/info',
+      );
+      if (indexLink) {
+        const index = await load(indexLink.url, false);
+        notices = personalNotices(links(index.html, index.url));
+        listingHtml = index.html;
+        listingUrl = index.url;
+      }
+    }
+    notices = notices.filter((notice, index) => notices.findIndex((item) => item.url === notice.url) === index);
     if (!notices.length)
       throw new Error('Auxiliary personal-use notice not found');
     for (const a of notices.slice(0, 3)) {
@@ -172,6 +189,22 @@ export async function buildAiPacket(
       );
       for (const i of found) await asset(i.url);
     }
+    // Preserve the selected notice's visible publication date: the calendar image
+    // omits its year. Do not use the site's placeholder datetime=2016-00-00 or
+    // include unrelated news, which would invalidate the cache every update.
+    const publicationEvidence = notices.slice(0, 3).flatMap((notice) => {
+      const item = [...listingHtml.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)]
+        .find((match) => links(match[1], listingUrl).some((link) => link.url === notice.url));
+      const published = item?.[1].match(/<time\b[^>]*>([\s\S]*?)<\/time>/i)?.[1];
+      const date = published ? htmlText(published).normalize('NFKC') : '';
+      return /^\d{4}年\s*\d{1,2}月\s*\d{1,2}日$/.test(date)
+        ? [`${date} ${notice.label} ${notice.url}`]
+        : [];
+    });
+    if (publicationEvidence.length) {
+      const text = `公式告知一覧に表示された掲載日・告知名:\n${publicationEvidence.join('\n')}`;
+      sources.push({ name: 'hiroshima-notice-publication.txt', url: listingUrl, kind: 'text', content: text, hash: digest(text) });
+    }
   } else if (config.key === 'ishin') {
     const notice = anchors.find(
       (a) =>
@@ -182,11 +215,10 @@ export async function buildAiPacket(
     const found = [
       ...links(schedule.html, schedule.url),
       ...images(schedule.html, schedule.url),
-    ].filter(
-      (a) =>
-        /info_ho[kjz]yoriku_\d{6}/.test(a.url) &&
-        dates.some((d) => a.url.includes(d.slice(0, 7).replace('-', ''))),
-    );
+    ].filter((a) => {
+      const month = /info_ho[kjz]yoriku_(?:class_)?(\d{6})_/.exec(new URL(a.url).pathname)?.[1];
+      return month && dates.some((d) => month === d.slice(0, 7).replace('-', ''));
+    });
     if (!found.length) throw new Error('Ishin auxiliary images not found');
     for (const i of found) await asset(i.url);
   } else if (config.key === 'hakata') {

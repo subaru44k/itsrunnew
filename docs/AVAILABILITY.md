@@ -132,7 +132,7 @@ cache keyはAI version、model、reasoning、資料・指示などの入力、sc
 
 trusted Preview/Production collectionだけが `ITSRUN_REQUIRE_AI_KEY=true` とrepository secret `OPENAI_API_KEY` を要求します。secretはcollection stepへ渡し、build・smoke・通常のlocal buildには渡しません。AI導入の受入れ基準は、3回のLuna試行でpositive supportが80%超、明示時間帯の一致が70%超です。これは完璧な最新性を保証する基準ではなく、公開UIは当日変更と公式確認の注意を残します。
 
-博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。取得した公式packet全資料のhashが確認済みhashと一致した場合だけ採用し、翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
+博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。トップページから現行月表を発見し、判定に使う月表・利用方法・注意事項の全資料のURLとhashが確認済みhashと一致した場合だけ採用します。探索用トップページの本文変更だけでは停止させません。翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
 
 
 ## normalized schema
@@ -213,3 +213,11 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信障害・408・429・5xxを1回再試行します。Node/Undiciの `UND_ERR_CONNECT_TIMEOUT` だけはcurlで同じ公式GET/HEADを取得します。curlは証明書検証を有効にしたHTTPS限定で、20 MB・20秒・redirect 5回を上限にします。POST・HTTPエラー・証明書エラーには代替取得を使わず、認証headerは転送しません。すべての取得が失敗した場合はunknownを維持し、HTTP status・失敗段階・通信error codeをqueryや認証情報なしでログへ残します。
 
 練馬の週間PDFの日本語文字抽出には、PDF.js同梱のCMapをローカルから読み込みます。2026-10-13更新表のstatusは画像のため、確認済み週間表と凡例のhashが一致する場合だけ有限補正を適用します。半面・緑レーンの制限を保持し、17〜18時の資料間の時間差はunknown、公開期間外もunknownです。新しい画像資料は再レビューを必要とします。[根拠と更新手順](../itsrunnew/scripts/availability/fixtures/nerima-20261013-provenance.md)を参照してください。
+
+## 2026-10-14〜15 収集監視通知への対応
+
+- 広島広域公園補助: 10月14日掲載の新着情報で個人利用告知がトップページから押し出された。トップページに告知がない場合は、そこからリンクされた公式新着一覧を1回取得して対象月の告知を探す。既存の利用方法・月間PDF・個人利用告知と2枚の画像を復元し、選んだ告知の可視の掲載日・見出し・URLだけを年月の照合根拠として追加する。不正なplaceholder datetime属性（`2016-00-00`）や他の記事は採用しない。対象月の告知が見つからない場合はunknownを維持する。広島だけの読解補足で、掲載年・曜日・年付き月表の照合、最大9〜21時に対する夕方のみの一部利用、月表の明示的休場を区別する。モデルとeffortは変えず、広島のparser version・cacheだけを更新する。
+- 維新補助: 10月画像が `info_hojyoriku_class_202610_230261013_1.png` に更新され、従来のファイル名条件では11月画像だけを取得していた。月の直前の任意の `class_` を認識し、既存の綴り揺れ・対象月照合・主競技場除外を維持する。修正後の実取得で10月・11月の両画像を確認した。新しい入力になるため旧AI cacheは再利用しない。
+- 博多の森補助: 月表PDF・利用方法・注意事項のhashは確認済み資料と一致し、トップページ本文だけが変化していた。判定資料のURL・hash・数・順序を引き続き照合し、探索用本文をguardから除外する。実取得packetで10月15〜31日の17日分（通常11日、大会後6日）が確認済み判定へ戻り、11月は未掲載としてunknownを保つ。[照合hashと根拠](../itsrunnew/scripts/availability/fixtures/hakata-reviewed-provenance.md)を参照。
+
+これらの通知は収集・判定の障害であり、施設の利用停止を示すものではない。監視の閾値やunknownの意味は変更しない。2026-10-15にAPI keyを使って実読解し、広島・維新とも全61日の構造検証を通過した。広島の10月15〜31日について、14日の利用枠（分割枠を含む）と3日の明示的休場を原資料と照合した。維新は対象31日中8日の明示枠・11月9日の休場を確認し、空欄・大会予定だけの日はunknownを維持した。博多は10月の17日分が回復した。広島・博多の11月は未掲載のためunknown。維新の10月23〜25日は現在の資料でもunknownのため、既存のcoverage_dropはこれらの日の根拠が戻るか監視範囲から外れるまで残り得る。監視を復旧扱いにするためのstatus補完は行わない。

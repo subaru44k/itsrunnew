@@ -27,7 +27,7 @@ export function aiReadingConfig(key: string) {
   return {
     model: AI_MODEL,
     effort: 'none' as const,
-    version: AI_VERSION,
+    version: key === 'hiroshima' ? 'luna-none-v2-production-hiroshima-2' : AI_VERSION,
     collector: `luna-none-${key}`,
   };
 }
@@ -142,9 +142,12 @@ export async function readWithLuna(
   } = {},
 ) {
   const reading = aiReadingConfig(packet.key);
-  const instructions =
+  let instructions =
     options.instructions ??
     (await readFile(new URL('./ai-instructions.txt', import.meta.url), 'utf8'));
+  if (packet.key === 'hiroshima') {
+    instructions += '\n広島広域公園補助競技場の照合補足：年を省略した月別個人利用カレンダーは、公式告知一覧の掲載年・対象月・曜日配置と、同月の年付き行事予定表を照合する。取得年だけで年を決めない。注意事項画像の「利用可能時間（最大）9:00〜21:00」を通常時間の根拠とする。17〜21時・18〜21時など通常時間の一部だけの開放はpartially_availableであり、その日の掲載枠を全て満たすことを終日利用可と取り違えない。年付き行事予定表に補助競技場も含めて「休場日」と明示された日はunavailable。個人利用カレンダーの空欄だけで休場とはしない。';
+  }
   // Hash semantic input, not acquisition time or volatile HTML markup. Full calendar months keep the key stable across daily horizons.
   const key = digest(
     JSON.stringify({

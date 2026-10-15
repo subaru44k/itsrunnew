@@ -38,10 +38,20 @@ describe('human-reviewed Hakata October 2026 official table', () => {
       evidence: [],
     });
   });
-  it('does not reuse a reviewed calendar after any source or facility identity change', () => {
+  it('retains the reviewed reading when only homepage news changes', () => {
+    const sources = packet.sources.map((source, i) => i === 0 ? { ...source, hash: 'new-homepage-news' } : source);
+    expect(reviewedHakataReading({ ...packet, sources })?.rows.get('2026-10-19')?.status).toBe('available');
+  });
+  it('rejects removed, additional or replaced schedule/usage documents', () => {
+    expect(reviewedHakataReading({ ...packet, sources: packet.sources.slice(0, -1) })).toBeNull();
+    expect(reviewedHakataReading({ ...packet, sources: [...packet.sources, { ...packet.sources.at(-1)!, url: 'https://www.midorimachi.jp/new.pdf' }] })).toBeNull();
+    expect(reviewedHakataReading({ ...packet, sources: packet.sources.map((s, i) => i === 4 ? { ...s, url: 'https://www.midorimachi.jp/new.pdf' } : s) })).toBeNull();
+  });
+  it('does not reuse a reviewed calendar after schedule, usage-source or facility identity changes', () => {
     expect(reviewedHakataReading({ ...packet, key: 'other' })).toBeNull();
     expect(reviewedHakataReading({ ...packet, trackId: 'other' })).toBeNull();
-    for (let index = 0; index < packet.sources.length; index++) {
+    expect(reviewedHakataReading({ ...packet, landingPageUrl: 'https://example.com/' })).toBeNull();
+    for (let index = 1; index < packet.sources.length; index++) {
       const sources = packet.sources.map((source, i) =>
         i === index ? { ...source, hash: 'changed' } : source,
       );

@@ -5,7 +5,7 @@
 - 月表: https://www.midorimachi.jp/higashihirao/images/park/261002141825533.pdf
 - 利用方法: https://www.midorimachi.jp/higashihirao/guides/
 - 月表PDF SHA-256: `5892538c05ac83cb7da5fe9c1e0b142e2a607846174671b398f4b229c7c4cce1`
-- 全公式packetのsource identity SHA-256: `1fc3e105beccbabe7e5fd776867352ce9b0bed5daad786411e0ce31d4b8cb0f2`
+- 初回確認時の全公式packetのsource identity SHA-256: `1fc3e105beccbabe7e5fd776867352ce9b0bed5daad786411e0ce31d4b8cb0f2`
 - `hakata-reviewed-packet.json` は実取得packetの名前・URL・kind・hashだけを保持するテスト用metadata。画像・本文contentは省略し、ネットワークなしでsource guardを検証する。公開入力には使わない。
 
 月表は「令和8年10月博多の森競技場利用予定表」。補助競技場の列見出しが一般（有料）開放9:00〜18:30を示す。列の大会欄が空欄の日はこの通常開放。メイン・テニス・弓道・駐車場の予定は対象外。
@@ -26,3 +26,9 @@
 AIはこの同一資料で大会日を終日不可にしたほか、指示追加後も通常日をunknown・一部利用可にした。公開時の人手照合で棄却し、モデル変更や無制限再推論で補わない。
 
 新月・新資料は `source_changed` としてunknownにする。更新する際は月表の全日・対象列・個別注記・通常時間・大会終了後開放を公式資料で再確認し、確認対象hashと日程・fixture・この記録を同じ変更で更新する。daily fixtures/liveのCIと公開日別JSONを確認する。古い月の時間や日付を新月へ外挿しない。
+
+## 2026-10-15 監視通知の調査
+
+月表PDFのSHA-256は上記と一致し、利用方法本文・注意事項PDFの全ページ画像・月表画像のhashも初回fixtureと一致した。変更はトップページ本文のみ（現取得hash `bbc0870895591286ecd37f7e574ea994ef7731b1c92d53e3bf00b32cfafc61dc`）であり、予定表の変更ではなかった。
+
+トップページは現行月表の探索に引き続き毎回取得するが、確認済み判定のguardから本文hashだけを除外する。判定に使う利用方法・注意事項・月表は、URL・hash・順序・資料数を全て照合する。そのsource identity SHA-256は `2581cddafdae7bca4b993962382fc1e74e4bcfc1d56047b018b78991c7d1e8b1`。月表の差し替え・追加・削除、利用方法・注意事項の変更は引き続き安全停止し、翌月はunknownを維持する。トップページ更新時の継続と、判定資料の変更・追加・欠落・URL差し替え時の停止を回帰検証した。

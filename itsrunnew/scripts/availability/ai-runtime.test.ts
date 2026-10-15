@@ -57,6 +57,24 @@ describe('AI reading boundary', () => {
         effort: 'none',
       });
   });
+  it('sends Hiroshima year and partial-day interpretation rules without changing its model', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'itsrun-ai-hiroshima-test-'));
+    const hiroshima = { ...packet, key: 'hiroshima', dates: ['2026-09-22'] };
+    const fetchImpl = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const request = JSON.parse(String(init?.body));
+      expect(request.model).toBe(AI_MODEL);
+      expect(request.reasoning).toEqual({ effort: 'none' });
+      expect(request.instructions).toContain('公式告知一覧の掲載年');
+      expect(request.instructions).toContain('通常時間の一部だけの開放はpartially_available');
+      expect(request.instructions).toContain('空欄だけで休場とはしない');
+      return Response.json({ status: 'completed', model: AI_MODEL, reasoning: { effort: 'none' }, output: [{ content: [{ type: 'output_text', text: JSON.stringify({ records: [{ ...row(), id: 'hiroshima-2026-09-22' }] }) }] }] });
+    });
+    try {
+      const result = await readWithLuna(hiroshima, { apiKey: 'test-key', cacheDirectory: directory, fetchImpl: fetchImpl as typeof fetch });
+      expect(result.rows.size).toBe(1);
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
   it('keeps valid dates, ignores wrong IDs, drops missing/duplicate/outside dates without repairing', () => {
     expect(
       validateRows(

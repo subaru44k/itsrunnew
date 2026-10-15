@@ -293,7 +293,9 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、日付・施設・検索基準・公式確認・経路などのTrack Search主要操作eventを固定schemaで送ります。Geolocationの緯度経度、住所、自由入力文字列は送信せず、送信直前にもprivate parameter名を除外します。event一覧とGA4管理画面でのcustom dimension/key event候補は [`ANALYTICS.md`](ANALYTICS.md) が正本です。PrivacyページはAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPとGoogleの関連方針への導線を日英で説明します。
 
-維新補助のAI collectorは公式告知内の対象月の予定画像を取得し、ファイル名の `hojyoriku`・`hokyoriku`・`hozyoriku` を許容します。2026年9月28日更新の10月画像は `hozyoriku` で公開されています。月と補助競技場のファイル名を照合し、対象外の月や主競技場の画像をAI入力に混ぜません。
+維新補助のAI collectorは公式告知内の対象月の予定画像を取得し、ファイル名の `hojyoriku`・`hokyoriku`・`hozyoriku` と、月の前に入る任意の `class_` を許容します。2026年10月13日更新の10月画像は `info_hojyoriku_class_202610_230261013_1.png` です。2026年9月28日更新の10月画像は `hozyoriku` で公開されています。月と補助競技場のファイル名を照合し、対象外の月や主競技場の画像をAI入力に混ぜません。
+
+広島広域公園補助のcollectorは、トップページに対象月の個人利用告知が見つからない場合、そのページの公式新着情報一覧リンクを1回たどって同じ対象月・補助競技場の告知を探します。重複告知を除去し、選んだ告知の可視の掲載日・見出し・URLだけを年月の根拠としてAI入力へ渡します。一覧の他の記事や不正なplaceholder datetime属性（`2016-00-00`）は入力へ混ぜません。見つからない場合はunknownを維持します。広島だけの読解補足で、掲載年・曜日・年付き月表の照合、最大9〜21時に対する夕方のみの一部利用、年付き月表の明示的休場を区別します。モデルとeffortは変更せず、広島のparser version・cacheだけを更新します。
 
 町田のEvent Organiser collectorは終日イベントに加え、同日の時間指定イベントを本文の時間枠と照合して採用します。重ならない専用利用と個人利用を併記し、時間指定の専用利用だけでは終日利用不可にしません。2026年9月・10月の公式JSONをfixtureとして検証します。
 
@@ -301,7 +303,7 @@ PDF文字抽出は `pdfjs-dist` に同梱されたCMap・standard_fonts・wasm�
 
 三郷のPDF collectorは通常の3時間帯の文字判定に加え、PDF.js 6の描画命令から罫線の座標を抽出します。`整備休場中` を含む結合セルが全時間帯を覆い、内部の縦罫線で分割されていないことを確認し、上下端で休場対象日を決め、隣接する通常利用日へ広げません。休場境界を確認できない資料はunknownへ降格します。1日目の行は通常の行間隔の半分で区切り、列見出しの共用利用時間を利用枠と誤認しません。罫線抽出は三郷のみで行い、公式原本の9月・10月PDFをfixtureとして抽出から判定まで回帰検証します。
 
-博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。取得した公式packet全資料のhashが確認済みhashと一致した場合だけ採用し、翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
+博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。トップページから現行月表を発見し、月表・利用方法・注意事項の全資料のURLとhashが確認済みhashと一致した場合だけ採用します。トップページ本文は資料探索用であり、お知らせの更新だけで停止させません。翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
 
 
 ### Availability収集状態の監視

@@ -1,9 +1,11 @@
 import { digest, type AiPacket, type AiRow } from './ai-runtime';
 
 // Human-reviewed 2026-10 official monthly table and general-use guide.
+// The homepage discovers the current PDF; only the schedule and usage sources
+// are review inputs. Unrelated homepage news must not invalidate this reading.
 // Source changes disable this finite correction; never extrapolate to a new month.
 export const hakataReviewedSourceHash =
-  '1fc3e105beccbabe7e5fd776867352ce9b0bed5daad786411e0ce31d4b8cb0f2';
+  '2581cddafdae7bca4b993962382fc1e74e4bcfc1d56047b018b78991c7d1e8b1';
 const scheduleUrl =
   'https://www.midorimachi.jp/higashihirao/images/park/261002141825533.pdf';
 const eventEnd: Record<number, string> = {
@@ -20,12 +22,15 @@ const noOpening = new Set([8, 9, 10, 11]);
 export function reviewedHakataReading(packet: AiPacket) {
   if (
     packet.key !== 'hakata' ||
-    packet.trackId !== 'hakata-no-mori-auxiliary-athletic-stadium'
+    packet.trackId !== 'hakata-no-mori-auxiliary-athletic-stadium' ||
+    packet.landingPageUrl !== 'https://www.midorimachi.jp/higashihirao/'
   )
     return null;
   const hash = digest(
     JSON.stringify(
-      packet.sources.map((source) => ({ url: source.url, hash: source.hash })),
+      packet.sources
+        .filter((source) => source.url !== packet.landingPageUrl)
+        .map((source) => ({ url: source.url, hash: source.hash })),
     ),
   );
   const schedule = packet.sources.find((source) => source.url === scheduleUrl);

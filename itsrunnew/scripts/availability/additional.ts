@@ -55,7 +55,7 @@ export async function collectAdditionalAvailability(
           ? 'reviewed-official-hakata'
           : reading.collector,
       parserVersion:
-        config.key === 'hakata' ? 'reviewed-hakata-202610-v1' : reading.version,
+        config.key === 'hakata' ? 'reviewed-hakata-202610-v2' : reading.version,
     };
     const unavailable = (
       error: unknown,

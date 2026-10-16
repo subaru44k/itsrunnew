@@ -212,7 +212,7 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 
 range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信障害・408・429・5xxを1回再試行します。Node/Undiciの `UND_ERR_CONNECT_TIMEOUT` だけはcurlで同じ公式GET/HEADを取得します。curlは証明書検証を有効にしたHTTPS限定で、20 MB・20秒・redirect 5回を上限にします。POST・HTTPエラー・証明書エラーには代替取得を使わず、認証headerは転送しません。すべての取得が失敗した場合はunknownを維持し、HTTP status・失敗段階・通信error codeをqueryや認証情報なしでログへ残します。
 
-練馬の週間PDFの日本語文字抽出には、PDF.js同梱のCMapをローカルから読み込みます。2026-10-13更新表のstatusは画像のため、確認済み週間表と凡例のhashが一致する場合だけ有限補正を適用します。半面・緑レーンの制限を保持し、17〜18時の資料間の時間差はunknown、公開期間外もunknownです。新しい画像資料は再レビューを必要とします。[根拠と更新手順](../itsrunnew/scripts/availability/fixtures/nerima-20261013-provenance.md)を参照してください。
+練馬の週間PDFの日本語文字抽出には、PDF.js同梱のCMapをローカルから読み込みます。2026-10-13・10-16更新表のstatusは画像のため、確認済み週間表と凡例のhashが一致する場合だけ有限補正を適用します。半面・緑レーンの制限を保持し、17〜18時の資料間の時間差はunknown、公開期間外もunknownです。新しい画像資料は再レビューを必要とします。[13日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261013-provenance.md)と[16日版の根拠・更新手順](../itsrunnew/scripts/availability/fixtures/nerima-20261016-provenance.md)を参照してください。16日版では21日午前・昼の半面開放と22日昼の緑レーン利用を区別します。公式更新は毎週火・金曜日で、新資料への対応は自動ではありません。
 
 ## 2026-10-14〜15 収集監視通知への対応
 

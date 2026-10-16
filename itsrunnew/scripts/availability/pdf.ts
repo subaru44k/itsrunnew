@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { dirname, join, sep } from 'node:path';
-import { reviewedNerimaPdf, nerimaReviewedPdfHash, nerimaGuideUrl, nerimaReviewedGuideHash } from './nerima-reviewed';
+import { reviewedNerimaPdf, isReviewedNerimaPdf, nerimaGuideUrl, nerimaReviewedGuideHash } from './nerima-reviewed';
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { AvailabilityPeriod, AvailabilityStatus, UnknownReason } from '../../src/model/availability';
 
@@ -655,7 +655,7 @@ export function parseBingoSportsParkPdf(pdf: ExtractedPdf, date: string): PdfPar
 }
 
 export const pdfSourceConfigs: PdfSourceConfig[] = [
-  { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.1.0' },
+  { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.2.0' },
   { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.0.0' },
   { trackId: 'fuchu-citizen-athletic-track', name: '府中市民陸上競技場', landingPageUrl: 'https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html', discovery: 'annual_pdf_discovery', parser: 'fuchu-vector-calendar-guard', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.0.0' },
@@ -803,7 +803,7 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
       if (!extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));
       const extracted = await extractedBySource.get(extractionKey)!;
       let result: PdfParseResult;
-      if (config.trackId === 'nerima-general-sports-park' && sourceHash === nerimaReviewedPdfHash) {
+      if (config.trackId === 'nerima-general-sports-park' && isReviewedNerimaPdf(sourceHash)) {
         const guide = await client.pdf(nerimaGuideUrl);
         if (sha256(guide.bytes) !== nerimaReviewedGuideHash)
           throw new PdfCollectorError('source_changed', 'Nerima image legend changed; review required', nerimaGuideUrl);

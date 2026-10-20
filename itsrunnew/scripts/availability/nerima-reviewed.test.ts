@@ -101,3 +101,69 @@ describe('Nerima official October 16 raster weekly table', () => {
     await expect(changedWeek.collect(config, '2026-10-21', new Date())).rejects.toMatchObject({ reason: 'source_changed' });
   });
 });
+
+describe('Nerima official October 20 raster weekly table', () => {
+  const currentUrl = pdfUrl.replace('20261013', '20261020');
+  const fetchImpl = async (input: string | URL | Request) => {
+    if (String(input) === config.landingPageUrl)
+      return new Response(`<a href="${currentUrl}">陸上競技場の開放状況（直近1週間分）</a>`);
+    const file = String(input) === nerimaGuideUrl ? 'nerima-opening-guide.pdf' : 'nerima-20261020.pdf';
+    return new Response(await readFile(new URL(`./fixtures/${file}`, import.meta.url)), {
+      headers: { 'content-type': 'application/pdf' },
+    });
+  };
+
+  it('verifies the actual source hash and every published slot without extending the old week', async () => {
+    const collector = createPdfCollector(fetchImpl as typeof fetch);
+    const now = new Date('2026-10-20T07:00:00Z');
+    for (let day = 20; day <= 26; day++) {
+      const result = await collector.collect(config, `2026-10-${day}`, now);
+      expect(result).toMatchObject({
+        pdfUrl: currentUrl,
+        sourceHash: 'sha256:635046cef4cf10eccc7d765c02b325a3e456abd41b815d4aa4362f7a94c5ddd1',
+        publishedAt: '2026-10-20',
+        status: [20, 21, 22, 26].includes(day) ? 'partially_available' : 'unknown',
+        unknownReason: [20, 21, 22, 26].includes(day) ? undefined : 'insufficient_information',
+      });
+      expect(result.periods.map(p => [p.from, p.to, p.status, p.scope])).toEqual([
+        ['09:00', '12:00', day === 20 || day === 21 ? 'available' : 'unavailable', day === 21 ? 'lane_subset' : 'full_track'],
+        ['12:00', '15:00', [20, 21, 22, 26].includes(day) ? 'available' : 'unavailable', [20, 21, 22, 26].includes(day) ? 'lane_subset' : 'full_track'],
+        ['15:00', '17:00', day === 20 ? 'available' : 'unavailable', 'full_track'],
+        ['17:00', '18:00', 'unknown', 'unknown'],
+      ]);
+      if (day === 20) {
+        expect(result.periods[0].conditions.join()).toContain('ボール類の使用不可');
+        expect(result.periods[2].conditions.join()).toContain('ボール類の使用不可');
+      }
+      if (day === 21) {
+        expect(result.periods[0].conditions.join()).toContain('半面のみ');
+        expect(result.periods[1].conditions.join()).toContain('半面のみ');
+      }
+      if ([20, 22, 26].includes(day)) {
+        expect(result.periods[1].conditions.join()).toContain('緑レーンのみ');
+        expect(result.periods[1].conditions.join()).toContain('陸上競技の練習・幅跳びレーンは利用不可');
+      }
+    }
+    for (const date of ['2026-10-19', '2026-10-27', '2027-10-21']) {
+      expect(await collector.collect(config, date, now)).toMatchObject({
+        status: 'unknown', periods: [], unknownReason: 'outside_published_period',
+      });
+    }
+  });
+
+  it('requires re-review when the legend or weekly image content changes', async () => {
+    const changedGuide = createPdfCollector((async input => String(input) === nerimaGuideUrl
+      ? new Response('%PDF-changed', { headers: { 'content-type': 'application/pdf' } })
+      : fetchImpl(input)) as typeof fetch);
+    await expect(changedGuide.collect(config, '2026-10-21', new Date())).rejects.toMatchObject({ reason: 'source_changed' });
+    const changedWeek = createPdfCollector((async input => {
+      const response = await fetchImpl(input);
+      if (String(input) !== currentUrl) return response;
+      // A valid PDF with changed bytes must not inherit the reviewed dates.
+      return new Response(Buffer.concat([Buffer.from(await response.arrayBuffer()), Buffer.from('\n% changed\n')]), {
+        headers: { 'content-type': 'application/pdf' },
+      });
+    }) as typeof fetch);
+    await expect(changedWeek.collect(config, '2026-10-21', new Date())).rejects.toMatchObject({ reason: 'source_changed' });
+  });
+});

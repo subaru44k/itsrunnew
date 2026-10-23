@@ -1,3 +1,4 @@
+import { assertOfficialPageAvailable } from './source-availability';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
@@ -109,7 +110,10 @@ export async function officialFetch(
       }
       chunks.push(value);
     }
-    return { url, data: Buffer.concat(chunks) };
+    const data = Buffer.concat(chunks);
+    if (/^\s*(?:<!doctype html|<html)/i.test(data.subarray(0, 200).toString('utf8')))
+      assertOfficialPageAvailable(data.toString('utf8'));
+    return { url, data };
   }
   throw new Error('Too many official source redirects');
 }

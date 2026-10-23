@@ -129,3 +129,5 @@ AI availabilityのcacheは施設ID・全対象日・内容を検証して再利�
 博多の森補助競技場は現在、資料hashで照合する確認済み2026年10月日程を使用します。資料変更時は要確認へ落とし、[確認資料](scripts/availability/fixtures/hakata-reviewed-provenance.md)に従って新しい月表をレビューします。
 
 PDF collectorは `pdfjs-dist` 同梱CMap・標準font・wasmをローカルで使用します。練馬の画像形式の週間表は[確認済み資料と更新手順](scripts/availability/fixtures/nerima-20261013-provenance.md)に従い、資料hashを照合して公開範囲だけを判定します。
+
+公式サイトがHTTP 200で全面メンテナンス画面を返す場合も、収集時にfetch_failedとして要確認を維持します。AIの公式資料取得失敗と読取失敗を区別し、停止中の予定を古いcacheだけで再公開しません。2026-10-23の調査根拠は[施設別記録](scripts/availability/fixtures/outages-20261023-provenance.md)、練馬の最新確認表は[10月23日版](scripts/availability/fixtures/nerima-20261023-provenance.md)を参照してください。

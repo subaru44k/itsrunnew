@@ -1,3 +1,4 @@
+import { assertOfficialPageAvailable } from './source-availability';
 import { createHash } from 'node:crypto';
 import type { AvailabilityPeriod, TrackAvailability, UnknownReason } from '../../src/model/availability';
 import { expansionFallbackSources, PARSER_VERSION, sourceUrls } from './config';
@@ -144,6 +145,7 @@ async function request(url: string, fetchImpl: FetchLike, init?: RequestInit) {
   const response = await fetchImpl(url, { signal: AbortSignal.timeout(30000), ...init });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const html = await response.text();
+  assertOfficialPageAvailable(html);
   return { html, sourceHash: hash(html) };
 }
 
@@ -211,6 +213,7 @@ function headerRange(header: string) {
 }
 
 export function parseTefCalendar(html: string, context: Omit<CollectorContext, 'fetchImpl' | 'now'> & { now: Date; fetchedAt?: string; sourceHash?: string }, config: TefCalendarConfig) {
+  assertOfficialPageAvailable(html);
   const { year, month, day } = dateParts(context.date);
   const expected = `${year}年${String(month).padStart(2, '0')}月${String(day).padStart(2, '0')}日`;
   if (!html.includes(`name='h_targetDate' value=${expected}`) && !html.includes(`name="h_targetDate" value="${expected}"`)) {

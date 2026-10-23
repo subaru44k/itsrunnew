@@ -11,3 +11,5 @@
 | 維新補助 | landingが503×2、旧分類extraction_failed | https://www.ishin100.com/main/ はHTTP 200の maintenance.htmlへredirectし「ただいまメンテナンス中です」。公式サイトはPHPの脆弱性に対応する停止と説明。HTML原本をfixtureとして保存 |
 
 HTTP 200の全面メンテナンス画面はtitle/h1の明示文言で識別し、通常予定内の設備メンテナンスとは区別する。AIの公式資料取得段階のHTTP・ネットワーク・メンテナンスエラーはfetch_failed、取得後の読取失敗はextraction_failedとして区別する。停止画面はAI入力やcacheへ入れず、利用可能・不可を推測しない。
+
+保存した維新HTML fixtureは末尾空白のみ除去し、見出し・本文・リンクは保持しています。

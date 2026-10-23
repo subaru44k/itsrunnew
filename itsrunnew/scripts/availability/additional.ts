@@ -59,7 +59,7 @@ export async function collectAdditionalAvailability(
     };
     const unavailable = (
       error: unknown,
-      reason: 'extraction_failed' | 'source_changed' = 'extraction_failed',
+      reason: 'extraction_failed' | 'source_changed' | 'fetch_failed' = 'extraction_failed',
     ) => {
       // Deliberately fixed public warning; API/request internals never enter the website.
       console.warn(
@@ -81,7 +81,8 @@ export async function collectAdditionalAvailability(
       // Keep official source requests sequential; only overlap model readings.
       packet = await buildAiPacket(config, dates, now, fetchImpl);
     } catch (error) {
-      aiRecords.push(Promise.resolve(unavailable(error)));
+      const fetchFailed = error instanceof TypeError || (error instanceof Error && /Official source HTTP|fetch failed|network|abort|timeout/i.test(error.message));
+      aiRecords.push(Promise.resolve(unavailable(error, fetchFailed ? 'fetch_failed' : 'extraction_failed')));
       continue;
     }
     if (activeReadings.size >= MAX_CONCURRENT_AI_READINGS)

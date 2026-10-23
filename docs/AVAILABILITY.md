@@ -212,7 +212,7 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 
 range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信障害・408・429・5xxを1回再試行します。Node/Undiciの `UND_ERR_CONNECT_TIMEOUT` だけはcurlで同じ公式GET/HEADを取得します。curlは証明書検証を有効にしたHTTPS限定で、20 MB・20秒・redirect 5回を上限にします。POST・HTTPエラー・証明書エラーには代替取得を使わず、認証headerは転送しません。すべての取得が失敗した場合はunknownを維持し、HTTP status・失敗段階・通信error codeをqueryや認証情報なしでログへ残します。
 
-練馬の週間PDFの日本語文字抽出には、PDF.js同梱のCMapをローカルから読み込みます。2026-10-13・10-16・10-20更新表のstatusは画像のため、確認済み週間表と凡例のhashが一致する場合だけ有限補正を適用します。半面・緑レーンの制限を保持し、17〜18時の資料間の時間差はunknown、公開期間外もunknownです。新しい画像資料は再レビューを必要とします。[13日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261013-provenance.md)と[16日版の根拠・更新手順](../itsrunnew/scripts/availability/fixtures/nerima-20261016-provenance.md)を参照してください。16日版では21日午前・昼の半面開放と22日昼の緑レーン利用を区別します。[20日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261020-provenance.md)では20〜26日の全枠を確認し、20日朝・午後の陸上トラック優先、21日朝・昼の半面、20・22・26日昼の緑レーン利用を保持します。公式更新は毎週火・金曜日で、新資料への対応は自動ではありません。
+練馬の週間PDFの日本語文字抽出には、PDF.js同梱のCMapをローカルから読み込みます。2026-10-13・10-16・10-20・10-23更新表のstatusは画像のため、確認済み週間表と凡例のhashが一致する場合だけ有限補正を適用します。半面・緑レーンの制限を保持し、17〜18時の資料間の時間差はunknown、公開期間外もunknownです。新しい画像資料は再レビューを必要とします。[13日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261013-provenance.md)と[16日版の根拠・更新手順](../itsrunnew/scripts/availability/fixtures/nerima-20261016-provenance.md)を参照してください。16日版では21日午前・昼の半面開放と22日昼の緑レーン利用を区別します。[20日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261020-provenance.md)では20〜26日の全枠を確認し、20日朝・午後の陸上トラック優先、21日朝・昼の半面、20・22・26日昼の緑レーン利用を保持します。公式更新は毎週火・金曜日で、新資料への対応は自動ではありません。
 
 ## 2026-10-14〜15 収集監視通知への対応
 
@@ -221,3 +221,5 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 - 博多の森補助: 月表PDF・利用方法・注意事項のhashは確認済み資料と一致し、トップページ本文だけが変化していた。判定資料のURL・hash・数・順序を引き続き照合し、探索用本文をguardから除外する。実取得packetで10月15〜31日の17日分（通常11日、大会後6日）が確認済み判定へ戻り、11月は未掲載としてunknownを保つ。[照合hashと根拠](../itsrunnew/scripts/availability/fixtures/hakata-reviewed-provenance.md)を参照。
 
 これらの通知は収集・判定の障害であり、施設の利用停止を示すものではない。監視の閾値やunknownの意味は変更しない。2026-10-15にAPI keyを使って実読解し、広島・維新とも全61日の構造検証を通過した。広島の10月15〜31日について、14日の利用枠（分割枠を含む）と3日の明示的休場を原資料と照合した。維新は対象31日中8日の明示枠・11月9日の休場を確認し、空欄・大会予定だけの日はunknownを維持した。博多は10月の17日分が回復した。広島・博多の11月は未掲載のためunknown。維新の10月23〜25日は現在の資料でもunknownのため、既存のcoverage_dropはこれらの日の根拠が戻るか監視範囲から外れるまで残り得る。監視を復旧扱いにするためのstatus補完は行わない。
+
+2026-10-23更新の練馬表は[確認根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261023-provenance.md)に基づく23〜29日の有限補正です。27日朝・午後の陸上トラック優先、28日朝の半面、26〜29日昼の緑レーン条件を保持します。一部文字が抽出できても未知hashを旧parserへ戻しません。HTTP 200の全面メンテナンス画面はtitle/h1から検出し、HTML/AIともfetch_failedとしてunknownを保持します。AIの公式source取得失敗もextraction_failedとは区別します。[同日の障害根拠](../itsrunnew/scripts/availability/fixtures/outages-20261023-provenance.md)を参照してください。

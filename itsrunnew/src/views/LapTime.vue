@@ -127,7 +127,7 @@ watch(settings, value => {
   actionStatus.value = ''; manualLink.value = false;
   if (value && edited.value) commit(value);
 });
-watch(() => [route.query.goal, route.query.pace], () => {
+watch([() => route.query.goal, () => route.query.pace], () => {
   const value = fromLocation();
   if (parsePaceQuery(route.query)) { persist(value); modeValues[value.mode] = value.seconds; }
   if (settings.value?.mode === value.mode && settings.value.seconds === value.seconds) return;

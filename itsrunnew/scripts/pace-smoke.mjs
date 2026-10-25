@@ -92,7 +92,12 @@ async function gotoPace(page, path) {
 }
 
 async function waitForGoal(page, expected) {
-  await page.waitForFunction(value => document.querySelector('[data-goal-summary]')?.textContent?.trim() === value, expected);
+  try {
+    await page.waitForFunction(value => document.querySelector('[data-goal-summary]')?.textContent?.trim() === value, expected);
+  } catch (error) {
+    const actual = await page.locator('[data-goal-summary]').textContent();
+    throw new Error(`Expected goal ${expected}, got ${actual} at ${page.url()}`, { cause: error });
+  }
 }
 
 async function waitForResults(page, visible) {

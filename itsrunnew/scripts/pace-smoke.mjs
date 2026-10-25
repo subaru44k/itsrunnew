@@ -337,7 +337,7 @@ async function runFacilityTrainingFlow(browser, viewport, locale) {
     await page.waitForURL(url => url.hash === '#pace-training');
     await page.waitForFunction(() => { const top = document.querySelector('#pace-training').getBoundingClientRect().top; return top >= 60 && top < window.innerHeight - 100; });
     if (await trainingValue(page, '400 m') !== '0:02:12') throw new Error('Facility flow lost saved training pace');
-    await page.locator('#pace-training > a').click();
+    await page.locator('#pace-training > a[href="#pace-detail"]').click();
     await page.waitForURL(url => url.hash === '#pace-detail');
     await page.locator('[data-pace-seconds]').fill('0');
     await waitForGoal(page, '3:30:58');

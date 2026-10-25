@@ -95,7 +95,7 @@ jobs:
       - name: Verify pace planner and facility navigation
         if: steps.change_scope.outputs.docs_only != 'true'
         run: |
-          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > /tmp/itsrun-pace-preview.log 2>&1 &
+          node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort > /tmp/itsrun-pace-preview.log 2>&1 &
           pace_preview_pid=$!
           trap 'kill "$pace_preview_pid"' EXIT
           for attempt in {1..60}; do

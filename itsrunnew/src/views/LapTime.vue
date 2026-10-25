@@ -10,7 +10,7 @@
       <div class="mode-switch" role="group" :aria-label="copy.input">
         <button v-for="value in (['goal', 'pace'] as const)" :key="value" type="button" :aria-pressed="mode === value" @click="changeMode(value)">{{ value === 'goal' ? copy.byGoal : copy.byPace }}</button>
       </div>
-      <fieldset class="time-inputs" @input="edited = true">
+      <fieldset class="time-inputs" @input.capture="edited = true">
         <legend>{{ mode === 'goal' ? copy.goal : copy.pace }}</legend>
         <label v-if="mode === 'goal'">{{ copy.hours }}<input v-model="hours" data-pace-hours type="number" inputmode="numeric" min="0" max="12" step="1" :aria-invalid="!settings" aria-describedby="pace-input-help" /></label>
         <label>{{ copy.minutes }}<input v-model="minutes" data-pace-minutes type="number" inputmode="numeric" min="0" :max="mode === 'goal' ? 59 : 20" step="1" :aria-invalid="!settings" aria-describedby="pace-input-help" /></label>

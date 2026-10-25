@@ -95,7 +95,7 @@
 
         <section class="info-section pace-discovery" aria-labelledby="training-pace-heading">
           <h2 id="training-pace-heading">{{ isEnglish ? 'Plan your training pace' : '練習のペースを確認する' }}</h2>
-          <p>{{ isEnglish ? 'Use a marathon goal or pace per km to check times for 400 m, 1 km and longer runs.' : 'マラソンの目標タイムや1kmペースから、400m・1kmなどの練習での所要時間を確認できます。' }}</p>
+          <p>{{ isEnglish ? 'Use a marathon goal or pace per km to check times for 300 m, 400 m, 1 km and longer runs.' : 'マラソンの目標タイムや1kmペースから、300m・400m・1kmなどの練習での所要時間を確認できます。' }}</p>
           <router-link class="pace-discovery-link" :to="`${isEnglish ? '/en' : ''}/pace/marathon#pace-detail`">{{ isEnglish ? 'Check the marathon pace table' : 'マラソンペース表で確認する' }} <span aria-hidden="true">→</span></router-link>
         </section>
 

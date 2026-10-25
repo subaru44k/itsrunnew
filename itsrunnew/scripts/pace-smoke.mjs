@@ -134,6 +134,16 @@ async function trainingValue(page, distance) {
   return row.value;
 }
 
+async function verifyTrainingDistances(page) {
+  await gotoPace(page, `${new URL(page.url()).pathname}?pace=330`);
+  const expected = [['200 m', '0:01:06'], ['250 m', '0:01:22'], ['300 m', '0:01:39'], ['400 m', '0:02:12'], ['800 m', '0:04:24'], ['1 km', '0:05:30'], ['2 km', '0:11:00'], ['5 km', '0:27:30'], ['10 km', '0:55:00']];
+  if (await page.locator('.training-times div').count() !== expected.length) throw new Error('Unexpected training distance count');
+  for (const [distance, value] of expected) {
+    if (await trainingValue(page, distance) !== value) throw new Error(`Incorrect training time for ${distance}`);
+  }
+  await assertNoDocumentOverflow(page, 'expanded training distances');
+}
+
 async function verifyPng(path) {
   const bytes = await readFile(path);
   const signature = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -282,6 +292,7 @@ async function runJapaneseFlow(browser, viewport) {
     await verifyComparison(page);
     await assertNoDocumentOverflow(page, `${viewport.name}/ja`);
     await saveScreenshot(page, `${viewport.name}-ja-comparison`);
+    await verifyTrainingDistances(page);
   } finally {
     await page.close();
     await context.close();
@@ -293,6 +304,7 @@ async function runEnglishFlow(browser, viewport) {
   const page = await openPage(context, viewport.name, 'en');
   try {
     await gotoPace(page, '/en/pace/marathon');
+    await verifyTrainingDistances(page);
     if (await page.locator('h1').textContent() !== 'Marathon pace table') throw new Error('English pace heading is missing');
     await page.getByRole('heading', { name: 'Split times', exact: true }).waitFor({ state: 'visible' });
     await page.getByRole('heading', { name: 'Training times', exact: true }).waitFor({ state: 'visible' });

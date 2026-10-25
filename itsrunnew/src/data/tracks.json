@@ -617,7 +617,7 @@
     "urls": {
       "official": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
       "individualUse": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
-      "schedule": "https://yoyaku.koto-sports.net/"
+      "schedule": "https://www.di-ksp.jp/facility/yumenoshima_k/schedule"
     },
     "externalIds": {
       "jaaf": "132070",
@@ -626,6 +626,11 @@
       ]
     },
     "sources": [
+      {
+        "url": "https://www.di-ksp.jp/facility/yumenoshima_k/schedule",
+        "type": "official",
+        "verifiedAt": "2026-10-25"
+      },
       {
         "url": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
         "type": "official",

@@ -81,7 +81,7 @@ CloudFrontの更新が`Deployed`になり、default domainと`Host: itsrun.info`
 ### 4. Cutover verification
 
 - certificate、`/`、`/en/`、全既知route、旧URL 301、未知URL 404
-- 43 supported tracks（掲載133施設のうちlegacy 33＋追加AI/ICS 10）、future date、unknown保持、公式・経路link
+- 44 supported tracks（掲載133施設のうちlegacy 33＋夢の島HTML 1＋追加AI/ICS 10）、future date、unknown保持、公式・経路link
 - `robots.txt`、`sitemap.xml`、canonical、OGP、`ads.txt`
 - 同意前GA4なし、同意後GA4あり、広告なし
 - cache metadata、CloudFront errors、availability daily run

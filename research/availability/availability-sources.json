@@ -568,21 +568,21 @@
       "name": "江東区夢の島競技場",
       "availabilityInformationExistsOnOfficialWeb": true,
       "availabilitySource": {
-        "type": "reservation_system",
-        "url": "https://yoyaku.koto-sports.net/",
+        "type": "calendar_html",
+        "url": "https://www.di-ksp.jp/facility/yumenoshima_k/schedule",
         "discoveryUrl": "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
-        "granularity": "reservation_slot",
-        "updateFrequency": "realtime",
-        "updateNote": "貸切予約状況と施設案内を確認",
-        "urlStability": "external_booking_system"
+        "granularity": "time_slot",
+        "updateFrequency": "rolling_two_weeks",
+        "updateNote": "公式2週間予定表の個人・団体貸切・休場日を3時間帯で確認",
+        "urlStability": "stable"
       },
       "automation": {
-        "feasibility": "difficult",
-        "reason": "団体貸切枠の空きと個人利用への切替を結合する必要がある"
+        "feasibility": "easy",
+        "reason": "HTML表のcolspanを展開して明示された個人利用枠だけ判定する"
       },
       "semantics": {
-        "canInferAvailable": false,
-        "coverage": "reservation_slots",
+        "canInferAvailable": true,
+        "coverage": "published_two_weeks",
         "rule": "個人利用と明示された枠だけavailable。予約枠の空きだけでは判定しない",
         "absenceMeaning": "貸切予定がないことを個人利用可とみなさない"
       },
@@ -594,9 +594,10 @@
       ],
       "sources": [
         "https://www.city.koto.lg.jp/104010/bunkasports/sports/torikumi/6384.html",
-        "https://yoyaku.koto-sports.net/"
+        "https://yoyaku.koto-sports.net/",
+        "https://www.di-ksp.jp/facility/yumenoshima_k/schedule"
       ],
-      "verifiedAt": "2026-08-24"
+      "verifiedAt": "2026-10-25"
     },
     {
       "trackId": "komazawa-olympic-park-track",

@@ -75,12 +75,24 @@ describe('marathon pace model', () => {
   it('calculates training splits from the same pace without accumulated rounding', () => {
     const settings: PaceSettings = { mode: 'pace', seconds: 300 };
     expect(trainingSplits(settings)).toEqual([
+      { metres: 200, seconds: 60 },
+      { metres: 250, seconds: 75 },
+      { metres: 300, seconds: 90 },
       { metres: 400, seconds: 120 },
+      { metres: 800, seconds: 240 },
       { metres: 1000, seconds: 300 },
+      { metres: 2000, seconds: 600 },
       { metres: 5000, seconds: 1500 },
       { metres: 10000, seconds: 3000 },
     ]);
     expect(marathonSplits(settings)[4].seconds).toBe(6329.25);
+  });
+
+  it('uses exact goal proportions for short track laps without multiplying rounded km pace', () => {
+    const rows = trainingSplits({ mode: 'goal', seconds: 14400 });
+    for (const [metres, formatted] of [[200, '0:01:08'], [250, '0:01:25'], [300, '0:01:42'], [400, '0:02:16'], [800, '0:04:33'], [2000, '0:11:22']] as const) {
+      expect(formatDuration(rows.find(row => row.metres === metres)!.seconds)).toBe(formatted);
+    }
   });
 
   it('keeps the legacy comparison pace and halfway split consistent with the personal table', () => {
@@ -97,7 +109,7 @@ describe('marathon pace model', () => {
       }
       expect(formatDuration(goalSeconds(settings))).toBe(formatDuration(seconds * 42195 / 1000));
     }
-    expect(trainingSplits({ mode: 'pace', seconds: 120 })[0].seconds).toBe(48);
+    expect(trainingSplits({ mode: 'pace', seconds: 120 }).find(row => row.metres === 400)?.seconds).toBe(48);
   });
 
   describe('query and persisted settings parsing', () => {

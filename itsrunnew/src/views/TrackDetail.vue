@@ -93,6 +93,12 @@
           <p v-if="track.individualUse.note" class="track-note">{{ track.individualUse.note }}</p>
         </section>
 
+        <section class="info-section pace-discovery" aria-labelledby="training-pace-heading">
+          <h2 id="training-pace-heading">{{ isEnglish ? 'Plan your training pace' : '練習のペースを確認する' }}</h2>
+          <p>{{ isEnglish ? 'Use a marathon goal or pace per km to check times for 300 m, 400 m, 1 km and longer runs.' : 'マラソンの目標タイムや1kmペースから、300m・400m・1kmなどの練習での所要時間を確認できます。' }}</p>
+          <router-link class="pace-discovery-link" :to="`${isEnglish ? '/en' : ''}/pace/marathon#pace-detail`">{{ isEnglish ? 'Check the marathon pace table' : 'マラソンペース表で確認する' }} <span aria-hidden="true">→</span></router-link>
+        </section>
+
         <template v-if="isOda">
           <section class="info-section oda-facility-section">
             <h2>{{ $t('oda.info_title') }}</h2>
@@ -339,6 +345,9 @@ const odaNoticeUrl = computed(() => track.value?.urls.schedule ?? track.value?.u
 
 <style scoped>
 .track-detail-page { max-width: 1080px; padding-block: 24px 56px; }
+.pace-discovery { background: #f4f6fc; }
+.pace-discovery-link { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: #304397; font-weight: 700; }
+.pace-discovery-link:focus-visible { outline: 3px solid #5576d8; outline-offset: 3px; }
 .breadcrumbs { display: flex; gap: 8px; margin-bottom: 12px; color: #666; font-size: 13px; }
 .detail-hero { padding: 20px 24px; color: white; background: linear-gradient(135deg,#283593,#00897b); border-radius: 12px; }
 .detail-hero h1 { margin: 3px 0 8px; font-size: clamp(27px,5vw,40px); }

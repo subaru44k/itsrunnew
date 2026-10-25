@@ -1,14 +1,16 @@
 <template>
   <v-container class="pace-page">
     <header class="pace-heading"><p class="eyebrow">PACE PLANNER</p><h1>{{ copy.title }}</h1><p>{{ copy.intro }}</p></header>
+    <nav class="pace-shortcuts" :aria-label="copy.shortcuts"><router-link :to="{ query: route.query, hash: '#pace-detail' }">{{ copy.trainingStart }}</router-link></nav>
     <PaceComparison :selected="settings ? goalSeconds(settings) : null" @select="selectGoal" />
     <section id="pace-detail" ref="detail" class="pace-panel detail-panel" tabindex="-1" :aria-label="copy.input">
       <h2>{{ copy.detail }}</h2>
-      <a href="#pace-comparison">{{ copy.backCompare }}</a>
+      <router-link :to="{ query: route.query, hash: '#pace-comparison' }">{{ copy.backCompare }}</router-link>
+      <p class="training-help">{{ copy.trainingHelp }} <router-link v-if="settings" :to="{ query: route.query, hash: '#pace-training' }">{{ copy.viewTraining }}</router-link></p>
       <div class="mode-switch" role="group" :aria-label="copy.input">
         <button v-for="value in (['goal', 'pace'] as const)" :key="value" type="button" :aria-pressed="mode === value" @click="changeMode(value)">{{ value === 'goal' ? copy.byGoal : copy.byPace }}</button>
       </div>
-      <fieldset class="time-inputs" @input="edited = true">
+      <fieldset class="time-inputs" @input.capture="edited = true">
         <legend>{{ mode === 'goal' ? copy.goal : copy.pace }}</legend>
         <label v-if="mode === 'goal'">{{ copy.hours }}<input v-model="hours" data-pace-hours type="number" inputmode="numeric" min="0" max="12" step="1" :aria-invalid="!settings" aria-describedby="pace-input-help" /></label>
         <label>{{ copy.minutes }}<input v-model="minutes" data-pace-minutes type="number" inputmode="numeric" min="0" :max="mode === 'goal' ? 59 : 20" step="1" :aria-invalid="!settings" aria-describedby="pace-input-help" /></label>
@@ -37,8 +39,10 @@
           <p role="status" class="action-status">{{ actionStatus }}</p>
           <label v-if="manualLink" class="manual-link">{{ copy.manualCopy }}<input readonly :value="shareUrl" @focus="($event.target as HTMLInputElement).select()" /></label>
         </section>
-        <section class="pace-panel training-panel">
+        <section id="pace-training" class="pace-panel training-panel" tabindex="-1" :aria-label="copy.training">
           <p class="eyebrow">TRAINING</p><h2>{{ copy.training }}</h2><p>{{ copy.trainingIntro }}</p>
+          <p class="calculation-note">{{ copy.trainingNote }}</p>
+          <router-link :to="{ query: route.query, hash: '#pace-detail' }">{{ copy.adjustTraining }}</router-link>
           <dl class="training-times"><div v-for="row in training" :key="row.metres"><dt>{{ distanceLabel(row.metres) }}</dt><dd>{{ formatDuration(row.seconds) }}</dd></div></dl>
           <router-link class="track-link" :to="locale === 'en' ? '/en/' : '/'">{{ copy.findTrack }} <span aria-hidden="true">→</span></router-link>
         </section>
@@ -123,7 +127,7 @@ watch(settings, value => {
   actionStatus.value = ''; manualLink.value = false;
   if (value && edited.value) commit(value);
 });
-watch(() => [route.query.goal, route.query.pace], () => {
+watch([() => route.query.goal, () => route.query.pace], () => {
   const value = fromLocation();
   if (parsePaceQuery(route.query)) { persist(value); modeValues[value.mode] = value.seconds; }
   if (settings.value?.mode === value.mode && settings.value.seconds === value.seconds) return;
@@ -177,6 +181,11 @@ async function selectGoal(seconds: number) {
 
 <style scoped>
 .pace-page { max-width: 1080px; padding: 32px 24px 56px; color: #202c43; }
+.pace-shortcuts { margin-bottom: 20px; }
+.pace-shortcuts a { display: inline-flex; align-items: center; min-height: 44px; color: #304397; font-weight: 650; }
+.training-help { margin-bottom: 20px; line-height: 1.7; }
+.training-help a, .training-panel > a { color: #304397; }
+.training-panel { scroll-margin-top: 88px; }
 .pace-heading { margin-bottom: 24px; }
 .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .14em; color: #3f51b5; margin-bottom: 6px; }
 h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.3; margin-bottom: 10px; }

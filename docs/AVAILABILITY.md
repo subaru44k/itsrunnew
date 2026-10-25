@@ -2,7 +2,7 @@
 
 ## 目的と境界
 
-Track Searchのavailabilityは、「その施設が一般の個人利用を受け付けるか」という比較的staticな `src/data/tracks.json` と、「指定日に実際に利用できるか」という日付別の `src/data/availability.json` を分離します。Track Datasetには133施設を掲載し、legacy collector 33施設に追加10施設（Luna AI 8施設、個人利用ICS 2施設）を加えた43施設を日付判定の対象にします。対応対象でも、予定未公開・取得失敗・日別根拠不足は `unknown` になり、43施設すべてが毎日positiveになるわけではありません。
+Track Searchのavailabilityは、「その施設が一般の個人利用を受け付けるか」という比較的staticな `src/data/tracks.json` と、「指定日に実際に利用できるか」という日付別の `src/data/availability.json` を分離します。Track Datasetには133施設を掲載し、legacy collector 33施設と夢の島HTML 1施設に追加10施設（Luna AI 8施設、個人利用ICS 2施設）を加えた44施設を日付判定の対象にします。対応対象でも、予定未公開・取得失敗・日別根拠不足は `unknown` になり、44施設すべてが毎日positiveになるわけではありません。
 
 ```text
 公式HTML / calendar / JSON / 固定規則 / PDF
@@ -93,7 +93,9 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `ai`（PDF/HTML/画像） | 等々力、知多、平塚、広島広域公園補助、維新補助、博多の森補助、世田谷、荻野 | 公式landing pageとリンクされた当月・翌月資料を取得し、Lunaの構造化出力を検証 |
 | `calendar_ics` | 神戸総合運動公園補助、市原ZAオリプリスタジアム | 公式ページに埋め込まれたGoogle Calendarの所有権を確認し、個人利用ICSを決定論的に解析 |
 
-133施設中43施設（32.3%）を安全な自動判定対象にしています。内訳はlegacy 33施設と追加10施設です。legacyのpublication format内訳はstructured HTML 7、calendar HTML 3、calendar JSON 1、固定規則9、weekly notice 1、PDF 12（合計33）で、追加分はAI 8、calendar ICS 2です。collector対応数は「対象日を判定できる実装」の数であり、対応施設の全日positiveを意味しません。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式noticeだけを対象にするtoday-only sourceで、当日以外へ一般規則を外挿せず、noticeがない日は `unknown` です。
+夢の島は公式 `https://www.di-ksp.jp/facility/yumenoshima_k/schedule` のHTMLによる2週間予定表を取得します。結合セルを9–13時・13–17時・17–21時に展開し、「個人」だけ利用可、「団体貸切」「休場日」「×」は利用不可、特別イベントはunknownとします。日付は収集時のJST年から年またぎを解決し、曜日・連続日・表構造を検証します。掲載期間外・古い表・取得／解析失敗はunknownです。最終入場は利用終了1時間前という公式注意も保持します。
+
+133施設中44施設（33.1%）を安全な自動判定対象にしています。内訳はlegacy 33施設、夢の島HTML 1施設と追加10施設です。legacyのpublication format内訳はstructured HTML 7、calendar HTML 3、calendar JSON 1、固定規則9、weekly notice 1、PDF 12（合計33）で、追加分はAI 8、calendar ICS 2です。collector対応数は「対象日を判定できる実装」の数であり、対応施設の全日positiveを意味しません。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式noticeだけを対象にするtoday-only sourceで、当日以外へ一般規則を外挿せず、noticeがない日は `unknown` です。
 
 未対応施設もdatasetとUIから除外しません。
 
@@ -206,7 +208,7 @@ schedulerは未実装です。日次生成が失敗した場合もunknown datase
 
 ## 次の段階
 
-現collectorは43/133（32.3%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。AI 8施設は当月・翌月資料を施設別packetへまとめ、世田谷だけはtoday-onlyです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開・keylessでcache missのAI資料は引き続きunknownです。
+現collectorは44/133（33.1%）で、31日の日付検索UIと全施設の安全なunknown fallbackまで実装済みです。AI 8施設は当月・翌月資料を施設別packetへまとめ、世田谷だけはtoday-onlyです。新規施設はsource semanticsを個別検証してからcollectorへ加えます。公開範囲外・対象月未公開・keylessでcache missのAI資料は引き続きunknownです。
 
 新座予約システムは、規約・低頻度アクセス・cache・「空き」の意味を確認するまで実装しません。城北中央は公式Web日程が提供されない限りmanual confirmationを維持します。
 

@@ -92,7 +92,12 @@ async function gotoPace(page, path) {
 }
 
 async function waitForGoal(page, expected) {
-  await page.waitForFunction(value => document.querySelector('[data-goal-summary]')?.textContent?.trim() === value, expected);
+  try {
+    await page.waitForFunction(value => document.querySelector('[data-goal-summary]')?.textContent?.trim() === value, expected);
+  } catch (error) {
+    const actual = await page.locator('[data-goal-summary]').textContent();
+    throw new Error(`Expected goal ${expected}, got ${actual} at ${page.url()}`, { cause: error });
+  }
 }
 
 async function waitForResults(page, visible) {
@@ -127,6 +132,16 @@ async function trainingValue(page, distance) {
   const row = rows.find(item => item.distance === distance);
   if (!row) throw new Error(`Training row ${distance} was not found`);
   return row.value;
+}
+
+async function verifyTrainingDistances(page) {
+  await gotoPace(page, `${new URL(page.url()).pathname}?pace=330`);
+  const expected = [['200 m', '0:01:06'], ['250 m', '0:01:22'], ['300 m', '0:01:39'], ['400 m', '0:02:12'], ['800 m', '0:04:24'], ['1 km', '0:05:30'], ['2 km', '0:11:00'], ['5 km', '0:27:30'], ['10 km', '0:55:00']];
+  if (await page.locator('.training-times div').count() !== expected.length) throw new Error('Unexpected training distance count');
+  for (const [distance, value] of expected) {
+    if (await trainingValue(page, distance) !== value) throw new Error(`Incorrect training time for ${distance}`);
+  }
+  await assertNoDocumentOverflow(page, 'expanded training distances');
 }
 
 async function verifyPng(path) {
@@ -277,6 +292,7 @@ async function runJapaneseFlow(browser, viewport) {
     await verifyComparison(page);
     await assertNoDocumentOverflow(page, `${viewport.name}/ja`);
     await saveScreenshot(page, `${viewport.name}-ja-comparison`);
+    await verifyTrainingDistances(page);
   } finally {
     await page.close();
     await context.close();
@@ -288,6 +304,7 @@ async function runEnglishFlow(browser, viewport) {
   const page = await openPage(context, viewport.name, 'en');
   try {
     await gotoPace(page, '/en/pace/marathon');
+    await verifyTrainingDistances(page);
     if (await page.locator('h1').textContent() !== 'Marathon pace table') throw new Error('English pace heading is missing');
     await page.getByRole('heading', { name: 'Split times', exact: true }).waitFor({ state: 'visible' });
     await page.getByRole('heading', { name: 'Training times', exact: true }).waitFor({ state: 'visible' });
@@ -311,6 +328,50 @@ async function runEnglishFlow(browser, viewport) {
     if (await page.locator('[data-comparison-goal="23400"] button').getAttribute('aria-pressed') !== 'true') throw new Error('Locale switch lost comparison selection');
   } finally {
     await page.close();
+    await context.close();
+  }
+}
+
+async function runFacilityTrainingFlow(browser, viewport, locale) {
+  const prefix = locale === 'en' ? '/en' : '';
+  const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
+  // Facility pages include third-party maps; keep this navigation check local.
+  await context.route('**/*', route => localRequest(route.request().url()) ? route.continue() : route.abort());
+  const page = await openPage(context, viewport.name, `${locale}-facility-training`);
+  try {
+    await gotoPace(page, `${prefix}/pace/marathon?pace=330`);
+    await page.goto(new URL(`${prefix}/tracks/komazawa-olympic-park-track`, baseUrl).href, { waitUntil: 'domcontentloaded' });
+    const link = page.locator('.pace-discovery-link');
+    await link.waitFor({ state: 'visible' });
+    if (await link.getAttribute('href') !== `${prefix}/pace/marathon#pace-detail`) throw new Error('Facility pace link lost locale or input anchor');
+    await assertNoDocumentOverflow(page, `${viewport.name}/${locale}-facility`);
+    await saveScreenshot(page, `${viewport.name}-${locale}-facility-training`);
+    await link.click();
+    await page.waitForURL(url => url.pathname === `${prefix}/pace/marathon` && url.hash === '#pace-detail');
+    await waitForGoal(page, '3:52:04');
+    await page.waitForFunction(() => { const top = document.querySelector('#pace-detail').getBoundingClientRect().top; return top >= 60 && top < 150; });
+    await page.locator('.training-help a').click();
+    await page.waitForURL(url => url.hash === '#pace-training');
+    await page.waitForFunction(() => { const top = document.querySelector('#pace-training').getBoundingClientRect().top; return top >= 60 && top < window.innerHeight - 100; });
+    if (await trainingValue(page, '400 m') !== '0:02:12') throw new Error('Facility flow lost saved training pace');
+    await page.locator('#pace-training > a[href$="#pace-detail"]').click();
+    await page.waitForURL(url => url.hash === '#pace-detail');
+    await page.locator('[data-pace-seconds]').fill('0');
+    await waitForGoal(page, '3:30:58');
+    await page.waitForURL(url => url.searchParams.get('pace') === '300');
+    if (JSON.stringify(await savedSettings(page)) !== JSON.stringify({ mode: 'pace', seconds: 300 })) throw new Error('Edited training pace was not saved');
+    await page.locator('.training-help a').click();
+    await page.waitForURL(url => url.searchParams.get('pace') === '300' && url.hash === '#pace-training');
+    if (await trainingValue(page, '400 m') !== '0:02:00') throw new Error('Training times did not reflect edited pace');
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForGoal(page, '3:30:58');
+    await page.locator('#pace-training').waitFor({ state: 'visible' });
+    await assertCanonical(page, `${prefix}/pace/marathon`);
+    await assertNoDocumentOverflow(page, `${viewport.name}/${locale}-training`);
+    await saveScreenshot(page, `${viewport.name}-${locale}-training`);
+    await page.locator('.pace-shortcuts a').click();
+    await page.waitForURL(url => url.hash === '#pace-detail');
+  } finally {
     await context.close();
   }
 }
@@ -344,6 +405,8 @@ if (!server.available) {
       await runJapaneseFlow(browser, viewport);
       await runEnglishFlow(browser, viewport);
       await runDeniedStorageFlow(browser, viewport);
+      await runFacilityTrainingFlow(browser, viewport, 'ja');
+      await runFacilityTrainingFlow(browser, viewport, 'en');
     }
     if (externalRequests.length > 0) throw new Error(`External requests were attempted: ${externalRequests.join(', ')}`);
     if (runtimeErrors.length > 0) throw new Error(`Runtime errors detected:\n${runtimeErrors.join('\n')}`);

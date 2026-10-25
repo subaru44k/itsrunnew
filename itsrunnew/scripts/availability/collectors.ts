@@ -290,6 +290,60 @@ export function parseEdogawaWeekly(html: string, context: Omit<CollectorContext,
   return makeRecord({ trackId: 'edogawa-athletic-stadium', date: context.date, now: context.now, status, periods, unknownReason: status === 'unknown' ? 'insufficient_information' : null, url: sourceUrls.edogawa, publicationFormat: 'calendar_html', collector: 'edogawa-weekly-table', fetchedAt: context.fetchedAt, sourceHash: context.sourceHash, confidence: 'high', warnings: ['公開範囲は当日から1週間', '大型大会等で変更される可能性あり'] });
 }
 
+export function parseYumenoshima(html: string, context: Omit<CollectorContext, 'fetchImpl' | 'now'> & { now: Date; fetchedAt?: string; sourceHash?: string }) {
+  const base = { trackId: 'koto-yumenoshima-athletic-stadium', date: context.date, now: context.now,
+    url: sourceUrls.yumenoshima, publicationFormat: 'calendar_html' as const, collector: 'yumenoshima-two-week-table',
+    fetchedAt: context.fetchedAt, sourceHash: context.sourceHash };
+  if (!stripHtml(html).includes('夢の島競技場')) throw new Error('Expected Yumenoshima facility heading');
+  const tables = [...html.matchAll(/<table\b[^>]*class=["'][^"']*\bschedule-order__table\b[^"']*["'][^>]*>([\s\S]*?)<\/table>/gi)];
+  if (tables.length !== 1) throw new Error('Expected one Yumenoshima schedule table');
+  const rows = [...tables[0][1].matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)]
+    .map(row => [...row[1].matchAll(/<t[dh]\b([^>]*)>([\s\S]*?)<\/t[dh]>/gi)]);
+  const header = rows.shift();
+  if (!header || header.length !== 4 || header.slice(1).map(cell => stripHtml(cell[2]).replace(/\s/g, '')).join('|') !== '9:00-13:00|13:00-17:00|17:00-21:00') throw new Error('Unexpected Yumenoshima time columns');
+  if (rows.length < 1 || rows.length > 14) throw new Error('Unexpected Yumenoshima published range');
+  const today = dateParts(tokyoDateKey(context.now));
+  let previous = 0;
+  const parsedRows = rows.map((cells, index) => {
+    const label = cells[0] && stripHtml(cells[0][2]);
+    const match = label && /^(\d{1,2})\/(\d{1,2})\s*[（(]([日月火水木金土])[）)]$/.exec(label);
+    if (!match) throw new Error('Invalid Yumenoshima date label');
+    const month = Number(match[1]), day = Number(match[2]);
+    const candidates = [today.year - 1, today.year, today.year + 1].map(year => new Date(Date.UTC(year, month - 1, day, 3)));
+    const date = index === 0
+      ? candidates.sort((a, b) => Math.abs(a.getTime() - today.date.getTime()) - Math.abs(b.getTime() - today.date.getTime()))[0]
+      : new Date(previous + 86400000);
+    if (date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day || '日月火水木金土'[date.getUTCDay()] !== match[3]) throw new Error('Inconsistent Yumenoshima date sequence');
+    previous = date.getTime();
+    const slots = [['09:00', '13:00'], ['13:00', '17:00'], ['17:00', '21:00']];
+    const periods: AvailabilityPeriod[] = [];
+    for (const cell of cells.slice(1)) {
+      if (/\browspan\s*=/i.test(cell[1])) throw new Error('Unsupported Yumenoshima rowspan');
+      const spanMatch = /\bcolspan\s*=\s*(?:["'](\d+)["']|(\d+))/i.exec(cell[1]);
+      const span = spanMatch ? Number(spanMatch[1] ?? spanMatch[2]) : 1;
+      if (span < 1 || periods.length + span > 3) throw new Error('Invalid Yumenoshima colspan');
+      const value = stripHtml(cell[2]).replace(/\s/g, '');
+      for (let offset = 0; offset < span; offset++) {
+        const [from, to] = slots[periods.length];
+        periods.push(value === '個人' ? publicPeriod(from, to)
+          : /^(団体貸切[☆★]?|休場日|×)$/.test(value) ? unavailablePeriod(from, to, [value.startsWith('団体貸切') ? 'exclusive_use' : 'explicit_official_unavailable'])
+            : { from, to, status: 'unknown', scope: 'full_track', eligibility: 'public', conditions: ['unrecognized_status'] });
+      }
+    }
+    if (periods.length !== 3) throw new Error('Incomplete Yumenoshima row');
+    return { date: tokyoDateKey(date), periods };
+  });
+  const todayKey = tokyoDateKey(context.now);
+  if (todayKey > parsedRows[parsedRows.length - 1].date || todayKey < parsedRows[0].date) return unknownRecord({ ...base, unknownReason: 'source_stale' });
+  const row = parsedRows.find(row => row.date === context.date);
+  if (!row) return unknownRecord({ ...base, unknownReason: 'outside_published_period' });
+  const status = row.periods.every(period => period.status === 'available') ? 'available'
+    : row.periods.every(period => period.status === 'unavailable') ? 'unavailable'
+      : row.periods.some(period => period.status === 'available') ? 'partially_available' : 'unknown';
+  return makeRecord({ ...base, status, periods: row.periods, unknownReason: status === 'unknown' ? 'insufficient_information' : null,
+    confidence: 'high', warnings: ['公式の2週間予定表。予定は変更される場合があります。', '個人利用の最終入場は終了時間の1時間前まで。'] });
+}
+
 export function parseKoshigayaToday(html: string, context: Omit<CollectorContext, 'fetchImpl' | 'now'> & { now: Date; fetchedAt?: string; sourceHash?: string }) {
   const text = stripHtml(html);
   if (!text.includes('本日の使用状況') || !text.includes('陸上競技場') || !text.includes('第2競技場')) throw new Error('Expected current-status anchors not found');
@@ -1139,6 +1193,7 @@ export async function collectAvailability(date: string, options: { now?: Date; f
   const context: CollectorContext = { date, now: options.now ?? new Date(), fetchImpl: options.fetchImpl ?? fetch };
   // Official sources are intentionally fetched sequentially to avoid bursts to the same operator.
   const supported = [
+    await collectHtml('koto-yumenoshima-athletic-stadium', sourceUrls.yumenoshima, 'calendar_html', 'yumenoshima-two-week-table', context, parseYumenoshima),
     await collectMachida(context),
     ...(await collectNissan(context)),
     await collectHtml('hikarigaoka-park-track', sourceUrls.hikarigaoka, 'structured_html', 'hikarigaoka-html', context, parseHikarigaoka),

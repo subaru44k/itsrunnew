@@ -68,7 +68,7 @@ const MARATHON_SPLIT_METRES = [
   MARATHON_METRES,
 ] as const;
 
-const TRAINING_SPLIT_METRES = [400, 1000, 5000, 10000] as const;
+const TRAINING_SPLIT_METRES = [200, 250, 300, 400, 800, 1000, 2000, 5000, 10000] as const;
 
 function splitsAt(settings: PaceSettings, metres: readonly number[]) {
   return metres.map(distance => ({

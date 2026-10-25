@@ -92,6 +92,19 @@ jobs:
       - name: Build static site
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run build
+      - name: Verify pace planner and facility navigation
+        if: steps.change_scope.outputs.docs_only != 'true'
+        run: |
+          node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort > /tmp/itsrun-pace-preview.log 2>&1 &
+          pace_preview_pid=$!
+          trap 'kill "$pace_preview_pid"' EXIT
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          npm run test:pace
       - name: Verify daily regression scenarios
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:daily:fixtures

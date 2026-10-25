@@ -1,6 +1,7 @@
 export const PARSER_VERSION = '1.0.0';
 
 export const sourceUrls = {
+  yumenoshima: 'https://www.di-ksp.jp/facility/yumenoshima_k/schedule',
   hikarigaoka: 'https://www.tokyo-park.or.jp/park/hikarigaoka/news/2026/trackfield_2026_8_1.html',
   musashino: 'https://www.musashino.or.jp/sports/kaihou/index.html',
   tokyoGymnasium: 'https://www.tef.or.jp/tmg/opening.html',
@@ -33,7 +34,6 @@ export const sourceUrls = {
 } as const;
 
 export const expansionFallbackSources = [
-  { trackId: 'koto-yumenoshima-athletic-stadium', url: 'https://yoyaku.koto-sports.net/', publicationFormat: 'reservation_system', unknownReason: 'reservation_system_unsupported' },
   { trackId: 'komazawa-olympic-park-track', url: 'https://www.tef.or.jp/kopgp/opening.html', publicationFormat: 'calendar_html', unknownReason: 'unsupported_source_type' },
   { trackId: 'setagaya-general-sports-track', url: 'https://www.se-sports.or.jp/news/10334/', publicationFormat: 'structured_html', unknownReason: 'unsupported_source_type' },
   { trackId: 'oi-central-seaside-park-track', url: 'https://tokyo-south-seaside-parks.com/sports-athletics/', publicationFormat: 'fixed_schedule', unknownReason: 'unsupported_source_type' },

@@ -79,6 +79,8 @@ async function createContext(browser, viewport, { denyStorage = false } = {}) {
 
 async function openPage(context, viewportName, localeName) {
   const page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(30000);
   page.on('pageerror', error => runtimeErrors.push(`${viewportName}/${localeName}: ${error.message}`));
   return page;
 }
@@ -137,19 +139,38 @@ async function verifyPng(path) {
   return { path, width, height, bytes: bytes.length };
 }
 
-async function expandComparison(page) {
-  const comparison = page.locator('details[data-pace-comparison]');
-  if ((await comparison.getAttribute('open')) === null) await comparison.locator('summary').click();
-  await comparison.locator('.comparison-body table:visible').waitFor({ state: 'visible' });
-  if (await comparison.locator('.comparison-body tbody tr').count() < 3) throw new Error('Expanded comparison table is missing goal rows');
-}
-
-async function switchComparisonBand(page, label) {
-  const comparison = page.locator('details[data-pace-comparison]');
-  const input = comparison.locator('input[role="combobox"]');
-  await input.locator('xpath=..').click();
-  await page.getByRole('option', { name: label, exact: true }).click();
-  await page.waitForFunction(expected => document.querySelector('details[data-pace-comparison] input[role="combobox"]')?.value === expected, label);
+async function verifyComparison(page) {
+  const comparison = page.locator('[data-pace-comparison]');
+  await comparison.locator('table').waitFor({ state: 'visible' });
+  const headings = await comparison.locator('thead th').allTextContents();
+  if (headings.slice(1).join('|') !== '1km|5km|10km|20km|30km') throw new Error(`Unexpected comparison columns: ${headings}`);
+  if ((await comparison.locator('table').textContent()).includes('→')) throw new Error('Comparison contains an arrow');
+  const goals = await comparison.locator('[data-comparison-goal]').evaluateAll(rows => rows.map(row => Number(row.dataset.comparisonGoal)));
+  if (goals.length !== 19 || goals.some((goal, index) => goal !== 7200 + index * 900)) throw new Error('Comparison must contain unique 15-minute goals from 2:00 to 6:30');
+  const beforeInput = await page.evaluate(() => document.querySelector('[data-pace-comparison]').compareDocumentPosition(document.querySelector('#pace-detail')) & Node.DOCUMENT_POSITION_FOLLOWING);
+  if (!beforeInput) throw new Error('Comparison must precede the calculator');
+  await comparison.locator('[data-comparison-goal="13500"] button').focus();
+  await page.keyboard.press('Enter');
+  await waitForGoal(page, '3:45:00');
+  await page.waitForURL(url => url.searchParams.get('goal') === '13500');
+  if (!await page.locator('#pace-detail').evaluate(element => element === document.activeElement)) throw new Error('Goal selection did not focus the detail');
+  const values = await comparison.locator('[data-comparison-goal="13500"] td').allTextContents();
+  if (values.join('|') !== '5:20|0:26:39|0:53:19|1:46:38|2:39:58') throw new Error(`Unexpected comparison values: ${values}`);
+  const detail = await page.locator('[data-personal-splits] tbody tr').allTextContents();
+  for (const value of values.slice(1)) if (!detail.some(row => row.includes(value))) throw new Error(`Comparison/detail mismatch: ${value}`);
+  await comparison.locator('a[href="#goals-6"]').click();
+  await page.waitForFunction(() => location.hash === '#goals-6');
+  await comparison.locator('[data-comparison-goal="23400"] td').first().click();
+  await waitForGoal(page, '6:30:00');
+  await page.waitForURL(url => url.searchParams.get('goal') === '23400' && !url.hash);
+  await page.waitForFunction(() => { const top = document.querySelector('#pace-detail').getBoundingClientRect().top; return top >= 60 && top < 150; });
+  if (await page.locator('[data-pace-hours]').inputValue() !== '6') throw new Error('Row selection did not update input');
+  const scroll = comparison.locator('.comparison-scroll');
+  await scroll.evaluate(element => { element.scrollLeft = element.scrollWidth; });
+  const fixed = await comparison.locator('[data-comparison-goal="13500"] th').boundingBox();
+  const region = await scroll.boundingBox();
+  if (Math.abs(fixed.x - region.x) > 2) throw new Error('Goal column is not fixed when scrolling');
+  await scroll.evaluate(element => { element.scrollLeft = 0; });
 }
 
 async function saveScreenshot(page, name) {
@@ -253,8 +274,7 @@ async function runJapaneseFlow(browser, viewport) {
 
     await assertNoDocumentOverflow(page, `${viewport.name}/ja-collapsed`);
     await saveScreenshot(page, `${viewport.name}-ja-planner`);
-    await expandComparison(page);
-    await switchComparisonBand(page, '5時間〜6時間半');
+    await verifyComparison(page);
     await assertNoDocumentOverflow(page, `${viewport.name}/ja`);
     await saveScreenshot(page, `${viewport.name}-ja-comparison`);
   } finally {
@@ -269,16 +289,26 @@ async function runEnglishFlow(browser, viewport) {
   try {
     await gotoPace(page, '/en/pace/marathon');
     if (await page.locator('h1').textContent() !== 'Marathon pace table') throw new Error('English pace heading is missing');
-    await page.getByRole('heading', { name: 'Your split times', exact: true }).waitFor({ state: 'visible' });
+    await page.getByRole('heading', { name: 'Split times', exact: true }).waitFor({ state: 'visible' });
     await page.getByRole('heading', { name: 'Training times', exact: true }).waitFor({ state: 'visible' });
-    await page.locator('details[data-pace-comparison] > summary').filter({ hasText: 'Compare finish times' }).waitFor({ state: 'visible' });
+    await page.getByRole('heading', { name: 'Compare finish times', exact: true }).waitFor({ state: 'visible' });
     await assertCanonical(page, '/en/pace/marathon');
     await assertNoDocumentOverflow(page, `${viewport.name}/en-collapsed`);
     await saveScreenshot(page, `${viewport.name}-en-planner`);
-    await expandComparison(page);
-    await switchComparisonBand(page, '5 hours - 6 hours and a half');
+    await verifyComparison(page);
     await assertNoDocumentOverflow(page, `${viewport.name}/en`);
     await saveScreenshot(page, `${viewport.name}-en-comparison`);
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Save image', exact: true }).click();
+    const download = await downloadPromise;
+    if (download.suggestedFilename() !== 'itsrun-goal-23400.png') throw new Error('Selected comparison goal was not used for PNG');
+    const imagePath = join(outputDirectory, `${viewport.name}-en-${download.suggestedFilename()}`);
+    await download.saveAs(imagePath);
+    images.push(await verifyPng(imagePath));
+    await page.locator('.language-button').click();
+    await page.waitForURL(url => url.pathname === '/pace/marathon' && url.searchParams.get('goal') === '23400');
+    await waitForGoal(page, '6:30:00');
+    if (await page.locator('[data-comparison-goal="23400"] button').getAttribute('aria-pressed') !== 'true') throw new Error('Locale switch lost comparison selection');
   } finally {
     await page.close();
     await context.close();

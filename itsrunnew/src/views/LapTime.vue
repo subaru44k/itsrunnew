@@ -1,7 +1,10 @@
 <template>
   <v-container class="pace-page">
     <header class="pace-heading"><p class="eyebrow">PACE PLANNER</p><h1>{{ copy.title }}</h1><p>{{ copy.intro }}</p></header>
-    <section class="pace-panel" :aria-label="copy.input">
+    <PaceComparison :selected="settings ? goalSeconds(settings) : null" @select="selectGoal" />
+    <section id="pace-detail" ref="detail" class="pace-panel detail-panel" tabindex="-1" :aria-label="copy.input">
+      <h2>{{ copy.detail }}</h2>
+      <a href="#pace-comparison">{{ copy.backCompare }}</a>
       <div class="mode-switch" role="group" :aria-label="copy.input">
         <button v-for="value in (['goal', 'pace'] as const)" :key="value" type="button" :aria-pressed="mode === value" @click="changeMode(value)">{{ value === 'goal' ? copy.byGoal : copy.byPace }}</button>
       </div>
@@ -12,9 +15,6 @@
         <label>{{ copy.seconds }}<input v-model="seconds" data-pace-seconds type="number" inputmode="numeric" min="0" max="59" step="1" :aria-invalid="!settings" aria-describedby="pace-input-help" /></label>
       </fieldset>
       <p id="pace-input-help" :class="{ 'input-error': !settings }">{{ mode === 'goal' ? copy.goalRange : copy.paceRange }}</p>
-      <div v-if="mode === 'goal'" class="presets" role="group" :aria-label="copy.presets">
-        <button v-for="value in [9000, 10800, 12600, 14400, 16200, 18000]" :key="value" type="button" :aria-pressed="settings?.seconds === value" @click="chooseGoal(value)">{{ formatDuration(value).slice(0, -3) }}</button>
-      </div>
       <p class="storage-note">{{ storageFailed ? copy.storageFailed : copy.remember }} <button type="button" class="text-button" @click="reset">{{ copy.reset }}</button></p>
       <p v-if="invalidLink" class="input-error" role="status">{{ copy.invalidLink }}</p>
     </section>
@@ -45,26 +45,19 @@
       </div>
     </section>
     <p v-else class="pace-panel input-error" role="alert">{{ copy.invalidInput }}</p>
-    <details class="pace-panel comparison" data-pace-comparison>
-      <summary>{{ copy.compare }}<span>{{ copy.compareHint }}</span></summary>
-      <div class="comparison-body"><v-select :items="items" :label="$t('pacetable.personal_goal')" v-model="targetTime" /><div class="d-sm-none"><PhonePaceTable /></div><div class="d-none d-sm-block"><PcPaceTable /></div></div>
-    </details>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import PhonePaceTable from '@/components/laptime/PhonePaceTable.vue';
-import PcPaceTable from '@/components/laptime/PcPaceTable.vue';
-import { useAppStore } from '@/store';
+import PaceComparison from '@/components/laptime/PaceComparison.vue';
 import { DEFAULT_PACE_SETTINGS, formatDuration, formatPace, goalSeconds, isPaceSettings, marathonSplits, paceSeconds, parsePaceQuery, readPaceSettings, trainingSplits, type PaceSettings } from '@/model/marathon';
 import { paceCopy } from '@/components/laptime/pace-copy';
 import { downloadPaceImage } from '@/components/laptime/pace-image';
-const { t, locale } = useI18n();
+const { locale } = useI18n();
 const copy = computed(() => paceCopy[locale.value === 'en' ? 'en' : 'ja']);
-const store = useAppStore();
 const route = useRoute();
 const router = useRouter();
 const storageKey = 'itsrun.marathon.v1';
@@ -116,15 +109,15 @@ function persist(value: PaceSettings) {
   catch { storageFailed.value = true; }
 }
 if (parsePaceQuery(route.query)) persist(initial);
-function commit(value: PaceSettings) {
+function commit(value: PaceSettings, hash = route.hash) {
   invalidLink.value = false;
   modeValues[value.mode] = value.seconds;
   persist(value);
   const current = parsePaceQuery(route.query);
-  if (current?.mode === value.mode && current.seconds === value.seconds) return;
+  if (current?.mode === value.mode && current.seconds === value.seconds && hash === route.hash) return;
   const query = { ...route.query }; delete query.goal; delete query.pace;
   query[value.mode] = String(value.seconds);
-  void router.replace({ query, hash: route.hash });
+  return router.replace({ query, hash });
 }
 watch(settings, value => {
   actionStatus.value = ''; manualLink.value = false;
@@ -138,8 +131,8 @@ watch(() => [route.query.goal, route.query.pace], () => {
 });
 function chooseGoal(seconds: number) {
   const value: PaceSettings = { mode: 'goal', seconds };
-  edited.value = true; fill(value);
-  commit(value);
+  edited.value = false; fill(value);
+  return commit(value, '');
 }
 function changeMode(value: PaceSettings['mode']) {
   if (value === mode.value) return;
@@ -173,8 +166,13 @@ async function saveImage() {
   } catch { actionStatus.value = copy.value.imageFailed; }
   finally { savingImage.value = false; }
 }
-const items = computed(() => [t('pacetable.from_2hours'), t('pacetable.from_3hourshalf'), t('pacetable.from_5hours')]);
-const targetTime = computed({ get: () => items.value[store.targetTimeIndex], set: (value: string) => store.changeTargetTime(items.value.indexOf(value)) });
+const detail = ref<HTMLElement | null>(null);
+async function selectGoal(seconds: number) {
+  await chooseGoal(seconds);
+  await nextTick();
+  detail.value?.focus({ preventScroll: true });
+  detail.value?.scrollIntoView({ block: 'start' });
+}
 </script>
 
 <style scoped>
@@ -195,7 +193,6 @@ button:disabled { opacity: .6; cursor: wait; }
 .time-inputs label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #526079; }
 .time-inputs input { width: 110px; max-width: 100%; font-size: 28px; font-weight: 650; padding: 10px 12px; border: 1px solid #aeb9cf; border-radius: 8px; background: #fcfdff; color: #202c43; font-variant-numeric: tabular-nums; }
 #pace-input-help, .storage-note, .calculation-note { font-size: 13px; color: #56627b; line-height: 1.7; }
-.presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .text-button { padding: 4px 8px; border: 0; text-decoration: underline; font-size: 13px; }
 .storage-note { margin-bottom: 0; }
 .input-error { color: #a12726 !important; }
@@ -221,10 +218,8 @@ button:disabled { opacity: .6; cursor: wait; }
 .training-times div { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid #e3e7f0; }
 .training-times dd { font-weight: 700; }
 .track-link { display: flex; justify-content: space-between; align-items: center; min-height: 44px; gap: 12px; color: #304397; font-weight: 650; }
-.comparison { margin-top: 24px; min-width: 0; }
-.comparison summary { cursor: pointer; font-size: 18px; font-weight: 700; min-height: 44px; }
-.comparison summary span { display: block; color: #56627b; font-size: 13px; font-weight: 400; padding-top: 8px; }
-.comparison-body { margin-top: 24px; min-width: 0; }
+.detail-panel { margin-top: 24px; scroll-margin-top: 88px; }
+.detail-panel > a { display: inline-block; margin-bottom: 20px; color: #304397; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 650px) {
   .pace-page { padding: 24px 16px 40px; }

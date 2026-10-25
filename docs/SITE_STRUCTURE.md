@@ -213,6 +213,10 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 ### マラソンペース表
 
+全施設の日英詳細ページでは施設・トラック情報の直後に、目標タイム・1kmペースから練習時間を確認する案内を表示します。同じ言語の `/pace/marathon#pace-detail`（英語は `/en/pace/marathon#pace-detail`）へ通常のhrefで移動し、保存済み設定を保持して入力欄を表示します。施設詳細の静的HTML shellにも同じ導線を含めます。施設の距離にかかわらず400mは距離として案内し、全施設を400mトラックと扱いません。
+
+ペース表冒頭から入力欄へのリンク、入力欄から `#pace-training` の練習時間へのリンク、練習時間から入力欄へ戻るリンクを提供します。練習時間は入力ペースを距離ごとに換算した一定ペースの目安である旨を日英で表示します。既存の比較表と計算・保存・共有の挙動は維持します。
+
 ページ冒頭の `components/laptime/PaceComparison.vue` で2:00〜6:30を15分刻み（重複なし19目標）に比較します。既存の対象範囲を維持し、ゴール目標・1km・5km・10km・20km・30kmの6列へ整理しています。日英共通の単一表で、時間台別の見出し・移動リンク、詳細入力への直接リンク、スマートフォンの表内横スクロール・左端の目標固定を提供します。「一定ペースで走った場合の目安」を明記し、行クリックまたは目標buttonのキーボード操作で選んだ値を詳細入力・計算結果・URL・保存値へ反映し、詳細入力へスクロール／フォーカスします。詳細には比較へ戻るリンクを置きます。従来の下部折りたたみ・帯選択・別のプリセットはこの比較表へ統合し、`PcPaceTable.vue` / `PhonePaceTable.vue` は削除しています。
 
 `LapTime.vue`は任意の目標タイム（1〜12時間）または1kmペース（2〜20分、秒単位）から、自分用の5kmごと・ハーフ・ゴール通過表と400m・1km・5km・10kmの練習時間を表示します。初回の目標は4時間、ペース入力の初回値は5分30秒です。モードごとの入力値はページを開いている間保持し、切替で目標タイムを丸め直しません。日本語・英語の文言は `components/laptime/pace-copy.ts` が管理します。比較表の後に任意入力と詳細を配置し、スマートフォンでは単一目標の詳細を縦に表示します。共有URLや保存値の復元は比較表の選択強調にも反映します。既定4時間は詳細計算の初期値として維持し、初期画面では複数目標の比較を優先します。
@@ -400,7 +404,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
-`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushの変更ファイルを比較します。Markdownだけの変更は差分の空白確認のみで `Node 24 validation` checkを完了し、Node setup・依存install・アプリ/dailyテストを省略します。それ以外は`itsrunnew/`をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて`test:daily:fixtures`と`test:daily`を同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストにはChromeと外部sourceへのnetworkが必要です。適用範囲と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
+`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushの変更ファイルを比較します。Markdownだけの変更は差分の空白確認のみで `Node 24 validation` checkを完了し、Node setup・依存install・アプリ/dailyテストを省略します。それ以外は`itsrunnew/`をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて、ローカルPreviewを起動して`test:pace`（施設詳細から入力・練習時間への日英PC/スマホ導線を含む）を実行し、`test:daily:fixtures`と`test:daily`も同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストにはChromeと外部sourceへのnetworkが必要です。適用範囲と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
 
 `.github/workflows/deploy-preview.yml` はMarkdownだけのpushを除く `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、SHA-256差分によるcontent配備、変更URLのCloudFront invalidation、公開本文照合、CloudFront smokeまでを実行します。差分なしではinvalidationを省略します。HTML shellは直接URLとrewrite前の公開URLを対象にし、Service Workerも変更時に無効化します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 

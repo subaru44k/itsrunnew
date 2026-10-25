@@ -1,6 +1,10 @@
 export const paceCopy = {
   ja: {
     title: 'マラソンペース表', intro: '複数のゴール目標を比較し、目標を選んで詳しい通過タイムを確認できます。',
+    shortcuts: 'ページ内の移動', trainingStart: '練習用のペース・400mのタイムを確認する',
+    trainingHelp: '目標タイムまたは1kmペースを入力すると、400m・1km・5km・10kmの所要時間も確認できます。',
+    viewTraining: 'この設定の練習時間を見る', adjustTraining: '目標タイム・1kmペースを変更する',
+    trainingNote: '入力したペースを距離ごとの時間に換算した、一定ペースで走る場合の目安です。',
     input: '計算方法', byGoal: '目標タイムから', byPace: '1kmペースから', goal: '目標タイム', pace: '1kmのペース',
     hours: '時間', minutes: '分', seconds: '秒', goalRange: '1時間00分00秒〜12時間00分00秒。分・秒は0〜59で入力してください。',
     paceRange: '1kmあたり2分00秒〜20分00秒。秒は0〜59で入力してください。', presets: '目標タイムの候補',
@@ -19,6 +23,10 @@ export const paceCopy = {
   },
   en: {
     title: 'Marathon pace table', intro: 'Compare finish times, choose a goal, then explore your detailed splits.',
+    shortcuts: 'On this page', trainingStart: 'Check training pace and 400 m times',
+    trainingHelp: 'Enter a finish goal or pace per km to see times for 400 m, 1 km, 5 km and 10 km.',
+    viewTraining: 'View training times for this setting', adjustTraining: 'Change your goal or pace per km',
+    trainingNote: 'These estimates convert your chosen pace to each distance, assuming a constant pace.',
     input: 'Calculation method', byGoal: 'From finish time', byPace: 'From pace per km', goal: 'Goal finish time', pace: 'Pace per km',
     hours: 'Hours', minutes: 'Minutes', seconds: 'Seconds', goalRange: 'Enter 1:00:00–12:00:00. Minutes and seconds must be 0–59.',
     paceRange: 'Enter 2:00–20:00 per km. Seconds must be 0–59.', presets: 'Suggested finish times',
@@ -29,7 +37,7 @@ export const paceCopy = {
     subNote: 'An exact four-hour finish is not sub-4. Set a faster goal, such as 3:59:00, if you want to finish under four hours.',
     share: 'Copy link', image: 'Save image', saving: 'Creating image…', copied: 'Link to this plan copied.', manualCopy: 'Select and copy this link.',
     imageSaved: 'Image download started.', imageFailed: 'Could not save the image. Please try again.', imageNote: 'Constant pace. Elapsed times truncated; pace rounded to whole seconds.',
-    training: 'Training times', trainingIntro: 'Times at this pace for a track lap or a steady run.', findTrack: 'Find a track for your run',
+    training: 'Training times', trainingIntro: 'Times at this pace for one lap of a 400 m track or a steady run.', findTrack: 'Find a track for your run',
     compare: 'Compare finish times', compareHint: 'Compare 2:00–6:30 goals in 15-minute steps. Estimates assume a constant pace. Select a goal row to see detailed splits.',
     detail: 'Adjust your goal and view details', backCompare: 'Back to finish time comparison', band: 'h goals', comparisonGoal: 'Finish goal', scrollHint: 'Scroll the table sideways. Finish goals stay fixed on the left.',
     invalidInput: 'Check your input. Enter a valid time to see your splits.',

@@ -90,8 +90,9 @@ function staticTrackDetailContent(track, locale) {
     .map(([, value]) => `<p>${escapeHtml(value)}</p>`)
     .join('');
   const odaOpinionsContent = isOda ? `<section><h2>${opinionsHeading}</h2><p>${opinionNote}</p>${opinions}</section>` : '';
+  const paceContent = `<section data-static-pace-discovery><h2>${locale === 'en' ? 'Plan your training pace' : '練習のペースを確認する'}</h2><p>${locale === 'en' ? 'Use a marathon goal or pace per km to check times for 400 m, 1 km and longer runs.' : 'マラソンの目標タイムや1kmペースから、400m・1kmなどの練習での所要時間を確認できます。'}</p><a href="${prefix}/pace/marathon#pace-detail">${locale === 'en' ? 'Check the marathon pace table' : 'マラソンペース表で確認する'}</a></section>`;
   const nearbyContent = `<section><h2>${heading}</h2><p>${description}</p><ul>${nearbyLinks}</ul><p><a href="${prefix}/">${locale === 'en' ? 'Search all tracks' : 'すべてのトラックを探す'}</a></p></section>`;
-  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${useContent}${nearbyContent}${odaFacilityContent}${odaOpinionsContent}${staticLegacyGuide(track, locale)}</main></div>`;
+  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${useContent}${nearbyContent}${paceContent}${odaFacilityContent}${odaOpinionsContent}${staticLegacyGuide(track, locale)}</main></div>`;
 }
 
 function pageShell({ path, locale, title, description, alternateJa, alternateEn, body }) {

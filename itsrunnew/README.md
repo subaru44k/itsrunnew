@@ -55,9 +55,11 @@ npm run test:pace
 
 ## マラソンペース表のローカル確認
 
+全施設の日英詳細ページの施設情報直後から、同じ言語のペース表の入力欄（`#pace-detail`）へ移動できます。ペース表の冒頭にも入力欄への案内があり、入力後は `#pace-training` で400m・1kmなどの練習時間を確認できます。施設詳細の初期HTMLにもリンクを含めます。`test:pace` は施設からの遷移・練習時間への移動と設定保持も日英・PC/スマホで確認します。
+
 `/pace/marathon`（英語版 `/en/pace/marathon`）で、目標タイムまたは1kmペースから個人用の通過表と400m・1km・5km・10kmの練習時間を計算できます。ページ冒頭では2:00〜6:30の目標を15分刻みで比較できます。時間台別リンクから移動し、目標の行を選ぶとその詳細へ進みます。スマートフォンでは表内を横スクロールでき、目標列を左端に固定します。比較・詳細とも一定ペースで走った場合の目安です。最後の設定はブラウザ内に保存し、共有リンクの有効な `goal` / `pace` query（秒）があれば優先します。「設定をリセット」で保存値と計算用queryを削除します。画像保存はブラウザ内でPNGを生成し、サーバーや追加依存を使いません。
 
-`VITE_ADSENSE_ENABLED=false npm run build` 後、`npm run preview -- --host 127.0.0.1 --port 4173` を起動し、`npm run test:pace` で比較表の範囲・数値一致・選択とフォーカス・横スクロールに加え、入力・復元・共有・画像保存・日英PC/スマホを確認します。`ITSRUN_BASE_URL` / `CHROME_PATH`で接続先・Chromeを変更できます。スクリーンショットとPNGは `/tmp/itsrun-pace-check` に保存します（`ITSRUN_PACE_OUTPUT`で変更可）。この手順はローカル確認のみでデプロイしません。
+`VITE_ADSENSE_ENABLED=false npm run build` 後、`npm run preview -- --host 127.0.0.1 --port 4173` を起動し、`npm run test:pace` で比較表の範囲・数値一致・選択とフォーカス・横スクロールに加え、入力・復元・共有・画像保存・日英PC/スマホを確認します。`ITSRUN_BASE_URL` / `CHROME_PATH`で接続先・Chromeを変更できます。スクリーンショットとPNGは `/tmp/itsrun-pace-check` に保存します（`ITSRUN_PACE_OUTPUT`で変更可）。この手順はローカル確認のみでデプロイしません。CIの`Node 24 validation`でもbuild後にPreviewを起動し、`test:pace`を実行します。
 
 ## AWSプレビュー環境
 

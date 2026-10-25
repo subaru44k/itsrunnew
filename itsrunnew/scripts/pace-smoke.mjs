@@ -315,6 +315,47 @@ async function runEnglishFlow(browser, viewport) {
   }
 }
 
+async function runFacilityTrainingFlow(browser, viewport, locale) {
+  const prefix = locale === 'en' ? '/en' : '';
+  const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
+  // Facility pages include third-party maps; keep this navigation check local.
+  await context.route('**/*', route => localRequest(route.request().url()) ? route.continue() : route.abort());
+  const page = await openPage(context, viewport.name, `${locale}-facility-training`);
+  try {
+    await gotoPace(page, `${prefix}/pace/marathon?pace=330`);
+    await page.goto(new URL(`${prefix}/tracks/komazawa-olympic-park-track`, baseUrl).href, { waitUntil: 'domcontentloaded' });
+    const link = page.locator('.pace-discovery-link');
+    await link.waitFor({ state: 'visible' });
+    if (await link.getAttribute('href') !== `${prefix}/pace/marathon#pace-detail`) throw new Error('Facility pace link lost locale or input anchor');
+    await assertNoDocumentOverflow(page, `${viewport.name}/${locale}-facility`);
+    await saveScreenshot(page, `${viewport.name}-${locale}-facility-training`);
+    await link.click();
+    await page.waitForURL(url => url.pathname === `${prefix}/pace/marathon` && url.hash === '#pace-detail');
+    await waitForGoal(page, '3:52:04');
+    await page.waitForFunction(() => { const top = document.querySelector('#pace-detail').getBoundingClientRect().top; return top >= 60 && top < 150; });
+    await page.locator('.training-help a').click();
+    await page.waitForURL(url => url.hash === '#pace-training');
+    await page.waitForFunction(() => { const top = document.querySelector('#pace-training').getBoundingClientRect().top; return top >= 60 && top < window.innerHeight - 100; });
+    if (await trainingValue(page, '400 m') !== '0:02:12') throw new Error('Facility flow lost saved training pace');
+    await page.locator('#pace-training > a').click();
+    await page.waitForURL(url => url.hash === '#pace-detail');
+    await page.locator('[data-pace-seconds]').fill('0');
+    await waitForGoal(page, '3:30:58');
+    await page.locator('.training-help a').click();
+    if (await trainingValue(page, '400 m') !== '0:02:00') throw new Error('Training times did not reflect edited pace');
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForGoal(page, '3:30:58');
+    await page.locator('#pace-training').waitFor({ state: 'visible' });
+    await assertCanonical(page, `${prefix}/pace/marathon`);
+    await assertNoDocumentOverflow(page, `${viewport.name}/${locale}-training`);
+    await saveScreenshot(page, `${viewport.name}-${locale}-training`);
+    await page.locator('.pace-shortcuts a').click();
+    await page.waitForURL(url => url.hash === '#pace-detail');
+  } finally {
+    await context.close();
+  }
+}
+
 async function runDeniedStorageFlow(browser, viewport) {
   const context = await createContext(browser, viewport, { denyStorage: true });
   const page = await openPage(context, viewport.name, 'denied-storage');
@@ -344,6 +385,8 @@ if (!server.available) {
       await runJapaneseFlow(browser, viewport);
       await runEnglishFlow(browser, viewport);
       await runDeniedStorageFlow(browser, viewport);
+      await runFacilityTrainingFlow(browser, viewport, 'ja');
+      await runFacilityTrainingFlow(browser, viewport, 'en');
     }
     if (externalRequests.length > 0) throw new Error(`External requests were attempted: ${externalRequests.join(', ')}`);
     if (runtimeErrors.length > 0) throw new Error(`Runtime errors detected:\n${runtimeErrors.join('\n')}`);

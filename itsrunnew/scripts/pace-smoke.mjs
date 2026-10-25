@@ -342,11 +342,14 @@ async function runFacilityTrainingFlow(browser, viewport, locale) {
     await page.waitForURL(url => url.hash === '#pace-training');
     await page.waitForFunction(() => { const top = document.querySelector('#pace-training').getBoundingClientRect().top; return top >= 60 && top < window.innerHeight - 100; });
     if (await trainingValue(page, '400 m') !== '0:02:12') throw new Error('Facility flow lost saved training pace');
-    await page.locator('#pace-training > a[href="#pace-detail"]').click();
+    await page.locator('#pace-training > a[href$="#pace-detail"]').click();
     await page.waitForURL(url => url.hash === '#pace-detail');
     await page.locator('[data-pace-seconds]').fill('0');
     await waitForGoal(page, '3:30:58');
+    await page.waitForURL(url => url.searchParams.get('pace') === '300');
+    if (JSON.stringify(await savedSettings(page)) !== JSON.stringify({ mode: 'pace', seconds: 300 })) throw new Error('Edited training pace was not saved');
     await page.locator('.training-help a').click();
+    await page.waitForURL(url => url.searchParams.get('pace') === '300' && url.hash === '#pace-training');
     if (await trainingValue(page, '400 m') !== '0:02:00') throw new Error('Training times did not reflect edited pace');
     await page.reload({ waitUntil: 'domcontentloaded' });
     await waitForGoal(page, '3:30:58');

@@ -1,12 +1,12 @@
 <template>
   <v-container class="pace-page">
     <header class="pace-heading"><p class="eyebrow">PACE PLANNER</p><h1>{{ copy.title }}</h1><p>{{ copy.intro }}</p></header>
-    <nav class="pace-shortcuts" :aria-label="copy.shortcuts"><a href="#pace-detail">{{ copy.trainingStart }}</a></nav>
+    <nav class="pace-shortcuts" :aria-label="copy.shortcuts"><router-link :to="{ query: route.query, hash: '#pace-detail' }">{{ copy.trainingStart }}</router-link></nav>
     <PaceComparison :selected="settings ? goalSeconds(settings) : null" @select="selectGoal" />
     <section id="pace-detail" ref="detail" class="pace-panel detail-panel" tabindex="-1" :aria-label="copy.input">
       <h2>{{ copy.detail }}</h2>
-      <a href="#pace-comparison">{{ copy.backCompare }}</a>
-      <p class="training-help">{{ copy.trainingHelp }} <a v-if="settings" href="#pace-training">{{ copy.viewTraining }}</a></p>
+      <router-link :to="{ query: route.query, hash: '#pace-comparison' }">{{ copy.backCompare }}</router-link>
+      <p class="training-help">{{ copy.trainingHelp }} <router-link v-if="settings" :to="{ query: route.query, hash: '#pace-training' }">{{ copy.viewTraining }}</router-link></p>
       <div class="mode-switch" role="group" :aria-label="copy.input">
         <button v-for="value in (['goal', 'pace'] as const)" :key="value" type="button" :aria-pressed="mode === value" @click="changeMode(value)">{{ value === 'goal' ? copy.byGoal : copy.byPace }}</button>
       </div>
@@ -42,7 +42,7 @@
         <section id="pace-training" class="pace-panel training-panel" tabindex="-1" :aria-label="copy.training">
           <p class="eyebrow">TRAINING</p><h2>{{ copy.training }}</h2><p>{{ copy.trainingIntro }}</p>
           <p class="calculation-note">{{ copy.trainingNote }}</p>
-          <a href="#pace-detail">{{ copy.adjustTraining }}</a>
+          <router-link :to="{ query: route.query, hash: '#pace-detail' }">{{ copy.adjustTraining }}</router-link>
           <dl class="training-times"><div v-for="row in training" :key="row.metres"><dt>{{ distanceLabel(row.metres) }}</dt><dd>{{ formatDuration(row.seconds) }}</dd></div></dl>
           <router-link class="track-link" :to="locale === 'en' ? '/en/' : '/'">{{ copy.findTrack }} <span aria-hidden="true">→</span></router-link>
         </section>

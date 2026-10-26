@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 // Only explicitly independent features may omit the availability regression suites.
@@ -15,7 +15,7 @@ export function validationScope(paths, structuralChange = false) {
   return { docs_only: false, daily: !paths.every(independent) };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = fileURLToPath(new URL('../../', import.meta.url));
   const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
   let scope = validationScope([]);

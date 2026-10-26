@@ -1,3 +1,7 @@
+import { execFileSync, spawnSync } from 'node:child_process';
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { validationScope } from './validation-scope.mjs';
 
@@ -18,3 +22,38 @@ describe('validation scope safety boundary', () => {
     expect(validationScope(['itsrunnew/src/views/LapTime.vue'], true).daily).toBe(true);
   });
 });
+
+it('uses real Git diffs for independent/mixed/renamed files and fails on whitespace', () => {
+  const root = mkdtempSync(join(tmpdir(), 'itsrun-validation-scope-'));
+  const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+  try {
+    mkdirSync(join(root, 'itsrunnew/scripts'), { recursive: true });
+    mkdirSync(join(root, 'itsrunnew/src/views'), { recursive: true });
+    const script = join(root, 'itsrunnew/scripts/validation-scope.mjs');
+    copyFileSync(new URL('./validation-scope.mjs', import.meta.url), script);
+    const pace = join(root, 'itsrunnew/src/views/LapTime.vue');
+    const shared = join(root, 'itsrunnew/src/App.vue');
+    writeFileSync(pace, 'baseline\n');
+    git('init', '-q');
+    git('config', 'user.name', 'Validation Test');
+    git('config', 'user.email', 'test@example.invalid');
+    git('config', 'commit.gpgsign', 'false');
+    git('config', 'core.hooksPath', '/dev/null');
+    const commit = () => { git('add', '.'); git('commit', '-qm', 'test revision'); return git('rev-parse', 'HEAD'); };
+    let base = commit();
+    const run = () => spawnSync(process.execPath, [script], {
+      cwd: root, encoding: 'utf8',
+      env: { ...process.env, BASE_SHA: base, GITHUB_OUTPUT: '', GITHUB_STEP_SUMMARY: '' },
+    });
+    writeFileSync(pace, 'pace change\n'); commit();
+    expect(run().stdout).toContain('daily=false');
+    writeFileSync(shared, 'shared change\n'); commit();
+    expect(run().stdout).toContain('daily=true');
+    base = git('rev-parse', 'HEAD');
+    git('mv', 'itsrunnew/src/views/LapTime.vue', 'itsrunnew/src/views/NozomiAntena.vue'); commit();
+    expect(run().stdout).toContain('daily=true');
+    base = git('rev-parse', 'HEAD');
+    writeFileSync(shared, 'bad whitespace   \n'); commit();
+    expect(run().status).not.toBe(0);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}, 20000);

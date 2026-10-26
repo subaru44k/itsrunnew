@@ -1,3 +1,4 @@
+import { selectViewports } from './test-viewports.mjs';
 import { chromium } from 'playwright-core';
 import { readFileSync } from 'node:fs';
 import { verifyFacilitySchedules } from './facility-schedule-smoke.mjs';
@@ -133,7 +134,7 @@ try {
     await startupPage.close();
   }
 
-  for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
+  for (const viewport of selectViewports([{ width: 1440, height: 1000 }, { width: 390, height: 844 }])) {
     const page = await browser.newPage({ viewport });
     page.on('request', request => requests.push(request.url()));
     page.on('pageerror', error => runtimeErrors.push(error.message));
@@ -671,7 +672,7 @@ try {
     throw new Error('A Firebase request was detected');
   }
   if (runtimeErrors.length > 0) throw new Error(`Runtime errors detected:\n${runtimeErrors.join('\n')}`);
-  console.log('Smoke test passed for desktop/mobile, public routes, year anchors, /manage removal, and Firebase isolation.');
+  console.log(`Smoke test passed for ${process.env.ITSRUN_TEST_VIEWPORT ?? 'all'}, public routes, year anchors, /manage removal, and Firebase isolation.`);
 } finally {
   await browser.close();
 }

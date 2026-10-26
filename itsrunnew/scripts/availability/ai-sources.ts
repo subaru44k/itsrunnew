@@ -206,10 +206,25 @@ export async function buildAiPacket(
       sources.push({ name: 'hiroshima-notice-publication.txt', url: listingUrl, kind: 'text', content: text, hash: digest(text) });
     }
   } else if (config.key === 'ishin') {
-    const notice = anchors.find(
+    const matchesNotice = (a: { label: string; url: string }) =>
+      /補助陸上競技場.*利用予定/.test(a.label) && /info_.*kojin/.test(a.url);
+    let notice = anchors.find(matchesNotice);
+    let noticeLinks = anchors;
+    if (!notice) {
+      const listing = anchors.find(a => new URL(a.url).pathname === '/main/category/notice/');
+      if (listing) {
+        const index = await load(listing.url, false);
+        noticeLinks = links(index.html, index.url);
+        notice = noticeLinks.find(matchesNotice);
+      }
+    }
+    /* The restored homepage only lists recent news. Follow its official notice
+       index once; never guess a historical schedule URL. */
+    const repairNotices = [...new Map([...anchors, ...noticeLinks].filter(
       (a) =>
-        /補助陸上競技場.*利用予定/.test(a.label) && /info_.*kojin/.test(a.url),
-    );
+        /補助陸上競技場.*修繕工事/.test(a.label) && /info_hojyo_track_syuzzen_kouji_/.test(a.url),
+    ).map(a => [a.url, a])).values()];
+    if (repairNotices.length > 2) throw new Error('Too many Ishin repair notices');
     if (!notice) throw new Error('Ishin auxiliary notice not found');
     const schedule = await load(notice.url);
     const found = [
@@ -221,6 +236,13 @@ export async function buildAiPacket(
     });
     if (!found.length) throw new Error('Ishin auxiliary images not found');
     for (const i of found) await asset(i.url);
+    for (const repair of repairNotices) {
+      const page = await load(repair.url);
+      const figures = images(page.html, page.url).filter(a =>
+        /\/info_hojyo_track_syuzzen_kouji_\d+(?:-content)?\.png$/.test(new URL(a.url).pathname));
+      if (!figures.length) throw new Error('Ishin repair conditions not found');
+      for (const figure of figures) await asset(figure.url);
+    }
   } else if (config.key === 'hakata') {
     const guides = await load(
       'https://www.midorimachi.jp/higashihirao/guides/',

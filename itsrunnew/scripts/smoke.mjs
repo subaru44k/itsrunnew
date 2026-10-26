@@ -235,10 +235,14 @@ try {
 
     for (const [group, label, id] of [['東京都の競技場', '夢の島陸上競技場', 'koto-yumenoshima-athletic-stadium'], ['東京都の競技場', '駒沢オリンピック公園陸上競技場', 'komazawa-olympic-park-track'], ['神奈川県の競技場', '等々力陸上競技場', 'todoroki-athletic-stadium']]) {
       await page.goto(`${baseUrl}/?date=${today}`, { waitUntil: 'domcontentloaded' });
+      // App's toolbar mounts before the initial lazy route resolves. Vuetify
+      // closes temporary drawers on that route change, so wait for its view.
+      await page.locator('.track-search-page').waitFor();
       if (viewport.width < 800) {
         await page.getByRole('button', { name: 'メニュー', exact: true }).click();
-        await page.locator('.v-navigation-drawer').getByText(group, { exact: true }).click();
-        await page.locator('.v-navigation-drawer').getByText(label, { exact: true }).click();
+        const drawer = page.locator('.v-navigation-drawer--active');
+        await drawer.getByText(group, { exact: true }).click();
+        await drawer.getByText(label, { exact: true }).click();
       } else {
         await page.getByRole('button', { name: group, exact: true }).click();
         await page.locator('.v-overlay--active').getByText(label, { exact: true }).click();

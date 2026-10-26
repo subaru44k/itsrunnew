@@ -301,7 +301,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 `services/analytics.ts`は正式buildかつbrowser originが`https://itsrun.info`の場合に、サイト内で同意した後だけGA4 `G-YNLS7KQXYW`を読み込み、広告関連storageはdeniedのままにします。PreviewおよびProduction CloudFront default domainは同意後もGA4を読み込まずnoindexです。page viewはqueryを除いたcanonical path単位とし、日付・施設・検索基準・公式確認・経路などのTrack Search主要操作eventを固定schemaで送ります。Geolocationの緯度経度、住所、自由入力文字列は送信せず、送信直前にもprivate parameter名を除外します。event一覧とGA4管理画面でのcustom dimension/key event候補は [`ANALYTICS.md`](ANALYTICS.md) が正本です。PrivacyページはAdSense、Cookie等、パーソナライズ／非パーソナライズ広告、Google CMPとGoogleの関連方針への導線を日英で説明します。
 
-維新補助のAI collectorは公式告知内の対象月の予定画像を取得し、ファイル名の `hojyoriku`・`hokyoriku`・`hozyoriku` と、月の前に入る任意の `class_` を許容します。2026年10月13日更新の10月画像は `info_hojyoriku_class_202610_230261013_1.png` です。2026年9月28日更新の10月画像は `hozyoriku` で公開されています。月と補助競技場のファイル名を照合し、対象外の月や主競技場の画像をAI入力に混ぜません。
+維新補助のAI collectorはトップに予定告知がない場合、そこからリンクされたお知らせカテゴリを1回たどって告知を探索します。トップと一覧で見つかる補助競技場の修繕告知・原寸条件画像も入力に含め、サムネイルは除きます。公式告知内の対象月の予定画像を取得し、ファイル名の `hojyoriku`・`hokyoriku`・`hozyoriku` と、月の前に入る任意の `class_` を許容します。2026年10月13日更新の10月画像は `info_hojyoriku_class_202610_230261013_1.png` です。2026年9月28日更新の10月画像は `hozyoriku` で公開されています。月と補助競技場のファイル名を照合し、対象外の月や主競技場の画像をAI入力に混ぜません。
 
 広島広域公園補助のcollectorは、トップページに対象月の個人利用告知が見つからない場合、そのページの公式新着情報一覧リンクを1回たどって同じ対象月・補助競技場の告知を探します。重複告知を除去し、選んだ告知の可視の掲載日・見出し・URLだけを年月の根拠としてAI入力へ渡します。一覧の他の記事や不正なplaceholder datetime属性（`2016-00-00`）は入力へ混ぜません。見つからない場合はunknownを維持します。広島だけの読解補足で、掲載年・曜日・年付き月表の照合、最大9〜21時に対する夕方のみの一部利用、年付き月表の明示的休場を区別します。モデルとeffortは変更せず、広島のparser version・cacheだけを更新します。
 
@@ -309,9 +309,11 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 PDF文字抽出は `pdfjs-dist` に同梱されたCMap・standard_fonts・wasmをpackage解決したローカルdirectoryから読みます。Adobe-Japan1等の日本語font mappingを外部通信なしで処理します。練馬の2026-10-13・10-16・10-20・10-23週間表は日別statusが画像のため、`nerima-reviewed.ts` の週間表・凡例hashに一致する確認済み7日分だけを使います。10-16版は16〜22日の全枠を確認し、21日午前・昼の半面と22日昼の緑レーンの利用条件を保持します。10-20版は20〜26日の全枠を確認し、20日朝・午後の陸上トラック優先、21日朝・昼の半面、20・22・26日昼の緑レーン条件を保持します。10-23版は23〜29日の全枠を確認し、27日朝・午後の陸上トラック優先、28日朝の半面、26〜29日昼の緑レーン条件を保持します。文字が一部抽出できる新資料でも旧parserへ戻さず、未確認hashは必ずsource_changedにします。各PDFの期間・公開日を分離し、週間表の17時終了と施設案内の18時終了の差はunknownとして残します。掲載外へ外挿せず、新しい画像形式の資料は再レビューまでunknownです。原本fixtureと凡例・時間差の回帰検証は `nerima-reviewed.test.ts`、根拠はfixtureのprovenance文書に記録します。
 
-三郷のPDF collectorは通常の3時間帯の文字判定に加え、PDF.js 6の描画命令から罫線の座標を抽出します。`整備休場中` を含む結合セルが全時間帯を覆い、内部の縦罫線で分割されていないことを確認し、上下端で休場対象日を決め、隣接する通常利用日へ広げません。休場境界を確認できない資料はunknownへ降格します。1日目の行は通常の行間隔の半分で区切り、列見出しの共用利用時間を利用枠と誤認しません。罫線抽出は三郷のみで行い、公式原本の9月・10月PDFをfixtureとして抽出から判定まで回帰検証します。
+三郷のPDF collectorは通常の3時間帯の文字判定に加え、PDF.js 6の描画命令から罫線の座標を抽出します。`整備休場中` を含む結合セルが全時間帯を覆い、内部の縦罫線で分割されていないことを確認し、上下端で休場対象日を決め、隣接する通常利用日へ広げません。休場境界を確認できない資料はunknownへ降格します。1日目の行は通常の行間隔の半分で区切り、列見出しの共用利用時間を利用枠と誤認しません。罫線抽出は三郷と戸田で行い、公式原本の9月・10月PDFをfixtureとして抽出から判定まで回帰検証します。
 
-博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。トップページから現行月表を発見し、月表・利用方法・注意事項の全資料のURLとhashが確認済みhashと一致した場合だけ採用します。トップページ本文は資料探索用であり、お知らせの更新だけで停止させません。翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
+戸田の11月の冬季行事表は夏季17〜18時の個人開放欄を持たないため、日付セルの全幅罫線で日を区切り、陸上競技場の明示された専用利用時間だけを読取ります。休場日は利用不可、それ以外は専用利用枠を保持したunknownとし、空欄・他施設や夏季開放を冬季の利用可へ変換しません。国府台の2026年10月表は画像化されたため、`reviewed-kohnodai.ts` の原本hash一致時のみ人手照合済みの全31日を採用します。公式landingの年と一般開放方針も毎回確認し、11月の文字PDFは既存parserを使用、未確認画像・別月へ外挿しません。原本・回帰検証・根拠は `recovery-20261026.test.ts` とfixture provenanceに保持します。
+
+博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10・11月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。トップページから現行月表を発見し、月表・利用方法・注意事項の全資料のURLとhashが確認済みhashと一致した場合だけ採用します。トップページ本文は資料探索用であり、お知らせの更新だけで停止させません。翌月へ外挿しません。2026年10月21日版の2ページ資料も全日・対象列を照合済みで、10月改訂表と11月表を別ページとして採用します。11月の通常開放9〜17時、1・13・21・29日の一般開放なし、大会終了後の開放時刻と変動注意を保持します。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他7施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
 
 
 HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス画面を明示するHTTP 200本文を `source-availability.ts` で検出し、予定未掲載・期間外と混同せずfetch_failedへ降格します。予定内の設備点検の記載は対象外です。AIも公式資料取得段階のHTTP・network失敗をfetch_failedとし、取得後の読取失敗（extraction_failed）と区別します。2026-10-23のTEF・維新の実本文fixtureと停止/正常予定の回帰検証は `source-availability.test.ts`、施設別の障害根拠は `fixtures/outages-20261023-provenance.md` に記録します。公式サイト停止中の予定を古いcacheだけから再公開しません。
@@ -378,7 +380,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
-| `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ |
+| `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ。メニュー操作は初回lazy routeのviewが現れてから開始し、mobile drawerのactive状態を確認する |
 | `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |
 | `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusと全unknownの2シナリオをbuild・smoke |
 | `npm run validate:availability:fresh` | JST当日開始・連続31日・6時間以内の生成・施設ID/期限/statusと合成データ混入を検査 |

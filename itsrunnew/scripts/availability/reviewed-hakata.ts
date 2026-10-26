@@ -1,11 +1,13 @@
 import { digest, type AiPacket, type AiRow } from './ai-runtime';
 
-// Human-reviewed 2026-10 official monthly table and general-use guide.
+// Human-reviewed October and November 2026 tables and general-use guide.
 // The homepage discovers the current PDF; only the schedule and usage sources
 // are review inputs. Unrelated homepage news must not invalidate this reading.
 // Source changes disable this finite correction; never extrapolate to a new month.
 export const hakataReviewedSourceHash =
   '2581cddafdae7bca4b993962382fc1e74e4bcfc1d56047b018b78991c7d1e8b1';
+export const hakataOctober21SourceHash =
+  'fde1a30a3b006619bae161741eee8b95b68b8ca0743488098c0bc8298f012325';
 const scheduleUrl =
   'https://www.midorimachi.jp/higashihirao/images/park/261002141825533.pdf';
 const eventEnd: Record<number, string> = {
@@ -33,18 +35,25 @@ export function reviewedHakataReading(packet: AiPacket) {
         .map((source) => ({ url: source.url, hash: source.hash })),
     ),
   );
-  const schedule = packet.sources.find((source) => source.url === scheduleUrl);
+  const current = hash === hakataOctober21SourceHash;
+  const schedule = packet.sources.find((source) => source.url === (current
+    ? 'https://www.midorimachi.jp/higashihirao/images/park/26102110584262.pdf' : scheduleUrl)
+    && (!current || source.name.endsWith('-page-1.png')));
+  const novemberSchedule = current ? packet.sources.find(source => source.url === schedule?.url && source.name.endsWith('-page-2.png')) : null;
   const guide = packet.sources.find(
     (source) =>
       source.url === 'https://www.midorimachi.jp/higashihirao/guides/',
   );
-  if (hash !== hakataReviewedSourceHash || !schedule || !guide) return null;
+  if ((!current && hash !== hakataReviewedSourceHash) || !schedule || !guide || (current && !novemberSchedule)) return null;
   const rows = new Map<string, AiRow>();
   for (const date of packet.dates) {
     const day = Number(date.slice(8));
-    const inMonth = /^2026-10-\d{2}$/.test(date) && day >= 1 && day <= 31;
-    const closed = inMonth && noOpening.has(day);
-    const start = eventEnd[day] ?? '09:00';
+    const november = current && /^2026-11-\d{2}$/.test(date) && day >= 1 && day <= 30;
+    const inMonth = november || (/^2026-10-\d{2}$/.test(date) && day >= 1 && day <= 31);
+    const closed = inMonth && (november ? [1, 13, 21, 29].includes(day) : noOpening.has(day));
+    const event = november ? ({ 3: '13:00', 6: '15:00', 8: '15:00', 14: '14:00', 15: '15:00', 28: '14:00' } as Record<number, string>)[day] : eventEnd[day];
+    const start = event ?? '09:00';
+    const end = november ? '17:00' : '18:30';
     rows.set(date, {
       id: `hakata-${date}`,
       date,
@@ -52,7 +61,7 @@ export function reviewedHakataReading(packet: AiPacket) {
         ? 'unknown'
         : closed
           ? 'unavailable'
-          : eventEnd[day]
+          : event
             ? 'partially_available'
             : 'available',
       periods:
@@ -61,7 +70,7 @@ export function reviewedHakataReading(packet: AiPacket) {
           : [
               {
                 start,
-                end: '18:30',
+                end,
                 scope: '補助競技場トラック',
                 last_entry: null,
               },
@@ -71,7 +80,7 @@ export function reviewedHakataReading(packet: AiPacket) {
         : [
             '一般利用は有料。当日受付・支払い。事前予約不可。',
             'フィールド中央の天然芝部分は一般利用不可。',
-            ...(eventEnd[day] && !closed
+            ...(event && !closed
               ? [
                   '一般開放は大会終了後。開始時刻は大会の終了予定時刻に基づき、実際の終了状況で変わるため公式情報を確認してください。',
                 ]
@@ -81,19 +90,19 @@ export function reviewedHakataReading(packet: AiPacket) {
         ? []
         : [
             {
-              source: schedule.name,
-              location: `令和8年10月・補助競技場欄・${day}日`,
+              source: (november ? novemberSchedule! : schedule).name,
+              location: `令和8年${november ? 11 : 10}月・補助競技場欄・${day}日`,
               quote_or_symbol: closed
-                ? '一般開放はありません'
-                : eventEnd[day]
+                ? november ? '一般開放なし' : '一般開放はありません'
+                : event
                   ? `大会予定終了 ${start}／大会の終了後から`
-                  : '一般（有料）開放 9:00〜18:30・対象日の大会欄は空欄',
+                  : `一般（有料）開放 9:00〜${end}・対象日の大会欄は空欄`,
             },
             {
               source: guide.name,
               location: '補助競技場 一般開放利用・利用時間',
               quote_or_symbol:
-                '10月 9:00〜18:30／大会終了まで一般開放はいたしません',
+                `${november ? '11月 9:00〜17:00' : '10月 9:00〜18:30'}／大会終了まで一般開放はいたしません`,
             },
           ],
       unknown_reason: inMonth ? null : 'outside_published_period',

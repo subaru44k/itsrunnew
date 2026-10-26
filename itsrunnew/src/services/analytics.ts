@@ -42,7 +42,10 @@ function analyticsWindow() {
 function ensureGtag() {
   const target = analyticsWindow();
   target.dataLayer ??= [];
-  target.gtag ??= (...args: unknown[]) => target.dataLayer?.push(args);
+  target.gtag ??= function () {
+    // gtag.js recognizes commands queued as Arguments objects, not arrays.
+    target.dataLayer?.push(arguments);
+  };
   return target.gtag;
 }
 

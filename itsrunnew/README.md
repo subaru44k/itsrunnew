@@ -137,3 +137,5 @@ PDF collectorは `pdfjs-dist` 同梱CMap・標準font・wasmをローカルで�
 Availabilityの原資料変更対応は `scripts/availability/recovery-20261026.test.ts` と同fixture provenanceを参照してください。戸田の冬季表は専用利用枠・休場だけを採用し、夏季個人開放を外挿しません。国府台の10月画像表と博多の10月21日版（10・11月）は確認済みhashだけを採用します。維新は公式お知らせ一覧と修繕条件画像も確認します。公開後smokeは初回route完了後にメニューを操作します。
 
 維新補助は公開後にAI回答の揺れが判明したため、`reviewed-ishin.ts` の確認済み2026年10・11月の有限判定へ切り替えました。明示開放17日・明示休場2日・11/26〜28修繕条件を全原本のURL/hash一致時だけ採用し、空欄・大会時間しかない日はunknownです。芝生部分の制限だけでトラックを一部利用扱いにせず、11/26の直線レーン制限は保持します。未知資料をAI/cacheへ戻さず、月またぎでも必要月と全共通条件を照合し、12月へ外挿しません。原本4画像・metadata fixtureと `reviewed-ishin.test.ts` で判定・guard・API非呼出を検証します。
+
+GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（既定 `https://itsrun.info`）。実際のgtag.jsを読み、collectを送信前に遮断して同意・遷移・再訪・拒否を確認します。Previewは `ITSRUN_BASE_URL=https://... ITSRUN_EXPECT_ANALYTICS=false node scripts/analytics-smoke.mjs`。GA4取り込みの検証ではありません。Chrome指定は既存smokeと同じ`CHROME_PATH`です。

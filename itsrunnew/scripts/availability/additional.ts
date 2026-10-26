@@ -5,6 +5,7 @@ import { aiReadingConfig, digest, readWithLuna } from './ai-runtime';
 import { officialFetch, htmlText, decodeEntities } from './ai-source-utils';
 import { parsePersonalIcs } from './personal-ics';
 import { reviewedHakataReading } from './reviewed-hakata';
+import { reviewedIshinReading } from './reviewed-ishin';
 
 export const personalCalendarFacilities = [
   {
@@ -51,11 +52,11 @@ export async function collectAdditionalAvailability(
       landingPageUrl: config.landing,
       publicationFormat: 'structured_html' as const,
       collector:
-        config.key === 'hakata'
-          ? 'reviewed-official-hakata'
+        ['hakata', 'ishin'].includes(config.key)
+          ? `reviewed-official-${config.key}`
           : reading.collector,
       parserVersion:
-        config.key === 'hakata' ? 'reviewed-hakata-20261021-v3' : reading.version,
+        config.key === 'hakata' ? 'reviewed-hakata-20261021-v3' : config.key === 'ishin' ? 'reviewed-ishin-20261026-v1' : reading.version,
     };
     const unavailable = (
       error: unknown,
@@ -89,10 +90,10 @@ export async function collectAdditionalAvailability(
       await Promise.race(activeReadings);
     const task = (async (): Promise<TrackAvailability[]> => {
       try {
-        const reviewed = reviewedHakataReading(packet);
-        if (config.key === 'hakata' && !reviewed)
+        const reviewed = reviewedHakataReading(packet) ?? reviewedIshinReading(packet);
+        if (['hakata', 'ishin'].includes(config.key) && !reviewed)
           return unavailable(
-            new Error('Hakata official schedule requires review'),
+            new Error('Official schedule requires human review'),
             'source_changed',
           );
         const result =
@@ -104,7 +105,7 @@ export async function collectAdditionalAvailability(
           }));
         const sourceHash = `sha256:${digest(JSON.stringify(packet.sources.map((s) => ({ url: s.url, hash: s.hash }))))}`;
         console.log(
-          `AI availability ${config.key}: ${result.key.startsWith('reviewed-hakata-') ? 'reviewed official schedule' : result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
+          `AI availability ${config.key}: ${result.key.startsWith('reviewed-') ? 'reviewed official schedule' : result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
         );
         const facilityRecords: TrackAvailability[] = [];
         for (const date of dates) {

@@ -2,7 +2,7 @@
 
 ## 目的と実行経路
 
-`.github/workflows/availability-monitor.yml` は毎日09:30 JSTと手動実行で、公式sourceの31日分をメモリ内へ収集する。Production/Previewの配備とは独立し、`src/data/availability`、公開ファイル、AWS、domainを変更しない。Productionが停止していても監視を実行できるよう、deploy生成物の再利用ではなく独立収集とする。同一run内のsource cacheは通常collectorと共通。AI 8施設は既存deployと同じActions cacheを再利用し、cache miss時は既存のLuna読解を実行する。masterの収集stepに限って既存の `OPENAI_API_KEY` を渡し、欠落時は全施設の形式変更と誤認せずjobを失敗させる。PDF画像化用Popplerも導入する。通常build/devは従来どおり外部通信しない。
+`.github/workflows/availability-monitor.yml` は毎日09:30 JSTと手動実行で、公式sourceの31日分をメモリ内へ収集する。Production/Previewの配備とは独立し、`src/data/availability`、公開ファイル、AWS、domainを変更しない。Productionが停止していても監視を実行できるよう、deploy生成物の再利用ではなく独立収集とする。同一run内のsource cacheは通常collectorと共通。AI読解6施設は既存deployと同じActions cacheを再利用し、cache miss時は既存のLuna読解を実行する。masterの収集stepに限って既存の `OPENAI_API_KEY` を渡し、欠落時は全施設の形式変更と誤認せずjobを失敗させる。PDF画像化用Popplerも導入する。通常build/devは従来どおり外部通信しない。
 
 `monitor-fetch.ts` はbounded retry wrapper、`source-fetch.ts` はrange CLIと監視で共有する接続タイムアウト時のcurl代替取得、`health.ts` は状態比較、`monitor.ts` は収集・検証・出力、`monitor-github.mjs` は前回成功runのartifactとProduction最終成功時刻の取得、`monitor-email.py` はGmailのSMTP over TLSによる通知を担当する。Node 24、Poppler、Python 3標準ライブラリ、GitHub CLI（ActionsのUbuntu runnerに付属）を使う。SMTP認証情報をcollectorへ渡さない。
 

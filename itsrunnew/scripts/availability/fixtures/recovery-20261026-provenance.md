@@ -39,3 +39,11 @@
 ## Production公開後smoke
 
 [40252609720](https://github.com/subaru44k/itsrunnew/actions/runs/40252609720)は収集・local smoke・配備・公開本文照合は成功し、CloudFront mobile drawerクリックで失敗。初回lazy route確定時にVuetifyがdrawerを閉じる競合を避けるため、runtime viewのmountを待ってから開き、active drawer内の通常クリックを検証する。固定sleep・forceクリック・gateの緩和はしない。公開内容とrunの全体成否は別に追跡する。
+
+## 公開後に見つかった維新のAI回答差と有限判定
+
+PR #124のe2d260bを公開したProduction [40283634804](https://github.com/subaru44k/itsrunnew/actions/runs/40283634804)とPreview [40283634880](https://github.com/subaru44k/itsrunnew/actions/runs/40283634880)は全工程成功。しかし同一sourceHash `sha256:5e7c8c894c340598fe3ef808fab0227b6287fd8686d5a8ba3a89b8cff084df36`の独立読取で、Productionは11/3・4・15を終日利用不可、Previewは芝生の制限だけで開放日を一部利用扱いにした。元のローカル回答は大会日をunknown、トラック開放はavailableであり、原本に忠実。公開後照合で差を検知したためworkflow成功だけを復旧にしない。
+
+月表の全行を再照合し、10月の明示開放は1・5・8・13・15・19・22・26・29日、11月は2・6・12・16・19・24・26・30日（8:30〜17時、芝生除く）。終日不可の明示は10/6と11/9の清掃・点検だけ。大会の時間だけでは終日個人利用不可の明示がないためunknownへ戻す。11/26は明示開放に修繕の直線レーン制限がかかるため一部利用可、27・28日は修繕条件を保持してunknown。
+
+`reviewed-ishin.ts` は上記期間・全資料URL/hash一致だけの有限判定。月表2画像・修繕の条件画像・地図の原本4点を無変更保存し、metadata fixtureはcontentを省略。告知textと修繕告知textのhashも照合。月またぎの不要な10月画像除外だけを許容し、必要月の欠落・新資料・条件変更・別施設・別年では停止またはunknown。AI/cacheへ戻さず、明示開放・休場以外を埋めない。外部AI6施設・有限判定2施設となる。全61日・期間外・source guard・実collector経由のAPI非呼出を回帰検証する。

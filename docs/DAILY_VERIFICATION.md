@@ -25,7 +25,7 @@ npm run test:daily
 - `test:daily:fixtures`: JST当日から31日間の合成データでbuildとPC/モバイルの全smokeを実行。mixedでは4statusを網羅し、戸田を当日unavailable・翌日availableにする。unknownでは全施設をunknownとし、公式取得不能時の安全な表示とstatus欠落を検証する。
 - `test:daily`: 実際の公式sourceから31日分を収集し、鮮度・全施設の完全性・Track Datasetを検証してbuildと全smokeを実行する。AWSへ配備しない。AI読解6施設は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）を一時workspaceの外へ置いてcacheを継続利用できる。keylessでcache missのAI施設はunknownになるため、CIでのdaily成功は外部AI推論のfreshnessを証明しない。
 - 両コマンドとも一時ディレクトリへソースをコピーし、インストール済み依存を共有する。live dailyのAI cacheだけは`ITSRUN_AI_CACHE_DIR`で指定したpersistent directoryを参照し、一時workspaceのコピー対象から除外する。checkoutのavailability・distや`.env`には触れない。合成データを公開する経路を設けず、deployの鮮度ゲートでも合成データを拒否する。通常終了・失敗時に一時領域を削除する。
-- `Node 24 validation` checkはMarkdownだけのmaster向けPR・master pushでは差分確認のみ行い、アプリ・daily suiteを省略する。その他の変更では安全側に両コマンドを実行する。同じPR revisionのCI結果が確認できれば、理由のないローカル再実行は不要。CIは`OPENAI_API_KEY`を外部AIへ渡さないため、keyless cache missを含むdaily gateの成功を外部AI推論の検証結果と扱わない。unit/lint/buildだけの成功もdaily互換性の確認と扱わない。
+- `Node 24 validation` checkはMarkdownだけのmaster向けPR・master pushでは差分確認のみ行い、アプリ・daily suiteを省略する。ペース表・記録集の独立したファイルだけの変更では`test:smoke:fixtures`を実行して両dailyを省略する。これは一時workspaceで当日31日分のmixed 4statusだけを生成・buildして全smokeを行う経路で、古いcommitted snapshotを使わない。実収集・全unknown・2 buildの署名比較は行わない。許可pathは`scripts/validation-scope.mjs`で限定し、共通機能・施設・availability・build/deploy・ブラウザテスト・workflow、未知path、削除／rename、比較元不明・空差分では安全側に両コマンドを実行する。同じPR revisionのCI結果が確認できれば、理由のないローカル再実行は不要。CIは`OPENAI_API_KEY`を外部AIへ渡さないため、keyless cache missを含むdaily gateの成功を外部AI推論の検証結果と扱わない。unit/lint/buildだけの成功もdaily互換性の確認と扱わない。
 
 両deploy workflowは収集直後に `validate:availability:fresh` を実行する。JST当日始まりの連続31日、6時間以内の生成時刻、全施設IDの重複・欠落、日付・timezone・期限・statusを検査し、不完全または古い生成物を公開しない。取得不能は従来どおりunknownであり、全4statusの存在を公開条件にしない。
 
@@ -53,3 +53,7 @@ smokeは実データに存在するstatusと件数を検証し、存在しない
 ## 2026-10-26 公開後メニュー検証の競合
 
 Production run [40252609720](https://github.com/subaru44k/itsrunnew/actions/runs/40252609720)、revision `a0f35b8` は収集・local smoke・配備・公開本文照合に成功後、mobile drawerの「神奈川県の競技場」が画面外になり停止。Appのtoolbarは初回lazy routeより先にmountし、Vuetifyはroute変更時にtemporary drawerを閉じる。smokeはroute view `.track-search-page` が現れた後に開き、active drawer内で通常クリックする。forceクリック・固定sleep・失敗の無視は行わない。
+
+## ブラウザ検証の並列実行
+
+`test:smoke`と`test:pace`はPC・スマホを別processで最大2並列実行する。通信記録・browser stateを分離し、両worker完了前にPreviewや一時workspaceを削除しない。一方でも失敗すれば失敗扱いとする。dailyのmixed/unknownはbuild署名比較を保持して直列実行する。`ITSRUN_BROWSER_WORKERS=1`で直列比較・低リソース環境の診断が可能。

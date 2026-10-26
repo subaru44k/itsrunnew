@@ -1,3 +1,4 @@
+import { selectViewports } from './test-viewports.mjs';
 import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';
@@ -6,10 +7,10 @@ const baseUrl = process.env.ITSRUN_BASE_URL ?? 'http://127.0.0.1:4173';
 const outputDirectory = process.env.ITSRUN_PACE_OUTPUT ?? '/tmp/itsrun-pace-check';
 const executablePath = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const storageKey = 'itsrun.marathon.v1';
-const viewports = [
+const viewports = selectViewports([
   { name: 'desktop', width: 1440, height: 900 },
   { name: 'mobile', width: 390, height: 844 },
-];
+]);
 
 const baseOrigin = new URL(baseUrl).origin;
 const runtimeErrors = [];

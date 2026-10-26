@@ -80,6 +80,9 @@ itsrunnew/
 ├── backend/field-reports/      レポートAPI・DynamoDB保存・入力/連投制限・独立lockfile
 ├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像、availability生成先へのsymlink
 ├── scripts/
+│   ├── browser-check.mjs      PC/スマホを別processで最大2並列実行・両方の完了と成否を集約
+│   ├── test-viewports.mjs     browser workerのviewport選択
+│   ├── validation-scope.mjs   変更pathからMarkdown／独立機能／full dailyを保守的に判定
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── facility-schedule-smoke.mjs 日英・品質別予定と情報密度・詳細開閉のブラウザ検証
 │   ├── daily-check.mjs        一時workspaceでdaily実収集／合成データのbuild・smokeを検証
@@ -381,6 +384,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
 | `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ。メニュー操作は初回lazy routeのviewが現れてから開始し、mobile drawerのactive状態を確認する |
+| `npm run test:smoke:fixtures` | 隔離workspaceで当日31日分のmixed 4statusだけを生成しbuild・全smoke（実収集・全unknownなし） |
 | `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |
 | `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusと全unknownの2シナリオをbuild・smoke |
 | `npm run validate:availability:fresh` | JST当日開始・連続31日・6時間以内の生成・施設ID/期限/statusと合成データ混入を検査 |
@@ -408,9 +412,11 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm run infra:production:certificate:deploy` | 委任済みzoneでus-east-1 certificateを発行する |
 | `npm run infra:production:automation:deploy` | Production content-only OIDC roleを作成する |
 
+`test:smoke`と`test:pace`は`browser-check.mjs`からPC・スマホを独立processで最大2並列実行します。検証項目は維持し、通信記録・browser contextをprocessごとに分離します。両workerの完了を待ち、一方でも失敗すればコマンドを失敗させます。dailyの2シナリオはbuild署名比較のため引き続き直列です。`ITSRUN_BROWSER_WORKERS=1`で従来の直列実行へ戻せます。配備前後のsmokeにも同じ並列化が適用されます。
+
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
-`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushの変更ファイルを比較します。Markdownだけの変更は差分の空白確認のみで `Node 24 validation` checkを完了し、Node setup・依存install・アプリ/dailyテストを省略します。それ以外は`itsrunnew/`をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて、ローカルPreviewを起動して`test:pace`（施設詳細から入力・練習時間への日英PC/スマホ導線を含む）を実行し、`test:daily:fixtures`と`test:daily`も同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストにはChromeと外部sourceへのnetworkが必要です。適用範囲と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
+`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushの変更ファイルを比較します。Markdownだけの変更は差分の空白確認のみで `Node 24 validation` checkを完了し、Node setup・依存install・アプリ/dailyテストを省略します。それ以外は`itsrunnew/`をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて、ローカルPreviewを起動して`test:pace`（施設詳細から入力・練習時間への日英PC/スマホ導線を含む）を実行します。`scripts/validation-scope.mjs` は変更pathの許可listでdailyの要否を判定します。ペース表のView・laptime components・marathon model・旧LapTimeCalculator、記録集の2 View・結果JSON（およびMarkdown）だけの変更では、`test:smoke:fixtures`を実行してdaily 2 suiteを省略します。これは古いcommitted snapshotに依存せず、隔離workspaceで当日31日分のmixed 4statusを生成・buildして全smokeを行う軽量経路です。実収集・全unknown scenario・2 buildの署名比較は行いません。共通画面・翻訳・施設・availability・依存・build/deploy・ブラウザテスト・workflowを含む変更、未知path、削除／rename、比較元不明・空差分ではfull dailyを実行します。判定結果はActions summaryへ記録します。`test:daily:fixtures`と`test:daily`はfull daily時に同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストにはChromeと外部sourceへのnetworkが必要です。適用範囲と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
 
 `.github/workflows/deploy-preview.yml` はMarkdownだけのpushを除く `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、SHA-256差分によるcontent配備、変更URLのCloudFront invalidation、公開本文照合、CloudFront smokeまでを実行します。差分なしではinvalidationを省略します。HTML shellは直接URLとrewrite前の公開URLを対象にし、Service Workerも変更時に無効化します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 

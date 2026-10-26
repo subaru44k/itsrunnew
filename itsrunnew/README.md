@@ -102,7 +102,7 @@ availabilityのAI読解を人手で評価するローカル入力画面は、リ
 
 ## availabilityに関わる変更時のdaily更新検証
 
-availability収集、Track DatasetのID・status、availabilityの表示・絞り込み、daily smoke、build/deployの経路に影響する変更では、通常のunit・lint・buildに加え、`npm run test:daily:fixtures` と `npm run test:daily` を確認します。前者は4status・戸田が利用不可の日と全施設unknownの回帰検証、後者は公式sourceの実収集・当日31日分の鮮度と完全性・build・PC/スマホsmokeです。両方とも一時workspaceを使い、checkoutのデータ・distは変更せず、AWSへ配備しません。Node 24、インストール済み依存、Chromeが必要です（Linuxは`CHROME_PATH=/usr/bin/google-chrome`）。同じPR revisionのCI結果を確認できればローカルで重複実行する必要はありません。CIはMarkdownだけの変更でアプリ/dailyテストを省略し、その他の変更では両方を実行します。
+availability収集、Track DatasetのID・status、availabilityの表示・絞り込み、daily smoke、build/deployの経路に影響する変更では、通常のunit・lint・buildに加え、`npm run test:daily:fixtures` と `npm run test:daily` を確認します。前者は4status・戸田が利用不可の日と全施設unknownの回帰検証、後者は公式sourceの実収集・当日31日分の鮮度と完全性・build・PC/スマホsmokeです。両方とも一時workspaceを使い、checkoutのデータ・distは変更せず、AWSへ配備しません。Node 24、インストール済み依存、Chromeが必要です（Linuxは`CHROME_PATH=/usr/bin/google-chrome`）。同じPR revisionのCI結果を確認できればローカルで重複実行する必要はありません。CIはMarkdownだけの変更でアプリ/dailyテストを省略します。ペース表のView・laptime components・marathon model・旧LapTimeCalculator、記録集の2 View・結果JSONだけの変更（Markdown同時変更可）では`test:smoke:fixtures`を実行してdailyを省略します。古いsnapshotに依存せず、一時workspaceで当日31日分のmixed 4statusだけを生成・buildして全smokeを行います（実収集・全unknown・2 buildの署名比較なし）。共通機能・施設・availability・build/deploy・ブラウザテスト・workflow、未知path、削除／rename、差分不明では両dailyを実行します。判定の正本は`scripts/validation-scope.mjs`です。
 
 日次deployは`validate:availability:fresh`を収集直後に実行し、古い・不完全なデータや合成fixtureの公開を拒否します。失敗調査と公開後の確認手順は[DAILY_VERIFICATION.md](../docs/DAILY_VERIFICATION.md)を参照してください。
 
@@ -139,3 +139,7 @@ Availabilityの原資料変更対応は `scripts/availability/recovery-20261026.
 維新補助は公開後にAI回答の揺れが判明したため、`reviewed-ishin.ts` の確認済み2026年10・11月の有限判定へ切り替えました。明示開放17日・明示休場2日・11/26〜28修繕条件を全原本のURL/hash一致時だけ採用し、空欄・大会時間しかない日はunknownです。芝生部分の制限だけでトラックを一部利用扱いにせず、11/26の直線レーン制限は保持します。未知資料をAI/cacheへ戻さず、月またぎでも必要月と全共通条件を照合し、12月へ外挿しません。原本4画像・metadata fixtureと `reviewed-ishin.test.ts` で判定・guard・API非呼出を検証します。
 
 GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（既定 `https://itsrun.info`）。実際のgtag.jsを読み、collectを送信前に遮断して同意・遷移・再訪・拒否を確認します。Previewは `ITSRUN_BASE_URL=https://... ITSRUN_EXPECT_ANALYTICS=false node scripts/analytics-smoke.mjs`。GA4取り込みの検証ではありません。Chrome指定は既存smokeと同じ`CHROME_PATH`です。
+
+`test:smoke`と`test:pace`はPC・スマホを別プロセスで2並列実行します。各workerの検証項目は維持し、両方の完了を待って失敗を集約します。低リソース環境や速度比較には`ITSRUN_BROWSER_WORKERS=1 npm run test:smoke`（または`test:pace`）で直列実行できます。dailyと配備前後のsmokeにも適用されます。
+
+公式サイトの実収集をせず、古いavailability snapshotにも依存せず公開画面を確認する場合は、`npm run test:smoke:fixtures`を使います。当日基準のmixed 4statusを一時workspaceで生成・buildして全smokeを行い、checkoutのデータ・distは変更しません。

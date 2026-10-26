@@ -12,9 +12,9 @@
     "build": "node scripts/generate-public-pages.mjs && vue-tsc --noEmit && vite build && node scripts/generate-track-route-shells.mjs",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:smoke": "node scripts/smoke.mjs",
+    "test:smoke": "node scripts/browser-check.mjs smoke",
     "test:smoke:preview": "node scripts/smoke-preview.mjs",
-    "test:pace": "node scripts/pace-smoke.mjs",
+    "test:pace": "node scripts/browser-check.mjs pace",
     "test:visual": "node scripts/visual-compare.mjs",
     "validate:tracks": "node scripts/validate-tracks.mjs",
     "validate:track-batches": "node scripts/validate-track-batches.mjs",
@@ -47,7 +47,8 @@
     "validate:availability:fresh": "node scripts/availability/validate-fresh.mjs",
     "monitor:availability": "tsx scripts/availability/monitor.ts",
     "test:monitor:email": "python3 -B -m unittest discover -s scripts/availability -p \"monitor_email_test.py\"",
-    "test:reverification": "python3 -B -m unittest discover -s scripts/reverification -p \"*_test.py\""
+    "test:reverification": "python3 -B -m unittest discover -s scripts/reverification -p \"*_test.py\"",
+    "test:smoke:fixtures": "node scripts/daily-check.mjs fixture-smoke"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

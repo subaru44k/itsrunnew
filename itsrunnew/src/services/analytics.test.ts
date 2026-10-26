@@ -36,6 +36,7 @@ describe('analytics command queue', () => {
 
   beforeEach(() => {
     vi.resetModules();
+    vi.stubEnv('VITE_DEPLOY_TARGET', 'production');
     queue = [];
     scripts = [];
     vi.stubGlobal('window', { location: { origin: 'https://itsrun.info' }, dataLayer: queue });

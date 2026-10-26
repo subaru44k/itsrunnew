@@ -45,16 +45,17 @@ try {
     }).filter(params => params.get('en') === 'page_view' && params.get('tid') === 'G-YNLS7KQXYW');
     if (choice === 'granted' && enabled) {
       await page.waitForFunction(() => document.querySelector('script[data-itsrun-analytics]'));
-      await page.waitForTimeout(6000);
+      await page.waitForTimeout(8000);
       assert(pageViews().some(params => params.get('dl') === 'https://itsrun.info/'), 'consent generates canonical page_view');
       const count = pageViews().length;
       await page.locator('a[href="/privacy"]').last().click();
-      await page.waitForTimeout(3000);
+      await page.waitForURL('**/privacy');
+      await page.waitForTimeout(8000);
       assert(pageViews().length > count, 'SPA navigation generates page_view');
       assert(pageViews().some(params => params.get('dl') === 'https://itsrun.info/privacy'));
       const beforeReload = pageViews().length;
       await page.reload({ waitUntil: 'networkidle' });
-      await page.waitForTimeout(4000);
+      await page.waitForTimeout(8000);
       assert(pageViews().length > beforeReload, 'saved consent generates page_view on revisit');
       console.log(JSON.stringify({ baseUrl, choice, tags: tags.length, interceptedPageViews: pageViews().map(params => ({ tid: params.get('tid'), en: params.get('en'), dl: params.get('dl') })) }));
     } else {

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { dirname, join, sep } from 'node:path';
 import { reviewedNerimaPdf, isReviewedNerimaPdf, nerimaGuideUrl, nerimaReviewedGuideHash } from './nerima-reviewed';
+import { reviewedKohnodaiPdf } from './reviewed-kohnodai';
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { AvailabilityPeriod, AvailabilityStatus, UnknownReason } from '../../src/model/availability';
 
@@ -242,8 +243,21 @@ export function parseNerimaPdf(pdf: ExtractedPdf, date: string): PdfParseResult 
 
 export function parseTodaPdf(pdf: ExtractedPdf, date: string): PdfParseResult {
   const { year, month, day } = dateParts(date);
-  assertAnchors(pdf, ['戸田市スポーツセンター行事予定表', `令和${reiwaYear(year)}年 ${month}月`, '陸上競技場', '17:00~18:00']);
-  const rows = itemsForDay(pageItems(pdf), day, text => /^(\d{1,2})$/.test(text) ? Number(text) : null, 55);
+  const summer = compact(pdf.text).includes('17:00~18:00');
+  assertAnchors(pdf, ['戸田市スポーツセンター行事予定表', `令和${reiwaYear(year)}年 ${month}月`, '陸上競技場', ...(summer ? ['17:00~18:00'] : ['施設名', '人数', '時間'])]);
+  let rows = itemsForDay(pageItems(pdf), day, text => /^(\d{1,2})$/.test(text) ? Number(text) : null, 55);
+  if (!summer) {
+    // Winter removes the summer circle column and moves the event columns.
+    // Full-width rules bound variable-height date cells; midpoint bounds can
+    // accidentally borrow an event from the previous/next date.
+    const dateItem = pageItems(pdf).find(item => item.x < 40 && item.text === String(day));
+    const rules = (pdf.horizontalRules ?? []).filter(rule => rule.page === 1 && rule.fromX < 25 && rule.toX > 570);
+    const upper = Math.min(...rules.filter(rule => dateItem && rule.y > dateItem.y).map(rule => rule.y));
+    const lower = Math.max(...rules.filter(rule => dateItem && rule.y < dateItem.y).map(rule => rule.y));
+    if (!dateItem || !Number.isFinite(upper) || !Number.isFinite(lower))
+      throw new PdfCollectorError('source_changed', 'Winter Toda date boundaries missing');
+    rows = uniqueItems(pageItems(pdf).filter(item => item.y < upper && item.y > lower));
+  }
   if (!rows) throw new PdfCollectorError('source_changed', 'Target date row missing from monthly schedule');
   if (rows.some(item => compact(item.text).includes('休場日'))) {
     return { status: 'unavailable', periods: [period(null, null, 'unavailable', ['facility_closed'])], warnings: ['公式行事予定表の休場日'], confidence: 'high' };
@@ -251,12 +265,14 @@ export function parseTodaPdf(pdf: ExtractedPdf, date: string): PdfParseResult {
   const periods: AvailabilityPeriod[] = [];
   const trackLabels = rows.filter(item => compact(item.text) === '陸上競技場');
   for (const label of trackLabels) {
-    const sameLine = rows.filter(item => Math.abs(item.y - label.y) < 1.5);
+    const sameLine = rows.filter(item => Math.abs(item.y - label.y) < 1.5 && (summer || item.x > 510));
     const ranges = parseTimeRange(sameLine.map(item => item.text).join(' '));
+    if (!summer && !ranges.length) throw new PdfCollectorError('source_changed', 'Winter Toda track event hours missing');
     for (const range of ranges) periods.push(period(range.from, range.to, 'unavailable', ['exclusive_track_event']));
   }
-  if (rows.some(item => item.x > 520 && /[〇○]/.test(item.text))) periods.push(period('17:00', '18:00', 'available', ['explicit_summer_individual_slot']));
+  if (summer && rows.some(item => item.x > 520 && /[〇○]/.test(item.text))) periods.push(period('17:00', '18:00', 'available', ['explicit_summer_individual_slot']));
   if (!periods.length) return { status: 'unknown', periods: [], unknownReason: 'insufficient_information', warnings: ['空欄や他施設の予定は個人利用可の根拠にしない'] };
+  if (!summer) return { status: 'unknown', periods, unknownReason: 'insufficient_information', warnings: ['専用利用時間以外の個人利用可否は未確認', '夏季の17〜18時開放を冬季へ外挿しない'], confidence: 'high' };
   return { status: aggregate(periods), periods, warnings: ['陸上競技場欄だけを判定', '空欄時間はunknown'], confidence: 'high' };
 }
 
@@ -656,7 +672,7 @@ export function parseBingoSportsParkPdf(pdf: ExtractedPdf, date: string): PdfPar
 
 export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.3.0' },
-  { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.0.0' },
+  { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.1.0' },
   { trackId: 'fuchu-citizen-athletic-track', name: '府中市民陸上競技場', landingPageUrl: 'https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html', discovery: 'annual_pdf_discovery', parser: 'fuchu-vector-calendar-guard', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-seibiyama-track', name: '和田堀公園 第二競技場（済美山運動場）', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-second', parserVersion: '1.0.0' },
@@ -666,7 +682,7 @@ export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'kamiyugi-park-athletic-stadium', name: '上柚木公園陸上競技場', landingPageUrl: 'https://kamiyugi-park.jp/facility/athletics-stadium/', discovery: 'latest_pdf_discovery', parser: 'kamiyugi-multi-month-matrix', parserVersion: '1.0.0' },
   { trackId: 'kanagawa-prefectural-sports-center-track', name: '神奈川県立スポーツセンター陸上競技場', landingPageUrl: 'https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html', discovery: 'monthly_pdf_discovery', parser: 'kanagawa-sports-center-monthly', parserVersion: '1.0.0' },
   { trackId: 'expo70-commemorative-stadium', name: '万博記念競技場', landingPageUrl: 'https://www.expo70-park.jp/sports/facility/arena/', discovery: 'monthly_pdf_discovery', parser: 'expo70-individual-use-monthly', parserVersion: '1.0.0' },
-  { trackId: 'ichikawa-kohnodai-athletic-stadium', name: '国府台陸上競技場', landingPageUrl: 'https://www.city.ichikawa.lg.jp/page/4185.html', discovery: 'monthly_pdf_discovery', parser: 'ichikawa-kohnodai-monthly-events', parserVersion: '1.0.0' },
+  { trackId: 'ichikawa-kohnodai-athletic-stadium', name: '国府台陸上競技場', landingPageUrl: 'https://www.city.ichikawa.lg.jp/page/4185.html', discovery: 'monthly_pdf_discovery', parser: 'ichikawa-kohnodai-monthly-events', parserVersion: '1.1.0' },
   { trackId: 'bingo-sports-park-athletic-stadium', name: 'こざかなくんスポーツパークびんご 陸上競技場', landingPageUrl: 'https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033', discovery: 'monthly_pdf_discovery', parser: 'bingo-individual-use-calendar', parserVersion: '1.0.0' },
 ];
 
@@ -798,10 +814,12 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
       if (!pdfUrl) throw new PdfCollectorError('schedule_not_published', `No PDF published for ${date}`, config.landingPageUrl);
       const source = await client.pdf(pdfUrl);
       const sourceHash = sha256(source.bytes);
-      const tableRules = config.trackId === 'misato-senario-house-field';
+      const tableRules = ['misato-senario-house-field', 'toda-sports-center-track'].includes(config.trackId);
       const extractionKey = `${sourceHash}:${tableRules}`;
-      if (!extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));
-      const extracted = await extractedBySource.get(extractionKey)!;
+      const reviewedScan = config.trackId === 'ichikawa-kohnodai-athletic-stadium'
+        ? reviewedKohnodaiPdf(sourceHash, date) : null;
+      if (!reviewedScan && !extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));
+      const extracted = reviewedScan ? null : await extractedBySource.get(extractionKey)!;
       let result: PdfParseResult;
       if (config.trackId === 'nerima-general-sports-park') {
         if (!isReviewedNerimaPdf(sourceHash))
@@ -810,8 +828,10 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
         if (sha256(guide.bytes) !== nerimaReviewedGuideHash)
           throw new PdfCollectorError('source_changed', 'Nerima image legend changed; review required', nerimaGuideUrl);
         result = reviewedNerimaPdf(sourceHash, date)!;
+      } else if (reviewedScan) {
+        result = reviewedScan;
       } else {
-        result = parserFor(config, extracted, date);
+        result = parserFor(config, extracted!, date);
       }
       return {
         ...result,

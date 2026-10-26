@@ -49,3 +49,7 @@ smokeは実データに存在するstatusと件数を検証し、存在しない
 ## 公開方式変更の運用監視
 
 日次gateの成功と各施設の取得成功は別に扱う。`availability-monitor.yml` は毎日09:30 JSTに独立収集し、施設別の取得/解析異常・同じ対象日の判定数低下・Production更新停止を監視する。異常/復旧メールと前回状態artifactの設定は [AVAILABILITY_MONITORING.md](AVAILABILITY_MONITORING.md) を参照。monitorはdeployのgateにせず、既存のunknown許容を維持する。Gmail送信処理のmock検証 `npm run test:monitor:email` はNode 24 validationにも含める。
+
+## 2026-10-26 公開後メニュー検証の競合
+
+Production run [40252609720](https://github.com/subaru44k/itsrunnew/actions/runs/40252609720)、revision `a0f35b8` は収集・local smoke・配備・公開本文照合に成功後、mobile drawerの「神奈川県の競技場」が画面外になり停止。Appのtoolbarは初回lazy routeより先にmountし、Vuetifyはroute変更時にtemporary drawerを閉じる。smokeはroute view `.track-search-page` が現れた後に開き、active drawer内で通常クリックする。forceクリック・固定sleep・失敗の無視は行わない。

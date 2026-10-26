@@ -225,3 +225,7 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 これらの通知は収集・判定の障害であり、施設の利用停止を示すものではない。監視の閾値やunknownの意味は変更しない。2026-10-15にAPI keyを使って実読解し、広島・維新とも全61日の構造検証を通過した。広島の10月15〜31日について、14日の利用枠（分割枠を含む）と3日の明示的休場を原資料と照合した。維新は対象31日中8日の明示枠・11月9日の休場を確認し、空欄・大会予定だけの日はunknownを維持した。博多は10月の17日分が回復した。広島・博多の11月は未掲載のためunknown。維新の10月23〜25日は現在の資料でもunknownのため、既存のcoverage_dropはこれらの日の根拠が戻るか監視範囲から外れるまで残り得る。監視を復旧扱いにするためのstatus補完は行わない。
 
 2026-10-23更新の練馬表は[確認根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261023-provenance.md)に基づく23〜29日の有限補正です。27日朝・午後の陸上トラック優先、28日朝の半面、26〜29日昼の緑レーン条件を保持します。一部文字が抽出できても未知hashを旧parserへ戻しません。HTTP 200の全面メンテナンス画面はtitle/h1から検出し、HTML/AIともfetch_failedとしてunknownを保持します。AIの公式source取得失敗もextraction_failedとは区別します。[同日の障害根拠](../itsrunnew/scripts/availability/fixtures/outages-20261023-provenance.md)を参照してください。
+
+## 2026-10-26 原資料変更の復旧
+
+戸田の冬季表、国府台10月の画像表、博多10月改訂・11月表、維新のお知らせ一覧移動への対応と公式原本hash・期間・条件は [`recovery-20261026-provenance.md`](../itsrunnew/scripts/availability/fixtures/recovery-20261026-provenance.md) を参照。日別coverageの復旧条件は変更しない。

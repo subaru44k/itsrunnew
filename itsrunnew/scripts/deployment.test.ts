@@ -47,7 +47,7 @@ describe('daily availability regression gates', () => {
     for (const name of ['Verify daily regression scenarios', 'Verify live daily availability pipeline without deployment']) {
       expect(validationWorkflow).toContain(`${name}\n        if: steps.change_scope.outputs.daily == 'true'`);
     }
-    expect(validationWorkflow).toContain("if: steps.change_scope.outputs.docs_only != 'true' && steps.change_scope.outputs.daily != 'true'\n        run: npm run test:smoke:preview");
+    expect(validationWorkflow).toContain("if: steps.change_scope.outputs.docs_only != 'true' && steps.change_scope.outputs.daily != 'true'\n        run: npm run test:smoke:fixtures");
   });
   for (const [target, yaml] of [['Preview', workflow], ['Production', productionWorkflow]]) {
     it(`${target} validates fresh generated data before building or deploying`, () => {

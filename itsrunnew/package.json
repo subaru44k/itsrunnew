@@ -47,7 +47,8 @@
     "validate:availability:fresh": "node scripts/availability/validate-fresh.mjs",
     "monitor:availability": "tsx scripts/availability/monitor.ts",
     "test:monitor:email": "python3 -B -m unittest discover -s scripts/availability -p \"monitor_email_test.py\"",
-    "test:reverification": "python3 -B -m unittest discover -s scripts/reverification -p \"*_test.py\""
+    "test:reverification": "python3 -B -m unittest discover -s scripts/reverification -p \"*_test.py\"",
+    "test:smoke:fixtures": "node scripts/daily-check.mjs fixture-smoke"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

@@ -8,7 +8,7 @@ import { createServer } from 'node:net';
 import { makeDailyFixture } from './daily-fixtures.mjs';
 
 const mode = process.argv[2];
-if (!['live', 'fixtures'].includes(mode)) throw new Error('Usage: node scripts/daily-check.mjs live|fixtures');
+if (!['live', 'fixtures', 'fixture-smoke'].includes(mode)) throw new Error('Usage: node scripts/daily-check.mjs live|fixtures|fixture-smoke');
 const source = fileURLToPath(new URL('..', import.meta.url));
 const scratch = await mkdtemp(join(tmpdir(), 'itsrun-daily-'));
 const app = join(scratch, 'itsrunnew');
@@ -51,7 +51,7 @@ try {
     const tracks = JSON.parse(await readFile(join(app, 'src/data/tracks.json'), 'utf8'));
     const baseline = JSON.parse(await readFile(join(app, 'src/data/availability.json'), 'utf8'));
     let firstBuildSignature;
-    for (const scenario of ['mixed', 'unknown']) {
+    for (const scenario of (mode === 'fixture-smoke' ? ['mixed'] : ['mixed', 'unknown'])) {
       console.log(`Daily regression scenario: ${scenario}`);
       const { manifest, datasets } = makeDailyFixture(tracks, baseline, scenario);
       const directory = join(app, 'src/data/availability');

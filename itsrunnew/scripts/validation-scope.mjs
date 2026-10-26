@@ -40,5 +40,5 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
   console.log(output);
   if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, output);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-    `Validation scope: ${scope.docs_only ? 'Markdown only' : scope.daily ? 'full daily regression' : 'independent feature: regular smoke, no daily suites'}\n`);
+    `Validation scope: ${scope.docs_only ? 'Markdown only' : scope.daily ? 'full daily regression' : 'independent feature: single mixed-fixture smoke, no live/unknown daily suites'}\n`);
 }

@@ -452,3 +452,5 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 取得・解析エラーだけのincidentは、日全体がunknownでも、実取得時刻・資料hashと時間付きの既知status枠がある `insufficient_information` を復旧証拠として扱います。未掲載・空のunknown・資料変更は復旧証拠にせず、日単位coverage_dropの復旧条件は緩めません。これにより、練馬の17〜18時の未確認を保持しながらPDF解析の復旧を検知できます。
 
 維新補助も `reviewed-ishin.ts` で、確認済み2026年10・11月の月表・告知・修繕条件画像・地図のURL/hashを毎回照合する有限判定を使います。外部AIは6施設で、博多・維新は未知資料をAIへ戻さずsource_changedにします。明示開放17日と明示休場2日のみ既知、空欄・大会時間しかない日はunknown。芝生の制限だけでトラックを一部利用扱いにせず、11/26の直線5〜8レーン条件は保持します。月またぎでは必要月と全共通条件の一致を要求し12月へ外挿しません。原本4画像とmetadata、`reviewed-ishin.test.ts` で判定・guard・AIへのfallbackなしを検証します。
+
+国府台の10月26日改訂文字PDFも`reviewed-kohnodai.ts`で原本hash一致時だけ全31日を採用します。日付と時間のbaseline差で既存の行境界が他日を混ぜるため、未確認資料へこの判定を広げません。旧scanと改訂版を別々に保持し、18・22・25・27日の改訂を混同せず、27〜29日は9〜21時、30・31日は17〜21時開放です。原本・全日回帰・確認根拠は`kohnodai-20261027.test.ts`とfixtureのprovenanceに保存します。11月文字PDFのparserは維持します。

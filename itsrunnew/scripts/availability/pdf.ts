@@ -682,7 +682,7 @@ export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'kamiyugi-park-athletic-stadium', name: '上柚木公園陸上競技場', landingPageUrl: 'https://kamiyugi-park.jp/facility/athletics-stadium/', discovery: 'latest_pdf_discovery', parser: 'kamiyugi-multi-month-matrix', parserVersion: '1.0.0' },
   { trackId: 'kanagawa-prefectural-sports-center-track', name: '神奈川県立スポーツセンター陸上競技場', landingPageUrl: 'https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html', discovery: 'monthly_pdf_discovery', parser: 'kanagawa-sports-center-monthly', parserVersion: '1.0.0' },
   { trackId: 'expo70-commemorative-stadium', name: '万博記念競技場', landingPageUrl: 'https://www.expo70-park.jp/sports/facility/arena/', discovery: 'monthly_pdf_discovery', parser: 'expo70-individual-use-monthly', parserVersion: '1.0.0' },
-  { trackId: 'ichikawa-kohnodai-athletic-stadium', name: '国府台陸上競技場', landingPageUrl: 'https://www.city.ichikawa.lg.jp/page/4185.html', discovery: 'monthly_pdf_discovery', parser: 'ichikawa-kohnodai-monthly-events', parserVersion: '1.1.0' },
+  { trackId: 'ichikawa-kohnodai-athletic-stadium', name: '国府台陸上競技場', landingPageUrl: 'https://www.city.ichikawa.lg.jp/page/4185.html', discovery: 'monthly_pdf_discovery', parser: 'ichikawa-kohnodai-monthly-events', parserVersion: '1.2.0' },
   { trackId: 'bingo-sports-park-athletic-stadium', name: 'こざかなくんスポーツパークびんご 陸上競技場', landingPageUrl: 'https://www.bingo-sportspark.com/news.php?c=topics_view&pk=1566461033', discovery: 'monthly_pdf_discovery', parser: 'bingo-individual-use-calendar', parserVersion: '1.0.0' },
 ];
 

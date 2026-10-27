@@ -1,9 +1,10 @@
 import type { PdfParseResult } from './pdf';
 import type { AvailabilityPeriod } from '../../src/model/availability';
 
-// Official October scan, reviewed against every date, event and closing note.
+// Official October originals, reviewed against every date, event and closing note.
 // The landing page must still affirm that hours outside events are public.
 export const kohnodaiOctoberHash = 'sha256:d7821db1027230dae579b01b7cb17ca9ee50a715b428e0897a554853be686058';
+export const kohnodaiOctober26Hash = 'sha256:1f7b4efafa26c4f9d6cb0ba1701408d7d978b05e76705896737a730f9d8b65d9';
 const events: Record<number, Array<[string, string]>> = {
   1: [['14:00', '16:00']], 2: [['09:00', '15:00']],
   3: [['09:00', '12:00'], ['12:00', '17:00']], 4: [['09:00', '17:00']],
@@ -16,7 +17,7 @@ const events: Record<number, Array<[string, string]>> = {
   27: [['09:00', '13:00']], 30: [['09:00', '17:00']], 31: [['09:00', '17:00']],
 };
 export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult | null {
-  if (hash !== kohnodaiOctoberHash) return null;
+  if (hash !== kohnodaiOctoberHash && hash !== kohnodaiOctober26Hash) return null;
   if (!/^2026-10-(?:0[1-9]|[12]\d|3[01])$/.test(date))
     return { status: 'unknown', periods: [], unknownReason: 'outside_published_period' };
   const day = Number(date.slice(8));
@@ -31,7 +32,13 @@ export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult 
   const end = [5, 13, 19].includes(day) ? '17:00' : '21:00';
   const periods: AvailabilityPeriod[] = [];
   let cursor = '09:00';
-  for (const [from, to] of events[day] ?? []) {
+  // October 26 revision removes the 22nd/27th bookings and shortens
+  // the 18th/25th. Never apply these cancellations to the older scan.
+  const revisedEvents: Record<number, Array<[string, string]>> = {
+    18: [['09:00', '17:00']], 22: [], 25: [['09:00', '13:00']], 27: [],
+  };
+  const bookings = hash === kohnodaiOctober26Hash ? revisedEvents[day] ?? events[day] : events[day];
+  for (const [from, to] of bookings ?? []) {
     if (cursor < from) periods.push(slot(cursor, from, 'available'));
     periods.push(slot(from, to, 'unavailable'));
     cursor = to;

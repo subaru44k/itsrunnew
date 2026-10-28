@@ -204,7 +204,7 @@ describe('additional availability integration', () => {
     releases[2]();
     const records = await collecting;
     expect(peak).toBe(3);
-    expect(readWithLuna).toHaveBeenCalledTimes(aiFacilities.length - 2);
+    expect(readWithLuna).toHaveBeenCalledTimes(aiFacilities.length - 3);
     expect(
       records
         .slice(0, dates.length * aiFacilities.length)

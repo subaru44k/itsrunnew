@@ -6,6 +6,7 @@ import { officialFetch, htmlText, decodeEntities } from './ai-source-utils';
 import { parsePersonalIcs } from './personal-ics';
 import { reviewedHakataReading } from './reviewed-hakata';
 import { reviewedIshinReading } from './reviewed-ishin';
+import { readHiratsukaTable } from './hiratsuka-table';
 
 export const personalCalendarFacilities = [
   {
@@ -52,11 +53,11 @@ export async function collectAdditionalAvailability(
       landingPageUrl: config.landing,
       publicationFormat: 'structured_html' as const,
       collector:
-        ['hakata', 'ishin'].includes(config.key)
+        config.key === 'hiratsuka' ? 'hiratsuka-official-table' : ['hakata', 'ishin'].includes(config.key)
           ? `reviewed-official-${config.key}`
           : reading.collector,
       parserVersion:
-        config.key === 'hakata' ? 'reviewed-hakata-20261021-v3' : config.key === 'ishin' ? 'reviewed-ishin-20261026-v1' : reading.version,
+        config.key === 'hiratsuka' ? 'hiratsuka-table-v1' : config.key === 'hakata' ? 'reviewed-hakata-20261021-v3' : config.key === 'ishin' ? 'reviewed-ishin-20261026-v1' : reading.version,
     };
     const unavailable = (
       error: unknown,
@@ -90,8 +91,8 @@ export async function collectAdditionalAvailability(
       await Promise.race(activeReadings);
     const task = (async (): Promise<TrackAvailability[]> => {
       try {
-        const reviewed = reviewedHakataReading(packet) ?? reviewedIshinReading(packet);
-        if (['hakata', 'ishin'].includes(config.key) && !reviewed)
+        const reviewed = readHiratsukaTable(packet) ?? reviewedHakataReading(packet) ?? reviewedIshinReading(packet);
+        if (['hiratsuka', 'hakata', 'ishin'].includes(config.key) && !reviewed)
           return unavailable(
             new Error('Official schedule requires human review'),
             'source_changed',
@@ -103,9 +104,10 @@ export async function collectAdditionalAvailability(
             fetchImpl: options.apiFetchImpl,
             cacheDirectory: options.cacheDirectory,
           }));
+        const publishedAt = 'publishedAt' in result && typeof result.publishedAt === 'string' ? result.publishedAt : null;
         const sourceHash = `sha256:${digest(JSON.stringify(packet.sources.map((s) => ({ url: s.url, hash: s.hash }))))}`;
         console.log(
-          `AI availability ${config.key}: ${result.key.startsWith('reviewed-') ? 'reviewed official schedule' : result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
+          `AI availability ${config.key}: ${result.key.startsWith('structured-') ? 'structured official schedule' : result.key.startsWith('reviewed-') ? 'reviewed official schedule' : result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
         );
         const facilityRecords: TrackAvailability[] = [];
         for (const date of dates) {
@@ -124,6 +126,7 @@ export async function collectAdditionalAvailability(
                     ? 'extraction_failed'
                     : 'outside_published_period',
                 sourceHash,
+                publishedAt,
                 fetchedAt: now.toISOString(),
                 documentId: result.key,
               }),
@@ -142,6 +145,7 @@ export async function collectAdditionalAvailability(
                 packet.sources.find((s) => s.kind === 'image')?.url ??
                 packet.sources[0].url,
               sourceHash,
+              publishedAt,
               fetchedAt: now.toISOString(),
               documentId: result.key,
               publicationFormat: packet.sources.some((s) =>

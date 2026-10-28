@@ -1821,22 +1821,22 @@
         "discoveryUrl": "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html",
         "granularity": "date_or_period",
         "updateFrequency": "unknown",
-        "updateNote": "月別予定ページを公式サイトで更新。共用可能時間と料金体系は別々に確認する",
+        "updateNote": "更新日から始まる短期の共用利用3枠表。予備日と昼の無料開放条件も明示。",
         "urlStability": "stable_landing_page"
       },
       "automation": {
         "feasibility": "yes",
-        "reason": "3回のLuna評価が採択基準を超えた公式資料を共通読解。未掲載日はunknown。",
+        "reason": "公式HTMLの最終更新年・月見出し・連続日/曜日・明示3枠・凡例/利用制限を決定論的に検証。未知構造はsource_changed、未掲載日はunknown。",
         "implementation": {
           "status": "supported",
-          "parser": "luna-none-hiratsuka",
-          "version": "luna-none-v2-production-1",
-          "discovery": "official_landing_assets"
+          "parser": "hiratsuka-official-table",
+          "version": "hiratsuka-table-v1",
+          "discovery": "official_landing_table"
         }
       },
       "semantics": {
-        "canInferAvailable": false,
-        "coverage": "none",
+        "canInferAvailable": true,
+        "coverage": "published_rolling_table",
         "rule": "対象施設・対象日に明示された個人利用枠のみ。条件と受付期限を保持し、未掲載・読取不能はunknown。",
         "absenceMeaning": "予定の不在をavailableまたはunavailableと解釈しない"
       },
@@ -1848,7 +1848,7 @@
         "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00810.html",
         "https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html"
       ],
-      "verifiedAt": "2026-09-22"
+      "verifiedAt": "2026-10-28"
     },
     {
       "trackId": "yamato-sports-center-track",

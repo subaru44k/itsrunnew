@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { readFile } from 'node:fs/promises';
+import { gunzipSync } from 'node:zlib';
 import { buildAiPacket, aiFacilities } from './ai-sources';
 import { htmlText } from './ai-source-utils';
 import { digest, type AiPacket } from './ai-runtime';
@@ -8,7 +9,7 @@ import { collectAdditionalAvailability } from './additional';
 const config = aiFacilities.find(c => c.key === 'hiratsuka')!;
 const dates = ['2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-10-31', '2026-11-01', '2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07'];
 const now = new Date('2026-10-28T02:00:00Z');
-const html = await readFile(new URL('./fixtures/hiratsuka-20261028.html', import.meta.url), 'utf8');
+const html = gunzipSync(await readFile(new URL('./fixtures/hiratsuka-20261028.html.gz', import.meta.url))).toString('utf8');
 const fetchImpl = (async (input: string | URL | Request) => String(input) === config.landing ? new Response(html) : new Response('', { status: 503 })) as typeof fetch;
 const packet = await buildAiPacket(config, dates, now, fetchImpl);
 function changed(content: string): AiPacket {

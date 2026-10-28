@@ -1,6 +1,6 @@
 # 平塚・2026-10-28共用利用表の読取揺れと直接判定
 
-- [公式表](https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html)を2026-10-28 10:49 JST頃に再取得し、無変更HTMLを`hiratsuka-20261028.html`へ保存。更新日は2026年10月28日。施設identityはレモンガススタジアム平塚、陸上競技の共用利用表。
+- [公式表](https://www.city.hiratsuka.kanagawa.jp/koen/page-c_00824.html)を2026-10-28 10:49 JST頃に再取得し、無変更HTMLをgzip圧縮した`hiratsuka-20261028.html.gz`へ保存（展開後のCRLFを含む元bytesを保持）。更新日は2026年10月28日。施設identityはレモンガススタジアム平塚、陸上競技の共用利用表。
 - 朝の[Production40605397843](https://github.com/subaru44k/itsrunnew/actions/runs/40605397843)は古い本文hashで11/2〜6がunknown。後の[独立監視40616696970](https://github.com/subaru44k/itsrunnew/actions/runs/40616696970)では新本文から11/2〜6を判定できた一方、10/28がunknown。公式には10/28午前が「可」であり、安全側の過小読取を特定した。
 - 新本文のsemantic SHA-256は`30f14137ad1c6f65045d572332e54160670b363ef588f4efd73a3ba7fe5ec61f`、source URL/hash配列の集約SHA-256は`7966e685ec6c425afff8eb04966802043005fe6fa2dc54a458af7a1f6b179581`。
 - 同じ実資料を既存Luna lowへ新規API読取（cacheHit=false、61日）したところ10/28午前も正しく判定。推論出力の揺れであり、API未設定/課金エラーでも資料欠損でもない。秘密値を出力/保存せず既存の許可範囲で実行。既存の誤ったcacheを削除して成功扱いにはしない。

@@ -232,3 +232,5 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 戸田の冬季表、国府台10月の画像表、博多10月改訂・11月表、維新のお知らせ一覧移動への対応と公式原本hash・期間・条件は [`recovery-20261026-provenance.md`](../itsrunnew/scripts/availability/fixtures/recovery-20261026-provenance.md) を参照。日別coverageの復旧条件は変更しない。
 
 維新補助は公開後にAI回答の揺れが判明したため、`reviewed-ishin.ts` の確認済み2026年10・11月の有限判定へ切り替えました。明示開放17日・明示休場2日・11/26〜28修繕条件を全原本のURL/hash一致時だけ採用し、空欄・大会時間しかない日はunknownです。芝生部分の制限だけでトラックを一部利用扱いにせず、11/26の直線レーン制限は保持します。未知資料をAI/cacheへ戻さず、月またぎでも必要月と全共通条件を照合し、12月へ外挿しません。原本4画像・metadata fixtureと `reviewed-ishin.test.ts` で判定・guard・API非呼出を検証します。
+
+練馬の[10月27日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261027-provenance.md)では10/27〜11/2の全21枠と凡例を確認しました。半面・緑レーン条件を維持し、現行施設案内の10〜3月9〜17時と新表が一致するため、この版は17〜18時のunknownを付けません。10/30〜11/2は全枠団体貸切の利用不可。旧版の補正は維持し、期間外と未知hashは安全なunknownにします。

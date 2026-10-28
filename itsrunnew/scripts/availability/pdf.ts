@@ -671,7 +671,7 @@ export function parseBingoSportsParkPdf(pdf: ExtractedPdf, date: string): PdfPar
 }
 
 export const pdfSourceConfigs: PdfSourceConfig[] = [
-  { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.3.0' },
+  { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.4.0' },
   { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.1.0' },
   { trackId: 'fuchu-citizen-athletic-track', name: '府中市民陸上競技場', landingPageUrl: 'https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html', discovery: 'annual_pdf_discovery', parser: 'fuchu-vector-calendar-guard', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.0.0' },

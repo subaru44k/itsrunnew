@@ -2,7 +2,7 @@
 
 ## 目的と境界
 
-Track Searchのavailabilityは、「その施設が一般の個人利用を受け付けるか」という比較的staticな `src/data/tracks.json` と、「指定日に実際に利用できるか」という日付別の `src/data/availability.json` を分離します。Track Datasetには133施設を掲載し、legacy collector 33施設と夢の島HTML 1施設に追加10施設（Luna AI 6施設、確認済み有限判定2施設、個人利用ICS 2施設）を加えた44施設を日付判定の対象にします。対応対象でも、予定未公開・取得失敗・日別根拠不足は `unknown` になり、44施設すべてが毎日positiveになるわけではありません。
+Track Searchのavailabilityは、「その施設が一般の個人利用を受け付けるか」という比較的staticな `src/data/tracks.json` と、「指定日に実際に利用できるか」という日付別の `src/data/availability.json` を分離します。Track Datasetには133施設を掲載し、legacy collector 33施設と夢の島HTML 1施設に追加10施設（Luna AI 5施設、確認済み有限判定2施設、決定論的HTML表1施設、個人利用ICS 2施設）を加えた44施設を日付判定の対象にします。対応対象でも、予定未公開・取得失敗・日別根拠不足は `unknown` になり、44施設すべてが毎日positiveになるわけではありません。
 
 ```text
 公式HTML / calendar / JSON / 固定規則 / PDF
@@ -90,13 +90,14 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 
 | source type | 施設 | collector |
 |---|---|---|
-| `ai`（PDF/HTML/画像） | 等々力、知多、平塚、広島広域公園補助、世田谷、荻野 | 公式landing pageとリンクされた当月・翌月資料を取得し、Lunaの構造化出力を検証 |
+| `ai`（PDF/HTML/画像） | 等々力、知多、広島広域公園補助、世田谷、荻野 | 公式landing pageとリンクされた当月・翌月資料を取得し、Lunaの構造化出力を検証 |
+| `structured_html` | 平塚 | 更新年・月見出し・連続日/曜日・3枠・凡例/制限を検証する直接判定 |
 | 確認済み資料の有限判定 | 維新補助、博多の森補助 | 公式原本のURL/hashを毎回照合し、確認済み期間のみ採用。未知資料はsource_changed |
 | `calendar_ics` | 神戸総合運動公園補助、市原ZAオリプリスタジアム | 公式ページに埋め込まれたGoogle Calendarの所有権を確認し、個人利用ICSを決定論的に解析 |
 
 夢の島は公式 `https://www.di-ksp.jp/facility/yumenoshima_k/schedule` のHTMLによる2週間予定表を取得します。結合セルを9–13時・13–17時・17–21時に展開し、「個人」だけ利用可、「団体貸切」「休場日」「×」は利用不可、特別イベントはunknownとします。日付は収集時のJST年から年またぎを解決し、曜日・連続日・表構造を検証します。掲載期間外・古い表・取得／解析失敗はunknownです。最終入場は利用終了1時間前という公式注意も保持します。
 
-133施設中44施設（33.1%）を安全な自動判定対象にしています。内訳はlegacy 33施設、夢の島HTML 1施設と追加10施設です。legacyのpublication format内訳はstructured HTML 7、calendar HTML 3、calendar JSON 1、固定規則9、weekly notice 1、PDF 12（合計33）で、追加分はAI 6、確認済み有限判定2、calendar ICS 2です。collector対応数は「対象日を判定できる実装」の数であり、対応施設の全日positiveを意味しません。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式noticeだけを対象にするtoday-only sourceで、当日以外へ一般規則を外挿せず、noticeがない日は `unknown` です。
+133施設中44施設（33.1%）を安全な自動判定対象にしています。内訳はlegacy 33施設、夢の島HTML 1施設と追加10施設です。legacyのpublication format内訳はstructured HTML 7、calendar HTML 3、calendar JSON 1、固定規則9、weekly notice 1、PDF 12（合計33）で、追加分はAI 5、確認済み有限判定2、structured HTML 1、calendar ICS 2です。collector対応数は「対象日を判定できる実装」の数であり、対応施設の全日positiveを意味しません。府中はPDF取得と構造確認までは行いますが、日別記号を通常の文字抽出で読めないため判定対象数へ含めません。世田谷は当日朝の公式noticeだけを対象にするtoday-only sourceで、当日以外へ一般規則を外挿せず、noticeがない日は `unknown` です。
 
 未対応施設もdatasetとUIから除外しません。
 
@@ -129,13 +130,13 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 
 追加8施設は `scripts/availability/ai-sources.ts` が施設ごとの公式landing page、rules page、当月・翌月のschedule PDF/image、notice pageを許可hostname内だけで取得し、`ai-source-utils.ts` がHTML text、画像、PDFページを保存資料へ変換します。PDF画像化には `pdfinfo` と `pdftoppm` が必要です。macOSでは `brew install poppler`、Ubuntu系では `sudo apt-get install poppler-utils` を使います。入力資料に含まれる命令は無視し、公式資料を事実の根拠としてだけ扱います。
 
-`buildAiPacket` は指定rangeに含まれる月の全日付をpacketへ入れ、同じ施設・資料・指示などの入力について `readWithLuna` を実行します。完全なcacheがない場合は初回読解を行い、欠落・重複・ID不一致・不正な時間等で検証を通らなかった日だけを同じ資料で1回再読解します。旧cacheが不完全な場合も有効な日を保持して不足分を再読解し、最大2回のrequestに制限します。明示的なunknown回答は有効な記録として扱い、再読解対象にしません。runtimeは知多・平塚・荻野が `gpt-6-luna` / `low`、等々力が `gpt-6-luna` / `medium`、広島補助・世田谷が `gpt-5.6-luna` / `none`。博多・維新は確認済み資料に限る有限判定 です。出力は4 statusの厳格JSON schemaです。runtimeにAstra呼び出しはありません。`additional.ts` は公式資料の取得を施設ごとに順番に行い、AI読取だけを最大3件まで並列実行します。結果は施設の定義順に戻し、1施設の失敗はその施設の日付だけunknownにします。追加8施設（AI 6・有限判定2）の結果で同じtrackIdのlegacy recordを置き換え、神戸・市原のICSはAIを使わず決定論的に解析します。
+`buildAiPacket` は指定rangeに含まれる月の全日付をpacketへ入れ、同じ施設・資料・指示などの入力について `readWithLuna` を実行します。完全なcacheがない場合は初回読解を行い、欠落・重複・ID不一致・不正な時間等で検証を通らなかった日だけを同じ資料で1回再読解します。旧cacheが不完全な場合も有効な日を保持して不足分を再読解し、最大2回のrequestに制限します。明示的なunknown回答は有効な記録として扱い、再読解対象にしません。runtimeは知多・荻野が `gpt-6-luna` / `low`、等々力が `gpt-6-luna` / `medium`、広島補助・世田谷が `gpt-5.6-luna` / `none`。博多・維新は確認済み資料に限る有限判定 です。出力は4 statusの厳格JSON schemaです。runtimeにAstra呼び出しはありません。`additional.ts` は公式資料の取得を施設ごとに順番に行い、AI読取だけを最大3件まで並列実行します。結果は施設の定義順に戻し、1施設の失敗はその施設の日付だけunknownにします。追加8施設（AI 6・有限判定2）の結果で同じtrackIdのlegacy recordを置き換え、神戸・市原のICSはAIを使わず決定論的に解析します。
 
 cache keyはAI version、model、reasoning、資料・指示などの入力、schema、対象月の全日付から計算します。source内容、prompt、model、reasoning effort、schema、対象月が変わるとcacheは無効になります。既存cacheは施設ID・日付・内容を検証し、指定全日が有効な場合だけ追加推論なしで継続利用します。不完全な回答は新たに保存せず、検証済みの日だけ返します。API keyなしでは旧cacheの検証済み部分だけ利用します。検証落ち・欠落日は `extraction_failed` とし、today-only packetの対象外日は従来どおり `outside_published_period` とします。欠落・不正の日付は秘密値や回答本文を含めずログへ残します。既定の保存先は `.cache/availability-ai`、変更時は `ITSRUN_AI_CACHE_DIR` を使います。GitHub ActionsはこのdirectoryをActions cacheへ保存・復元するため、同じ入力では2回目以降に再推論しません。通常のkeyless実行でcacheがなくAPI keyもない場合はAI施設を `unknown` にし、cacheを利用できる場合だけkeyなしでも再利用します。trusted deployはcollection開始時にkeyを必須とするため、cache hitでもsecret欠落なら開始時に失敗します。
 
 trusted Preview/Production collectionだけが `ITSRUN_REQUIRE_AI_KEY=true` とrepository secret `OPENAI_API_KEY` を要求します。secretはcollection stepへ渡し、build・smoke・通常のlocal buildには渡しません。AI導入の受入れ基準は、3回のLuna試行でpositive supportが80%超、明示時間帯の一致が70%超です。これは完璧な最新性を保証する基準ではなく、公開UIは当日変更と公式確認の注意を残します。
 
-博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10・11月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。トップページから現行月表を発見し、判定に使う月表・利用方法・注意事項の全資料のURLとhashが確認済みhashと一致した場合だけ採用します。探索用トップページの本文変更だけでは停止させません。翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他6施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
+博多の森補助競技場は、AIが公式の大会終了後開放を終日不可と誤読し、通常日にもunknownを返したため、現在は `scripts/availability/reviewed-hakata.ts` の人手確認済み2026年10・11月表を使います。通常開放・大会後開放・10月8〜11日の一般開放なしを区別し、予定終了時刻と実際の終了状況の注意を保持します。トップページから現行月表を発見し、判定に使う月表・利用方法・注意事項の全資料のURLとhashが確認済みhashと一致した場合だけ採用します。探索用トップページの本文変更だけでは停止させません。翌月へ外挿しません。新資料・資料変更はAIへ戻さず `source_changed` のunknownとして監視で通知し、新しい月表の確認・hashと日程の更新・回帰テストを必要とします。他5施設のAI読解とICSは従来どおりです。確認資料・hashはfixtureのprovenance文書を参照してください。
 
 
 ## normalized schema
@@ -232,3 +233,7 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 戸田の冬季表、国府台10月の画像表、博多10月改訂・11月表、維新のお知らせ一覧移動への対応と公式原本hash・期間・条件は [`recovery-20261026-provenance.md`](../itsrunnew/scripts/availability/fixtures/recovery-20261026-provenance.md) を参照。日別coverageの復旧条件は変更しない。
 
 維新補助は公開後にAI回答の揺れが判明したため、`reviewed-ishin.ts` の確認済み2026年10・11月の有限判定へ切り替えました。明示開放17日・明示休場2日・11/26〜28修繕条件を全原本のURL/hash一致時だけ採用し、空欄・大会時間しかない日はunknownです。芝生部分の制限だけでトラックを一部利用扱いにせず、11/26の直線レーン制限は保持します。未知資料をAI/cacheへ戻さず、月またぎでも必要月と全共通条件を照合し、12月へ外挿しません。原本4画像・metadata fixtureと `reviewed-ishin.test.ts` で判定・guard・API非呼出を検証します。
+
+練馬の[10月27日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261027-provenance.md)では10/27〜11/2の全21枠と凡例を確認しました。半面・緑レーン条件を維持し、現行施設案内の10〜3月9〜17時と新表が一致するため、この版は17〜18時のunknownを付けません。10/30〜11/2は全枠団体貸切の利用不可。旧版の補正は維持し、期間外と未知hashは安全なunknownにします。
+
+平塚は2026-10-28から公式HTMLの決定論的3枠判定へ切り替えました。最終更新年・月見出し・連続日/曜日・時間/凡例が一致する表だけを採用します。午前8〜12時、昼12〜13時、午後13〜19時（金曜20時）、予備日未確定、昼の無料/用具制限を保持し、掲載外はunknown、形式変更はsource_changedでAI fallbackを行いません。背景と公式資料は[平塚の確認根拠](../itsrunnew/scripts/availability/fixtures/hiratsuka-20261028-provenance.md)を参照してください。

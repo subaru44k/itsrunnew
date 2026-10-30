@@ -236,4 +236,4 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 
 練馬の[10月27日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261027-provenance.md)では10/27〜11/2の全21枠と凡例を確認しました。半面・緑レーン条件を維持し、現行施設案内の10〜3月9〜17時と新表が一致するため、この版は17〜18時のunknownを付けません。10/30〜11/2は全枠団体貸切の利用不可。旧版の補正は維持し、期間外と未知hashは安全なunknownにします。
 
-平塚は2026-10-28から公式HTMLの決定論的3枠判定へ切り替えました。最終更新年・月見出し・連続日/曜日・時間/凡例が一致する表だけを採用します。午前8〜12時、昼12〜13時、午後13〜19時（金曜20時）、予備日未確定、昼の無料/用具制限を保持し、掲載外はunknown、形式変更はsource_changedでAI fallbackを行いません。背景と公式資料は[平塚の確認根拠](../itsrunnew/scripts/availability/fixtures/hiratsuka-20261028-provenance.md)を参照してください。
+平塚は2026-10-28から公式HTMLの決定論的3枠判定へ切り替えました。最終更新年・月見出し・連続日/曜日・時間/凡例が一致する表だけを採用します。午前8〜12時、昼12〜13時、午後13〜19時（金曜20時）、予備日未確定、昼の無料/用具制限を保持し、掲載外はunknown、形式変更はsource_changedでAI fallbackを行いません。10/30更新表の「15時～可」も、その枠内の明示開始から既定終了までに限定して採用します。曖昧/枠外時刻は拒否し、遅い開始の日は一部利用可とします。[時刻付き開放の原本と照合](../itsrunnew/scripts/availability/fixtures/hiratsuka-20261030-provenance.md)を保持します。背景と公式資料は[平塚の確認根拠](../itsrunnew/scripts/availability/fixtures/hiratsuka-20261028-provenance.md)を参照してください。

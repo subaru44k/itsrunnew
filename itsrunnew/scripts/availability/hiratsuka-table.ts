@@ -26,7 +26,7 @@ export function readHiratsukaTable(packet: AiPacket) {
   for (let index = 0; index < entries.length; index += 4) {
     const day = /^(\d{1,2})日\(([日月火水木金土])曜日\)$/.exec(entries[index]);
     const values = entries.slice(index + 1, index + 4);
-    if (!day || values.some(value => !['可', '不可', '予備日'].includes(value))) return null;
+    if (!day) return null;
     const date = new Date(`${publishedAt}T00:00:00Z`);
     date.setUTCDate(date.getUTCDate() + index / 4);
     if (!Number.isFinite(date.getTime()) || date.getUTCDate() !== Number(day[1]) || weekdays[date.getUTCDay()] !== day[2]) return null;
@@ -36,9 +36,22 @@ export function readHiratsukaTable(packet: AiPacket) {
     const conditions = ['共用利用には受付での申請が必要。貸出器具は利用終了15分前を目安に返却してください。'];
     if (values.includes('予備日')) conditions.push('予備日の時間帯は利用可否未定です。当日施設へお問い合わせください。');
     const times = [['08:00', '12:00'], ['12:00', '13:00'], ['13:00', date.getUTCDay() === 5 ? '20:00' : '19:00']];
-    const periods = values.flatMap((value, slot) => value === '可' ? [{ start: times[slot][0], end: times[slot][1], scope: '陸上競技の共用利用', last_entry: null }] : []);
-    if (values[1] === '可') conditions.push('12〜13時は無料開放。スパイク・器具貸出・シャワー・ロッカー・更衣室は利用不可。');
-    const status = values.every(value => value === '可') ? 'available' : periods.length ? 'partially_available' : values.every(value => value === '不可') ? 'unavailable' : 'unknown';
+    const periods: AiRow['periods'] = [];
+    for (const [slot, value] of values.entries()) {
+      if (value === '不可' || value === '予備日') continue;
+      let start = times[slot][0];
+      if (value !== '可') {
+        const opening = /^(\d{1,2})時(?:(\d{1,2})分)?~可$/.exec(value);
+        if (!opening || Number(opening[1]) > 23 || Number(opening[2] ?? 0) > 59) return null;
+        start = `${opening[1].padStart(2, '0')}:${(opening[2] ?? '0').padStart(2, '0')}`;
+        // A timed opening may shorten its own slot, never extend into another slot.
+        if (start < times[slot][0] || start >= times[slot][1]) return null;
+      }
+      periods.push({ start, end: times[slot][1], scope: '陸上競技の共用利用', last_entry: null });
+    }
+    if (periods.some(period => period.start >= '12:00' && period.end <= '13:00')) conditions.push('12〜13時は無料開放。スパイク・器具貸出・シャワー・ロッカー・更衣室は利用不可。');
+    const fullDay = periods.length === 3 && periods.every((period, slot) => period.start === times[slot][0]);
+    const status = fullDay ? 'available' : periods.length ? 'partially_available' : values.every(value => value === '不可') ? 'unavailable' : 'unknown';
     parsed.set(dateKey, { id: `hiratsuka-${dateKey}`, date: dateKey, status, periods, conditions, evidence: [{ source: source.name, location: `共用利用予定表 ${dateKey}`, quote_or_symbol: values.join('／') }], unknown_reason: status === 'unknown' ? 'insufficient_information' : null });
   }
   if (JSON.stringify(months) !== JSON.stringify(header.slice(1).filter(Boolean).map(Number))) return null;

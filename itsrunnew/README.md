@@ -132,7 +132,7 @@ AI availabilityのcacheは施設ID・全対象日・内容を検証して再利�
 
 PDF collectorは `pdfjs-dist` 同梱CMap・標準font・wasmをローカルで使用します。練馬の画像形式の週間表は[確認済み資料と更新手順](scripts/availability/fixtures/nerima-20261013-provenance.md)に従い、資料hashを照合して公開範囲だけを判定します。
 
-公式サイトがHTTP 200で全面メンテナンス画面を返す場合も、収集時にfetch_failedとして要確認を維持します。AIの公式資料取得失敗と読取失敗を区別し、停止中の予定を古いcacheだけで再公開しません。2026-10-23の調査根拠は[施設別記録](scripts/availability/fixtures/outages-20261023-provenance.md)、練馬の最新確認表は[10月27日版](scripts/availability/fixtures/nerima-20261027-provenance.md)を参照してください。
+公式サイトがHTTP 200で全面メンテナンス画面を返す場合も、収集時にfetch_failedとして要確認を維持します。AIの公式資料取得失敗と読取失敗を区別し、停止中の予定を古いcacheだけで再公開しません。2026-10-23の調査根拠は[施設別記録](scripts/availability/fixtures/outages-20261023-provenance.md)、練馬の最新確認表は[10月30日版](scripts/availability/fixtures/nerima-20261030-provenance.md)を参照してください。
 
 Availabilityの原資料変更対応は `scripts/availability/recovery-20261026.test.ts` と同fixture provenanceを参照してください。戸田の冬季表は専用利用枠・休場だけを採用し、夏季個人開放を外挿しません。国府台の10月画像表と博多の10月21日版（10・11月）は確認済みhashだけを採用します。維新は公式お知らせ一覧と修繕条件画像も確認します。公開後smokeは初回route完了後にメニューを操作します。
 
@@ -143,3 +143,5 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 `test:smoke`と`test:pace`はPC・スマホを別プロセスで2並列実行します。各workerの検証項目は維持し、両方の完了を待って失敗を集約します。低リソース環境や速度比較には`ITSRUN_BROWSER_WORKERS=1 npm run test:smoke`（または`test:pace`）で直列実行できます。dailyと配備前後のsmokeにも適用されます。
 
 公式サイトの実収集をせず、古いavailability snapshotにも依存せず公開画面を確認する場合は、`npm run test:smoke:fixtures`を使います。当日基準のmixed 4statusを一時workspaceで生成・buildして全smokeを行い、checkoutのデータ・distは変更しません。
+
+国府台の現行確認資料は[10/30取得の10月・11月版](scripts/availability/fixtures/kohnodai-20261030-provenance.md)です。全61日を原本照合し、対象月・年・hash一致時だけ判定します。未知PDFは再確認までsource_changedを保持し、文字parserへfallbackしません。

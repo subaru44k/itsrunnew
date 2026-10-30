@@ -48,7 +48,7 @@ describe('official October 26 source recovery', () => {
     const november = await extractPdf(await bytes('kohnodai-202611.pdf'));
     expect(parseIchikawaKohnodaiPdf(november, '2026-11-01').status).toBe('partially_available');
     const changed = createPdfCollector((async input => String(input) === config.landingPageUrl ? fetchImpl(input) : new Response('%PDF-changed', { headers: { 'content-type': 'application/pdf' } })) as typeof fetch);
-    await expect(changed.collect(config, '2026-10-26', new Date())).rejects.toMatchObject({ reason: 'extraction_failed' });
+    await expect(changed.collect(config, '2026-10-26', new Date())).rejects.toMatchObject({ reason: 'source_changed' });
   });
 
   it('checks the reviewed Hakata PDF identity, closures and seasonal times', async () => {

@@ -2,7 +2,7 @@
 
 2026-10-30 16:50〜16:55 JSTに公式施設案内と両PDFを取得し、原本画像の全61日を確認。
 
-- [公式案内](https://www.city.ichikawa.lg.jp/page/4185.html)を無変更で`kohnodai-20261030.html`に保持。施設名は国府台陸上競技場、ページ更新表示は引き続き2026年10月26日。確認日はPDF自体の公開日と同一視しない。本文の「使用時間」以外を一般開放、営業時間の確認を毎回要求する。
+- [公式案内](https://www.city.ichikawa.lg.jp/page/4185.html)を原本バイト列をgzip圧縮した`kohnodai-20261030.html.gz`に保持（展開後SHA-256 `3c59115890f90bcc7d2d89ac7d9f8b5e47d5dbd6b62cb7adaf50356821d846be`）。CRLFを含む原本を改変せず保存する。施設名は国府台陸上競技場、ページ更新表示は引き続き2026年10月26日。確認日はPDF自体の公開日と同一視しない。本文の「使用時間」以外を一般開放、営業時間の確認を毎回要求する。
 - [10月PDF](https://www.city.ichikawa.lg.jp/uploaded/attachment/60693.pdf)を`kohnodai-20261030-october.pdf`に保持。SHA-256 `410adf2e83c2b32039ad648a85ad1d6368f7a5a30c1a2d781b900b0ee1a6015c`。全1ページ。旧60360.pdfとは別原本。全31日の曜日、利用時間、予約時間・閉館注記を照合した。旧10/26取得版と同じ予約取消・短縮に加え、**10/30の専用利用は9〜16時**へ短縮。一般開放は16〜21時、10/31は17〜21時。
 - [11月PDF](https://www.city.ichikawa.lg.jp/uploaded/attachment/60681.pdf)を`kohnodai-20261030-november.pdf`に保持。SHA-256 `cb0da1895e9a30ad935d0ec56b7b9663baa501a114f4ebb482e801d286809a76`。全1ページ。全30日の利用時間、予約時間、閉館日・注記、2件の予約がある14日を照合。
 

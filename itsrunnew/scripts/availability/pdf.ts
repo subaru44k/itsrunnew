@@ -818,6 +818,8 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
       const extractionKey = `${sourceHash}:${tableRules}`;
       const reviewedScan = config.trackId === 'ichikawa-kohnodai-athletic-stadium'
         ? reviewedKohnodaiPdf(sourceHash, date) : null;
+      if (config.trackId === 'ichikawa-kohnodai-athletic-stadium' && !reviewedScan)
+        throw new PdfCollectorError('source_changed', 'Kohnodai schedule changed; review required', pdfUrl);
       if (!reviewedScan && !extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));
       const extracted = reviewedScan ? null : await extractedBySource.get(extractionKey)!;
       let result: PdfParseResult;

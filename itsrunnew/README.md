@@ -143,3 +143,5 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 `test:smoke`と`test:pace`はPC・スマホを別プロセスで2並列実行します。各workerの検証項目は維持し、両方の完了を待って失敗を集約します。低リソース環境や速度比較には`ITSRUN_BROWSER_WORKERS=1 npm run test:smoke`（または`test:pace`）で直列実行できます。dailyと配備前後のsmokeにも適用されます。
 
 公式サイトの実収集をせず、古いavailability snapshotにも依存せず公開画面を確認する場合は、`npm run test:smoke:fixtures`を使います。当日基準のmixed 4statusを一時workspaceで生成・buildして全smokeを行い、checkoutのデータ・distは変更しません。
+
+国府台の現行確認資料は[10/30取得の10月・11月版](scripts/availability/fixtures/kohnodai-20261030-provenance.md)です。全61日を原本照合し、対象月・年・hash一致時だけ判定します。未知PDFは再確認までsource_changedを保持し、文字parserへfallbackしません。

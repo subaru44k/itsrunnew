@@ -319,7 +319,12 @@ describe('PDF source discovery and failures', () => {
       const fetchImpl = (async (input: string | URL | Request) => String(input) === sourceConfig.landingPageUrl
         ? new Response(testCase.link, { headers: { 'content-type': 'text/html; charset=utf-8' } })
         : new Response(new TextEncoder().encode('%PDF-synthetic'), { headers: { 'content-type': 'application/pdf' } })) as typeof fetch;
-      const result = await createPdfCollector(fetchImpl, async () => testCase.extracted).collect(sourceConfig, testCase.date, new Date('2026-09-01T00:00:00Z'));
+      const resultPromise = createPdfCollector(fetchImpl, async () => testCase.extracted).collect(sourceConfig, testCase.date, new Date('2026-09-01T00:00:00Z'));
+      if (sourceConfig.trackId === 'ichikawa-kohnodai-athletic-stadium') {
+        await expect(resultPromise).rejects.toMatchObject({ reason: 'source_changed' });
+        continue; // Unreviewed source must not reach the historical text parser.
+      }
+      const result = await resultPromise;
       expect(result.pdfUrl).toBe(testCase.pdfUrl);
       expect(result.status).toBe('available');
     }

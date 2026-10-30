@@ -132,7 +132,7 @@ AI availabilityのcacheは施設ID・全対象日・内容を検証して再利�
 
 PDF collectorは `pdfjs-dist` 同梱CMap・標準font・wasmをローカルで使用します。練馬の画像形式の週間表は[確認済み資料と更新手順](scripts/availability/fixtures/nerima-20261013-provenance.md)に従い、資料hashを照合して公開範囲だけを判定します。
 
-公式サイトがHTTP 200で全面メンテナンス画面を返す場合も、収集時にfetch_failedとして要確認を維持します。AIの公式資料取得失敗と読取失敗を区別し、停止中の予定を古いcacheだけで再公開しません。2026-10-23の調査根拠は[施設別記録](scripts/availability/fixtures/outages-20261023-provenance.md)、練馬の最新確認表は[10月27日版](scripts/availability/fixtures/nerima-20261027-provenance.md)を参照してください。
+公式サイトがHTTP 200で全面メンテナンス画面を返す場合も、収集時にfetch_failedとして要確認を維持します。AIの公式資料取得失敗と読取失敗を区別し、停止中の予定を古いcacheだけで再公開しません。2026-10-23の調査根拠は[施設別記録](scripts/availability/fixtures/outages-20261023-provenance.md)、練馬の最新確認表は[10月30日版](scripts/availability/fixtures/nerima-20261030-provenance.md)を参照してください。
 
 Availabilityの原資料変更対応は `scripts/availability/recovery-20261026.test.ts` と同fixture provenanceを参照してください。戸田の冬季表は専用利用枠・休場だけを採用し、夏季個人開放を外挿しません。国府台の10月画像表と博多の10月21日版（10・11月）は確認済みhashだけを採用します。維新は公式お知らせ一覧と修繕条件画像も確認します。公開後smokeは初回route完了後にメニューを操作します。
 

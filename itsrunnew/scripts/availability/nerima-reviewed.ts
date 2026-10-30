@@ -6,7 +6,8 @@ export const nerimaOctober16PdfHash = 'sha256:2bb147e1a314fe7517e8a33b3ab6704700
 export const nerimaOctober20PdfHash = 'sha256:635046cef4cf10eccc7d765c02b325a3e456abd41b815d4aa4362f7a94c5ddd1';
 export const nerimaOctober23PdfHash = 'sha256:f1a4d6d0c0077c1581ef813fc72d3c65c83dba252af1a2e4ed8399cd1e1734c9';
 export const nerimaOctober27PdfHash = 'sha256:ebc422b517fd3dc18f90a8672d85b15073fe77b1cfa2a51cdc46bbf4572a692f';
-export const isReviewedNerimaPdf = (hash: string) => hash === nerimaReviewedPdfHash || hash === nerimaOctober16PdfHash || hash === nerimaOctober20PdfHash || hash === nerimaOctober23PdfHash || hash === nerimaOctober27PdfHash;
+export const nerimaOctober30PdfHash = 'sha256:7d4f98c05268af7e9e31bc4a40aa5a7e2d32911cb6e4f82dc88cb56313412b67';
+export const isReviewedNerimaPdf = (hash: string) => hash === nerimaReviewedPdfHash || hash === nerimaOctober16PdfHash || hash === nerimaOctober20PdfHash || hash === nerimaOctober23PdfHash || hash === nerimaOctober27PdfHash || hash === nerimaOctober30PdfHash;
 export const nerimaGuideUrl = 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/kakuninnhouhou_kaihoujoukyou.pdf';
 export const nerimaReviewedGuideHash = 'sha256:464257780a924b091241d55a04d062addbb507d535316a043a14b0c2524a4ffb';
 
@@ -17,8 +18,10 @@ export function reviewedNerimaPdf(sourceHash: string, date: string): PdfParseRes
   const october20 = sourceHash === nerimaOctober20PdfHash;
   const october23 = sourceHash === nerimaOctober23PdfHash;
   const october27 = sourceHash === nerimaOctober27PdfHash;
-  const publishedAt = october27 ? '2026-10-27' : october23 ? '2026-10-23' : october20 ? '2026-10-20' : october16 ? '2026-10-16' : '2026-10-13';
-  const endDate = october27 ? '2026-11-02' : october23 ? '2026-10-29' : october20 ? '2026-10-26' : october16 ? '2026-10-22' : '2026-10-19';
+  const october30 = sourceHash === nerimaOctober30PdfHash;
+  const winterHours = october27 || october30;
+  const publishedAt = october30 ? '2026-10-30' : october27 ? '2026-10-27' : october23 ? '2026-10-23' : october20 ? '2026-10-20' : october16 ? '2026-10-16' : '2026-10-13';
+  const endDate = october30 ? '2026-11-05' : october27 ? '2026-11-02' : october23 ? '2026-10-29' : october20 ? '2026-10-26' : october16 ? '2026-10-22' : '2026-10-19';
   if (date < publishedAt || date > endDate) {
     return {
       status: 'unknown', periods: [], unknownReason: 'outside_published_period',
@@ -27,7 +30,7 @@ export function reviewedNerimaPdf(sourceHash: string, date: string): PdfParseRes
   }
   const halfMorning = october27 || october23 ? date === '2026-10-28' : october20 || october16 ? date === '2026-10-21' : date === '2026-10-13';
   const halfNoon = (october20 || october16) && date === '2026-10-21';
-  const greenNoon = october27 ? ['2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october23 ? ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october20 ? ['2026-10-20', '2026-10-22', '2026-10-26'].includes(date) : october16 ? date === '2026-10-22' : date === '2026-10-13';
+  const greenNoon = october30 ? date === '2026-11-05' : october27 ? ['2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october23 ? ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october20 ? ['2026-10-20', '2026-10-22', '2026-10-26'].includes(date) : october16 ? date === '2026-10-22' : date === '2026-10-13';
   const fullTrack = october27 || october23 ? date === '2026-10-27' : october20 && date === '2026-10-20';
   const trackConditions = ['陸上トラック優先利用時間。ボール類の使用不可。'];
   const hasAvailability = fullTrack || halfMorning || halfNoon || greenNoon;
@@ -50,20 +53,20 @@ export function reviewedNerimaPdf(sourceHash: string, date: string): PdfParseRes
       from: '15:00', to: '17:00', status: fullTrack ? 'available' : 'unavailable', scope: 'full_track',
       eligibility: 'public', conditions: fullTrack ? trackConditions : closedConditions,
     },
-    // The October 27 table and current facility hours both end at 17:00.
+    // The October 27/30 tables and current winter facility hours end at 17:00.
     // Keep the historical uncertainty only for the older reviewed packets.
-    ...(!october27 ? [{
+    ...(!winterHours ? [{
       from: '17:00', to: '18:00', status: 'unknown' as const, scope: 'unknown' as const, eligibility: 'unknown' as const,
       conditions: ['10月の施設案内は18時までですが、週間予定表は17時までの掲載です。この時間帯は公式情報をご確認ください。'],
     }] : []),
   ];
   return {
-    status: hasAvailability ? 'partially_available' : october27 ? 'unavailable' : 'unknown', periods,
-    unknownReason: hasAvailability || october27 ? undefined : 'insufficient_information',
+    status: hasAvailability ? 'partially_available' : winterHours ? 'unavailable' : 'unknown', periods,
+    unknownReason: hasAvailability || winterHours ? undefined : 'insufficient_information',
     publishedAt, confidence: 'high',
     warnings: [
       '混雑状況により利用人数・利用時間の制限や予定変更があります。',
-      ...(!october27 ? ['週間表と施設案内の終了時刻に差があるため、17時以降を利用不可と断定しません。'] : []),
+      ...(!winterHours ? ['週間表と施設案内の終了時刻に差があるため、17時以降を利用不可と断定しません。'] : []),
     ],
   };
 }

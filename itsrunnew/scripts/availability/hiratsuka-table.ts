@@ -21,13 +21,24 @@ export function readHiratsukaTable(packet: AiPacket) {
   if (!text.includes('開放しています(陸上競技のみ)。') || !text.includes('共用利用には、以下の事務所で申請手続きが必要です。') || !text.includes('貸し出し器具は、午前・午後ともに利用終了時間の15分前を目安に返却してください。')) return null;
   const entries = table.slice(header[0].length).split('\n');
   if (entries.length % 4 || entries.length < 4 || entries.length > 31 * 4) return null;
+  // The page may be revised without moving the rolling table's first row.
+  // Resolve that row from its printed month/day, requiring the publication date
+  // to lie inside the table. This also anchors December–January to the right year.
+  const publication = new Date(`${publishedAt}T00:00:00Z`);
+  if (!Number.isFinite(publication.getTime()) || publication.toISOString().slice(0, 10) !== publishedAt) return null;
+  const firstDay = /^(\d{1,2})日\([日月火水木金土]曜日\)$/.exec(entries[0]);
+  if (!firstDay) return null;
+  const starts = [-1, 0, 1].map(offset => new Date(Date.UTC(Number(updated[1]) + offset, Number(header[1]) - 1, Number(firstDay[1]))))
+    .filter(date => date.getUTCMonth() + 1 === Number(header[1]) && date.getUTCDate() === Number(firstDay[1])
+      && date <= publication && publication.getTime() < date.getTime() + entries.length / 4 * 86400000);
+  if (starts.length !== 1) return null;
   const parsed = new Map<string, AiRow>();
   const months: number[] = [];
   for (let index = 0; index < entries.length; index += 4) {
     const day = /^(\d{1,2})日\(([日月火水木金土])曜日\)$/.exec(entries[index]);
     const values = entries.slice(index + 1, index + 4);
     if (!day) return null;
-    const date = new Date(`${publishedAt}T00:00:00Z`);
+    const date = new Date(starts[0]);
     date.setUTCDate(date.getUTCDate() + index / 4);
     if (!Number.isFinite(date.getTime()) || date.getUTCDate() !== Number(day[1]) || weekdays[date.getUTCDay()] !== day[2]) return null;
     const month = date.getUTCMonth() + 1;

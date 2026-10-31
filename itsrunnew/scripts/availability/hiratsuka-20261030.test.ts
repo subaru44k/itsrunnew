@@ -62,7 +62,7 @@ describe('Hiratsuka October 30 official timed opening', () => {
         : new Response('', { status: 503 })) as typeof fetch;
       const rows = (await collectAdditionalAvailability(['2026-11-08'], { now, fetchImpl: sourceFetch, apiFetchImpl: apiFetch as typeof fetch, apiKey: '' })).filter(r => r.trackId === config.trackId);
       expect(rows).toHaveLength(1);
-      expect(rows[0].evidence.parserVersion).toBe('hiratsuka-table-v2');
+      expect(rows[0].evidence.parserVersion).toBe('hiratsuka-table-v3');
       if (invalid) expect(rows[0]).toMatchObject({ status: 'unknown', unknownReason: 'source_changed', periods: [] });
       else expect(rows[0]).toMatchObject({ status: 'partially_available', periods: [{ from: '15:00', to: '19:00' }] });
     }

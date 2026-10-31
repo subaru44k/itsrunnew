@@ -144,4 +144,6 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 
 公式サイトの実収集をせず、古いavailability snapshotにも依存せず公開画面を確認する場合は、`npm run test:smoke:fixtures`を使います。当日基準のmixed 4statusを一時workspaceで生成・buildして全smokeを行い、checkoutのデータ・distは変更しません。
 
-国府台の現行確認資料は[10/30取得の10月・11月版](scripts/availability/fixtures/kohnodai-20261030-provenance.md)です。全61日を原本照合し、対象月・年・hash一致時だけ判定します。未知PDFは再確認までsource_changedを保持し、文字parserへfallbackしません。
+国府台の現行確認資料は[10/30取得の10月版](scripts/availability/fixtures/kohnodai-20261030-provenance.md)と[10/31取得の11月改訂版](scripts/availability/fixtures/kohnodai-20261031-provenance.md)です。11/15の予備予約削除を原本で確認し9〜21時開放とします。対象月・年・hash一致時だけ判定し、未知PDFは再確認までsource_changedを保持して文字parserへfallbackしません。
+
+平塚の[10/31更新表](scripts/availability/fixtures/hiratsuka-20261031-provenance.md)は10/30開始のまま11/2午前・昼の予約が解除されています。表の月・先頭日と更新年から開始日を求め、更新日が表の範囲内にあることと全行の連続日・曜日を確認します。更新日を先頭日と同一視せず、掲載外や不整合はunknownを維持します。

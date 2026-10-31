@@ -7,6 +7,7 @@ export const kohnodaiOctoberHash = 'sha256:d7821db1027230dae579b01b7cb17ca9ee50a
 export const kohnodaiOctober26Hash = 'sha256:1f7b4efafa26c4f9d6cb0ba1701408d7d978b05e76705896737a730f9d8b65d9';
 export const kohnodaiOctober30Hash = 'sha256:410adf2e83c2b32039ad648a85ad1d6368f7a5a30c1a2d781b900b0ee1a6015c';
 export const kohnodaiNovemberReviewedHash = 'sha256:cb0da1895e9a30ad935d0ec56b7b9663baa501a114f4ebb482e801d286809a76';
+export const kohnodaiNovemberOctober31Hash = 'sha256:6c5cb2143dddaae5e8c1099690cfe52e95e14ed5b4cf5441faf6c04a0b9a0b3d';
 const events: Record<number, Array<[string, string]>> = {
   1: [['14:00', '16:00']], 2: [['09:00', '15:00']],
   3: [['09:00', '12:00'], ['12:00', '17:00']], 4: [['09:00', '17:00']],
@@ -19,8 +20,8 @@ const events: Record<number, Array<[string, string]>> = {
   27: [['09:00', '13:00']], 30: [['09:00', '17:00']], 31: [['09:00', '17:00']],
 };
 export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult | null {
-  if (![kohnodaiOctoberHash, kohnodaiOctober26Hash, kohnodaiOctober30Hash, kohnodaiNovemberReviewedHash].includes(hash)) return null;
-  const november = hash === kohnodaiNovemberReviewedHash;
+  if (![kohnodaiOctoberHash, kohnodaiOctober26Hash, kohnodaiOctober30Hash, kohnodaiNovemberReviewedHash, kohnodaiNovemberOctober31Hash].includes(hash)) return null;
+  const november = hash === kohnodaiNovemberReviewedHash || hash === kohnodaiNovemberOctober31Hash;
   if (!(november ? /^2026-11-(?:0[1-9]|[12]\d|30)$/ : /^2026-10-(?:0[1-9]|[12]\d|3[01])$/).test(date))
     return { status: 'unknown', periods: [], unknownReason: 'outside_published_period' };
   const day = Number(date.slice(8));
@@ -53,7 +54,9 @@ export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult 
     24: [['09:00', '15:00']], 25: [['09:00', '15:00']],
     28: [['09:00', '17:00']], 29: [['09:00', '17:00']],
   };
-  const bookings = november ? novemberEvents[day]
+  // The October 31 retrieval removes only November 15's reserve booking.
+  // Keep the reservation in the earlier reviewed original.
+  const bookings = november ? hash === kohnodaiNovemberOctober31Hash && day === 15 ? [] : novemberEvents[day]
     : hash === kohnodaiOctober30Hash && day === 30 ? [['09:00', '16:00']]
     : hash === kohnodaiOctober26Hash || hash === kohnodaiOctober30Hash ? revisedEvents[day] ?? events[day] : events[day];
   for (const [from, to] of bookings ?? []) {

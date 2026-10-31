@@ -241,3 +241,7 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 練馬の[10月30日版の根拠](../itsrunnew/scripts/availability/fixtures/nerima-20261030-provenance.md)では10/30〜11/5の全21枠・凡例を再確認。10/30〜11/4は全枠団体貸切、11/5の12〜15時のみ緑レーンでジョギング・ウォーキング可（陸上競技・幅跳び不可）。冬季9〜17時を保持し、掲載外・未知hashへ外挿しません。
 
 国府台の[10/30取得版の根拠](../itsrunnew/scripts/availability/fixtures/kohnodai-20261030-provenance.md)では10月60693.pdf・11月60681.pdfの全61日を確認しました。10/30の専用利用終了16時、11/14の2予約、11/21の12時以降開放、17時閉館日と11/30休場を保持します。両月とも確認済み原本hashと年月に限定し、未知PDFはsource_changedで停止して旧文字parserへ戻しません。
+
+平塚の[10/31更新表の根拠](../itsrunnew/scripts/availability/fixtures/hiratsuka-20261031-provenance.md)では更新日と表開始日が異なります。月見出し・先頭日と更新年から表開始日を求め、更新日が期間内にあり全日付・曜日が連続する場合だけ採用します。11/2午前・昼の「可」への変更を保持し、11/8は引き続き15〜19時のみ。年またぎ・不正/範囲外更新日はfixtureで検証します。
+
+国府台の[10/31取得11月改訂版](../itsrunnew/scripts/availability/fixtures/kohnodai-20261031-provenance.md)は60714.pdfへ変更されています。全30日を再確認し、11/15だけ予備予約削除により9〜21時開放へ変更します。旧原本の予約は維持し、他の時間帯・閉館日、未知hashと年月のguardを緩めません。

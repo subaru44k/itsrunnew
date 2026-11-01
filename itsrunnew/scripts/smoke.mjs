@@ -428,7 +428,7 @@ try {
       && url.searchParams.get('date') === today
       && url.searchParams.get('track') === todaTrack.id
       && url.searchParams.get('lat') === todaTrack.location.latitude.toFixed(4)
-      && url.searchParams.get('lng') === todaTrack.location.longitude.toFixed(4));
+      && url.searchParams.get('lng') === todaTrack.location.longitude.toFixed(4), { waitUntil: 'domcontentloaded' });
     await page.locator('#track-map .track-marker--selected').waitFor();
     await page.locator('#track-map .search-origin-dot').waitFor();
     await page.locator('.detail-card').waitFor({ state: 'visible' });
@@ -624,6 +624,7 @@ try {
       }
     }
 
+    // Assert the SPA URL and rendered map independently of external image load.
     const englishStatus = representativeTracks.unavailable
       ? 'unavailable'
       : availabilityStatuses.find(status => status !== 'unavailable' && representativeTracks[status]);
@@ -647,7 +648,7 @@ try {
         && url.searchParams.get('date') === today
         && url.searchParams.get('track') === englishRepresentative.id
         && url.searchParams.get('lat') === englishRepresentative.location.latitude.toFixed(4)
-        && url.searchParams.get('lng') === englishRepresentative.location.longitude.toFixed(4));
+        && url.searchParams.get('lng') === englishRepresentative.location.longitude.toFixed(4), { waitUntil: 'domcontentloaded' });
       await page.locator('#track-map .track-marker--selected').waitFor();
       await page.locator('#track-map .search-origin-dot').waitFor();
       await page.locator(`.detail-card .today-availability.${englishAvailabilityClass}`).waitFor();

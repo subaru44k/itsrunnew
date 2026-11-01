@@ -6,6 +6,7 @@ import { officialFetch, htmlText, decodeEntities } from './ai-source-utils';
 import { parsePersonalIcs } from './personal-ics';
 import { reviewedHakataReading } from './reviewed-hakata';
 import { reviewedIshinReading } from './reviewed-ishin';
+import { reviewedChitaReading } from './reviewed-chita';
 import { readHiratsukaTable } from './hiratsuka-table';
 
 export const personalCalendarFacilities = [
@@ -91,8 +92,9 @@ export async function collectAdditionalAvailability(
       await Promise.race(activeReadings);
     const task = (async (): Promise<TrackAvailability[]> => {
       try {
-        const reviewed = readHiratsukaTable(packet) ?? reviewedHakataReading(packet) ?? reviewedIshinReading(packet);
-        if (['hiratsuka', 'hakata', 'ishin'].includes(config.key) && !reviewed)
+        const reviewed = readHiratsukaTable(packet) ?? reviewedHakataReading(packet) ?? reviewedIshinReading(packet) ?? reviewedChitaReading(packet);
+        const chitaClosure = config.key === 'chita' && !packet.sources.some(s => /\.pdf(?:\?|$)/i.test(s.url));
+        if ((['hiratsuka', 'hakata', 'ishin'].includes(config.key) || chitaClosure) && !reviewed)
           return unavailable(
             new Error('Official schedule requires human review'),
             'source_changed',

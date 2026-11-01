@@ -25,7 +25,7 @@ vi.mock('./ai-sources', async (importOriginal) => {
         sources: [
           {
             kind: 'text',
-            url: config.landing,
+            url: config.key === 'chita' ? 'https://www.chita-sports.com/schedule.pdf' : config.landing,
             name: 'schedule.txt',
             content: 'explicit opening',
             hash: 'fixed',

@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { dirname, join, sep } from 'node:path';
 import { reviewedNerimaPdf, isReviewedNerimaPdf, nerimaGuideUrl, nerimaReviewedGuideHash } from './nerima-reviewed';
 import { reviewedKohnodaiPdf } from './reviewed-kohnodai';
+import { reviewedWadaboriPdf } from './reviewed-wadabori';
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { AvailabilityPeriod, AvailabilityStatus, UnknownReason } from '../../src/model/availability';
 
@@ -674,8 +675,8 @@ export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.4.0' },
   { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.1.0' },
   { trackId: 'fuchu-citizen-athletic-track', name: '府中市民陸上競技場', landingPageUrl: 'https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html', discovery: 'annual_pdf_discovery', parser: 'fuchu-vector-calendar-guard', parserVersion: '1.0.0' },
-  { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.0.0' },
-  { trackId: 'wadabori-park-seibiyama-track', name: '和田堀公園 第二競技場（済美山運動場）', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-second', parserVersion: '1.0.0' },
+  { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.1.0' },
+  { trackId: 'wadabori-park-seibiyama-track', name: '和田堀公園 第二競技場（済美山運動場）', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-second', parserVersion: '1.1.0' },
   { trackId: 'misato-senario-house-field', name: 'セナリオハウスフィールド三郷', landingPageUrl: 'https://www.misato-hall.com/module/3299.htm', discovery: 'monthly_pdf_discovery', parser: 'misato-three-slot-reservation', parserVersion: '1.1.0' },
   { trackId: 'ageo-athletic-stadium', name: '上尾運動公園 陸上競技場', landingPageUrl: 'https://www.parks.or.jp/saitamasuijo/guide/006/006231.html', discovery: 'monthly_pdf_discovery', parser: 'ageo-individual-use-list', parserVersion: '1.0.0' },
   { trackId: 'hachioji-fujimori-athletic-stadium', name: '東京フットボールセンター八王子富士森競技場', landingPageUrl: 'https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html', discovery: 'latest_pdf_discovery', parser: 'fujimori-multi-month-matrix', parserVersion: '1.0.0' },
@@ -817,7 +818,11 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
       const tableRules = ['misato-senario-house-field', 'toda-sports-center-track'].includes(config.trackId);
       const extractionKey = `${sourceHash}:${tableRules}`;
       const reviewedScan = config.trackId === 'ichikawa-kohnodai-athletic-stadium'
-        ? reviewedKohnodaiPdf(sourceHash, date) : null;
+        ? reviewedKohnodaiPdf(sourceHash, date)
+        : config.trackId.startsWith('wadabori-park-')
+          ? reviewedWadaboriPdf(sourceHash, date, config.trackId === 'wadabori-park-first-track' ? 'first' : 'second') : null;
+      if (config.trackId.startsWith('wadabori-park-') && date.startsWith('2026-12-') && !reviewedScan)
+        throw new PdfCollectorError('source_changed', 'Wadabori December schedule changed; review required', pdfUrl);
       if (config.trackId === 'ichikawa-kohnodai-athletic-stadium' && !reviewedScan)
         throw new PdfCollectorError('source_changed', 'Kohnodai schedule changed; review required', pdfUrl);
       if (!reviewedScan && !extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));

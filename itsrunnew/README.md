@@ -147,3 +147,6 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 国府台の現行確認資料は[10/30取得の10月版](scripts/availability/fixtures/kohnodai-20261030-provenance.md)と[10/31取得の11月改訂版](scripts/availability/fixtures/kohnodai-20261031-provenance.md)です。11/15の予備予約削除を原本で確認し9〜21時開放とします。対象月・年・hash一致時だけ判定し、未知PDFは再確認までsource_changedを保持して文字parserへfallbackしません。
 
 平塚の[10/31更新表](scripts/availability/fixtures/hiratsuka-20261031-provenance.md)は10/30開始のまま11/2午前・昼の予約が解除されています。表の月・先頭日と更新年から開始日を求め、更新日が表の範囲内にあることと全行の連続日・曜日を確認します。更新日を先頭日と同一視せず、掲載外や不整合はunknownを維持します。
+
+
+2026-11-01の知多は11月PDFの代わりに改修告知を掲載しており、`reviewed-chita.ts` が公式本文のURL/hash・施設identity一致時だけ11/1専用利用と11/3〜2027/3/31改修を利用不可にします。11/2と再開後はunknownを維持します。text-onlyの改修資料は未知hashでsource_changed、AI fallbackなし。通常の月間PDFのAI経路は維持します。和田堀の12月原本はA3で旧固定座標から日付欄が外れるため、`reviewed-wadabori.ts` が確認済み2PDFのhashと2026年12月だけを有限判定します。全124枠、第二の空欄トラック限定・昼の閉鎖条件、12/29以降の年末休みを保持し、未知12月PDFは停止します。原本・確認根拠は `itsrunnew/scripts/availability/fixtures/availability-20261101-provenance.md`、回帰は `chita-20261101.test.ts` と `wadabori-202612.test.ts` に保持します。

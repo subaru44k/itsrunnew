@@ -466,3 +466,6 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 平塚の10/31更新は表の先頭が10/30のままで、11/2午前・昼だけ予備日から可へ変更されています。`hiratsuka-table.ts`は表の月見出し・先頭日と更新年から開始日を解決し、更新日が表期間内にあること、全行の連続日・曜日・月を検証します。更新日と開始日を分離し、12月開始表の1月更新も前年度へ正しく対応します。不正・範囲外の更新日や未知構造は停止します。原本・根拠は`hiratsuka-20261031-provenance.md`、全30枠・年またぎ・変更guardは`hiratsuka-20261031.test.ts`に保持します。parser versionは`hiratsuka-table-v3`です。
 
 国府台の10/31取得版11月60714.pdfは全30日を原本照合し、11/15の予備予約削除により9〜21時開放とします。他の日程・閉館注記は前版と同じ。`reviewed-kohnodai.ts`は新原本hashだけにこの取消を適用し、旧原本の予約を遡及変更しません。10月60693.pdfは維持し、未知資料・別年月のguardも維持します。原本・根拠は`kohnodai-20261031-provenance.md`、全30日・旧新区別・変更/年月/policy guardは`kohnodai-20261031.test.ts`に保持します。
+
+
+2026-11-01の知多は11月PDFの代わりに改修告知を掲載しており、`reviewed-chita.ts` が公式本文のURL/hash・施設identity一致時だけ11/1専用利用と11/3〜2027/3/31改修を利用不可にします。11/2と再開後はunknownを維持します。text-onlyの改修資料は未知hashでsource_changed、AI fallbackなし。通常の月間PDFのAI経路は維持します。和田堀の12月原本はA3で旧固定座標から日付欄が外れるため、`reviewed-wadabori.ts` が確認済み2PDFのhashと2026年12月だけを有限判定します。全124枠、第二の空欄トラック限定・昼の閉鎖条件、12/29以降の年末休みを保持し、未知12月PDFは停止します。原本・確認根拠は `itsrunnew/scripts/availability/fixtures/availability-20261101-provenance.md`、回帰は `chita-20261101.test.ts` と `wadabori-202612.test.ts` に保持します。

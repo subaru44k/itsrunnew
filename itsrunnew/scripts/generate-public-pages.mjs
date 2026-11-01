@@ -6,6 +6,9 @@ const tracks = JSON.parse(await readFile(resolve(root, 'src/data/tracks.json'), 
 const origin = 'https://itsrun.info';
 const staticPairs = [
   ['', ''], ['pace/marathon', 'pace/marathon'],
+  ['ojiro-honda/index', 'ojiro-honda/index'],
+  ['yota-mashiko/index', 'yota-mashiko/index'],
+  ['haruki-niizuma/index', 'haruki-niizuma/index'],
   ['nozomiantena/index', 'nozomiantena/index'], ['ryuji-miura/index', 'ryuji-miura/index'], ['about', 'about'], ['tracks/guide', 'tracks/guide'], ['privacy', 'privacy'],
 ];
 

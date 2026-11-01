@@ -1,0 +1,829 @@
+{
+  "ojiro-honda": [
+    {
+      "date": "2026-11-01",
+      "competition": "第58回全日本大学駅伝対校選手権大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "27:47",
+      "venue": "熱田神宮〜伊勢神宮",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://daigaku-ekiden.com/files/2026_result.pdf#page=3",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 9.5,
+        "rank": 2,
+        "team": "早稲田大学"
+      }
+    },
+    {
+      "date": "2026-10-12",
+      "competition": "第38回出雲全日本大学選抜駅伝競走",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "15:42",
+      "venue": "出雲市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.izumo-ekiden.jp/assets/pdf/2b.pdf#page=1",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 5.8,
+        "rank": 1,
+        "team": "早稲田大学"
+      }
+    },
+    {
+      "date": "2026-01-18",
+      "competition": "第31回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "20:11",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/5279/",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 7.0,
+        "rank": 19,
+        "team": "鳥取県"
+      }
+    },
+    {
+      "date": "2025-12-21",
+      "competition": "第76回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "28:52",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_76/all_record.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 3,
+        "team": "鳥取城北"
+      }
+    },
+    {
+      "date": "2025-11-16",
+      "competition": "第67回中国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "28:57",
+      "venue": "三次市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://hiroshimatf.org/bkjmi4ujj4/wp-content/uploads/2025/11/リザルト-1.pdf",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 1,
+        "team": "鳥取城北"
+      }
+    },
+    {
+      "date": "2025-11-01",
+      "competition": "第76回全国高等学校男子駅伝競走大会鳥取県予選会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "23:28",
+      "venue": "境港市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://jaaf-tottori.com/cms/wp-content/uploads/2025/11/20251101koukoekiden_tottori_results.pdf",
+      "ekiden": {
+        "section": 3,
+        "distanceKm": 8.1075,
+        "rank": 1,
+        "team": "鳥取城北",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2025-03-23",
+      "competition": "第48回春の高校伊那駅伝",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "23:18",
+      "venue": "伊那市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2025/03/2025danshi.pdf",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 7.52,
+        "rank": 7,
+        "team": "大牟田"
+      }
+    },
+    {
+      "date": "2024-12-22",
+      "competition": "第75回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "29:12",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_75/all_record.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 2,
+        "team": "大牟田"
+      }
+    },
+    {
+      "date": "2024-11-16",
+      "competition": "第77回全九州高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "29:50",
+      "venue": "西都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukou-rikujou.info/data/2024/2024_ekiden_kyuushuu_result.pdf",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 1,
+        "team": "大牟田"
+      }
+    },
+    {
+      "date": "2024-11-03",
+      "competition": "第75回全国高等学校男子駅伝競走大会福岡県予選大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "15:08",
+      "venue": "嘉麻市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.fukuoka-koutairen.com/result/2024/r_01/ken/2024ekiden_ken_result.pdf",
+      "ekiden": {
+        "section": 7,
+        "distanceKm": 5,
+        "rank": 1,
+        "team": "大牟田"
+      }
+    },
+    {
+      "date": "2024-03-24",
+      "competition": "第47回春の高校伊那駅伝",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "15:14",
+      "venue": "伊那市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2024/03/2024danshi.pdf",
+      "ekiden": {
+        "section": 5,
+        "distanceKm": 5.1,
+        "rank": 6,
+        "team": "大牟田"
+      }
+    },
+    {
+      "date": "2023-12-24",
+      "competition": "第74回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "8:30",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_74/all_record.html",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 3,
+        "rank": 10,
+        "team": "大牟田"
+      }
+    },
+    {
+      "date": "2023-11-04",
+      "competition": "第74回全国高等学校男子駅伝競走大会福岡県予選大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "15:15",
+      "venue": "嘉麻市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.fukuoka-koutairen.com/result/2023/r_01/ken/2023ekiden_ken_result.pdf",
+      "ekiden": {
+        "section": 7,
+        "distanceKm": 5,
+        "rank": 1,
+        "team": "大牟田"
+      }
+    },
+    {
+      "date": "2022-12-11",
+      "competition": "第18回西日本中学駅伝",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "11:53",
+      "venue": "大牟田市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.fukuriku.com/cms/wp-content/uploads/2022/10/2022.12.11NishiEkidenR.pdf",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 3.9,
+        "rank": 1,
+        "team": "宅峰中学校"
+      }
+    }
+  ],
+  "yota-mashiko": [
+    {
+      "date": "2026-11-01",
+      "competition": "第58回全日本大学駅伝対校選手権大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "30:51",
+      "venue": "熱田神宮〜伊勢神宮",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://daigaku-ekiden.com/files/2026_result.pdf#page=4",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 11.1,
+        "rank": 1,
+        "team": "早稲田大学",
+        "record": "区間新記録",
+        "rankTied": true
+      }
+    },
+    {
+      "date": "2026-01-18",
+      "competition": "第31回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "19:08",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/4674/",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 7.0,
+        "rank": 2,
+        "team": "福島県",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2025-12-21",
+      "competition": "第76回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "28:20",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_76/all_record.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 1,
+        "team": "学法石川"
+      }
+    },
+    {
+      "date": "2025-10-23",
+      "competition": "第70回福島県高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "28:20",
+      "venue": "猪苗代町",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://gold.jaic.org/fukushima/kekka/2025/1023/rel001.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 1,
+        "team": "学法石川",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2025-03-23",
+      "competition": "第48回春の高校伊那駅伝",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "30:53",
+      "venue": "伊那市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2025/03/2025danshi.pdf",
+      "ekiden": {
+        "section": 4,
+        "distanceKm": 9.1,
+        "rank": 75,
+        "team": "学法石川"
+      }
+    },
+    {
+      "date": "2025-01-19",
+      "competition": "第30回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "19:47",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/4674/",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 7.0,
+        "rank": 3,
+        "team": "福島県"
+      }
+    },
+    {
+      "date": "2024-12-22",
+      "competition": "第75回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "24:13",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_75/all_record.html",
+      "ekiden": {
+        "section": 3,
+        "distanceKm": 8.1075,
+        "rank": 4,
+        "team": "学法石川"
+      }
+    },
+    {
+      "date": "2024-11-17",
+      "competition": "第36回市町村対抗福島県縦断駅伝競走大会（ふくしま駅伝）",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "24:02",
+      "venue": "白河市〜福島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.city.motomiya.lg.jp/uploaded/attachment/25630.pdf",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 8.2,
+        "rank": 1,
+        "team": "鏡石町"
+      }
+    },
+    {
+      "date": "2024-10-24",
+      "competition": "第69回福島県高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "24:05",
+      "venue": "猪苗代町",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://gold.jaic.org/fukushima/kekka/2024/1024/rel001.html",
+      "ekiden": {
+        "section": 3,
+        "distanceKm": 8.1075,
+        "rank": 1,
+        "team": "学法石川"
+      }
+    },
+    {
+      "date": "2024-03-24",
+      "competition": "第47回春の高校伊那駅伝",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "22:28",
+      "venue": "伊那市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2024/03/2024danshi.pdf",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 7.52,
+        "rank": 1,
+        "team": "学法石川",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2024-01-21",
+      "competition": "第29回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "14:21",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/4674/",
+      "ekiden": {
+        "section": 4,
+        "distanceKm": 5.0,
+        "rank": 2,
+        "team": "福島県"
+      }
+    },
+    {
+      "date": "2023-12-24",
+      "competition": "第74回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "29:06",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_74/all_record.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 5,
+        "team": "学法石川"
+      }
+    },
+    {
+      "date": "2023-11-19",
+      "competition": "第35回市町村対抗福島県縦断駅伝競走大会（ふくしま駅伝）",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "25:00",
+      "venue": "白河市〜福島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.city.motomiya.lg.jp/uploaded/attachment/23140.pdf",
+      "ekiden": {
+        "section": 6,
+        "distanceKm": 8.3,
+        "rank": 1,
+        "team": "鏡石町"
+      }
+    },
+    {
+      "date": "2023-10-26",
+      "competition": "第68回福島県高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "30:22",
+      "venue": "猪苗代町",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://gold.jaic.org/fukushima/kekka/2023/1026/rel001.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 2,
+        "team": "学法石川"
+      }
+    },
+    {
+      "date": "2023-01-22",
+      "competition": "第28回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "08:36",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/4674/",
+      "ekiden": {
+        "section": 6,
+        "distanceKm": 3.0,
+        "rank": 1,
+        "team": "福島県"
+      }
+    }
+  ],
+  "haruki-niizuma": [
+    {
+      "date": "2026-11-01",
+      "competition": "第58回全日本大学駅伝対校選手権大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "32:45",
+      "venue": "熱田神宮〜伊勢神宮",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://daigaku-ekiden.com/files/2026_result.pdf#page=5",
+      "ekiden": {
+        "section": 3,
+        "distanceKm": 11.9,
+        "rank": 1,
+        "team": "早稲田大学",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2026-10-12",
+      "competition": "第38回出雲全日本大学選抜駅伝競走",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "17:10",
+      "venue": "出雲市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.izumo-ekiden.jp/assets/pdf/4b.pdf#page=1",
+      "ekiden": {
+        "section": 4,
+        "distanceKm": 6.2,
+        "rank": 1,
+        "team": "早稲田大学",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2026-01-18",
+      "competition": "第31回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "19:24",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/4637/",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 7.0,
+        "rank": 3,
+        "team": "兵庫県",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2025-12-21",
+      "competition": "第76回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "28:40",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_76/all_record.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 2,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2025-11-16",
+      "competition": "第76回近畿高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "13:35",
+      "venue": "宇陀市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://drive.google.com/file/d/1NryvuRrkJFsZT3evexCmhw2DKEUZUB3W/view",
+      "ekiden": {
+        "section": 7,
+        "distanceKm": 5,
+        "rank": 1,
+        "team": "西脇工",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2025-11-03",
+      "competition": "第80回兵庫県高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "28:22",
+      "venue": "丹波篠山市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "http://www.haaa.jp/~koukou/2025/eki/result.pdf",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 1,
+        "team": "西脇工",
+        "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2025-03-23",
+      "competition": "第48回春の高校伊那駅伝",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "23:11",
+      "venue": "伊那市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2025/03/2025danshi.pdf",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 7.52,
+        "rank": 6,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2025-01-19",
+      "competition": "第30回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "19:54",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/4637/",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 7.0,
+        "rank": 4,
+        "team": "兵庫県"
+      }
+    },
+    {
+      "date": "2024-12-22",
+      "competition": "第75回全国高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "29:30",
+      "venue": "京都市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://koukouekiden-record.mainichi.jp/record/archive/m_75/all_record.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 10,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "competition": "第75回近畿高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "14:13",
+      "venue": "南あわじ市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.koukou-rikujou.info/data/2024/2024_ekiden_kinki_result.pdf",
+      "ekiden": {
+        "section": 6,
+        "distanceKm": 5,
+        "rank": 1,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2024-11-03",
+      "competition": "第79回兵庫県高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "29:47",
+      "venue": "丹波篠山市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "http://www.haaa.jp/~koukou/2024/eki/itiran.pdf",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 1,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2024-03-24",
+      "competition": "第47回春の高校伊那駅伝",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "26:49",
+      "venue": "伊那市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2024/03/2024danshi.pdf",
+      "ekiden": {
+        "section": 4,
+        "distanceKm": 9.1,
+        "rank": 4,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2023-11-26",
+      "competition": "第74回近畿高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "29:41",
+      "venue": "南あわじ市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "http://www.haaa.jp/~koukou/2023/kinkieki/html/rel002.html",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 4,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2023-11-05",
+      "competition": "第78回兵庫県高等学校駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "30:56",
+      "venue": "丹波篠山市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "http://www.haaa.jp/~koukou/2023/eki/mresult.pdf",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 5,
+        "team": "西脇工"
+      }
+    },
+    {
+      "date": "2023-01-22",
+      "competition": "第28回全国都道府県対抗男子駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "08:17",
+      "venue": "広島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.hiroshima-ekiden.com/archive/runner/4637/",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 3.0,
+        "rank": 1,
+        "team": "兵庫県"
+      }
+    },
+    {
+      "date": "2022-12-18",
+      "competition": "第30回全国中学校駅伝大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "9:05",
+      "venue": "希望が丘文化公園",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://shigatf.com/wp/wp-content/uploads/2022data//20221218_全国駅伝_記録一覧.pdf",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 3,
+        "rank": 1,
+        "team": "平岡中学校"
+      }
+    }
+  ]
+}

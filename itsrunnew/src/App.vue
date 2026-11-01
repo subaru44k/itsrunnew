@@ -95,6 +95,9 @@ const menuGroups = computed(() => [
   { title: t('menu.records'), items: [
     { title: t('menu.tanaka'), path: 'nozomiantena/index' },
     { title: t('menu.miura'), path: 'ryuji-miura/index' },
+    { title: t('menu.ojiro-honda'), path: 'ojiro-honda/index' },
+    { title: t('menu.yota-mashiko'), path: 'yota-mashiko/index' },
+    { title: t('menu.haruki-niizuma'), path: 'haruki-niizuma/index' },
   ] },
 ]);
 

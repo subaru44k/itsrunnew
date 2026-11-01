@@ -36,10 +36,16 @@ describe('public launch readiness', () => {
   it('exposes an absolute sitemap without alias or date-query duplication', () => {
     expect(robots).toContain('Sitemap: https://itsrun.info/sitemap.xml');
     const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-    expect(locations).toHaveLength(14 + tracks.length * 2);
+    expect(locations).toHaveLength(20 + tracks.length * 2);
     expect(new Set(locations).size).toBe(locations.length);
     expect(locations).toContain('https://itsrun.info/');
     expect(locations).toContain('https://itsrun.info/en/privacy');
+    expect(locations).toContain('https://itsrun.info/ojiro-honda/index');
+    expect(locations).toContain('https://itsrun.info/en/ojiro-honda/index');
+    expect(locations).toContain('https://itsrun.info/yota-mashiko/index');
+    expect(locations).toContain('https://itsrun.info/en/yota-mashiko/index');
+    expect(locations).toContain('https://itsrun.info/haruki-niizuma/index');
+    expect(locations).toContain('https://itsrun.info/en/haruki-niizuma/index');
     expect(locations).toContain('https://itsrun.info/ryuji-miura/index');
     expect(locations).toContain('https://itsrun.info/en/ryuji-miura/index');
     expect(locations).toContain(`https://itsrun.info/tracks/${tracks[0].id}`);

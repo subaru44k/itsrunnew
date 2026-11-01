@@ -54,5 +54,29 @@
     "enTitle": "Privacy policy - ItsRun",
     "jaDescription": "いつランにおけるGoogle Analytics、現在地情報、外部サービス等の取扱いを説明します。",
     "enDescription": "How ItsRun handles Google Analytics, browser geolocation, and external services."
+  },
+  "ojiro-honda": {
+    "path": "ojiro-honda/index",
+    "component": "OjiroHonda",
+    "jaTitle": "陸上 本田桜二郎選手の記録集 - 大会出場日、種目、タイム等の結果まとめ",
+    "enTitle": "Race results of Ojiro Honda",
+    "jaDescription": "本田桜二郎選手のトラック、ロード、クロスカントリー、駅伝の公開大会結果を年度別にまとめた非公式記録集。大会出場日、種目、駅伝の区間・距離・区間記録・区間順位と公式結果へのリンクを掲載。",
+    "enDescription": "An unofficial race archive of Ojiro Honda, with track, road, cross-country and ekiden results, with relay stages, distances, stage times, stage ranks and links to official results."
+  },
+  "yota-mashiko": {
+    "path": "yota-mashiko/index",
+    "component": "YotaMashiko",
+    "jaTitle": "陸上 増子陽太選手の記録集 - 大会出場日、種目、タイム等の結果まとめ",
+    "enTitle": "Race results of Yota Mashiko",
+    "jaDescription": "増子陽太選手のトラック、ロード、クロスカントリー、駅伝の公開大会結果を年度別にまとめた非公式記録集。大会出場日、種目、駅伝の区間・距離・区間記録・区間順位と公式結果へのリンクを掲載。",
+    "enDescription": "An unofficial race archive of Yota Mashiko, with track, road, cross-country and ekiden results, with relay stages, distances, stage times, stage ranks and links to official results."
+  },
+  "haruki-niizuma": {
+    "path": "haruki-niizuma/index",
+    "component": "HarukiNiizuma",
+    "jaTitle": "陸上 新妻遼己選手の記録集 - 大会出場日、種目、タイム等の結果まとめ",
+    "enTitle": "Race results of Haruki Niizuma",
+    "jaDescription": "新妻遼己選手のトラック、ロード、クロスカントリー、駅伝の公開大会結果を年度別にまとめた非公式記録集。大会出場日、種目、駅伝の区間・距離・区間記録・区間順位と公式結果へのリンクを掲載。",
+    "enDescription": "An unofficial race archive of Haruki Niizuma, with track, road, cross-country and ekiden results, with relay stages, distances, stage times, stage ranks and links to official results."
   }
 }

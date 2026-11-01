@@ -1,0 +1,684 @@
+[
+  {
+    "sourceId": "hs74",
+    "url": "https://koukouekiden-record.mainichi.jp/record/archive/m_74/all_record.html",
+    "verifiedAt": "2026-11-01",
+    "sha256": "5f04ec947038f45c6dab1314d72c207d46375a2f565c60be59d2e97fbc2585b6",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2023-12-24",
+        "section": 2,
+        "distanceKm": 3,
+        "mark": "8:30",
+        "sectionRank": 10,
+        "team": "大牟田",
+        "page": null
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2023-12-24",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "29:06",
+        "sectionRank": 5,
+        "team": "学法石川",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "hs75",
+    "url": "https://koukouekiden-record.mainichi.jp/record/archive/m_75/all_record.html",
+    "verifiedAt": "2026-11-01",
+    "sha256": "1e1a5b2bae57d8407a2e7680317057f1c2ad0b0dbc7adb5f96637941cf0c8fa2",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2024-12-22",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "29:12",
+        "sectionRank": 2,
+        "team": "大牟田",
+        "page": null
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2024-12-22",
+        "section": 3,
+        "distanceKm": 8.1075,
+        "mark": "24:13",
+        "sectionRank": 4,
+        "team": "学法石川",
+        "page": null
+      },
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2024-12-22",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "29:30",
+        "sectionRank": 10,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "hs76",
+    "url": "https://koukouekiden-record.mainichi.jp/record/archive/m_76/all_record.html",
+    "verifiedAt": "2026-11-01",
+    "sha256": "b63c572cd313ee6fe9921984697396c980d08bdbe81a3ca40374386752614f86",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2025-12-21",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "28:20",
+        "sectionRank": 1,
+        "team": "学法石川",
+        "page": null
+      },
+      {
+        "athlete": "ojiro-honda",
+        "date": "2025-12-21",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "28:52",
+        "sectionRank": 3,
+        "team": "鳥取城北",
+        "page": null
+      },
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2025-12-21",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "28:40",
+        "sectionRank": 2,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "pref-honda",
+    "url": "https://www.hiroshima-ekiden.com/archive/runner/5279/",
+    "verifiedAt": "2026-11-01",
+    "sha256": "3c5600242c7f3c409369191733d13517ae2dc2870d93746dcff87b59ecbd3883",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2026-01-18",
+        "section": 1,
+        "distanceKm": 7.0,
+        "mark": "20:11",
+        "sectionRank": 19,
+        "team": "鳥取県",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "pref-mashiko",
+    "url": "https://www.hiroshima-ekiden.com/archive/runner/4674/",
+    "verifiedAt": "2026-11-01",
+    "sha256": "8b51bf70c40a1f31dc49d6e5b12f3d8a8b1af6756f063fd3cfc34165c8933d60",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2026-01-18",
+        "section": 1,
+        "distanceKm": 7.0,
+        "mark": "19:08",
+        "sectionRank": 2,
+        "team": "福島県",
+        "page": null
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2025-01-19",
+        "section": 1,
+        "distanceKm": 7.0,
+        "mark": "19:47",
+        "sectionRank": 3,
+        "team": "福島県",
+        "page": null
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2024-01-21",
+        "section": 4,
+        "distanceKm": 5.0,
+        "mark": "14:21",
+        "sectionRank": 2,
+        "team": "福島県",
+        "page": null
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2023-01-22",
+        "section": 6,
+        "distanceKm": 3.0,
+        "mark": "08:36",
+        "sectionRank": 1,
+        "team": "福島県",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "pref-niizuma",
+    "url": "https://www.hiroshima-ekiden.com/archive/runner/4637/",
+    "verifiedAt": "2026-11-01",
+    "sha256": "72305ec131339fe219b3d24b4a715232589c0bb3ada1ddcdab64c4871c75c6ba",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2026-01-18",
+        "section": 1,
+        "distanceKm": 7.0,
+        "mark": "19:24",
+        "sectionRank": 3,
+        "team": "兵庫県",
+        "page": null
+      },
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2025-01-19",
+        "section": 1,
+        "distanceKm": 7.0,
+        "mark": "19:54",
+        "sectionRank": 4,
+        "team": "兵庫県",
+        "page": null
+      },
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2023-01-22",
+        "section": 2,
+        "distanceKm": 3.0,
+        "mark": "08:17",
+        "sectionRank": 1,
+        "team": "兵庫県",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "izumo2",
+    "url": "https://www.izumo-ekiden.jp/assets/pdf/2b.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "5d09832de69393e673fa5480e2c2d8a17f725ee51e3123fb7fff08a8861d29cd",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2026-10-12",
+        "section": 2,
+        "distanceKm": 5.8,
+        "mark": "15:42",
+        "sectionRank": 1,
+        "team": "早稲田大学",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "sourceId": "izumo4",
+    "url": "https://www.izumo-ekiden.jp/assets/pdf/4b.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "83bc35c76622e5a89e0cb7cf8274ba3d08e5097e474741a8b5d29f1232193c11",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2026-10-12",
+        "section": 4,
+        "distanceKm": 6.2,
+        "mark": "17:10",
+        "sectionRank": 1,
+        "team": "早稲田大学",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "sourceId": "zennihon2026",
+    "url": "https://daigaku-ekiden.com/files/2026_result.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "d9606b0655732a5e2195573f939ee1f433b36f36aee57f7b95679d9d4c8d46f3",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2026-11-01",
+        "section": 1,
+        "distanceKm": 9.5,
+        "mark": "27:47",
+        "sectionRank": 2,
+        "team": "早稲田大学",
+        "page": 3
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2026-11-01",
+        "section": 2,
+        "distanceKm": 11.1,
+        "mark": "30:51",
+        "sectionRank": 1,
+        "team": "早稲田大学",
+        "page": 4
+      },
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2026-11-01",
+        "section": 3,
+        "distanceKm": 11.9,
+        "mark": "32:45",
+        "sectionRank": 1,
+        "team": "早稲田大学",
+        "page": 5
+      }
+    ]
+  },
+  {
+    "sourceId": "ina2024",
+    "url": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2024/03/2024danshi.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "3fdd418af31d57cbaa95d3374fad489117c360862d193a52766d1836190471bb",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2024-03-24",
+        "section": 5,
+        "distanceKm": 5.1,
+        "mark": "15:14",
+        "sectionRank": 6,
+        "team": "大牟田",
+        "page": null
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2024-03-24",
+        "section": 2,
+        "distanceKm": 7.52,
+        "mark": "22:28",
+        "sectionRank": 1,
+        "team": "学法石川",
+        "page": null
+      },
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2024-03-24",
+        "section": 4,
+        "distanceKm": 9.1,
+        "mark": "26:49",
+        "sectionRank": 4,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "ina2025all",
+    "url": "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2025/03/2025danshi.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "cbe76fd63efd114b71eae084c3a032ae85a0fefdf8487549f044dbee908d6cfd",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2025-03-23",
+        "section": 2,
+        "distanceKm": 7.52,
+        "mark": "23:18",
+        "sectionRank": 7,
+        "team": "大牟田",
+        "page": null
+      },
+      {
+        "athlete": "yota-mashiko",
+        "date": "2025-03-23",
+        "section": 4,
+        "distanceKm": 9.1,
+        "mark": "30:53",
+        "sectionRank": 75,
+        "team": "学法石川",
+        "page": null
+      },
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2025-03-23",
+        "section": 2,
+        "distanceKm": 7.52,
+        "mark": "23:11",
+        "sectionRank": 6,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "hyogo2023all",
+    "url": "http://www.haaa.jp/~koukou/2023/eki/mresult.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "9d89152cccc5af87a9c3751632a033a87e8add954a1e9a3a2b999155651c7ca0",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2023-11-05",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "30:56",
+        "sectionRank": 5,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "hyogo2024",
+    "url": "http://www.haaa.jp/~koukou/2024/eki/itiran.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "bb387ce12b2f6965ba7a0ceef2abb6c8111790065f8d9cddb799ce45b24af254",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2024-11-03",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "29:47",
+        "sectionRank": 1,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "hyogo2025",
+    "url": "http://www.haaa.jp/~koukou/2025/eki/result.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "8f9fea0afe54c38ebdf594fd6d677366e8b05e811db7b0510892789bdde9a088",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2025-11-03",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "28:22",
+        "sectionRank": 1,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "kinki2023",
+    "url": "http://www.haaa.jp/~koukou/2023/kinkieki/html/rel002.html",
+    "verifiedAt": "2026-11-01",
+    "sha256": "7f838cc57039bb120ee9041ae25ca2aab35348b283c8c04af2f13b02032aea19",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2023-11-26",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "29:41",
+        "sectionRank": 4,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "kinki2024",
+    "url": "https://www.koukou-rikujou.info/data/2024/2024_ekiden_kinki_result.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "eeb853901d739a22547438f0b92da83153b90d094f93886d3b3dbb6201112060",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2024-11-24",
+        "section": 6,
+        "distanceKm": 5,
+        "mark": "14:13",
+        "sectionRank": 1,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "kinki2025",
+    "url": "https://drive.google.com/uc?export=download&id=1NryvuRrkJFsZT3evexCmhw2DKEUZUB3W",
+    "verifiedAt": "2026-11-01",
+    "sha256": "ea19db4d10dea3d7254239799dac8f125fd17ed270463aea0f63ea0a7dce7cf6",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2025-11-16",
+        "section": 7,
+        "distanceKm": 5,
+        "mark": "13:35",
+        "sectionRank": 1,
+        "team": "西脇工",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "fukushima2023",
+    "url": "https://gold.jaic.org/fukushima/kekka/2023/1026/rel001.html",
+    "verifiedAt": "2026-11-01",
+    "sha256": "81e33e7fa0a7241f038658d32c9107491451e0f054db446c4628f7528dcd8ff7",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2023-10-26",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "30:22",
+        "sectionRank": 2,
+        "team": "学法石川",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "fukushima2024",
+    "url": "https://gold.jaic.org/fukushima/kekka/2024/1024/rel001.html",
+    "verifiedAt": "2026-11-01",
+    "sha256": "d64ee7d2a96b2541743df2dbda094cebe7eab47d8c156790333fc9bdc1d7481b",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2024-10-24",
+        "section": 3,
+        "distanceKm": 8.1075,
+        "mark": "24:05",
+        "sectionRank": 1,
+        "team": "学法石川",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "fukushima2025",
+    "url": "https://gold.jaic.org/fukushima/kekka/2025/1023/rel001.html",
+    "verifiedAt": "2026-11-01",
+    "sha256": "1a995d3a516566d5c4b07505c1e26d432b326801713ac2911eb26201d88dc949",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2025-10-23",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "28:20",
+        "sectionRank": 1,
+        "team": "学法石川",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "fukuoka2023",
+    "url": "https://www.fukuoka-koutairen.com/result/2023/r_01/ken/2023ekiden_ken_result.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "72e4fd2d4f154172df03705b8605484092639c581a744f8be3b6d0132d605bfe",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2023-11-04",
+        "section": 7,
+        "distanceKm": 5,
+        "mark": "15:15",
+        "sectionRank": 1,
+        "team": "大牟田",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "fukuoka2024",
+    "url": "https://www.fukuoka-koutairen.com/result/2024/r_01/ken/2024ekiden_ken_result.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "1bfdfe921d199df7750d36e8032382ea7b4a0d1c6d0c4fe6b24dbc3212c28d2b",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2024-11-03",
+        "section": 7,
+        "distanceKm": 5,
+        "mark": "15:08",
+        "sectionRank": 1,
+        "team": "大牟田",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "kyushu2024",
+    "url": "https://koukou-rikujou.info/data/2024/2024_ekiden_kyuushuu_result.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "f57c2c3d78e883dc31a60a3fa2c307b6f5115e4b646f1d048e87fba70f0692f8",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2024-11-16",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "29:50",
+        "sectionRank": 1,
+        "team": "大牟田",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "chugoku2025",
+    "url": "https://hiroshimatf.org/bkjmi4ujj4/wp-content/uploads/2025/11/リザルト-1.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "c9f2d2032f3608e726653bfd5ecd25ee07563b1fa485fceb2eb00efd0398ef54",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2025-11-16",
+        "section": 1,
+        "distanceKm": 10,
+        "mark": "28:57",
+        "sectionRank": 1,
+        "team": "鳥取城北",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "junior-west2022",
+    "url": "https://www.fukuriku.com/cms/wp-content/uploads/2022/10/2022.12.11NishiEkidenR.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "664ee7762eb31e342d57297abcb978d4eff15f7db64fb60c05b614a83fd054ea",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2022-12-11",
+        "section": 1,
+        "distanceKm": 3.9,
+        "mark": "11:53",
+        "sectionRank": 1,
+        "team": "宅峰中学校",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "junior2022",
+    "url": "https://shigatf.com/wp/wp-content/uploads/2022data//20221218_全国駅伝_記録一覧.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "039d97c6ebbeeda13b66d0316dd106d4c84b976766c26791aadd933840a8d243",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2022-12-18",
+        "section": 1,
+        "distanceKm": 3,
+        "mark": "9:05",
+        "sectionRank": 1,
+        "team": "平岡中学校",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "fukushima-local2023",
+    "url": "https://www.city.motomiya.lg.jp/uploaded/attachment/23140.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "e971d481a755b146f48d0e0a2dd7efea7c4051d6a2c32e5dd0ca07991768bec8",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2023-11-19",
+        "section": 6,
+        "distanceKm": 8.3,
+        "mark": "25:00",
+        "sectionRank": 1,
+        "team": "鏡石町",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "fukushima-local2024",
+    "url": "https://www.city.motomiya.lg.jp/uploaded/attachment/25630.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "2af4b1b260cd502f159b87bd9de76a61ce2dedc64c563b28a668ca27c9dfe3a7",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2024-11-17",
+        "section": 2,
+        "distanceKm": 8.2,
+        "mark": "24:02",
+        "sectionRank": 1,
+        "team": "鏡石町",
+        "page": null
+      }
+    ]
+  },
+  {
+    "sourceId": "tottori2025",
+    "url": "https://jaaf-tottori.com/cms/wp-content/uploads/2025/11/20251101koukoekiden_tottori_results.pdf",
+    "verifiedAt": "2026-11-01",
+    "sha256": "60c8d3b3a7eb893d7e072807dbca5c83bb8451685d9baecc954be57f5d5c8620",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2025-11-01",
+        "section": 3,
+        "distanceKm": 8.1075,
+        "mark": "23:28",
+        "sectionRank": 1,
+        "team": "鳥取城北",
+        "page": null
+      }
+    ]
+  }
+]

@@ -150,3 +150,9 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 
 
 2026-11-01の知多は11月PDFの代わりに改修告知を掲載しており、`reviewed-chita.ts` が公式本文のURL/hash・施設identity一致時だけ11/1専用利用と11/3〜2027/3/31改修を利用不可にします。11/2と再開後はunknownを維持します。text-onlyの改修資料は未知hashでsource_changed、AI fallbackなし。通常の月間PDFのAI経路は維持します。和田堀の12月原本はA3で旧固定座標から日付欄が外れるため、`reviewed-wadabori.ts` が確認済み2PDFのhashと2026年12月だけを有限判定します。全124枠、第二の空欄トラック限定・昼の閉鎖条件、12/29以降の年末休みを保持し、未知12月PDFは停止します。原本・確認根拠は `itsrunnew/scripts/availability/fixtures/availability-20261101-provenance.md`、回帰は `chita-20261101.test.ts` と `wadabori-202612.test.ts` に保持します。
+
+## 追加選手の記録集
+
+記録集メニューから本田桜二郎（`/ojiro-honda/index`）、増子陽太（`/yota-mashiko/index`）、新妻遼己（`/haruki-niizuma/index`）のページへ進めます。各ページに `/en/` 版のURLもあり、本文は日本語です。年度・種類・大会名／種目／区間／所属の検索、公式結果へのリンクを提供します。駅伝は45出走を追加し、区間・距離・所属・区間記録・区間順位、同順位と公式の区間新記録を表示します。詳細は[駅伝の収集報告](../research/athlete-archives/ekiden-report.md)を参照してください。静的JSONの更新範囲と出典は [収集報告](../research/athlete-archives/2026-11-01-report.md) を参照してください。`npm run build`、`npm test`、`npm run lint`、`npm run test:smoke` でデータ・ルート・検索を検証します。
+
+追加URLを既存のProductionへ公開する際は、content配備に加え、`page-metadata.json`を読み込むCloudFront Functionの既知route定義も反映する必要があります。content-only配備だけでは追加URLのHTML shellへrewriteされません。この変更ではAWSへの配備は行っていません。

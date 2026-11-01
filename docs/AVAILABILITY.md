@@ -74,7 +74,7 @@ range collectorは同一method・URL・request bodyをprocess内でcacheしま�
 | `fixed_schedule` | 秋留台公園 | 水曜・第1日曜・第3土曜を評価 |
 | `pdf` | 練馬総合運動場公園 | stable pageから直近1週間PDFを発見し3枠を解析 |
 | `pdf` | 戸田市スポーツセンター | 対象月PDFの陸上競技場行事と夏季個人枠を解析 |
-| `pdf` | 和田堀公園 第一・第二 | 同じ表formatを共有し、施設別凡例で半日枠を解析 |
+| `pdf` | 和田堀公園 第一・第二 | 施設別凡例で半日枠を解析。2026年12月A3原本は確認済みhashの有限判定 |
 | `pdf` | セナリオハウスフィールド三郷 | 専用・共用・予約可能空欄を区別。罫線で全時間帯を覆う結合セルの整備休場対象日を照合し、列見出しを日別利用枠に混ぜない |
 | `pdf` | 上尾運動公園 | 個人利用日一覧の明示日・時間だけを解析 |
 | `pdf` | 八王子富士森競技場 | 複数月matrixと早朝地域開放規則を解析 |
@@ -245,3 +245,6 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 平塚の[10/31更新表の根拠](../itsrunnew/scripts/availability/fixtures/hiratsuka-20261031-provenance.md)では更新日と表開始日が異なります。月見出し・先頭日と更新年から表開始日を求め、更新日が期間内にあり全日付・曜日が連続する場合だけ採用します。11/2午前・昼の「可」への変更を保持し、11/8は引き続き15〜19時のみ。年またぎ・不正/範囲外更新日はfixtureで検証します。
 
 国府台の[10/31取得11月改訂版](../itsrunnew/scripts/availability/fixtures/kohnodai-20261031-provenance.md)は60714.pdfへ変更されています。全30日を再確認し、11/15だけ予備予約削除により9〜21時開放へ変更します。旧原本の予約は維持し、他の時間帯・閉館日、未知hashと年月のguardを緩めません。
+
+
+2026-11-01の知多は11月PDFの代わりに改修告知を掲載しており、`reviewed-chita.ts` が公式本文のURL/hash・施設identity一致時だけ11/1専用利用と11/3〜2027/3/31改修を利用不可にします。11/2と再開後はunknownを維持します。text-onlyの改修資料は未知hashでsource_changed、AI fallbackなし。通常の月間PDFのAI経路は維持します。和田堀の12月原本はA3で旧固定座標から日付欄が外れるため、`reviewed-wadabori.ts` が確認済み2PDFのhashと2026年12月だけを有限判定します。全124枠、第二の空欄トラック限定・昼の閉鎖条件、12/29以降の年末休みを保持し、未知12月PDFは停止します。原本・確認根拠は `itsrunnew/scripts/availability/fixtures/availability-20261101-provenance.md`、回帰は `chita-20261101.test.ts` と `wadabori-202612.test.ts` に保持します。

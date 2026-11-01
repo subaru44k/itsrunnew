@@ -132,7 +132,12 @@ export async function buildAiPacket(
         /一般開放/.test(a.label) &&
         dates.some(date => new RegExp(`${date.slice(0, 4)}年\\s*0?${Number(date.slice(5, 7))}月`).test(a.label.normalize('NFKC'))),
     );
-    if (!matches.length) throw new Error('Chita opening PDFs not found');
+    // A published renovation closure can replace the monthly opening PDF.
+    // This text-only path is finite-reviewed below; it never falls back to AI.
+    if (!matches.length && !/知多運動公園陸上競技場/.test(htmlText(page.html)))
+      throw new Error('Chita opening PDFs not found');
+    if (!matches.length && !/陸上競技場改修工事のお知らせ/.test(htmlText(page.html)))
+      throw new Error('Chita opening PDFs not found');
     for (const a of matches) await asset(a.url);
   } else if (config.key === 'hiratsuka') {
     if (!/共用利用予定表/.test(htmlText(page.html)))

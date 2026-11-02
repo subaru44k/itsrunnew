@@ -1,11 +1,12 @@
 import { readFile } from 'node:fs/promises';
+import { gunzipSync } from 'node:zlib';
 import { describe, expect, it, vi } from 'vitest';
 import { digest } from './ai-runtime';
 import { createPdfCollector, extractPdf, pdfSourceConfigs } from './pdf';
 import { dateKeys } from './range';
 import { inKamiyugiClosure, kamiyugiClosureHash, kamiyugiClosureUrl, reviewedKamiyugiPdf } from './reviewed-kamiyugi';
 const config = pdfSourceConfigs.find(c => c.trackId === 'kamiyugi-park-athletic-stadium')!;
-const html = await readFile(new URL('./fixtures/kamiyugi-20261102.html', import.meta.url), 'utf8');
+const html = gunzipSync(await readFile(new URL('./fixtures/kamiyugi-20261102.html.gz', import.meta.url))).toString('utf8');
 const pdf = await readFile(new URL('./fixtures/kamiyugi-20261023-closure.pdf', import.meta.url));
 const fetchImpl = (async input => {
   if (String(input) === config.landingPageUrl) return new Response(html);

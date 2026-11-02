@@ -158,3 +158,5 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 追加URLを既存のProductionへ公開する際は、content配備に加え、`page-metadata.json`を読み込むCloudFront Functionの既知route定義も反映する必要があります。content-only配備だけでは追加URLのHTML shellへrewriteされません。
 
 2026-11-02は公式原本を再確認し、知多の期限切れ11/1告知・10月PDF削除後の改修告知、博多の11月単独PDF、維新補助の新11・12月画像、国府台の12月60729.pdfを有限判定へ追加しました。知多11/2はunknown、博多12月は掲載外、維新の空欄・大会時間のみ・12/29〜31はunknownを維持します。維新11/26〜28の逆走5〜8レーン制限、国府台12/12の13〜14時一般開放と休場21・28〜31日を保持します。旧資料の判定は変更せず、新資料はURL/hash・年月・既存の公式利用方針一致時だけ採用し、未知資料へfallbackしません。原本・全日程の確認根拠と回帰は `scripts/availability/fixtures/availability-20261102-provenance.md`、`recovery-20261102.test.ts`、`kohnodai-202612.test.ts` に保持します。
+
+練馬の2026-11-02更新表は祝日前倒しで11/2〜11/9の8日24枠を掲載しています。原本・凡例を照合し、11/6朝の陸上トラック優先、11/5・6・9昼の緑レーン限定、11/6・9午後の半面開放を保持して有限判定します。冬季9〜17時で、掲載外・未知資料はunknownのままです。原本・確認根拠は `scripts/availability/fixtures/nerima-20261102-provenance.md`、全24枠・境界・変更guardの回帰は `nerima-20261102.test.ts` に保持します。

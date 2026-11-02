@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { dirname, join, sep } from 'node:path';
 import { reviewedNerimaPdf, isReviewedNerimaPdf, nerimaGuideUrl, nerimaReviewedGuideHash } from './nerima-reviewed';
 import { reviewedKohnodaiPdf } from './reviewed-kohnodai';
+import { inKamiyugiClosure, kamiyugiClosureUrl, reviewedKamiyugiPdf } from './reviewed-kamiyugi';
 import { reviewedWadaboriPdf } from './reviewed-wadabori';
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { AvailabilityPeriod, AvailabilityStatus, UnknownReason } from '../../src/model/availability';
@@ -680,7 +681,7 @@ export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'misato-senario-house-field', name: 'セナリオハウスフィールド三郷', landingPageUrl: 'https://www.misato-hall.com/module/3299.htm', discovery: 'monthly_pdf_discovery', parser: 'misato-three-slot-reservation', parserVersion: '1.1.0' },
   { trackId: 'ageo-athletic-stadium', name: '上尾運動公園 陸上競技場', landingPageUrl: 'https://www.parks.or.jp/saitamasuijo/guide/006/006231.html', discovery: 'monthly_pdf_discovery', parser: 'ageo-individual-use-list', parserVersion: '1.0.0' },
   { trackId: 'hachioji-fujimori-athletic-stadium', name: '東京フットボールセンター八王子富士森競技場', landingPageUrl: 'https://www.city.hachioji.tokyo.jp/life/010/002/003/004/p012068.html', discovery: 'latest_pdf_discovery', parser: 'fujimori-multi-month-matrix', parserVersion: '1.0.0' },
-  { trackId: 'kamiyugi-park-athletic-stadium', name: '上柚木公園陸上競技場', landingPageUrl: 'https://kamiyugi-park.jp/facility/athletics-stadium/', discovery: 'latest_pdf_discovery', parser: 'kamiyugi-multi-month-matrix', parserVersion: '1.0.0' },
+  { trackId: 'kamiyugi-park-athletic-stadium', name: '上柚木公園陸上競技場', landingPageUrl: 'https://kamiyugi-park.jp/facility/athletics-stadium/', discovery: 'latest_pdf_discovery', parser: 'kamiyugi-multi-month-matrix', parserVersion: '1.1.0' },
   { trackId: 'kanagawa-prefectural-sports-center-track', name: '神奈川県立スポーツセンター陸上競技場', landingPageUrl: 'https://www.pref.kanagawa.jp/docs/ui6/kojineiyou.html', discovery: 'monthly_pdf_discovery', parser: 'kanagawa-sports-center-monthly', parserVersion: '1.0.0' },
   { trackId: 'expo70-commemorative-stadium', name: '万博記念競技場', landingPageUrl: 'https://www.expo70-park.jp/sports/facility/arena/', discovery: 'monthly_pdf_discovery', parser: 'expo70-individual-use-monthly', parserVersion: '1.0.0' },
   { trackId: 'ichikawa-kohnodai-athletic-stadium', name: '国府台陸上競技場', landingPageUrl: 'https://www.city.ichikawa.lg.jp/page/4185.html', discovery: 'monthly_pdf_discovery', parser: 'ichikawa-kohnodai-monthly-events', parserVersion: '1.2.0' },
@@ -760,7 +761,8 @@ async function discoverPdf(config: PdfSourceConfig, date: string, client: PdfSou
       .map(match => match[1])
       .find(value => compact(value.replace(/<[^>]+>/g, ' ')).includes('一般開放状況'));
     const url = paragraph ? htmlLinks(paragraph, landing.finalUrl)[0]?.url : undefined;
-    return url?.includes(`/${year}/`) ? url : undefined;
+    // The explicit closure in this reviewed 2026 PDF extends into 2027.
+    return url?.includes(`/${year}/`) || (url === kamiyugiClosureUrl && inKamiyugiClosure(date)) ? url : undefined;
   }
   if (config.trackId === 'kanagawa-prefectural-sports-center-track') {
     return links.find(link => text(link).includes(`予定表(令和${reiwaYear(year)}年${month}月分)`))?.url;
@@ -819,12 +821,16 @@ export function createPdfCollector(fetchImpl: FetchLike = fetch, extractImpl: ty
       const extractionKey = `${sourceHash}:${tableRules}`;
       const reviewedScan = config.trackId === 'ichikawa-kohnodai-athletic-stadium'
         ? reviewedKohnodaiPdf(sourceHash, date)
+        : config.trackId === 'kamiyugi-park-athletic-stadium'
+          ? reviewedKamiyugiPdf(sourceHash, date)
         : config.trackId.startsWith('wadabori-park-')
           ? reviewedWadaboriPdf(sourceHash, date, config.trackId === 'wadabori-park-first-track' ? 'first' : 'second') : null;
       if (config.trackId.startsWith('wadabori-park-') && date.startsWith('2026-12-') && !reviewedScan)
         throw new PdfCollectorError('source_changed', 'Wadabori December schedule changed; review required', pdfUrl);
       if (config.trackId === 'ichikawa-kohnodai-athletic-stadium' && !reviewedScan)
         throw new PdfCollectorError('source_changed', 'Kohnodai schedule changed; review required', pdfUrl);
+      if (config.trackId === 'kamiyugi-park-athletic-stadium' && date >= '2026-11-02' && !reviewedScan)
+        throw new PdfCollectorError('source_changed', 'Kamiyugi closure source changed; review required', pdfUrl);
       if (!reviewedScan && !extractedBySource.has(extractionKey)) extractedBySource.set(extractionKey, extractImpl(source.bytes, { tableRules }));
       const extracted = reviewedScan ? null : await extractedBySource.get(extractionKey)!;
       let result: PdfParseResult;

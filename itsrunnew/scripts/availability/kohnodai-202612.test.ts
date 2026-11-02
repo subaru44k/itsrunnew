@@ -27,7 +27,7 @@ const expected = [
 ];
 describe('Kohnodai December original retrieved November 2', () => {
   it('discovers the new official link and verifies every date, time and closing note', async () => {
-    
+
     expect(`sha256:${digest(pdf)}`).toBe(kohnodaiDecemberHash);
     const extract = vi.fn(extractPdf);
     const collector = createPdfCollector(fetchImpl, extract);

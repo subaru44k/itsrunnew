@@ -10,6 +10,7 @@ const localeMessages = {
   ja: JSON.parse(await readFile(resolve(root, 'src/locales/ja.json'), 'utf8')),
   en: JSON.parse(await readFile(resolve(root, 'src/locales/en.json'), 'utf8')),
 };
+const facilityGuidance = JSON.parse(await readFile(resolve(root, 'src/data/facility-guidance.json'), 'utf8'));
 const origin = 'https://itsrun.info';
 
 const escapeHtml = value => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -57,6 +58,8 @@ function staticTrackDetailContent(track, locale) {
   const useAnswer = locale === 'en'
     ? 'Confirmed individual-use dates and periods are shown when available. If future dates cannot be confirmed, check the official schedule or contact the facility before visiting. Unconfirmed does not mean unavailable.'
     : '確認できた個人利用予定・時間帯を掲載します。今後の利用可否を確認できない場合は、訪問前に公式の予定や施設の問い合わせ先で確認してください。要確認は利用不可という意味ではありません。';
+  const guidance = facilityGuidance[track.id]?.[locale];
+  const guidanceContent = guidance ? `<section data-facility-guidance><h2>${locale === 'en' ? 'Before you visit' : '利用前の確認事項'}</h2>${guidance.paragraphs.map(text => `<p>${escapeHtml(text)}</p>`).join('')}<ul>${guidance.links.map(link => `<li><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a></li>`).join('')}</ul><p>${locale === 'en' ? 'Guidance checked' : '案内の確認日'}: ${facilityGuidance[track.id].verifiedAt}</p></section>` : '';
   const useContent = `<section><h2>${useHeading}</h2><p>${useAnswer}</p>${track.individualUse.note ? `<p>${escapeHtml(track.individualUse.note)}</p>` : ''}<a href="${escapeHtml(track.urls.schedule || track.urls.individualUse || track.urls.official)}">${locale === 'en' ? 'Official schedule / contact information' : '公式の利用予定・問い合わせ先を確認'}</a></section>`;
   const nearbyLinks = nearby.map(item => `<li><a data-static-nearby-track href="${prefix}/tracks/${escapeHtml(item.track.id)}">${escapeHtml(item.track.name[locale])}</a> <span>${item.distance.toFixed(1)} km</span></li>`).join('');
   const heading = locale === 'en' ? 'Nearby tracks' : '近くのトラック';
@@ -92,7 +95,7 @@ function staticTrackDetailContent(track, locale) {
   const odaOpinionsContent = isOda ? `<section><h2>${opinionsHeading}</h2><p>${opinionNote}</p>${opinions}</section>` : '';
   const paceContent = `<section data-static-pace-discovery><h2>${locale === 'en' ? 'Plan your training pace' : '練習のペースを確認する'}</h2><p>${locale === 'en' ? 'Use a marathon goal or pace per km to check times for 300 m, 400 m, 1 km and longer runs.' : 'マラソンの目標タイムや1kmペースから、300m・400m・1kmなどの練習での所要時間を確認できます。'}</p><a href="${prefix}/pace/marathon#pace-detail">${locale === 'en' ? 'Check the marathon pace table' : 'マラソンペース表で確認する'}</a></section>`;
   const nearbyContent = `<section><h2>${heading}</h2><p>${description}</p><ul>${nearbyLinks}</ul><p><a href="${prefix}/">${locale === 'en' ? 'Search all tracks' : 'すべてのトラックを探す'}</a></p></section>`;
-  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${useContent}${nearbyContent}${paceContent}${odaFacilityContent}${odaOpinionsContent}${staticLegacyGuide(track, locale)}</main></div>`;
+  return `<div id="app"><main data-static-track-detail><h1>${escapeHtml(track.name[locale])}</h1><p>${escapeHtml(track.location.address)}</p>${odaClosureContent}${guidanceContent}${useContent}${nearbyContent}${paceContent}${odaFacilityContent}${odaOpinionsContent}${staticLegacyGuide(track, locale)}</main></div>`;
 }
 
 function pageShell({ path, locale, title, description, alternateJa, alternateEn, body }) {
@@ -141,14 +144,15 @@ for (const track of tracks) {
     const path = `${prefix}/tracks/${track.id}`;
     const name = track.name[locale];
     const isOda = track.id === ODA_TRACK_ID;
-    const title = isOda
+    const guidance = facilityGuidance[track.id]?.[locale];
+    const title = guidance?.title ?? (isOda
       ? (locale === 'en' ? 'Oda Field (Yoyogi Park Athletic Track) closure and nearby tracks - ItsRun' : '織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン')
-      : (locale === 'en' ? `${name} individual-use schedule and confirmation - ItsRun` : `${name}の個人利用スケジュール・確認方法 - いつラン`);
-    const description = isOda
+      : (locale === 'en' ? `${name} individual-use schedule and confirmation - ItsRun` : `${name}の個人利用スケジュール・確認方法 - いつラン`));
+    const description = guidance?.description ?? (isOda
       ? (locale === 'en' ? 'Oda Field is scheduled to remain closed through November 30, 2026. Check the selected date and compare nearby tracks before your workout.' : '織田フィールド（代々木公園陸上競技場）は2026年11月30日まで利用停止予定です。指定日の状況と周辺の代替トラックを確認できます。')
       : (locale === 'en'
         ? `Check ${name}'s confirmed individual-use dates, available periods and how to confirm unpublished schedules. Compare nearby tracks for your chosen date.`
-        : `${name}の個人利用について、確認済みの予定・利用可能時間と、予定が分からない場合の確認方法を案内します。指定日の利用状況や周辺施設も確認できます。`);
+        : `${name}の個人利用について、確認済みの予定・利用可能時間と、予定が分からない場合の確認方法を案内します。指定日の利用状況や周辺施設も確認できます。`));
     const canonical = `${origin}${path}`;
     const alternateJa = `${origin}/tracks/${track.id}`;
     const alternateEn = `${origin}/en/tracks/${track.id}`;

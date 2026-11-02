@@ -2,6 +2,11 @@
   <div class="facility-schedule" :data-schedule-mode="loading ? 'loading' : summary.mode" :aria-busy="loading">
     <h2>{{ !loading && !summary.known.length ? (english ? 'How to confirm individual use' : '個人利用の確認方法') : (english ? 'Individual-use schedule' : '個人利用スケジュール') }}</h2>
     <p v-if="loading" role="status">{{ english ? 'Loading the schedule…' : '予定を読み込み中…' }}</p>
+    <p v-if="!loading" class="today-use">
+      <strong>{{ english ? 'Today' : '今日' }} · {{ dateLabel(today) }}</strong>
+      <button type="button" @click="$emit('select', today)">{{ todaySummary }} · {{ english ? 'Details' : '詳細' }}</button>
+    </p>
+    <slot name="guidance" />
     <template v-if="summary.known.length">
       <p class="next-use" v-if="summary.next && !loading">
         <strong>{{ english ? 'Next confirmed use' : '次に使える日' }}</strong>
@@ -37,17 +42,24 @@
 import { computed, onScopeDispose, ref, watch } from 'vue';
 import { availabilityForTrack, localDateKey, type TrackAvailability } from '../model/availability';
 import { availabilityManifest, availabilityManifestStatus, loadAvailabilityDate } from '../model/availability-range';
-import { availabilitySourceTimestamp, compactPeriodSummary, summarizeFacilitySchedule } from '../model/facility-schedule';
+import { availabilitySourceTimestamp, compactPeriodSummary, summarizeFacilitySchedule, todayUseSummary } from '../model/facility-schedule';
 const props = defineProps<{ trackId: string; english: boolean; selectedDate: string; detailOpen: boolean; selectedAvailability: TrackAvailability | null; facilityVerifiedAt: string }>();
 defineEmits<{ select: [date: string] }>();
 const records = ref<TrackAvailability[]>([]);
 const loading = ref(true);
 const failures = ref(0);
 const expanded = ref(false);
-const today = localDateKey();
-const availableDates = computed(() => availabilityManifest.dates.filter(date => date >= today));
+const clock = ref(new Date());
+const timer = setInterval(() => { clock.value = new Date(); }, 60_000);
+onScopeDispose(() => clearInterval(timer));
+const today = computed(() => localDateKey(clock.value));
+const availableDates = computed(() => availabilityManifest.dates.filter(date => date >= today.value));
 const dates = computed(() => availableDates.value.slice(0, 31));
-const summary = computed(() => summarizeFacilitySchedule(records.value, dates.value, today));
+const currentRecords = computed(() => records.value.map(record => availabilityForTrack(record.trackId, record.date, clock.value, {
+  schemaVersion: 1, date: record.date, timezone: 'Asia/Tokyo', generatedAt: availabilityManifest.generatedAt, facilities: [record],
+})));
+const summary = computed(() => summarizeFacilitySchedule(currentRecords.value, dates.value, today.value, clock.value));
+const todaySummary = computed(() => todayUseSummary(currentRecords.value.find(record => record.date === today.value), today.value, clock.value, props.english));
 const visibleRecords = computed(() => summary.value.known.slice(0, expanded.value ? 31 : 14));
 let sequence = 0;
 let loadedKey = '';
@@ -70,7 +82,7 @@ watch(() => props.trackId, () => {
   failures.value = 0;
   expanded.value = false;
 });
-watch([() => props.trackId, () => availabilityManifest.generatedAt, availabilityManifestStatus], async () => {
+watch([() => props.trackId, () => availabilityManifest.generatedAt, availabilityManifestStatus, today], async () => {
   // A background manifest check is not a new schedule. Keep the existing
   // rows and skip another range load when its generation is unchanged.
   if (availabilityManifestStatus.value === 'loading') return;
@@ -112,7 +124,7 @@ watch([() => props.trackId, () => availabilityManifest.generatedAt, availability
 function dateLabel(date: string) { return new Intl.DateTimeFormat(props.english ? 'en-US' : 'ja-JP', { timeZone: 'Asia/Tokyo', month: 'short', day: 'numeric', weekday: 'short' }).format(new Date(`${date}T12:00:00+09:00`)); }
 function timeSummary(record: TrackAvailability) { return compactPeriodSummary(record, props.english); }
 function label(record: TrackAvailability) { return ({ available: ['利用可能', 'Available'], partially_available: ['一部利用可', 'Partial'], unavailable: ['利用不可', 'Unavailable'], unknown: ['要確認', 'Confirm'] })[record.status][props.english ? 1 : 0]; }
-const representative = computed(() => records.value.find(record => record.unknownReason === 'phone_confirmation_required') ?? records.value[0] ?? props.selectedAvailability);
+const representative = computed(() => currentRecords.value.find(record => record.unknownReason === 'phone_confirmation_required') ?? currentRecords.value[0] ?? props.selectedAvailability);
 const confirmationText = computed(() => {
   const reason = representative.value?.unknownReason;
   if (reason === 'phone_confirmation_required') return props.english ? 'Future individual-use dates cannot be confirmed online. Contact the facility by phone before visiting; use the official site for contact details.' : '今後の個人利用予定はWebでは確認できません。訪問前に施設へ電話で確認してください。問い合わせ先は公式サイトで確認できます。';
@@ -130,6 +142,8 @@ const checked = computed(() => {
 h2 { margin: 0 0 10px; font-size: 22px; }
 h3 { font-size: 19px; margin: 8px 0; }
 p { margin: 8px 0 12px; }
+.today-use { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 8px 12px; background: #eef1fa; border-radius: 8px; }
+.today-use button { min-height: 44px; color: #283593; text-align: left; font-weight: 700; }
 .next-use { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 8px 12px; background: #e0f2f1; border-radius: 8px; }
 .next-use strong { font-size: 13px; }
 .next-use button { min-height: 44px; padding: 0; border: 0; background: transparent; color: #00695c; text-align: left; font-weight: 700; }

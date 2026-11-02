@@ -934,7 +934,7 @@
       "feeUnit": "高校生以上2時間",
       "openingHours": "月・水・金 9:00～21:00ほか",
       "spikesAllowed": null,
-      "note": "金属・セラミック金具付きスパイクは不可"
+      "note": "個人利用では芝生エリアへの立ち入り不可。受付は20:10まで"
     },
     "urls": {
       "official": "https://www2.city.katsushika.lg.jp/institution/1030225/1000098/1006941/1017969.html",
@@ -948,6 +948,7 @@
       ]
     },
     "sources": [
+      { "url": "https://www.city.katsushika.lg.jp/tourism/1002753/1042971.html", "type": "official", "verifiedAt": "2026-11-02" },
       {
         "url": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html",
         "type": "official",
@@ -1494,7 +1495,7 @@
     "urls": {
       "official": "https://www.city.hachioji.tokyo.jp/shisetsu/104/p012069.html",
       "individualUse": "https://kamiyugi-park.jp/guide/price/",
-      "schedule": "https://kamiyugi-park.jp/"
+      "schedule": "https://kamiyugi-park.jp/facility/athletics-stadium/"
     },
     "externalIds": {
       "jaaf": "132080",

@@ -1,0 +1,192 @@
+{
+  "okudo-sports-center-track": {
+    "verifiedAt": "2026-11-02",
+    "ja": {
+      "paragraphs": [
+        "受付は20:10まで。小学生以上が対象で、小・中学生の夜間利用には保護者または管理者の付き添いが必要です。",
+        "個人利用では芝生エリアに立ち入れません。月・水・金以外は、3日前までの貸切予約の有無を電話（03-3691-7111）で確認してください。"
+      ],
+      "links": [
+        {
+          "label": "個人利用の時間・条件",
+          "url": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html"
+        },
+        {
+          "label": "2026年10月からの利用ルール",
+          "url": "https://www.city.katsushika.lg.jp/tourism/1002753/1042971.html"
+        }
+      ]
+    },
+    "en": {
+      "paragraphs": [
+        "Admission closes at 20:10. Elementary-school age and older; elementary and junior-high students need a guardian or supervisor at night.",
+        "Keep off the grass during individual use. For days other than Monday, Wednesday and Friday, call 03-3691-7111 to check whether an exclusive booking was made by three days before use."
+      ],
+      "links": [
+        {
+          "label": "Individual-use hours and rules",
+          "url": "https://www2.city.katsushika.lg.jp/tourism/1002753/1030217/1003242.html"
+        },
+        {
+          "label": "Rules from October 2026",
+          "url": "https://www.city.katsushika.lg.jp/tourism/1002753/1042971.html"
+        }
+      ]
+    }
+  },
+  "setagaya-general-sports-track": {
+    "verifiedAt": "2026-11-02",
+    "ja": {
+      "paragraphs": [
+        "個人利用は原則、世田谷区内在住・在勤・在学者が対象です。対象になるか不明な場合は総合運動場（03-3417-4276）へ確認してください。",
+        "利用前に管理事務所で受付が必要です。料金は曜日・時間帯で異なります。平日一般は9〜15時が各3時間450円、15時以降が各2時間300円です。土日祝日・割引対象の料金は公式料金表をご確認ください。",
+        "日別予定は当日の告知で確認できた分だけを表示します。告知が見つからない場合や掲載期間外の日は、電話で確認してください。"
+      ],
+      "links": [
+        {
+          "label": "利用資格・問い合わせ先",
+          "url": "https://www.se-sports.or.jp/facility/sougou/"
+        },
+        {
+          "label": "陸上競技場の料金・利用条件",
+          "url": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/"
+        }
+      ]
+    },
+    "en": {
+      "paragraphs": [
+        "Individual use is generally for Setagaya residents, workers and students. If unsure about eligibility, call the sports ground on 03-3417-4276.",
+        "Check in at the management office before use. Fees depend on the day and period: weekday adults pay ¥450 per three-hour period from 09:00 to 15:00, and ¥300 per two-hour period after 15:00. See the official table for weekends, holidays and concessions.",
+        "Daily availability is shown only when confirmed by the same-day notice. If the notice is missing or your date is outside its coverage, confirm by phone."
+      ],
+      "links": [
+        {
+          "label": "Eligibility and contact",
+          "url": "https://www.se-sports.or.jp/facility/sougou/"
+        },
+        {
+          "label": "Track fees and rules",
+          "url": "https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/"
+        }
+      ]
+    }
+  },
+  "kamiyugi-park-athletic-stadium": {
+    "verifiedAt": "2026-11-02",
+    "ja": {
+      "paragraphs": [
+        "公認更新工事のため、2026年11月2日〜2027年2月28日まで休場予定です。終了日は予定であり、3月1日の再開を保証するものではありません。最新の再開案内を公式情報でご確認ください。"
+      ],
+      "links": [
+        {
+          "label": "休場告知・一般開放予定",
+          "url": "https://kamiyugi-park.jp/facility/athletics-stadium/"
+        }
+      ],
+      "description": "上柚木公園陸上競技場は公認更新工事のため2026年11月2日〜2027年2月28日まで休場予定。個人利用・一般開放の予定、再開の確認先と周辺トラックを案内します。"
+    },
+    "en": {
+      "paragraphs": [
+        "Closed for certification-renewal work from November 2, 2026 through February 28, 2027 (planned). The planned end date does not guarantee reopening on March 1. Check the latest official reopening notice."
+      ],
+      "links": [
+        {
+          "label": "Closure notice and general opening",
+          "url": "https://kamiyugi-park.jp/facility/athletics-stadium/"
+        }
+      ],
+      "description": "Kamiyugi Park Athletic Stadium is scheduled to close for renewal work from November 2, 2026 through February 28, 2027. Check general-opening information, reopening notices and nearby tracks."
+    }
+  },
+  "wadabori-park-seibiyama-track": {
+    "verifiedAt": "2026-11-02",
+    "ja": {
+      "paragraphs": [
+        "一般開放は無料です。予定表の空欄はトラックのみ利用でき、用具を使わない陸上競技の練習が対象です。",
+        "日別表示は月間予定表の9〜12時・13〜17時を基にしています。公式本文には冬季のトラック19時まで・フィールド16時までという別の説明があるため、フィールド利用と表示外の時間は善福寺川緑地サービスセンター（03-3313-4247）へ確認してください。"
+      ],
+      "links": [
+        {
+          "label": "最新の月間予定・利用条件",
+          "url": "https://www.tokyo-park.or.jp/park/wadabori/news/"
+        }
+      ],
+      "title": "済美山運動場（和田堀公園第二競技場）の個人利用・一般開放予定 - いつラン",
+      "description": "済美山運動場（和田堀公園第二競技場）の無料一般開放・個人利用予定を確認。トラックのみ使える日、時間帯、整備・貸切の予定と公式の確認先を案内します。"
+    },
+    "en": {
+      "paragraphs": [
+        "General opening is free. Blank cells in the monthly schedule allow track use only, for athletics practice without equipment.",
+        "Daily periods follow the monthly table (09:00–12:00 and 13:00–17:00). The official page separately states winter track use until 19:00 and field use until 16:00. Confirm field access and hours outside the displayed periods with the Zenpukujigawa Ryokuchi service centre on 03-3313-4247."
+      ],
+      "links": [
+        {
+          "label": "Latest monthly schedules and rules",
+          "url": "https://www.tokyo-park.or.jp/park/wadabori/news/"
+        }
+      ],
+      "title": "Seibiyama Athletic Field (Wadabori Park) individual use and general opening - ItsRun",
+      "description": "Check free general-opening dates, individual-use periods, track-only access, maintenance and exclusive bookings at Seibiyama Athletic Field, with official confirmation links."
+    }
+  },
+  "niiza-general-sports-park-track": {
+    "verifiedAt": "2026-11-02",
+    "ja": {
+      "paragraphs": [
+        "予約システムで「総合運動公園・陸上競技場」の専用予約を確認してください。専用利用がない場合は共用利用ができ、事前の予約・利用者登録は不要です。",
+        "共用利用は8:30〜12:00・13:00〜18:00（10〜3月は17:00まで）。利用前後に管理事務所へお越しください。当日のグラウンド状態も公式案内から確認してください。料金・市外利用の条件は市の利用案内をご確認ください。"
+      ],
+      "links": [
+        {
+          "label": "専用予約の空き状況を確認",
+          "url": "https://k5.p-kashikan.jp/niiza-city/index.php"
+        },
+        {
+          "label": "利用時間・料金・当日の状態の確認方法",
+          "url": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html"
+        }
+      ]
+    },
+    "en": {
+      "paragraphs": [
+        "Check exclusive bookings for the General Sports Park athletic track in the reservation system. Shared use is possible when there is no exclusive booking; no advance reservation or user registration is required.",
+        "Shared-use hours are 08:30–12:00 and 13:00–18:00 (until 17:00 from October through March). Visit the management office before and after use, and check same-day ground conditions via the official guide. See the city guide for fees and conditions for non-residents."
+      ],
+      "links": [
+        {
+          "label": "Check exclusive bookings",
+          "url": "https://k5.p-kashikan.jp/niiza-city/index.php"
+        },
+        {
+          "label": "Hours, fees and same-day ground conditions",
+          "url": "https://www.city.niiza.lg.jp/site/sieiundousisetu/index.html"
+        }
+      ]
+    }
+  },
+  "oizumi-chuo-park-track": {
+    "verifiedAt": "2026-11-02",
+    "ja": {
+      "paragraphs": [
+        "定期一般公開日は毎週水曜・第1日曜・第3土曜です。その他の日も貸切がない時間は無料開放されますが、当日の空きと利用時間はサービスセンター（03-3867-8096）へ確認してください。一般利用は陸上競技のみで、球技はできません。"
+      ],
+      "links": [
+        {
+          "label": "開放条件・サービスセンター",
+          "url": "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/"
+        }
+      ]
+    },
+    "en": {
+      "paragraphs": [
+        "Regular public-opening days are Wednesdays, the first Sunday and the third Saturday. Other periods without exclusive bookings are also free, but confirm booking availability and hours with the service centre on 03-3867-8096. General use is for athletics only; ball games are not allowed."
+      ],
+      "links": [
+        {
+          "label": "Opening rules and service centre",
+          "url": "https://www.tokyo-park.or.jp/park/oizumi-chuo/facility/"
+        }
+      ]
+    }
+  }
+}

@@ -680,5 +680,194 @@
         "page": null
       }
     ]
+  },
+  {
+    "sourceId": "nihon25-alt.pdf",
+    "url": "https://www2.nnn.co.jp/event/ekiden/koukou.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "23a9980aa475b82ca18d43557e8895051f6a1b7bf049dceaa340a0dd92fd434e",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2025-10-05",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "29:20",
+        "place": "",
+        "page": 1,
+        "section": 1,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 10
+      }
+    ]
+  },
+  {
+    "sourceId": "minami2024.pdf",
+    "url": "https://www.miyariku.org/sigun/miyakonojo/result/2024/02_minami/f.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "3432bf587a896155ada59d54b8970c12449ff2bde416d5d845d245ecb169de3c",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2024-02-04",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "23:12",
+        "place": "",
+        "page": 1,
+        "section": 3,
+        "sectionRank": 4,
+        "notes": "",
+        "distanceKm": 8
+      }
+    ]
+  },
+  {
+    "sourceId": "minami2026.pdf",
+    "url": "https://www.miyariku.org/sigun/miyakonojo/result/2026/02_minami/f.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "5ce6e9b18190531e769ba618be3df4058caeb257f7b323ff3f4a71be329df809",
+    "records": [
+      {
+        "athlete": "ojiro-honda",
+        "date": "2026-02-01",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "34:44",
+        "place": "",
+        "page": 1,
+        "section": 1,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 12.1
+      }
+    ]
+  },
+  {
+    "sourceId": "mas-juniorekiden22.pdf",
+    "url": "https://gold.jaic.org/fukushima/kekka/2022/20221005-r.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "6b46386fdbf4891c7d6796da34a97f93604d345c8535f0380febea9627da1157",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2022-10-05",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "9:08",
+        "place": "",
+        "page": 4,
+        "section": 1,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 3.2
+      }
+    ]
+  },
+  {
+    "sourceId": "mas-local22.pdf",
+    "url": "https://www.town.kagamiishi.fukushima.jp/kouhou/files/2022/12/01/af54db1dadd59b821eb98a3d785069b6.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "82c711fa70e4d2470eaf641c39b7ade2eea3c5df32cd545b0785bddc4d86652f",
+    "records": [
+      {
+        "athlete": "yota-mashiko",
+        "date": "2022-11-20",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "17:19",
+        "place": "",
+        "page": 3,
+        "section": 3,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 5.8
+      }
+    ]
+  },
+  {
+    "sourceId": "nihon23.pdf",
+    "url": "https://www2.nnn.co.jp/event/ekiden/old/43/koukou.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "67e8079d1d136da480420be368138297a62836e23f9bcf1ed538d3f2a6ecc20e",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2023-10-01",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "8:28",
+        "place": "",
+        "page": 1,
+        "section": 2,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 3
+      }
+    ]
+  },
+  {
+    "sourceId": "gsk23-stage.pdf",
+    "url": "https://www.wsresult.com/Results/2023/20230205_01/CTG_TO_EachResult_03_01.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "6ab1d1ffa8a6a87996d1eb91d7e49b5a4cc9166574452e4ac8d9d1cc518f36ad",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2023-02-05",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "8:57",
+        "place": "",
+        "page": 1,
+        "section": 3,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 3
+      }
+    ]
+  },
+  {
+    "sourceId": "gsk25-index-5",
+    "url": "http://www.haaa.jp/2024/eki/兵庫郡市区駅伝総合成績_男子部門順位順.pdf",
+    "verifiedAt": "2026-11-02",
+    "sha256": "9b81617ccf44ea94059d905f60c7bb7c6988b7da8ee04167be533d25eba93740",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2025-02-02",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "17:27",
+        "place": "",
+        "page": 1,
+        "section": 5,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 6
+      }
+    ]
+  },
+  {
+    "sourceId": "gsk25-stage7",
+    "url": "http://www.haaa.jp/2025/eki/web/rel00107.html",
+    "verifiedAt": "2026-11-02",
+    "sha256": "1c835fb01f558bfdc4989b91d37b60b5a44ad4bd659479095247f8ac7440040c",
+    "records": [
+      {
+        "athlete": "haruki-niizuma",
+        "date": "2026-02-01",
+        "event": "Ekiden",
+        "round": "",
+        "mark": "13:41",
+        "place": "",
+        "page": null,
+        "section": 7,
+        "sectionRank": 1,
+        "notes": "",
+        "distanceKm": 4.8
+      }
+    ]
   }
 ]

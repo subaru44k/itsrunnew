@@ -158,3 +158,5 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 追加URLを既存のProductionへ公開する際は、content配備に加え、`page-metadata.json`を読み込むCloudFront Functionの既知route定義も反映する必要があります。content-only配備だけでは追加URLのHTML shellへrewriteされません。
 
 2026-11-02は公式原本を再確認し、知多の期限切れ11/1告知・10月PDF削除後の改修告知、博多の11月単独PDF、維新補助の新11・12月画像、国府台の12月60729.pdfを有限判定へ追加しました。知多11/2はunknown、博多12月は掲載外、維新の空欄・大会時間のみ・12/29〜31はunknownを維持します。維新11/26〜28の逆走5〜8レーン制限、国府台12/12の13〜14時一般開放と休場21・28〜31日を保持します。旧資料の判定は変更せず、新資料はURL/hash・年月・既存の公式利用方針一致時だけ採用し、未知資料へfallbackしません。原本・全日程の確認根拠と回帰は `scripts/availability/fixtures/availability-20261102-provenance.md`、`recovery-20261102.test.ts`、`kohnodai-202612.test.ts` に保持します。
+
+記録集の県総体・地区予選・新人大会等の補足は`src/data/regional-results.json`、駅伝は`ekiden-results.json`に保存し、出典と原本hashは`research/athlete-archives/`で管理します。2026年11月2日確認分は本田61件・増子43件・新妻72件（DNSを含む）。5選手共通の大会名表示は`competition-label.ts`と`competition-names-ja.json`で日本語・カタカナに統一し、元の大会名でも検索できます。

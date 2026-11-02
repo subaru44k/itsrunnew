@@ -26,6 +26,14 @@
     <main class="detail-layout">
       <section :class="['availability-panel', availabilityClass]">
         <FacilitySchedule ref="facilitySchedule" :track-id="track.id" :english="isEnglish" :selected-date="selectedDate" :selected-availability="availability" :facility-verified-at="latestVerifiedAt" :detail-open="detailOpen" @select="chooseDate($event, 'schedule_list')">
+          <template #guidance>
+            <section v-if="facilityGuidance" class="facility-guidance" aria-labelledby="facility-guidance-heading">
+              <h3 id="facility-guidance-heading">{{ isEnglish ? 'Before you visit' : '利用前の確認事項' }}</h3>
+              <p v-for="paragraph in facilityGuidance.paragraphs" :key="paragraph">{{ paragraph }}</p>
+              <ul><li v-for="link in facilityGuidance.links" :key="link.url"><a :href="link.url" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click', { source: 'facility_guidance' })">{{ link.label }} ↗</a></li></ul>
+              <small>{{ isEnglish ? 'Guidance checked' : '案内の確認日' }}: {{ guidanceVerifiedAt }}</small>
+            </section>
+          </template>
           <template #date-picker>
             <div class="date-picker">
               <label><span>{{ isEnglish ? 'Choose another date' : '別の日付を選ぶ' }}</span><input :value="selectedDate" type="date" :min="availabilityManifest.startDate" :max="availabilityManifest.endDate" @change="onDateInput" /></label>
@@ -161,11 +169,12 @@ import { computed, nextTick, onScopeDispose, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import legacyFacilityGuides from '../data/legacy-facility-guides.json';
+import guidance from '../data/facility-guidance.json';
 import FieldReports from '../components/FieldReports.vue';
 import FacilitySchedule from '../components/FacilitySchedule.vue';
 import CanonicalLink from '../components/CanonicalLink.vue';
 import { availabilityDataset, availabilityForTrack, localDateKey, type AvailabilityDataset, type AvailabilityStatus } from '../model/availability';
-import { availabilitySourceTimestamp, mergedAvailablePeriods, visitorConditions } from '../model/facility-schedule';
+import { availabilitySourceTimestamp, mergedAvailablePeriods, visitorConditions, scheduleWarnings } from '../model/facility-schedule';
 import { availabilityActionUrl } from '../model/availability-link';
 import { availabilityManifest, availabilityManifestStatus, loadAvailabilityDate, loadAvailabilityManifest, normalizeSelectedDate } from '../model/availability-range';
 import { rankTrackAlternatives } from '../model/track-alternatives';
@@ -177,6 +186,9 @@ const router = useRouter();
 const { locale, t } = useI18n();
 const isEnglish = computed(() => locale.value === 'en');
 const track = computed(() => trackById(route.params.trackId));
+const guidanceEntry = computed(() => guidance[track.value?.id as keyof typeof guidance]);
+const facilityGuidance = computed(() => guidanceEntry.value?.[isEnglish.value ? 'en' : 'ja']);
+const guidanceVerifiedAt = computed(() => guidanceEntry.value?.verifiedAt);
 const isOda = computed(() => track.value?.id === ODA_TRACK_ID);
 const legacyGuide = computed(() => legacyFacilityGuides[track.value?.id as keyof typeof legacyFacilityGuides]);
 const legacyText = (key: string) => t(`${legacyGuide.value?.localeKey}.${key}`);
@@ -307,8 +319,7 @@ const statusDescription = computed(() => {
   if (availability.value.status === 'unavailable') return isEnglish.value ? 'An official closure or unavailable notice applies.' : '公式情報で休場・利用休止を確認しています。';
   return isEnglish.value ? 'Official information confirms an individual-use period.' : '公式情報から個人利用枠を確認できています。';
 });
-const displayWarnings = computed(() => availability.value && availability.value.status !== 'unknown'
-  ? visitorConditions(availability.value.warnings, isEnglish.value) : []);
+const displayWarnings = computed(() => scheduleWarnings(availability.value, isEnglish.value));
 const availablePeriods = computed(() => (availability.value ? mergedAvailablePeriods(availability.value) : []).map(period => [period.from && period.to ? `${period.from}〜${period.to}` : (isEnglish.value ? 'During opening hours' : '開場時間内'), period.scope === 'jogging_course_only' ? (isEnglish.value ? 'Jogging course only' : 'ジョギングコースのみ') : period.scope === 'lane_subset' ? (isEnglish.value ? 'Limited lanes' : '一部レーンのみ') : '', period.eligibility === 'local_resident_worker_student' ? (isEnglish.value ? 'Local residents, workers or students only' : '在住・在勤・在学者対象') : '', ...visitorConditions(period.conditions, isEnglish.value)].filter(Boolean).join(' / ')) ?? []);
 const relatedHeading = computed(() => availability.value?.status === 'unavailable'
   ? (isEnglish.value ? 'Nearby alternatives for this date' : 'この日の代替候補')
@@ -331,7 +342,7 @@ const surfaceLabel = computed(() => {
 });
 const certificationLabel = computed(() => track.value?.certification.jaafCertified === true ? `${track.value.certification.jaafClass}${isEnglish.value ? ' class' : '種公認'}` : track.value?.certification.jaafCertified === false ? (isEnglish.value ? 'Not certified' : '非公認') : (isEnglish.value ? 'Not confirmed' : '未確認'));
 const individualUseLabel = computed(() => {
-  if (track.value?.individualUse.status === 'available') return isEnglish.value ? 'Available' : '利用可';
+  if (track.value?.individualUse.status === 'available') return isEnglish.value ? 'Individual use offered; check dated schedule' : '個人利用制度あり（日別予定を確認）';
   if (track.value?.individualUse.status === 'unavailable') return isEnglish.value ? 'Not available' : '利用不可';
   if (track.value?.individualUse.status === 'temporarily-unavailable') return isEnglish.value ? 'Temporarily closed' : '一時休止中';
   return isEnglish.value ? 'Needs confirmation' : '要確認';
@@ -344,6 +355,13 @@ const odaNoticeUrl = computed(() => track.value?.urls.schedule ?? track.value?.u
 </script>
 
 <style scoped>
+.facility-guidance { margin: 12px 0; padding: 12px; border-left: 3px solid #607d8b; background: #f6f8fa; font-size: 13px; }
+.facility-guidance h3 { font-size: 16px; margin-bottom: 8px; }
+.facility-guidance p { margin: 6px 0; }
+.facility-guidance ul { padding-left: 20px; }
+.facility-guidance a { display: inline-flex; align-items: center; min-height: 44px; color: #283593; }
+.facility-guidance small { color: #45505d; }
+
 .track-detail-page { max-width: 1080px; padding-block: 24px 56px; }
 .pace-discovery { background: #f4f6fc; }
 .pace-discovery-link { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: #304397; font-weight: 700; }

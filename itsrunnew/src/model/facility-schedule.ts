@@ -67,6 +67,7 @@ export function visitorConditions(conditions: string[], english: boolean) {
     blank_defined_as_track_only_opening: ['トラックのみ利用可', 'Track only'],
   };
   return [...new Set(conditions.flatMap(condition => {
+    if (/^対象施設は|^\d{4}[/年-].*当日告知で|^陸上競技場の個人利用$/.test(condition)) return [];
     if (collectorNotes.has(condition) || /unknown|collector|parser|日別status|安全に特定|安全な判定対象外/i.test(condition)
       || /^(?:No PDF published|PDF contains no extractable text|Operating hours missing or ambiguous|Availability source researched|Facility identity is verified)/.test(condition)) return [];
     if (condition === '12:00〜13:00は判定対象外') return [english ? 'Confirm use between 12:00 and 13:00 with the facility' : '12:00〜13:00の利用は施設にご確認ください'];
@@ -75,4 +76,31 @@ export function visitorConditions(conditions: string[], english: boolean) {
     if (translation) return [translation[english ? 1 : 0]];
     return /^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/i.test(condition) ? [] : [condition];
   }))];
+}
+
+// A day can have confirmed slots without being usable at the current time.
+export function todayUseSummary(record: TrackAvailability | null | undefined, today: string, now: Date, english: boolean) {
+  if (!record || record.date !== today || record.status === 'unknown'
+    || !Number.isFinite(Date.parse(record.freshness.expiresAt)) || now.getTime() >= Date.parse(record.freshness.expiresAt)) {
+    return english ? 'Needs confirmation' : '要確認';
+  }
+  if (record.status === 'unavailable') return english ? 'Unavailable' : '利用不可';
+  const periods = mergedAvailablePeriods(record);
+  const time = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now);
+  if (periods.length && periods.every(period => period.to && period.to <= time)) return english ? "Today's confirmed periods have ended" : '本日の確認済み枠は終了';
+  return periods.length && periods.every(period => period.from && period.to)
+    ? (english ? 'Confirmed periods today' : '本日の利用枠あり')
+    : (english ? 'Opening date confirmed; check times' : '開放日確認済み・時間は要確認');
+}
+
+export function scheduleWarnings(record: TrackAvailability | null | undefined, english: boolean) {
+  if (!record || (record.status === 'unknown' && record.unknownReason !== 'insufficient_information')) return [];
+  const periodConditions = record.periods.flatMap(period => period.conditions);
+  const shownWithTimes = record.periods.filter(period => period.status === 'available').flatMap(period => visitorConditions(period.conditions, english));
+  let warnings = [...record.warnings, ...(record.status === 'unavailable' ? periodConditions : [])];
+  if (record.trackId.startsWith('wadabori-park-') && record.status === 'unavailable') {
+    warnings = warnings.filter(value => value !== '12:00〜13:00は判定対象外');
+    warnings.push(english ? 'During all-day maintenance or exclusive use, 12:00–13:00 is also unavailable.' : '終日の整備・貸切日は12:00〜13:00も利用できません。');
+  }
+  return visitorConditions(warnings, english).filter(value => !shownWithTimes.includes(value));
 }

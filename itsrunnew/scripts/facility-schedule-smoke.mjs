@@ -50,6 +50,8 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
       const mode = state === 'complete' ? 'schedule' : state === 'partial' ? 'partial' : 'confirmation';
       await page.locator(`.facility-schedule[data-schedule-mode="${mode}"]`).waitFor();
       console.log(`Facility schedule ${locale || 'ja'} ${state}: ${mode}`);
+      await page.locator('.today-use').waitFor();
+      if (['stale', 'failed', 'phone'].includes(state) && !(await page.locator('.today-use').innerText()).includes(locale ? 'Needs confirmation' : '要確認')) throw new Error('Unconfirmed today was shown as usable');
       const rows = page.locator('.schedule-list li');
       const expected = state === 'complete' ? 14 : state === 'partial' ? 3 : 0;
       if (await rows.count() !== expected) throw new Error(`${locale} ${state}: expected ${expected} known rows`);
@@ -169,4 +171,20 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
     }
   }
   await page.unroute('**/availability/*.json', handler);
+  // Real facility guidance is independent of daily availability and must remain
+  // visible even when a source has no usable dates.
+  for (const locale of ['', '/en']) {
+    for (const id of ['okudo-sports-center-track', 'setagaya-general-sports-track', 'kamiyugi-park-athletic-stadium', 'wadabori-park-seibiyama-track', 'niiza-general-sports-park-track', 'oizumi-chuo-park-track']) {
+      await page.goto(`${baseUrl}${locale}/tracks/${id}`, { waitUntil: 'domcontentloaded' });
+      await page.locator('.facility-guidance').waitFor();
+      const copy = await page.locator('.facility-guidance').innerText();
+      if (id === 'okudo-sports-center-track' && !copy.includes('20:10')) throw new Error('Okudo admission cutoff missing');
+      if (id === 'kamiyugi-park-athletic-stadium' && !copy.includes('2027')) throw new Error('Kamiyugi closure period missing');
+      if (id === 'setagaya-general-sports-track' && !copy.includes(locale ? 'residents' : '在住')) throw new Error('Setagaya eligibility missing');
+      if (id === 'wadabori-park-seibiyama-track' && !copy.includes('19:00') && !copy.includes('19時')) throw new Error('Seibiyama conflicting hours guidance missing');
+      if (id === 'niiza-general-sports-park-track' && !copy.includes('17:00')) throw new Error('Niiza winter hours missing');
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      if (overflow > 1) throw new Error(`Facility guidance overflow ${id}: ${overflow}`);
+    }
+  }
 }

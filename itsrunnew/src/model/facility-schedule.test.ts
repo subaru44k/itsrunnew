@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { availabilityForTrack, unknownAvailability, type TrackAvailability, type AvailabilityDataset } from './availability';
-import { availabilitySourceTimestamp, compactPeriodSummary, mergedAvailablePeriods, visitorConditions, summarizeFacilitySchedule } from './facility-schedule';
+import { todayUseSummary, scheduleWarnings, availabilitySourceTimestamp, compactPeriodSummary, mergedAvailablePeriods, visitorConditions, summarizeFacilitySchedule } from './facility-schedule';
 const dates = ['2026-10-13', '2026-10-14', '2026-10-15'];
 const now = new Date('2026-10-13T12:00:00+09:00');
 function record(date: string, status: TrackAvailability['status'], to = '17:00'): TrackAvailability {
@@ -118,5 +118,48 @@ describe('compact facility decisions', () => {
       .toEqual(['12:00〜13:00の利用は施設にご確認ください', '外周ジョギングのみ']);
     expect(visitorConditions(['12:00〜13:00は判定対象外'], true))
       .toEqual(['Confirm use between 12:00 and 13:00 with the facility']);
+  });
+});
+
+
+describe('today decision and visitor restrictions', () => {
+  function fresh(status: TrackAvailability['status'] = 'available') {
+    const item = record(dates[0], status);
+    item.freshness.expiresAt = '2026-10-13T23:59:59+09:00';
+    return item;
+  }
+  it('distinguishes ended slots, later slots, missing times and unconfirmed dates', () => {
+    const item = fresh();
+    expect(todayUseSummary(item, dates[0], now, false)).toBe('本日の利用枠あり');
+    item.periods[0].to = '11:00';
+    expect(todayUseSummary(item, dates[0], now, false)).toBe('本日の確認済み枠は終了');
+    item.periods.push({ ...item.periods[0], from: '18:00', to: '19:00' });
+    expect(todayUseSummary(item, dates[0], now, true)).toBe('Confirmed periods today');
+    item.periods = [{ ...item.periods[0], from: null, to: null }];
+    expect(todayUseSummary(item, dates[0], now, false)).toBe('開放日確認済み・時間は要確認');
+    expect(todayUseSummary(fresh('unavailable'), dates[0], now, false)).toBe('利用不可');
+    expect(todayUseSummary(fresh('unknown'), dates[0], now, false)).toBe('要確認');
+    expect(todayUseSummary(item, dates[1], now, false)).toBe('要確認');
+    expect(todayUseSummary(undefined, dates[0], now, false)).toBe('要確認');
+    item.freshness.expiresAt = now.toISOString();
+    expect(todayUseSummary(item, dates[0], now, false)).toBe('要確認');
+  });
+  it('preserves closure reasons and removes duplicated conditions, not restrictions', () => {
+    const item = fresh('unavailable');
+    item.periods = [{ from: null, to: null, status: 'unavailable', scope: 'full_track', eligibility: 'public', conditions: ['2026年11月2日〜2027年2月28日（予定）は公認更新工事のため休場。'] }];
+    expect(scheduleWarnings(item, false)).toContain(item.periods[0].conditions[0]);
+    item.status = 'available'; item.periods[0].status = 'available';
+    item.periods[0].conditions = ['受付は20:10まで', '屋外施設のため天候変更あり'];
+    item.warnings = ['受付は20:10まで', '屋外施設のため天候変更あり', '芝生立ち入り不可'];
+    expect(scheduleWarnings(item, false)).toEqual(['芝生立ち入り不可']);
+  });
+  it('does not suggest lunch access during a full-day Wadabori closure', () => {
+    const item = fresh('unavailable'); item.trackId = 'wadabori-park-seibiyama-track';
+    item.warnings = ['12:00〜13:00は判定対象外'];
+    expect(scheduleWarnings(item, false)).toEqual(['終日の整備・貸切日は12:00〜13:00も利用できません。']);
+    item.status = 'available';
+    expect(scheduleWarnings(item, false)).toEqual(['12:00〜13:00の利用は施設にご確認ください']);
+    item.status = 'unknown'; item.unknownReason = 'source_stale';
+    expect(scheduleWarnings(item, false)).toEqual([]);
   });
 });

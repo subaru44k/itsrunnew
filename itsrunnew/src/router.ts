@@ -1,3 +1,4 @@
+import facilityGuidance from './data/facility-guidance.json';
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import i18n from './i18n';
 import { useAppStore } from './store';
@@ -91,13 +92,14 @@ router.beforeEach((to) => {
   const detailTrack = trackById(to.params.trackId);
   if (to.params.trackId && !detailTrack) return locale === 'en' ? '/en/' : '/';
   const isOda = detailTrack?.id === ODA_TRACK_ID;
+  const guidance = facilityGuidance[detailTrack?.id as keyof typeof facilityGuidance]?.[locale];
   const title = detailTrack
-    ? isOda
+    ? (guidance && 'title' in guidance) ? guidance.title : isOda
       ? (locale === 'en' ? 'Oda Field (Yoyogi Park Athletic Track) closure and nearby tracks - ItsRun' : '織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン')
       : (locale === 'en' ? `${detailTrack.name.en} individual-use schedule and confirmation - ItsRun` : `${detailTrack.name.ja}の個人利用スケジュール・確認方法 - いつラン`)
     : String(to.meta.title ?? 'いつラン');
   const description = detailTrack
-    ? isOda
+    ? (guidance && 'description' in guidance) ? guidance.description : isOda
       ? (locale === 'en' ? 'Oda Field is scheduled to remain closed through November 30, 2026. Check the selected date and compare nearby tracks before your workout.' : '織田フィールド（代々木公園陸上競技場）は2026年11月30日まで利用停止予定です。指定日の状況と周辺の代替トラックを確認できます。')
       : (locale === 'en' ? `Check ${detailTrack.name.en}'s confirmed individual-use dates, available periods and how to confirm unpublished schedules. Compare nearby tracks for your chosen date.` : `${detailTrack.name.ja}の個人利用について、確認済みの予定・利用可能時間と、予定が分からない場合の確認方法を案内します。指定日の利用状況や周辺施設も確認できます。`)
     : String(to.meta.description ?? 'いつラン');

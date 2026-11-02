@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { athletes } from './athlete-archives';
+import regionalEvidence from '../../../research/athlete-archives/regional-source-evidence.json';
 import ekidenEvidence from '../../../research/athlete-archives/ekiden-source-evidence.json';
 
 describe('athlete archive source data', () => {
@@ -19,10 +20,27 @@ describe('athlete archive source data', () => {
           expect(race.event).toBe('Ekiden');
           expect(race.place).toBe('');
           expect(ekidenEvidence.some(source => source.records.some(record => record.athlete === id && record.date === race.date && record.section === race.ekiden?.section && record.mark === race.mark && record.sectionRank === race.ekiden?.rank))).toBe(true);
+        } else if (race.regionalSourceId) {
+          const source = regionalEvidence.find(source => source.sourceId === race.regionalSourceId);
+          expect(source?.sha256).toMatch(/^[a-f0-9]{64}$/);
+          expect(source?.records.some(record => record.athlete === id && record.date === race.date && record.mark === race.mark && record.round === race.round && record.place === race.place)).toBe(true);
+          expect(race.sourceUrl.split('#')[0]).toBe(source?.url);
         } else expect(race.sourceUrl).toMatch(/^https:\/\/worldathletics\.org\/(competition\/calendar-results\/results\/\d+\?eventId=\d+|athletes\/_\/\d+)$/);
       }
     });
   }
+  it('retains prefectural heats, finals and non-starts without counting aggregate lists twice', () => {
+    const honda = athletes['ojiro-honda'].results.filter(r => r.date === '2023-05-26');
+    expect(honda.map(r => r.mark).sort()).toEqual(['3:57.53', '4:06.38']);
+    const niizuma = athletes['haruki-niizuma'].results.filter(r => r.date === '2025-06-01');
+    expect(niizuma).toHaveLength(1);
+    expect(niizuma[0]).toMatchObject({ mark: '14:07.33', round: 'F2', place: '1' });
+    expect(athletes['yota-mashiko'].results.find(r => r.date === '2024-05-25')).toMatchObject({ mark: 'DNS', place: '' });
+  });
+  it('uses the actual date and distance of local relays instead of their URL year', () => {
+    expect(athletes['haruki-niizuma'].results.find(r => r.date === '2026-02-01')).toMatchObject({ mark: '13:41', ekiden: { section: 7, distanceKm: 4.8, rank: 1 } });
+    expect(athletes['ojiro-honda'].results.find(r => r.date === '2026-02-01')).toMatchObject({ mark: '34:44', ekiden: { section: 1, distanceKm: 12.1, rank: 1 } });
+  });
   it('preserves tied stage winners and their stage distance without using the cumulative time', () => {
     const race = athletes['yota-mashiko'].results.find(race => race.date === '2026-11-01');
     expect(race).toMatchObject({ mark: '30:51', place: '', ekiden: { section: 2, distanceKm: 11.1, rank: 1, rankTied: true, record: '区間新記録' } });

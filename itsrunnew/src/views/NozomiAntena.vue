@@ -71,6 +71,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import AdsDisplay from '@/components/AdsDisplay.vue';
+import { competitionLabel } from '@/data/competition-label';
 import rawResults from '@/data/nozomi-results.json';
 
 type Race = { id?: string; date: string; competition: string; event: string; round?: string; place?: number | null; mark?: string; city?: string; country?: string; indoor?: boolean; competitionId?: number; category?: string; kind?: 'major'|'local'|'road'|'special'; role?: 'pacer'|'guest'|'relay'; note?: string; sourceUrl?: string };
@@ -107,8 +108,6 @@ const localCount=results.filter(isLocal).length;
 const filteredResults=computed(()=>results.filter(r=>{const needle=query.value.toLocaleLowerCase('ja'), text=`${r.competition} ${competitionLabel(r.competition)} ${r.event} ${r.city??''}`.toLocaleLowerCase('ja');return(selectedYear.value==='all'||r.date.startsWith(selectedYear.value))&&(selectedKind.value==='all'||matchesKind(r,selectedKind.value))&&(!needle||text.includes(needle));}));
 const groups=computed(()=>years.map(year=>({year,items:filteredResults.value.filter(r=>r.date.startsWith(String(year)))})).filter(g=>g.items.length));
 
-const names:Array<[RegExp,string]>=[[/Japanese Championships|Japan Championships|Japan Championship/,'日本陸上競技選手権大会'],[/The XXXIII Olympic Games/,'パリ2024オリンピック'],[/The XXXII Olympic Games/,'東京2020オリンピック'],[/World Athletics Championships/,'世界陸上競技選手権大会'],[/World Athletics Indoor Championships/,'世界室内陸上競技選手権大会'],[/Hokuren Distance Challenge/,'ホクレン・ディスタンスチャレンジ'],[/Nittai.*Distance|Nippon Sport Science University Long Distance/,'日体大長距離競技会'],[/Two Laps Middle Distance Circuit/,'TWOLAPS ミドルディスタンスサーキット'],[/Night Game Trial/,'ナイタートライアルin屋島'],[/Golden Games/,'ゴールデンゲームズ'],[/SEIKO Golden Grand Prix/,'セイコーゴールデングランプリ'],[/Kanakuri Memorial/,'金栗記念'],[/Hyogo Relay Carnival/,'兵庫リレーカーニバル'],[/Shizuoka International Athletics Meet/,'静岡国際陸上'],[/All Japan Corporate Teams Athletics Championships|Japanese Corporate Team Championships/,'全日本実業団対抗陸上競技選手権'],[/Palio Città della Quercia/,'パリオ・チッタ・デッラ・クエルチャ'],[/National Sports Festival/,'国民体育大会']];
-function competitionLabel(name:string){return names.reduce((value,[pattern,replacement])=>value.replace(pattern,replacement),name)}
 function formatDate(date:string){const [,m,d]=date.split('-');return `${Number(m)}/${Number(d)}`}
 function eventLabel(r:Race){const labels:Record<string,string>={'1MR':'1マイル（ロード）','5RR':'5km（ロード）','10K':'10000m',XSE:'クロスカントリー'};return labels[r.event]??`${r.event}${/^\d+$/.test(r.event)?'m':''}`}
 function roundLabel(round?:string){if(!round||round==='F'||/^F\d+$/.test(round))return '';if(round.startsWith('SF'))return `準決勝 ${round}`;if(round.startsWith('H'))return `予選 ${round}`;return round}

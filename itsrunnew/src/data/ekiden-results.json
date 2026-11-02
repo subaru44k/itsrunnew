@@ -37,6 +37,25 @@
       }
     },
     {
+      "date": "2026-02-01",
+      "competition": "第80回南九州駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "34:44",
+      "venue": "えびの市〜小林市〜高原町〜都城市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.miyariku.org/sigun/miyakonojo/result/2026/02_minami/f.pdf#page=1",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 12.1,
+        "rank": 1,
+        "team": "鳥取城北高校A",
+        "record": "区間新記録"
+      }
+    },
+    {
       "date": "2026-01-18",
       "competition": "第31回全国都道府県対抗男子駅伝競走大会",
       "event": "Ekiden",
@@ -107,6 +126,24 @@
         "rank": 1,
         "team": "鳥取城北",
         "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2025-10-05",
+      "competition": "第45回日本海駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "29:20",
+      "venue": "倉吉市〜湯梨浜町〜三朝町",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www2.nnn.co.jp/event/ekiden/koukou.pdf#page=1",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 10,
+        "rank": 1,
+        "team": "鳥取城北A"
       }
     },
     {
@@ -197,6 +234,24 @@
         "distanceKm": 5.1,
         "rank": 6,
         "team": "大牟田"
+      }
+    },
+    {
+      "date": "2024-02-04",
+      "competition": "第78回南九州駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "23:12",
+      "venue": "えびの市〜小林市〜高原町〜都城市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.miyariku.org/sigun/miyakonojo/result/2024/02_minami/f.pdf#page=1",
+      "ekiden": {
+        "section": 3,
+        "distanceKm": 8,
+        "rank": 4,
+        "team": "大牟田高校A"
       }
     },
     {
@@ -529,6 +584,42 @@
         "rank": 1,
         "team": "福島県"
       }
+    },
+    {
+      "date": "2022-11-20",
+      "competition": "第34回市町村対抗福島県縦断駅伝競走大会（ふくしま駅伝）",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "17:19",
+      "venue": "白河市〜福島市",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.town.kagamiishi.fukushima.jp/kouhou/files/2022/12/01/af54db1dadd59b821eb98a3d785069b6.pdf#page=3",
+      "ekiden": {
+        "section": 3,
+        "distanceKm": 5.8,
+        "rank": 1,
+        "team": "鏡石町"
+      }
+    },
+    {
+      "date": "2022-10-05",
+      "competition": "第65回福島県中学校体育大会駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "9:08",
+      "venue": "楢葉町総合グラウンド内駅伝コース",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://gold.jaic.org/fukushima/kekka/2022/20221005-r.pdf#page=4",
+      "ekiden": {
+        "section": 1,
+        "distanceKm": 3.2,
+        "rank": 1,
+        "team": "鏡石中学校"
+      }
     }
   ],
   "haruki-niizuma": [
@@ -568,6 +659,24 @@
         "rank": 1,
         "team": "早稲田大学",
         "record": "区間新記録"
+      }
+    },
+    {
+      "date": "2026-02-01",
+      "competition": "第80回兵庫県郡市区対抗駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "13:41",
+      "venue": "三木総合防災運動公園陸上競技場周辺周回コース",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "http://www.haaa.jp/2025/eki/web/rel00107.html",
+      "ekiden": {
+        "section": 7,
+        "distanceKm": 4.8,
+        "rank": 1,
+        "team": "加古川市"
       }
     },
     {
@@ -661,6 +770,24 @@
         "distanceKm": 7.52,
         "rank": 6,
         "team": "西脇工"
+      }
+    },
+    {
+      "date": "2025-02-02",
+      "competition": "第79回兵庫県郡市区対抗駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "17:27",
+      "venue": "加古川河川敷マラソンコース",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "http://www.haaa.jp/2024/eki/兵庫郡市区駅伝総合成績_男子部門順位順.pdf#page=1",
+      "ekiden": {
+        "section": 5,
+        "distanceKm": 6,
+        "rank": 1,
+        "team": "加古川市"
       }
     },
     {
@@ -787,6 +914,42 @@
         "distanceKm": 10,
         "rank": 5,
         "team": "西脇工"
+      }
+    },
+    {
+      "date": "2023-10-01",
+      "competition": "第43回日本海駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "8:28",
+      "venue": "倉吉市〜湯梨浜町〜三朝町",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www2.nnn.co.jp/event/ekiden/old/43/koukou.pdf#page=1",
+      "ekiden": {
+        "section": 2,
+        "distanceKm": 3,
+        "rank": 1,
+        "team": "西脇工A"
+      }
+    },
+    {
+      "date": "2023-02-05",
+      "competition": "第77回兵庫県郡市区対抗駅伝競走大会",
+      "event": "Ekiden",
+      "round": "",
+      "place": "",
+      "mark": "8:57",
+      "venue": "加古川河川敷マラソンコース",
+      "country": "JPN",
+      "indoor": false,
+      "sourceUrl": "https://www.wsresult.com/Results/2023/20230205_01/CTG_TO_EachResult_03_01.pdf#page=1",
+      "ekiden": {
+        "section": 3,
+        "distanceKm": 3,
+        "rank": 1,
+        "team": "加古川市"
       }
     },
     {

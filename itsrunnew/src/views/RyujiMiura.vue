@@ -70,6 +70,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import AdsDisplay from '@/components/AdsDisplay.vue';
+import { competitionLabel } from '@/data/competition-label';
 import rawResults from '@/data/ryuji-results.json';
 
 type Race = {
@@ -112,36 +113,6 @@ const filteredResults = computed(() => results.filter(race => {
 }));
 const groups = computed(() => years.map(year => ({ year, items: filteredResults.value.filter(race => race.date.startsWith(String(year))) })).filter(group => group.items.length));
 
-const names: Array<[RegExp, string]> = [
-  [/Japanese Cross Country Championships/, '日本クロスカントリー選手権大会'],
-  [/Asian Cross Country Championships/, 'アジアクロスカントリー選手権大会'],
-  [/Japanese Championships|Japan Championships/, '日本陸上競技選手権大会'],
-  [/The XXXIII Olympic Games/, 'パリ2024オリンピック'],
-  [/The XXXII Olympic Games/, '東京2020オリンピック'],
-  [/World Athletics Championships/, '世界陸上競技選手権大会'],
-  [/HOKUREN Distance Challenge|Hokuren Distance Challenge/, 'ホクレン・ディスタンスチャレンジ'],
-  [/Juntendo University Competition/, '順天堂大学競技会'],
-  [/Kanto Inter-University|Kanto University/, '関東インカレ'],
-  [/Mikio Oda Memorial|Oda Mikio Memorial/, '織田幹雄記念国際陸上'],
-  [/Seiko Golden Grand Prix/, 'セイコーゴールデングランプリ'],
-  [/Kanakuri Memorial/, '金栗記念選抜陸上中長距離大会'],
-  [/NITTAIDAI Challenge Games/, '日体大長距離競技会'],
-  [/BAUHAUS-Galan/, 'ストックホルムDL'],
-  [/Meeting de Paris/, 'パリDL'],
-  [/Meeting International.*Herculis/, 'モナコDL'],
-  [/Meeting International Mohammed VI/, 'ラバトDL'],
-  [/Seashore Group Doha Meeting/, 'ドーハDL'],
-  [/Wanda Diamond League Xiamen/, '廈門DL'],
-  [/Weltklasse Zürich/, 'チューリヒDL'],
-  [/Allianz Memorial van Damme/, 'ダイヤモンドリーグ・ファイナル（ブリュッセル）'],
-  [/Athletissima Lausanne/, 'ローザンヌDL'],
-  [/Prefontaine Classic/, 'プレフォンテーンクラシック'],
-  [/Tokorozawa Games/, '所沢競技会'],
-  [/READY STEADY TOKYO/, 'READY STEADY TOKYO'],
-  [/Hakone Ekiden Qualifier/, '箱根駅伝予選会'],
-];
-
-function competitionLabel(name: string) { return names.reduce((value, [pattern, replacement]) => value.replace(pattern, replacement), name); }
 function formatDate(date: string) { const [, month, day] = date.split('-'); return `${Number(month)}/${Number(day)}`; }
 function eventLabel(race: Race) {
   const labels: Record<string, string> = { '3KSC': '3000m障害', HMAR: 'ハーフマラソン', '10MR': '10マイル（ロード）', '10K': '10000m', XSE: 'クロスカントリー' };

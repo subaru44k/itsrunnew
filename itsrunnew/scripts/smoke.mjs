@@ -568,6 +568,16 @@ try {
         await page.getByLabel('年度', { exact: true }).selectOption('all');
         await page.getByLabel('大会名・種目', { exact: true }).fill('');
       }
+      await page.getByLabel('種類', { exact: true }).selectOption('local');
+      const regionalChecks = {
+        'ojiro-honda': ['福岡県南部ブロック', '4:26.38'],
+        'yota-mashiko': ['第71回福島県高等学校体育大会陸上競技大会', '14:13.88'],
+        'haruki-niizuma': ['第78回兵庫県高等学校陸上競技対校選手権大会', '3:49.45'],
+      };
+      const [regionalQuery, regionalMark] = regionalChecks[slug];
+      await page.getByLabel('大会名・種目', { exact: true }).fill(regionalQuery);
+      await page.locator('tbody .mark').filter({ hasText: regionalMark }).waitFor();
+      await page.getByLabel('大会名・種目', { exact: true }).fill('');
       await page.getByLabel('種類', { exact: true }).selectOption('road');
       if (!await page.locator('tbody tr').count()) throw new Error(`${slug}: road filter empty`);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);

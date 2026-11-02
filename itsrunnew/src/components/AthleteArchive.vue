@@ -3,13 +3,13 @@
     <header class="hero">
       <p class="kicker">{{ athlete.nameEn.toUpperCase() }} RACE ARCHIVE</p>
       <h1>{{ athlete.name }}選手の記録集</h1>
-      <p class="lead">{{ firstYear }}年から{{ latestYear }}年までの公開大会結果を、トラック・ロード・クロスカントリー・駅伝の種目別、年度別にたどる非公式アーカイブです。国内の記録会や高校大会、国際大会に加え、駅伝の区間記録・区間順位も収録しています。</p>
+      <p class="lead">{{ firstYear }}年から{{ latestYear }}年までの公開大会結果を、トラック・ロード・クロスカントリー・駅伝の種目別、年度別にたどる非公式アーカイブです。高校時代の県総体・地区予選・新人大会、国内の記録会や国際大会に加え、駅伝の区間記録・区間順位も収録しています。</p>
       <div class="stats">
         <div><strong>{{ results.length }}</strong><span>収録レース</span></div>
         <div><strong>{{ ekidenCount }}</strong><span>駅伝の出走</span></div>
         <div><strong>{{ firstYear }}–{{ latestYear }}</strong><span>収録期間</span></div>
       </div>
-      <p class="updated">最終確認：2026年11月1日（最新の収録結果：{{ results[0]?.date }}）</p>
+      <p class="updated">最終確認：2026年11月2日（最新の収録結果：{{ results[0]?.date }}）</p>
     </header>
 
     <AdsDisplay slot="6879016191" />
@@ -55,7 +55,7 @@
 
     <section class="panel sources">
       <h2>出典と掲載方針</h2>
-      <p>トラック・ロード・クロスカントリーはWorld Athleticsで選手本人の生年月日・選手IDを確認し、公開された年度別結果を収録しています。駅伝は大会主催者・陸上競技連盟・高体連等の公式結果を照合し、大会日・所属・区間・距離・区間記録・区間順位を掲載しています。駅伝のコースや距離は大会・年度で異なるため、同距離でもタイムだけの単純比較にはご注意ください。各大会名から公式結果を確認できます。大会結果への個別リンクが公開されていない記録は選手プロフィールへ案内します。順位は組別の場合があり、予選・決勝は別行です。ロードとトラックの同じ距離は区別しています。</p>
+      <p>トラック・ロード・クロスカントリーはWorld Athleticsで選手本人の生年月日・選手IDを確認した年度別結果を基礎に、県総体・地区予選・新人大会などの主催者公式結果を補足しています。大会名は日本語の正式名や一般的な日本語・カタカナ表記で表示し、元の大会名でも検索できます。駅伝は大会主催者・陸上競技連盟・高体連等の公式結果を照合し、大会日・所属・区間・距離・区間記録・区間順位を掲載しています。駅伝のコースや距離は大会・年度で異なるため、同距離でもタイムだけの単純比較にはご注意ください。各大会名から公式結果を確認できます。大会結果への個別リンクが公開されていない記録は選手プロフィールへ案内します。順位は組別の場合があり、予選・決勝は別行です。タイムレースの組別結果と総合結果は同じ出走として1件にまとめています。DNSは欠場、DNFは途中棄権で、完走タイムとは区別しています。ロードとトラックの同じ距離は区別しています。</p>
       <ul><li><a :href="`https://worldathletics.org/athletes/_/${athlete.worldAthleticsId}`" target="_blank" rel="noopener noreferrer">World Athletics：{{ athlete.nameEn }} 選手プロフィール</a></li></ul>
       <p class="notice">このページは非公式で、完全性を保証するものではありません。主催者が公開していない記録や確認できていない大会・オープン参加などは未収録の可能性があります。誤りや未掲載情報はサイト下部の連絡先からお知らせください。</p>
     </section>
@@ -66,6 +66,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import AdsDisplay from '@/components/AdsDisplay.vue';
+import { competitionLabel } from '@/data/competition-label';
 import { athletes, type AthleteId } from '@/data/athlete-archives';
 
 const props = defineProps<{ athleteId: AthleteId }>();
@@ -95,9 +96,6 @@ const filteredResults = computed(() => results.value.filter(race => {
   return (selectedYear.value === 'all' || race.date.startsWith(selectedYear.value)) && matchesKind(race, selectedKind.value) && text.includes(query.value.toLocaleLowerCase('ja'));
 }));
 const groups = computed(() => years.value.map(year => ({ year, items: filteredResults.value.filter(race => race.date.startsWith(String(year))) })).filter(group => group.items.length));
-function competitionLabel(name: string) {
-  return name.replace(/Japanese Championships|Japan Championships/g, '日本選手権').replace(/National High School Championships/g, '全国高校総体').replace(/National Junior High School Championships/g, '全日本中学校選手権').replace(/World Athletics U20 Championships/g, '世界U20選手権').replace(/Asian U20.*Championships/g, 'アジアU20選手権').replace(/Hokuren Distance Challenge|HOKUREN Distance Challenge/g, 'ホクレン・ディスタンスチャレンジ');
-}
 function formatDate(date: string) { const [, month, day] = date.split('-'); return `${Number(month)}/${Number(day)}`; }
 function eventLabel(race: Race) {
   if (race.ekiden) return `駅伝 ${race.ekiden.section}区（${race.ekiden.distanceKm}km）`;

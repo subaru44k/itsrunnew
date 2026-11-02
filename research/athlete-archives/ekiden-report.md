@@ -1,6 +1,6 @@
 # 3選手の駅伝記録調査
 
-確認日：2026-11-01。公式結果から45出走を補足。トラック等の91件とは別の `itsrunnew/src/data/ekiden-results.json` へ保存し、registryで統合する。
+確認日：2026-11-01。初回調査では公式結果から45出走を補足。2026年11月2日の[地域大会補足](regional-report.md)でさらに9件を加え、現在は54件。トラック等の91件とは別の `itsrunnew/src/data/ekiden-results.json` へ保存し、registryで統合する。
 
 | 選手 | 駅伝件数 | トラック等を含む総数 |
 |---|---:|---:|

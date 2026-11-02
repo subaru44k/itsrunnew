@@ -18,30 +18,43 @@ const reviewed = new Map([
 const repairConditions = [
   '11月26〜28日は100m・110mスタートの一部修繕。直線練習は逆走コースの5・6・7・8レーンのみ。200m・400m・中長距離の練習は通常どおり。',
 ];
+const novemberNotice = `${root}info_mirasta_kojin_20261102/`;
+const revisedNovember = `${root}wp-content/uploads/info_hojyoriku_202611_20261102.png`;
+const december = `${root}wp-content/uploads/info_hojyoriku_202612_20261102.png`;
+const novemberReviewed = new Map([
+  [novemberNotice, 'c9f64c31eaa696c03a7811a529a3c7e14505dd92ce3abeceb5698e0fb652bfcb'],
+  [revisedNovember, '4ed87a8b277994c2522980a8cbd60ed5b53c13108cbca79ea7d8b0c648a4de48'],
+  [december, '8c27eb69fb616ad355f0809b9c65447463421edbee02ffbffc1ad265b6ce7486'],
+  [repair, 'ca87efc603301134c4cd07e33f6828ab8d0b65c0770066672856f170b0970bb8'],
+  [repairText, reviewed.get(repairText)!],
+  [repairMap, reviewed.get(repairMap)!],
+]);
 
 /** Finite human review: exact current official inputs, never an AI/cache fallback. */
 export function reviewedIshinReading(packet: AiPacket) {
   if (packet.key !== 'ishin' || packet.trackId !== 'ishin-centennial-park-auxiliary-stadium' || packet.landingPageUrl !== root) return null;
   const urls = new Set(packet.sources.map(s => s.url));
-  if (urls.size !== packet.sources.length || packet.sources.some(s => reviewed.get(s.url) !== s.hash)) return null;
-  if ([notice, repair, repairText, repairMap].some(url => !urls.has(url))) return null;
+  const revised = urls.has(novemberNotice);
+  const expected = revised ? novemberReviewed : reviewed;
+  if (urls.size !== packet.sources.length || packet.sources.some(s => expected.get(s.url) !== s.hash)) return null;
+  if ([revised ? novemberNotice : notice, repair, repairText, repairMap].some(url => !urls.has(url))) return null;
   // Source discovery legitimately omits October after the horizon moves into
   // November. Require every reviewed month requested, including its own image.
-  for (const [month, url] of [['2026-10', october], ['2026-11', november]]) {
+  for (const [month, url] of revised ? [['2026-11', revisedNovember], ['2026-12', december]] : [['2026-10', october], ['2026-11', november]]) {
     if (packet.dates.some(date => date.startsWith(month)) && !urls.has(url)) return null;
   }
-  if (!urls.has(october) && !urls.has(november)) return null;
+  if (revised ? !urls.has(revisedNovember) && !urls.has(december) : !urls.has(october) && !urls.has(november)) return null;
   const rows = new Map<string, AiRow>();
   for (const date of packet.dates) {
     const month = date.slice(0, 7);
     const day = Number(date.slice(8));
-    const inMonth = /^2026-10-(?:0[1-9]|[12]\d|3[01])$/.test(date) || /^2026-11-(?:0[1-9]|[12]\d|30)$/.test(date);
-    const closed = date === '2026-10-06' || date === '2026-11-09';
+    const inMonth = (revised ? /^2026-12-(?:0[1-9]|[12]\d|3[01])$/ : /^2026-10-(?:0[1-9]|[12]\d|3[01])$/).test(date) || /^2026-11-(?:0[1-9]|[12]\d|30)$/.test(date);
+    const closed = inMonth && (date === '2026-10-06' || date === '2026-11-09' || date === '2026-12-14');
     const opening = inMonth && (month === '2026-10'
       ? [1, 5, 8, 13, 15, 19, 22, 26, 29]
-      : [2, 6, 12, 16, 19, 24, 26, 30]).includes(day);
+      : month === '2026-12' ? [3, 7, 10, 17, 21, 24, 28] : [2, 6, 12, 16, 19, 24, 26, 30]).includes(day);
     const repairing = month === '2026-11' && day >= 26 && day <= 28;
-    const source = packet.sources.find(s => s.url === (month === '2026-10' ? october : november));
+    const source = packet.sources.find(s => s.url === (month === '2026-10' ? october : month === '2026-12' ? december : revised ? revisedNovember : november));
     const conditions = inMonth ? [
       '急きょ芝生管理作業や専用利用が入る場合があります。個人利用希望者は利用前日に管理事務所へお問い合わせください。',
       ...(opening ? ['芝生部分は利用不可。陸上トラックの利用枠です。'] : []),

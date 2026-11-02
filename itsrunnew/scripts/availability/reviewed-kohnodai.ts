@@ -8,6 +8,7 @@ export const kohnodaiOctober26Hash = 'sha256:1f7b4efafa26c4f9d6cb0ba1701408d7d97
 export const kohnodaiOctober30Hash = 'sha256:410adf2e83c2b32039ad648a85ad1d6368f7a5a30c1a2d781b900b0ee1a6015c';
 export const kohnodaiNovemberReviewedHash = 'sha256:cb0da1895e9a30ad935d0ec56b7b9663baa501a114f4ebb482e801d286809a76';
 export const kohnodaiNovemberOctober31Hash = 'sha256:6c5cb2143dddaae5e8c1099690cfe52e95e14ed5b4cf5441faf6c04a0b9a0b3d';
+export const kohnodaiDecemberHash = 'sha256:6a7af2fc563f276a9c285276861e660ffefb9f696f09b6c7bc803b28d1930065';
 const events: Record<number, Array<[string, string]>> = {
   1: [['14:00', '16:00']], 2: [['09:00', '15:00']],
   3: [['09:00', '12:00'], ['12:00', '17:00']], 4: [['09:00', '17:00']],
@@ -20,20 +21,21 @@ const events: Record<number, Array<[string, string]>> = {
   27: [['09:00', '13:00']], 30: [['09:00', '17:00']], 31: [['09:00', '17:00']],
 };
 export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult | null {
-  if (![kohnodaiOctoberHash, kohnodaiOctober26Hash, kohnodaiOctober30Hash, kohnodaiNovemberReviewedHash, kohnodaiNovemberOctober31Hash].includes(hash)) return null;
+  if (![kohnodaiOctoberHash, kohnodaiOctober26Hash, kohnodaiOctober30Hash, kohnodaiNovemberReviewedHash, kohnodaiNovemberOctober31Hash, kohnodaiDecemberHash].includes(hash)) return null;
+  const december = hash === kohnodaiDecemberHash;
   const november = hash === kohnodaiNovemberReviewedHash || hash === kohnodaiNovemberOctober31Hash;
-  if (!(november ? /^2026-11-(?:0[1-9]|[12]\d|30)$/ : /^2026-10-(?:0[1-9]|[12]\d|3[01])$/).test(date))
+  if (!(december ? /^2026-12-(?:0[1-9]|[12]\d|3[01])$/ : november ? /^2026-11-(?:0[1-9]|[12]\d|30)$/ : /^2026-10-(?:0[1-9]|[12]\d|3[01])$/).test(date))
     return { status: 'unknown', periods: [], unknownReason: 'outside_published_period' };
   const day = Number(date.slice(8));
   const slot = (from: string | null, to: string | null, status: AvailabilityPeriod['status']): AvailabilityPeriod => ({
     from, to, status, scope: 'full_track', eligibility: 'public',
     conditions: [status === 'unavailable' ? '大会・イベント中の個人利用はできません。' : '公式案内に基づき使用時間以外を一般開放。'],
   });
-  if (day === (november ? 30 : 26)) return {
+  if (december ? [21, 28, 29, 30, 31].includes(day) : day === (november ? 30 : 26)) return {
     status: 'unavailable', periods: [{ ...slot(null, null, 'unavailable'), conditions: ['公式予定表の休場日。'] }],
     confidence: 'high', warnings: ['公式予定は変更される場合があります。'],
   };
-  const earlyClosing = november ? [2, 4, 9, 16, 18, 24] : [5, 13, 19];
+  const earlyClosing = december ? [7, 14] : november ? [2, 4, 9, 16, 18, 24] : [5, 13, 19];
   const end = earlyClosing.includes(day) ? '17:00' : '21:00';
   const periods: AvailabilityPeriod[] = [];
   let cursor = '09:00';
@@ -56,7 +58,13 @@ export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult 
   };
   // The October 31 retrieval removes only November 15's reserve booking.
   // Keep the reservation in the earlier reviewed original.
-  const bookings = november ? hash === kohnodaiNovemberOctober31Hash && day === 15 ? [] : novemberEvents[day]
+  const decemberEvents: Record<number, Array<[string, string]>> = {
+    5: [['09:00', '12:00'], ['12:00', '17:00']], 6: [['09:00', '17:00']],
+    12: [['09:00', '13:00'], ['14:00', '17:00']], 13: [['09:00', '17:00']],
+    19: [['09:00', '12:00'], ['12:00', '17:00']], 20: [['09:00', '17:00']],
+    26: [['09:00', '17:00']], 27: [['09:00', '13:00'], ['13:00', '17:00']],
+  };
+  const bookings = december ? decemberEvents[day] : november ? hash === kohnodaiNovemberOctober31Hash && day === 15 ? [] : novemberEvents[day]
     : hash === kohnodaiOctober30Hash && day === 30 ? [['09:00', '16:00']]
     : hash === kohnodaiOctober26Hash || hash === kohnodaiOctober30Hash ? revisedEvents[day] ?? events[day] : events[day];
   for (const [from, to] of bookings ?? []) {

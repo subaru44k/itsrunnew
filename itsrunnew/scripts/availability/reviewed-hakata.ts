@@ -36,20 +36,22 @@ export function reviewedHakataReading(packet: AiPacket) {
     ),
   );
   const current = hash === hakataOctober21SourceHash;
-  const schedule = packet.sources.find((source) => source.url === (current
+  const novemberOnly = hash === '8ad5e2c49c323f49e69d057d498b0b65891beb55d06d321ecc4958fa57737a93';
+  const schedule = packet.sources.find((source) => source.url === (novemberOnly
+    ? 'https://www.midorimachi.jp/higashihirao/images/park/261101151155895.pdf' : current
     ? 'https://www.midorimachi.jp/higashihirao/images/park/26102110584262.pdf' : scheduleUrl)
     && (!current || source.name.endsWith('-page-1.png')));
-  const novemberSchedule = current ? packet.sources.find(source => source.url === schedule?.url && source.name.endsWith('-page-2.png')) : null;
+  const novemberSchedule = novemberOnly ? schedule : current ? packet.sources.find(source => source.url === schedule?.url && source.name.endsWith('-page-2.png')) : null;
   const guide = packet.sources.find(
     (source) =>
       source.url === 'https://www.midorimachi.jp/higashihirao/guides/',
   );
-  if ((!current && hash !== hakataReviewedSourceHash) || !schedule || !guide || (current && !novemberSchedule)) return null;
+  if ((!current && !novemberOnly && hash !== hakataReviewedSourceHash) || !schedule || !guide || ((current || novemberOnly) && !novemberSchedule)) return null;
   const rows = new Map<string, AiRow>();
   for (const date of packet.dates) {
     const day = Number(date.slice(8));
-    const november = current && /^2026-11-\d{2}$/.test(date) && day >= 1 && day <= 30;
-    const inMonth = november || (/^2026-10-\d{2}$/.test(date) && day >= 1 && day <= 31);
+    const november = (current || novemberOnly) && /^2026-11-\d{2}$/.test(date) && day >= 1 && day <= 30;
+    const inMonth = november || (!novemberOnly && /^2026-10-\d{2}$/.test(date) && day >= 1 && day <= 31);
     const closed = inMonth && (november ? [1, 13, 21, 29].includes(day) : noOpening.has(day));
     const event = november ? ({ 3: '13:00', 6: '15:00', 8: '15:00', 14: '14:00', 15: '15:00', 28: '14:00' } as Record<number, string>)[day] : eventEnd[day];
     const start = event ?? '09:00';

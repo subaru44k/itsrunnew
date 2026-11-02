@@ -58,7 +58,7 @@ export async function collectAdditionalAvailability(
           ? `reviewed-official-${config.key}`
           : reading.collector,
       parserVersion:
-        config.key === 'hiratsuka' ? 'hiratsuka-table-v3' : config.key === 'hakata' ? 'reviewed-hakata-20261021-v3' : config.key === 'ishin' ? 'reviewed-ishin-20261026-v1' : reading.version,
+        config.key === 'hiratsuka' ? 'hiratsuka-table-v3' : config.key === 'hakata' ? 'reviewed-hakata-20261102-v4' : config.key === 'ishin' ? 'reviewed-ishin-20261102-v2' : reading.version,
     };
     const unavailable = (
       error: unknown,

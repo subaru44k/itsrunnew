@@ -156,3 +156,5 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 記録集メニューから本田桜二郎（`/ojiro-honda/index`）、増子陽太（`/yota-mashiko/index`）、新妻遼己（`/haruki-niizuma/index`）のページへ進めます。各ページに `/en/` 版のURLもあり、本文は日本語です。年度・種類・大会名／種目／区間／所属の検索、公式結果へのリンクを提供します。駅伝は45出走を追加し、区間・距離・所属・区間記録・区間順位、同順位と公式の区間新記録を表示します。詳細は[駅伝の収集報告](../research/athlete-archives/ekiden-report.md)を参照してください。静的JSONの更新範囲と出典は [収集報告](../research/athlete-archives/2026-11-01-report.md) を参照してください。`npm run build`、`npm test`、`npm run lint`、`npm run test:smoke` でデータ・ルート・検索を検証します。
 
 追加URLを既存のProductionへ公開する際は、content配備に加え、`page-metadata.json`を読み込むCloudFront Functionの既知route定義も反映する必要があります。content-only配備だけでは追加URLのHTML shellへrewriteされません。
+
+2026-11-02は公式原本を再確認し、知多の期限切れ11/1告知・10月PDF削除後の改修告知、博多の11月単独PDF、維新補助の新11・12月画像、国府台の12月60729.pdfを有限判定へ追加しました。知多11/2はunknown、博多12月は掲載外、維新の空欄・大会時間のみ・12/29〜31はunknownを維持します。維新11/26〜28の逆走5〜8レーン制限、国府台12/12の13〜14時一般開放と休場21・28〜31日を保持します。旧資料の判定は変更せず、新資料はURL/hash・年月・既存の公式利用方針一致時だけ採用し、未知資料へfallbackしません。原本・全日程の確認根拠と回帰は `scripts/availability/fixtures/availability-20261102-provenance.md`、`recovery-20261102.test.ts`、`kohnodai-202612.test.ts` に保持します。

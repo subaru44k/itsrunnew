@@ -8,6 +8,7 @@ export const kohnodaiOctober26Hash = 'sha256:1f7b4efafa26c4f9d6cb0ba1701408d7d97
 export const kohnodaiOctober30Hash = 'sha256:410adf2e83c2b32039ad648a85ad1d6368f7a5a30c1a2d781b900b0ee1a6015c';
 export const kohnodaiNovemberReviewedHash = 'sha256:cb0da1895e9a30ad935d0ec56b7b9663baa501a114f4ebb482e801d286809a76';
 export const kohnodaiNovemberOctober31Hash = 'sha256:6c5cb2143dddaae5e8c1099690cfe52e95e14ed5b4cf5441faf6c04a0b9a0b3d';
+export const kohnodaiNovemberNovember4Hash = 'sha256:399f7b264cad54405981de3b824bd5e3bd3d0a83bb120f92a62e442c423264ff';
 export const kohnodaiDecemberHash = 'sha256:6a7af2fc563f276a9c285276861e660ffefb9f696f09b6c7bc803b28d1930065';
 const events: Record<number, Array<[string, string]>> = {
   1: [['14:00', '16:00']], 2: [['09:00', '15:00']],
@@ -21,9 +22,9 @@ const events: Record<number, Array<[string, string]>> = {
   27: [['09:00', '13:00']], 30: [['09:00', '17:00']], 31: [['09:00', '17:00']],
 };
 export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult | null {
-  if (![kohnodaiOctoberHash, kohnodaiOctober26Hash, kohnodaiOctober30Hash, kohnodaiNovemberReviewedHash, kohnodaiNovemberOctober31Hash, kohnodaiDecemberHash].includes(hash)) return null;
+  if (![kohnodaiOctoberHash, kohnodaiOctober26Hash, kohnodaiOctober30Hash, kohnodaiNovemberReviewedHash, kohnodaiNovemberOctober31Hash, kohnodaiNovemberNovember4Hash, kohnodaiDecemberHash].includes(hash)) return null;
   const december = hash === kohnodaiDecemberHash;
-  const november = hash === kohnodaiNovemberReviewedHash || hash === kohnodaiNovemberOctober31Hash;
+  const november = [kohnodaiNovemberReviewedHash, kohnodaiNovemberOctober31Hash, kohnodaiNovemberNovember4Hash].includes(hash);
   if (!(december ? /^2026-12-(?:0[1-9]|[12]\d|3[01])$/ : november ? /^2026-11-(?:0[1-9]|[12]\d|30)$/ : /^2026-10-(?:0[1-9]|[12]\d|3[01])$/).test(date))
     return { status: 'unknown', periods: [], unknownReason: 'outside_published_period' };
   const day = Number(date.slice(8));
@@ -64,7 +65,10 @@ export function reviewedKohnodaiPdf(hash: string, date: string): PdfParseResult 
     19: [['09:00', '12:00'], ['12:00', '17:00']], 20: [['09:00', '17:00']],
     26: [['09:00', '17:00']], 27: [['09:00', '13:00'], ['13:00', '17:00']],
   };
-  const bookings = december ? decemberEvents[day] : november ? hash === kohnodaiNovemberOctober31Hash && day === 15 ? [] : novemberEvents[day]
+  // November 4 original removes November 5's booking; retain November 15's cancellation.
+  const novemberCancellation = (hash === kohnodaiNovemberOctober31Hash || hash === kohnodaiNovemberNovember4Hash) && day === 15
+    || hash === kohnodaiNovemberNovember4Hash && day === 5;
+  const bookings = december ? decemberEvents[day] : november ? novemberCancellation ? [] : novemberEvents[day]
     : hash === kohnodaiOctober30Hash && day === 30 ? [['09:00', '16:00']]
     : hash === kohnodaiOctober26Hash || hash === kohnodaiOctober30Hash ? revisedEvents[day] ?? events[day] : events[day];
   for (const [from, to] of bookings ?? []) {

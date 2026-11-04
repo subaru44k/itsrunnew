@@ -489,4 +489,4 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 FacilitySchedule上部に今日の利用判断と詳細へのbuttonを表示し、要確認・利用不可・確認済み枠の終了・時間未確認を区別します。1分ごとにJST日付・期限・終了時刻を再評価し、日付が変わると範囲を更新します。施設概要の個人利用は制度の有無であることを明記します。日別詳細は時間枠と重複する注意文・資料identityの説明を除き、実用条件と休場理由を保持します。和田堀の終日不可日には12〜13時も不可と表示します。根拠と資料差は `research/availability/facility-quality-audit-20261102.md`、期限・当日終了・重複条件・休場条件はunit、日英の実施設案内と横幅・要確認の維持はfacility schedule smoke、初期HTMLはroute shell testで検証します。
 
-国府台の2026-11-04取得版11月60798.pdfは全30行を原本照合し、11/5の予備予約削除により9〜21時一般開放とします。11/15の取消・17時閉館日・11/30休場は維持し、旧原本の日程は変更しません。採用は確認済みhash・2026年11月・公式一般開放方針一致時だけとし、未知資料は停止します。原本と全日確認根拠は `itsrunnew/scripts/availability/fixtures/kohnodai-20261104-provenance.md`、実collectorの全30日・旧新区別・変更/年月/policy guardは `kohnodai-20261104.test.ts` に保持します。
+国府台の2026-11-04取得版11月60798.pdfは全30行を原本照合し、11/5の大会予約削除により9〜21時一般開放とします。大会は11/6へ移り、同日の9〜16時予約は維持します。11/15の取消・17時閉館日・11/30休場は維持し、旧原本の日程は変更しません。採用は確認済みhash・2026年11月・公式一般開放方針一致時だけとし、未知資料は停止します。原本と全日確認根拠は `itsrunnew/scripts/availability/fixtures/kohnodai-20261104-provenance.md`、実collectorの全30日・旧新区別・変更/年月/policy guardは `kohnodai-20261104.test.ts` に保持します。

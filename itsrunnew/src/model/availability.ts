@@ -57,6 +57,7 @@ export interface TrackAvailability {
 }
 
 export interface AvailabilityDataset {
+  generation?: string;
   schemaVersion: number;
   date: string;
   timezone: 'Asia/Tokyo';

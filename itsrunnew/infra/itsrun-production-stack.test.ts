@@ -2,6 +2,7 @@ import { App } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vitest';
 import { runInNewContext } from 'node:vm';
+import { ItsRunPreviewStack } from './itsrun-preview-stack';
 import { ItsRunProductionStack } from './itsrun-production-stack';
 import pageMetadata from '../src/data/page-metadata.json';
 
@@ -105,6 +106,20 @@ describe('ItsRunProductionStack', () => {
       const shellPath = route === '/' ? '/index.html' : `${route.replace(/\/$/, '')}/index.html`;
       expect(response.uri).toBe(shellPath);
       expect(response.statusCode).toBeUndefined();
+    }
+  });
+
+  it('keeps the pointer uncached on both environments and bounds generation retention', () => {
+    const stacks = [new ItsRunProductionStack(new App(), 'GenerationProduction', { env: environment }), new ItsRunPreviewStack(new App(), 'GenerationPreview', { env: environment })];
+    for (const stack of stacks) {
+      const template = Template.fromStack(stack);
+      const config = Object.values(template.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig;
+      const behavior = config.CacheBehaviors.find((item: { PathPattern: string }) => item.PathPattern === 'availability/manifest.json');
+      expect(behavior.CachePolicyId).toBe('4135ea2d-6df8-44a3-9df3-4b5a84be39ad');
+      expect(behavior.TargetOriginId).toEqual(config.DefaultCacheBehavior.TargetOriginId);
+      const bucket = Object.values(template.findResources('AWS::S3::Bucket'))[0].Properties;
+      expect(bucket.LifecycleConfiguration.Rules).toEqual(expect.arrayContaining([expect.objectContaining({ Prefix: 'availability/generations/', ExpirationInDays: 7 })]));
+      template.resourceCountIs('AWS::Route53::RecordSet', 0);
     }
   });
 

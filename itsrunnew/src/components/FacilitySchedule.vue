@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { computed, onScopeDispose, ref, watch } from 'vue';
 import { availabilityForTrack, localDateKey, type TrackAvailability } from '../model/availability';
-import { availabilityManifest, availabilityManifestStatus, loadAvailabilityDate } from '../model/availability-range';
+import { availabilityManifest, availabilityManifestStatus, loadAvailabilityDate, loadAvailabilityTrack } from '../model/availability-range';
 import { availabilitySourceTimestamp, compactPeriodSummary, summarizeFacilitySchedule, todayUseSummary } from '../model/facility-schedule';
 const props = defineProps<{ trackId: string; english: boolean; selectedDate: string; detailOpen: boolean; selectedAvailability: TrackAvailability | null; facilityVerifiedAt: string }>();
 defineEmits<{ select: [date: string] }>();
@@ -82,11 +82,11 @@ watch(() => props.trackId, () => {
   failures.value = 0;
   expanded.value = false;
 });
-watch([() => props.trackId, () => availabilityManifest.generatedAt, availabilityManifestStatus, today], async () => {
+watch([() => props.trackId, () => availabilityManifest.generatedAt, () => availabilityManifest.generation, availabilityManifestStatus, today], async () => {
   // A background manifest check is not a new schedule. Keep the existing
   // rows and skip another range load when its generation is unchanged.
   if (availabilityManifestStatus.value === 'loading') return;
-  const key = `${props.trackId}|${availabilityManifest.generatedAt}|${dates.value.join(',')}`;
+  const key = `${props.trackId}|${availabilityManifest.generation ?? availabilityManifest.generatedAt}|${dates.value.join(',')}`;
   if (key === loadedKey) {
     // Keep freshness checks even when the published generation is unchanged.
     records.value = records.value.map(record => availabilityForTrack(record.trackId, record.date, new Date(), {
@@ -103,6 +103,20 @@ watch([() => props.trackId, () => availabilityManifest.generatedAt, availability
   failures.value = 0;
   loading.value = true;
   const id = props.trackId;
+  if (availabilityManifest.generation) {
+    try {
+      const bundle = await loadAvailabilityTrack(id);
+      if (current !== sequence) return;
+      records.value = bundle.records.filter(record => dates.value.includes(record.date));
+    } catch {
+      if (current !== sequence) return;
+      records.value = [];
+      loadedKey = ''; // Retry a transient bundle failure on the next manifest check.
+      failures.value = dates.value.length;
+    }
+    finishLoading();
+    return;
+  }
   const queue = [...dates.value];
   const loaded: TrackAvailability[] = [];
   let failed = 0;

@@ -33,9 +33,9 @@
 - [Production deploy](https://github.com/subaru44k/itsrunnew/actions/runs/41977698081) の収集・鮮度検証・unit・型検査込みbuild・local smoke・差分配備・公開本文照合・公開smokeが成功。正式URLのmanifestでも2026-11-05〜12-05、生成時刻2026-11-05T06:02:11.443Zを確認。
 - 今回のProduction jobは377秒（収集93秒、build10秒、local smoke76秒、配備71秒、公開smoke87秒）。収集・配信・ブラウザの所要時間も変わるため、変更前との差全体を型検査削減の効果とは扱わない。
 
-再開時は最新masterと [merge後のNode validation](https://github.com/subaru44k/itsrunnew/actions/runs/41977698080) の結果を確認し、未実装の第2段階から進む。失敗したrunが残っていれば先に原因を確認して解決する。完了済みの同じrevisionの検証を理由なく再実行しない。
+各段階の再開時は最新masterと直前のProduction/Node validationの結果を確認する。失敗したrunが残っていれば先に原因を解決し、完了済みの同じrevisionの検証を理由なく再実行しない。
 
-## 第2段階：機能ごとのブラウザ検証（実装・検証中）
+## 第2段階：機能ごとのブラウザ検証（完了）
 
 - 既存smokeから記録集と施設予定のシナリオを独立させ、pace / archives / reports / scheduleを個別実行する。
 - `test:features` は隔離workspaceで当日mixed fixtureを生成し、1回buildした同じ成果物へ必要なsuiteを実行する。現地レポートはテスト専用の架空APIだけをmockし、実APIへ投稿しない。
@@ -43,16 +43,24 @@
 - 施設予定の期限切れ・失敗・品質差・世代切替・フォーカス競合はschedule suiteで1回検証し、mixed/unknown/liveごとの全smokeでは重複実行しない。
 - 現地レポートの古い日付入力selectorを現行DOMへ合わせる。
 
-予測追加費用は0円。必須check名とfull dailyの適用境界は維持する。完了証拠はこの段階のPRと本番runを追記する。
+予測追加費用は0円。必須check名とfull dailyの適用境界は維持する。[PR #145](https://github.com/subaru44k/itsrunnew/pull/145) をmergeし、revision `f446dc67140f23b588c8da5f0c6d37ec852af6e6` の [Production](https://github.com/subaru44k/itsrunnew/actions/runs/41981677635) と [master検証](https://github.com/subaru44k/itsrunnew/actions/runs/41981677636) が成功。[PR検証](https://github.com/subaru44k/itsrunnew/actions/runs/41980642123) でも全feature・daily fixtures/liveが成功した。schedule suiteの詳細を閉じた後の競合はDOMの消失を待つことで修正し、固定sleepは追加していない。
 
-## 次の変更単位（未実装）
+## 第5段階の配信基盤（第3・4段階より先に実装・検証中）
+
+配備の担当prefixと世代互換性を先に確立するため、依存関係に従って第5段階の基盤を先行する。1回の収集から日別・施設別31日bundle・世代manifestを生成し、全partitionを公開前に照合する。新アプリの施設予定は1リクエストになり、検索は日別JSONを維持する。旧アプリには従来のURLを残す。immutableファイルを先行配置し、全成功後に公開manifestを最後に送る。旧世代は7日保持し、通常deployでは削除しない。manifestだけCloudFront cacheを無効にし、ドメイン・証明書・DNSは変えない。
+
+このPRでは既存の一括deployとdaily gateを維持する。アプリ/データ配備分離・成果物固定・rollback操作は次段階。公開・インフラ適用・ブラウザ検証の証拠は完了時に追記する。
+
+費用予測（2026-11-05、1 USD=150円の比較用仮定）：1日2回、31日/133施設、追加immutable object約166個/回、7日保持、月10万回のmanifest参照を仮定。追加PUT約10,300回/月、保持データ約0.2GB以下、manifestのS3 GETを見込み、S3のstorage/request単価を保守的に切り上げて月40円以内の増分と予測する。施設詳細の転送量減少は削減額へ計上しない。Scheduler等は未導入で別途合算し、純増200円目標・500円上限を維持する。基準：[S3料金](https://aws.amazon.com/s3/pricing/)、[CloudFront cache policy](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html)。実測値ではなく、trafficが仮定を超えれば再計算する。
+
+## 次の変更単位
 
 | 順序 | 変更 | 完了条件 |
 |---|---|---|
-| 2（上記で実装中） | ブラウザ検証を機能ごとに分割し、影響範囲を判定する | 新しい記録集も独立機能として扱う。現地レポートの専用smokeを現行DOMに修復し、関連変更時に実行する。unknown・期限・日付・世代・競合の回帰を固定データで再現する |
+| 2（完了） | ブラウザ検証を機能ごとに分割し、影響範囲を判定する | 新しい記録集も独立機能として扱う。現地レポートの専用smokeを現行DOMに修復し、関連変更時に実行する。unknown・期限・日付・世代・競合の回帰を固定データで再現する |
 | 3 | アプリとavailabilityの配備を分離する | アプリ変更で実収集を待たず、日次データ更新でアプリをbuildしない。書込み/削除の担当prefix、schemaと施設ID互換性、同時更新、個別rollbackを検証する |
 | 4 | 検証済み成果物を配備する | 公開対象SHA・成果物hash・必須検証成功を結び付け、配備側で再buildしない。古いjobによる上書きを防ぎ、公開済み/公開確認失敗を区別する |
-| 5 | データ配信を用途と世代で分ける | ホーム向け日別と詳細向け施設別31日を同じ収集結果から生成。世代付きURLとmanifest切替、旧アプリとの移行、旧世代保持、キャッシュ、rollbackを検証する |
+| 5（基盤を先行中） | データ配信を用途と世代で分ける | ホーム向け日別と詳細向け施設別31日を同じ収集結果から生成。世代付きURLとmanifest切替、旧アプリとの移行、旧世代保持、キャッシュ、rollbackを検証する |
 | 6 | 定時起動と監視を整理する | 目標更新時刻を確認し、起動遅延と処理時間を分けて評価。新規方式の認証情報・ログ・無料枠を含む月額純増予測を記録して費用条件を守る |
 
 各段階で構造資料・README・AGENTS.mdの現在形を更新する。既存のdaily gateは、安全な代替検証を実装してその変更自体を検証するまで省略しない。未知pathは広い検証へ倒し、失敗をcontinue-on-errorで隠さない。

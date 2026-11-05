@@ -83,3 +83,73 @@ describe('availability date selection', () => {
     expect(fetchMock.mock.calls.filter(([url]) => url.endsWith(`${dates[0]}.json`))).toHaveLength(1);
   });
 });
+
+describe('generation publication loading', () => {
+  async function setup(generation = 'a'.repeat(24)) {
+    vi.resetModules();
+    const range = await import('./availability-range');
+    const { unknownAvailability } = await import('./availability');
+    const dates = Array.from({ length: 31 }, (_, index) => addDateOnlyDays('2026-11-05', index));
+    const published = { ...manifest, partitionVersion: 1, generation, startDate: dates[0], endDate: dates.at(-1), dates };
+    const records = dates.map(date => unknownAvailability('track-a', date, 'phone_confirmation_required'));
+    const bundle = { schemaVersion: 1, timezone: 'Asia/Tokyo', generatedAt: published.generatedAt, generation, trackId: 'track-a', dates, records };
+    const fetchMock = vi.fn(async (url: string) => ({ ok: true, json: async () => url === '/availability/manifest.json' ? published : url.includes('/tracks/') ? bundle : {
+      schemaVersion: 1, timezone: 'Asia/Tokyo', generatedAt: published.generatedAt, generation: published.generation, date: dates[0], facilities: [records[0]],
+    } }));
+    vi.stubGlobal('fetch', fetchMock);
+    await range.loadAvailabilityManifest();
+    return { range, published, bundle, fetchMock, dates };
+  }
+
+  it('loads detail in one request and shares the immutable facility bundle', async () => {
+    const { range, bundle, fetchMock, dates, published } = await setup();
+    const results = await Promise.all([range.loadAvailabilityTrack('track-a'), range.loadAvailabilityTrack('track-a')]);
+    expect(results[0]).toBe(results[1]);
+    expect(results[0]).toEqual(bundle);
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      '/availability/manifest.json', `/availability/generations/${published.generation}/tracks/track-a.json`,
+    ]);
+    await range.loadAvailabilityDate(dates[0]);
+    expect(fetchMock.mock.calls.at(-1)?.[0]).toBe(`/availability/generations/${published.generation}/dates/${dates[0]}.json`);
+  });
+
+  it.each(['generation', 'trackId', 'dates', 'record'])('fails closed for a mismatched facility %s and permits retry', async fault => {
+    const { range, bundle, fetchMock } = await setup();
+    const original = structuredClone(bundle);
+    if (fault === 'generation') bundle.generation = 'b'.repeat(24);
+    if (fault === 'trackId') bundle.trackId = 'other';
+    if (fault === 'dates') bundle.dates = [];
+    if (fault === 'record') bundle.records[0].date = bundle.dates[1];
+    await expect(range.loadAvailabilityTrack('track-a')).rejects.toThrow('Invalid published');
+    Object.assign(bundle, original);
+    expect(await range.loadAvailabilityTrack('track-a')).toEqual(original);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('does not reuse a previous generation even when generatedAt is unchanged', async () => {
+    const { range, bundle, published, fetchMock } = await setup();
+    await range.loadAvailabilityTrack('track-a');
+    bundle.generation = published.generation = 'b'.repeat(24);
+    await range.loadAvailabilityManifest();
+    await range.loadAvailabilityTrack('track-a');
+    expect(fetchMock.mock.calls.filter(([url]) => url.includes('/tracks/'))).toHaveLength(2);
+  });
+
+  it('clears optional generation when a legacy manifest is restored', async () => {
+    const { range, published } = await setup();
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ...published, generation: undefined, partitionVersion: undefined }) })));
+    await range.loadAvailabilityManifest();
+    expect(range.availabilityManifest.generation).toBeUndefined();
+    expect(() => range.loadAvailabilityTrack('track-a')).toThrow('unavailable');
+  });
+
+  it('rejects an old facility response after the public pointer changes', async () => {
+    const { range, bundle } = await setup();
+    let release!: () => void;
+    vi.stubGlobal('fetch', vi.fn(async () => { await new Promise<void>(resolve => { release = resolve; }); return { ok: true, json: async () => bundle }; }));
+    const request = range.loadAvailabilityTrack('track-a');
+    range.availabilityManifest.generation = 'c'.repeat(24);
+    release();
+    await expect(request).rejects.toThrow('changed while loading');
+  });
+});

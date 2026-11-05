@@ -49,7 +49,7 @@ Also update `itsrunnew/README.md` when user-facing setup, technology-stack, veri
 ## Project invariants
 
 - This is a static Vue application. Do not reintroduce Firebase or another schedule backend unless the user explicitly changes that requirement.
-- Official availability is collected outside the browser and published as static JSON. Search and facility details fetch that JSON; failed, expired, unsupported, or unreviewed information must remain unknown rather than available or unavailable. Only the legacy schedule components use locally generated dates with three `00:00` slots.
+- Official availability is collected outside the browser and published as static JSON. Generate date and facility partitions from the same collection, validate their agreement before publishing, upload immutable generations before switching the public manifest, and preserve legacy date URLs during migration. Search and facility details fetch that JSON; failed, expired, unsupported, or unreviewed information must remain unknown rather than available or unavailable. Only the legacy schedule components use locally generated dates with three `00:00` slots.
 - `/manage` is removed and falls through to the home-page redirect.
 - Preserve the existing site's appearance and public behavior as closely as practical. Vuetify 4 compatibility overrides in `itsrunnew/src/styles.css` are intentional.
 - Production and Preview use separate S3 + CloudFront stacks. Preview content deployment is on demand from master; it is not required for every release. Use the target's guarded content deployer within the user's authorized scope. Do not attach or modify domains, Route 53, or certificates unless explicitly requested. Anonymous field reports have separate Preview/Production API stacks.
@@ -73,7 +73,7 @@ Use `npm run test:visual` when changing layout or styling and an ad-disabled leg
 
 ## Deployment and test modernization
 
-Continue the incremental work recorded in [`docs/DEPLOYMENT_MODERNIZATION.md`](docs/DEPLOYMENT_MODERNIZATION.md). Keep completed behavior distinct from planned stages and record the PR/revision and validation evidence at each checkpoint. The agreed estimate for additional monthly operating cost is a target of JPY 200 and a ceiling of JPY 500, after savings; OpenAI costs below USD 1 are excluded from this budget comparison. These are cost constraints, not a requirement to provision new services. The existing daily regression gates below remain required until a verified replacement is implemented.
+Continue the incremental work recorded in [`docs/DEPLOYMENT_MODERNIZATION.md`](docs/DEPLOYMENT_MODERNIZATION.md). Keep completed behavior distinct from planned stages and record the PR/revision and validation evidence at each checkpoint. The agreed estimate for additional monthly operating cost is a target of JPY 200 and a ceiling of JPY 500, after savings; OpenAI costs below USD 1 are excluded from this budget comparison. These are cost constraints, not a requirement to provision new services. Normal daily publication targets completion by 09:00 JST; unavailable official information remains unknown. The existing daily regression gates below remain required until a verified replacement is implemented.
 
 ### Daily job regression gate
 

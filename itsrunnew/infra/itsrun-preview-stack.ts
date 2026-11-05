@@ -15,17 +15,30 @@ export class ItsRunPreviewStack extends cdk.Stack {
       versioned: false,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      lifecycleRules: [{ id: 'ExpireAvailabilityGenerations', prefix: 'availability/generations/',
+        expiration: cdk.Duration.days(7),
+      }],
     });
 
+    const siteOrigin = origins.S3BucketOrigin.withOriginAccessControl(siteBucket);
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       comment: 'ItsRun modern-stack preview (no production domain attached)',
       defaultRootObject: 'index.html',
       defaultBehavior: {
-        origin: origins.S3BucketOrigin.withOriginAccessControl(siteBucket),
+        origin: siteOrigin,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         compress: true,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+      },
+      additionalBehaviors: {
+        'availability/manifest.json': {
+          origin: siteOrigin,
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          compress: true,
+          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+          responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+        },
       },
       errorResponses: [
         { httpStatus: 403, responseHttpStatus: 200, responsePagePath: '/index.html', ttl: cdk.Duration.seconds(0) },

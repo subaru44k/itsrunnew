@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
-import { deferFacilityDatePaths, invalidationPaths, planDeployment } from './deploy-content.mjs';
+import { deferFacilityDatePaths, invalidationPaths, planDeployment, publishChangedFiles } from './deploy-content.mjs';
 import { onlySourceCheckDatesChanged } from './facility-date-only.mjs';
 
 describe('content deployment plan', () => {
@@ -51,6 +51,35 @@ describe('content deployment plan', () => {
     expect(planDeployment({ 'assets/index-old.js': 'old' }, {})).toEqual({ changed: [], removed: [], paths: [] });
     expect(planDeployment({}, { 'assets/index-new.js': 'new' })).toEqual({ changed: ['assets/index-new.js'], removed: [], paths: [] });
     expect(planDeployment({ 'assets/index.js': 'old' }, { 'assets/index.js': 'new' }).paths).toEqual(['/assets/index.js']);
+  });
+
+  it('retains old data generations and never invalidates fresh immutable URLs', () => {
+    const old = 'availability/generations/old/dates/2026-11-05.json';
+    const next = 'availability/generations/new/tracks/facility.json';
+    expect(planDeployment({ [old]: 'old' }, { [next]: 'new' })).toEqual({ changed: [next], removed: [], paths: [] });
+    expect(() => planDeployment({ [old]: 'old' }, { [old]: 'changed' })).toThrow('Immutable');
+  });
+
+  it('finishes immutable uploads before app files and switches the public pointer last', async () => {
+    const completed: string[] = [];
+    await publishChangedFiles(['availability/manifest.json', 'index.html', 'availability/generations/new/tracks/a.json', 'assets/new.js'], async key => {
+      if (key === 'index.html') expect(completed).toContain('availability/generations/new/tracks/a.json');
+      if (key === 'availability/manifest.json') expect(completed).toContain('index.html');
+      await new Promise(resolve => setTimeout(resolve, 1));
+      completed.push(key);
+    });
+    expect(completed.at(-1)).toBe('availability/manifest.json');
+  });
+
+  it('does not switch the pointer after a failed immutable or stable upload', async () => {
+    for (const failed of ['assets/new.js', 'index.html']) {
+      const uploaded: string[] = [];
+      await expect(publishChangedFiles(['availability/manifest.json', 'index.html', 'assets/new.js'], async key => {
+        uploaded.push(key);
+        if (key === failed) throw new Error('upload failed');
+      })).rejects.toThrow('upload failed');
+      expect(uploaded).not.toContain('availability/manifest.json');
+    }
   });
 
   it('limits a daily 31-day refresh to one availability-only wildcard', () => {

@@ -1,8 +1,9 @@
-import { readdir, mkdir, unlink, writeFile } from 'node:fs/promises';
+import { readdir, mkdir, rm, unlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { collectAvailabilityRange } from './range';
 import { createSourceFetch } from './source-fetch';
+import { createAvailabilityPublication, writeAvailabilityPublication } from './publication.mjs';
 
 function tokyoDateKey(date = new Date()) {
   return new Intl.DateTimeFormat('en-CA', {
@@ -35,9 +36,7 @@ const activeFiles = new Set(result.datasets.map(dataset => `${dataset.date}.json
 for (const filename of await readdir(outputDirectory)) {
   if (/^\d{4}-\d{2}-\d{2}\.json$/.test(filename) && !activeFiles.has(filename)) await unlink(resolve(outputDirectory, filename));
 }
-for (const dataset of result.datasets) {
-  await writeFile(resolve(outputDirectory, `${dataset.date}.json`), `${JSON.stringify(dataset, null, 2)}\n`, 'utf8');
-}
+await rm(resolve(outputDirectory, 'generations'), { recursive: true, force: true });
 const dates = result.datasets.map(dataset => dataset.date);
 const manifest = {
   schemaVersion: 1,
@@ -47,7 +46,7 @@ const manifest = {
   endDate: dates.at(-1),
   dates,
 };
-await writeFile(resolve(outputDirectory, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+await writeAvailabilityPublication(outputDirectory, createAvailabilityPublication(manifest, result.datasets, process.env.ITSRUN_SOURCE_SHA ?? process.env.GITHUB_SHA));
 await writeFile(resolve(dataRoot, 'availability.json'), `${JSON.stringify(result.datasets[0], null, 2)}\n`, 'utf8');
 
 console.log(`Availability range generated: ${manifest.startDate} -> ${manifest.endDate} (${dates.length} days)`);

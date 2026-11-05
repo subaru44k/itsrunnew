@@ -60,7 +60,7 @@ itsrunnew/
 │   ├── data/nozomi-results.json 田中希実選手の2020年以降の大会結果
 │   ├── data/ryuji-results.json  三浦龍司選手の2020年以降の大会結果
 │   ├── data/availability.json 単日debug・後方互換用availability dataset
-│   ├── data/availability/    manifestと今日から31日分のdate-specific JSON
+│   ├── data/availability/    公開manifest、互換日別JSON、世代別の日別/施設別JSON
 │   ├── styles.css             全体CSSと旧サイト再現用のVuetify 4補正
 │   ├── i18n.ts                日本語・英語のVue I18n設定
 │   ├── locales/               ja.json / en.json
@@ -284,9 +284,17 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 静的施設情報の再確認は `scripts/reverification/` と `.github/workflows/facility-reverification.yml` が担当します。初回133施設の公開変更なし試走は登録済み214 URLを直接取得し、Luna xhighで13属性を照合してAPI usageを記録しました。週次workflowは公式施設・個人利用sourceを直接取得し、本文hash・redirect・読取復旧、公開文中の期限到来を検知します。本文を読めた既存の公式sourceは内容が同じでも `verifiedAt` を実行日に進め、確認日のみのPRも作成します。公式HTTP取得は専用UAに加え一般的なブラウザUAで再試行し、全sourceを読めない施設ではURL別の失敗理由をreportへ残します。情報源の再探索は施設ごとに365日後、1回のworkflowで最大20施設をLuna xhighのWeb検索へ回し、14日以上読めないURLを優先します。本文変更時の公開差分は原文引用、型、独立した2回目のAI判定を満たした属性だけに限り、全sourceを28日間読めないときは個人利用statusだけunknownへ下げます。施設削除、名称・座標、日別availabilityは自動変更しません。source fingerprint、再試行、実際のWeb検索action、保守的なAPI費を `automation/facility-reverification-state` branchの `research/track-expansion/reverification-state.json` に保存し、暦年$4.80の推計上限で新しいAI呼び出しを停止します。2026年の開始残高には初回試験費を切り上げた$1.00を算入します。公開データ変更はGitHub Appの最小権限tokenでPRを作り、必須CI通過後のauto-mergeがmasterのProduction deployを起動します。Previewは必要時の手動配備です。確認日だけのpushは差分検出で区別し、生成ファイルをS3へ配置しても施設ページ由来のCloudFront invalidationは行わず通常のcache期限を待ちます。日別availabilityのinvalidationは従来通りです。実行reportはActions artifactとsummaryへ残します。
 
+### Availabilityの公開世代と配信単位
+
+`scripts/availability/publication.mjs` は1回の収集結果から、`manifest.json`（公開先）、互換用 `YYYY-MM-DD.json`、`generations/<24桁content hash>/dates/YYYY-MM-DD.json`、`generations/<hash>/tracks/<trackId>.json`（同じ施設の31日分）、世代内のmanifestを生成します。schemaVersionは1を維持し、manifestの任意項目 `partitionVersion: 1` / `generation` / `trackIdsHash` / `sourceCommit` で拡張します。hashはmanifest・全日別記録・収集revisionを含みます。`validate:availability:fresh` は鮮度・全施設・fixture禁止に加え、全partitionを日別正本から再生成して照合します。
+
+ブラウザはmanifest取得前の初回日付だけ互換URLも利用し、取得後は世代URLを使います。施設bundleは施設ID・全日付・時刻・世代を検証し、世代が変わった取得結果を採用しません。異常時は要確認を維持します。旧manifestへ戻した場合も任意の世代項目を消して互換取得に戻れます。
+
+content deployはimmutable asset/世代JSON、その他のファイル、公開manifestの順に最大8並列で送信し、各段階の全処理完了を待ちます。途中失敗時は公開manifestを更新しません。新しい世代URLのinvalidationは不要で、同じ世代URLの内容変更は拒否します。旧世代は通常deployの削除対象にせず、S3 lifecycleで7日後に期限切れとします（Productionのavailability旧versionも7日）。manifestはS3 `no-store` と両環境の専用CloudFront `CACHING_DISABLED` behaviorを併用します。ドメイン・証明書・DNSは変更しません。互換日別JSONは従来のinvalidationを維持します。通常配備はまだアプリとデータを一緒に行い、分離は [DEPLOYMENT_MODERNIZATION.md](DEPLOYMENT_MODERNIZATION.md) の次段階です。
+
 ### 施設詳細の個人利用予定
 
-施設詳細は「この施設でいつ走れるか・どう確認するか」、ホームは「この日にどこで走れるか」を担当します。`components/FacilitySchedule.vue` は公開manifestの今日以降（最大31日）を4並列以下で読み、取得済みの日から順次表示し、共通の日別cacheと期限判定を使います。`model/facility-schedule.ts` は利用可・一部利用可・利用不可の判定済み日だけを抽出し、unknown・通信失敗・過去日は一覧に含めません。連続して判定できる施設は個人利用スケジュール、一部だけ判定できる施設は判定済み日数と未記載日が要確認である説明、全日unknownの施設は事前確認方法を優先します。電話確認・日別予定なし・期限切れとその他の取得不能を区別し、予定が公開されていないと一律には断定しません。
+施設詳細は「この施設でいつ走れるか・どう確認するか」、ホームは「この日にどこで走れるか」を担当します。`components/FacilitySchedule.vue` は世代付きmanifestの場合、その施設の31日分bundleを1リクエストで取得します。検索・選択日の全施設データは世代付き日別JSONを使い、期限判定は共通です。旧schemaのmanifestだけは従来の4並列以下の日別取得へfallbackします。`model/facility-schedule.ts` は利用可・一部利用可・利用不可の判定済み日だけを抽出し、unknown・通信失敗・過去日は一覧に含めません。連続して判定できる施設は個人利用スケジュール、一部だけ判定できる施設は判定済み日数と未記載日が要確認である説明、全日unknownの施設は事前確認方法を優先します。電話確認・日別予定なし・期限切れとその他の取得不能を区別し、予定が公開されていないと一律には断定しません。
 
 上部の次回枠は公開範囲内の確認済み予定の短い要約であり、当日の終了済み枠を除外します。初期一覧は最大14件の判定済み日を「日付・利用可否・短い時間情報」の判断カードで表示し、PCは7列（中幅4列）、モバイルは2列とします。時間帯や条件を各日に列挙せず、同じ条件の連続枠だけを統合し、離れた時間帯は「2枠」などと表示します。残りの判定済み日程は展開できます。日付行から選択日queryと一つの詳細へ連動します。従来の指定日セクションはFacilityScheduleのslot内の折りたたみへ統合し、日付未指定の初期表示では詳細を閉じ、日付選択またはdate query付きの直接アクセスで開きます。native date inputは詳細の折りたたみの外、一覧の直後に常時表示し、date input内には今日・明日の重複ボタンを置かず、今日の判断から詳細へ進むボタンは上部の要約に置きます。日付選択時はmanifest再確認・対象日取得・必要な一覧更新とDOM描画を待って詳細へスクロール／フォーカスします。直前の選択を連番で無効化し、古い選択や施設変更・離脱後にフォーカスを移しません。明示的な日付選択では古いhashを外し、現地レポートの今日へ戻るactionではレポートの表示位置を維持します。manifest確認中に取得済み一覧を消さず、同じ生成世代なら期限を再評価して再読み込みせず、世代変更は取得後にまとめて反映します。詳細に時間帯・対象レーン・利用資格・条件・warningsを保持し、collectorの機械的なcondition値は表示せず、年間定期利用者・用具不可等の制限は日英の利用者向け表現へ変換します。日付選択と現地レポート、料金、旧施設案内は維持します。施設詳細の注意書きでは、収集・PDF解析・空欄判定などの内部説明を表示時に除外します（元データには保持）。受付締切、資格、レーン・用具制限、予定変更など利用者に必要な注意は残し、必要な時間帯の確認案内は平易な表現へ置き換えます。未掲載日は利用不可と扱わず、公式情報への確認案内を表示します。
 
@@ -364,7 +372,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 - S3のパブリックアクセスは全面遮断、S3管理暗号化、SSL必須。
 - hosting stackはS3/CloudFrontの基盤のみ作成し、contentはdeploy scriptが配備する。旧BucketDeploymentは削除時に既存objectを保持する。
-- content deployは前回成功時のSHA-256 manifestと`dist/`を比較して変更分だけS3へ送信し、削除済みの非assetをpruneする。旧ハッシュ付きassetは既存タブ用に保持する。CloudFront無効化は更新・削除された既存URLだけに限定し、新しいハッシュ付きassetは未キャッシュなので省く。施設詳細の全shell変更時は日英prefixを各1パス、availabilityの複数ファイル変更時は`/availability/*`の1パスへまとめ、差分なしなら作成しない。
+- content deployは前回成功時のSHA-256 manifestと`dist/`を比較して変更分だけS3へ送信し、削除済みの非assetをpruneする。旧ハッシュ付きassetとavailability世代は既存タブ用に保持する（availability世代の保存期限は前述の7日）。CloudFront無効化は更新・削除された既存URLだけに限定し、新しいハッシュ付きassetは未キャッシュなので省く。施設詳細の全shell変更時は日英prefixを各1パス、availabilityの複数ファイル変更時は`/availability/*`の1パスへまとめ、差分なしなら作成しない。
 - SPA対応のため、S3由来の403/404を`/index.html`の200へ変換する。
 - CDK出力は`VerificationUrl`、`DistributionId`、`BucketName`。
 - スタック名は`ItsRunPreviewStack`、既定リージョンは`ap-northeast-1`。
@@ -410,7 +418,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm run test:monitor:email` | Python標準ライブラリによるGmail送信をmockで検証（実送信なし） |
 | `npm run test:reverification` | 静的施設情報の期限・引用・差分・source消失を外部APIなしで検証 |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
-| `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋日別availability JSONを生成 |
+| `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋互換日別・世代別日別・施設別31日JSONを生成 |
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |
 | `npm run infra:deploy` | 検証用hosting stackのみ配備し、`cdk-outputs.json`へ出力。contentは別途content deployで配備 |
 | `npm run infra:destroy` | 検証スタックを削除 |

@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 
 const stateKey = '.itsrun-deploy/manifest-v1.json';
 const dist = resolve('dist');
+const immutable = key => key.startsWith('assets/') || key.startsWith('availability/generations/');
 
 function aws(...args) {
   return execFileSync('aws', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -49,10 +50,13 @@ export function invalidationPaths(keys) {
 
 export function planDeployment(previous, current) {
   const changed = Object.keys(current).filter(key => current[key] !== previous[key]).sort();
-  // Keep immutable hashed assets for tabs that loaded the previous HTML before deployment.
-  const removed = Object.keys(previous).filter(key => !(key in current) && !key.startsWith('assets/')).sort();
+  for (const key of changed) {
+    if (key.startsWith('availability/generations/') && key in previous) throw new Error(`Immutable availability URL changed: ${key}`);
+  }
+  // Keep immutable assets and data generations for already-open pages and rollback.
+  const removed = Object.keys(previous).filter(key => !(key in current) && !immutable(key)).sort();
   // A new content-hashed asset has a fresh URL; only a reused key could be cached.
-  const invalidateChanged = changed.filter(key => !key.startsWith('assets/') || key in previous);
+  const invalidateChanged = changed.filter(key => !immutable(key) || key in previous);
   let affected = [...invalidateChanged, ...removed];
   const grouped = [];
   for (const [pattern, wildcard] of [
@@ -102,23 +106,43 @@ function previousManifest(bucket, temporaryDirectory) {
 
 function cacheControl(key) {
   if (key === 'index.html' || key === 'service-worker.js') return 'no-cache';
-  if (key.startsWith('assets/')) return 'public,max-age=31536000,immutable';
+  if (key === 'availability/manifest.json') return 'no-store';
+  if (immutable(key)) return 'public,max-age=31536000,immutable';
   return 'public,max-age=300';
 }
 
-function upload(bucket, key) {
+async function upload(bucket, key) {
   const args = ['s3', 'cp', join(dist, key), `s3://${bucket}/${key}`,
     '--cache-control', cacheControl(key), '--only-show-errors'];
   if (key === 'index.html') args.push('--content-type', 'text/html');
   if (key === 'service-worker.js') args.push('--content-type', 'application/javascript');
-  aws(...args);
+  await new Promise((resolveUpload, reject) => execFile('aws', args, { encoding: 'utf8' }, (error, stdout, stderr) => {
+    if (error) { error.message += `: ${stderr}`; reject(error); }
+    else resolveUpload(stdout);
+  }));
+}
+
+export async function publishChangedFiles(keys, uploadFile) {
+  const phases = [keys.filter(immutable), keys.filter(key => !immutable(key) && key !== 'availability/manifest.json'), keys.filter(key => key === 'availability/manifest.json')];
+  for (const phase of phases) {
+    const queue = [...phase];
+    let failure;
+    const results = await Promise.allSettled(Array.from({ length: Math.min(8, queue.length) }, async () => {
+      while (queue.length && !failure) {
+        const key = queue.shift();
+        try { await uploadFile(key); } catch (error) { failure = error; throw error; }
+      }
+    }));
+    const rejected = results.find(result => result.status === 'rejected');
+    if (rejected) throw rejected.reason;
+  }
 }
 
 function output(name, value) {
   if (process.env.GITHUB_OUTPUT) writeFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`, { flag: 'a' });
 }
 
-export function deploy({ bucket, distribution }) {
+export async function deploy({ bucket, distribution }) {
   if (!statSync(join(dist, 'index.html')).isFile() || !statSync(join(dist, 'service-worker.js')).isFile()) {
     throw new Error('dist/ is missing required entry files.');
   }
@@ -130,7 +154,7 @@ export function deploy({ bucket, distribution }) {
       planDeployment(previous.files, current),
       process.env.ITSRUN_DEFER_FACILITY_DATE_INVALIDATION === 'true',
     );
-    for (const key of plan.changed) upload(bucket, key);
+    await publishChangedFiles(plan.changed, key => upload(bucket, key));
     for (const key of plan.removed) aws('s3api', 'delete-object', '--bucket', bucket, '--key', key);
 
     let invalidationId = '';
@@ -168,5 +192,5 @@ export function deploy({ bucket, distribution }) {
 if (process.argv[1] && resolve(process.argv[1]) === new URL(import.meta.url).pathname) {
   const [bucket, distribution] = process.argv.slice(2);
   if (!bucket || !distribution) throw new Error('Usage: node deploy-content.mjs BUCKET DISTRIBUTION');
-  deploy({ bucket, distribution });
+  await deploy({ bucket, distribution });
 }

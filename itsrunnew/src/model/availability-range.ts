@@ -1,8 +1,10 @@
 import { reactive, ref } from 'vue';
-import type { AvailabilityDataset } from './availability';
+import type { AvailabilityDataset, TrackAvailability } from './availability';
 
 export interface AvailabilityManifest {
   schemaVersion: number;
+  partitionVersion?: 1;
+  generation?: string;
   timezone: 'Asia/Tokyo';
   generatedAt: string;
   startDate: string;
@@ -39,10 +41,14 @@ export function loadAvailabilityManifest(): Promise<void> {
     const value = await response.json() as AvailabilityManifest;
     if (value.schemaVersion !== 1 || value.timezone !== 'Asia/Tokyo' ||
         !Array.isArray(value.dates) || value.dates.length !== 31 ||
-        value.startDate !== value.dates[0] || value.endDate !== value.dates.at(-1)) {
+        value.startDate !== value.dates[0] || value.endDate !== value.dates.at(-1) ||
+        !Number.isFinite(Date.parse(value.generatedAt)) ||
+        value.dates.some((date, index) => !/^\d{4}-\d{2}-\d{2}$/.test(date) || addDateOnlyDays(value.startDate, index) !== date) ||
+        (value.generation !== undefined && (!/^[a-f0-9]{24}$/.test(value.generation) || value.partitionVersion !== 1)) ||
+        (value.partitionVersion !== undefined && !value.generation)) {
       throw new Error('Invalid published availability manifest');
     }
-    Object.assign(availabilityManifest, value);
+    Object.assign(availabilityManifest, { generation: undefined, partitionVersion: undefined }, value);
   })();
   manifestRequest = request.then(
     () => { manifestRequest = null; availabilityManifestStatus.value = 'ready'; },
@@ -80,23 +86,30 @@ export function isGeneratedDate(date: string, manifest: AvailabilityManifest = a
   return manifest.dates.includes(date);
 }
 
-async function fetchAvailabilityDate(date: string, cache: RequestCache = 'no-cache') {
-  const response = await fetch(`/availability/${date}.json`, { cache, signal: AbortSignal.timeout(8000) });
+async function fetchAvailabilityDate(date: string, generation: string | undefined, cache: RequestCache = 'no-cache') {
+  const path = generation ? `generations/${generation}/dates/${date}.json` : `${date}.json`;
+  const response = await fetch(`/availability/${path}`,  { cache, signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw new Error(`Availability date HTTP ${response.status}: ${date}`);
   const value = await response.json() as AvailabilityDataset;
-  if (value.schemaVersion !== 1 || value.date !== date || value.timezone !== 'Asia/Tokyo' || !Array.isArray(value.facilities)) {
+  if (value.schemaVersion !== 1 || value.date !== date || value.timezone !== 'Asia/Tokyo' || !Array.isArray(value.facilities) || value.generation !== generation) {
     throw new Error(`Invalid published availability date: ${date}`);
   }
   return value;
 }
 
 export function loadAvailabilityDate(date: string): Promise<AvailabilityDataset> {
+  return loadDate(date, 1);
+}
+
+function loadDate(date: string, retries: number): Promise<AvailabilityDataset> {
   if (!isGeneratedDate(date)) throw new Error(`Availability date is outside the generated range: ${date}`);
   // Long-lived tabs pick up scheduled deployments without blocking navigation.
   if (manifestCheckedAt && Date.now() - manifestCheckedAt >= DATE_CACHE_MS) {
     void loadAvailabilityManifest().catch(() => {});
   }
-  const cached = dateCache.get(date);
+  const generation = availabilityManifest.generation;
+  const cacheKey = `${generation ?? 'legacy'}|${date}`;
+  const cached = dateCache.get(cacheKey);
   if (cached?.promise) return cached.promise;
   if (cached?.value && cached.fetchedAt !== undefined && Date.now() - cached.fetchedAt < DATE_CACHE_MS &&
       (availabilityManifestStatus.value !== 'ready' || Date.parse(cached.value.generatedAt) >= Date.parse(availabilityManifest.generatedAt))) {
@@ -104,10 +117,15 @@ export function loadAvailabilityDate(date: string): Promise<AvailabilityDataset>
   }
   const promise = (async () => {
     try {
-      let value = await fetchAvailabilityDate(date);
+      let value = await fetchAvailabilityDate(date, generation);
+      if (generation !== availabilityManifest.generation) {
+        if (!retries) throw new Error(`Availability changed while loading: ${date}`);
+        return await loadDate(date, retries - 1);
+      }
       // A deploy can land between the two parallel requests. Accept a newer
       // date file and refresh the manifest; retry an older date file once.
-      if (availabilityManifestStatus.value === 'ready' && value.generatedAt !== availabilityManifest.generatedAt) {
+      if (generation && value.generatedAt !== availabilityManifest.generatedAt) throw new Error(`Availability generation mismatch: ${date}`);
+      if (!generation && availabilityManifestStatus.value === 'ready' && value.generatedAt !== availabilityManifest.generatedAt) {
         const publishedAt = Date.parse(value.generatedAt);
         const manifestAt = Date.parse(availabilityManifest.generatedAt);
         if (Number.isFinite(publishedAt) && publishedAt > manifestAt) {
@@ -117,17 +135,56 @@ export function loadAvailabilityDate(date: string): Promise<AvailabilityDataset>
             void loadAvailabilityManifest().catch(() => {});
           }
         } else {
-          value = await fetchAvailabilityDate(date, 'reload');
+          value = await fetchAvailabilityDate(date, generation, 'reload');
           if (value.generatedAt !== availabilityManifest.generatedAt) throw new Error(`Availability generation mismatch: ${date}`);
         }
       }
-      dateCache.set(date, { value, fetchedAt: Date.now() });
+      dateCache.set(cacheKey, { value, fetchedAt: Date.now() });
       return value;
     } catch (error) {
-      dateCache.delete(date);
+      dateCache.delete(cacheKey);
       throw error;
     }
   })();
-  dateCache.set(date, { promise });
+  dateCache.set(cacheKey, { promise });
   return promise;
+}
+
+export interface AvailabilityTrackBundle {
+  schemaVersion: number;
+  timezone: 'Asia/Tokyo';
+  generatedAt: string;
+  generation: string;
+  trackId: string;
+  dates: string[];
+  records: TrackAvailability[];
+}
+const trackCache = new Map<string, Promise<AvailabilityTrackBundle>>();
+
+export function loadAvailabilityTrack(trackId: string): Promise<AvailabilityTrackBundle> {
+  const { generation, generatedAt, dates } = availabilityManifest;
+  if (!generation || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(trackId)) throw new Error('Facility bundle unavailable');
+  const key = `${generation}|${trackId}`;
+  const cached = trackCache.get(key);
+  if (cached) return cached;
+  // Only the current generation is reusable; already-open views keep their records.
+  for (const previous of trackCache.keys()) if (!previous.startsWith(`${generation}|`)) trackCache.delete(previous);
+  const request = (async () => {
+    const response = await fetch(`/availability/generations/${generation}/tracks/${trackId}.json`, { signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error(`Availability facility HTTP ${response.status}`);
+    const value = await response.json() as AvailabilityTrackBundle;
+    if (value.schemaVersion !== 1 || value.timezone !== 'Asia/Tokyo' || value.generation !== generation ||
+        value.generatedAt !== generatedAt || value.trackId !== trackId ||
+        JSON.stringify(value.dates) !== JSON.stringify(dates) || !Array.isArray(value.records) || value.records.length !== dates.length ||
+        value.records.some((record, index) => record.trackId !== trackId || record.date !== dates[index] ||
+          record.timezone !== 'Asia/Tokyo' || record.freshness?.validForDate !== record.date ||
+          !Number.isFinite(Date.parse(record.freshness?.expiresAt)) || !Array.isArray(record.periods) ||
+          !['available', 'partially_available', 'unavailable', 'unknown'].includes(record.status))) {
+      throw new Error('Invalid published availability facility');
+    }
+    if (availabilityManifest.generation !== generation) throw new Error('Availability changed while loading facility');
+    return value;
+  })().catch(error => { trackCache.delete(key); throw error; });
+  trackCache.set(key, request);
+  return request;
 }

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { makeDailyFixture } from './daily-fixtures.mjs';
+import { createAvailabilityPublication, writeAvailabilityPublication } from './availability/publication.mjs';
 
 const mode = process.argv[2];
 if (!['live', 'fixtures', 'fixture-smoke', 'features'].includes(mode)) throw new Error('Usage: node scripts/daily-check.mjs live|fixtures|fixture-smoke|features');
@@ -57,8 +58,7 @@ try {
       const directory = join(app, 'src/data/availability');
       await rm(directory, { recursive: true, force: true });
       await mkdir(directory);
-      await writeFile(join(directory, 'manifest.json'), JSON.stringify(manifest));
-      for (const dataset of datasets) await writeFile(join(directory, `${dataset.date}.json`), JSON.stringify(dataset));
+      await writeAvailabilityPublication(directory, createAvailabilityPublication(manifest, datasets));
       await writeFile(join(app, 'src/data/availability.json'), JSON.stringify(datasets[0]));
       await run('validate:tracks');
       await run('build');

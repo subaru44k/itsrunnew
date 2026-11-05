@@ -114,6 +114,11 @@ export class ItsRunProductionStack extends cdk.Stack {
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
+      lifecycleRules: [{ id: 'ExpireAvailabilityGenerations', prefix: 'availability/generations/',
+        expiration: cdk.Duration.days(7),
+      }, { id: 'ExpirePreviousAvailabilityVersions', prefix: 'availability/',
+        noncurrentVersionExpiration: cdk.Duration.days(7),
+      }],
     });
 
     const routerFunction = new cloudfront.Function(this, 'RouteFunction', {
@@ -130,6 +135,7 @@ export class ItsRunProductionStack extends cdk.Stack {
     const certificate = domainConfigured
       ? acm.Certificate.fromCertificateArn(this, 'ProductionCertificate', props.certificateArn!)
       : undefined;
+    const siteOrigin = origins.S3BucketOrigin.withOriginAccessControl(siteBucket);
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       comment: 'ItsRun production static website',
       defaultRootObject: 'index.html',
@@ -139,7 +145,7 @@ export class ItsRunProductionStack extends cdk.Stack {
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
       priceClass: cloudfront.PriceClass.PRICE_CLASS_200,
       defaultBehavior: {
-        origin: origins.S3BucketOrigin.withOriginAccessControl(siteBucket),
+        origin: siteOrigin,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         compress: true,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
@@ -148,6 +154,16 @@ export class ItsRunProductionStack extends cdk.Stack {
           { function: routerFunction, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST },
           { function: noIndexFunction, eventType: cloudfront.FunctionEventType.VIEWER_RESPONSE },
         ],
+      },
+      additionalBehaviors: {
+        'availability/manifest.json': {
+          origin: siteOrigin,
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          compress: true,
+          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+          responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+          functionAssociations: [{ function: noIndexFunction, eventType: cloudfront.FunctionEventType.VIEWER_RESPONSE }],
+        },
       },
       errorResponses: [
         { httpStatus: 403, responseHttpStatus: 404, responsePagePath: '/404.html', ttl: cdk.Duration.seconds(0) },

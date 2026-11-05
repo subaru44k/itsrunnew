@@ -1,16 +1,33 @@
 # デプロイ・検証の段階的見直し
 
-2026-11-05に合意した改善の引継ぎ資料です。現在の実装の正本は [SITE_STRUCTURE.md](SITE_STRUCTURE.md)、個別PRの完了証拠はそのrevisionのCIとProduction deployです。以下の将来段階を、実装済みの仕様として扱わないでください。
+2026-11-05に合意した改善の引継ぎ資料です。現在の実装の正本は [SITE_STRUCTURE.md](SITE_STRUCTURE.md)、個別PRの完了証拠はそのrevisionのCIとProduction deployです。完了状態を冒頭へまとめ、当時の計画・途中チェックポイントは履歴として残します。
 
-## 現在の状態（最終policyのPR準備時点）
+## 完了状態（2026-11-05）
 
-- 第1・2段階：完了。
-- 第3・4段階：検証済みartifactとapp/data分離を本番確認済み。app-only再配備でdata skipも確認済み。
-- 第5段階：世代別日別/施設bundleを本番確認済み。旧URL互換・7日保持・manifest最後の切替を実装。
-- 第6段階：認証・実Scheduler配送・公開monitor反復を確認済み。定時3 schedulesはDISABLED。実Schedulerからdata公開までの一時試験を継続中。
-- 最終policy：`codex/deterministic-validation` / `/Users/yamadashinya/work/itsrunnew-modernization`。CIのlive collectionを外して本番data gate/公開監視へ分担し、独立feature/known opsを関連検証へ絞る。mixed統合・unknown専用・原本回帰・未知diffの広いgateを維持する。S3転送をmetadataごとの一括CLIへ変更し、source確認日だけは再収集を省略。Production未指定/all scopeを拒否する。
+全段階をmasterへ反映。本番コードの配備revisionは `3911b5c0fdb2848c5cb35e40ae15c809cc05b758`（PR #150）。資料の追記はdocs-onlyで、app/dataを再配備しません。
 
-このPRのmaster反映と旧Production cron削除は、実Scheduler→data公開・確認の成功後に行う。policy移行のローカルmixed/unknownとlive互換検証は成功。新たに任意の施設数上限を削除し、現地レポートAPIの施設ID一致と、外部fetch禁止・同一世代への実monitor CLI 2回の回帰を追加した。最終CI/本番/enableの証拠は完了時に追記する。
+- Previewは必要時のmaster手動配備だけ。通常公開の待ち条件にしない。
+- CIは独立feature・known ops・共有/未知のmatrixで選択。production buildは1回、JSONだけを変える隔離copyを検証し、元artifactを公開する。PRでのlive再収集を廃止し、原本fixture・mixed統合・unknown専用・未知diffの広いgateを維持。
+- app/dataは所有prefix・state・concurrencyを分離。appは再build/再収集なし、日次dataはapp buildなし。SHA/run/hash・schema/IDs・旧job・個別rollbackをguardする。
+- 日別と施設別31日bundleを同じ収集から生成。詳細は1 request、世代URLと公開manifest最後の切替、旧URL互換と7日保持。SHA差分だけをmetadata別の一括CLIで転送し、未指定/allのProduction writeを拒否。
+- 外部Schedulerの05:30/08:15 JST更新・09:15 JST公開監視は3つともENABLED。Productionの旧GitHub cronは削除済み。monitorの10:15 JST fallbackは維持。実Scheduler→収集→公開/byte確認、同世代monitor反復を確認した。
+- `AGENTS.md`、構造/README、[検証policy](VALIDATION_POLICY.md)、[配備](PRODUCTION_DEPLOYMENT.md)、[定時起動](AVAILABILITY_SCHEDULER.md)、[監視](AVAILABILITY_MONITORING.md) を同期。
+
+通常09:00 JST公開完了が目標。次の定時実行は将来の11/6朝であり、翌朝09:00までの実測を成功済みとは扱わない。臨時scheduleの全経路は検証済み。
+
+追加月額は保守的に約150円の予測（150円/USDの仮定。180円/USD+税10%でも約200円）。合意した200円目標・500円上限内。実測請求ではない。内訳・traffic/release回数・価格資料は [費用予測](AVAILABILITY_SCHEDULER.md) と本書の各段階を参照。
+
+### 最終の確認証拠
+
+- [PR #150 CI](https://github.com/subaru44k/itsrunnew/actions/runs/41997998436) と [master CI](https://github.com/subaru44k/itsrunnew/actions/runs/41998641532) が成功。全unit/all features/mixed/unknown専用とartifact保存を確認。
+- [本番 41999056912](https://github.com/subaru44k/itsrunnew/actions/runs/41999056912) のplan/data/appがすべて成功。再buildなし・全partition/freshness・公開byte・release smokeを確認。正式manifestはgeneration `5e97735e94b89f771cb06189`、source commit `3911b5c0fdb2848c5cb35e40ae15c809cc05b758`、11/5〜12/5、生成18:03:02 JST。
+- [実Schedulerのdata試験 41997761880](https://github.com/subaru44k/itsrunnew/actions/runs/41997761880) は17:51:49 JST予定から17:51:56 JSTに作成（7秒差）。data-only公開・公開byte確認まで成功し、appはskip。試験scheduleは自動削除済み。
+- 修正後の [monitor 41995832951](https://github.com/subaru44k/itsrunnew/actions/runs/41995832951) と [実Schedulerの反復monitor 41996275932](https://github.com/subaru44k/itsrunnew/actions/runs/41996275932) が成功。同世代を新規収集と誤認した問題を解決した。
+- localではscope/署名/CLI/所有prefix、型検査込みbuild、mixed/unknown・keyless live互換、公開data rollback再構築、同世代monitor反復が成功。最終CIで同じ機能・shared境界を再検証した。
+
+### 所要時間の観測
+
+連続runの例で、広いCIは旧 [41995817234](https://github.com/subaru44k/itsrunnew/actions/runs/41995817234) の432秒から最終の179秒。旧live step 174秒をPRから外し、fixture stepは130秒から67秒へ短縮。data jobは初回分離時246秒から最終191秒、配備stepは103秒から40秒。最終app jobは50秒（CI済みartifact復元、同じapp bytesの配備確認）。外部応答・変更量・CloudFront完了時間も変動するため、同条件benchmarkや全リリースの保証時間ではない。
 
 ## 合意した条件
 
@@ -19,7 +36,9 @@
 - 取得不能・期限切れ・未確認資料はunknownとし、利用可にも利用不可にも捏造しない。原本fixtureと判定guardを残す。
 - 新規運用費から廃止・削減分を差し引いた月額増分は、予測で200円以内を目標、500円を上限とする。1ドル未満のOpenAI費用はこの比較から除く。費用の発生しない改善から進める。
 - 各段階を小さなPRで検証・公開し、途中でセッションが止まっても、この文書とGitHubの結果から再開できるようにする。
-- 通常の当日データ更新完了は09:00 JSTを目標にする（2026-11-05に合意）。当面のProduction scheduleは05:30 / 08:15 JSTを維持し、起動方式の切替で遅延を改善する。
+- 通常の当日データ更新完了は09:00 JSTを目標にする（2026-11-05に合意）。外部Schedulerから05:30 / 08:15 JSTに更新を起動し、cron起動遅延と処理時間を分けて改善する。
+
+以下は段階当時の計画・実装・検証記録です。「現在」「実装中」は各チェックポイント当時の状態を指します。最新状態は冒頭の完了表を優先してください。
 
 ## 第1段階：Previewの必要時利用と型検査重複の解消（完了）
 
@@ -55,7 +74,7 @@
 
 予測追加費用は0円。必須check名とfull dailyの適用境界は維持する。[PR #145](https://github.com/subaru44k/itsrunnew/pull/145) をmergeし、revision `f446dc67140f23b588c8da5f0c6d37ec852af6e6` の [Production](https://github.com/subaru44k/itsrunnew/actions/runs/41981677635) と [master検証](https://github.com/subaru44k/itsrunnew/actions/runs/41981677636) が成功。[PR検証](https://github.com/subaru44k/itsrunnew/actions/runs/41980642123) でも全feature・daily fixtures/liveが成功した。schedule suiteの詳細を閉じた後の競合はDOMの消失を待つことで修正し、固定sleepは追加していない。
 
-## 第5段階の配信基盤（第3・4段階より先に実装・検証中）
+## 第5段階の配信基盤（依存順に先行して完了）
 
 配備の担当prefixと世代互換性を先に確立するため、依存関係に従って第5段階の基盤を先行する。1回の収集から日別・施設別31日bundle・世代manifestを生成し、全partitionを公開前に照合する。新アプリの施設予定は1リクエストになり、検索は日別JSONを維持する。旧アプリには従来のURLを残す。immutableファイルを先行配置し、全成功後に公開manifestを最後に送る。旧世代は7日保持し、通常deployでは削除しない。manifestだけCloudFront cacheを無効にし、ドメイン・証明書・DNSは変えない。
 
@@ -63,14 +82,14 @@
 
 費用予測（2026-11-05、1 USD=150円の比較用仮定）：1日2回、31日/133施設、追加immutable object約166個/回、7日保持、月10万回のmanifest参照を仮定。追加PUT約10,300回/月、保持データ約0.2GB以下、manifestのS3 GETを見込み、S3のstorage/request単価を保守的に切り上げて月40円以内の増分と予測する。施設詳細の転送量減少は削減額へ計上しない。Scheduler等は未導入で別途合算し、純増200円目標・500円上限を維持する。基準：[S3料金](https://aws.amazon.com/s3/pricing/)、[CloudFront cache policy](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html)。実測値ではなく、trafficが仮定を超えれば再計算する。
 
-## 次の変更単位
+## 段階構成と完了条件（全段階反映済み）
 
 | 順序 | 変更 | 完了条件 |
 |---|---|---|
 | 2（完了） | ブラウザ検証を機能ごとに分割し、影響範囲を判定する | 新しい記録集も独立機能として扱う。現地レポートの専用smokeを現行DOMに修復し、関連変更時に実行する。unknown・期限・日付・世代・競合の回帰を固定データで再現する |
 | 3 | アプリとavailabilityの配備を分離する | アプリ変更で実収集を待たず、日次データ更新でアプリをbuildしない。書込み/削除の担当prefix、schemaと施設ID互換性、同時更新、個別rollbackを検証する |
 | 4 | 検証済み成果物を配備する | 公開対象SHA・成果物hash・必須検証成功を結び付け、配備側で再buildしない。古いjobによる上書きを防ぎ、公開済み/公開確認失敗を区別する |
-| 5（基盤を先行中） | データ配信を用途と世代で分ける | ホーム向け日別と詳細向け施設別31日を同じ収集結果から生成。世代付きURLとmanifest切替、旧アプリとの移行、旧世代保持、キャッシュ、rollbackを検証する |
+| 5（完了） | データ配信を用途と世代で分ける | ホーム向け日別と詳細向け施設別31日を同じ収集結果から生成。世代付きURLとmanifest切替、旧アプリとの移行、旧世代保持、キャッシュ、rollbackを検証する |
 | 6 | 定時起動と監視を整理する | 目標更新時刻を確認し、起動遅延と処理時間を分けて評価。新規方式の認証情報・ログ・無料枠を含む月額純増予測を記録して費用条件を守る |
 
 各段階で構造資料・README・AGENTS.mdの現在形を更新する。既存のdaily gateは、安全な代替検証を実装してその変更自体を検証するまで省略しない。未知pathは広い検証へ倒し、失敗をcontinue-on-errorで隠さない。
@@ -122,3 +141,10 @@ rollbackは7日保持の成功master artifact（app）と、同じJST日・6時�
 
 
 第6段階の修正は [PR #149](https://github.com/subaru44k/itsrunnew/pull/149) / `c542ada433f30c7f9bbb84ff88a0a45aa5542e32` にmerge。 [PR検証 41992107628](https://github.com/subaru44k/itsrunnew/actions/runs/41992107628) と [master検証 41995817234](https://github.com/subaru44k/itsrunnew/actions/runs/41995817234)、[Production 41996746029](https://github.com/subaru44k/itsrunnew/actions/runs/41996746029) は成功した。修正後の [manual dispatch monitor 41995832951](https://github.com/subaru44k/itsrunnew/actions/runs/41995832951)、[実Schedulerからの反復monitor 41996275932](https://github.com/subaru44k/itsrunnew/actions/runs/41996275932) も成功。前の同世代失敗は放置せず解決済み。Schedulerの一時data試験は17:51:49 JST予定 `itsrun-refresh-proof-20261105085149`（完了後自動削除）を作成した。
+
+
+### 必要時Previewでの計測境界修正
+
+共通転送処理を改修したため、[手動Preview 41998877082](https://github.com/subaru44k/itsrunnew/actions/runs/41998877082) を実行。収集・unit・build・local smoke・一括配備・公開byte照合は成功し、公開smokeで「日別request最大2」が3となった。検索画面と同じpageの通信logを切り取っており、前の日付の進行中通信/引継ぎを含むため、施設一覧の通信量と区別できていなかった。cold pageで実Previewを測定するとmanifest 1・互換日別1・世代日別1・施設bundle1だった。
+
+通信数の検証だけ独立したcold pageへ移し、bundle 1・日別最大2という基準は維持する。元の再利用pageでcanonical・日付引継ぎの検証も維持する。アプリ変更や閾値緩和ではなく計測範囲の修正。新しいPRのCIと再Previewで公開smoke成功を確認する。通常リリースにPreview依存は戻さない。

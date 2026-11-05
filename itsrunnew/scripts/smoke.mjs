@@ -510,17 +510,29 @@ try {
     const canonicalStatus = availabilityStatuses.find(status => representativeTracks[status]);
     if (!canonicalStatus) throw new Error('No valid availability representative is available for canonical detail smoke testing');
     const canonicalRepresentative = representativeTracks[canonicalStatus];
-    const detailRequestStart = requests.length;
     await page.goto(`${baseUrl}/tracks/${canonicalRepresentative.id}`, { waitUntil: 'domcontentloaded' });
     await page.locator('.date-panel summary').click();
     await page.getByRole('heading', { name: statusLabels[canonicalStatus], exact: true }).waitFor();
     await page.locator('.facility-schedule[aria-busy="false"]').waitFor();
     if (availabilityManifest.generation) {
-      const detailRequests = requests.slice(detailRequestStart).map(url => new URL(url).pathname).filter(path => path.startsWith('/availability/'));
-      const bundles = detailRequests.filter(path => path.endsWith(`/tracks/${canonicalRepresentative.id}.json`));
-      if (bundles.length !== 1) throw new Error(`Facility schedule expected one bundle request, received ${bundles.length}`);
-      const dateFiles = detailRequests.filter(path => /\/\d{4}-\d{2}-\d{2}\.json$/.test(path));
-      if (dateFiles.length > 2) throw new Error(`Facility schedule fetched ${dateFiles.length} date files instead of a single bundle`);
+      // Measure a cold detail document. Reusing the search page can include an
+      // already-started request for its previously selected future date.
+      const detailPage = await browser.newPage({ viewport });
+      const detailRequests = [];
+      try {
+        await detailPage.addInitScript(() => localStorage.setItem('itsrun.analytics-consent.v1', 'denied'));
+        await detailPage.route('**/*', route => new URL(route.request().url()).origin === new URL(baseUrl).origin ? route.continue() : route.abort());
+        detailPage.on('request', request => {
+          const path = new URL(request.url()).pathname;
+          if (path.startsWith('/availability/')) detailRequests.push(path);
+        });
+        await detailPage.goto(`${baseUrl}/tracks/${canonicalRepresentative.id}`, { waitUntil: 'domcontentloaded' });
+        await detailPage.locator('.facility-schedule[aria-busy="false"]').waitFor();
+        const bundles = detailRequests.filter(path => path.endsWith(`/tracks/${canonicalRepresentative.id}.json`));
+        if (bundles.length !== 1) throw new Error(`Facility schedule expected one bundle request, received ${bundles.length}`);
+        const dateFiles = detailRequests.filter(path => /\/\d{4}-\d{2}-\d{2}\.json$/.test(path));
+        if (dateFiles.length > 2) throw new Error(`Cold detail fetched ${dateFiles.length} date files: ${dateFiles.join(', ')}`);
+      } finally { await detailPage.close(); }
     }
     if (new URL(page.url()).searchParams.has('date')) throw new Error('Track detail without date unexpectedly added a date query');
     if (await page.getByLabel('別の日付を選ぶ').inputValue() !== today) throw new Error('Track detail without date did not default to today');

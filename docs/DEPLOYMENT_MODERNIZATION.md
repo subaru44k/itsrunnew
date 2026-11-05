@@ -4,7 +4,7 @@
 
 ## 完了状態（2026-11-05）
 
-全段階をmasterへ反映。本番コードの配備revisionは `3911b5c0fdb2848c5cb35e40ae15c809cc05b758`（PR #150）。資料の追記はdocs-onlyで、app/dataを再配備しません。
+全段階と最終のsmoke計測修正をmasterへ反映。本番コードの配備revisionは `3911b5c0fdb2848c5cb35e40ae15c809cc05b758`（PR #150）。資料の追記はdocs-onlyで、app/dataを再配備しません。
 
 - Previewは必要時のmaster手動配備だけ。通常公開の待ち条件にしない。
 - CIは独立feature・known ops・共有/未知のmatrixで選択。production buildは1回、JSONだけを変える隔離copyを検証し、元artifactを公開する。PRでのlive再収集を廃止し、原本fixture・mixed統合・unknown専用・未知diffの広いgateを維持。
@@ -147,4 +147,16 @@ rollbackは7日保持の成功master artifact（app）と、同じJST日・6時�
 
 共通転送処理を改修したため、[手動Preview 41998877082](https://github.com/subaru44k/itsrunnew/actions/runs/41998877082) を実行。収集・unit・build・local smoke・一括配備・公開byte照合は成功し、公開smokeで「日別request最大2」が3となった。検索画面と同じpageの通信logを切り取っており、前の日付の進行中通信/引継ぎを含むため、施設一覧の通信量と区別できていなかった。cold pageで実Previewを測定するとmanifest 1・互換日別1・世代日別1・施設bundle1だった。
 
-通信数の検証だけ独立したcold pageへ移し、bundle 1・日別最大2という基準は維持する。元の再利用pageでcanonical・日付引継ぎの検証も維持する。アプリ変更や閾値緩和ではなく計測範囲の修正。新しいPRのCIと再Previewで公開smoke成功を確認する。通常リリースにPreview依存は戻さない。
+通信数の検証だけ独立したcold pageへ移し、bundle 1・日別最大2という基準は維持する。元の再利用pageでcanonical・日付引継ぎの検証も維持する。アプリ変更や閾値緩和ではなく計測範囲の修正。PR #151のCIと再Previewで公開smoke成功を確認した。通常リリースにPreview依存は戻していない。
+
+
+## 最終補足確認（2026-11-05）
+
+- [PR #151](https://github.com/subaru44k/itsrunnew/pull/151) / `d41b0461e52b2ef1042c9e4b16da4831e7f66581` の [PR CI 42001120033](https://github.com/subaru44k/itsrunnew/actions/runs/42001120033) と [master CI 42001721491](https://github.com/subaru44k/itsrunnew/actions/runs/42001721491) が成功。
+- [再手動Preview 42001732135](https://github.com/subaru44k/itsrunnew/actions/runs/42001732135) は収集・unit/build・local smoke・一括配備・公開byte・修正版の公開smokeまで成功。通信数の閾値を緩めずに失敗を解決した。Previewを本番の待ち条件にはしていない。
+- [本番の最新公開generation監視 41999891349](https://github.com/subaru44k/itsrunnew/actions/runs/41999891349) が成功。再収集なしで最終公開データを確認。
+- [test/docs-only変更後のProduction plan 42002128050](https://github.com/subaru44k/itsrunnew/actions/runs/42002128050) は成功し、app/dataは両方skip。最後の本番app/data配備は冒頭の `3911b5c...` のままで、単なるテスト/文書変更を公開更新と誤認していない。
+- `itsrun-morning` / `itsrun-same-day` / `itsrun-monitor` はENABLED、JST timezoneと05:30 / 08:15 / 09:15を確認。一時の試験scheduleは自動削除済み。翌朝の実測達成は未観測であり、09:00は通常更新目標。
+- 補助worktreeはtracked/untracked変更がないことと、残るものが今回生成したdist/CDK outputs/node_modulesだけであることを確認して削除。元の `/Users/yamadashinya/work/itsrunnew` へ集約し、この資料のdocs-only追記merge後にmasterとorigin/masterの一致を確認する。他の既存worktreeは保持した。
+
+未完の実装・権限設定・本番配備はない。将来の定時実行・traffic・請求は運用上の観測事項で、未実施の結果を成功とは記録しない。今後は [VALIDATION_POLICY.md](VALIDATION_POLICY.md) のscopeと、source/manifestの公開revisionを確認して作業する。

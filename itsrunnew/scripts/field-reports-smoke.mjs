@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
+import { selectViewports } from './test-viewports.mjs';
 const base = process.env.ITSRUN_BASE_URL ?? 'http://127.0.0.1:4173';
 const browser = await chromium.launch({executablePath:process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 const today = new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo'}).format(new Date());
@@ -8,7 +9,7 @@ const tomorrow = new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo'}).format
 const trackId = 'yoyogi-park-athletic-track';
 await mkdir('/tmp/itsrun-reports-check',{recursive:true});
 try {
-  for (const locale of ['ja','en']) for (const width of [390,1440]) {
+  for (const locale of ['ja','en']) for (const { width } of selectViewports([{width:1440,height:900},{width:390,height:900}])) {
     const context = await browser.newContext({viewport:{width,height:900}});
     const errors=[]; const posts=[]; let reports=[]; let failure=0; let getFails=false;
     // Also verify restricted-storage browsers can submit without accounts.
@@ -54,8 +55,8 @@ try {
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1));
     await section.evaluate(element=>window.scrollTo(0,window.scrollY+element.getBoundingClientRect().top-80));
     await page.screenshot({path:`/tmp/itsrun-reports-check/${locale}-${width}.png`});
-    await page.locator('.date-actions input[type=date]').fill(tomorrow);
-    await page.locator('.date-actions input[type=date]').dispatchEvent('change');
+    await page.locator('.date-picker input[type=date]').fill(tomorrow);
+    await page.locator('.date-picker input[type=date]').dispatchEvent('change');
     await section.locator('.field-reports-browse-only').waitFor();assert.equal(await section.locator('form').count(),0);
     await section.locator('.field-reports-browse-only button').click();
     await section.locator('form').waitFor();

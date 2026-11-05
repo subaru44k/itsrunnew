@@ -81,7 +81,9 @@ itsrunnew/
 ├── backend/field-reports/      レポートAPI・DynamoDB保存・入力/連投制限・独立lockfile
 ├── public/                    favicon、manifest、robots、ads.txt、旧service worker退役用script、状態画像、availability生成先へのsymlink
 ├── scripts/
-│   ├── browser-check.mjs      PC/スマホを別processで最大2並列実行・両方の完了と成否を集約
+│   ├── browser-check.mjs      各feature/統合smokeをPC/スマホで最大2並列実行・成否を集約
+│   ├── feature-smoke.mjs      記録集/施設予定の独立ブラウザsuite
+│   ├── archive-smoke.mjs      5選手の記録集の検索・年度・駅伝・出典導線
 │   ├── test-viewports.mjs     browser workerのviewport選択
 │   ├── validation-scope.mjs   変更pathからMarkdown／独立機能／full dailyを保守的に判定
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
@@ -290,7 +292,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 公式予定・問い合わせ先actionを予定と統合詳細の直後に配置します。情報源の実取得時刻（またはfetch_failed時だけの取得試行時刻）は日本時間で表示します。電話確認・未対応sourceの毎日の生成時刻やruntime fallbackの現在時刻を最終確認と表示せず、取得時刻がない確認型施設では静的な「施設情報の確認日」を上部に出します。周辺候補はPC・モバイルとも予定パネルの後に配置し、利用状況に応じて比較用の折りたたみを開閉します。対象日の読み込み完了後、利用不可のときは開いて強調し、unknownでも確認先の選択肢として開きます。unknownは通常の外観と「利用可否が不明な日の近隣候補」という見出し・説明で、利用不可との違いを明示します。利用可能・一部利用可能では比較用の折りたたみを閉じます。候補には選択日を明記し、date queryとrankingを維持します。
 
-日英title・descriptionと静的HTML shellは個人利用予定・確認方法という検索意図を反映します。shellは日次のavailabilityを埋め込まず、確認不能時の問い合わせ方法と公式導線を提供し、日次データ変更でHTML更新を要求しません。品質別UI・判断カードの高さ・統合詳細の開閉・時間帯統合と機械値非表示・代替候補の開閉・常時表示の日付選択・同一／変更世代の遅延再取得とフォーカス・次回枠・取得失敗・期限切れの検証をunitと`scripts/facility-schedule-smoke.mjs`（通常smokeとdailyから実行する日英・PC/モバイルの通信mock）で行います。静的施設のnoteもshellへ含めます。
+日英title・descriptionと静的HTML shellは個人利用予定・確認方法という検索意図を反映します。shellは日次のavailabilityを埋め込まず、確認不能時の問い合わせ方法と公式導線を提供し、日次データ変更でHTML更新を要求しません。品質別UI・判断カードの高さ・統合詳細の開閉・時間帯統合と機械値非表示・代替候補の開閉・常時表示の日付選択・同一／変更世代の遅延再取得とフォーカス・次回枠・取得失敗・期限切れの検証をunitと`scripts/facility-schedule-smoke.mjs`（独立したschedule suiteで実行する日英・PC/モバイルの通信mock）で行います。静的施設のnoteもshellへ含めます。
 
 ### 現地確認レポート
 
@@ -385,13 +387,15 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm run reports:install` | 現地レポートAPIの固定依存をインストール |
 | `npm run reports:synth -- -c environment=preview` | 独立レポートAPI stackを生成 |
 | `npm run reports:deploy -- -c environment=preview` | 独立レポートAPI stackを配備（productionも指定可） |
-| `npm run test:reports` | 起動済みPreviewで日英・スマホ・投稿/障害/日付切替をmock APIで検証 |
+| `npm run test:reports` | API設定済みの起動済みPreviewで日英・PC/スマホ・投稿/障害/日付切替をmock APIで検証 |
+| `npm run test:features` | 隔離workspaceで当日mixed fixture・型検査込み1 build・対象feature suiteを検証（`ITSRUN_TEST_SUITES`で指定、公開禁止） |
+| `npm run test:archives` / `npm run test:schedule` | 起動済みPreviewで記録集/施設予定の独立した日英・PC/スマホ検証 |
 | `npm run dev` | Vite開発サーバー |
 | `npm run build` | 標準XML sitemap生成（URL・要素構成をreadiness検証）、`vue-tsc --noEmit`、Vite build、固定ページ・施設詳細HTML shell生成 |
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
-| `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、年別アンカー、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ。メニュー操作は初回lazy routeのviewが現れてから開始し、mobile drawerのactive状態を確認する |
+| `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ。メニュー操作は初回lazy routeのviewが現れてから開始し、mobile drawerのactive状態を確認する |
 | `npm run test:smoke:fixtures` | 隔離workspaceで当日31日分のmixed 4statusだけを生成しbuild・全smoke（実収集・全unknownなし） |
 | `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |
 | `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusと全unknownの2シナリオをbuild・smoke |
@@ -424,7 +428,9 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
-`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushの変更ファイルを比較します。Markdownだけの変更は差分の空白確認のみで `Node 24 validation` checkを完了し、Node setup・依存install・アプリ/dailyテストを省略します。それ以外は`itsrunnew/`をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、型検査込みのbuildをNode 24で実行します。`npm run build` が `vue-tsc --noEmit` を必須実行するため、同じ検査だけを行う `npm run lint` は直前に重複実行しません。型検査だけを行う開発用コマンドとしては維持します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて、ローカルPreviewを起動して`test:pace`（施設詳細から入力・練習時間への日英PC/スマホ導線を含む）を実行します。`scripts/validation-scope.mjs` は変更pathの許可listでdailyの要否を判定します。ペース表のView・laptime components・marathon model・旧LapTimeCalculator、記録集の2 View・結果JSON（およびMarkdown）だけの変更では、`test:smoke:fixtures`を実行してdaily 2 suiteを省略します。これは古いcommitted snapshotに依存せず、隔離workspaceで当日31日分のmixed 4statusを生成・buildして全smokeを行う軽量経路です。実収集・全unknown scenario・2 buildの署名比較は行いません。共通画面・翻訳・施設・availability・依存・build/deploy・ブラウザテスト・workflowを含む変更、未知path、削除／rename、比較元不明・空差分ではfull dailyを実行します。判定結果はActions summaryへ記録します。`test:daily:fixtures`と`test:daily`はfull daily時に同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストにはChromeと外部sourceへのnetworkが必要です。適用範囲と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
+`.github/workflows/node-validation.yml` はmaster向けPRとmaster pushの差分を `scripts/validation-scope.mjs` で判定し、必須check名 `Node 24 validation` を維持します。Markdownだけなら空白確認だけで完了します。それ以外は依存install、候補batch・Track Dataset検証、全unit、監視メールと施設再確認のPython testを実行します。`test:features` は隔離workspaceで当日mixed fixtureを生成し、型検査込みbuildを1回行って、変更に応じたpace / archives / reports / scheduleのブラウザsuiteを実行します。記録集は5選手のView・共通表示・registry・大会名・駅伝/地域大会データまで独立機能とし、現地レポートも専用suiteを使います。対象suiteはActions summaryへ記録します。共通画面・翻訳・施設・availability・依存・tooling・未知path・削除/rename・比較元不明・空差分では全feature suiteと従来の `test:daily:fixtures` / `test:daily` を実行します。独立機能だけならlive収集と全unknownの全体smokeを省略します。
+
+記録集の既存assertionは `scripts/archive-smoke.mjs`、施設予定の既存mockシナリオは `facility-schedule-smoke.mjs` に分離し、`feature-smoke.mjs` から日英・PC/スマホで実行します。通常/dailyのsmokeは公開導線と選択日availabilityの統合を担当し、同じ施設予定シナリオを各データsetで繰り返しません。現地レポートは `field-reports-smoke.mjs` が現行の日付入力を操作し、テスト用APIへの通信だけをmockします。`test:features` の成果物には架空のAPI URLと合成データが含まれるため公開しません。checkoutのdata/dist/.envは変更しません。`npm run lint` はbuildと同じ型検査なので、型だけ確認する場合に使います。CIは外部AIへsecretを渡さず、keyless cache missはunknownです。Chrome、Poppler、Python 3、live dailyには外部networkが必要です。詳細は [DAILY_VERIFICATION.md](DAILY_VERIFICATION.md) を参照してください。
 
 `.github/workflows/deploy-preview.yml` は `master` からの `workflow_dispatch` だけで必要時に実行します。push・日次scheduleでは起動せず、別branchの手動実行はjob全体をskipします。fresh availability生成から検証、型検査込みのbuild、local smoke、OIDC認証、SHA-256差分によるcontent配備、変更URLのCloudFront invalidation、公開本文照合、CloudFront smokeまでを実行します。差分なしではinvalidationを省略します。HTML shellは直接URLとrewrite前の公開URLを対象にし、Service Workerも変更時に無効化します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 

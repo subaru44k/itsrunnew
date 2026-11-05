@@ -35,7 +35,7 @@ describe('Preview deployment contract', () => {
 const productionWorkflow = readFileSync(new URL('../../.github/workflows/deploy-production.yml', import.meta.url), 'utf8');
 const validationWorkflow = readFileSync(new URL('../../.github/workflows/node-validation.yml', import.meta.url), 'utf8');
 describe('daily availability regression gates', () => {
-  it('requires scoped fixture/live gates and regular smoke for independent changes in the protected check', () => {
+  it('requires scoped fixture/live gates and affected feature suites in the protected check', () => {
     expect(validationWorkflow).toContain('name: Node 24 validation');
     expect(validationWorkflow).toContain('pull_request:');
     expect(validationWorkflow).toContain('push:');
@@ -47,7 +47,8 @@ describe('daily availability regression gates', () => {
     for (const name of ['Verify daily regression scenarios', 'Verify live daily availability pipeline without deployment']) {
       expect(validationWorkflow).toContain(`${name}\n        if: steps.change_scope.outputs.daily == 'true'`);
     }
-    expect(validationWorkflow).toContain("if: steps.change_scope.outputs.docs_only != 'true' && steps.change_scope.outputs.daily != 'true'\n        run: npm run test:smoke:fixtures");
+    expect(validationWorkflow).toContain("run: npm run test:features");
+    expect(validationWorkflow).toContain("ITSRUN_TEST_SUITES: ${{ steps.change_scope.outputs.suites }}");
   });
   for (const [target, yaml] of [['Preview', workflow], ['Production', productionWorkflow]]) {
     it(`${target} validates fresh generated data before building or deploying`, () => {

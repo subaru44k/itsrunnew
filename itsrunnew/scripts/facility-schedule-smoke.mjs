@@ -84,6 +84,7 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
         // Native selection is accessible while details are collapsed, including
         // dates outside the initial fourteen decision cards.
         await page.locator('.date-panel summary').click();
+        await page.locator('.availability-result').waitFor({ state: 'detached' });
         await page.locator('.date-picker input').fill(dates[20]);
         await page.locator('.date-picker input').dispatchEvent('change');
         await page.waitForURL(url => url.searchParams.get('date') === dates[20]);

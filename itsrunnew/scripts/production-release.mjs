@@ -41,6 +41,11 @@ function download(run) {
 }
 async function prepare() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+  if (event.client_payload?.scheduled_time) {
+    const delay = Date.now() - Date.parse(event.client_payload.scheduled_time);
+    if (!Number.isFinite(delay)) throw new Error('Invalid scheduler timestamp');
+    console.log(`Scheduled trigger delay: ${Math.round(delay / 1000)} seconds`);
+  }
   const rollbackRun = process.env.ROLLBACK_RUN_ID;
   const generation = process.env.ROLLBACK_GENERATION ?? '';
   if ((generation && !/^[a-f0-9]{24}$/.test(generation)) || (generation && rollbackRun)) throw new Error('Choose one valid rollback target');

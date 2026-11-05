@@ -28,15 +28,8 @@ export async function restoreMonitorInputs({ repository, directory, productionEn
     await access(join(directory, 'previous', 'state.json'));
     console.log(`Restored monitor baseline from run ${previous.databaseId}`);
   } else console.log('First successful monitor baseline: no history yet');
-  let production;
-  if (productionEnabled) {
-    const runs = JSON.parse(await gh(['run', 'list', '--repo', repository, '--workflow', 'deploy-production.yml', '--branch', 'master', '--status', 'success', '--limit', '100', '--json', 'databaseId,updatedAt']));
-    for (const run of runs) {
-      const details = JSON.parse(await gh(['run', 'view', String(run.databaseId), '--repo', repository, '--json', 'jobs']));
-      if (details.jobs.some(job => job.conclusion === 'success')) { production = run; break; }
-    }
-  }
-  await writeFile(join(directory, 'pipeline.json'), JSON.stringify({ enabled: productionEnabled, lastSuccessAt: production?.updatedAt ?? null }));
+  // Public generation timestamp is evaluated by monitor.ts; a successful plan/app job is not a data update.
+  await writeFile(join(directory, 'pipeline.json'), JSON.stringify({ enabled: productionEnabled, lastSuccessAt: null }));
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) await restoreMonitorInputs({

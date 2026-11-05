@@ -1,4 +1,4 @@
-export function validateFreshRange(manifest, datasets, trackIds, now = new Date()) {
+function validateRange(manifest, datasets, trackIds, now, maximumAgeMs) {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
   const expected = Array.from({ length: 31 }, (_, index) => {
     const date = new Date(`${today}T00:00:00+09:00`);
@@ -8,7 +8,7 @@ export function validateFreshRange(manifest, datasets, trackIds, now = new Date(
   if (manifest.schemaVersion !== 1 || manifest.timezone !== 'Asia/Tokyo' || JSON.stringify(manifest.dates) !== JSON.stringify(expected)
     || manifest.startDate !== expected[0] || manifest.endDate !== expected.at(-1)) throw new Error('Fresh availability must cover today in JST and the following 30 consecutive days');
   const age = now.getTime() - Date.parse(manifest.generatedAt);
-  if (!Number.isFinite(age) || age < -60000 || age > 6 * 3600000) throw new Error('Availability generation timestamp is stale or invalid');
+  if (!Number.isFinite(age) || age < -60000 || age > maximumAgeMs) throw new Error('Availability generation timestamp is stale or invalid');
   if (datasets.length !== 31) throw new Error('Missing daily availability datasets');
   const ids = [...trackIds].sort();
   for (const [index, dataset] of datasets.entries()) {
@@ -22,4 +22,13 @@ export function validateFreshRange(manifest, datasets, trackIds, now = new Date(
       if (item.evidence?.collector === 'TEST-FIXTURE-DO-NOT-PUBLISH') throw new Error('Synthetic regression data must never be deployed');
     }
   }
+}
+
+// Publication is always held to the six-hour collection gate.
+export function validateFreshRange(manifest, datasets, trackIds, now = new Date()) {
+  return validateRange(manifest, datasets, trackIds, now, 6 * 3600000);
+}
+// A later monitor reads the day already published; it must not require another collection.
+export function validatePublishedRange(manifest, datasets, trackIds, now = new Date()) {
+  return validateRange(manifest, datasets, trackIds, now, 30 * 3600000);
 }

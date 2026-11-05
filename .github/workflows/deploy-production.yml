@@ -5,6 +5,8 @@ on:
     workflows: [Node validation]
     types: [completed]
     branches: [master]
+  repository_dispatch:
+    types: [availability-refresh]
   workflow_dispatch:
     inputs:
       app_validation_run:

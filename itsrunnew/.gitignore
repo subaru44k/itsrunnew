@@ -29,3 +29,5 @@ yarn-error.log*
 
 # Local AI source readings (never part of the static website)
 /.cache/
+
+/scheduler-outputs.json

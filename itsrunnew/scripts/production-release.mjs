@@ -88,6 +88,7 @@ async function restore(runId, expectedSha) {
   }
   rmSync('dist', { recursive: true, force: true });
   cpSync('.cache/release/dist', 'dist', { recursive: true });
+  if (release.dateOnly && process.env.IS_ROLLBACK !== 'true' && process.env.GITHUB_ENV) appendFileSync(process.env.GITHUB_ENV, 'ITSRUN_DEFER_FACILITY_DATE_INVALIDATION=true\n');
   console.log(`Restored validated application ${expectedSha} without rebuilding`);
 }
 

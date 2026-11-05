@@ -12,6 +12,7 @@ export function verifyRelease(directory, expectedSha, expectedRun) {
   const release = JSON.parse(readFileSync(resolve(directory, 'release.json'), 'utf8'));
   if (release.version !== 1 || !shaPattern.test(expectedSha) || !runPattern.test(String(expectedRun)) ||
       release.sha !== expectedSha || String(release.runId) !== String(expectedRun) ||
+      (release.dateOnly !== undefined && typeof release.dateOnly !== 'boolean') ||
       typeof release.deploy_app !== 'boolean' || typeof release.deploy_data !== 'boolean' ||
       !/^[a-f0-9]{64}$/.test(release.trackIdsHash)) throw new Error('Untrusted release metadata');
   const actual = existsSync(resolve(directory, 'dist')) ? buildManifest(resolve(directory, 'dist')) : {};
@@ -23,12 +24,12 @@ export function verifyRelease(directory, expectedSha, expectedRun) {
   return release;
 }
 
-export function sealRelease({ directory, dist, sha, runId, app, data, ids }) {
+export function sealRelease({ directory, dist, sha, runId, app, data, ids, dateOnly = false }) {
   if (!shaPattern.test(sha) || !runPattern.test(String(runId))) throw new Error('Invalid release identity');
   rmSync(directory, { recursive: true, force: true });
   mkdirSync(directory, { recursive: true });
   if (app) cpSync(dist, resolve(directory, 'dist'), { recursive: true, filter: path => path !== resolve(dist, 'availability') });
-  const release = { version: 1, sha, runId: String(runId), deploy_app: app, deploy_data: data, trackIdsHash: trackIdsHash(ids), files: app ? buildManifest(resolve(directory, 'dist')) : {} };
+  const release = { version: 1, sha, runId: String(runId), deploy_app: app, deploy_data: data, dateOnly: app && dateOnly, trackIdsHash: trackIdsHash(ids), files: app ? buildManifest(resolve(directory, 'dist')) : {} };
   writeFileSync(resolve(directory, 'release.json'), `${JSON.stringify(release)}\n`);
   return verifyRelease(directory, sha, runId);
 }
@@ -37,7 +38,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const [command, directory = '.cache/release', sha = process.env.GITHUB_SHA, runId = process.env.GITHUB_RUN_ID] = process.argv.slice(2);
   if (command === 'seal') {
     const tracks = JSON.parse(readFileSync('src/data/tracks.json', 'utf8'));
-    sealRelease({ directory: resolve(directory), dist: resolve('dist'), sha, runId, app: process.env.DEPLOY_APP === 'true', data: process.env.DEPLOY_DATA === 'true', ids: tracks.map(track => track.id) });
+    sealRelease({ directory: resolve(directory), dist: resolve('dist'), sha, runId, app: process.env.DEPLOY_APP === 'true', data: process.env.DEPLOY_DATA === 'true', dateOnly: process.env.DATE_ONLY === 'true', ids: tracks.map(track => track.id) });
   } else if (command === 'verify') verifyRelease(directory, sha, runId);
   else throw new Error('Usage: release-artifact.mjs seal|verify DIRECTORY SHA RUN_ID');
   console.log(`Release artifact ${command}: ${sha} / validation run ${runId}`);

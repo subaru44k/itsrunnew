@@ -1,3 +1,4 @@
+import { dateOnlyPush } from './facility-date-only.mjs';
 import { releaseScope } from './release-scope.mjs';
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, realpathSync } from 'node:fs';
@@ -23,7 +24,7 @@ export function validationScope(paths, structuralChange = false) {
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = fileURLToPath(new URL('../../', import.meta.url));
   const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
-  let scope = { ...validationScope([]), ...releaseScope([]) };
+  let scope = { ...validationScope([]), ...releaseScope([]), date_only: false };
   const base = process.env.BASE_SHA;
   if (base && /^[a-f0-9]{40}$/i.test(base) && !/^0+$/.test(base)) {
     let available = false;
@@ -38,7 +39,8 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
       git(['diff', '--check', base, 'HEAD']);
       const paths = git(['diff', '--name-only', '-z', base, 'HEAD']).split('\0').filter(Boolean);
       const structural = git(['diff', '--name-only', '--diff-filter=DR', '--no-renames', '-z', base, 'HEAD']).length > 0;
-      scope = { ...validationScope(paths, structural), ...releaseScope(paths) };
+      scope = { ...validationScope(paths, structural), ...releaseScope(paths), date_only: dateOnlyPush(base) };
+      if (scope.date_only) scope.deploy_data = false;
     }
   }
   const output = Object.entries(scope).map(([key, value]) => `${key}=${value}`).join('\n') + '\n';

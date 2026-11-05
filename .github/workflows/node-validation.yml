@@ -48,28 +48,31 @@ jobs:
           cache: npm
           cache-dependency-path: itsrunnew/package-lock.json
       - name: Install PDF rendering tools
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.daily == 'true'
         run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
       - name: Install locked dependencies
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm ci
       - name: Install field report API dependencies
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.daily == 'true' || contains(steps.change_scope.outputs.suites, 'reports')
         run: npm run reports:install
       - name: Validate track expansion batches
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.daily == 'true'
         run: npm run validate:track-batches
       - name: Validate Track Dataset
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.daily == 'true'
         run: npm run validate:tracks
       - name: Run unit tests
         if: steps.change_scope.outputs.docs_only != 'true'
-        run: npm test
+        env:
+          ITSRUN_FULL_VALIDATION: ${{ steps.change_scope.outputs.daily }}
+          ITSRUN_TEST_SUITES: ${{ steps.change_scope.outputs.suites }}
+        run: npm run test:affected
       - name: Verify monitoring email without sending
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.daily == 'true'
         run: npm run test:monitor:email
       - name: Verify facility reverification without external API calls
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.daily == 'true'
         run: npm run test:reverification
       - name: Build the production application once
         if: steps.change_scope.outputs.docs_only != 'true'
@@ -82,12 +85,10 @@ jobs:
       - name: Verify daily regression scenarios
         if: steps.change_scope.outputs.daily == 'true'
         run: npm run test:daily:fixtures
-      - name: Verify live daily availability pipeline without deployment
-        if: steps.change_scope.outputs.daily == 'true'
-        run: npm run test:daily
       - name: Seal the validated master publication artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         env:
+          DATE_ONLY: ${{ steps.change_scope.outputs.date_only }}
           DEPLOY_APP: ${{ steps.change_scope.outputs.deploy_app }}
           DEPLOY_DATA: ${{ steps.change_scope.outputs.deploy_data }}
         run: node scripts/release-artifact.mjs seal

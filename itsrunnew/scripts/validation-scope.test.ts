@@ -40,6 +40,7 @@ it('uses real Git diffs for independent/mixed/renamed files and fails on whitesp
     const script = join(root, 'itsrunnew/scripts/validation-scope.mjs');
     copyFileSync(new URL('./validation-scope.mjs', import.meta.url), script);
     copyFileSync(new URL('./release-scope.mjs', import.meta.url), join(root, 'itsrunnew/scripts/release-scope.mjs'));
+    copyFileSync(new URL('./facility-date-only.mjs', import.meta.url), join(root, 'itsrunnew/scripts/facility-date-only.mjs'));
     const pace = join(root, 'itsrunnew/src/views/LapTime.vue');
     const shared = join(root, 'itsrunnew/src/App.vue');
     writeFileSync(pace, 'baseline\n');
@@ -61,6 +62,13 @@ it('uses real Git diffs for independent/mixed/renamed files and fails on whitesp
     base = git('rev-parse', 'HEAD');
     git('mv', 'itsrunnew/src/views/LapTime.vue', 'itsrunnew/src/views/NozomiAntena.vue'); commit();
     expect(run().stdout).toContain('daily=true');
+    const tracks = join(root, 'itsrunnew/src/data/tracks.json');
+    mkdirSync(join(root, 'itsrunnew/src/data'), { recursive: true });
+    writeFileSync(tracks, JSON.stringify([{ id: 'track', sources: [{ url: 'https://official.example', verifiedAt: '2026-11-04' }] }]));
+    base = commit();
+    writeFileSync(tracks, JSON.stringify([{ id: 'track', sources: [{ url: 'https://official.example', verifiedAt: '2026-11-05' }] }])); commit();
+    expect(run().stdout).toContain('date_only=true');
+    expect(run().stdout).toContain('deploy_data=false');
     base = git('rev-parse', 'HEAD');
     writeFileSync(shared, 'bad whitespace   \n'); commit();
     expect(run().status).not.toBe(0);

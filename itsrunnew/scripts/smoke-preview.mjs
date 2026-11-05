@@ -2,8 +2,8 @@ import { spawn } from 'node:child_process';
 
 const port = process.env.ITSRUN_PREVIEW_PORT ?? '4173';
 const baseUrl = `http://127.0.0.1:${port}`;
-const selected = process.argv[2] === 'features' ? (process.env.ITSRUN_TEST_SUITES ?? 'pace,archives,reports,schedule').split(',').filter(Boolean) : ['smoke'];
-if (!selected.length || selected.some(suite => !['smoke', 'pace', 'archives', 'reports', 'schedule'].includes(suite))) throw new Error('Invalid browser suite selection');
+const selected = process.argv[2] === 'features' ? (process.env.ITSRUN_TEST_SUITES ?? 'pace,archives,reports,schedule').split(',').filter(Boolean) : process.argv[2] === 'unknown' ? ['unknown'] : ['smoke'];
+if (!selected.length || selected.some(suite => !['smoke', 'unknown', 'pace', 'archives', 'reports', 'schedule'].includes(suite))) throw new Error('Invalid browser suite selection');
 
 const preview = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--host', '127.0.0.1', '--port', port, '--strictPort'], {
   env: process.env,

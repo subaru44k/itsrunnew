@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { createHash } from 'node:crypto';
 import { execFile, execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 
 export function ownsKey(scope, key) {
   if (!['all', 'app', 'data'].includes(scope)) throw new Error(`Invalid deployment scope: ${scope}`);
@@ -127,31 +127,40 @@ function cacheControl(key) {
   return 'public,max-age=300';
 }
 
-async function upload(bucket, key) {
-  const args = ['s3', 'cp', join(dist, key), `s3://${bucket}/${key}`,
-    '--cache-control', cacheControl(key), '--only-show-errors'];
-  if (key === 'index.html') args.push('--content-type', 'text/html');
-  if (key === 'service-worker.js') args.push('--content-type', 'application/javascript');
-  await new Promise((resolveUpload, reject) => execFile('aws', args, { encoding: 'utf8' }, (error, stdout, stderr) => {
-    if (error) { error.message += `: ${stderr}`; reject(error); }
-    else resolveUpload(stdout);
+async function uploadFiles(bucket, keys, temporaryDirectory) {
+  const groups = new Map();
+  for (const key of keys) {
+    const contentType = key === 'service-worker.js' ? 'application/javascript' : key === 'index.html' ? 'text/html' : '';
+    const group = `${cacheControl(key)}|${contentType}`;
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group).push(key);
+  }
+  // One CLI transfer manager per metadata group, instead of starting Python/AWS
+  // once per object. cp always uploads each SHA-selected file, including rollback
+  // bytes whose timestamps might be older than the current S3 object.
+  const results = await Promise.allSettled([...groups].map(async ([metadata, files], index) => {
+    const directory = join(temporaryDirectory, `upload-${index}`);
+    rmSync(directory, { recursive: true, force: true });
+    for (const key of files) {
+      const target = join(directory, key);
+      mkdirSync(dirname(target), { recursive: true });
+      copyFileSync(join(dist, key), target);
+    }
+    const [cache, contentType] = metadata.split('|');
+    const args = ['s3', 'cp', directory, `s3://${bucket}/`, '--recursive', '--cache-control', cache, '--only-show-errors'];
+    if (contentType) args.push('--content-type', contentType);
+    await new Promise((resolveUpload, reject) => execFile('aws', args, { encoding: 'utf8' }, (error, stdout, stderr) => {
+      if (error) { error.message += `: ${stderr}`; reject(error); }
+      else resolveUpload(stdout);
+    }));
   }));
+  const rejected = results.find(result => result.status === 'rejected');
+  if (rejected) throw rejected.reason;
 }
 
-export async function publishChangedFiles(keys, uploadFile) {
+export async function publishChangedFiles(keys, uploadFiles) {
   const phases = [keys.filter(immutable), keys.filter(key => !immutable(key) && key !== 'availability/manifest.json'), keys.filter(key => key === 'availability/manifest.json')];
-  for (const phase of phases) {
-    const queue = [...phase];
-    let failure;
-    const results = await Promise.allSettled(Array.from({ length: Math.min(8, queue.length) }, async () => {
-      while (queue.length && !failure) {
-        const key = queue.shift();
-        try { await uploadFile(key); } catch (error) { failure = error; throw error; }
-      }
-    }));
-    const rejected = results.find(result => result.status === 'rejected');
-    if (rejected) throw rejected.reason;
-  }
+  for (const phase of phases) if (phase.length) await uploadFiles(phase);
 }
 
 function output(name, value) {
@@ -175,7 +184,7 @@ export async function deploy({ bucket, distribution }) {
       process.env.ITSRUN_DEFER_FACILITY_DATE_INVALIDATION === 'true',
     );
     publicationState('started');
-    await publishChangedFiles(plan.changed, key => upload(bucket, key));
+    await publishChangedFiles(plan.changed, keys => uploadFiles(bucket, keys, temporaryDirectory));
     publicationState('published');
     for (const key of plan.removed) aws('s3api', 'delete-object', '--bucket', bucket, '--key', key);
 

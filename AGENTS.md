@@ -49,10 +49,10 @@ Also update `itsrunnew/README.md` when user-facing setup, technology-stack, veri
 ## Project invariants
 
 - This is a static Vue application. Do not reintroduce Firebase or another schedule backend unless the user explicitly changes that requirement.
-- Stadium schedules intentionally render locally generated dates with three `00:00` slots and an “information unavailable” status. There is no schedule fetch.
+- Official availability is collected outside the browser and published as static JSON. Search and facility details fetch that JSON; failed, expired, unsupported, or unreviewed information must remain unknown rather than available or unavailable. Only the legacy schedule components use locally generated dates with three `00:00` slots.
 - `/manage` is removed and falls through to the home-page redirect.
 - Preserve the existing site's appearance and public behavior as closely as practical. Vuetify 4 compatibility overrides in `itsrunnew/src/styles.css` are intentional.
-- AWS deployment is for the isolated S3 + CloudFront preview stack. Do not attach or modify the production domain, Route 53, or production certificates unless explicitly requested.
+- Production and Preview use separate S3 + CloudFront stacks. Preview content deployment is on demand from master; it is not required for every release. Use the target's guarded content deployer within the user's authorized scope. Do not attach or modify domains, Route 53, or certificates unless explicitly requested. Anonymous field reports have separate Preview/Production API stacks.
 - Preserve unrelated user changes. In particular, do not assume untracked files outside `itsrunnew/` belong to this application.
 
 ## Expected verification
@@ -64,11 +64,16 @@ For application changes, select checks based on the affected behavior. Normally 
 ```sh
 npm run build
 npm test
-npm run lint
 npm run test:smoke
 ```
 
+`npm run build` already runs `vue-tsc --noEmit` and fails on type errors. `npm run lint` is the same type check for use without a build; do not run both solely to repeat that check on the same unchanged revision.
+
 Use `npm run test:visual` when changing layout or styling and an ad-disabled legacy baseline is available, as described in `docs/SITE_STRUCTURE.md`. After an authorized preview deployment, run the smoke test against the CloudFront URL as well.
+
+## Deployment and test modernization
+
+Continue the incremental work recorded in [`docs/DEPLOYMENT_MODERNIZATION.md`](docs/DEPLOYMENT_MODERNIZATION.md). Keep completed behavior distinct from planned stages and record the PR/revision and validation evidence at each checkpoint. The agreed estimate for additional monthly operating cost is a target of JPY 200 and a ceiling of JPY 500, after savings; OpenAI costs below USD 1 are excluded from this budget comparison. These are cost constraints, not a requirement to provision new services. The existing daily regression gates below remain required until a verified replacement is implemented.
 
 ### Daily job regression gate
 

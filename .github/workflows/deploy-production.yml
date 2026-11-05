@@ -84,8 +84,6 @@ jobs:
         run: npm run validate:tracks
       - name: Run unit tests
         run: npm test
-      - name: Run lint and type checks
-        run: npm run lint
       - name: Build static site with advertising and Google CMP
         run: npm run build
       - name: Run local production smoke

@@ -16,11 +16,12 @@ Production run [35284711731](https://github.com/subaru44k/itsrunnew/actions/runs
 
 ```sh
 npm test
-npm run lint
 npm run build
 npm run test:daily:fixtures
 npm run test:daily
 ```
+
+`npm run build` は `vue-tsc --noEmit` を含みます。同じrevisionでbuildを行う場合は `npm run lint` による型検査の重複実行は不要です。buildせず型だけ確認したい場合は `npm run lint` を使います。
 
 - `test:daily:fixtures`: JST当日から31日間の合成データでbuildとPC/モバイルの全smokeを実行。mixedでは4statusを網羅し、戸田を当日unavailable・翌日availableにする。unknownでは全施設をunknownとし、公式取得不能時の安全な表示とstatus欠落を検証する。
 - `test:daily`: 実際の公式sourceから31日分を収集し、鮮度・全施設の完全性・Track Datasetを検証してbuildと全smokeを実行する。AWSへ配備しない。AI読解5施設は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）を一時workspaceの外へ置いてcacheを継続利用できる。keylessでcache missのAI施設はunknownになるため、CIでのdaily成功は外部AI推論のfreshnessを証明しない。
@@ -34,8 +35,8 @@ smokeは実データに存在するstatusと件数を検証し、存在しない
 ## 修正の公開と完了判定
 
 1. 関連コードを変更したPRでは上記checkの成功を確認する。MarkdownだけのPRでは意図した差分確認のみを行い、関連コードの回帰テストをskipやcontinue-on-errorで隠さない。
-2. 関連コードのmaster反映でPreview/Production deployが起動する。Markdownだけのpushでは起動せず、日次scheduleは継続する。公開の承認範囲を確認し、通常のcontent deployのみを使用する。
-3. 両runでavailability収集・local smoke・S3 deployment・CloudFront smokeの成功を確認する。summaryには収集とlocal smokeの成否も表示する。
+2. 関連コードのmaster反映でProduction deployが起動する。Markdownだけのpushでは起動せず、Productionの日次scheduleは継続する。Previewは必要時だけmasterから手動実行する。公開の承認範囲を確認し、通常のcontent deployのみを使用する。
+3. Production runでavailability収集・local smoke・S3 deployment・CloudFront smokeの成功を確認する。Previewを手動配備した場合はそのrunも同じ基準で確認する。summaryには収集とlocal smokeの成否も表示する。
 4. 翌日のschedule runでも生成日と公開結果を確認する。再失敗時はrun URL、revision、失敗step、JST対象日を記録する。
 
 このゲートは日付やstatus変化による既知の回帰を防ぎ、変更時点の実収集と表示を確認する。将来の公式サイト変更、GitHub/AWS/ネットワーク障害まで無条件に成功保証するものではない。取得できない情報を利用可能と偽らずunknownにし、収集成功と公開成功を区別して追跡する。

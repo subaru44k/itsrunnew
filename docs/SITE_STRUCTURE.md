@@ -20,7 +20,7 @@ Gitリポジトリのルートはこの文書の親ディレクトリです。�
 - Leaflet 1.9 + OpenStreetMap tiles
 - PDF.js (`pdfjs-dist`) 6（availability collectorの座標付き文字抽出。ブラウザbundleには含めない）
 - VitestおよびPlaywright Core
-- AWS CDK 2（S3 + CloudFrontの検証環境）
+- AWS CDK 2（Production / PreviewのS3 + CloudFront、独立した現地レポートAPI）
 
 開発・build・collector実行には Node.js 22.13.0 以上とnpmを使用します。
 
@@ -151,7 +151,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
-├── deploy-preview.yml           master push・手動・日次のPreview content deploy
+├── deploy-preview.yml           masterから必要時だけ手動実行するPreview content deploy
 ├── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
 ├── availability-monitor.yml     独立した日次収集監視・履歴artifact・異常/復旧メール
 └── facility-reverification.yml  週次の静的施設資料監視・出典探索・自動更新PR
@@ -212,9 +212,9 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 夢の島は公式 `https://www.di-ksp.jp/facility/yumenoshima_k/schedule` のHTMLによる2週間予定表を取得します。結合セルを9–13時・13–17時・17–21時に展開し、「個人」だけ利用可、「団体貸切」「休場日」「×」は利用不可、特別イベントはunknownとします。日付は収集時のJST年から年またぎを解決し、曜日・連続日・表構造を検証します。掲載期間外・古い表・取得／解析失敗はunknownです。最終入場は利用終了1時間前という公式注意も保持します。
 
-`src/store.ts`が今日を起点に7日間の日付をブラウザ内で生成します。前週・次週ボタンは`weekIndex`だけを変更します。各日には3つの時間帯がありますが、すべて表示値は`00:00`、状態値は`0`（情報なし）です。
+公開中の施設詳細は前述の静的availabilityを取得します。旧schedule component用の `src/store.ts` は今日を起点に7日間の日付をブラウザ内で生成します。前週・次週ボタンは`weekIndex`だけを変更します。各日には3つの時間帯がありますが、すべて表示値は`00:00`、状態値は`0`（情報なし）です。
 
-データ取得処理は存在しません。`ConditionalStatus.vue`は状態値を公開画像へ変換します。
+この旧schedule componentにはデータ取得処理はありません。`ConditionalStatus.vue`は状態値を公開画像へ変換します。
 
 - `0`: `/img/unknown.svg`（情報なし）
 - `1`: 日本語ではcircle、英語ではdone（利用可能）
@@ -280,7 +280,7 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 施設情報のsource確認日は日別availabilityの取得日と区別し、公開UIで「施設情報の確認日」と表示します。確認日は公式sourceのHTTP応答と読取可能な本文を実際に確認した日であり、全属性の確定日ではありません。読めないsourceの確認日は進めません。予定actionは施設別の `urls.schedule` を最優先し、未設定ならavailabilityの安定landing page、取得資料URLの順で選びます。差し替え型PDFは最新資料が掲載される公式pageへ、固定URLの資料を `urls.schedule` に指定した施設は資料へ直接案内します。取得時の資料URLとhashは証跡としてavailability datasetに保持します。
 
-静的施設情報の再確認は `scripts/reverification/` と `.github/workflows/facility-reverification.yml` が担当します。初回133施設の公開変更なし試走は登録済み214 URLを直接取得し、Luna xhighで13属性を照合してAPI usageを記録しました。週次workflowは公式施設・個人利用sourceを直接取得し、本文hash・redirect・読取復旧、公開文中の期限到来を検知します。本文を読めた既存の公式sourceは内容が同じでも `verifiedAt` を実行日に進め、確認日のみのPRも作成します。公式HTTP取得は専用UAに加え一般的なブラウザUAで再試行し、全sourceを読めない施設ではURL別の失敗理由をreportへ残します。情報源の再探索は施設ごとに365日後、1回のworkflowで最大20施設をLuna xhighのWeb検索へ回し、14日以上読めないURLを優先します。本文変更時の公開差分は原文引用、型、独立した2回目のAI判定を満たした属性だけに限り、全sourceを28日間読めないときは個人利用statusだけunknownへ下げます。施設削除、名称・座標、日別availabilityは自動変更しません。source fingerprint、再試行、実際のWeb検索action、保守的なAPI費を `automation/facility-reverification-state` branchの `research/track-expansion/reverification-state.json` に保存し、暦年$4.80の推計上限で新しいAI呼び出しを停止します。2026年の開始残高には初回試験費を切り上げた$1.00を算入します。公開データ変更はGitHub Appの最小権限tokenでPRを作り、必須CI通過後のauto-mergeがmasterのPreview/Production deployを起動します。確認日だけのpushは差分検出で区別し、生成ファイルをS3へ配置しても施設ページ由来のCloudFront invalidationは行わず通常のcache期限を待ちます。日別availabilityのinvalidationは従来通りです。実行reportはActions artifactとsummaryへ残します。
+静的施設情報の再確認は `scripts/reverification/` と `.github/workflows/facility-reverification.yml` が担当します。初回133施設の公開変更なし試走は登録済み214 URLを直接取得し、Luna xhighで13属性を照合してAPI usageを記録しました。週次workflowは公式施設・個人利用sourceを直接取得し、本文hash・redirect・読取復旧、公開文中の期限到来を検知します。本文を読めた既存の公式sourceは内容が同じでも `verifiedAt` を実行日に進め、確認日のみのPRも作成します。公式HTTP取得は専用UAに加え一般的なブラウザUAで再試行し、全sourceを読めない施設ではURL別の失敗理由をreportへ残します。情報源の再探索は施設ごとに365日後、1回のworkflowで最大20施設をLuna xhighのWeb検索へ回し、14日以上読めないURLを優先します。本文変更時の公開差分は原文引用、型、独立した2回目のAI判定を満たした属性だけに限り、全sourceを28日間読めないときは個人利用statusだけunknownへ下げます。施設削除、名称・座標、日別availabilityは自動変更しません。source fingerprint、再試行、実際のWeb検索action、保守的なAPI費を `automation/facility-reverification-state` branchの `research/track-expansion/reverification-state.json` に保存し、暦年$4.80の推計上限で新しいAI呼び出しを停止します。2026年の開始残高には初回試験費を切り上げた$1.00を算入します。公開データ変更はGitHub Appの最小権限tokenでPRを作り、必須CI通過後のauto-mergeがmasterのProduction deployを起動します。Previewは必要時の手動配備です。確認日だけのpushは差分検出で区別し、生成ファイルをS3へ配置しても施設ページ由来のCloudFront invalidationは行わず通常のcache期限を待ちます。日別availabilityのinvalidationは従来通りです。実行reportはActions artifactとsummaryへ残します。
 
 ### 施設詳細の個人利用予定
 
@@ -424,13 +424,15 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 スモークテストの既定URLは `http://127.0.0.1:4173` です。CloudFront確認時は `ITSRUN_BASE_URL=https://... npm run test:smoke` のように上書きします。Chromeの場所は必要に応じて`CHROME_PATH`で指定します。DNS切替中にOS cacheの影響を除いて正式Host/TLSを確認する場合だけ、`ITSRUN_HOST_RESOLVER_RULE="MAP itsrun.info <CloudFront edge IP>"`をChromeへ渡せます。通常のCI・日次smokeでは指定しません。
 
-`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushの変更ファイルを比較します。Markdownだけの変更は差分の空白確認のみで `Node 24 validation` checkを完了し、Node setup・依存install・アプリ/dailyテストを省略します。それ以外は`itsrunnew/`をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、lint/type check、buildをNode 24で実行します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて、ローカルPreviewを起動して`test:pace`（施設詳細から入力・練習時間への日英PC/スマホ導線を含む）を実行します。`scripts/validation-scope.mjs` は変更pathの許可listでdailyの要否を判定します。ペース表のView・laptime components・marathon model・旧LapTimeCalculator、記録集の2 View・結果JSON（およびMarkdown）だけの変更では、`test:smoke:fixtures`を実行してdaily 2 suiteを省略します。これは古いcommitted snapshotに依存せず、隔離workspaceで当日31日分のmixed 4statusを生成・buildして全smokeを行う軽量経路です。実収集・全unknown scenario・2 buildの署名比較は行いません。共通画面・翻訳・施設・availability・依存・build/deploy・ブラウザテスト・workflowを含む変更、未知path、削除／rename、比較元不明・空差分ではfull dailyを実行します。判定結果はActions summaryへ記録します。`test:daily:fixtures`と`test:daily`はfull daily時に同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストにはChromeと外部sourceへのnetworkが必要です。適用範囲と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
+`.github/workflows/node-validation.yml` は `master` 向けPull Requestと `master` pushの変更ファイルを比較します。Markdownだけの変更は差分の空白確認のみで `Node 24 validation` checkを完了し、Node setup・依存install・アプリ/dailyテストを省略します。それ以外は`itsrunnew/`をworking directoryとして `npm ci`、Track Dataset検証、unit test、施設再確認のPythonテスト、型検査込みのbuildをNode 24で実行します。`npm run build` が `vue-tsc --noEmit` を必須実行するため、同じ検査だけを行う `npm run lint` は直前に重複実行しません。型検査だけを行う開発用コマンドとしては維持します。job/check名はbranch protectionと一致する `Node 24 validation` です。通常検証に続けて、ローカルPreviewを起動して`test:pace`（施設詳細から入力・練習時間への日英PC/スマホ導線を含む）を実行します。`scripts/validation-scope.mjs` は変更pathの許可listでdailyの要否を判定します。ペース表のView・laptime components・marathon model・旧LapTimeCalculator、記録集の2 View・結果JSON（およびMarkdown）だけの変更では、`test:smoke:fixtures`を実行してdaily 2 suiteを省略します。これは古いcommitted snapshotに依存せず、隔離workspaceで当日31日分のmixed 4statusを生成・buildして全smokeを行う軽量経路です。実収集・全unknown scenario・2 buildの署名比較は行いません。共通画面・翻訳・施設・availability・依存・build/deploy・ブラウザテスト・workflowを含む変更、未知path、削除／rename、比較元不明・空差分ではfull dailyを実行します。判定結果はActions summaryへ記録します。`test:daily:fixtures`と`test:daily`はfull daily時に同じcheckで実行します。前者は一時workspace内の4status・戸田利用不可と全unknownの合成データ、後者は実際の公式sourceを利用してbuild・PC/スマホsmokeまで検証します。CIのNode validationはrepository secretをAIへ渡さず、cache miss時のAI施設はunknownになるため、外部AI推論のfreshnessを証明するjobではありません。trusted deployとmasterの有効化済み収集監視・静的施設再確認だけが必要なstepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストにはChromeと外部sourceへのnetworkが必要です。適用範囲と障害記録は[`DAILY_VERIFICATION.md`](DAILY_VERIFICATION.md)を参照してください。
 
-`.github/workflows/deploy-preview.yml` はMarkdownだけのpushを除く `master` push、手動実行、毎日05:00 JSTに、fresh availability生成から検証、build、local smoke、OIDC認証、SHA-256差分によるcontent配備、変更URLのCloudFront invalidation、公開本文照合、CloudFront smokeまでを実行します。差分なしではinvalidationを省略します。HTML shellは直接URLとrewrite前の公開URLを対象にし、Service Workerも変更時に無効化します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
+`.github/workflows/deploy-preview.yml` は `master` からの `workflow_dispatch` だけで必要時に実行します。push・日次scheduleでは起動せず、別branchの手動実行はjob全体をskipします。fresh availability生成から検証、型検査込みのbuild、local smoke、OIDC認証、SHA-256差分によるcontent配備、変更URLのCloudFront invalidation、公開本文照合、CloudFront smokeまでを実行します。差分なしではinvalidationを省略します。HTML shellは直接URLとrewrite前の公開URLを対象にし、Service Workerも変更時に無効化します。deploy concurrencyはPreview全体で1つです。共通処理、least-privilege role、failure境界は [`PREVIEW_DEPLOYMENT.md`](PREVIEW_DEPLOYMENT.md) が正本です。
 
 `.github/workflows/deploy-production.yml`は同じ安全な生成・検証・差分content配備、公開本文照合をProduction専用role/targetで行います。`PRODUCTION_DEPLOY_ENABLED=true`になるまで全triggerでskipし、Productionだけ広告を有効にします。Markdownだけのpushを除くmaster push・手動・毎日05:30 JSTと08:15 JSTを持ち、Production全体でconcurrencyを1つにします。両scheduleともcollection stepへ`OPENAI_API_KEY`を渡し、Setagayaのtoday-only noticeを拾う08:15 runを追加しています。
 
 両deployは収集直後に`validate:availability:fresh`で当日31日分の完全性・鮮度を検査し、summaryで収集とlocal smokeの成否を別々に表示します。smokeはstatusごとの実データ件数と一覧の折りたたみ・ページ送りを考慮し、特定施設を選ぶ前に利用不可表示も有効化します。
+
+デプロイ・検証の段階的見直しの合意、実装済み範囲、次の変更単位、費用制約は [`DEPLOYMENT_MODERNIZATION.md`](DEPLOYMENT_MODERNIZATION.md) に記録します。予定の段階を現在の実装と混同せず、公開revisionとCI/deploy結果を確認してから次へ進みます。
 
 正式公開前のSEO、Search Console、GA4、広告停止、Privacy、HTTP redirect/404、運用確認は [`PUBLIC_LAUNCH.md`](PUBLIC_LAUNCH.md) を参照します。
 

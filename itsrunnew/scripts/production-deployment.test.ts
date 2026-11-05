@@ -17,7 +17,7 @@ describe('Production deployment contract', () => {
     expect(workflow).toContain('cancel-in-progress: false');
   });
 
-  it('uses production OIDC only after offline validation and keeps ads disabled', () => {
+  it('uses production OIDC only after validation and enables advertising', () => {
     expect(workflow).toContain('id-token: write');
     expect(workflow.indexOf('Configure GitHub OIDC credentials')).toBeGreaterThan(workflow.indexOf('Run local production smoke'));
     expect(workflow).not.toMatch(/AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY/);

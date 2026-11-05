@@ -67,9 +67,6 @@ jobs:
       - name: Verify facility reverification without external API calls
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:reverification
-      - name: Run lint and type checks
-        if: steps.change_scope.outputs.docs_only != 'true'
-        run: npm run lint
       - name: Build static site
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run build

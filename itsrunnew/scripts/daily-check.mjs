@@ -8,6 +8,7 @@ import { createServer } from 'node:net';
 import { makeDailyFixture } from './daily-fixtures.mjs';
 import { createAvailabilityPublication, writeAvailabilityPublication } from './availability/publication.mjs';
 
+const prebuilt = process.env.ITSRUN_PREBUILT_DIST ? resolve(process.env.ITSRUN_PREBUILT_DIST) : undefined;
 const mode = process.argv[2];
 if (!['live', 'fixtures', 'fixture-smoke', 'features'].includes(mode)) throw new Error('Usage: node scripts/daily-check.mjs live|fixtures|fixture-smoke|features');
 const source = fileURLToPath(new URL('..', import.meta.url));
@@ -39,6 +40,13 @@ try {
   await cp(source, app, { recursive: true, filter: path => !['node_modules', 'dist', 'cdk.out', '.git', '.cache'].includes(basename(path)) && !basename(path).startsWith('.env') });
   for (const name of ['data', 'research', '.github']) await cp(resolve(source, '..', name), join(scratch, name), { recursive: true });
   await symlink(join(source, 'node_modules'), join(app, 'node_modules'), 'dir');
+  async function build() {
+    if (!prebuilt) { await run('build'); return; }
+    await rm(join(app, 'dist'), { recursive: true, force: true });
+    await cp(prebuilt, join(app, 'dist'), { recursive: true });
+    await rm(join(app, 'dist/availability'), { recursive: true, force: true });
+    await cp(join(app, 'src/data/availability'), join(app, 'dist/availability'), { recursive: true });
+  }
   // Ensure the copied public link follows this isolated workspace's generated data.
   await rm(join(app, 'public/availability'), { force: true });
   await symlink('../src/data/availability', join(app, 'public/availability'), 'dir');
@@ -46,7 +54,7 @@ try {
     await run('collect:availability:range');
     await run('validate:availability:fresh');
     await run('validate:tracks');
-    await run('build');
+    await build();
     await run('test:smoke:preview');
   } else {
     const tracks = JSON.parse(await readFile(join(app, 'src/data/tracks.json'), 'utf8'));
@@ -61,7 +69,7 @@ try {
       await writeAvailabilityPublication(directory, createAvailabilityPublication(manifest, datasets));
       await writeFile(join(app, 'src/data/availability.json'), JSON.stringify(datasets[0]));
       await run('validate:tracks');
-      await run('build');
+      await build();
       const signature = await appBuildSignature();
       if (firstBuildSignature && signature !== firstBuildSignature) {
         throw new Error('Daily data changed application assets or HTML shells');

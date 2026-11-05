@@ -5,7 +5,13 @@ import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, wr
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 
-const stateKey = '.itsrun-deploy/manifest-v1.json';
+export function ownsKey(scope, key) {
+  if (!['all', 'app', 'data'].includes(scope)) throw new Error(`Invalid deployment scope: ${scope}`);
+  return !key.startsWith('.itsrun-deploy/') && (scope === 'all' || (scope === 'data' ? key.startsWith('availability/') : !key.startsWith('availability/')));
+}
+const scope = process.env.ITSRUN_DEPLOY_SCOPE ?? 'all';
+ownsKey(scope, 'index.html');
+const stateKey = scope === 'all' ? '.itsrun-deploy/manifest-v1.json' : `.itsrun-deploy/${scope}-v2.json`;
 const dist = resolve('dist');
 const immutable = key => key.startsWith('assets/') || key.startsWith('availability/generations/');
 
@@ -90,18 +96,28 @@ function previousManifest(bucket, temporaryDirectory) {
   } catch (error) {
     const message = String(error.stderr ?? '');
     if (!/NoSuchKey|Not Found|\(404\)/.test(message)) throw error;
+    if (scope !== 'all') {
+      try {
+        aws('s3api', 'get-object', '--bucket', bucket, '--key', '.itsrun-deploy/manifest-v1.json', path, '--output', 'json');
+        const legacy = JSON.parse(readFileSync(path, 'utf8'));
+        if (legacy.version !== 1 || !legacy.files || typeof legacy.files !== 'object' || Array.isArray(legacy.files)) throw new Error('Invalid legacy deployment manifest');
+        return { files: Object.fromEntries(Object.entries(legacy.files).filter(([key]) => ownsKey(scope, key))), migrated: true };
+      } catch (legacyError) {
+        if (!/NoSuchKey|Not Found|\(404\)/.test(String(legacyError.stderr ?? ''))) throw legacyError;
+      }
+    }
     // One-time migration: compare the existing objects by bytes, avoiding a full invalidation.
     const snapshot = join(temporaryDirectory, 'snapshot');
     mkdirSync(snapshot);
     aws('s3', 'sync', `s3://${bucket}`, snapshot,
       '--exclude', '.itsrun-deploy/*', '--only-show-errors');
-    return { files: buildManifest(snapshot), migrated: true };
+    return { files: Object.fromEntries(Object.entries(buildManifest(snapshot)).filter(([key]) => ownsKey(scope, key))), migrated: true };
   }
   const data = JSON.parse(readFileSync(path, 'utf8'));
   if (data.version !== 1 || typeof data.files !== 'object' || !data.files || Array.isArray(data.files)) {
     throw new Error('Invalid deployment manifest; refusing to deploy.');
   }
-  return { files: data.files, migrated: false };
+  return { files: Object.fromEntries(Object.entries(data.files).filter(([key]) => ownsKey(scope, key))), migrated: false };
 }
 
 function cacheControl(key) {
@@ -143,18 +159,23 @@ function output(name, value) {
 }
 
 export async function deploy({ bucket, distribution }) {
-  if (!statSync(join(dist, 'index.html')).isFile() || !statSync(join(dist, 'service-worker.js')).isFile()) {
+  if (scope === 'data' ? !statSync(join(dist, 'availability/manifest.json')).isFile() :
+      (!statSync(join(dist, 'index.html')).isFile() || !statSync(join(dist, 'service-worker.js')).isFile())) {
     throw new Error('dist/ is missing required entry files.');
   }
   const temporaryDirectory = mkdtempSync(join(tmpdir(), 'itsrun-deploy-'));
   try {
-    const current = buildManifest();
+    const current = Object.fromEntries(Object.entries(buildManifest()).filter(([key]) => ownsKey(scope, key)));
     const previous = previousManifest(bucket, temporaryDirectory);
     const plan = deferFacilityDatePaths(
       planDeployment(previous.files, current),
       process.env.ITSRUN_DEFER_FACILITY_DATE_INVALIDATION === 'true',
     );
+    mkdirSync('.cache', { recursive: true });
+    const publicationState = status => writeFileSync('.cache/publication-state.json', JSON.stringify({ status, scope, sourceCommit: process.env.ITSRUN_SOURCE_SHA }));
+    publicationState('started');
     await publishChangedFiles(plan.changed, key => upload(bucket, key));
+    publicationState('published');
     for (const key of plan.removed) aws('s3api', 'delete-object', '--bucket', bucket, '--key', key);
 
     let invalidationId = '';
@@ -171,12 +192,12 @@ export async function deploy({ bucket, distribution }) {
     // visible when their normal CloudFront cache lifetime ends.
     const manifestFile = join(temporaryDirectory, 'current.json');
     if (previous.migrated || plan.changed.length || plan.removed.length) {
-      writeFileSync(manifestFile, JSON.stringify({ version: 1, files: current }));
+      writeFileSync(manifestFile, JSON.stringify({ version: 1, scope, sourceCommit: process.env.ITSRUN_SOURCE_SHA, files: current }));
       aws('s3', 'cp', manifestFile, `s3://${bucket}/${stateKey}`,
         '--cache-control', 'no-store', '--content-type', 'application/json', '--only-show-errors');
     }
     mkdirSync('.cache', { recursive: true });
-    writeFileSync('.cache/deployment-plan.json', JSON.stringify(plan));
+    writeFileSync('.cache/deployment-plan.json', JSON.stringify({ ...plan, scope }));
     output('invalidation_id', invalidationId || 'skipped');
     output('invalidation_paths', plan.paths.length);
     output('changed_files', plan.changed.length);

@@ -12,7 +12,11 @@ readonly EXPECTED_REGION='ap-northeast-1'
 
 [[ "$AWS_REGION" == "$EXPECTED_REGION" ]] || { echo 'Unexpected AWS region.' >&2; exit 1; }
 [[ "$PRODUCTION_URL" == "https://$PRODUCTION_DOMAIN" ]] || { echo 'Production URL and domain do not match.' >&2; exit 1; }
-[[ -f dist/index.html && -d dist/assets ]] || { echo 'dist/ is missing or incomplete.' >&2; exit 1; }
+if [[ "${ITSRUN_DEPLOY_SCOPE:-all}" == 'data' ]]; then
+  [[ -f dist/availability/manifest.json ]] || { echo 'dist/ availability is missing.' >&2; exit 1; }
+else
+  [[ -f dist/index.html && -d dist/assets ]] || { echo 'dist/ is missing or incomplete.' >&2; exit 1; }
+fi
 
 caller_account="$(aws sts get-caller-identity --query Account --output text)"
 [[ "$caller_account" == "$EXPECTED_ACCOUNT" ]] || { echo 'Unexpected AWS account.' >&2; exit 1; }

@@ -50,7 +50,7 @@ describe('daily availability regression gates', () => {
     expect(validationWorkflow).toContain("run: npm run test:features");
     expect(validationWorkflow).toContain("ITSRUN_TEST_SUITES: ${{ steps.change_scope.outputs.suites }}");
   });
-  for (const [target, yaml] of [['Preview', workflow], ['Production', productionWorkflow]]) {
+  for (const [target, yaml] of [['Preview', workflow]]) {
     it(`${target} validates fresh generated data before building or deploying`, () => {
       const collect = yaml.indexOf('run: npm run collect:availability:range');
       const fresh = yaml.indexOf('run: npm run validate:availability:fresh');
@@ -67,4 +67,20 @@ describe('daily availability regression gates', () => {
       expect(yaml).toContain('LOCAL_SMOKE_RESULT: ${{ steps.local_smoke.outcome }}');
     });
   }
+});
+
+describe('production artifact release contract', () => {
+  it('waits for trusted validation and gives app/data distinct publication ownership', () => {
+    expect(productionWorkflow).toContain('workflow_run:');
+    expect(productionWorkflow).not.toMatch(/^  push:/m);
+    expect(productionWorkflow).not.toContain('run: npm run build');
+    expect(productionWorkflow).not.toContain('run: npm test');
+    expect(productionWorkflow).toContain('ITSRUN_DEPLOY_SCOPE: app');
+    expect(productionWorkflow).toContain('ITSRUN_DEPLOY_SCOPE: data');
+    expect(productionWorkflow).toContain('production-release.mjs restore');
+    expect(productionWorkflow).toContain('production-release.mjs guard');
+    expect(validationWorkflow).toContain('run: node scripts/release-artifact.mjs seal');
+    expect(validationWorkflow).toContain('production-release-${{ github.sha }}');
+    expect(productionWorkflow).not.toContain('continue-on-error:');
+  });
 });

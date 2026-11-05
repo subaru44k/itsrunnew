@@ -67,28 +67,14 @@ jobs:
       - name: Verify facility reverification without external API calls
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:reverification
-      - name: Build static site
+      - name: Verify affected browser features with fresh fixtures
         if: steps.change_scope.outputs.docs_only != 'true'
-        run: npm run build
-      - name: Verify pace planner and facility navigation
-        if: steps.change_scope.outputs.docs_only != 'true'
-        run: |
-          node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort > /tmp/itsrun-pace-preview.log 2>&1 &
-          pace_preview_pid=$!
-          trap 'kill "$pace_preview_pid"' EXIT
-          for attempt in {1..60}; do
-            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
-              break
-            fi
-            sleep 1
-          done
-          npm run test:pace
+        env:
+          ITSRUN_TEST_SUITES: ${{ steps.change_scope.outputs.suites }}
+        run: npm run test:features
       - name: Verify daily regression scenarios
         if: steps.change_scope.outputs.daily == 'true'
         run: npm run test:daily:fixtures
       - name: Verify live daily availability pipeline without deployment
         if: steps.change_scope.outputs.daily == 'true'
         run: npm run test:daily
-      - name: Verify public routes for independent feature changes
-        if: steps.change_scope.outputs.docs_only != 'true' && steps.change_scope.outputs.daily != 'true'
-        run: npm run test:smoke:fixtures

@@ -16,7 +16,7 @@ Production run [35284711731](https://github.com/subaru44k/itsrunnew/actions/runs
 
 ```sh
 npm test
-npm run build
+npm run test:features
 npm run test:daily:fixtures
 npm run test:daily
 ```
@@ -26,7 +26,9 @@ npm run test:daily
 - `test:daily:fixtures`: JST当日から31日間の合成データでbuildとPC/モバイルの全smokeを実行。mixedでは4statusを網羅し、戸田を当日unavailable・翌日availableにする。unknownでは全施設をunknownとし、公式取得不能時の安全な表示とstatus欠落を検証する。
 - `test:daily`: 実際の公式sourceから31日分を収集し、鮮度・全施設の完全性・Track Datasetを検証してbuildと全smokeを実行する。AWSへ配備しない。AI読解5施設は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）を一時workspaceの外へ置いてcacheを継続利用できる。keylessでcache missのAI施設はunknownになるため、CIでのdaily成功は外部AI推論のfreshnessを証明しない。
 - 両コマンドとも一時ディレクトリへソースをコピーし、インストール済み依存を共有する。live dailyのAI cacheだけは`ITSRUN_AI_CACHE_DIR`で指定したpersistent directoryを参照し、一時workspaceのコピー対象から除外する。checkoutのavailability・distや`.env`には触れない。合成データを公開する経路を設けず、deployの鮮度ゲートでも合成データを拒否する。通常終了・失敗時に一時領域を削除する。
-- `Node 24 validation` checkはMarkdownだけのmaster向けPR・master pushでは差分確認のみ行い、アプリ・daily suiteを省略する。ペース表・記録集の独立したファイルだけの変更では`test:smoke:fixtures`を実行して両dailyを省略する。これは一時workspaceで当日31日分のmixed 4statusだけを生成・buildして全smokeを行う経路で、古いcommitted snapshotを使わない。実収集・全unknown・2 buildの署名比較は行わない。許可pathは`scripts/validation-scope.mjs`で限定し、共通機能・施設・availability・build/deploy・ブラウザテスト・workflow、未知path、削除／rename、比較元不明・空差分では安全側に両コマンドを実行する。同じPR revisionのCI結果が確認できれば、理由のないローカル再実行は不要。CIは`OPENAI_API_KEY`を外部AIへ渡さないため、keyless cache missを含むdaily gateの成功を外部AI推論の検証結果と扱わない。unit/lint/buildだけの成功もdaily互換性の確認と扱わない。
+- `Node 24 validation` はMarkdownだけなら差分確認だけで完了する。それ以外は `test:features` で当日mixed fixtureと1回のbuildを共有し、pace / archives / reports / scheduleを変更範囲に応じて実行する。5選手の記録集・共通記録集表示/データと現地レポートも独立した許可pathに含む。共通画面・施設・availability・build/deploy・tooling・未知path・削除/rename・比較元不明・空差分は全featureと両dailyを維持する。同じPR revisionのCI成功後に理由なくローカルで繰り返さない。CIは外部AIのfreshnessまでは証明しない。
+- 記録集と施設予定のmockシナリオは独立suiteへ移した。施設予定の期限切れ・取得失敗・世代切替・日付選択競合を `test:schedule` で確認し、dailyのデータsetごとに同じシナリオを再実行しない。dailyのmixed/unknownでは、データに応じた全status・filter・公開導線の統合を検証する。
+- `ITSRUN_TEST_SUITES=archives npm run test:features` のように対象だけをローカル確認できる。既定は4suite全部。現地レポート用の架空APIをbuildへ設定し通信をmockするため、この成果物は公開しない。
 
 両deploy workflowは収集直後に `validate:availability:fresh` を実行する。JST当日始まりの連続31日、6時間以内の生成時刻、全施設IDの重複・欠落、日付・timezone・期限・statusを検査し、不完全または古い生成物を公開しない。取得不能は従来どおりunknownであり、全4statusの存在を公開条件にしない。
 

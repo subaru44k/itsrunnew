@@ -8,7 +8,7 @@ import { createServer } from 'node:net';
 import { makeDailyFixture } from './daily-fixtures.mjs';
 
 const mode = process.argv[2];
-if (!['live', 'fixtures', 'fixture-smoke'].includes(mode)) throw new Error('Usage: node scripts/daily-check.mjs live|fixtures|fixture-smoke');
+if (!['live', 'fixtures', 'fixture-smoke', 'features'].includes(mode)) throw new Error('Usage: node scripts/daily-check.mjs live|fixtures|fixture-smoke|features');
 const source = fileURLToPath(new URL('..', import.meta.url));
 const scratch = await mkdtemp(join(tmpdir(), 'itsrun-daily-'));
 const app = join(scratch, 'itsrunnew');
@@ -20,7 +20,7 @@ const port = process.env.ITSRUN_PREVIEW_PORT ?? await new Promise((resolvePort, 
     reservation.close(error => error ? reject(error) : resolvePort(String(assignedPort)));
   });
 });
-const env = { ...process.env, ITSRUN_AI_CACHE_DIR: process.env.ITSRUN_AI_CACHE_DIR ?? join(source, '.cache/availability-ai'), ITSRUN_PREVIEW_PORT: port, VITE_DEPLOY_TARGET: 'preview', VITE_ADSENSE_ENABLED: 'false', VITE_FIELD_REPORTS_API: '', ITSRUN_EXPECT_EDGE_ROUTING: 'false' };
+const env = { ...process.env, ITSRUN_AI_CACHE_DIR: process.env.ITSRUN_AI_CACHE_DIR ?? join(source, '.cache/availability-ai'), ITSRUN_PREVIEW_PORT: port, VITE_DEPLOY_TARGET: 'preview', VITE_ADSENSE_ENABLED: 'false', VITE_FIELD_REPORTS_API: mode === 'features' ? 'https://reports.test.invalid' : '', ITSRUN_EXPECT_EDGE_ROUTING: 'false' };
 const run = command => new Promise((resolveRun, reject) => {
   console.log(`Daily check (${mode}): npm run ${command}`);
   const child = spawn('npm', ['run', command], { cwd: app, env, stdio: 'inherit' });
@@ -51,7 +51,7 @@ try {
     const tracks = JSON.parse(await readFile(join(app, 'src/data/tracks.json'), 'utf8'));
     const baseline = JSON.parse(await readFile(join(app, 'src/data/availability.json'), 'utf8'));
     let firstBuildSignature;
-    for (const scenario of (mode === 'fixture-smoke' ? ['mixed'] : ['mixed', 'unknown'])) {
+    for (const scenario of (['fixture-smoke', 'features'].includes(mode) ? ['mixed'] : ['mixed', 'unknown'])) {
       console.log(`Daily regression scenario: ${scenario}`);
       const { manifest, datasets } = makeDailyFixture(tracks, baseline, scenario);
       const directory = join(app, 'src/data/availability');
@@ -67,7 +67,7 @@ try {
         throw new Error('Daily data changed application assets or HTML shells');
       }
       firstBuildSignature = signature;
-      await run('test:smoke:preview');
+      await run(mode === 'features' ? 'test:features:preview' : 'test:smoke:preview');
     }
   }
 } finally {

@@ -2,17 +2,21 @@ import { execFileSync } from 'node:child_process';
 import { appendFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-// Only explicitly independent features may omit the availability regression suites.
-// Shared code, dependencies, tooling, renamed/deleted files and unknown paths run all gates.
+// Unknown/shared/structural changes retain the full regression boundary.
+const allSuites = 'pace,archives,reports,schedule';
 export function validationScope(paths, structuralChange = false) {
-  if (!paths.length || structuralChange) return { docs_only: false, daily: true };
-  if (paths.every(path => path.endsWith('.md'))) return { docs_only: true, daily: false };
-  const independent = path => path.endsWith('.md')
-    || /^itsrunnew\/src\/components\/laptime\/[^/]+\.(vue|ts)$/.test(path)
-    || /^itsrunnew\/src\/model\/(marathon(?:\.test)?|LapTimeCalculator)\.ts$/.test(path)
-    || /^itsrunnew\/src\/views\/(LapTime|NozomiAntena|RyujiMiura)\.vue$/.test(path)
-    || /^itsrunnew\/src\/data\/(nozomi|ryuji)-results\.json$/.test(path);
-  return { docs_only: false, daily: !paths.every(independent) };
+  if (paths.length && paths.every(path => path.endsWith('.md'))) return { docs_only: true, daily: false, suites: '' };
+  const full = { docs_only: false, daily: true, suites: allSuites };
+  if (!paths.length || structuralChange) return full;
+  const suites = new Set();
+  for (const path of paths) {
+    if (path.endsWith('.md')) continue;
+    if (/^itsrunnew\/src\/(?:components\/laptime\/[^/]+\.(?:vue|ts)|model\/(?:marathon(?:\.test)?|LapTimeCalculator)\.ts|views\/LapTime\.vue)$/.test(path)) suites.add('pace');
+    else if (/^itsrunnew\/src\/(?:views\/(?:NozomiAntena|RyujiMiura|OjiroHonda|YotaMashiko|HarukiNiizuma)\.vue|components\/AthleteArchive\.vue|data\/(?:(?:nozomi|ryuji|ojiro-honda|yota-mashiko|haruki-niizuma|ekiden|regional)-results\.json|athlete-archives(?:\.test)?\.ts|competition-label(?:\.test)?\.ts|competition-names-ja\.json))$/.test(path)) suites.add('archives');
+    else if (/^itsrunnew\/(?:src\/(?:components\/FieldReports\.vue|services\/field-reports(?:\.test)?\.ts)|backend\/field-reports\/[^/]+)$/.test(path)) suites.add('reports');
+    else return full;
+  }
+  return { docs_only: false, daily: false, suites: [...suites].sort().join(',') };
 }
 
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -40,5 +44,5 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
   console.log(output);
   if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, output);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-    `Validation scope: ${scope.docs_only ? 'Markdown only' : scope.daily ? 'full daily regression' : 'independent feature: single mixed-fixture smoke, no live/unknown daily suites'}\n`);
+    `Validation scope: ${scope.docs_only ? 'Markdown only' : scope.daily ? 'full daily regression' : 'independent feature'}; browser suites: ${scope.suites || 'none'}\n`);
 }

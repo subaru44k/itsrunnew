@@ -2,6 +2,9 @@ import { spawn } from 'node:child_process';
 
 const port = process.env.ITSRUN_PREVIEW_PORT ?? '4173';
 const baseUrl = `http://127.0.0.1:${port}`;
+const selected = process.argv[2] === 'features' ? (process.env.ITSRUN_TEST_SUITES ?? 'pace,archives,reports,schedule').split(',').filter(Boolean) : ['smoke'];
+if (!selected.length || selected.some(suite => !['smoke', 'pace', 'archives', 'reports', 'schedule'].includes(suite))) throw new Error('Invalid browser suite selection');
+
 const preview = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--host', '127.0.0.1', '--port', port, '--strictPort'], {
   env: process.env,
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -24,8 +27,8 @@ const waitForPreview = async () => {
   throw new Error(`Preview did not start within 30 seconds.\n${previewLog}`);
 };
 
-const runSmoke = () => new Promise((resolve, reject) => {
-  const smoke = spawn('npm', ['run', 'test:smoke'], {
+const runSmoke = suite => new Promise((resolve, reject) => {
+  const smoke = spawn('npm', ['run', `test:${suite}`], {
     env: { ...process.env, ITSRUN_BASE_URL: baseUrl },
     stdio: 'inherit',
   });
@@ -35,7 +38,7 @@ const runSmoke = () => new Promise((resolve, reject) => {
 
 try {
   await waitForPreview();
-  await runSmoke();
+  for (const suite of selected) await runSmoke(suite);
 } finally {
   preview.kill('SIGTERM');
 }

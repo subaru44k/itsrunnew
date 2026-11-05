@@ -43,6 +43,8 @@ describe('validated publication boundary', () => {
     expect(releaseScope(['itsrunnew/src/views/LapTime.vue'])).toEqual({ deploy_app: true, deploy_data: false });
     expect(releaseScope(['itsrunnew/scripts/availability/reviewed-chita.ts'])).toEqual({ deploy_app: false, deploy_data: true });
     expect(releaseScope(['itsrunnew/src/data/tracks.json'])).toEqual({ deploy_app: true, deploy_data: true });
+    expect(releaseScope(['itsrunnew/scripts/availability/health.ts', 'itsrunnew/scripts/scheduler/dispatch.mjs'])).toEqual({ deploy_app: false, deploy_data: false });
+    expect(releaseScope(['itsrunnew/backend/field-reports/core.mjs'])).toEqual({ deploy_app: false, deploy_data: false });
     expect(releaseScope(['unknown/new-tool'])).toEqual({ deploy_app: true, deploy_data: true });
     for (const key of ['index.html', 'assets/app.js', 'tracks/a/index.html']) { expect(ownsKey('app', key)).toBe(true); expect(ownsKey('data', key)).toBe(false); }
     for (const key of ['availability/manifest.json', 'availability/generations/a/tracks/a.json']) { expect(ownsKey('app', key)).toBe(false); expect(ownsKey('data', key)).toBe(true); }

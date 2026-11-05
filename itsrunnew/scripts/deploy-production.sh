@@ -10,6 +10,11 @@ readonly EXPECTED_REGION='ap-northeast-1'
 : "${PRODUCTION_DOMAIN:?PRODUCTION_DOMAIN is required}"
 : "${PRODUCTION_URL:?PRODUCTION_URL is required}"
 
+case "${ITSRUN_DEPLOY_SCOPE:-}" in
+  app|data) ;;
+  *) echo 'Production scope must be app or data.' >&2; exit 1;;
+esac
+
 [[ "$AWS_REGION" == "$EXPECTED_REGION" ]] || { echo 'Unexpected AWS region.' >&2; exit 1; }
 [[ "$PRODUCTION_URL" == "https://$PRODUCTION_DOMAIN" ]] || { echo 'Production URL and domain do not match.' >&2; exit 1; }
 if [[ "${ITSRUN_DEPLOY_SCOPE:-all}" == 'data' ]]; then

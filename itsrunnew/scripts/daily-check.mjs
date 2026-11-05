@@ -75,7 +75,7 @@ try {
         throw new Error('Daily data changed application assets or HTML shells');
       }
       firstBuildSignature = signature;
-      await run(mode === 'features' ? 'test:features:preview' : 'test:smoke:preview');
+      await run(mode === 'features' ? 'test:features:preview' : scenario === 'unknown' ? 'test:unknown:preview' : 'test:smoke:preview');
     }
   }
 } finally {

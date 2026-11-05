@@ -24,6 +24,11 @@ describe('validation scope safety boundary', () => {
   it.each(['src/App.vue', 'src/styles.css', 'src/locales/ja.json', 'src/views/TrackDetail.vue', 'src/data/tracks.json', 'src/model/availability.ts', 'scripts/smoke.mjs', 'scripts/browser-check.mjs', 'scripts/availability/collect.ts', 'package-lock.json', 'vite.config.ts', 'unknown.ts'])('requires full daily for %s, even mixed with a pace change', path => {
     expect(validationScope([`itsrunnew/${path}`, 'itsrunnew/src/views/LapTime.vue']).daily).toBe(true);
   });
+  it('isolates known operations while structural or mixed shared changes stay broad', () => {
+    expect(validationScope(['itsrunnew/scripts/availability/health.ts', 'docs/README.md'])).toEqual({ docs_only: false, daily: false, suites: '' });
+    expect(validationScope(['itsrunnew/scripts/availability/source-fetch.ts']).daily).toBe(true);
+    expect(validationScope(['itsrunnew/scripts/availability/health.ts'], true).daily).toBe(true);
+  });
   it('fails closed for missing diff, workflow changes, deletion and rename', () => {
     expect(validationScope([]).daily).toBe(true);
     expect(validationScope(['.github/workflows/node-validation.yml']).daily).toBe(true);
@@ -40,6 +45,7 @@ it('uses real Git diffs for independent/mixed/renamed files and fails on whitesp
     const script = join(root, 'itsrunnew/scripts/validation-scope.mjs');
     copyFileSync(new URL('./validation-scope.mjs', import.meta.url), script);
     copyFileSync(new URL('./release-scope.mjs', import.meta.url), join(root, 'itsrunnew/scripts/release-scope.mjs'));
+    copyFileSync(new URL('./facility-date-only.mjs', import.meta.url), join(root, 'itsrunnew/scripts/facility-date-only.mjs'));
     const pace = join(root, 'itsrunnew/src/views/LapTime.vue');
     const shared = join(root, 'itsrunnew/src/App.vue');
     writeFileSync(pace, 'baseline\n');
@@ -61,6 +67,14 @@ it('uses real Git diffs for independent/mixed/renamed files and fails on whitesp
     base = git('rev-parse', 'HEAD');
     git('mv', 'itsrunnew/src/views/LapTime.vue', 'itsrunnew/src/views/NozomiAntena.vue'); commit();
     expect(run().stdout).toContain('daily=true');
+    const tracks = join(root, 'itsrunnew/src/data/tracks.json');
+    mkdirSync(join(root, 'itsrunnew/src/data'), { recursive: true });
+    writeFileSync(tracks, JSON.stringify([{ id: 'track', sources: [{ url: 'https://official.example', verifiedAt: '2026-11-04' }] }]));
+    base = commit();
+    writeFileSync(tracks, JSON.stringify([{ id: 'track', sources: [{ url: 'https://official.example', verifiedAt: '2026-11-05' }] }])); commit();
+    const dateOutput = run().stdout;
+    expect(dateOutput).toContain('date_only=true');
+    expect(dateOutput).toContain('deploy_data=false');
     base = git('rev-parse', 'HEAD');
     writeFileSync(shared, 'bad whitespace   \n'); commit();
     expect(run().status).not.toBe(0);

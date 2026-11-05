@@ -62,11 +62,13 @@ describe('content deployment plan', () => {
 
   it('finishes immutable uploads before app files and switches the public pointer last', async () => {
     const completed: string[] = [];
-    await publishChangedFiles(['availability/manifest.json', 'index.html', 'availability/generations/new/tracks/a.json', 'assets/new.js'], async key => {
+    await publishChangedFiles(['availability/manifest.json', 'index.html', 'availability/generations/new/tracks/a.json', 'assets/new.js'], async keys => {
+      for (const key of keys) {
       if (key === 'index.html') expect(completed).toContain('availability/generations/new/tracks/a.json');
       if (key === 'availability/manifest.json') expect(completed).toContain('index.html');
       await new Promise(resolve => setTimeout(resolve, 1));
       completed.push(key);
+      }
     });
     expect(completed.at(-1)).toBe('availability/manifest.json');
   });
@@ -74,9 +76,11 @@ describe('content deployment plan', () => {
   it('does not switch the pointer after a failed immutable or stable upload', async () => {
     for (const failed of ['assets/new.js', 'index.html']) {
       const uploaded: string[] = [];
-      await expect(publishChangedFiles(['availability/manifest.json', 'index.html', 'assets/new.js'], async key => {
+      await expect(publishChangedFiles(['availability/manifest.json', 'index.html', 'assets/new.js'], async keys => {
+        for (const key of keys) {
         uploaded.push(key);
         if (key === failed) throw new Error('upload failed');
+        }
       })).rejects.toThrow('upload failed');
       expect(uploaded).not.toContain('availability/manifest.json');
     }
@@ -182,7 +186,7 @@ printf '%s\\n' "$*" >> "$FAKE_AWS_LOG"
 case "$1 $2" in
   's3api get-object')
     if [ "$6" = '.itsrun-deploy/manifest-v1.json' ]; then cp "$FAKE_AWS_MANIFEST" "$7"; else echo NoSuchKey >&2; exit 1; fi;;
-  's3 cp') case "$4" in *-v2.json) cp "$3" "$FAKE_AWS_STATE";; esac;;
+  's3 cp') case "$4" in *-v2.json) cp "$3" "$FAKE_AWS_STATE";; *) if [ -d "$3" ]; then (cd "$3" && find . -type f) | while read key; do printf 'UPLOAD:%s\\n' "$key" >> "$FAKE_AWS_LOG"; done; fi;; esac;;
   'cloudfront create-invalidation') echo I123;;
   'cloudfront get-invalidation') echo Completed;;
 esac
@@ -194,7 +198,7 @@ esac
         expect(result.status, result.stderr).toBe(0);
         const files = JSON.parse(readFileSync(state, 'utf8')).files;
         expect(Object.keys(files).every(key => scope === 'data' ? key.startsWith('availability/') : !key.startsWith('availability/'))).toBe(true);
-        const writes = readFileSync(log, 'utf8').split('\n').filter(line => /^(s3 cp|s3api delete-object)/.test(line));
+        const writes = readFileSync(log, 'utf8').split('\n').filter(line => /^(s3 cp|s3api delete-object|UPLOAD:)/.test(line));
         if (scope === 'app') {
           expect(writes.some(line => line.includes('availability/'))).toBe(false);
           expect(writes.some(line => line.includes('--key old-app.txt'))).toBe(true);

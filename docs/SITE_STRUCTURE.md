@@ -85,7 +85,9 @@ itsrunnew/
 │   ├── feature-smoke.mjs      記録集/施設予定の独立ブラウザsuite
 │   ├── archive-smoke.mjs      5選手の記録集の検索・年度・駅伝・出典導線
 │   ├── test-viewports.mjs     browser workerのviewport選択
-│   ├── validation-scope.mjs   変更pathからMarkdown／独立機能／full dailyを保守的に判定
+│   ├── validation-scope.mjs   Markdown／独立機能／known ops／共有・未知の検証境界
+│   ├── validation-unit.mjs    独立機能・opsのunit選択。未知scopeは全unit
+│   ├── unknown-availability-smoke.mjs 全unknownの検索・要確認・日付・近隣候補
 │   ├── smoke.mjs              公開機能のブラウザスモークテスト
 │   ├── facility-schedule-smoke.mjs 日英・品質別予定と情報密度・詳細開閉のブラウザ検証
 │   ├── daily-check.mjs        一時workspaceでdaily実収集／合成データのbuild・smokeを検証
@@ -298,13 +300,13 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ブラウザはmanifest取得前の初回日付だけ互換URLも利用し、取得後は世代URLを使います。施設bundleは施設ID・全日付・時刻・世代を検証し、世代が変わった取得結果を採用しません。異常時は要確認を維持します。旧manifestへ戻した場合も任意の世代項目を消して互換取得に戻れます。
 
-content deployはimmutable asset/世代JSON、その他のファイル、公開manifestの順に最大8並列で送信し、各段階の全処理完了を待ちます。途中失敗時は公開manifestを更新しません。新しい世代URLのinvalidationは不要で、同じ世代URLの内容変更は拒否します。旧世代は通常deployの削除対象にせず、S3 lifecycleで7日後に期限切れとします（Productionのavailability旧versionも7日）。manifestはS3 `no-store` と両環境の専用CloudFront `CACHING_DISABLED` behaviorを併用します。ドメイン・証明書・DNSは変更しません。互換日別JSONは従来のinvalidationを維持します。Productionは以下の分離経路を使い、Previewの手動配備は従来の一括経路を維持します。
+content deployはimmutable asset/世代JSON、その他のファイル、公開manifestの順にcache metadataごとの一時treeをAWS CLI transfer managerでまとめて並列送信し、各段階の全処理完了を待ちます。途中失敗時は公開manifestを更新しません。新しい世代URLのinvalidationは不要で、同じ世代URLの内容変更は拒否します。SHA差分で選んだファイルだけを一時treeへcopyし、`aws s3 cp --recursive`で送るため、同サイズ・古いmtimeのrollback成果物も省略されません。旧世代は通常deployの削除対象にせず、S3 lifecycleで7日後に期限切れとします（Productionのavailability旧versionも7日）。manifestはS3 `no-store` と両環境の専用CloudFront `CACHING_DISABLED` behaviorを併用します。ドメイン・証明書・DNSは変更しません。互換日別JSONは従来のinvalidationを維持します。Productionは以下の分離経路を使い、Previewの手動配備は従来の一括経路を維持します。
 
 `Node 24 validation` はproduction設定で1回buildし、その`dist`を保持します。`ITSRUN_PREBUILT_DIST` を渡したfeature/daily検証は隔離copyへavailability JSONだけを差し替え、availability以外の全file hashが元の成果物と一致することを確認します。現地レポートは公開APIを通信mockで置き換え、実投稿は行いません。成功したmaster pushだけが7日保持の `production-release-<SHA>` artifactを保存し、公開要否・施設ID hash・source SHA・validation run ID・全app file hashを含めます。Markdownだけでも小さいmetadata artifactは保存し、app/dataの公開は行いません。
 
 Production workflowは成功したNode validationの `workflow_run` から起動し、同じrepositoryのmaster push・workflow path・成功状態・SHAを再確認します。PR/forkの成果物は使用しません。app-only変更は収集せず、exact artifactを復元してschema/施設IDを公開manifestと照合し、再build・unit再実行なしで公開します。定時・通常の手動実行は検証済みmasterでdata-only収集・鮮度/全partition照合・公開を行い、appをbuildしません。両方必要な変更ではdata成功後にappを公開します。
 
-appは `availability/` 以外、dataは `availability/` だけを所有し、`.itsrun-deploy/app-v2.json` / `data-v2.json` へ独立stateを保存します。最初は従来のv1 stateから担当prefixだけを移行します。相手のファイルは更新・削除しません。app/dataそれぞれで配備を直列化し、無関係なjobによるpending取消しを避けます。旧SHAからmasterへの比較がそのscopeへ影響する、比較不能、300 file以上の場合は旧jobを拒否します。docsや相手scopeだけの後続変更は許可するため、文書更新で待機中のappが公開されなくなることを防ぎます。
+Productionはscope未指定/allを拒否します。appは `availability/` 以外、dataは `availability/` だけを所有し、`.itsrun-deploy/app-v2.json` / `data-v2.json` へ独立stateを保存します。最初は従来のv1 stateから担当prefixだけを移行します。相手のファイルは更新・削除しません。app/dataそれぞれで配備を直列化し、無関係なjobによるpending取消しを避けます。旧SHAからmasterへの比較がそのscopeへ影響する、比較不能、300 file以上の場合は旧jobを拒否します。docsや相手scopeだけの後続変更は許可するため、文書更新で待機中のappが公開されなくなることを防ぎます。
 
 公開後は変更した本文の全byte照合に加え、appだけ `test:release` で正式URLの301/404・entry asset・manifest/bundle・日英PC/スマホの起動を確認します。機能の詳細シナリオはCIで済ませ、配備後に再度全suiteを実行しません。summaryでは未公開・部分更新失敗・公開済みだが確認失敗・公開確認成功を分けます。失敗はjob失敗として扱います。
 
@@ -414,6 +416,9 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 ## 8. コマンドと検証
 
+検証と公開のmatrixは [VALIDATION_POLICY.md](VALIDATION_POLICY.md) が正本です。独立pace/archives/reportsは関連unit/browserだけ、known monitor/schedulerは関連unit・ローカルHTTP上の実CLI 2回・SMTP mock・型検査だけです。共通/availability/未知/構造差分は全unit/all features/mixed全smoke/unknown専用を実行します。PR CIからlive collectionを外し、検証済みmasterのdata jobと公開監視で実収集・公開品質を確認します。公開しないops/backend API/test/docsだけでsite配備を起動しません。実収集CLIは診断用に維持します。
+
+
 すべて `itsrunnew/` で実行します。
 
 | コマンド | 内容 |
@@ -426,14 +431,16 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm run test:archives` / `npm run test:schedule` | 起動済みPreviewで記録集/施設予定の独立した日英・PC/スマホ検証 |
 | `npm run dev` | Vite開発サーバー |
 | `npm run build` | 標準XML sitemap生成（URL・要素構成をreadiness検証）、`vue-tsc --noEmit`、Vite build、固定ページ・施設詳細HTML shell生成 |
-| `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
+| `npm test` | 全unit。review済み原本・collector guardを維持 |
+| `npm run test:affected` | CIの明示scopeに対応する関連unit。scope不明は全unit |
+| `npm run test:unknown` | 起動済みPreviewのall-unknown専用・日英PC/スマホ検証 |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
 | `npm run test:release` | 公開正式URLのroute/asset・世代JSON・日英PC/スマホ起動だけを確認（`ITSRUN_BASE_URL`必須） |
 | `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ。メニュー操作は初回lazy routeのviewが現れてから開始し、mobile drawerのactive状態を確認する |
-| `npm run test:smoke:fixtures` | 隔離workspaceで当日31日分のmixed 4statusだけを生成しbuild・全smoke（実収集・全unknownなし） |
+| `npm run test:smoke:fixtures` | 隔離workspaceで当日31日分のmixed 4statusだけを生成しbuild・統合smoke（実収集・全unknownなし） |
 | `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |
-| `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusと全unknownの2シナリオをbuild・smoke |
+| `npm run test:daily:fixtures` | 隔離workspaceで戸田利用不可・4statusの統合smokeと全unknown専用smoke（prebuilt指定時は再buildなし） |
 | `npm run validate:availability:fresh` | JST当日開始・連続31日・6時間以内の生成・施設ID/期限/statusと合成データ混入を検査 |
 | `npm run test:smoke:preview` | Vite Previewを起動して`test:smoke`を実行し、終了時にserverを停止 |
 | `npm run test:map` | 起動済みの旧版4172・新版4173をPC/スマホで比較し、地図画像・参考初期表示時間・OSM帰属・keyboard操作・日付/言語切替時の再生成なし・tile通信403からの復帰を確認 |

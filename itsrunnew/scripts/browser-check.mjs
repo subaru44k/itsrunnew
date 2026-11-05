@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const suite = process.argv[2];
-const scripts = { release: './release-smoke.mjs', smoke: './smoke.mjs', pace: './pace-smoke.mjs', archives: './feature-smoke.mjs', schedule: './feature-smoke.mjs', reports: './field-reports-smoke.mjs' };
+const scripts = { unknown: './unknown-availability-smoke.mjs', release: './release-smoke.mjs', smoke: './smoke.mjs', pace: './pace-smoke.mjs', archives: './feature-smoke.mjs', schedule: './feature-smoke.mjs', reports: './field-reports-smoke.mjs' };
 if (!(suite in scripts)) throw new Error(`Unknown browser suite: ${suite}`);
 const workers = process.env.ITSRUN_BROWSER_WORKERS ?? '2';
 if (!['1', '2'].includes(workers)) throw new Error('ITSRUN_BROWSER_WORKERS must be 1 or 2');

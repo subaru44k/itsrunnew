@@ -40,7 +40,7 @@ trusted collection stepはrepository secret `OPENAI_API_KEY` と `ITSRUN_REQUIRE
 - `service-worker.js`: `no-cache`
 - invalidation: 更新・削除された既存URLだけ。新しいハッシュ付きassetは未キャッシュのため対象外。HTML shellは直接パスとCloudFront Functionがrewriteする元のrouteを含める。施設詳細の全shellが変わる配備だけは日英の`/tracks/*`・`/en/tracks/*`にまとめる。availabilityの複数ファイル変更は専用prefix `/availability/*` の1パスにまとめ、差分なしなら0パス。
 
-Productionは `.itsrun-deploy/app-v2.json` / `data-v2.json` にscope別のSHA-256 stateを保存し、初回は旧 `.itsrun-deploy/manifest-v1.json` から担当prefixを移行します。immutable asset/世代JSONを先にアップロードし、その他の担当ファイル、公開manifestの順に最大8並列で配置します。世代ファイルに失敗したら公開manifestへ進みません。新しいimmutable URLを無効化せず、互換日別JSONのinvalidationは維持します。旧hashed assetと旧availability世代は既存タブ用に保持します。
+Productionは `.itsrun-deploy/app-v2.json` / `data-v2.json` にscope別のSHA-256 stateを保存し、初回は旧 `.itsrun-deploy/manifest-v1.json` から担当prefixを移行します。immutable asset/世代JSONを先にアップロードし、その他の担当ファイル、公開manifestの順にmetadataごとのAWS CLI transfer managerで配置します。一時treeにはSHAで選択した変更分だけを入れ、`cp --recursive`で古いmtimeや同サイズのrollbackも確実に送ります。世代ファイルに失敗したら公開manifestへ進みません。新しいimmutable URLを無効化せず、互換日別JSONのinvalidationは維持します。旧hashed assetと旧availability世代は既存タブ用に保持します。
 
 公開後は変更された本文を全byte照合し、appだけ `npm run test:release` で301/404・entry asset・世代JSON・日英PC/スマホの起動を確認します。詳細なfeatureシナリオはCIで検証済みです。summaryでは未公開・部分更新失敗・公開済みだが公開確認失敗・公開確認成功を区別します。失敗はworkflow失敗となり、確認失敗を公開未実施とは扱いません。
 
@@ -60,7 +60,7 @@ gh workflow run deploy-production.yml --repo subaru44k/itsrunnew --ref master -f
 
 appとdataのrollbackは同時指定できません。appはschema/施設IDが公開データと一致しなければ拒否し、dataは鮮度・fixture禁止・全日程/全施設・content identityを再検証します。期限切れ世代を戻すことはできません。古い資料を利用可として再公開せず、通常のfresh collectionかcollectorの修正を行います。rollback後も同じ公開確認を行います。直後の後続自動releaseは現在のmasterを再公開し得るため、問題のあるコードはmaster上でも修正/revertします。
 
-直接content deployを使うときも、Productionは `ITSRUN_DEPLOY_SCOPE=app` または `data` を明示し、同じ検証済み成果物とguardを使います。通常は上記workflowを使い、appをローカルで再buildして代用しません。
+直接content deployを使うときも、Productionは `ITSRUN_DEPLOY_SCOPE=app` または `data` が必須で、未指定/allを拒否します。同じ検証済み成果物とguardを使います。通常は上記workflowを使い、appをローカルで再buildして代用しません。
 
 ## Staged rollout
 
@@ -135,3 +135,6 @@ long-lived AWS keyやAWS secretは登録しない。
 ## 固定ページのcanonical修正の配備
 
 固定ページのmetadataは`src/data/page-metadata.json`でrouterとbuild後のHTML shell生成が共有します。全固定ページを個別shellへrewriteするRouteFunctionの変更はcontent deployだけでは反映されません。検証済みcontent（新しいshellを含む）を先に配備し、現行のdomain・certificate ARNを保持したCDK差分でRouteFunction以外に変更がないことを確認してhosting stackを更新します。DNS・証明書・配信元は変更しません。更新完了後に固定ページのcanonicalをHTTPレスポンスで確認し、Production smokeを実行します。
+
+
+source確認日だけの単独tracks変更は意味差分を検査してdata再収集を省略し、dateOnlyをapp artifactへ保存します。通常公開は旧方針同様にページのcache期限（最大300秒）を待ち、必要なmetadata更新だけでinvalidation待ちを増やしません。明示的app rollbackではこのdeferを使いません。検証の選択と実収集の担当は [VALIDATION_POLICY.md](VALIDATION_POLICY.md) を参照してください。

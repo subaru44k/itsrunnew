@@ -72,6 +72,12 @@ describe('daily availability regression gates', () => {
 describe('production artifact release contract', () => {
   it('waits for trusted validation and gives app/data distinct publication ownership', () => {
     expect(productionWorkflow).toContain('workflow_run:');
+    expect(productionWorkflow).toContain("github.ref == 'refs/heads/master' && vars.PRODUCTION_DEPLOY_ENABLED == 'true'");
+    expect(productionWorkflow).toContain('group: itsrun-production-app');
+    expect(productionWorkflow).toContain('group: itsrun-production-data');
+    expect(productionWorkflow).toContain('id-token: write');
+    expect(validationWorkflow).toContain('VITE_DEPLOY_TARGET: production');
+    expect(validationWorkflow).toContain("VITE_ADSENSE_ENABLED: 'true'");
     expect(productionWorkflow).not.toMatch(/^  push:/m);
     expect(productionWorkflow).not.toContain('run: npm run build');
     expect(productionWorkflow).not.toContain('run: npm test');

@@ -80,3 +80,9 @@ merge後の [Production](https://github.com/subaru44k/itsrunnew/actions/runs/419
 第3・4段階は別worktree `/Users/yamadashinya/work/itsrunnew-modernization` / `codex/split-production-publication` で実装中。CIでproduction設定のappを1回buildし、コピーへfixture JSONだけを差し替えて検証し、元の成果物のSHA/hash/validation run IDを固定する。Productionは成功したmaster push検証を受け、data-only収集/配備とapp-only成果物配備へ分離する。prefix別stateとscopeを使い、相手のファイルを削除しない。app/dataそれぞれのconcurrency groupを使い、無関係なdataやdocsのrunが待機中appを取り消さないようにする。古いSHAでも後続差分がその配備scopeへ影響しない場合は公開可能とし、関係する差分・比較不明は拒否する。
 
 rollbackは7日保持の成功master artifact（app）と、同じJST日・6時間以内でschema/施設IDが一致する既存generation（data）を手動選択する設計。公開済み/部分更新失敗/公開後確認失敗をsummaryで区別する。既存daily fixtures/live gateはこの段階では維持し、CI・本番で新しい経路を検証してから次のPRで重複を削減する。作業途中のコードを現行の運用手順として使わないこと。
+
+配備分離のローカル検証：production設定の1 buildをコピーした4 feature suite（日英PC/スマホ）が成功。scope別deployerの実CLIテストで、旧v1 stateから移行しても相手prefixのupload/deleteがないことを確認。artifact破損・run/SHA違い・PR/fork由来・schema/施設ID不一致を拒否する。新しいrelease smokeは正式サイトの世代 `40e221cbe1bf7e9d8b5b7b51` で日英PC/スマホ、301/404、entry asset、日別/施設bundleを確認済み。第5段階merge後のmaster検証も成功。Production runの最終結果は継続確認する。
+
+費用予測追補：app artifactは7日保持し、日次データだけのrunではapp artifactを増やさない。1日10回・1成果物10MBを仮定すると最大約0.7GB保持で、仮にGitHubのstorage無料分を使い切っていても保守的に月30円程度を見込む（公開repositoryの標準runner計算費は無料）。第5段階と合算で月70円以内の増分予測。実際のrelease回数と圧縮サイズに依存するため、Scheduler導入時に再合算する。[GitHub billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions) を参照。
+
+定時起動の観測：既存monitorの [run 41985579040](https://github.com/subaru44k/itsrunnew/actions/runs/41985579040) はscheduleで作成され、`created_at` と `run_started_at` はともに2026-11-05T07:12:20Z（16:12 JST）。定義の09:30 JSTと約6時間42分離れており、job開始後の処理時間とcron起動自体の遅延を分けて扱う。新しい外部起動方式は実運用の起動遅延改善として検証する。

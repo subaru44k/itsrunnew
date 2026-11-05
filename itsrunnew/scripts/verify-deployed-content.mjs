@@ -31,6 +31,6 @@ async function worker() {
   }
 }
 await Promise.all(Array.from({ length: Math.min(8, entries.length) }, () => worker()));
-process.stdout.write(dateOnlyDeferred
+process.stdout.write(plan.scope === 'data' ? `Verified ${entries.length} published availability URL bodies.\n` : dateOnlyDeferred
   ? `Verified ${entries.length} non-deferred published URL bodies; date-only pages will refresh after cache expiry.\n`
   : `Verified ${entries.length} published URL bodies, including / and /service-worker.js.\n`);

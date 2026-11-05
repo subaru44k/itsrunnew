@@ -159,6 +159,9 @@ function output(name, value) {
 }
 
 export async function deploy({ bucket, distribution }) {
+  mkdirSync('.cache', { recursive: true });
+  const publicationState = status => writeFileSync('.cache/publication-state.json', JSON.stringify({ status, scope, sourceCommit: process.env.ITSRUN_SOURCE_SHA }));
+  publicationState('not_started');
   if (scope === 'data' ? !statSync(join(dist, 'availability/manifest.json')).isFile() :
       (!statSync(join(dist, 'index.html')).isFile() || !statSync(join(dist, 'service-worker.js')).isFile())) {
     throw new Error('dist/ is missing required entry files.');
@@ -171,8 +174,6 @@ export async function deploy({ bucket, distribution }) {
       planDeployment(previous.files, current),
       process.env.ITSRUN_DEFER_FACILITY_DATE_INVALIDATION === 'true',
     );
-    mkdirSync('.cache', { recursive: true });
-    const publicationState = status => writeFileSync('.cache/publication-state.json', JSON.stringify({ status, scope, sourceCommit: process.env.ITSRUN_SOURCE_SHA }));
     publicationState('started');
     await publishChangedFiles(plan.changed, key => upload(bucket, key));
     publicationState('published');

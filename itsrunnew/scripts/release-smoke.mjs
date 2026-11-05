@@ -13,12 +13,14 @@ if (manifest.schemaVersion !== 1 || !/^[a-f0-9]{24}$/.test(manifest.generation))
 const day = await (await get(`/availability/generations/${manifest.generation}/dates/${manifest.startDate}.json`)).json();
 const track = day.facilities[0]?.trackId;
 if (!/^[a-z0-9-]+$/.test(track ?? '')) throw new Error('No facility in published data');
+const bundle = await (await get(`/availability/generations/${manifest.generation}/tracks/${track}.json`)).json();
+if (bundle.generation !== manifest.generation || bundle.trackId !== track || bundle.records?.length !== 31) throw new Error('Published facility bundle is invalid');
 const html = await (await get('/')).text();
 const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(match => match[1]).filter(path => path.startsWith('/assets/'));
 if (!scripts.length) throw new Error('No application entry asset');
 for (const path of scripts) await get(path);
-const redirect = await fetch(new URL('/oda-field?date=2026-11-05', base), { redirect: 'manual', signal: AbortSignal.timeout(10000) });
-if (redirect.status !== 301 || redirect.headers.get('location') !== '/tracks/yoyogi-park-athletic-track?date=2026-11-05') throw new Error('Legacy routing failed');
+const redirect = await fetch(new URL(`/oda-field?date=${manifest.startDate}`, base), { redirect: 'manual', signal: AbortSignal.timeout(10000) });
+if (redirect.status !== 301 || redirect.headers.get('location') !== `/tracks/yoyogi-park-athletic-track?date=${manifest.startDate}`) throw new Error('Legacy routing failed');
 if ((await fetch(new URL('/release-check-missing-page', base), { signal: AbortSignal.timeout(10000) })).status !== 404) throw new Error('Missing route must return HTTP 404');
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
 try {
@@ -28,9 +30,12 @@ try {
     page.on('pageerror', error => errors.push(error.message));
     await page.addInitScript(() => localStorage.setItem('itsrun.analytics-consent.v1', 'denied'));
     await page.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
-    await page.goto(base, { waitUntil: 'domcontentloaded' });
+    const loadedDate = page.waitForResponse(response => response.url().endsWith(`/${manifest.startDate}.json`) && response.ok());
+    await page.goto(new URL(`/?date=${manifest.startDate}`, base).href, { waitUntil: 'domcontentloaded' });
+    await loadedDate;
     await page.locator('.track-hero').waitFor();
-    await page.waitForFunction(() => document.querySelectorAll('.facility-row').length > 0);
+    const expectedCount = day.facilities.filter(record => record.status !== 'unavailable' || Date.now() >= Date.parse(record.freshness.expiresAt)).length;
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, expectedCount);
     for (const prefix of ['', '/en']) {
       await page.goto(`${base}${prefix}/tracks/${track}`, { waitUntil: 'domcontentloaded' });
       await page.locator('.facility-schedule[aria-busy="false"]').waitFor();

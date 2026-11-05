@@ -96,7 +96,12 @@ itsrunnew/
 │   ├── generate-track-route-shells.mjs build後に日英固定ページ・施設詳細HTML shellを生成
 │   ├── deploy-preview.sh      Preview対象をguardした差分content配備
 │   ├── deploy-production.sh   Production対象をguardした差分content配備
-│   ├── deploy-content.mjs     生成物hash差分からS3更新とCloudFront無効化を実行
+│   ├── deploy-content.mjs     app/data別の所有prefix・hash差分・順序付きS3更新とCloudFront無効化
+│   ├── release-scope.mjs      検証範囲と独立したapp/dataの公開要否
+│   ├── release-artifact.mjs   検証済みappのSHA/run ID/全file hashを固定・照合
+│   ├── production-release.mjs 成功master検証の選択・旧job拒否・artifact復元・schema/施設ID照合
+│   ├── release-smoke.mjs      公開後のroute/asset/日英PC・スマホ起動確認
+│   ├── publication-summary.mjs 公開前/部分更新/公開済み・確認失敗の区別
 │   ├── facility-date-only.mjs pushの施設source確認日だけの差分を検出し無効化を遅延
 │   ├── verify-deployed-content.mjs 公開URLの本文をdistと照合
 │   ├── deployment-summary.mjs GitHub Actions run summary生成
@@ -154,7 +159,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 .github/workflows/
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
 ├── deploy-preview.yml           masterから必要時だけ手動実行するPreview content deploy
-├── deploy-production.yml        variableでguardしたmaster・手動・日次Production deploy
+├── deploy-production.yml        成功master検証のartifact公開と手動/定時availability更新
 ├── availability-monitor.yml     独立した日次収集監視・履歴artifact・異常/復旧メール
 └── facility-reverification.yml  週次の静的施設資料監視・出典探索・自動更新PR
 ```
@@ -290,7 +295,17 @@ availability source調査は、アプリ外の [`../research/availability/availa
 
 ブラウザはmanifest取得前の初回日付だけ互換URLも利用し、取得後は世代URLを使います。施設bundleは施設ID・全日付・時刻・世代を検証し、世代が変わった取得結果を採用しません。異常時は要確認を維持します。旧manifestへ戻した場合も任意の世代項目を消して互換取得に戻れます。
 
-content deployはimmutable asset/世代JSON、その他のファイル、公開manifestの順に最大8並列で送信し、各段階の全処理完了を待ちます。途中失敗時は公開manifestを更新しません。新しい世代URLのinvalidationは不要で、同じ世代URLの内容変更は拒否します。旧世代は通常deployの削除対象にせず、S3 lifecycleで7日後に期限切れとします（Productionのavailability旧versionも7日）。manifestはS3 `no-store` と両環境の専用CloudFront `CACHING_DISABLED` behaviorを併用します。ドメイン・証明書・DNSは変更しません。互換日別JSONは従来のinvalidationを維持します。通常配備はまだアプリとデータを一緒に行い、分離は [DEPLOYMENT_MODERNIZATION.md](DEPLOYMENT_MODERNIZATION.md) の次段階です。
+content deployはimmutable asset/世代JSON、その他のファイル、公開manifestの順に最大8並列で送信し、各段階の全処理完了を待ちます。途中失敗時は公開manifestを更新しません。新しい世代URLのinvalidationは不要で、同じ世代URLの内容変更は拒否します。旧世代は通常deployの削除対象にせず、S3 lifecycleで7日後に期限切れとします（Productionのavailability旧versionも7日）。manifestはS3 `no-store` と両環境の専用CloudFront `CACHING_DISABLED` behaviorを併用します。ドメイン・証明書・DNSは変更しません。互換日別JSONは従来のinvalidationを維持します。Productionは以下の分離経路を使い、Previewの手動配備は従来の一括経路を維持します。
+
+`Node 24 validation` はproduction設定で1回buildし、その`dist`を保持します。`ITSRUN_PREBUILT_DIST` を渡したfeature/daily検証は隔離copyへavailability JSONだけを差し替え、availability以外の全file hashが元の成果物と一致することを確認します。現地レポートは公開APIを通信mockで置き換え、実投稿は行いません。成功したmaster pushだけが7日保持の `production-release-<SHA>` artifactを保存し、公開要否・施設ID hash・source SHA・validation run ID・全app file hashを含めます。Markdownだけでも小さいmetadata artifactは保存し、app/dataの公開は行いません。
+
+Production workflowは成功したNode validationの `workflow_run` から起動し、同じrepositoryのmaster push・workflow path・成功状態・SHAを再確認します。PR/forkの成果物は使用しません。app-only変更は収集せず、exact artifactを復元してschema/施設IDを公開manifestと照合し、再build・unit再実行なしで公開します。定時・通常の手動実行は検証済みmasterでdata-only収集・鮮度/全partition照合・公開を行い、appをbuildしません。両方必要な変更ではdata成功後にappを公開します。
+
+appは `availability/` 以外、dataは `availability/` だけを所有し、`.itsrun-deploy/app-v2.json` / `data-v2.json` へ独立stateを保存します。最初は従来のv1 stateから担当prefixだけを移行します。相手のファイルは更新・削除しません。app/dataそれぞれで配備を直列化し、無関係なjobによるpending取消しを避けます。旧SHAからmasterへの比較がそのscopeへ影響する、比較不能、300 file以上の場合は旧jobを拒否します。docsや相手scopeだけの後続変更は許可するため、文書更新で待機中のappが公開されなくなることを防ぎます。
+
+公開後は変更した本文の全byte照合に加え、appだけ `test:release` で正式URLの301/404・entry asset・manifest/bundle・日英PC/スマホの起動を確認します。機能の詳細シナリオはCIで済ませ、配備後に再度全suiteを実行しません。summaryでは未公開・部分更新失敗・公開済みだが確認失敗・公開確認成功を分けます。失敗はjob失敗として扱います。
+
+手動の `app_validation_run` は7日以内の成功master app artifactを、`data_generation` は同じJST日・6時間以内かつ現施設IDに一致するgenerationを復元します。両方同時指定は拒否します。app rollbackでもschema/施設ID照合を省きません。データが古い場合は公開せずfresh collectionが必要です。操作手順は [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) を参照してください。
 
 ### 施設詳細の個人利用予定
 
@@ -372,7 +387,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 - S3のパブリックアクセスは全面遮断、S3管理暗号化、SSL必須。
 - hosting stackはS3/CloudFrontの基盤のみ作成し、contentはdeploy scriptが配備する。旧BucketDeploymentは削除時に既存objectを保持する。
-- content deployは前回成功時のSHA-256 manifestと`dist/`を比較して変更分だけS3へ送信し、削除済みの非assetをpruneする。旧ハッシュ付きassetとavailability世代は既存タブ用に保持する（availability世代の保存期限は前述の7日）。CloudFront無効化は更新・削除された既存URLだけに限定し、新しいハッシュ付きassetは未キャッシュなので省く。施設詳細の全shell変更時は日英prefixを各1パス、availabilityの複数ファイル変更時は`/availability/*`の1パスへまとめ、差分なしなら作成しない。
+- content deployは前回成功時のSHA-256 manifest（Productionはapp/data別）と担当prefixの`dist/`を比較して変更分だけS3へ送信し、削除済みの非assetをpruneする。旧ハッシュ付きassetとavailability世代は既存タブ用に保持する（availability世代の保存期限は前述の7日）。CloudFront無効化は更新・削除された既存URLだけに限定し、新しいハッシュ付きassetは未キャッシュなので省く。施設詳細の全shell変更時は日英prefixを各1パス、availabilityの複数ファイル変更時は`/availability/*`の1パスへまとめ、差分なしなら作成しない。
 - SPA対応のため、S3由来の403/404を`/index.html`の200へ変換する。
 - CDK出力は`VerificationUrl`、`DistributionId`、`BucketName`。
 - スタック名は`ItsRunPreviewStack`、既定リージョンは`ap-northeast-1`。
@@ -403,6 +418,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm test` | Pinia、Track Dataset、availability model/collectorの単体テスト |
 | `npm run lint` | TypeScript/Vue型検査 |
 | `npm run preview` | `dist/`のローカル配信 |
+| `npm run test:release` | 公開正式URLのroute/asset・世代JSON・日英PC/スマホ起動だけを確認（`ITSRUN_BASE_URL`必須） |
 | `npm run test:smoke` | PC・スマホの全公開ルート、正規href・日付未指定URL維持・未来日/地点のクリック引継ぎと再読込、4 availability statusの施設詳細・代替候補・date継承、2種類の地図actionのanchor・query・focus、フッター、横幅、Firebase非通信、`/manage`削除を確認。日付指定の一覧リンクは、日別データ反映後の施設件数を待ってから選ぶ。メニュー操作は初回lazy routeのviewが現れてから開始し、mobile drawerのactive状態を確認する |
 | `npm run test:smoke:fixtures` | 隔離workspaceで当日31日分のmixed 4statusだけを生成しbuild・全smoke（実収集・全unknownなし） |
 | `npm run test:daily` | 隔離workspaceで実収集→当日31日分の鮮度・全施設検証→build→PC/スマホsmoke（配備なし） |

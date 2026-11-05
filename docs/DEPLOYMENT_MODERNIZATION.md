@@ -98,3 +98,14 @@ rollbackは7日保持の成功master artifact（app）と、同じJST日・6時�
 第6段階の実装は独立Scheduler/Lambda/App secretと、公開generationを再収集せず読むmonitor。09:00 JST目標、05:30/08:15更新・09:15監視、10:15 GitHub cron fallback、初回DISABLEDを実装中。公開前6時間gateは変更せず、遅延monitorは当日公開済みデータを30時間上限・全record期限で読む。App認証と実Scheduler→GitHub→data公開を確認後にenableし、その後Productionの旧cronを削除する。手順・純増月150円程度の予測は [AVAILABILITY_SCHEDULER.md](AVAILABILITY_SCHEDULER.md)。現在は未配備・未有効化。
 
 ローカルで署名/token scope/拒否・公開content identity・監視履歴・CDKのJST/disabled/権限/timeoutを検証し、型検査込みbuildも成功。公開generationを読むmonitor CLIは再収集/AIなし、状態変化0件で成功。CDK初回synthには約8秒必要で、既存infra検証と同じ20秒のtest timeoutを使う。
+
+
+## Scheduler実起動で見つかった監視stateの修正
+
+第6段階は [PR #148](https://github.com/subaru44k/itsrunnew/pull/148) / `29b759480be80949faca526d02b1d7bd389d0c78` にmerge。Scheduler stackはDISABLEDで作成し、3 variablesを設定。[configure 41990607040](https://github.com/subaru44k/itsrunnew/actions/runs/41990607040) の既存App認証登録とLambda invoke、そこからの [monitor 41990666744](https://github.com/subaru44k/itsrunnew/actions/runs/41990666744) は成功した。secret値は取得・表示していない。
+
+一時的な実Scheduler scheduleは17:00:17 JSTを指定し、[monitor 41991290972](https://github.com/subaru44k/itsrunnew/actions/runs/41991290972) が17:01:01 JSTに作成された（44秒差、Schedulerの分単位実行内）。AWS IAM/非同期Lambda/dispatch経路を通ったが、同じ公開世代の2回目を旧「毎回新しい収集」前提のstate時刻guardが拒否した。jobを失敗させ、既存の失敗通知経路が動いた。定時3 schedulesはまだDISABLEDのまま。一時scheduleは完了後自動削除済み。
+
+修正は監視時刻と元データ生成時刻の分離。`HealthState.generatedAt`を公開monitorの観測時刻とし、任意の`collectionGeneratedAt`へ収集時刻を保持する。旧stateをそのまま読み、parsed-slot復旧の新しさは収集時刻同士で比較する。同じ世代の再監視、前のgenerationへの明示的rollback、収集より遅い前回観測からの復旧を回帰検証する。修正のPR/CI/実再起動の成功を確認してからscheduleを有効化する。
+
+配備分離の [Production 41989003737](https://github.com/subaru44k/itsrunnew/actions/runs/41989003737) はplan/data/appすべて成功。data 246秒（収集95秒、配備103秒）、app 54秒で再buildなし。 [同じartifactのapp-only実行 41989777672](https://github.com/subaru44k/itsrunnew/actions/runs/41989777672) も成功し、data jobはskip、収集なしを確認した。これは同じ成果物の再配備であり、実機能変更の所要時間比較ではない。

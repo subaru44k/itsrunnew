@@ -21,6 +21,7 @@ export interface FacilityHealth {
 export interface HealthState {
   schemaVersion: 1;
   generatedAt: string;
+  collectionGeneratedAt?: string;
   facilities: Record<string, FacilityHealth>;
   pipeline: Finding | null;
 }
@@ -46,6 +47,7 @@ export function validateHealthState(value: unknown): asserts value is HealthStat
     if (finding === null) return;
     if (!finding || !Array.isArray(finding.causes) || !finding.causes.every(x => typeof x === 'string') || !Array.isArray(finding.affectedDates) || !finding.affectedDates.every(x => /^\d{4}-\d{2}-\d{2}$/.test(x)) || !['warning', 'error'].includes(finding.severity) || !Number.isFinite(Date.parse(finding.since))) throw new Error('Invalid monitor finding');
   };
+  if (state.collectionGeneratedAt !== undefined && !Number.isFinite(Date.parse(state.collectionGeneratedAt))) throw new Error('Invalid collection timestamp in monitor state');
   checkFinding(state.pipeline);
   for (const facility of Object.values(state.facilities)) {
     if (typeof facility.name !== 'string' || !Array.isArray(facility.sourceUrls) || !facility.sourceUrls.every(x => typeof x === 'string') || !Array.isArray(facility.knownDates) || !facility.knownDates.every(x => /^\d{4}-\d{2}-\d{2}$/.test(x)) || !facility.statuses || !Object.values(facility.statuses).every(x => ['available', 'partially_available', 'unavailable', 'unknown'].includes(x)) || !facility.reasons || !Object.values(facility.reasons).every(x => Number.isInteger(x) && x >= 0) || !Array.isArray(facility.sourceHashes) || !facility.sourceHashes.every(x => typeof x === 'string') || (facility.pendingSince !== null && !Number.isFinite(Date.parse(facility.pendingSince))) || (facility.lastHealthyAt !== null && !Number.isFinite(Date.parse(facility.lastHealthyAt)))) throw new Error('Invalid facility monitor state');
@@ -53,15 +55,16 @@ export function validateHealthState(value: unknown): asserts value is HealthStat
   }
 }
 
-export function evaluateHealth(datasets: AvailabilityDataset[], tracks: Array<{ id: string; name: { ja: string } }>, previous: HealthState | null = null) {
+export function evaluateHealth(datasets: AvailabilityDataset[], tracks: Array<{ id: string; name: { ja: string } }>, previous: HealthState | null = null, observedAt?: string) {
   if (!datasets.length) throw new Error('Monitor requires a fresh nonempty range');
-  const now = datasets[0].generatedAt;
-  if (!Number.isFinite(Date.parse(now))) throw new Error('Invalid collection timestamp');
+  const collectedAt = datasets[0].generatedAt;
+  const now = observedAt ?? collectedAt;
+  if (!Number.isFinite(Date.parse(now)) || !Number.isFinite(Date.parse(collectedAt)) || Date.parse(collectedAt) > Date.parse(now) + 60_000) throw new Error('Invalid collection or observation timestamp');
   if (previous) {
     validateHealthState(previous);
-    if (Date.parse(previous.generatedAt) >= Date.parse(now)) throw new Error('Monitor state must precede collection');
+    if (Date.parse(previous.generatedAt) >= Date.parse(now)) throw new Error('Monitor state must precede observation');
   }
-  const state: HealthState = { schemaVersion: 1, generatedAt: now, facilities: {}, pipeline: previous?.pipeline ?? null };
+  const state: HealthState = { schemaVersion: 1, generatedAt: now, ...(observedAt ? { collectionGeneratedAt: collectedAt } : {}), facilities: {}, pipeline: previous?.pipeline ?? null };
   const events: HealthEvent[] = [];
   const dates = datasets.map(dataset => dataset.date);
   for (const track of tracks) {
@@ -101,7 +104,7 @@ export function evaluateHealth(datasets: AvailabilityDataset[], tracks: Array<{ 
     // evidence that lost daily coverage recovered. Never accept empty unknowns.
     const parsedSlotRecovery = Boolean(old?.active && old.active.causes.every(cause => hardReasons.has(cause)) && !failures.length && records.some(record =>
       oldAffected.includes(record.date) && record.status === 'unknown' && record.unknownReason === 'insufficient_information' &&
-      record.freshness.fetchedAt && Date.parse(record.freshness.fetchedAt) > Date.parse(previous!.generatedAt) && Date.parse(record.freshness.fetchedAt) <= Date.parse(now) && /^sha256:[a-f0-9]{64}$/.test(record.evidence.sourceHash ?? '') && record.periods.some(p => p.status !== 'unknown' && p.from && p.to && p.from < p.to)));
+      record.freshness.fetchedAt && Date.parse(record.freshness.fetchedAt) > Date.parse(previous!.collectionGeneratedAt ?? previous!.generatedAt) && Date.parse(record.freshness.fetchedAt) <= Date.parse(now) && /^sha256:[a-f0-9]{64}$/.test(record.evidence.sourceHash ?? '') && record.periods.some(p => p.status !== 'unknown' && p.from && p.to && p.from < p.to)));
     const provenRecovery = knownDateRecovery || parsedSlotRecovery;
     if (!active && old?.active && (!provenRecovery || loss)) active = old.active;
     const healthy = !active && !loss && known.length > 0;
@@ -148,7 +151,7 @@ export function evaluatePipeline(state: HealthState, lastSuccessAt: string | nul
 
 export function renderHealthReport(state: HealthState, events: HealthEvent[], runUrl = '') {
   const clean = (value: string) => value.replace(/[\r\n|]/g, ' ').replace(/@/g, '＠');
-  const lines = ['# Availability 収集監視', '', `取得時刻: ${state.generatedAt}`, `実行ログ: ${runUrl || 'local'}`, '',
+  const lines = ['# Availability 収集監視', '', `${state.collectionGeneratedAt ? '監視時刻' : '取得時刻'}: ${state.generatedAt}`, ...(state.collectionGeneratedAt ? [`公開データ生成時刻: ${state.collectionGeneratedAt}`] : []), `実行ログ: ${runUrl || 'local'}`, '',
     '判定不能は利用不可ではありません。この監視は公開データを書き換えません。', '', '## 今回の通知', ''];
   if (!events.length) lines.push('状態の変化なし（初回の正常施設は比較基準を記録）。');
   const labels = { opened: '異常発生', changed: '異常内容の変化', recovered: '復旧', removed: '監視対象から削除（復旧未確認）' };

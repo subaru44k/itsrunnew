@@ -113,7 +113,7 @@ availability収集、Track DatasetのID・status、availabilityの表示・絞�
 
 ## Availabilityの公開方式変更を検知する監視
 
-`npm run monitor:availability -- --published-url https://itsrun.info` で公開generationの31日分を読み、施設別状態を比較します。通常monitorは再収集・AI呼び出しをせず、利用者へ実際に公開されている結果を監視します。外部Schedulerの09:15 JST起動と10:15 JSTのGitHub cron fallbackを使い、異常/復旧通知と履歴を維持します。引数なしのCLIだけは手元のcollector診断用に独立収集します。外部Schedulerの認証・実起動を検証後、定時データ更新を05:30 / 08:15 JSTに切り替え、09:00 JSTの通常公開完了を目標にします。設定は [監視](../docs/AVAILABILITY_MONITORING.md) と [定時起動](../docs/AVAILABILITY_SCHEDULER.md) を参照してください。
+`npm run monitor:availability -- --published-url https://itsrun.info` で公開generationの31日分を読み、施設別状態を比較します。通常monitorは再収集・AI呼び出しをせず、利用者へ実際に公開されている結果を監視します。監視時刻とデータ生成時刻を分け、同じ公開世代の繰り返し確認も安全に扱います。外部Schedulerの09:15 JST起動と10:15 JSTのGitHub cron fallbackを使い、異常/復旧通知と履歴を維持します。引数なしのCLIだけは手元のcollector診断用に独立収集します。外部Schedulerの認証・実起動を検証後、定時データ更新を05:30 / 08:15 JSTに切り替え、09:00 JSTの通常公開完了を目標にします。設定は [監視](../docs/AVAILABILITY_MONITORING.md) と [定時起動](../docs/AVAILABILITY_SCHEDULER.md) を参照してください。
 
 GitHub Actionsの `Availability monitor` は毎日09:30 JSTに取得/解析異常、判定日数の減少、Production更新停止を検知し、新規・変化・復旧だけGmailから通知します。Secrets `AVAILABILITY_SMTP_USER`、`AVAILABILITY_SMTP_APP_PASSWORD`、`AVAILABILITY_ALERT_TO` とvariable `AVAILABILITY_MONITOR_ENABLED=true` が必要です。状態はメール成功後にartifactへ保存し、同じ施設障害の繰り返し通知を抑えます。Python 3標準ライブラリとGitHub CLIを使用し、`npm run test:monitor:email` は実送信なしで送信処理を検証します。設定・監視範囲・障害復旧と残る制限は [AVAILABILITY_MONITORING.md](../docs/AVAILABILITY_MONITORING.md) を参照してください。
 

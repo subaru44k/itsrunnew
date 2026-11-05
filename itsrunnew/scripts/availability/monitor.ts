@@ -53,7 +53,7 @@ if (publishedUrl) {
   console.log(`Monitoring collection: ${result.stats.requests} requests, ${result.stats.cacheHits} cache hits`);
 }
 if (!publishedUrl) validateFreshRange(manifest, datasets, tracks.map((track: { id: string }) => track.id), new Date());
-const { state, events } = evaluateHealth(datasets, tracks, previous);
+const { state, events } = evaluateHealth(datasets, tracks, previous, publishedUrl ? new Date().toISOString() : undefined);
 const pipelinePath = argument('--pipeline');
 if (pipelinePath) {
   const pipeline = await readJson(pipelinePath);

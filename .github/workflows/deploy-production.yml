@@ -17,10 +17,6 @@ on:
         description: Optional fresh availability generation to restore (same JST day, within 6 hours)
         type: string
         required: false
-  schedule:
-    # 05:30 and 08:15 JST until the external scheduler is verified.
-    - cron: '30 20 * * *'
-    - cron: '15 23 * * *'
 
 permissions:
   contents: read

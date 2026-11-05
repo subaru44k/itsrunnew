@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe,it,expect,vi } from 'vitest';
 import { createHandler, japanDate, validateInput } from './core.mjs';
 const now = new Date('2026-09-16T14:00:00Z');
@@ -59,4 +60,10 @@ it('keeps the API facility allowlist synchronized with published facilities',asy
   const tracks=JSON.parse(readFileSync(new URL('../../src/data/tracks.json',import.meta.url),'utf8'));
   const ids=JSON.parse(readFileSync(new URL('./track-ids.json',import.meta.url),'utf8'));
   expect(ids.sort()).toEqual(tracks.map(track=>track.id).sort());
+});
+
+it('keeps the API facility allowlist aligned with the published Track Dataset', () => {
+  const ids = JSON.parse(readFileSync(new URL('./track-ids.json', import.meta.url), 'utf8'));
+  const tracks = JSON.parse(readFileSync(new URL('../../src/data/tracks.json', import.meta.url), 'utf8'));
+  expect([...ids].sort()).toEqual(tracks.map(track => track.id).sort());
 });

@@ -65,20 +65,24 @@ jobs:
       - name: Run unit tests
         if: steps.change_scope.outputs.docs_only != 'true'
         env:
+          ITSRUN_UNIT_SCOPE: ${{ steps.change_scope.outputs.unit_scope }}
           ITSRUN_FULL_VALIDATION: ${{ steps.change_scope.outputs.daily }}
           ITSRUN_TEST_SUITES: ${{ steps.change_scope.outputs.suites }}
         run: npm run test:affected
       - name: Verify monitoring email without sending
-        if: steps.change_scope.outputs.daily == 'true'
+        if: steps.change_scope.outputs.daily == 'true' || steps.change_scope.outputs.unit_scope == 'ops'
         run: npm run test:monitor:email
       - name: Verify facility reverification without external API calls
         if: steps.change_scope.outputs.daily == 'true'
         run: npm run test:reverification
+      - name: Type check operations without building the application
+        if: steps.change_scope.outputs.unit_scope == 'ops'
+        run: npm run lint
       - name: Build the production application once
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.docs_only != 'true' && steps.change_scope.outputs.unit_scope != 'ops'
         run: npm run build
       - name: Verify affected browser features with fresh fixtures
-        if: steps.change_scope.outputs.docs_only != 'true'
+        if: steps.change_scope.outputs.docs_only != 'true' && steps.change_scope.outputs.suites != ''
         env:
           ITSRUN_TEST_SUITES: ${{ steps.change_scope.outputs.suites }}
         run: npm run test:features

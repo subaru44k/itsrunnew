@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import pageMetadata from '../src/data/page-metadata.json';
@@ -8,6 +9,16 @@ const deployScript = readFileSync(new URL('./deploy-production.sh', import.meta.
 const contentScript = readFileSync(new URL('./deploy-content.mjs', import.meta.url), 'utf8');
 
 describe('Production deployment contract', () => {
+  it('refuses unscoped and all-scope production writes before reaching AWS', () => {
+    for (const scope of ['', 'all', 'unexpected']) {
+      const result = spawnSync('bash', [new URL('./deploy-production.sh', import.meta.url).pathname], {
+        encoding: 'utf8', env: { ...process.env, ITSRUN_DEPLOY_SCOPE: scope, AWS_REGION: 'ap-northeast-1', PRODUCTION_BUCKET: 'unused', PRODUCTION_DISTRIBUTION_ID: 'unused', PRODUCTION_DOMAIN: 'itsrun.info', PRODUCTION_URL: 'https://itsrun.info' },
+      });
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain('Production scope must be app or data.');
+    }
+  });
+
   it('guards the production target and preserves cache metadata', () => {
     expect(deployScript).toContain("\"$bucket_environment\" == 'Production'");
     expect(deployScript).toContain('node scripts/deploy-content.mjs "$PRODUCTION_BUCKET" "$PRODUCTION_DISTRIBUTION_ID"');

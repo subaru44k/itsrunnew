@@ -2,6 +2,16 @@
 
 2026-11-05に合意した改善の引継ぎ資料です。現在の実装の正本は [SITE_STRUCTURE.md](SITE_STRUCTURE.md)、個別PRの完了証拠はそのrevisionのCIとProduction deployです。以下の将来段階を、実装済みの仕様として扱わないでください。
 
+## 現在の状態（最終policyのPR準備時点）
+
+- 第1・2段階：完了。
+- 第3・4段階：検証済みartifactとapp/data分離を本番確認済み。app-only再配備でdata skipも確認済み。
+- 第5段階：世代別日別/施設bundleを本番確認済み。旧URL互換・7日保持・manifest最後の切替を実装。
+- 第6段階：認証・実Scheduler配送・公開monitor反復を確認済み。定時3 schedulesはDISABLED。実Schedulerからdata公開までの一時試験を継続中。
+- 最終policy：`codex/deterministic-validation` / `/Users/yamadashinya/work/itsrunnew-modernization`。CIのlive collectionを外して本番data gate/公開監視へ分担し、独立feature/known opsを関連検証へ絞る。mixed統合・unknown専用・原本回帰・未知diffの広いgateを維持する。S3転送をmetadataごとの一括CLIへ変更し、source確認日だけは再収集を省略。Production未指定/all scopeを拒否する。
+
+このPRのmaster反映と旧Production cron削除は、実Scheduler→data公開・確認の成功後に行う。policy移行のローカルmixed/unknownとlive互換検証は成功。新たに任意の施設数上限を削除し、現地レポートAPIの施設ID一致と、外部fetch禁止・同一世代への実monitor CLI 2回の回帰を追加した。最終CI/本番/enableの証拠は完了時に追記する。
+
 ## 合意した条件
 
 - 利用者へ提供する価値、外観、日英の公開URLと主要操作を維持する。
@@ -109,3 +119,6 @@ rollbackは7日保持の成功master artifact（app）と、同じJST日・6時�
 修正は監視時刻と元データ生成時刻の分離。`HealthState.generatedAt`を公開monitorの観測時刻とし、任意の`collectionGeneratedAt`へ収集時刻を保持する。旧stateをそのまま読み、parsed-slot復旧の新しさは収集時刻同士で比較する。同じ世代の再監視、前のgenerationへの明示的rollback、収集より遅い前回観測からの復旧を回帰検証する。修正のPR/CI/実再起動の成功を確認してからscheduleを有効化する。
 
 配備分離の [Production 41989003737](https://github.com/subaru44k/itsrunnew/actions/runs/41989003737) はplan/data/appすべて成功。data 246秒（収集95秒、配備103秒）、app 54秒で再buildなし。 [同じartifactのapp-only実行 41989777672](https://github.com/subaru44k/itsrunnew/actions/runs/41989777672) も成功し、data jobはskip、収集なしを確認した。これは同じ成果物の再配備であり、実機能変更の所要時間比較ではない。
+
+
+第6段階の修正は [PR #149](https://github.com/subaru44k/itsrunnew/pull/149) / `c542ada433f30c7f9bbb84ff88a0a45aa5542e32` にmerge。 [PR検証 41992107628](https://github.com/subaru44k/itsrunnew/actions/runs/41992107628) と [master検証 41995817234](https://github.com/subaru44k/itsrunnew/actions/runs/41995817234)、[Production 41996746029](https://github.com/subaru44k/itsrunnew/actions/runs/41996746029) は成功した。修正後の [manual dispatch monitor 41995832951](https://github.com/subaru44k/itsrunnew/actions/runs/41995832951)、[実Schedulerからの反復monitor 41996275932](https://github.com/subaru44k/itsrunnew/actions/runs/41996275932) も成功。前の同世代失敗は放置せず解決済み。Schedulerの一時data試験は17:51:49 JST予定 `itsrun-refresh-proof-20261105085149`（完了後自動削除）を作成した。

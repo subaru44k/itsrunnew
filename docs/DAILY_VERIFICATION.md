@@ -10,27 +10,15 @@ Production run [35284711731](https://github.com/subaru44k/itsrunnew/actions/runs
 
 前日のProduction run [35161161499](https://github.com/subaru44k/itsrunnew/actions/runs/35161161499) は公開後の英語smokeで `Tomorrow available` 待機に失敗した。日別statusの有無と都道府県の折りたたみ・ページ送りに依存したassertionも修正対象とした。
 
-## availabilityに関わる変更で実行するゲート
+## 現行の変更時gate
 
-施設のavailability収集、Track DatasetのID・status、availabilityの表示・絞り込み、daily smoke、build/deployの経路を変えるときに適用する。Markdownだけの変更や無関係なコード変更のためにローカルで両daily suiteを実行する必要はない。アプリケーションディレクトリ `itsrunnew/` で実行する。Node 24、`npm ci`、`npm run reports:install`、Chrome、Popplerの `pdfinfo` / `pdftoppm` が必要。macOSでは `brew install poppler`、Ubuntu系では `sudo apt-get install poppler-utils` を使う。Linuxでは `CHROME_PATH=/usr/bin/google-chrome` を指定する。
+検証と公開の境界は [VALIDATION_POLICY.md](VALIDATION_POLICY.md)。`Node 24 validation` は独立機能の関連unit/browser、known operationsの関連unit/実CLI/型検査、共通・availability・未知/構造差分の全unit/all features/mixed統合/unknown専用を選択する。Markdownだけではapp検証をしない。PRの通常gateで外部sourceを実収集しない。
 
-```sh
-npm test
-npm run test:features
-npm run test:daily:fixtures
-npm run test:daily
-```
+当日mixed fixtureで4statusと戸田の当日unavailable/翌日availableを全smokeで確認する。全unknownでは安全な検索・確認案内・近隣候補・日付選択だけを日英PC/スマホで検証する。scheduleの期限・失敗・世代・focus競合は独立suiteで1回。production appを1回buildし、隔離copyのJSONだけを変え、他の全file hashを照合する。同じrevisionのbuildとlintを重複実行しない。
 
-`npm run build` は `vue-tsc --noEmit` を含みます。同じrevisionでbuildを行う場合は `npm run lint` による型検査の重複実行は不要です。buildせず型だけ確認したい場合は `npm run lint` を使います。
+実収集は成功master検証に基づくdata jobで実施し、当日31日・6時間以内・全施設/期限/status・fixture禁止・全partition照合後に配備、公開byteを検証する。monitorは公開generationを読み、再収集/AIなしで実際の公開品質と未更新/破損を監視する。独立pace/記録集の修正を外部source障害で止めない。
 
-- `test:daily:fixtures`: JST当日から31日間の合成データでbuildとPC/モバイルの全smokeを実行。mixedでは4statusを網羅し、戸田を当日unavailable・翌日availableにする。unknownでは全施設をunknownとし、公式取得不能時の安全な表示とstatus欠落を検証する。
-- `test:daily`: 実際の公式sourceから31日分を収集し、鮮度・全施設の完全性・Track Datasetを検証してbuildと全smokeを実行する。AWSへ配備しない。AI読解5施設は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）を一時workspaceの外へ置いてcacheを継続利用できる。keylessでcache missのAI施設はunknownになるため、CIでのdaily成功は外部AI推論のfreshnessを証明しない。
-- 両コマンドとも一時ディレクトリへソースをコピーし、インストール済み依存を共有する。live dailyのAI cacheだけは`ITSRUN_AI_CACHE_DIR`で指定したpersistent directoryを参照し、一時workspaceのコピー対象から除外する。checkoutのavailability・distや`.env`には触れない。合成データを公開する経路を設けず、deployの鮮度ゲートでも合成データを拒否する。通常終了・失敗時に一時領域を削除する。
-- `Node 24 validation` はMarkdownだけなら差分確認だけで完了する。それ以外はproduction設定で1回buildし、`ITSRUN_PREBUILT_DIST` の隔離copyへ当日mixed fixtureを差し込み、pace / archives / reports / scheduleを変更範囲に応じて実行する。5選手の記録集・共通記録集表示/データと現地レポートも独立した許可pathに含む。共通画面・施設・availability・build/deploy・tooling・未知path・削除/rename・比較元不明・空差分は全featureと両dailyを維持する。同じPR revisionのCI成功後に理由なくローカルで繰り返さない。CIは外部AIのfreshnessまでは証明しない。
-- 記録集と施設予定のmockシナリオは独立suiteへ移した。施設予定の期限切れ・取得失敗・世代切替・日付選択競合を `test:schedule` で確認し、dailyのデータsetごとに同じシナリオを再実行しない。dailyのmixed/unknownでは、データに応じた全status・filter・公開導線の統合を検証する。
-- `ITSRUN_TEST_SUITES=archives npm run test:features` のように対象だけをローカル確認できる。既定は4suite全部。ローカルの独立buildでは架空APIを設定し、production artifactのcopyでは実APIを通信mockで置き換える。fixtureを差し込んだcopyは公開しない。CIはavailability以外の全file hashを元artifactと照合する。
-
-Previewの一括deployとProductionのdata jobは収集直後に `validate:availability:fresh` を実行する。JST当日始まりの連続31日、6時間以内の生成時刻、全施設IDの重複・欠落、日付・timezone・期限・statusと日別/施設別partitionの一致を検査し、不完全または古い生成物を公開しない。取得不能は従来どおりunknownであり、全4statusの存在を公開条件にしない。
+collectorや新しい配備境界の調査が必要なときは、配備なしの `npm run test:daily` を使う。これは隔離workspaceでlive collection・鮮度/全施設・build（またはprebuilt app copy）・PC/スマホ統合smokeを行う。keyless AI cache missはunknownであり、AI推論の正常性まで証明しない。通常のfixture/live診断にはChrome、liveや全PDF unitにはPoppler、関連API unitにはAPI依存が必要。LinuxのChromeは `CHROME_PATH=/usr/bin/google-chrome`。SMTP mockは送信しない。
 
 smokeは実データに存在するstatusと件数を検証し、存在しないstatusはcoverage logへ記録する。4statusの表示自体はmixed fixtureで必ず検証する。特定施設のテストでは利用不可表示を有効にし、折りたたみ・ページ送りを展開した後に選択する。
 

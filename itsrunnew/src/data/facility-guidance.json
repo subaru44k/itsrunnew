@@ -1,4 +1,45 @@
 {
+  "ichikawa-kohnodai-athletic-stadium": {
+    "verifiedAt": "2026-11-05",
+    "ja": {
+      "title": "国府台陸上競技場の一般開放・個人利用スケジュール - いつラン",
+      "description": "国府台陸上競技場の一般開放日・個人利用時間を確認。公式の月間使用予定表の見方、短縮営業・休場日、当日の受付方法と予定変更の確認先を案内します。",
+      "paragraphs": [
+        "一般開放は、公式の月間使用予定表に記載された「使用時間」以外です。予定表の大会・専用利用の時間と、個人利用できる時間を区別してご確認ください。",
+        "通常の開場時間は9:00〜21:00ですが、月曜日と祝日の翌日は17:00までです。毎月の最終月曜日（祝日の場合は前週の月曜日）と年末年始は休場です。開場時間すべてが一般開放とは限りません。",
+        "当日は体育館1階窓口で使用申請をしてください。天候による閉場、予約のキャンセル、急な大会等が予定表に反映されない場合があります。訪問前に最新の使用予定表を確認し、不明な場合はスポーツ施設課（047-373-3112）へお問い合わせください。"
+      ],
+      "links": [
+        {
+          "label": "最新の月間使用予定表・一般開放の確認方法",
+          "url": "https://www.city.ichikawa.lg.jp/page/4185.html"
+        },
+        {
+          "label": "開場時間・休場日・受付・料金・利用上の注意",
+          "url": "https://www.city.ichikawa.lg.jp/page/4184.html"
+        }
+      ]
+    },
+    "en": {
+      "title": "Kohnodai Athletic Stadium general opening and individual-use schedule - ItsRun",
+      "description": "Check Kohnodai Athletic Stadium's general-opening dates and individual-use periods. Learn how to read the official monthly schedule, check shorter hours and closures, and apply at the counter on the day.",
+      "paragraphs": [
+        "General opening is outside the booked periods marked in the official monthly usage schedule. Distinguish competition and exclusive-use periods from the times available for individual use.",
+        "Normal opening hours are 09:00–21:00, shortened to 17:00 on Mondays and the day after a public holiday. The stadium closes on the last Monday of each month (the previous Monday if it is a public holiday) and over the year-end/New Year period. Opening hours do not mean the whole period is available for individual use.",
+        "Apply at the gymnasium's ground-floor counter on the day. Weather closures, cancelled bookings and newly added competitions may not be reflected in the schedule. Check the latest official schedule before visiting; if unsure, contact the Sports Facilities Division on 047-373-3112."
+      ],
+      "links": [
+        {
+          "label": "Latest monthly schedule and general-opening rules",
+          "url": "https://www.city.ichikawa.lg.jp/page/4185.html"
+        },
+        {
+          "label": "Opening hours, closures, admission, fees and rules",
+          "url": "https://www.city.ichikawa.lg.jp/page/4184.html"
+        }
+      ]
+    }
+  },
   "okudo-sports-center-track": {
     "verifiedAt": "2026-11-02",
     "ja": {

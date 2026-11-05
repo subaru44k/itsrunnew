@@ -175,7 +175,7 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
   // Real facility guidance is independent of daily availability and must remain
   // visible even when a source has no usable dates.
   for (const locale of ['', '/en']) {
-    for (const id of ['okudo-sports-center-track', 'setagaya-general-sports-track', 'kamiyugi-park-athletic-stadium', 'wadabori-park-seibiyama-track', 'niiza-general-sports-park-track', 'oizumi-chuo-park-track']) {
+    for (const id of ['okudo-sports-center-track', 'setagaya-general-sports-track', 'kamiyugi-park-athletic-stadium', 'wadabori-park-seibiyama-track', 'niiza-general-sports-park-track', 'oizumi-chuo-park-track', 'ichikawa-kohnodai-athletic-stadium']) {
       await page.goto(`${baseUrl}${locale}/tracks/${id}`, { waitUntil: 'domcontentloaded' });
       await page.locator('.facility-guidance').waitFor();
       const copy = await page.locator('.facility-guidance').innerText();
@@ -184,6 +184,13 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
       if (id === 'setagaya-general-sports-track' && !copy.includes(locale ? 'residents' : '在住')) throw new Error('Setagaya eligibility missing');
       if (id === 'wadabori-park-seibiyama-track' && !copy.includes('19:00') && !copy.includes('19時')) throw new Error('Seibiyama conflicting hours guidance missing');
       if (id === 'niiza-general-sports-park-track' && !copy.includes('17:00')) throw new Error('Niiza winter hours missing');
+      if (id === 'ichikawa-kohnodai-athletic-stadium') {
+        if (!copy.includes(locale ? 'outside the booked periods' : '「使用時間」以外')) throw new Error('Konodai general opening confused with exclusive-use periods');
+        if (!copy.includes('17:00') || !copy.includes('047-373-3112')) throw new Error('Konodai shorter hours or contact missing');
+        if (!(await page.title()).includes(locale ? 'general opening' : '一般開放')) throw new Error('Konodai runtime metadata missing');
+        const scheduleLink = page.locator('.facility-guidance a[href="https://www.city.ichikawa.lg.jp/page/4185.html"]');
+        if (await scheduleLink.count() !== 1) throw new Error('Konodai official schedule link missing');
+      }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       if (overflow > 1) throw new Error(`Facility guidance overflow ${id}: ${overflow}`);
     }

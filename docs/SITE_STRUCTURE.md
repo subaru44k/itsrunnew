@@ -55,7 +55,7 @@ itsrunnew/
 │   ├── store.ts               Pinia状態、日付生成、情報なしスケジュール、ペース選択
 │   ├── data/legacy-facility-guides.json  統合した旧3施設のlocale keyと地図URL
 │   ├── data/page-metadata.json 固定ページのpath・日英metadata（routerとHTML shellで共有）
-│   ├── data/facility-guidance.json  主要6施設の日英利用条件・公式確認導線・個別metadata
+│   ├── data/facility-guidance.json  主要7施設の日英利用条件・公式確認導線・個別metadata
 │   ├── data/tracks.json       公式情報で検証済みの公開用Track Dataset
 │   ├── data/nozomi-results.json 田中希実選手の2020年以降の大会結果
 │   ├── data/ryuji-results.json  三浦龍司選手の2020年以降の大会結果
@@ -538,3 +538,7 @@ Previewの一括経路とProduction data jobは収集直後に当日31日・鮮�
 FacilitySchedule上部に今日の利用判断と詳細へのbuttonを表示し、要確認・利用不可・確認済み枠の終了・時間未確認を区別します。1分ごとにJST日付・期限・終了時刻を再評価し、日付が変わると範囲を更新します。施設概要の個人利用は制度の有無であることを明記します。日別詳細は時間枠と重複する注意文・資料identityの説明を除き、実用条件と休場理由を保持します。和田堀の終日不可日には12〜13時も不可と表示します。根拠と資料差は `research/availability/facility-quality-audit-20261102.md`、期限・当日終了・重複条件・休場条件はunit、日英の実施設案内と横幅・要確認の維持はfacility schedule smoke、初期HTMLはroute shell testで検証します。
 
 国府台の2026-11-04取得版11月60798.pdfは全30行を原本照合し、11/5の大会予約削除により9〜21時一般開放とします。大会は11/6へ移り、同日の9〜16時予約は維持します。11/15の取消・17時閉館日・11/30休場は維持し、旧原本の日程は変更しません。採用は確認済みhash・2026年11月・公式一般開放方針一致時だけとし、未知資料は停止します。原本と全日確認根拠は `itsrunnew/scripts/availability/fixtures/kohnodai-20261104-provenance.md`、実collectorの全30日・旧新区別・変更/年月/policy guardは `kohnodai-20261104.test.ts` に保持します。
+
+2026-11-05に国府台の公式施設案内・月表の掲載ページを確認し、`facility-guidance.json`へ7施設目の日英案内と固有metadataを追加しました。「使用時間」以外が一般開放であること、通常開場時間と個人利用枠の違い、17時閉館・休場日、当日の体育館窓口での申請と予定変更の確認先を、既存TrackDetailと静的HTML shellへ共通表示します。日別判定は既存JSONのままです。根拠と検証範囲は [国府台案内の確認記録](../research/availability/kohnodai-guide-20261105.md) を参照してください。
+
+新座の予約情報は [2026-11-05再調査](../research/availability/niiza-reservation-feasibility-20261105.md) で現行規約の目的・複製等の制限を確認し、自動収集・再配信の適合範囲が未確認のため採用保留です。台帳は2026-08-24の操作調査と今回の規約確認を分離します。collectorや定期通信は追加せず、既存の `reservation_system_unsupported` と公式確認導線を維持します。

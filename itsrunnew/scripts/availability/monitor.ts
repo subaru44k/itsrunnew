@@ -5,6 +5,7 @@ import { collectAvailabilityRange } from './range';
 import { type MonitorFetchDiagnostic } from './monitor-fetch';
 import { createSourceFetch } from './source-fetch';
 import { evaluateHealth, evaluatePipeline, renderHealthReport, tokyoDay, validateHealthState, type HealthState } from './health';
+import { readPublishedRange } from './published-range.mjs';
 import { validateFreshRange } from './freshness.mjs';
 
 function argument(name: string) {
@@ -26,10 +27,15 @@ if (previousPath) {
 }
 const output = resolve(argument('--output') ?? await mkdtemp(join(tmpdir(), 'itsrun-availability-monitor-')));
 const input = argument('--input');
+const publishedUrl = argument('--published-url');
+if (input && publishedUrl) throw new Error('Choose input files or published data');
 const diagnostics: MonitorFetchDiagnostic[] = [];
 let datasets;
 let manifest;
-if (input) {
+if (publishedUrl) {
+  ({ manifest, datasets } = await readPublishedRange(publishedUrl, tracks.map((track: { id: string }) => track.id)));
+  console.log(`Monitoring published generation ${manifest.generation}; no collection or AI calls`);
+} else if (input) {
   manifest = await readJson(join(input, 'manifest.json'));
   datasets = await Promise.all(manifest.dates.map((date: string) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Invalid input date');
@@ -46,13 +52,13 @@ if (input) {
   manifest = { schemaVersion: 1, timezone: 'Asia/Tokyo', generatedAt: now.toISOString(), startDate: dates[0], endDate: dates.at(-1), dates };
   console.log(`Monitoring collection: ${result.stats.requests} requests, ${result.stats.cacheHits} cache hits`);
 }
-validateFreshRange(manifest, datasets, tracks.map((track: { id: string }) => track.id), new Date());
+if (!publishedUrl) validateFreshRange(manifest, datasets, tracks.map((track: { id: string }) => track.id), new Date());
 const { state, events } = evaluateHealth(datasets, tracks, previous);
 const pipelinePath = argument('--pipeline');
 if (pipelinePath) {
   const pipeline = await readJson(pipelinePath);
   if (typeof pipeline.enabled !== 'boolean' || (pipeline.lastSuccessAt !== null && typeof pipeline.lastSuccessAt !== 'string')) throw new Error('Invalid pipeline evidence');
-  events.push(...evaluatePipeline(state, pipeline.lastSuccessAt, pipeline.enabled));
+  events.push(...evaluatePipeline(state, publishedUrl ? manifest.generatedAt : pipeline.lastSuccessAt, pipeline.enabled));
 }
 const runUrl = process.env.GITHUB_RUN_ID ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}` : '';
 const report = renderHealthReport(state, events, runUrl);

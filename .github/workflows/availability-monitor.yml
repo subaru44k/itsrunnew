@@ -1,6 +1,8 @@
 name: Availability monitor
 
 on:
+  repository_dispatch:
+    types: [availability-monitor]
   workflow_dispatch:
     inputs:
       send_test_email:
@@ -8,8 +10,8 @@ on:
         type: boolean
         default: false
   schedule:
-    # 09:30 JST, after the 08:15 Production refresh.
-    - cron: '30 0 * * *'
+    # Independent fallback at 10:15 JST; the external primary monitor runs at 09:15.
+    - cron: '15 1 * * *'
 
 permissions:
   contents: read
@@ -36,8 +38,6 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: itsrunnew/package-lock.json
-      - name: Install PDF rendering tools
-        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
       - name: Install locked dependencies
         run: npm ci
       - name: Restore last delivered state and check Production update
@@ -45,19 +45,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PRODUCTION_DEPLOY_ENABLED: ${{ vars.PRODUCTION_DEPLOY_ENABLED }}
         run: node scripts/availability/monitor-github.mjs "$RUNNER_TEMP/availability-monitor-input"
-      - name: Restore shared AI reading cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: itsrunnew/.cache/availability-ai
-          key: availability-ai-v1-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            availability-ai-v1-${{ runner.os }}-
-      - name: Collect and compare facility health without deployment
+      - name: Compare published facility health without recollection
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ITSRUN_REQUIRE_AI_KEY: 'true'
+          PUBLISHED_URL: ${{ vars.ITSRUN_PRODUCTION_URL }}
         run: |
-          args=(--output "$RUNNER_TEMP/availability-monitor" --pipeline "$RUNNER_TEMP/availability-monitor-input/pipeline.json")
+          args=(--published-url "$PUBLISHED_URL" --output "$RUNNER_TEMP/availability-monitor" --pipeline "$RUNNER_TEMP/availability-monitor-input/pipeline.json")
           if [ -f "$RUNNER_TEMP/availability-monitor-input/previous/state.json" ]; then
             args+=(--previous "$RUNNER_TEMP/availability-monitor-input/previous/state.json")
           fi

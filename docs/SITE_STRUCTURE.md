@@ -108,6 +108,7 @@ itsrunnew/
 │   ├── deployment.test.ts     workflow/deploy contract test
 │   ├── validate-tracks.mjs    raw OSMと公開Track Datasetの整合検証
 │   ├── validate-track-batches.mjs 候補台帳の全件disposition・件数整合検証
+│   ├── scheduler/             LambdaのGitHub App署名・限定repository_dispatch
 │   ├── availability/          HTML/calendar/JSON/WordPress notice/fixed/PDF/AI/ICS collector、range/cache、config、fixture、unit test、独立収集監視・Gmail通知
 │   ├── reverification/        静的施設資料の初回試走、週次変更検知、Luna xhigh照合、出典探索、保守的な公開差分とPythonテスト
 │   ├── map-compare.mjs        地図の旧新PC/スマホ比較・帰属・keyboard操作・障害復帰
@@ -116,6 +117,7 @@ itsrunnew/
     ├── field-reports-app.ts                独立Preview/ProductionレポートAPI stack
     ├── app.ts                              hosting CDKアプリのエントリー
     ├── itsrun-preview-stack.ts             S3、CloudFront、静的ファイル配備
+    ├── scheduler-app.ts / itsrun-scheduler-stack.ts 定時起動専用の独立stack
     ├── automation-app.ts                   deploy role専用CDKエントリー
     ├── itsrun-preview-automation-stack.ts  master限定Preview GitHub OIDC role
     ├── itsrun-production-stack.ts          retained S3、CloudFront、route/404、任意の正式domain
@@ -160,7 +162,8 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 ├── node-validation.yml          master向けPRとmaster pushのNode 24検証
 ├── deploy-preview.yml           masterから必要時だけ手動実行するPreview content deploy
 ├── deploy-production.yml        成功master検証のartifact公開と手動/定時availability更新
-├── availability-monitor.yml     独立した日次収集監視・履歴artifact・異常/復旧メール
+├── availability-monitor.yml     公開データ監視・履歴artifact・異常/復旧メール
+├── configure-scheduler.yml      master限定の既存App認証登録と実dispatch確認
 └── facility-reverification.yml  週次の静的施設資料監視・出典探索・自動更新PR
 ```
 
@@ -356,9 +359,17 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 ### Availability収集状態の監視
 
-`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ毎日09:30 JST・手動で動く独立monitorです。`scripts/availability/monitor.ts` が通常collector/cacheを使って31日分をメモリ内へ収集し、range CLIと共通のfetchで一時障害を1回再試行・接続タイムアウト時のcurl代替取得を行い、失敗段階・HTTP status・安全な通信error code・再試行復旧をログと `fetch-diagnostics.json` artifactへ記録します。鮮度・完全性検証後に `health.ts` で前回の同じ対象日と比較します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回からの未対応・予定未公開は通知せず、復旧には以前に判定できていた影響日の既知statusへの回復を要求し、以前から未掲載だった日は復旧を妨げません。判定履歴がない場合も新しい既知statusを要求し、全unknownでは復旧させません。Productionの最終成功から30時間超の更新停止も検知します。
+`availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ、外部Schedulerから09:15 JST、GitHub cron fallbackで10:15 JST、または手動で動きます。`published-range.mjs` が実際の公開generationの日別31ファイルを読み、当日開始・全施設・期限・fixture禁止・content identityを検証します。再収集・AI呼び出し・Popplerは不要です。生成済みの当日データを後の時刻でも監視できるよう監視入力の生成上限は30時間とし、公開前の6時間gateは維持します。昨日のmanifestや壊れた公開データは失敗し、再収集で置き換えません。
 
-`monitor-github.mjs` が前回成功runのstate artifactを復元し、`monitor-email.py` がGmail SMTP over TLSで異常・変化・復旧を1通にまとめます。状態不変時は通知しません。Secretsは送信元・アプリパスワード・宛先の3つで、collectorには渡しません。メール成功後に90日保持のstateを保存し、reportは失敗時も30日保持します。監視基盤の障害は失敗runごとに別メールを試み、SMTP障害はActions失敗にします。Node 24・Poppler・Python 3標準ライブラリ・GitHub CLIを使用します。AI読解は既存deployと同じcacheを復元し、masterの収集stepだけへ既存OPENAI_API_KEYを渡します。欠落時は監視jobを失敗させます。AWS認証、公開データ更新、deploy停止、Issue作成は行いません。設定、再現コマンド、履歴破損時の挙動、監視自体の未起動を検知できない制限は [`AVAILABILITY_MONITORING.md`](AVAILABILITY_MONITORING.md) を参照してください。
+`health.ts` の既存の状態比較を維持します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回から未対応・予定未公開は通知せず、復旧には以前に判定できていた影響日の既知statusへの回復を要求します。app/plan job成功をデータ更新と数えず、公開manifestの生成時刻で更新停止を評価します。
+
+`monitor-github.mjs` は前回成功monitorのstate artifactだけを復元し、`monitor-email.py` は既存のGmail SMTP over TLSで異常/変化/復旧をまとめ、状態不変時は送りません。メール成功後にstateを90日保存し、失敗時もreportを30日保持します。公開データ検証・履歴・保存の失敗は既存の基盤失敗メール経路へ進み、SMTP障害はjob失敗にします。AWS認証・公開更新・Issue作成は行いません。Node 24・Python標準ライブラリ・GitHub CLIを使用します。従来の引数なしlocal monitor CLIだけはcollector診断用の独立収集を残します。設定・既知の限界は [AVAILABILITY_MONITORING.md](AVAILABILITY_MONITORING.md) を参照してください。
+
+### 定時起動
+
+`infra/itsrun-scheduler-stack.ts` は既存hostingとは独立し、EventBridge Scheduler、128MB Node 24 Lambda、7日log、既存GitHub App認証を格納する1 secret、限定IAM roleだけを作ります。VPC/NAT・DNS・証明書は変更しません。05:30 / 08:15 JSTに `availability-refresh`、09:15 JSTに `availability-monitor` のrepository_dispatchを起動します。通常データ更新完了は09:00 JSTが目標です。SchedulerとLambda async retryは最大15分・2回に制限します。at-least-once起動の重複は既存scope別concurrencyとmonitor stateで扱います。
+
+初回は `SchedulerState=DISABLED`。master限定の `configure-scheduler.yml` が既存GitHub App secretsを一時mode600ファイルで専用Secrets Managerへ安全に格納し、Lambdaから実workflow起動を確認します。App tokenはItsRun repositoryのcontents writeだけに絞り、JWT・token・private keyを出力しません。認証・実起動・公開を確認後にscheduleを有効化します。GitHub側cronはその確認まで維持し、確認後の切替証拠を引継ぎへ記録します。詳細・費用・停止/rotationは [AVAILABILITY_SCHEDULER.md](AVAILABILITY_SCHEDULER.md) を参照してください。
 
 ### AI availability読解の予備調査
 
@@ -430,7 +441,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm run test:visual` | 旧版と新版の対象6ページをPC・スマホで全画面撮影・寸法比較（統合施設の構成変更は意図した差分） |
 | `npm run validate:track-batches` | 候補台帳のID、採否、公開dataset、discovery件数の整合を検証 |
 | `npm run validate:tracks` | 公開Track Datasetのschema/provenanceとraw OSM参照を検証 |
-| `npm run monitor:availability` | 独立した実収集・施設別状態比較を一時ディレクトリへ出力（配備・メールなし） |
+| `npm run monitor:availability` | `--published-url`で公開世代の施設別比較を出力。引数なしは手元のcollector診断用実収集（配備・メールなし） |
 | `npm run test:monitor:email` | Python標準ライブラリによるGmail送信をmockで検証（実送信なし） |
 | `npm run test:reverification` | 静的施設情報の期限・引用・差分・source消失を外部APIなしで検証 |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |

@@ -25,6 +25,8 @@
     "deploy:preview:content": "bash scripts/deploy-preview.sh",
     "deploy:production:content": "bash scripts/deploy-production.sh",
     "deployment:summary": "node scripts/deployment-summary.mjs",
+    "infra:scheduler:synth": "cdk synth --app \"npx tsx infra/scheduler-app.ts\"",
+    "infra:scheduler:deploy": "cdk deploy --app \"npx tsx infra/scheduler-app.ts\" ItsRunSchedulerStack --require-approval never --outputs-file scheduler-outputs.json",
     "infra:synth": "npm run build && cdk synth",
     "infra:deploy": "cdk deploy --require-approval never --outputs-file cdk-outputs.json",
     "infra:destroy": "cdk destroy",

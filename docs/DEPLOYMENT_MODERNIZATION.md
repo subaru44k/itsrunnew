@@ -86,3 +86,15 @@ rollbackは7日保持の成功master artifact（app）と、同じJST日・6時�
 費用予測追補：app artifactは7日保持し、日次データだけのrunではapp artifactを増やさない。1日10回・1成果物10MBを仮定すると最大約0.7GB保持で、仮にGitHubのstorage無料分を使い切っていても保守的に月30円程度を見込む（公開repositoryの標準runner計算費は無料）。第5段階と合算で月70円以内の増分予測。実際のrelease回数と圧縮サイズに依存するため、Scheduler導入時に再合算する。[GitHub billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions) を参照。
 
 定時起動の観測：既存monitorの [run 41985579040](https://github.com/subaru44k/itsrunnew/actions/runs/41985579040) はscheduleで作成され、`created_at` と `run_started_at` はともに2026-11-05T07:12:20Z（16:12 JST）。定義の09:30 JSTと約6時間42分離れており、job開始後の処理時間とcron起動自体の遅延を分けて扱う。新しい外部起動方式は実運用の起動遅延改善として検証する。
+
+## 第3・4段階のmergeと第6段階の実装チェックポイント
+
+[PR #147](https://github.com/subaru44k/itsrunnew/pull/147) をmerge。revision `e1603753681d69796e70a2e3bf3987abbc5ac7f5` の [master検証](https://github.com/subaru44k/itsrunnew/actions/runs/41988186100) が進行中。成功後にexact artifactを使う最初のProductionが起動するため、そのplan/data/appの結果を先に確認する。PR検証 [41987233291](https://github.com/subaru44k/itsrunnew/actions/runs/41987233291) は全gate成功。旧方式のpush・配備job内広告設定を文字列で要求する重複テスト2件を、現行のartifact/production-build policy検証へ統合した。安全境界とguardは維持した。
+
+第5段階の [Production 41985346320](https://github.com/subaru44k/itsrunnew/actions/runs/41985346320) は全step成功。公開generation `40e221cbe1bf7e9d8b5b7b51`、source revision `a79794126e0832d5d3e9434c15128dcf1b0d4b18` を確認。隔離ディレクトリでこのgenerationのdata rollbackを実行し、公開manifestと完全一致する再構築を確認した（配備なし）。
+
+現在の作業branchは `codex/scheduled-data-monitoring`、worktreeは `/Users/yamadashinya/work/itsrunnew-modernization`。PR #147の旧head `0376e20924a8ccedbb891ea56de159719b0828ee` に依存して始めたため、作業をcommit後、同じ内容のmerge revisionをbaseにrebaseしてからPRを作る。root worktreeはmasterに同期済み。
+
+第6段階の実装は独立Scheduler/Lambda/App secretと、公開generationを再収集せず読むmonitor。09:00 JST目標、05:30/08:15更新・09:15監視、10:15 GitHub cron fallback、初回DISABLEDを実装中。公開前6時間gateは変更せず、遅延monitorは当日公開済みデータを30時間上限・全record期限で読む。App認証と実Scheduler→GitHub→data公開を確認後にenableし、その後Productionの旧cronを削除する。手順・純増月150円程度の予測は [AVAILABILITY_SCHEDULER.md](AVAILABILITY_SCHEDULER.md)。現在は未配備・未有効化。
+
+ローカルで署名/token scope/拒否・公開content identity・監視履歴・CDKのJST/disabled/権限/timeoutを検証し、型検査込みbuildも成功。公開generationを読むmonitor CLIは再収集/AIなし、状態変化0件で成功。CDK初回synthには約8秒必要で、既存infra検証と同じ20秒のtest timeoutを使う。

@@ -1,0 +1,63 @@
+name: Configure availability scheduler
+on:
+  workflow_dispatch:
+    inputs:
+      test_event:
+        description: Verify the configured Lambda and dispatch a real workflow on master
+        type: choice
+        options: [availability-refresh, availability-monitor]
+        default: availability-refresh
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: itsrun-scheduler-configuration
+  cancel-in-progress: false
+jobs:
+  configure:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Configure narrowly scoped OIDC credentials
+        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
+        with:
+          role-to-assume: ${{ vars.ITSRUN_SCHEDULER_CONFIG_ROLE_ARN }}
+          aws-region: ap-northeast-1
+      - name: Store the existing GitHub App identity without exposing its value
+        env:
+          APP_CLIENT_ID: ${{ secrets.REVERIFICATION_APP_CLIENT_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.REVERIFICATION_APP_PRIVATE_KEY }}
+          SECRET_ARN: ${{ vars.ITSRUN_SCHEDULER_SECRET_ARN }}
+        run: |
+          umask 077
+          secret_file="$RUNNER_TEMP/itsrun-scheduler-identity.json"
+          trap 'rm -f "$secret_file"' EXIT
+          SECRET_FILE="$secret_file" node --input-type=module -e '
+            import { writeFileSync } from "node:fs";
+            import { createPrivateKey } from "node:crypto";
+            if (!process.env.APP_CLIENT_ID || !process.env.APP_PRIVATE_KEY) throw new Error("Existing GitHub App identity is missing");
+            let pem = process.env.APP_PRIVATE_KEY.replace(/\\n/g, "\n");
+            if (!pem.includes("-----BEGIN")) pem = Buffer.from(pem, "base64").toString("utf8");
+            const privateKey = createPrivateKey(pem).export({ type: "pkcs8", format: "pem" });
+            writeFileSync(process.env.SECRET_FILE, JSON.stringify({ clientId: process.env.APP_CLIENT_ID, privateKey }), { mode: 0o600 });
+          '
+          aws secretsmanager put-secret-value --secret-id "$SECRET_ARN" --secret-string "file://$secret_file" --query ARN --output text
+      - name: Invoke the configured dispatcher and require a successful result
+        env:
+          FUNCTION_NAME: ${{ vars.ITSRUN_SCHEDULER_FUNCTION_NAME }}
+          TEST_EVENT: ${{ inputs.test_event }}
+        run: |
+          node --input-type=module -e '
+            import { writeFileSync } from "node:fs";
+            if (!["availability-refresh", "availability-monitor"].includes(process.env.TEST_EVENT)) throw new Error("Invalid test event");
+            writeFileSync(process.env.RUNNER_TEMP + "/scheduler-event.json", JSON.stringify({ eventType: process.env.TEST_EVENT, scheduledTime: new Date().toISOString() }));
+          '
+          aws lambda invoke --function-name "$FUNCTION_NAME" --cli-binary-format raw-in-base64-out --payload "file://$RUNNER_TEMP/scheduler-event.json" "$RUNNER_TEMP/scheduler-result.json" > "$RUNNER_TEMP/scheduler-invoke.json"
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const metadata = JSON.parse(readFileSync(process.env.RUNNER_TEMP + "/scheduler-invoke.json"));
+            const result = JSON.parse(readFileSync(process.env.RUNNER_TEMP + "/scheduler-result.json"));
+            if (metadata.FunctionError || result.ok !== true) throw new Error("Scheduler invocation failed; inspect the restricted Lambda logs");
+            console.log(JSON.stringify(result));
+          '

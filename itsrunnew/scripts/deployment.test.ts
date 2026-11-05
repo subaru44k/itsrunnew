@@ -6,10 +6,10 @@ const deployScript = readFileSync(new URL('./deploy-preview.sh', import.meta.url
 const previewStack = readFileSync(new URL('../infra/itsrun-preview-stack.ts', import.meta.url), 'utf8');
 
 describe('Preview deployment contract', () => {
-  it('supports master, manual, and 05:00 JST daily triggers with one deployment at a time', () => {
-    expect(workflow).toMatch(/push:\n\s+branches:\n\s+- master/);
+  it('deploys on demand from master with one deployment at a time', () => {
     expect(workflow).toContain('workflow_dispatch:');
-    expect(workflow).toContain("cron: '0 20 * * *'");
+    expect(workflow).not.toMatch(/^  (push|pull_request|schedule|workflow_run):/m);
+    expect(workflow).toContain("if: github.ref == 'refs/heads/master'");
     expect(workflow).toContain('group: itsrun-preview-deploy');
     expect(workflow).toContain('cancel-in-progress: false');
   });

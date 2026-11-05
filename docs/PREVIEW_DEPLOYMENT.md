@@ -4,13 +4,15 @@ ItsRunのPreviewは、既存の非公開S3 bucketとCloudFront default domainへ
 
 ## GitHub Actions
 
-`.github/workflows/deploy-preview.yml` は次の3 triggerで同じjobを実行します。
+`.github/workflows/deploy-preview.yml` は `master` からの `workflow_dispatch` だけで実行します。push・日次scheduleでは起動しません。別branchを指定した手動実行は、収集・secret参照・AWS認証の前にjob全体をskipします。通常のリリースでPreviewを経由する必要はなく、CloudFront固有の挙動などを確認するときだけ利用します。
 
-- `master` push
-- `workflow_dispatch`
-- 毎日20:00 UTC（05:00 JST）
+```sh
+gh workflow run deploy-preview.yml --repo subaru44k/itsrunnew --ref master
+```
 
-PRの `Node 24 validation` とは分離しています。deploy jobはPoppler（`pdfinfo` / `pdftoppm`）を導入し、`.cache/availability-ai`のActions cacheを復元し、同じ実行内のHTTP取得を共有して31日availabilityを生成します。AIは公式資料を施設ごとの入力にまとめ、等々力・維新補助は`gpt-6-luna`・`medium`、知多・平塚・荻野は`gpt-6-luna`・`low`、残り3施設は`gpt-5.6-luna`・`none`で1回読みます。公式sourceの取得は順番に行い、AI読解だけ最大3件を並列実行します。source/prompt/model/effort/schema/full-month datesが変わるとcache keyが変わります。Track Dataset検証、unit test、lint/type check、build、local smokeを通した後にだけAWS credentialsを取得します。Preview全体でconcurrency groupを1つにし、同時deployを防止します。
+手動配備する対象revisionの必須CI成功を確認してから実行してください。workflow自体のunit test・型検査込みbuild・配備前後のsmokeも維持します。
+
+PRの `Node 24 validation` とは分離しています。deploy jobはPoppler（`pdfinfo` / `pdftoppm`）を導入し、`.cache/availability-ai`のActions cacheを復元し、同じ実行内のHTTP取得を共有して31日availabilityを生成します。AIの対象施設と読解設定は [`AVAILABILITY.md`](AVAILABILITY.md) を参照してください。入力は公式資料を施設ごとにまとめます。公式sourceの取得は順番に行い、AI読解だけ最大3件を並列実行します。source/prompt/model/effort/schema/full-month datesが変わるとcache keyが変わります。Track Dataset検証、unit test、型検査込みのbuild、local smokeを通した後にだけAWS credentialsを取得します。Preview全体でconcurrency groupを1つにし、同時deployを防止します。
 
 fresh collection stepだけがrepository secret `OPENAI_API_KEY` と `ITSRUN_REQUIRE_AI_KEY=true` を受け取ります。通常のlocal buildやAWS deploy stepへsecretを渡しません。cache hitなら再推論しませんが、trusted deployはcacheの有無にかかわらず開始時にkeyを必須とし、未設定なら失敗します。
 
@@ -44,4 +46,4 @@ invalidation完了後、workflowはCloudFrontから`/`、`/service-worker.js`、
 
 Preview hosting CDK stackは基盤のみ管理します。`npm run infra:deploy`の後、content workflowまたは上記scriptで公開します。旧CDK BucketDeploymentをstackから外しても、その削除時に既存S3 objectは保持されます。
 
-個別sourceの取得・解析失敗はcollectorの安全規則によりunknownへ降格できます。range生成、dataset検証、test、lint、build、local smoke、OIDC、差分S3配備、invalidation、公開本文照合、CloudFront smokeのいずれかが失敗した場合はjob全体を失敗させます。key未設定ならtrusted Preview collectionは開始時に失敗し、AI施設だけを前回のpositiveで埋め戻しません。
+個別sourceの取得・解析失敗はcollectorの安全規則によりunknownへ降格できます。range生成、dataset検証、test、型検査込みbuild、local smoke、OIDC、差分S3配備、invalidation、公開本文照合、CloudFront smokeのいずれかが失敗した場合はjob全体を失敗させます。key未設定ならtrusted Preview collectionは開始時に失敗し、AI施設だけを前回のpositiveで埋め戻しません。

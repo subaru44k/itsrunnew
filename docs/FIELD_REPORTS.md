@@ -70,7 +70,7 @@ npm run test:smoke:preview
 npm run test:reports
 ```
 
-Preview CORSは既存Preview CloudFrontとlocalhost 127.0.0.1:4173、Productionはhttps://itsrun.infoだけを許可します。GitHub variables `ITSRUN_PREVIEW_FIELD_REPORTS_API` / `ITSRUN_PRODUCTION_FIELD_REPORTS_API`を各API URLへ設定し、次の日次content buildでも設定を維持します。既存workflowはcontentのみのため、APIの変更は別途`reports:deploy`が必要です。APIを無効化するときは該当variableを空にしてcontentを再build/deployします。緊急停止はLambda同時実行を0にできます。投稿データは保持します。
+Preview CORSは既存Preview CloudFrontとlocalhost 127.0.0.1:4173、Productionはhttps://itsrun.infoだけを許可します。GitHub variables `ITSRUN_PREVIEW_FIELD_REPORTS_API` / `ITSRUN_PRODUCTION_FIELD_REPORTS_API`を各API URLへ設定し、Productionの次回content build、Previewの必要時の手動content buildでも設定を維持します。既存workflowはcontentのみのため、APIの変更は別途`reports:deploy`が必要です。APIを無効化するときは該当variableを空にしてcontentを再build/deployします。緊急停止はLambda同時実行を0にできます。投稿データは保持します。
 
 公開前にPreviewの実APIへ投稿→取得→連投拒否→非表示を確認します。Productionでは架空の利用報告を投稿せず、取得と不正入力拒否を検証します。
 

@@ -10,7 +10,7 @@ ItsRun の静的Webサイトです。Vue 3、TypeScript、Vite、Pinia、Vuetify
 
 正式URLは `https://itsrun.info` です。sitemap、canonical、日英hreflang、OGP、About、Privacyを備え、PreviewとProduction CloudFront default domainはnoindexにします。記録集には田中希実選手と三浦龍司選手の2020年以降の大会結果を掲載しています。GA4は正式domain上で利用者が同意した後だけ読み込み、現在地座標は送信しません。ProductionではGoogle CMPを伴うAdSenseを有効化し、Previewは広告なしを維持します。公開後の管理画面・配信層の確認は [`../docs/PUBLIC_LAUNCH.md`](../docs/PUBLIC_LAUNCH.md) を参照してください。
 
-開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md) を参照してください。
+開発者・エージェント向けの全体構造は [`../docs/SITE_STRUCTURE.md`](../docs/SITE_STRUCTURE.md)、段階的なデプロイ・検証見直しの進捗と次の作業は [`../docs/DEPLOYMENT_MODERNIZATION.md`](../docs/DEPLOYMENT_MODERNIZATION.md) を参照してください。
 
 ## ローカル実行
 
@@ -27,7 +27,6 @@ npm run dev
 ```sh
 npm test
 npm run build
-npm run lint
 npm run validate:track-batches
 npm run validate:tracks
 npm run test:smoke
@@ -35,7 +34,7 @@ npm run test:smoke:preview
 npm run test:pace
 ```
 
-`master`向けPull RequestのGitHub Actions `Node 24 validation` は、Markdownだけの差分では空白確認を行い、Node setup・依存install・アプリ/dailyテストを省略します。それ以外の変更では`npm ci`、候補batch検証、Track Dataset検証、unit test、lint/type check、buildを同じ順序で実行し、daily fixturesとlive daily gateも続けます。CIはrepository secretをAIへ渡さず、cache missのAI施設はunknownになるため、外部AI推論のfreshnessを証明しません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストには外部sourceへのnetwork、Poppler、Python 3（監視メールのmock検証）が必要ですが、CI検証にAWS credentialsやSMTP secretsは不要です。
+`master`向けPull RequestのGitHub Actions `Node 24 validation` は、Markdownだけの差分では空白確認を行い、Node setup・依存install・アプリ/dailyテストを省略します。それ以外の変更では`npm ci`、候補batch検証、Track Dataset検証、unit test、型検査込みのbuildを実行します。変更範囲に応じたdaily fixtures/live dailyまたはmixed-fixture smokeも続けます。`npm run build` は `vue-tsc --noEmit` を含むため、同じ型検査の `npm run lint` を重複実行しません。型だけ確認したい場合は `npm run lint` を使えます。CIはrepository secretをAIへ渡さず、cache missのAI施設はunknownになるため、外部AI推論のfreshnessを証明しません。trusted deployとmasterの有効化済み収集監視だけがcollection stepへ`OPENAI_API_KEY`を渡します。アプリ/dailyテストには外部sourceへのnetwork、Poppler、Python 3（監視メールのmock検証）が必要ですが、CI検証にAWS credentialsやSMTP secretsは不要です。
 
 `collect:availability:range` は東京の当日から31日分を `src/data/availability/manifest.json` と日別JSONへ生成します。`public/availability` を通じて安定したJSON URLで公開し、日次更新だけではアプリJSや全ページのHTML shellを変えません。ブラウザはmanifestを待たずに画面を起動し、選択日のJSONを並行取得します。同じ日付のデータは画面間で短時間再利用し、開いたままのタブでも後の画面操作でmanifestを再確認し、更新分を取り直します。同一HTML/PDF、月次JSON、WordPress noticeをcacheし、日数分の重複fetchやPDF抽出を避けます。単日debug用 `npm run collect:availability -- --date YYYY-MM-DD` も維持しています。133施設を掲載し、そのうちlegacy 33施設＋夢の島HTML 1施設＋追加10施設（Luna AI 5施設、確認済み有限判定2施設、決定論的HTML表1施設、個人利用ICS 2施設）の44施設を安全な自動判定対象とします。これは毎日のpositive件数ではなく、対象日を判定できる実装数です。取得不能・予定未公開・期限切れ・形式変更・AIのkeyless cache missは利用不可にせず「要確認」へ降格します。AIは知多・荻野を`gpt-6-luna` `low`、等々力を`gpt-6-luna` `medium`、広島補助・世田谷を`gpt-5.6-luna` `none`で読み、博多・維新は確認済みhashの有限判定、平塚は更新日・曜日・凡例を検証する公式HTML表の直接判定を使い、時刻付き開放も当該枠内の開始から既定終了までに限定します。施設ごとに公式資料一式を1回入力します。公式資料は順番に取得し、AI読取は最大3件まで同時に実行して結果を施設順に戻します。読取結果は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）へcacheします。source/prompt/model/effort/schema/対象月全日付がcache keyに含まれ、runtimeにAstraはありません。比較根拠は [`../research/availability/luna-feasibility/gpt6-effort-and-routing-2026-09-24.md`](../research/availability/luna-feasibility/gpt6-effort-and-routing-2026-09-24.md)、内訳と各sourceの意味は [`../docs/AVAILABILITY.md`](../docs/AVAILABILITY.md)、[`../research/availability/ai-adoption-2026-09.json`](../research/availability/ai-adoption-2026-09.json)、[`../research/availability/ai-collector-integration-2026-09.md`](../research/availability/ai-collector-integration-2026-09.md) を参照してください。通常のbuild/devは外部sourceへアクセスしません。
 
@@ -74,7 +73,7 @@ npm run infra:deploy
 
 デプロイ後のURLは `cdk-outputs.json` の `VerificationUrl` で確認できます。プレビュー環境を削除する場合は `npm run infra:destroy` を実行します。
 
-GitHub ActionsはMarkdownだけのpushを除くmaster push、手動実行、毎日05:00 JSTにfresh availabilityを生成し、既存Previewへcontent-only deployします。前回成功時の生成物SHA-256との差分だけS3へ反映し、変更URLだけをCloudFrontで無効化します。差分なしなら無効化せず、公開ページとService Workerの本文を配備後に照合します。GitHub OIDCの専用role、cache metadata、concurrency、failure handlingは [`../docs/PREVIEW_DEPLOYMENT.md`](../docs/PREVIEW_DEPLOYMENT.md) を参照してください。`infra:deploy`はhosting基盤のみ更新し、contentは別途deployします。
+PreviewのGitHub Actionsは必要時に `master` から手動実行し、fresh availabilityを生成して既存Previewへcontent-only deployします。push・日次scheduleでの自動実行はありません。`gh workflow run deploy-preview.yml --repo subaru44k/itsrunnew --ref master` で起動でき、別branchはjobをskipします。前回成功時の生成物SHA-256との差分だけS3へ反映し、変更URLだけをCloudFrontで無効化します。差分なしなら無効化せず、公開ページとService Workerの本文を配備後に照合します。GitHub OIDCの専用role、cache metadata、concurrency、failure handlingは [`../docs/PREVIEW_DEPLOYMENT.md`](../docs/PREVIEW_DEPLOYMENT.md) を参照してください。`infra:deploy`はhosting基盤のみ更新し、contentは別途deployします。
 
 Preview workflowは `VITE_DEPLOY_TARGET=preview` と `VITE_ADSENSE_ENABLED=false` を使用します。Production workflowだけが `VITE_ADSENSE_ENABLED=true` で、アクセス解析の選択後に全route共通のAdSenseタグを読み込みます。広告・Cookieの選択はGoogle CMP、アクセス解析の選択はサイト内UIがそれぞれ担当し、両画面は同時に表示しません。
 
@@ -153,7 +152,7 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 
 ## 追加選手の記録集
 
-記録集メニューから本田桜二郎（`/ojiro-honda/index`）、増子陽太（`/yota-mashiko/index`）、新妻遼己（`/haruki-niizuma/index`）のページへ進めます。各ページに `/en/` 版のURLもあり、本文は日本語です。年度・種類・大会名／種目／区間／所属の検索、公式結果へのリンクを提供します。駅伝は45出走を追加し、区間・距離・所属・区間記録・区間順位、同順位と公式の区間新記録を表示します。詳細は[駅伝の収集報告](../research/athlete-archives/ekiden-report.md)を参照してください。静的JSONの更新範囲と出典は [収集報告](../research/athlete-archives/2026-11-01-report.md) を参照してください。`npm run build`、`npm test`、`npm run lint`、`npm run test:smoke` でデータ・ルート・検索を検証します。
+記録集メニューから本田桜二郎（`/ojiro-honda/index`）、増子陽太（`/yota-mashiko/index`）、新妻遼己（`/haruki-niizuma/index`）のページへ進めます。各ページに `/en/` 版のURLもあり、本文は日本語です。年度・種類・大会名／種目／区間／所属の検索、公式結果へのリンクを提供します。駅伝は45出走を追加し、区間・距離・所属・区間記録・区間順位、同順位と公式の区間新記録を表示します。詳細は[駅伝の収集報告](../research/athlete-archives/ekiden-report.md)を参照してください。静的JSONの更新範囲と出典は [収集報告](../research/athlete-archives/2026-11-01-report.md) を参照してください。`npm run build`（型検査込み）、`npm test`、`npm run test:smoke` でデータ・ルート・検索を検証します。
 
 追加URLを既存のProductionへ公開する際は、content配備に加え、`page-metadata.json`を読み込むCloudFront Functionの既知route定義も反映する必要があります。content-only配備だけでは追加URLのHTML shellへrewriteされません。
 

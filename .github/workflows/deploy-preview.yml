@@ -1,15 +1,7 @@
 name: Deploy Preview
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '**/*.md'
   workflow_dispatch:
-  schedule:
-    # 05:00 JST. GitHub Actions cron uses UTC.
-    - cron: '0 20 * * *'
 
 permissions:
   contents: read
@@ -21,6 +13,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/master'
     name: Build and deploy Preview
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -82,8 +75,6 @@ jobs:
         run: npm run validate:tracks
       - name: Run unit tests
         run: npm test
-      - name: Run lint and type checks
-        run: npm run lint
       - name: Build static site
         run: npm run build
       - name: Run local production smoke

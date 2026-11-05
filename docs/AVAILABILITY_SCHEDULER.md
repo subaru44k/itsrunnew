@@ -2,6 +2,8 @@
 
 通常の当日データ公開完了は09:00 JSTが目標。公式未公開・取得不能はunknownを維持する。GitHub cronの起動遅延と処理時間を分け、EventBridge SchedulerからGitHubの既存の無料標準runnerを起動する。収集の実行場所や判定内容は変えない。
 
+2026-11-05に認証・実Schedulerからのdata公開・公開monitor反復を確認し、3定時scheduleをENABLEDへ変更しました。Productionの旧GitHub cronは削除済みで、monitorの10:15 fallbackだけを残します。次の定時起動は将来のため、翌朝09:00までの実測達成とは区別します。証拠は [引継ぎ](DEPLOYMENT_MODERNIZATION.md) を参照してください。
+
 ## 構成と認証
 
 独立した `ItsRunSchedulerStack` は次だけを作る。hosting、DNS、証明書、現地レポートAPIは変更しない。

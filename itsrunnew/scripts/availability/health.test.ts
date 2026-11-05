@@ -145,6 +145,33 @@ function emptyPipelineState(generatedAt: string): HealthState {
 }
 
 describe('availability health monitoring', () => {
+  it('observes the same published generation twice without duplicate incidents', () => {
+    const datasets = [makeDataset(date1, run1, defaultTracks, { [trackA.id]: { status: 'unknown', unknownReason: 'fetch_failed' } })];
+    const first = evaluateHealth(datasets, defaultTracks, null, run1Later);
+    const second = evaluateHealth(datasets, defaultTracks, first.state, run1Latest);
+    expect(first.events).toHaveLength(1);
+    expect(second.events).toEqual([]);
+    expect(second.state.generatedAt).toBe(run1Latest);
+    expect(second.state.collectionGeneratedAt).toBe(run1);
+    expect(second.state.facilities[trackA.id].active).toEqual(first.state.facilities[trackA.id].active);
+  });
+
+  it('evaluates an explicitly restored older generation at a later observation time', () => {
+    const first = evaluateHealth([makeDataset(date1, run1Later)], defaultTracks, null, run1Latest);
+    const restored = evaluateHealth([makeDataset(date1, run1)], defaultTracks, first.state, run2);
+    expect(restored.events).toEqual([]);
+    expect(restored.state.collectionGeneratedAt).toBe(run1);
+    expect(() => evaluateHealth([makeDataset(date1, run1)], defaultTracks, first.state, run1Later)).toThrow('precede observation');
+  });
+
+  it('uses collection time for parsed-slot recovery even if the previous observation was later', () => {
+    const failed = evaluateHealth([makeDataset(date1, run1, defaultTracks, { [trackA.id]: { status: 'unknown', unknownReason: 'fetch_failed' } })], defaultTracks, null, run1Latest);
+    const datasets = [makeDataset(date1, run1Later, defaultTracks, { [trackA.id]: { status: 'unknown', unknownReason: 'insufficient_information', sourceHash: `sha256:${'a'.repeat(64)}` } })];
+    datasets[0].facilities[0].periods = [{ from: '09:00', to: '12:00', status: 'available', scope: 'full_track', eligibility: 'public', conditions: [] }];
+    const recovered = evaluateHealth(datasets, defaultTracks, failed.state, run2);
+    expect(recovered.events.some(event => event.trackId === trackA.id && event.kind === 'recovered')).toBe(true);
+  });
+
   it.each(hardReasons)('opens an error finding for the hard unknown reason %s', (reason) => {
     const result = evaluateHealth([
       makeDataset(date1, run1, defaultTracks, {

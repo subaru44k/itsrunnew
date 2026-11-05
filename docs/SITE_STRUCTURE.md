@@ -361,7 +361,7 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 
 `availability-monitor.yml` はmaster上で `AVAILABILITY_MONITOR_ENABLED=true` の場合だけ、外部Schedulerから09:15 JST、GitHub cron fallbackで10:15 JST、または手動で動きます。`published-range.mjs` が実際の公開generationの日別31ファイルを読み、当日開始・全施設・期限・fixture禁止・content identityを検証します。再収集・AI呼び出し・Popplerは不要です。生成済みの当日データを後の時刻でも監視できるよう監視入力の生成上限は30時間とし、公開前の6時間gateは維持します。昨日のmanifestや壊れた公開データは失敗し、再収集で置き換えません。
 
-`health.ts` の既存の状態比較を維持します。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回から未対応・予定未公開は通知せず、復旧には以前に判定できていた影響日の既知statusへの回復を要求します。app/plan job成功をデータ更新と数えず、公開manifestの生成時刻で更新停止を評価します。
+`health.ts` の既存の状態比較を維持します。公開monitorのstateは監視時刻を`generatedAt`、データ生成時刻を任意の`collectionGeneratedAt`へ分け、同じ公開世代の再確認や明示的rollbackを後の監視時刻で評価できます。復旧証拠の新しさは収集時刻同士で比較し、監視の遅延時刻と混同しません。明確な取得/解析エラーは即時、全判定日の消失または3日以上・50%以上の減少は異なるJST日で継続したら異常とします。初回から未対応・予定未公開は通知せず、復旧には以前に判定できていた影響日の既知statusへの回復を要求します。app/plan job成功をデータ更新と数えず、公開manifestの生成時刻で更新停止を評価します。
 
 `monitor-github.mjs` は前回成功monitorのstate artifactだけを復元し、`monitor-email.py` は既存のGmail SMTP over TLSで異常/変化/復旧をまとめ、状態不変時は送りません。メール成功後にstateを90日保存し、失敗時もreportを30日保持します。公開データ検証・履歴・保存の失敗は既存の基盤失敗メール経路へ進み、SMTP障害はjob失敗にします。AWS認証・公開更新・Issue作成は行いません。Node 24・Python標準ライブラリ・GitHub CLIを使用します。従来の引数なしlocal monitor CLIだけはcollector診断用の独立収集を残します。設定・既知の限界は [AVAILABILITY_MONITORING.md](AVAILABILITY_MONITORING.md) を参照してください。
 

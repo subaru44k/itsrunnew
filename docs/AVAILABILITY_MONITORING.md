@@ -23,7 +23,7 @@
 
 ## 状態の保持と障害
 
-`availability-monitor-state` artifact（90日保持）の `state.json` に、施設別のstatus、unknown理由別件数、source URL/hash、過去に判定できた範囲内の日付、最終正常確認、保留中・発生中の異常を保存する。公開サイトの入力にはしない。
+`availability-monitor-state` artifact（90日保持）の `state.json` に、施設別のstatus、unknown理由別件数、source URL/hash、過去に判定できた範囲内の日付、最終正常確認、保留中・発生中の異常を保存する。公開サイトの入力にはしない。公開monitorではstateの`generatedAt`は監視時刻、任意の`collectionGeneratedAt`は元データ生成時刻で、reportにも両方を表示する。同じ世代の再確認と明示的なdata rollbackでも監視時刻は前進し、同じ異常を重複通知しない。parsed-slotの復旧証拠は元の収集時刻と比較する。
 
 メール送信（または変化なし）が成功してからstateを保存し、次回は成功したmonitor runのstateだけを読む。無効化中の全job skip runは飛ばす。過去runがない初回だけ基準なしで開始する。artifactが期限切れ・欠落・取得失敗・不正な場合は、正常として基準をリセットせずjobを失敗させる。成功runの検索上限は100件で、全件skipなら手動復旧を要求する。
 

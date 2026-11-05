@@ -166,6 +166,46 @@ describe('content deployment plan', () => {
     }
   }, 30_000);
 
+  it('migrates legacy state and updates/deletes only the requested ownership scope', () => {
+    for (const scope of ['app', 'data']) {
+      const root = mkdtempSync(join(tmpdir(), 'itsrun-scoped-deploy-'));
+      try {
+        const bin = join(root, 'bin'), dist = join(root, 'dist');
+        for (const directory of [bin, dist, join(dist, 'assets'), join(dist, 'availability')]) mkdirSync(directory);
+        writeFileSync(join(dist, 'index.html'), 'new app');
+        writeFileSync(join(dist, 'service-worker.js'), 'worker');
+        writeFileSync(join(dist, 'availability/manifest.json'), 'new data');
+        const source = join(root, 'previous.json'), log = join(root, 'aws.log'), state = join(root, 'state.json');
+        writeFileSync(source, JSON.stringify({ version: 1, files: { 'index.html': 'old', 'service-worker.js': 'old', 'old-app.txt': 'old', 'availability/manifest.json': 'old', 'availability/old.json': 'old' } }));
+        writeFileSync(join(bin, 'aws'), `#!/bin/sh
+printf '%s\\n' "$*" >> "$FAKE_AWS_LOG"
+case "$1 $2" in
+  's3api get-object')
+    if [ "$6" = '.itsrun-deploy/manifest-v1.json' ]; then cp "$FAKE_AWS_MANIFEST" "$7"; else echo NoSuchKey >&2; exit 1; fi;;
+  's3 cp') case "$4" in *-v2.json) cp "$3" "$FAKE_AWS_STATE";; esac;;
+  'cloudfront create-invalidation') echo I123;;
+  'cloudfront get-invalidation') echo Completed;;
+esac
+`);
+        chmodSync(join(bin, 'aws'), 0o755);
+        const result = spawnSync('node', [new URL('./deploy-content.mjs', import.meta.url).pathname, 'bucket', 'distribution'], {
+          cwd: root, encoding: 'utf8', env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, ITSRUN_DEPLOY_SCOPE: scope, FAKE_AWS_LOG: log, FAKE_AWS_MANIFEST: source, FAKE_AWS_STATE: state },
+        });
+        expect(result.status, result.stderr).toBe(0);
+        const files = JSON.parse(readFileSync(state, 'utf8')).files;
+        expect(Object.keys(files).every(key => scope === 'data' ? key.startsWith('availability/') : !key.startsWith('availability/'))).toBe(true);
+        const writes = readFileSync(log, 'utf8').split('\n').filter(line => /^(s3 cp|s3api delete-object)/.test(line));
+        if (scope === 'app') {
+          expect(writes.some(line => line.includes('availability/'))).toBe(false);
+          expect(writes.some(line => line.includes('--key old-app.txt'))).toBe(true);
+        } else {
+          expect(writes.some(line => line.includes('index.html') || line.includes('service-worker.js') || line.includes('old-app.txt'))).toBe(false);
+          expect(writes.some(line => line.includes('--key availability/old.json'))).toBe(true);
+        }
+      } finally { rmSync(root, { recursive: true, force: true }); }
+    }
+  }, 30_000);
+
   it('migrates the prior S3 content and invalidates only an updated service worker', () => {
     const root = mkdtempSync(join(tmpdir(), 'itsrun-deploy-migrate-'));
     try {

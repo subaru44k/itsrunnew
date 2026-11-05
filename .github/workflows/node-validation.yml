@@ -25,6 +25,10 @@ jobs:
         working-directory: itsrunnew
     env:
       CHROME_PATH: /usr/bin/google-chrome
+      VITE_DEPLOY_TARGET: production
+      VITE_ADSENSE_ENABLED: 'true'
+      VITE_FIELD_REPORTS_API: ${{ vars.ITSRUN_PRODUCTION_FIELD_REPORTS_API }}
+      ITSRUN_PREBUILT_DIST: ${{ github.workspace }}/itsrunnew/dist
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -67,6 +71,9 @@ jobs:
       - name: Verify facility reverification without external API calls
         if: steps.change_scope.outputs.docs_only != 'true'
         run: npm run test:reverification
+      - name: Build the production application once
+        if: steps.change_scope.outputs.docs_only != 'true'
+        run: npm run build
       - name: Verify affected browser features with fresh fixtures
         if: steps.change_scope.outputs.docs_only != 'true'
         env:
@@ -78,3 +85,19 @@ jobs:
       - name: Verify live daily availability pipeline without deployment
         if: steps.change_scope.outputs.daily == 'true'
         run: npm run test:daily
+      - name: Seal the validated master publication artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          DEPLOY_APP: ${{ steps.change_scope.outputs.deploy_app }}
+          DEPLOY_DATA: ${{ steps.change_scope.outputs.deploy_data }}
+        run: node scripts/release-artifact.mjs seal
+      - name: Save the validated publication artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: production-release-${{ github.sha }}
+          path: itsrunnew/.cache/release
+          if-no-files-found: error
+          retention-days: 7
+          include-hidden-files: true
+          overwrite: true

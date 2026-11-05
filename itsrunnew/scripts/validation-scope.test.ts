@@ -39,6 +39,7 @@ it('uses real Git diffs for independent/mixed/renamed files and fails on whitesp
     mkdirSync(join(root, 'itsrunnew/src/views'), { recursive: true });
     const script = join(root, 'itsrunnew/scripts/validation-scope.mjs');
     copyFileSync(new URL('./validation-scope.mjs', import.meta.url), script);
+    copyFileSync(new URL('./release-scope.mjs', import.meta.url), join(root, 'itsrunnew/scripts/release-scope.mjs'));
     const pace = join(root, 'itsrunnew/src/views/LapTime.vue');
     const shared = join(root, 'itsrunnew/src/App.vue');
     writeFileSync(pace, 'baseline\n');

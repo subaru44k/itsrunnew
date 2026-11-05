@@ -26,19 +26,19 @@ npm run test:daily
 - `test:daily:fixtures`: JST当日から31日間の合成データでbuildとPC/モバイルの全smokeを実行。mixedでは4statusを網羅し、戸田を当日unavailable・翌日availableにする。unknownでは全施設をunknownとし、公式取得不能時の安全な表示とstatus欠落を検証する。
 - `test:daily`: 実際の公式sourceから31日分を収集し、鮮度・全施設の完全性・Track Datasetを検証してbuildと全smokeを実行する。AWSへ配備しない。AI読解5施設は`.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）を一時workspaceの外へ置いてcacheを継続利用できる。keylessでcache missのAI施設はunknownになるため、CIでのdaily成功は外部AI推論のfreshnessを証明しない。
 - 両コマンドとも一時ディレクトリへソースをコピーし、インストール済み依存を共有する。live dailyのAI cacheだけは`ITSRUN_AI_CACHE_DIR`で指定したpersistent directoryを参照し、一時workspaceのコピー対象から除外する。checkoutのavailability・distや`.env`には触れない。合成データを公開する経路を設けず、deployの鮮度ゲートでも合成データを拒否する。通常終了・失敗時に一時領域を削除する。
-- `Node 24 validation` はMarkdownだけなら差分確認だけで完了する。それ以外は `test:features` で当日mixed fixtureと1回のbuildを共有し、pace / archives / reports / scheduleを変更範囲に応じて実行する。5選手の記録集・共通記録集表示/データと現地レポートも独立した許可pathに含む。共通画面・施設・availability・build/deploy・tooling・未知path・削除/rename・比較元不明・空差分は全featureと両dailyを維持する。同じPR revisionのCI成功後に理由なくローカルで繰り返さない。CIは外部AIのfreshnessまでは証明しない。
+- `Node 24 validation` はMarkdownだけなら差分確認だけで完了する。それ以外はproduction設定で1回buildし、`ITSRUN_PREBUILT_DIST` の隔離copyへ当日mixed fixtureを差し込み、pace / archives / reports / scheduleを変更範囲に応じて実行する。5選手の記録集・共通記録集表示/データと現地レポートも独立した許可pathに含む。共通画面・施設・availability・build/deploy・tooling・未知path・削除/rename・比較元不明・空差分は全featureと両dailyを維持する。同じPR revisionのCI成功後に理由なくローカルで繰り返さない。CIは外部AIのfreshnessまでは証明しない。
 - 記録集と施設予定のmockシナリオは独立suiteへ移した。施設予定の期限切れ・取得失敗・世代切替・日付選択競合を `test:schedule` で確認し、dailyのデータsetごとに同じシナリオを再実行しない。dailyのmixed/unknownでは、データに応じた全status・filter・公開導線の統合を検証する。
-- `ITSRUN_TEST_SUITES=archives npm run test:features` のように対象だけをローカル確認できる。既定は4suite全部。現地レポート用の架空APIをbuildへ設定し通信をmockするため、この成果物は公開しない。
+- `ITSRUN_TEST_SUITES=archives npm run test:features` のように対象だけをローカル確認できる。既定は4suite全部。ローカルの独立buildでは架空APIを設定し、production artifactのcopyでは実APIを通信mockで置き換える。fixtureを差し込んだcopyは公開しない。CIはavailability以外の全file hashを元artifactと照合する。
 
-両deploy workflowは収集直後に `validate:availability:fresh` を実行する。JST当日始まりの連続31日、6時間以内の生成時刻、全施設IDの重複・欠落、日付・timezone・期限・statusを検査し、不完全または古い生成物を公開しない。取得不能は従来どおりunknownであり、全4statusの存在を公開条件にしない。
+Previewの一括deployとProductionのdata jobは収集直後に `validate:availability:fresh` を実行する。JST当日始まりの連続31日、6時間以内の生成時刻、全施設IDの重複・欠落、日付・timezone・期限・statusと日別/施設別partitionの一致を検査し、不完全または古い生成物を公開しない。取得不能は従来どおりunknownであり、全4statusの存在を公開条件にしない。
 
 smokeは実データに存在するstatusと件数を検証し、存在しないstatusはcoverage logへ記録する。4statusの表示自体はmixed fixtureで必ず検証する。特定施設のテストでは利用不可表示を有効にし、折りたたみ・ページ送りを展開した後に選択する。
 
 ## 修正の公開と完了判定
 
 1. 関連コードを変更したPRでは上記checkの成功を確認する。MarkdownだけのPRでは意図した差分確認のみを行い、関連コードの回帰テストをskipやcontinue-on-errorで隠さない。
-2. 関連コードのmaster反映でProduction deployが起動する。Markdownだけのpushでは起動せず、Productionの日次scheduleは継続する。Previewは必要時だけmasterから手動実行する。公開の承認範囲を確認し、通常のcontent deployのみを使用する。
-3. Production runでavailability収集・local smoke・S3 deployment・CloudFront smokeの成功を確認する。Previewを手動配備した場合はそのrunも同じ基準で確認する。summaryには収集とlocal smokeの成否も表示する。
+2. 成功master push検証のworkflow_runでProductionの公開要否を判定する。Markdownだけならmetadata確認だけでapp/data公開をskipし、日次scheduleはdata-onlyで継続する。Previewは必要時だけmasterから手動実行する。公開の承認範囲を確認し、通常のcontent deployのみを使用する。
+3. Productionのdata jobでは収集・鮮度/全partition検証・data prefix配備・公開byte照合、app jobでは成功master artifactとhash/schema/施設ID照合・app prefix配備・公開byte照合・短いrelease smokeの成功を確認する。両方の変更はdata成功後にappを公開する。Preview手動配備は従来の一括収集・build・smoke・公開確認を維持する。summaryで公開済み/部分更新失敗/公開後確認失敗を区別する。
 4. 翌日のschedule runでも生成日と公開結果を確認する。再失敗時はrun URL、revision、失敗step、JST対象日を記録する。
 
 このゲートは日付やstatus変化による既知の回帰を防ぎ、変更時点の実収集と表示を確認する。将来の公式サイト変更、GitHub/AWS/ネットワーク障害まで無条件に成功保証するものではない。取得できない情報を利用可能と偽らずunknownにし、収集成功と公開成功を区別して追跡する。

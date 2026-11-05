@@ -11,7 +11,7 @@
 - 各段階を小さなPRで検証・公開し、途中でセッションが止まっても、この文書とGitHubの結果から再開できるようにする。
 - 定時起動方式を決める前に更新時刻の目標を確認する。当面のProduction scheduleは05:30 / 08:15 JSTを維持する。
 
-## 第1段階：Previewの必要時利用と型検査重複の解消（本変更）
+## 第1段階：Previewの必要時利用と型検査重複の解消（完了）
 
 - `deploy-preview.yml` はmasterからの手動実行だけにする。push・日次scheduleを削除し、他branchは収集・secret参照前にjobをskipする。
 - 既存のPreview基盤と現地レポートAPIは保持する。通常のProductionリリースにPreview成功を要求しない。
@@ -21,9 +21,19 @@
 
 予測追加費用は0円。Preview自動更新停止によるS3/AI等の減少はあり得るが、GitHub Actionsの標準runner実行は無料で、保持するAPIのsecret保管料も残るため、大きな削減額を計上しない。
 
-検証はdeployment contract testとbuildをローカルで実施し、workflow変更を含む同じPR revisionの `Node 24 validation` で両daily gateまで確認する。merge後はProduction runの収集・local smoke・配備・公開本文照合・公開smokeと、Previewのpush runが作成されないことを確認する。必要時の手動Previewは [PREVIEW_DEPLOYMENT.md](PREVIEW_DEPLOYMENT.md) の手順を使う。
+必要時の手動Previewは [PREVIEW_DEPLOYMENT.md](PREVIEW_DEPLOYMENT.md) の手順を使う。
 
-再開時は `codex/deploy-policy-step-1` のPRと対象SHAのActionsを確認する。未完了runがあれば先に追跡し、失敗はstepと原因を記録して解決する。merge済みならworktreeを安全にmasterへ同期し、次へ進む。
+### 2026-11-05の完了証拠
+
+- [PR #143](https://github.com/subaru44k/itsrunnew/pull/143) をmerge。本段階の本番配備revisionは `cdcaa16acbd653f46942e2d329f4d5aaae59984c`。
+- ローカルの型検査込みbuild、deployment/deploy-content/validation-scopeの36テスト（1 worker）、変更文書のローカルリンク72件、`git diff --check` が成功。
+- [PRのNode validation](https://github.com/subaru44k/itsrunnew/actions/runs/41976821020) で全unit・型検査込みbuild・pace検証・mixed/全unknownのdaily fixtures・実収集dailyまで成功。
+- [master以外からの手動Preview](https://github.com/subaru44k/itsrunnew/actions/runs/41977206974) はjob全体がskipされ、収集・配備を開始しないことを確認。
+- merge後はNode validationとProductionだけがpushで起動し、Previewの自動runは作成されなかった。
+- [Production deploy](https://github.com/subaru44k/itsrunnew/actions/runs/41977698081) の収集・鮮度検証・unit・型検査込みbuild・local smoke・差分配備・公開本文照合・公開smokeが成功。正式URLのmanifestでも2026-11-05〜12-05、生成時刻2026-11-05T06:02:11.443Zを確認。
+- 今回のProduction jobは377秒（収集93秒、build10秒、local smoke76秒、配備71秒、公開smoke87秒）。収集・配信・ブラウザの所要時間も変わるため、変更前との差全体を型検査削減の効果とは扱わない。
+
+再開時は最新masterと [merge後のNode validation](https://github.com/subaru44k/itsrunnew/actions/runs/41977698080) の結果を確認し、未実装の第2段階から進む。失敗したrunが残っていれば先に原因を確認して解決する。完了済みの同じrevisionの検証を理由なく再実行しない。
 
 ## 次の変更単位（未実装）
 

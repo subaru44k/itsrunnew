@@ -185,11 +185,13 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
       if (id === 'wadabori-park-seibiyama-track' && !copy.includes('19:00') && !copy.includes('19時')) throw new Error('Seibiyama conflicting hours guidance missing');
       if (id === 'niiza-general-sports-park-track' && !copy.includes('17:00')) throw new Error('Niiza winter hours missing');
       if (id === 'ichikawa-kohnodai-athletic-stadium') {
-        if (!copy.includes(locale ? 'outside the booked periods' : '「使用時間」以外')) throw new Error('Konodai general opening confused with exclusive-use periods');
-        if (!copy.includes('17:00') || !copy.includes('047-373-3112')) throw new Error('Konodai shorter hours or contact missing');
-        if (!(await page.title()).includes(locale ? 'general opening' : '一般開放')) throw new Error('Konodai runtime metadata missing');
-        const scheduleLink = page.locator('.facility-guidance a[href="https://www.city.ichikawa.lg.jp/page/4185.html"]');
-        if (await scheduleLink.count() !== 1) throw new Error('Konodai official schedule link missing');
+        if (!copy.includes(locale ? 'ground-floor counter' : '体育館1階窓口')) throw new Error('Kohnodai admission guidance missing');
+        if (!(await page.title()).includes(locale ? 'general opening' : '一般開放')) throw new Error('Kohnodai runtime metadata missing');
+        if (await page.locator('.facility-guidance p').count() !== 1) throw new Error('Kohnodai guidance hides the schedule behind long explanations');
+        const visitorLink = page.locator('.facility-guidance a[href="https://www.city.ichikawa.lg.jp/page/4184.html"]');
+        if (await visitorLink.count() !== 1) throw new Error('Kohnodai visitor guide missing');
+        const afterDatePicker = await page.locator('.facility-guidance').evaluate(element => Boolean(document.querySelector('.date-picker').compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING));
+        if (!afterDatePicker) throw new Error('Kohnodai guidance appears before the schedule controls');
       }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       if (overflow > 1) throw new Error(`Facility guidance overflow ${id}: ${overflow}`);

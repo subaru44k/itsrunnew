@@ -11,14 +11,16 @@
 
 ## 反映範囲
 
-[`facility-guidance.json`](../../itsrunnew/src/data/facility-guidance.json)に日英案内、確認日、月表と施設案内へのリンク、固有title/descriptionを追加した。既存のTrackDetail、router、静的HTML shellが同じJSONを使用するため、新しいroute・専用component・日次HTML更新は追加しない。
+[`facility-guidance.json`](../../itsrunnew/src/data/facility-guidance.json)に日英案内、確認日、施設案内へのリンク、固有title/descriptionを追加した。既存のTrackDetail、router、静的HTML shellが同じJSONを使用するため、新しいroute・専用component・日次HTML更新は追加しない。
 
-日本語titleは「国府台陸上競技場の一般開放・個人利用スケジュール - いつラン」。descriptionと本文にも予定表の読み方、短縮営業・休場日、当日の受付と変更確認をそろえる。日付別の可否・時間は既存のavailabilityを使い、この案内の通常時間から利用可能枠を生成しない。
+日本語titleは「国府台陸上競技場の一般開放・個人利用スケジュール - いつラン」。descriptionは日付から利用時間を確認できることを案内する。画面では予定一覧と日付操作を先に表示し、補足は「個人利用の受付は、当日、体育館1階窓口へ。」の1文と料金・利用案内へのリンクに絞る。予定変更の注意と公式予定へのボタンは既存の共通表示を使用し、重複する説明や通常営業時間の長い列挙を加えない。
+
+FacilityScheduleの任意prop `guidanceAfterSchedule` を国府台だけ有効にし、補足を日付操作・選択日詳細の後に置く。他施設の資格・休場などの重要案内は従来どおり。日付別の可否・時間は既存のavailabilityを使い、この案内から利用可能枠を生成しない。
 
 collectorと確認済みPDFの判定、公開generation、施設数、料金値は変更しない。資料hashの更新・予定改訂は引き続き既存のcollector review経路で扱う。
 
 ## 検証と公開後の評価
 
-既存のroute shell testが日英本文・リンク・固有metadataの初期HTML出力を確認する。施設予定smokeに国府台を追加し、日英PC/スマホで一般開放の説明・短縮営業・問い合わせ・公式予定リンク・runtime title・横幅を確認する。共通/施設変更の検証policyに従い全unit、production build、全feature、mixed統合、all-unknownも実行する。
+既存のroute shell testが日英本文・リンク・固有metadataの初期HTML出力を確認する。施設予定smokeに国府台を追加し、日英PC/スマホで受付の1文・利用案内リンク・日付操作より後の配置・runtime title・横幅を確認する。共通/施設変更の検証policyに従い全unit、production build、全feature、mixed統合、all-unknownも実行する。
 
 検索表示はGoogleの再クロールと検索語によって変わる。公開後は同じquery・device・近い順位帯でCTRとclickを比較し、title/description変更だけで増加を保証しない。Search Consoleの設定変更やindex登録リクエストは行っていない。

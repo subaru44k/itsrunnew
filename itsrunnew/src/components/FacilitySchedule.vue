@@ -6,7 +6,7 @@
       <strong>{{ english ? 'Today' : '今日' }} · {{ dateLabel(today) }}</strong>
       <button type="button" @click="$emit('select', today)">{{ todaySummary }} · {{ english ? 'Details' : '詳細' }}</button>
     </p>
-    <slot name="guidance" />
+    <slot v-if="!guidanceAfterSchedule" name="guidance" />
     <template v-if="summary.known.length">
       <p class="next-use" v-if="summary.next && !loading">
         <strong>{{ english ? 'Next confirmed use' : '次に使える日' }}</strong>
@@ -35,6 +35,7 @@
     <slot name="date-picker" />
     <slot />
     <p v-if="!loading && failures" class="coverage-gap">{{ english ? 'Some dates could not be loaded. Check the official source.' : '一部の日付情報を取得できませんでした。公式情報をご確認ください。' }}</p>
+    <slot v-if="guidanceAfterSchedule" name="guidance" />
   </div>
 </template>
 
@@ -43,7 +44,7 @@ import { computed, onScopeDispose, ref, watch } from 'vue';
 import { availabilityForTrack, localDateKey, type TrackAvailability } from '../model/availability';
 import { availabilityManifest, availabilityManifestStatus, loadAvailabilityDate, loadAvailabilityTrack } from '../model/availability-range';
 import { availabilitySourceTimestamp, compactPeriodSummary, summarizeFacilitySchedule, todayUseSummary } from '../model/facility-schedule';
-const props = defineProps<{ trackId: string; english: boolean; selectedDate: string; detailOpen: boolean; selectedAvailability: TrackAvailability | null; facilityVerifiedAt: string }>();
+const props = defineProps<{ trackId: string; english: boolean; selectedDate: string; detailOpen: boolean; selectedAvailability: TrackAvailability | null; facilityVerifiedAt: string; guidanceAfterSchedule?: boolean }>();
 defineEmits<{ select: [date: string] }>();
 const records = ref<TrackAvailability[]>([]);
 const loading = ref(true);

@@ -1,4 +1,33 @@
 {
+  "ichikawa-kohnodai-athletic-stadium": {
+    "verifiedAt": "2026-11-05",
+    "ja": {
+      "title": "国府台陸上競技場の一般開放・個人利用スケジュール - いつラン",
+      "description": "国府台陸上競技場の個人利用スケジュールと一般開放時間を確認できます。日付を選んで利用時間を調べ、公式の使用予定表や料金・利用案内へ進めます。",
+      "paragraphs": [
+        "個人利用の受付は、当日、体育館1階窓口へ。"
+      ],
+      "links": [
+        {
+          "label": "料金・利用案内",
+          "url": "https://www.city.ichikawa.lg.jp/page/4184.html"
+        }
+      ]
+    },
+    "en": {
+      "title": "Kohnodai Athletic Stadium general opening and individual-use schedule - ItsRun",
+      "description": "Check Kohnodai Athletic Stadium's individual-use schedule and general-opening times. Choose a date, view available periods and open the official schedule or visitor guide.",
+      "paragraphs": [
+        "For individual use, check in at the gymnasium's ground-floor counter on the day."
+      ],
+      "links": [
+        {
+          "label": "Fees and visitor guide",
+          "url": "https://www.city.ichikawa.lg.jp/page/4184.html"
+        }
+      ]
+    }
+  },
   "okudo-sports-center-track": {
     "verifiedAt": "2026-11-02",
     "ja": {

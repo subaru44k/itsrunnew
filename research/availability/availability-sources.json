@@ -451,7 +451,7 @@
       },
       "automation": {
         "feasibility": "difficult",
-        "reason": "公開HTMLで施設・日付を指定できるが、状態を持つPOST操作、利用規約確認、専用枠の空きと当日個人利用の意味結合、天候確認が必要"
+        "reason": "過去調査では公開HTMLから施設・日付を指定できたが、現行規約第14条の予約以外の目的での使用・コンテンツの複製等に関する記載と自動収集・再配信の適合範囲が未確認のため採用保留。状態を持つPOST操作、専用枠と共用利用の意味結合、天候確認も必要。2026-11-05の再調査は niiza-reservation-feasibility-20261105.md を参照"
       },
       "semantics": {
         "canInferAvailable": true,
@@ -460,13 +460,15 @@
         "absenceMeaning": "予約枠の空きだけを無条件の個人利用可と表示しない"
       },
       "reservationSystemInspection": {
+        "observedAt": "2026-08-24",
+        "policyReviewedAt": "2026-11-05",
         "publiclyViewable": true,
         "loginRequiredForViewing": false,
         "loginRequiredForBooking": true,
         "javascriptHeavy": false,
-        "facilityAndDateAddressing": "公開フォームのPOST値で総合運動公園 ShisetsuCode=013 と日付を選択。安定した共有用deep linkは未確認",
+        "facilityAndDateAddressing": "2026-08-24調査では公開フォームのPOST値で総合運動公園 ShisetsuCode=013 と日付を選択。2026-11-05は規約を再確認し、現行フォーム・施設コード・日付指定の再検証は保留。安定した共有用deep linkは未確認",
         "apiObserved": false,
-        "termsNote": "利用規約に自動取得の明示規定は見つからないが、不正アクセスは禁止。実装前に運営者確認、低頻度取得、キャッシュ、識別可能なUser-Agent等を検討",
+        "termsNote": "2026-11-05取得の規約（令和7年10月1日施行）は第14条(1)で施設予約以外の目的での使用、(4)でプログラムまたはコンテンツの修正・複製・改ざん・頒布・販売等を禁止する記載がある。自動取得という単語の有無だけでは採用判断できない。自動収集・再配信への適用範囲を運営者へ確認するまで、予約検索POSTの再調査・collector実装・定期取得は行わない",
         "availabilitySemantics": "空きは専用予約枠の空き。市の共用利用ルールと結合して初めて個人利用候補になる"
       },
       "specialCases": [

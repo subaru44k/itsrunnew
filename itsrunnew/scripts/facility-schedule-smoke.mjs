@@ -175,7 +175,7 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
   // Real facility guidance is independent of daily availability and must remain
   // visible even when a source has no usable dates.
   for (const locale of ['', '/en']) {
-    for (const id of ['okudo-sports-center-track', 'setagaya-general-sports-track', 'kamiyugi-park-athletic-stadium', 'wadabori-park-seibiyama-track', 'niiza-general-sports-park-track', 'oizumi-chuo-park-track']) {
+    for (const id of ['okudo-sports-center-track', 'setagaya-general-sports-track', 'kamiyugi-park-athletic-stadium', 'wadabori-park-seibiyama-track', 'niiza-general-sports-park-track', 'oizumi-chuo-park-track', 'ichikawa-kohnodai-athletic-stadium']) {
       await page.goto(`${baseUrl}${locale}/tracks/${id}`, { waitUntil: 'domcontentloaded' });
       await page.locator('.facility-guidance').waitFor();
       const copy = await page.locator('.facility-guidance').innerText();
@@ -184,6 +184,15 @@ export async function verifyFacilitySchedules(page, baseUrl, tracks) {
       if (id === 'setagaya-general-sports-track' && !copy.includes(locale ? 'residents' : '在住')) throw new Error('Setagaya eligibility missing');
       if (id === 'wadabori-park-seibiyama-track' && !copy.includes('19:00') && !copy.includes('19時')) throw new Error('Seibiyama conflicting hours guidance missing');
       if (id === 'niiza-general-sports-park-track' && !copy.includes('17:00')) throw new Error('Niiza winter hours missing');
+      if (id === 'ichikawa-kohnodai-athletic-stadium') {
+        if (!copy.includes(locale ? 'ground-floor counter' : '体育館1階窓口')) throw new Error('Kohnodai admission guidance missing');
+        if (!(await page.title()).includes(locale ? 'general opening' : '一般開放')) throw new Error('Kohnodai runtime metadata missing');
+        if (await page.locator('.facility-guidance p').count() !== 1) throw new Error('Kohnodai guidance hides the schedule behind long explanations');
+        const visitorLink = page.locator('.facility-guidance a[href="https://www.city.ichikawa.lg.jp/page/4184.html"]');
+        if (await visitorLink.count() !== 1) throw new Error('Kohnodai visitor guide missing');
+        const afterDatePicker = await page.locator('.facility-guidance').evaluate(element => Boolean(document.querySelector('.date-picker').compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING));
+        if (!afterDatePicker) throw new Error('Kohnodai guidance appears before the schedule controls');
+      }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       if (overflow > 1) throw new Error(`Facility guidance overflow ${id}: ${overflow}`);
     }

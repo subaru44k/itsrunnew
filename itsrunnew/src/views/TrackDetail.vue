@@ -25,7 +25,7 @@
 
     <main class="detail-layout">
       <section :class="['availability-panel', availabilityClass]">
-        <FacilitySchedule ref="facilitySchedule" :track-id="track.id" :english="isEnglish" :selected-date="selectedDate" :selected-availability="availability" :facility-verified-at="latestVerifiedAt" :detail-open="detailOpen" @select="chooseDate($event, 'schedule_list')">
+        <FacilitySchedule ref="facilitySchedule" :track-id="track.id" :english="isEnglish" :selected-date="selectedDate" :selected-availability="availability" :facility-verified-at="latestVerifiedAt" :detail-open="detailOpen" :guidance-after-schedule="track.id === 'ichikawa-kohnodai-athletic-stadium'" @select="chooseDate($event, 'schedule_list')">
           <template #guidance>
             <section v-if="facilityGuidance" class="facility-guidance" aria-labelledby="facility-guidance-heading">
               <h3 id="facility-guidance-heading">{{ isEnglish ? 'Before you visit' : '利用前の確認事項' }}</h3>

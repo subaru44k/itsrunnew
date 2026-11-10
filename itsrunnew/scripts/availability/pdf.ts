@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { dirname, join, sep } from 'node:path';
 import { reviewedNerimaPdf, isReviewedNerimaPdf, nerimaGuideUrl, nerimaReviewedGuideHash } from './nerima-reviewed';
 import { reviewedKohnodaiPdf } from './reviewed-kohnodai';
-import { inKamiyugiClosure, kamiyugiClosureUrl, reviewedKamiyugiPdf } from './reviewed-kamiyugi';
+import { inKamiyugiClosure, kamiyugiClosureUrl, kamiyugiNovemberClosureUrl, reviewedKamiyugiPdf } from './reviewed-kamiyugi';
 import { reviewedWadaboriPdf } from './reviewed-wadabori';
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { AvailabilityPeriod, AvailabilityStatus, UnknownReason } from '../../src/model/availability';
@@ -762,7 +762,7 @@ async function discoverPdf(config: PdfSourceConfig, date: string, client: PdfSou
       .find(value => compact(value.replace(/<[^>]+>/g, ' ')).includes('一般開放状況'));
     const url = paragraph ? htmlLinks(paragraph, landing.finalUrl)[0]?.url : undefined;
     // The explicit closure in this reviewed 2026 PDF extends into 2027.
-    return url?.includes(`/${year}/`) || (url === kamiyugiClosureUrl && inKamiyugiClosure(date)) ? url : undefined;
+    return url?.includes(`/${year}/`) || ([kamiyugiClosureUrl, kamiyugiNovemberClosureUrl].includes(url ?? '') && inKamiyugiClosure(date)) ? url : undefined;
   }
   if (config.trackId === 'kanagawa-prefectural-sports-center-track') {
     return links.find(link => text(link).includes(`予定表(令和${reiwaYear(year)}年${month}月分)`))?.url;

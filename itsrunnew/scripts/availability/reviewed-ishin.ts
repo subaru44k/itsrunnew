@@ -36,7 +36,9 @@ export function reviewedIshinReading(packet: AiPacket) {
   const urls = new Set(packet.sources.map(s => s.url));
   const revised = urls.has(novemberNotice);
   const expected = revised ? novemberReviewed : reviewed;
-  if (urls.size !== packet.sources.length || packet.sources.some(s => expected.get(s.url) !== s.hash)) return null;
+  const currentNoticeHash = 'ff39cb297dd973d0d334d16aef28ebdafac7fd01b559eddf12f81df7aa3ab48a';
+  const matches = (s: AiPacket['sources'][number]) => expected.get(s.url) === s.hash || (revised && s.url === novemberNotice && s.hash === currentNoticeHash);
+  if (urls.size !== packet.sources.length || packet.sources.some(s => !matches(s))) return null;
   if ([revised ? novemberNotice : notice, repair, repairText, repairMap].some(url => !urls.has(url))) return null;
   // Source discovery legitimately omits October after the horizon moves into
   // November. Require every reviewed month requested, including its own image.

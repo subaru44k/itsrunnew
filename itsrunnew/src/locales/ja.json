@@ -18,8 +18,8 @@
     "komazawa": "駒沢オリンピック公園陸上競技場",
     "kanagawa": "神奈川県の競技場",
     "todoroki": "等々力陸上競技場",
-    "find": "トラック検索",
-    "tracks": "近くのトラックを探す",
+    "find": "練習場所",
+    "tracks": "近くの練習場所を探す",
     "laptime": "ラップタイム",
     "marathon": "マラソン",
     "changelang": "View English Site",
@@ -93,5 +93,4 @@
     "from_3hourshalf": "3時間半〜5時間",
     "from_5hours": "5時間〜6時間半"
   }
-
 }

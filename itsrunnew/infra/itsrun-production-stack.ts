@@ -80,7 +80,7 @@ function handler(event) {
     }
     return request;
   }
-  if (/^\\/(en\\/)?tracks\\/[a-z0-9-]+\\/?$/.test(request.uri)) {
+  if (/^\\/(en\\/)?(tracks|courses)\\/[a-z0-9-]+\\/?$/.test(request.uri)) {
     request.uri = request.uri.replace(/\\\/$/, '') + '/index.html';
     return request;
   }

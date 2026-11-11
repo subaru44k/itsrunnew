@@ -76,6 +76,7 @@
           <span class="alternative-distance">{{ formatDistance(item.distance) }}</span>
         </CanonicalLink>
         <p class="related-note">{{ isEnglish ? '“Needs confirmation” is not the same as unavailable. Check the official information before visiting.' : '「要確認」は利用不可ではありません。訪問前に公式情報をご確認ください。' }}</p>
+        <NearbyCourses :origin="track.location" :english="isEnglish" :date="selectedDate" />
       </details>
 
       <div class="detail-content">
@@ -170,6 +171,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import legacyFacilityGuides from '../data/legacy-facility-guides.json';
 import guidance from '../data/facility-guidance.json';
+import NearbyCourses from '../components/NearbyCourses.vue';
 import FieldReports from '../components/FieldReports.vue';
 import FacilitySchedule from '../components/FacilitySchedule.vue';
 import CanonicalLink from '../components/CanonicalLink.vue';

@@ -4,6 +4,7 @@ const MEASUREMENT_ID = 'G-YNLS7KQXYW';
 
 export const productEventNames = [
   'date_select',
+  'place_filter_change',
   'facility_select',
   'facility_detail_view',
   'view_on_map_click',

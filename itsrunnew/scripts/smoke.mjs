@@ -1,3 +1,4 @@
+import { checkRunningCourses } from './running-courses-smoke.mjs';
 import { selectViewports } from './test-viewports.mjs';
 import { chromium } from 'playwright-core';
 import { readFileSync } from 'node:fs';
@@ -15,6 +16,7 @@ const requests = [];
 const runtimeErrors = [];
 const adPattern = /googlesyndication|doubleclick|googletagmanager|google-analytics|googleadservices/i;
 const availabilityManifest = JSON.parse(readFileSync(new URL('../src/data/availability/manifest.json', import.meta.url), 'utf8'));
+const courseDataset = JSON.parse(readFileSync(new URL('../src/data/running-courses.json', import.meta.url), 'utf8'));
 const trackDataset = JSON.parse(readFileSync(new URL('../src/data/tracks.json', import.meta.url), 'utf8'));
 const datasetForDate = date => JSON.parse(readFileSync(new URL(`../src/data/availability/${date}.json`, import.meta.url), 'utf8'));
 const availabilityStatuses = ['available', 'partially_available', 'unknown', 'unavailable'];
@@ -163,7 +165,7 @@ try {
     const analyticsRequestsBeforeConsent = requests.filter(url => url.includes('googletagmanager.com/gtag/js')).length;
 
     await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '近くで走れる練習場所を探す', exact: true }).waitFor();
     const odaDiscoveryHref = await page.locator('[data-oda-discovery-link], .oda-discovery-link a').getAttribute('href');
     if (odaDiscoveryHref !== `/tracks/${odaTrack.id}`) throw new Error('Japanese home Oda discovery link is not canonical');
     if (new URL(page.url()).searchParams.has('date')) throw new Error('Home without a date automatically added one');
@@ -206,7 +208,7 @@ try {
     await locationPage.context().setGeolocation({ latitude: 35.68124, longitude: 139.76712 });
     await locationPage.context().grantPermissions(['geolocation'], { origin: new URL(baseUrl).origin });
     await locationPage.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
-    await locationPage.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    await locationPage.getByRole('heading', { name: '近くで走れる練習場所を探す', exact: true }).waitFor();
     await locationPage.getByRole('dialog', { name: 'アクセス解析の設定' }).waitFor();
     await locationPage.getByRole('button', { name: '同意しない', exact: true }).click();
     await locationPage.locator('#track-map .track-marker, #track-map .track-cluster').first().waitFor();
@@ -323,7 +325,7 @@ try {
       ['/en/yota-mashiko/index', '増子陽太選手の記録集'],
       ['/haruki-niizuma/index', '新妻遼己選手の記録集'],
       ['/en/haruki-niizuma/index', '新妻遼己選手の記録集'],
-      ['/en/', 'Find a track near you'],
+      ['/en/', 'Find a training place near you'],
       ['/about', 'いつランについて'],
       ['/tracks/guide', 'トラック検索の使い方'],
       ['/privacy', 'プライバシーポリシー'],
@@ -346,12 +348,12 @@ try {
     if (await page.locator('.date-controls input').inputValue() !== today) throw new Error('/tracks without a date did not default to today');
     if (new URL(page.url()).searchParams.has('date')) throw new Error('/tracks without a date automatically added one');
     if (new URL(page.url()).pathname !== '/') throw new Error('/tracks did not canonicalize to the home route');
-    await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '近くで走れる練習場所を探す', exact: true }).waitFor();
     await page.getByText('公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。', { exact: true }).waitFor();
-    if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== '個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン') throw new Error('Track Search OGP title did not update');
+    if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== '陸上競技場・周回コース検索｜近くの練習場所を探す - いつラン') throw new Error('Track Search OGP title did not update');
     await page.locator('#track-map .track-cluster, #track-map .track-marker').first().waitFor();
     const mapFacilityCount = () => page.locator('#track-map').evaluate(element => [...element.querySelectorAll('.track-marker')].length + [...element.querySelectorAll('.track-cluster')].reduce((sum, cluster) => sum + Number(cluster.textContent), 0));
-    if (await mapFacilityCount() !== todayCounts.candidates) throw new Error('Clustered map did not represent every candidate facility');
+    if (await mapFacilityCount() !== todayCounts.candidates + courseDataset.length) throw new Error('Clustered map did not represent every candidate facility');
     for (let attempt = 0; attempt < 4 && await page.locator('#track-map .track-marker').count() === 0; attempt += 1) {
       const previousZoom = Number(await page.locator('#track-map').getAttribute('data-zoom'));
       await page.locator('#track-map .track-cluster-shell').first().dispatchEvent('click');
@@ -371,7 +373,7 @@ try {
     if (await page.locator('.facility-row .availability--unavailable').count() !== 0) throw new Error('Candidate filter should hide explicitly unavailable facilities');
 
     await page.getByLabel('本日利用不可の施設も表示').check();
-    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length);
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length + courseDataset.length);
     // Toggling unavailable facilities can add rows beyond a prefecture's previous
     // pagination limit, so expand the newly visible rows before counting badges or selecting Toda.
     await expandAllFacilityRows(page);
@@ -384,7 +386,7 @@ try {
     await page.getByRole('button', { name: '詳細を閉じる', exact: true }).click();
 
     await page.getByLabel('本日利用不可の施設も表示').uncheck();
-    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, todayCounts.candidates);
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, todayCounts.candidates + courseDataset.length);
     await expandAllFacilityRows(page);
     await assertRenderedStatusCounts(page, { ...todayCounts, unavailable: 0 }, 'Today candidate filter after unavailable toggle');
     if (await page.locator('.facility-row .availability--unknown').count() !== todayCounts.unknown) throw new Error('Unknown facilities disappeared when unavailable facilities were hidden');
@@ -393,7 +395,7 @@ try {
     // Re-enable the full list after the candidate assertions: Toda may be unavailable
     // for the selected date and therefore absent from the default candidate rows.
     await page.getByLabel('本日利用不可の施設も表示').check();
-    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length);
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, trackDataset.length + courseDataset.length);
     await expandAllFacilityRows(page);
     await assertRenderedStatusCounts(page, todayCounts, 'Today all-facility filter before Toda selection');
 
@@ -461,7 +463,7 @@ try {
 
     await page.getByRole('button', { name: '明日', exact: true }).click();
     await waitForSelectedDate(page, tomorrow);
-    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, tomorrowCounts.candidates);
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, tomorrowCounts.candidates + courseDataset.length);
     await expandAllFacilityRows(page);
     await assertRenderedStatusCounts(page, { ...tomorrowCounts, unavailable: 0 }, 'Tomorrow candidate filter');
     if (hasDistinctTomorrow && tomorrowCounts.available > 0) await page.getByText('明日利用可能', { exact: true }).first().waitFor();
@@ -493,9 +495,9 @@ try {
     await waitForSelectedDate(page, today);
 
     await page.goto(`${baseUrl}/en/tracks?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
+    await page.getByRole('heading', { name: 'Find a training place near you', exact: true }).waitFor();
     await page.getByText('Based on official sources. Schedules can change, so check before visiting. “Needs confirmation” does not mean unavailable.', { exact: true }).waitFor();
-    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, tomorrowCounts.candidates);
+    await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, tomorrowCounts.candidates + courseDataset.length);
     await expandAllFacilityRows(page, true);
     await assertRenderedStatusCounts(page, { ...tomorrowCounts, unavailable: 0 }, 'English tomorrow candidate filter');
     if (hasDistinctTomorrow && tomorrowCounts.available > 0) await page.getByText('Tomorrow available', { exact: true }).first().waitFor();
@@ -503,7 +505,7 @@ try {
 
     await page.goto(`${baseUrl}/en/?date=${tomorrow}`, { waitUntil: 'domcontentloaded' });
     await waitForSelectedDate(page, tomorrow);
-    await page.getByRole('heading', { name: 'Find a track near you', exact: true }).waitFor();
+    await page.getByRole('heading', { name: 'Find a training place near you', exact: true }).waitFor();
     const englishOdaDiscoveryHref = await page.locator('[data-oda-discovery-link], .oda-discovery-link a').getAttribute('href');
     if (englishOdaDiscoveryHref !== `/en/tracks/${odaTrack.id}`) throw new Error('English home Oda discovery link is not canonical');
 
@@ -626,8 +628,8 @@ try {
       await page.waitForFunction(expected => {
         const count = Number.parseInt(document.querySelector('.facility-heading strong')?.textContent ?? '', 10);
         return count === expected && !document.querySelector('[aria-label="availability loading"]');
-      }, tomorrowCounts.candidates);
-      const detailLink = page.locator('.facility-row a').first();
+      }, tomorrowCounts.candidates + courseDataset.length);
+      const detailLink = page.locator('.facility-row').filter({ has: page.locator('.availability-badge') }).locator('a').first();
       await detailLink.waitFor();
       const href = await detailLink.getAttribute('href');
       if (!href?.startsWith(`${prefix}/tracks/`) || href.includes('?')) throw new Error('Search result href is not canonical');
@@ -653,8 +655,9 @@ try {
       if (await page.locator('.date-controls input').inputValue() !== tomorrow) throw new Error('Breadcrumb lost selected date');
     }
 
+    await checkRunningCourses(page, baseUrl, today);
     await page.goto(`${baseUrl}/manage`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: '近くで走れるトラックを探す', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '近くで走れる練習場所を探す', exact: true }).waitFor();
     const notFoundResponse = await page.goto(`${baseUrl}/not-a-real-page`, { waitUntil: 'domcontentloaded' });
     if (expectEdgeRouting && notFoundResponse?.status() !== 404) throw new Error(`Unknown route returned HTTP ${notFoundResponse?.status()} instead of 404`);
     await page.getByRole('heading', { name: 'ページが見つかりません', exact: true }).waitFor();

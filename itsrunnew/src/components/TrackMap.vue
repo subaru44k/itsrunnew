@@ -1,6 +1,6 @@
 <template>
   <div class="track-map-container">
-    <div ref="element" id="track-map" class="track-map" data-engine="leaflet" :data-zoom="zoom" :data-facility-count="state.facilities.length" :aria-label="state.english ? 'Track map' : 'トラック地図'" />
+    <div ref="element" id="track-map" class="track-map" data-engine="leaflet" :data-zoom="zoom" :data-facility-count="state.facilities.length" :aria-label="state.english ? 'Training places map' : '練習場所の地図'" />
     <div v-if="loading || failed" class="map-message" role="status">
       <span>{{ loading ? (state.english ? 'Loading map…' : '地図を読み込んでいます…') : (state.english ? 'The map could not be fully loaded. You can still use the facility list and date search.' : '地図を正常に読み込めませんでした。施設一覧・日付検索は引き続き利用できます。') }}</span>
       <button v-if="failed" type="button" @click="initialize">{{ state.english ? 'Retry map' : '地図を再読み込み' }}</button>
@@ -57,4 +57,5 @@ defineExpose({
 .track-map .current-location-shell { z-index: 3; pointer-events: none; }
 .is-selecting .map-marker-wrapper, .is-selecting .track-marker-shell, .is-selecting .track-cluster-shell, .is-selecting .current-location-shell { pointer-events: none; }
 @media (max-width: 799px) { .track-map { height: 52vh; min-height: 360px; } }
+.track-marker--course { background: #7952a0 !important; border-radius: 3px !important; transform: rotate(45deg); }
 </style>

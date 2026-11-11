@@ -43,7 +43,7 @@ export function distanceKm(a: { latitude: number; longitude: number }, b: { lati
   return earthRadiusKm * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
 }
 
-export function directionsUrl(track: TrackFacility, origin?: { latitude: number; longitude: number } | null) {
+export function directionsUrl(track: Pick<TrackFacility, 'location'>, origin?: { latitude: number; longitude: number } | null) {
   const params = new URLSearchParams({
     api: '1',
     destination: `${track.location.latitude},${track.location.longitude}`,

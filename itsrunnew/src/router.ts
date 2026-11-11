@@ -6,6 +6,8 @@ import About from './views/About.vue';
 import Privacy from './views/Privacy.vue';
 import NotFound from './views/NotFound.vue';
 import TrackDetail from './views/TrackDetail.vue';
+import CourseDetail from './views/CourseDetail.vue';
+import { courseById } from './model/running-courses';
 import TrackGuide from './views/TrackGuide.vue';
 import { ODA_TRACK_ID, trackById } from './model/tracks';
 import { isPublicProductionRuntime, PUBLIC_SITE_ORIGIN } from './services/deployment';
@@ -43,6 +45,8 @@ for (const page of pages) {
   );
 }
 routes.push(
+  { path: '/courses/:courseId', name: 'course-detail-ja', component: CourseDetail, meta: { locale: 'ja' } },
+  { path: '/en/courses/:courseId', name: 'course-detail-en', component: CourseDetail, meta: { locale: 'en' } },
   { path: '/tracks/:trackId', name: 'track-detail-ja', component: TrackDetail, meta: { locale: 'ja' } },
   { path: '/en/tracks/:trackId', name: 'track-detail-en', component: TrackDetail, meta: { locale: 'en' } },
   { path: '/oda-field', redirect: to => ({ path: `/tracks/${ODA_TRACK_ID}`, query: to.query, hash: to.hash }) },
@@ -89,21 +93,27 @@ router.beforeEach((to) => {
   i18n.global.locale.value = locale;
   useAppStore().setLocale(locale);
   document.documentElement.lang = locale;
+  const detailCourse = courseById(to.params.courseId);
+  if (to.params.courseId && !detailCourse) return locale === 'en' ? '/en/' : '/';
   const detailTrack = trackById(to.params.trackId);
   if (to.params.trackId && !detailTrack) return locale === 'en' ? '/en/' : '/';
   const isOda = detailTrack?.id === ODA_TRACK_ID;
   const guidance = facilityGuidance[detailTrack?.id as keyof typeof facilityGuidance]?.[locale];
-  const title = detailTrack
+  const title = detailCourse
+    ? (locale === 'en' ? `${detailCourse.name.en} | Running loop - ItsRun` : `${detailCourse.name.ja}の距離・路面・利用条件 - いつラン`)
+    : detailTrack
     ? (guidance && 'title' in guidance) ? guidance.title : isOda
       ? (locale === 'en' ? 'Oda Field (Yoyogi Park Athletic Track) closure and nearby tracks - ItsRun' : '織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン')
       : (locale === 'en' ? `${detailTrack.name.en} individual-use schedule and confirmation - ItsRun` : `${detailTrack.name.ja}の個人利用スケジュール・確認方法 - いつラン`)
     : String(to.meta.title ?? 'いつラン');
-  const description = detailTrack
+  const description = detailCourse
+    ? (locale === 'en' ? `Compare ${detailCourse.name.en}'s lap distance, surface and usual conditions. View the official map and nearby tracks.` : `${detailCourse.name.ja}の一周距離・路面・通常の利用条件を確認できます。公式コース図や近くの陸上トラックも探せます。`)
+    : detailTrack
     ? (guidance && 'description' in guidance) ? guidance.description : isOda
       ? (locale === 'en' ? 'Oda Field is scheduled to remain closed through November 30, 2026. Check the selected date and compare nearby tracks before your workout.' : '織田フィールド（代々木公園陸上競技場）は2026年11月30日まで利用停止予定です。指定日の状況と周辺の代替トラックを確認できます。')
       : (locale === 'en' ? `Check ${detailTrack.name.en}'s confirmed individual-use dates, available periods and how to confirm unpublished schedules. Compare nearby tracks for your chosen date.` : `${detailTrack.name.ja}の個人利用について、確認済みの予定・利用可能時間と、予定が分からない場合の確認方法を案内します。指定日の利用状況や周辺施設も確認できます。`)
     : String(to.meta.description ?? 'いつラン');
-  const canonicalPath = detailTrack ? `${locale === 'en' ? '/en' : ''}/tracks/${detailTrack.id}` : String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
+  const canonicalPath = detailCourse ? `${locale === 'en' ? '/en' : ''}/courses/${detailCourse.id}` : detailTrack ? `${locale === 'en' ? '/en' : ''}/tracks/${detailTrack.id}` : String(to.meta.canonicalPath ?? (locale === 'en' ? '/en/' : '/'));
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
   const publicProduction = isPublicProductionRuntime();
   document.title = title;
@@ -118,24 +128,25 @@ router.beforeEach((to) => {
   document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
   document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', SOCIAL_IMAGE);
   document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonicalUrl);
-  const alternateJa = detailTrack ? `/tracks/${detailTrack.id}` : String(to.meta.alternateJa ?? '/');
-  const alternateEn = detailTrack ? `/en/tracks/${detailTrack.id}` : String(to.meta.alternateEn ?? '/en/');
+  const alternateJa = detailCourse ? `/courses/${detailCourse.id}` : detailTrack ? `/tracks/${detailTrack.id}` : String(to.meta.alternateJa ?? '/');
+  const alternateEn = detailCourse ? `/en/courses/${detailCourse.id}` : detailTrack ? `/en/tracks/${detailTrack.id}` : String(to.meta.alternateEn ?? '/en/');
   document.querySelector('link[rel="alternate"][hreflang="ja"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateJa}`);
   document.querySelector('link[rel="alternate"][hreflang="en"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateEn}`);
   document.querySelector('link[rel="alternate"][hreflang="x-default"]')?.setAttribute('href', `${SITE_ORIGIN}${alternateJa}`);
   const structuredData = document.getElementById('track-structured-data') as HTMLScriptElement | null;
-  if (detailTrack) {
+  const detailPlace = detailCourse ?? detailTrack;
+  if (detailPlace) {
     const script = structuredData ?? Object.assign(document.createElement('script'), { id: 'track-structured-data', type: 'application/ld+json' });
     if (!structuredData) document.head.appendChild(script);
     script.textContent = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'SportsActivityLocation',
-      name: detailTrack.name[locale],
+      name: detailPlace.name[locale],
       description,
-      address: detailTrack.location.address,
-      geo: { '@type': 'GeoCoordinates', latitude: detailTrack.location.latitude, longitude: detailTrack.location.longitude },
+      address: detailPlace.location.address,
+      geo: { '@type': 'GeoCoordinates', latitude: detailPlace.location.latitude, longitude: detailPlace.location.longitude },
       url: canonicalUrl,
-      sameAs: detailTrack.urls.official,
+      sameAs: detailPlace.urls.official,
     });
   } else {
     structuredData?.remove();

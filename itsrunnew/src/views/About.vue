@@ -5,7 +5,7 @@
       <p class="lead">ItsRun is an independent site with practical tools and reference information for runners.</p>
       <h2>What you can use</h2>
       <ul>
-        <li><strong>Track Finder:</strong> compare {{ tracks.length }} verified facilities by date, location, availability, and track conditions.</li>
+        <li><strong>Training places:</strong> compare {{ tracks.length }} athletic tracks and {{ runningCourses.length }} running loops by location and lap distance. Track schedules and usual course conditions are shown separately.</li>
         <li><strong>Venue guides:</strong> reference pages for Oda Field and other major athletics venues.</li>
         <li><strong>Marathon pace table:</strong> calculate target splits for a marathon.</li>
         <li><strong>Records:</strong> browse the site’s athletics results archive.</li>
@@ -20,7 +20,7 @@
       <p class="lead">いつランは、ランナーの練習や観戦に役立つツールと情報を提供する独立したWebサイトです。</p>
       <h2>主なコンテンツ</h2>
       <ul>
-        <li><strong>トラック検索：</strong>公式情報を確認した{{ tracks.length }}施設を、日付、場所、利用状況、トラック条件から比較できます。</li>
+        <li><strong>練習場所検索：</strong>公式情報を確認した陸上トラック{{ tracks.length }}施設と周回コース{{ runningCourses.length }}施設を、場所・一周距離から比較できます。トラックは個人利用予定、周回コースは通常の利用条件を掲載しています。</li>
         <li><strong>競技場情報：</strong>織田フィールドなど、主要な陸上競技場の案内を掲載しています。</li>
         <li><strong>マラソンペース表：</strong>目標タイムに応じたラップタイムを計算できます。</li>
         <li><strong>記録集：</strong>陸上競技の大会結果をまとめています。</li>
@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { runningCourses } from '../model/running-courses';
 import { tracks } from '../model/tracks';
 const { locale } = useI18n();
 const isEnglish = computed(() => locale.value === 'en');

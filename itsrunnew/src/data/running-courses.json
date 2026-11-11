@@ -1,0 +1,345 @@
+[
+  {
+    "kind": "course",
+    "id": "wako-jurin-jogging",
+    "name": {
+      "ja": "和光樹林公園 ジョギングコース",
+      "en": "Wako Jurin Park jogging courses"
+    },
+    "location": {
+      "latitude": 35.7774,
+      "longitude": 139.59868,
+      "address": "埼玉県和光市広沢三番地内"
+    },
+    "lapMeters": [
+      800,
+      1000
+    ],
+    "approximate": false,
+    "surface": "rubber-chip",
+    "distanceMarkersMeters": null,
+    "crossings": null,
+    "hours": {
+      "ja": "終日開放",
+      "en": "Park open around the clock"
+    },
+    "rules": [
+      {
+        "ja": "スピード走・集団走・スパイク不可",
+        "en": "No speed running, group running or spikes."
+      }
+    ],
+    "urls": {
+      "official": "https://www.seibu-green.co.jp/wako-jurin/",
+      "map": "https://www.seibu-green.co.jp/wako-jurin/facility.html"
+    },
+    "sources": [
+      {
+        "url": "https://www.seibu-green.co.jp/wako-jurin/facility.html",
+        "label": {
+          "ja": "コース・園内図",
+          "en": "Courses and park map"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "lapMeters",
+          "urls.map"
+        ]
+      },
+      {
+        "url": "https://www.seibu-green.co.jp/wako-jurin/about.html",
+        "label": {
+          "ja": "公園の利用ルール",
+          "en": "Park rules"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "name",
+          "location.address",
+          "surface",
+          "hours",
+          "rules"
+        ]
+      },
+      {
+        "url": "https://www.seibu-green.co.jp/wako-jurin/access.html",
+        "label": {
+          "ja": "交通アクセス・地図",
+          "en": "Access and location"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "location"
+        ]
+      }
+    ]
+  },
+  {
+    "kind": "course",
+    "id": "komazawa-jogging",
+    "name": {
+      "ja": "駒沢オリンピック公園 ジョギングコース",
+      "en": "Komazawa Olympic Park jogging course"
+    },
+    "location": {
+      "latitude": 35.625582,
+      "longitude": 139.663601,
+      "address": "東京都世田谷区駒沢公園1番1号"
+    },
+    "lapMeters": [
+      2140
+    ],
+    "approximate": true,
+    "surface": null,
+    "distanceMarkersMeters": 100,
+    "crossings": {
+      "ja": "横断歩道・平面交差あり",
+      "en": "Crosswalks and at-grade crossings"
+    },
+    "hours": null,
+    "rules": [
+      {
+        "ja": "左回り一方通行・平均幅2m",
+        "en": "Counterclockwise only; average width 2 m."
+      }
+    ],
+    "urls": {
+      "official": "https://www.tef.or.jp/kopgp/park/",
+      "map": "https://www.tef.or.jp/kopgp/park/"
+    },
+    "sources": [
+      {
+        "url": "https://www.tef.or.jp/kopgp/park/",
+        "label": {
+          "ja": "ジョギングコースの案内・園内図",
+          "en": "Jogging course and park map"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "name",
+          "lapMeters",
+          "distanceMarkersMeters",
+          "crossings",
+          "rules",
+          "urls.map"
+        ]
+      },
+      {
+        "url": "https://www.tef.or.jp/kopgp/access.html",
+        "label": {
+          "ja": "所在地・アクセス",
+          "en": "Location and access"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "location"
+        ]
+      }
+    ]
+  },
+  {
+    "kind": "course",
+    "id": "tokorozawa-koku-jogging",
+    "name": {
+      "ja": "所沢航空記念公園 ジョギングコース",
+      "en": "Tokorozawa Aviation Memorial Park jogging course"
+    },
+    "location": {
+      "latitude": 35.797983,
+      "longitude": 139.47372,
+      "address": "埼玉県所沢市並木1-13"
+    },
+    "lapMeters": [
+      1950
+    ],
+    "approximate": false,
+    "surface": null,
+    "distanceMarkersMeters": null,
+    "crossings": null,
+    "hours": null,
+    "rules": [
+      {
+        "ja": "ジョギング・ウォーキングコースは自転車通行禁止",
+        "en": "Bicycles are not allowed on the jogging/walking course."
+      }
+    ],
+    "urls": {
+      "official": "https://www.parks.or.jp/tokorozawa-kokuu/",
+      "map": "https://www.parks.or.jp/tokorozawa-kokuu/guide/009/009146.html"
+    },
+    "sources": [
+      {
+        "url": "https://www.parks.or.jp/tokorozawa-kokuu/guide/009/009146.html",
+        "label": {
+          "ja": "コースの案内・コース図",
+          "en": "Course information and map"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "name",
+          "lapMeters",
+          "location.address",
+          "urls.map"
+        ]
+      },
+      {
+        "url": "https://www.parks.or.jp/tokorozawa-kokuu/guide/001/001581.html",
+        "label": {
+          "ja": "交通アクセス・利用条件",
+          "en": "Access and use conditions"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "location",
+          "rules"
+        ]
+      }
+    ]
+  },
+  {
+    "kind": "course",
+    "id": "koshigaya-park-jogging",
+    "name": {
+      "ja": "越谷公園（旧・県民健康福祉村）ジョギングコース",
+      "en": "Koshigaya Park (former Health and Welfare Village) jogging course"
+    },
+    "location": {
+      "latitude": 35.884152,
+      "longitude": 139.758338,
+      "address": "埼玉県越谷市北後谷82"
+    },
+    "lapMeters": [
+      1830
+    ],
+    "approximate": false,
+    "surface": "special-paving",
+    "distanceMarkersMeters": null,
+    "crossings": null,
+    "hours": {
+      "ja": "公園部分は常時開放",
+      "en": "Park area open around the clock"
+    },
+    "rules": [
+      {
+        "ja": "自転車は別のサイクリングコースへ。20名以上は事前申請・協議が必要（土日祝の団体利用は原則不可）",
+        "en": "Bicycles use the separate cycle course. Groups of 20 or more require advance application and consultation; generally no group use on weekends or holidays."
+      }
+    ],
+    "urls": {
+      "official": "https://www.parks.or.jp/koshigaya/",
+      "map": "https://www.parks.or.jp/koshigaya/guide/001/001182.html"
+    },
+    "sources": [
+      {
+        "url": "https://www.parks.or.jp/koshigaya/",
+        "label": {
+          "ja": "現在の公園名・開園案内",
+          "en": "Current park name and opening information"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "name",
+          "hours",
+          "location.address"
+        ]
+      },
+      {
+        "url": "https://www.parks.or.jp/koshigaya/guide/001/001182.html",
+        "label": {
+          "ja": "コースの仕様・利用条件",
+          "en": "Course specifications and use conditions"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "lapMeters",
+          "surface",
+          "rules"
+        ]
+      },
+      {
+        "url": "https://www.parks.or.jp/koshigaya/guide/001/001183.html",
+        "label": {
+          "ja": "交通アクセス・地図",
+          "en": "Access and location"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "location"
+        ]
+      }
+    ]
+  },
+  {
+    "kind": "course",
+    "id": "misato-park-jogging",
+    "name": {
+      "ja": "みさと公園 ジョギングコース",
+      "en": "Misato Park jogging course"
+    },
+    "location": {
+      "latitude": 35.785908,
+      "longitude": 139.87328,
+      "address": "埼玉県三郷市高州3丁目362"
+    },
+    "lapMeters": [
+      1550
+    ],
+    "approximate": false,
+    "surface": null,
+    "distanceMarkersMeters": null,
+    "crossings": null,
+    "hours": {
+      "ja": "終日開放",
+      "en": "Park open around the clock"
+    },
+    "rules": [
+      {
+        "ja": "スパイク不可",
+        "en": "No spikes."
+      }
+    ],
+    "urls": {
+      "official": "https://www.seibu-la.co.jp/misato-yoshikawa/about/misato.html",
+      "map": "https://www.seibu-la.co.jp/misato-yoshikawa/facility/misato.html"
+    },
+    "sources": [
+      {
+        "url": "https://www.seibu-la.co.jp/misato-yoshikawa/facility/misato.html",
+        "label": {
+          "ja": "コース・園内図",
+          "en": "Course and park map"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "lapMeters",
+          "urls.map"
+        ]
+      },
+      {
+        "url": "https://www.seibu-la.co.jp/misato-yoshikawa/about/misato.html",
+        "label": {
+          "ja": "公園概要・利用ルール",
+          "en": "Park information and rules"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "name",
+          "location.address",
+          "hours",
+          "rules"
+        ]
+      },
+      {
+        "url": "https://www.seibu-la.co.jp/misato-yoshikawa/access/misato.html",
+        "label": {
+          "ja": "交通アクセス・地図",
+          "en": "Access and location"
+        },
+        "verifiedAt": "2026-11-11",
+        "fields": [
+          "location"
+        ]
+      }
+    ]
+  }
+]

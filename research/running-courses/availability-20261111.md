@@ -45,7 +45,7 @@
 
 ## 検証
 
-- Production設定の`npm run build`、全unitの最終結果はコミット時の作業メモに記録する。テンプレート除外/別公園/告知の一覧落ちの境界を含むcollector21件、deployment6件、release artifact/public readiness8件が成功。
+- Production設定の`npm run build`、全unit71ファイル430件が成功（`npm test -- --maxWorkers=2 --testTimeout=60000`）。テンプレート除外/別公園/告知の一覧落ちの境界を含むcollector21件、deployment6件、release artifact/public readiness8件が成功。
 - 5施設の公式live collectionを実行し、公開用snapshotのschema・configHash・generation・期限を`validate:courses`で検証。
 - 日英PC/スマホの全feature（pace/archives/reports/schedule）、mixed統合smoke、全unknown安全性が成功。新版のcourse smokeも、4status・不可filter・距離filter削除・期限切れ/取得失敗を検証した。
 - 最初のfeature実行はfield reports APIを無効にしたbuildを誤って再利用したため、既存レポートの空表示assertで失敗。テスト用API設定でbuildし直した再検証は成功。外部への実投稿はしていない。

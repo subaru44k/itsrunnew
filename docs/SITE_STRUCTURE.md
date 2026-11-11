@@ -71,6 +71,7 @@ itsrunnew/
 │   ├── views/                 ルート単位のページ（TrackSearch / TrackDetail / CourseDetailを含む）
 │   ├── components/
 │   │   ├── CanonicalLink.vue 通常リンクの正規hrefとクリック時の検索条件引継ぎ
+│   │   ├── LinkIcon.vue      外部リンク・内部遷移の自作inline SVG（文字色を継承）
 │   │   ├── AdsDisplay.vue     共通広告serviceの準備後に表示するAdSenseスロット
 │   │   ├── PrivacyConsent.vue GA4へのアクセス解析同意
 │   │   ├── FacilitySchedule.vue 品質別の個人利用予定・判断カード・統合した日付詳細slot
@@ -189,6 +190,8 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 - 本文先頭に、初回だけ表示されて本文へ重ならないアクセス解析同意バナー。
 - `router-view`で描画される本文。
 - 要望送付先と、2019年からブラウザの現在年までを示す著作権表示を含む2段構成のフッター。
+
+リンク末尾の装飾は`components/LinkIcon.vue`にまとめます。ItsRun用に自作した幾何学的なinline SVGで、外部リンクは別ウィンドウ型（`external`）、内部遷移は右向きシェブロン（`next`）です。文字の矢印や外部リンク用アイコンフォントをこれらの導線には使いません。`currentColor`でボタン/リンクの文字色を継承し、`aria-hidden="true"` / `focusable="false"`で装飾を読み上げ・Tab順へ追加しません。配信画像・外部ライブラリ・フォントへの追加依存はありません。検索の公式導線/詳細リンク、施設詳細の公式案内、コース詳細/制限の出典、施設・ペース表間の内部導線が共通利用します。リンク先・別タブ・選択日/基準地点の引継ぎは従来のままです。週送りなど既存の操作アイコンは引き続きVuetify MDIを使います。
 
 旧Vuetifyサイトとの見た目を維持するため、`src/styles.css`が文字サイズ、行間、段落余白、コンテナ幅、余白ユーティリティ、フッター寸法を補正しています。通常のVuetify 4既定値へ無条件に戻さないでください。
 

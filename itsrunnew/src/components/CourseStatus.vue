@@ -3,10 +3,11 @@
     <strong>{{ label }}<span> · {{ targetDate }}</span></strong>
     <p>{{ result.reason[language] }}</p>
     <small v-if="result.checkedAt">{{ english ? 'Official information checked' : '公式情報の確認' }}: {{ checked }}</small>
-    <a v-if="result.sourceUrl" :href="result.sourceUrl" target="_blank" rel="noopener">{{ english ? 'Restriction notice' : '利用制限の公式告知' }} ↗</a>
+    <a v-if="result.sourceUrl" :href="result.sourceUrl" target="_blank" rel="noopener">{{ english ? 'Restriction notice' : '利用制限の公式告知' }}<LinkIcon /></a>
   </section>
 </template>
 <script setup lang="ts">
+import LinkIcon from './LinkIcon.vue';
 import { computed } from 'vue';
 import { localDateKey } from '../model/availability';
 import { courseAvailability } from '../model/course-availability';

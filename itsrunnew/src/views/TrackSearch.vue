@@ -116,7 +116,7 @@
         <div class="detail-actions">
           <CanonicalLink button class="detail-action action-detail" color="blue-grey-darken-3" variant="flat" prepend-icon="mdi-information-outline" :to="detailRoute(selectedTrack)">{{ isEnglish ? 'Facility page' : '施設ページ' }}</CanonicalLink>
           <v-btn v-if="availabilityActionUrl(selectedTrack)" class="detail-action action-schedule" color="amber-lighten-4" variant="flat" prepend-icon="mdi-calendar-check" :href="availabilityActionUrl(selectedTrack)" target="_blank" rel="noopener" @click="trackOutbound('availability_source_click', selectedTrack)">{{ availabilityActionLabel(selectedAvailability) }}</v-btn>
-          <v-btn class="detail-action action-official" color="indigo" variant="flat" prepend-icon="mdi-open-in-new" :href="selectedTrack.urls.official" target="_blank" rel="noopener" @click="trackOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
+          <v-btn class="detail-action action-official" color="indigo" variant="flat" :href="selectedTrack.urls.official" target="_blank" rel="noopener" @click="trackOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official site' : '公式サイト' }}<LinkIcon /></v-btn>
           <v-btn class="detail-action action-directions" color="teal-darken-2" variant="outlined" prepend-icon="mdi-directions" :href="directionsUrl(selectedTrack, distanceOrigin)" target="_blank" rel="noopener" @click="trackOutbound('directions_click', selectedTrack)">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
         </div>
         </template>
@@ -128,8 +128,8 @@
           <p class="official-warning">{{ isEnglish ? 'Check official notices before visiting.' : 'お出かけ前に公式のお知らせもご確認ください。' }}</p>
           <div class="detail-actions">
             <CanonicalLink button class="detail-action action-detail" color="blue-grey-darken-3" variant="flat" :to="detailRoute(selectedTrack)">{{ isEnglish ? 'Course page' : 'コース詳細' }}</CanonicalLink>
-            <v-btn class="detail-action action-official" color="indigo" variant="flat" :href="selectedTrack.urls.map" target="_blank" rel="noopener" @click="courseOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official course map' : '公式のコース図' }} ↗</v-btn>
-            <v-btn class="detail-action" color="teal-darken-2" variant="outlined" :href="directionsUrl(selectedTrack, distanceOrigin)" target="_blank" rel="noopener" @click="courseOutbound('directions_click', selectedTrack)">{{ isEnglish ? 'Directions to park' : '公園への経路' }} ↗</v-btn>
+            <v-btn class="detail-action action-official" color="indigo" variant="flat" :href="selectedTrack.urls.map" target="_blank" rel="noopener" @click="courseOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official course map' : '公式のコース図' }}<LinkIcon /></v-btn>
+            <v-btn class="detail-action" color="teal-darken-2" variant="outlined" :href="directionsUrl(selectedTrack, distanceOrigin)" target="_blank" rel="noopener" @click="courseOutbound('directions_click', selectedTrack)">{{ isEnglish ? 'Directions to park' : '公園への経路' }}<LinkIcon /></v-btn>
           </div>
         </template>
       </aside>
@@ -150,7 +150,7 @@
             <strong class="facility-distance">{{ formatDistance(item.distance!) }}</strong>
             <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
           </button>
-          <CanonicalLink :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></CanonicalLink>
+          <CanonicalLink :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<LinkIcon kind="next" /></CanonicalLink>
         </article>
         <v-btn v-if="distanceListLimit < sortedTracks.length" class="load-more" variant="outlined" color="indigo" @click="distanceListLimit += 12">
           {{ isEnglish ? 'Show more facilities' : 'さらに施設を表示' }}
@@ -170,7 +170,7 @@
                 <span class="facility-main"><strong>{{ localizedName(item.track) }}</strong><small>{{ compactSummary(item.track) }}</small><small v-if="isRunningCourse(item.track) && item.track.rules.length" class="course-rule-preview">{{ item.track.rules[0][isEnglish ? 'en' : 'ja'] }}</small></span>
                 <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
               </button>
-              <CanonicalLink :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<v-icon icon="mdi-chevron-right" size="18" /></CanonicalLink>
+              <CanonicalLink :to="detailRoute(item.track)">{{ isEnglish ? 'Details' : '詳細' }}<LinkIcon kind="next" /></CanonicalLink>
             </article>
             <v-btn v-if="prefectureLimit(group.name) < group.items.length" class="load-more" variant="text" color="indigo" @click="showMorePrefecture(group.name)">
               {{ isEnglish ? 'Show more in this prefecture' : 'この都道府県をさらに表示' }}
@@ -193,6 +193,7 @@
 </template>
 
 <script setup lang="ts">
+import LinkIcon from '../components/LinkIcon.vue';
 import TrackMap from '../components/TrackMap.vue';
 import CourseFacts from '../components/CourseFacts.vue';
 import CourseStatus from '../components/CourseStatus.vue';

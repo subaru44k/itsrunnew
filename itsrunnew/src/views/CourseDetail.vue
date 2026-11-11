@@ -9,12 +9,12 @@
         <CourseFacts :course="course" :english="english" />
         <p class="course-note">{{ english ? 'Check official notices before visiting.' : 'お出かけ前に公式のお知らせもご確認ください。' }}</p>
         <div class="course-actions">
-          <v-btn color="indigo" variant="flat" :href="course.urls.map" target="_blank" rel="noopener" @click="outbound('official_site_click', 'course_map')">{{ english ? 'Official course map' : '公式のコース図' }} ↗</v-btn>
-          <v-btn color="teal-darken-2" variant="outlined" :href="directionsUrl(course)" target="_blank" rel="noopener" @click="outbound('directions_click', 'course_detail')">{{ english ? 'Directions to park' : '公園への経路' }} ↗</v-btn>
-          <v-btn variant="text" :href="course.urls.official" target="_blank" rel="noopener" @click="outbound('official_site_click', 'course_notices')">{{ english ? 'Official information' : '公式のお知らせ・利用案内' }} ↗</v-btn>
+          <v-btn color="indigo" variant="flat" :href="course.urls.map" target="_blank" rel="noopener" @click="outbound('official_site_click', 'course_map')">{{ english ? 'Official course map' : '公式のコース図' }}<LinkIcon /></v-btn>
+          <v-btn color="teal-darken-2" variant="outlined" :href="directionsUrl(course)" target="_blank" rel="noopener" @click="outbound('directions_click', 'course_detail')">{{ english ? 'Directions to park' : '公園への経路' }}<LinkIcon /></v-btn>
+          <v-btn variant="text" :href="course.urls.official" target="_blank" rel="noopener" @click="outbound('official_site_click', 'course_notices')">{{ english ? 'Official information' : '公式のお知らせ・利用案内' }}<LinkIcon /></v-btn>
         </div>
         <p class="course-note">{{ english ? 'Map and directions use a representative park location. Find the course entrance on the official map.' : '地図・経路は公園の代表地点です。走り始める場所は公式のコース図で確認できます。' }}</p>
-        <CanonicalLink :to="mapPath">{{ english ? 'Compare nearby places on map' : '周辺の練習場所を地図で比較する' }} →</CanonicalLink>
+        <CanonicalLink :to="mapPath">{{ english ? 'Compare nearby places on map' : '周辺の練習場所を地図で比較する' }}<LinkIcon kind="next" /></CanonicalLink>
       </section>
       <section class="course-panel" aria-labelledby="nearby-tracks-heading">
         <h2 id="nearby-tracks-heading">{{ english ? 'Nearby tracks' : '近くの陸上トラック' }}</h2>
@@ -23,11 +23,12 @@
         </CanonicalLink>
         <NearbyCourses :origin="course.location" :exclude-id="course.id" :english="english" :date="typeof route.query.date === 'string' ? route.query.date : undefined" />
       </section>
-      <details class="course-panel course-sources"><summary>{{ english ? 'Sources and checked dates' : '出典・確認日' }}</summary><ul><li v-for="source in course.sources" :key="source.url"><a :href="source.url" target="_blank" rel="noopener">{{ source.label[language] }} ↗</a> <small>{{ source.verifiedAt }}</small></li></ul></details>
+      <details class="course-panel course-sources"><summary>{{ english ? 'Sources and checked dates' : '出典・確認日' }}</summary><ul><li v-for="source in course.sources" :key="source.url"><a :href="source.url" target="_blank" rel="noopener">{{ source.label[language] }}<LinkIcon /></a> <small>{{ source.verifiedAt }}</small></li></ul></details>
     </main>
   </v-container>
 </template>
 <script setup lang="ts">
+import LinkIcon from '../components/LinkIcon.vue';
 import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';

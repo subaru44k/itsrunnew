@@ -44,7 +44,7 @@
           <p class="calculation-note">{{ copy.trainingNote }}</p>
           <router-link :to="{ query: route.query, hash: '#pace-detail' }">{{ copy.adjustTraining }}</router-link>
           <dl class="training-times"><div v-for="row in training" :key="row.metres"><dt>{{ distanceLabel(row.metres) }}</dt><dd>{{ formatDuration(row.seconds) }}</dd></div></dl>
-          <router-link class="track-link" :to="locale === 'en' ? '/en/' : '/'">{{ copy.findTrack }} <span aria-hidden="true">→</span></router-link>
+          <router-link class="track-link" :to="locale === 'en' ? '/en/' : '/'">{{ copy.findTrack }}<LinkIcon kind="next" /></router-link>
         </section>
       </div>
     </section>
@@ -53,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+import LinkIcon from '../components/LinkIcon.vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';

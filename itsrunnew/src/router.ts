@@ -100,7 +100,7 @@ router.beforeEach((to) => {
   const isOda = detailTrack?.id === ODA_TRACK_ID;
   const guidance = facilityGuidance[detailTrack?.id as keyof typeof facilityGuidance]?.[locale];
   const title = detailCourse
-    ? (locale === 'en' ? `${detailCourse.name.en} | Running loop - ItsRun` : `${detailCourse.name.ja}の距離・路面・利用条件 - いつラン`)
+    ? (locale === 'en' ? `${detailCourse.name.en} | Running course - ItsRun` : `${detailCourse.name.ja}の距離・路面・利用条件 - いつラン`)
     : detailTrack
     ? (guidance && 'title' in guidance) ? guidance.title : isOda
       ? (locale === 'en' ? 'Oda Field (Yoyogi Park Athletic Track) closure and nearby tracks - ItsRun' : '織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン')

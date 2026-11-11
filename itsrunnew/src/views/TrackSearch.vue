@@ -4,7 +4,7 @@
       <div>
         <p class="track-eyebrow">TRAINING PLACES</p>
         <h1>{{ isEnglish ? 'Find a training place near you' : '近くで走れる練習場所を探す' }}</h1>
-        <p>{{ isEnglish ? 'Compare athletic tracks and running loops by location and lap distance.' : '陸上トラックと公園の周回コースを、場所や一周の距離から探せます。' }}</p>
+        <p>{{ isEnglish ? 'Find athletic tracks and running courses near your chosen location.' : '陸上トラックとランニングコースを、近くから探せます。' }}</p>
       </div>
       <div class="track-hero-actions">
         <v-btn class="hero-location-action" color="white" size="large" prepend-icon="mdi-crosshairs-gps" :loading="locating" @click="requestLocation">
@@ -26,11 +26,10 @@
     </v-alert>
 
     <section class="place-filters" :aria-label="isEnglish ? 'Training place filters' : '練習場所の絞り込み'">
-      <label><span>{{ isEnglish ? 'Place type' : '場所の種類' }}</span><select :aria-label="isEnglish ? 'Place type' : '場所の種類'" :value="placeKind" @change="changePlaceFilter('kind', ($event.target as HTMLSelectElement).value)"><option value="all">{{ isEnglish ? 'All places' : 'すべて' }}</option><option value="track">{{ isEnglish ? 'Athletic tracks' : '陸上トラック' }}</option><option value="course">{{ isEnglish ? 'Running loops' : '周回コース' }}</option></select></label>
-      <label><span>{{ isEnglish ? 'Lap distance' : '一周の距離' }}</span><select :aria-label="isEnglish ? 'Lap distance' : '一周の距離'" :value="minLapMeters" @change="changePlaceFilter('minLap', ($event.target as HTMLSelectElement).value)"><option value="0">{{ isEnglish ? 'Any distance' : '指定なし' }}</option><option value="1000">{{ isEnglish ? 'At least 1 km' : '1km以上' }}</option><option value="2000">{{ isEnglish ? 'At least 2 km' : '2km以上' }}</option></select></label>
+      <label><span>{{ isEnglish ? 'Place type' : '場所の種類' }}</span><select :aria-label="isEnglish ? 'Place type' : '場所の種類'" :value="placeKind" @change="changePlaceFilter('kind', ($event.target as HTMLSelectElement).value)"><option value="all">{{ isEnglish ? 'All places' : 'すべて' }}</option><option value="track">{{ isEnglish ? 'Athletic tracks' : '陸上トラック' }}</option><option value="course">{{ isEnglish ? 'Running courses' : 'ランニングコース' }}</option></select></label>
     </section>
 
-    <section v-if="placeKind !== 'course'" class="date-controls" :aria-label="isEnglish ? 'Use date' : '利用日'">
+    <section class="date-controls" :aria-label="isEnglish ? 'Use date' : '利用日'">
       <div class="date-control-heading">
         <strong>{{ isEnglish ? 'Use date' : '利用日' }}</strong>
         <span>{{ dateRangeLabel }}</span>
@@ -51,14 +50,14 @@
     </section>
 
     <section class="track-controls" :aria-label="isEnglish ? 'Map display and availability legend' : '地図表示と利用状況の凡例'">
-      <v-switch v-if="placeKind !== 'course'" v-model="showUnavailable" color="red-darken-2" density="compact" hide-details
+      <v-switch v-model="showUnavailable" color="red-darken-2" density="compact" hide-details
         :label="showUnavailableLabel" />
       <strong class="result-count">{{ visibleTracks.length }}{{ isEnglish ? ' facilities' : '施設' }}</strong>
-      <span v-if="placeKind !== 'course'" class="marker-legend"><i class="legend-dot today-available" />{{ availabilityStatusName('available') }}</span>
-      <span v-if="placeKind !== 'course'" class="marker-legend"><i class="legend-dot today-partial" />{{ availabilityStatusName('partially_available') }}</span>
-      <span v-if="placeKind !== 'course'" class="marker-legend"><i class="legend-dot today-unknown" />{{ availabilityStatusName('unknown') }}</span>
-      <span v-if="placeKind !== 'course'" class="marker-legend"><i class="legend-dot today-unavailable" />{{ availabilityStatusName('unavailable') }}</span>
-      <span v-if="placeKind !== 'track'" class="marker-legend"><i class="legend-dot course-dot" />{{ isEnglish ? 'Running loop (day restrictions unconfirmed)' : '周回コース（当日の規制は未確認）' }}</span>
+      <span class="marker-legend"><i class="legend-dot today-available" />{{ availabilityStatusName('available') }}</span>
+      <span class="marker-legend"><i class="legend-dot today-partial" />{{ availabilityStatusName('partially_available') }}</span>
+      <span class="marker-legend"><i class="legend-dot today-unknown" />{{ availabilityStatusName('unknown') }}</span>
+      <span class="marker-legend"><i class="legend-dot today-unavailable" />{{ availabilityStatusName('unavailable') }}</span>
+      <span v-if="placeKind !== 'track'" class="marker-legend"><i class="legend-dot course-dot" />{{ isEnglish ? 'Running course (square marker)' : 'ランニングコース（四角のマーカー）' }}</span>
     </section>
 
     <div :class="['track-layout', { 'has-detail': selectedTrack }]">
@@ -122,10 +121,11 @@
         </div>
         </template>
         <template v-else>
-          <div class="detail-heading"><div><span class="course-badge">{{ isEnglish ? 'Running loop' : '周回コース' }}</span><h2>{{ localizedName(selectedTrack) }}</h2></div><v-btn icon="mdi-close" variant="text" size="small" :aria-label="isEnglish ? 'Close details' : '詳細を閉じる'" @click="closeSelectedTrack" /></div>
+          <div class="detail-heading"><div><span class="course-badge">{{ isEnglish ? 'Running course' : 'ランニングコース' }}</span><h2>{{ localizedName(selectedTrack) }}</h2></div><v-btn icon="mdi-close" variant="text" size="small" :aria-label="isEnglish ? 'Close details' : '詳細を閉じる'" @click="closeSelectedTrack" /></div>
           <p class="track-address">{{ selectedTrack.location.address }}<span v-if="selectedDistance != null"> · {{ formatDistance(selectedDistance) }} {{ isEnglish ? '(straight line)' : '（直線距離）' }}</span></p>
+          <CourseStatus :course-id="selectedTrack.id" :date="selectedDate" :english="isEnglish" />
           <CourseFacts :course="selectedTrack" :english="isEnglish" />
-          <p class="official-warning">{{ isEnglish ? 'Usual conditions. Check official notices for restrictions before visiting.' : '通常の利用条件です。当日の工事・行事による規制は公式のお知らせで確認してください。' }}</p>
+          <p class="official-warning">{{ isEnglish ? 'Check official notices before visiting.' : 'お出かけ前に公式のお知らせもご確認ください。' }}</p>
           <div class="detail-actions">
             <CanonicalLink button class="detail-action action-detail" color="blue-grey-darken-3" variant="flat" :to="detailRoute(selectedTrack)">{{ isEnglish ? 'Course page' : 'コース詳細' }}</CanonicalLink>
             <v-btn class="detail-action action-official" color="indigo" variant="flat" :href="selectedTrack.urls.map" target="_blank" rel="noopener" @click="courseOutbound('official_site_click', selectedTrack)">{{ isEnglish ? 'Official course map' : '公式のコース図' }} ↗</v-btn>
@@ -145,7 +145,7 @@
         <article v-for="item in distanceListItems" :key="item.track.id" :data-place-id="item.track.id" :class="['facility-row', { 'is-selected': selectedTrack?.id === item.track.id }]">
           <button type="button" :aria-pressed="selectedTrack?.id === item.track.id" :aria-label="facilityCardAriaLabel(item.track, item.availability)" @click="selectTrack(item.track, 'list')">
             <span v-if="item.availability" :class="['availability-badge', availabilityClass(item.availability)]"><v-icon :icon="statusIcon(item.availability.status)" size="14" />{{ availabilityLabel(item.availability) }}</span>
-            <span v-else class="course-badge">{{ isEnglish ? 'Running loop' : '周回コース' }}</span>
+            <span v-else :class="['course-badge', `course-badge--${courseResult(item.track).status}`]">{{ courseLabel(item.track) }}</span>
             <span class="facility-main"><strong>{{ localizedName(item.track) }}</strong><small>{{ compactSummary(item.track) }}</small><small v-if="isRunningCourse(item.track) && item.track.rules.length" class="course-rule-preview">{{ item.track.rules[0][isEnglish ? 'en' : 'ja'] }}</small></span>
             <strong class="facility-distance">{{ formatDistance(item.distance!) }}</strong>
             <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
@@ -166,7 +166,7 @@
             <article v-for="item in group.items.slice(0, prefectureLimit(group.name))" :key="item.track.id" :data-place-id="item.track.id" :class="['facility-row', { 'is-selected': selectedTrack?.id === item.track.id }]">
               <button type="button" :aria-pressed="selectedTrack?.id === item.track.id" :aria-label="facilityCardAriaLabel(item.track, item.availability)" @click="selectTrack(item.track, 'list')">
                 <span v-if="item.availability" :class="['availability-badge', availabilityClass(item.availability)]"><v-icon :icon="statusIcon(item.availability.status)" size="14" />{{ availabilityLabel(item.availability) }}</span>
-            <span v-else class="course-badge">{{ isEnglish ? 'Running loop' : '周回コース' }}</span>
+            <span v-else :class="['course-badge', `course-badge--${courseResult(item.track).status}`]">{{ courseLabel(item.track) }}</span>
                 <span class="facility-main"><strong>{{ localizedName(item.track) }}</strong><small>{{ compactSummary(item.track) }}</small><small v-if="isRunningCourse(item.track) && item.track.rules.length" class="course-rule-preview">{{ item.track.rules[0][isEnglish ? 'en' : 'ja'] }}</small></span>
                 <span class="map-action"><v-icon icon="mdi-map-marker" size="18" />{{ isEnglish ? 'Map' : '地図' }}</span>
               </button>
@@ -180,7 +180,7 @@
       </div>
       <div v-else class="no-results" role="status">
         <strong>{{ isEnglish ? 'No places match these conditions.' : '条件に合う練習場所が見つかりませんでした。' }}</strong>
-        <p>{{ isEnglish ? 'Change the place type or lap distance, or try another date.' : '場所の種類・一周の距離・日付を変えてみてください。' }}</p>
+        <p>{{ isEnglish ? 'Change the place type or try another date.' : '場所の種類・日付を変えてみてください。' }}</p>
         <v-btn color="indigo" variant="outlined" @click="resetPlaceFilters">
           {{ isEnglish ? 'Show all facilities' : '全施設を表示' }}
         </v-btn>
@@ -195,12 +195,15 @@
 <script setup lang="ts">
 import TrackMap from '../components/TrackMap.vue';
 import CourseFacts from '../components/CourseFacts.vue';
+import CourseStatus from '../components/CourseStatus.vue';
+import { courseAvailability } from '../model/course-availability';
+import { useCourseAvailability } from '../services/course-availability';
 import { courseDistance, courseSurface, isRunningCourse, matchesPlaceFilters, placeById, placePath, trainingPlaces, type TrainingPlace, type RunningCourse, type PlaceKind } from '../model/running-courses';
 import CanonicalLink from '../components/CanonicalLink.vue';
 import type { MapState } from '../components/map/types';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, type LocationQueryRaw } from 'vue-router';
 import { ODA_TRACK_ID, directionsUrl, distanceKm, trackById, trackDetailPath, tracks, type TrackFacility } from '../model/tracks';
 import {
   availabilityDataset,
@@ -229,6 +232,9 @@ const route = useRoute();
 const router = useRouter();
 const isEnglish = computed(() => locale.value === 'en');
 const showUnavailable = ref(false);
+const {document:courseDocument,now:courseNow}=useCourseAvailability();
+const courseResult = (place:TrainingPlace) => courseAvailability(place.id,selectedDate.value,courseDocument.value,courseNow.value);
+const courseLabel = (place:TrainingPlace) => ({available:['利用可','Available'],unavailable:['利用不可','Unavailable'],partially_available:['一部利用可','Partly available'],unknown:['要確認','Needs confirmation']})[courseResult(place).status][isEnglish.value?1:0];
 const today = localDateKey();
 const tomorrow = addDateOnlyDays(today, 1);
 const saturday = nextWeekdayDate(today, 6);
@@ -250,7 +256,6 @@ const referencePointSource = ref<'current' | 'map' | null>(null);
 const selectingPoint = ref(false);
 const selectedTrack = ref<TrainingPlace | null>(null);
 const placeKind = computed<PlaceKind>(() => route.query.kind === 'track' || route.query.kind === 'course' ? route.query.kind : 'all');
-const minLapMeters = computed(() => route.query.minLap === '1000' ? 1000 : route.query.minLap === '2000' ? 2000 : 0);
 const distanceListLimit = ref(12);
 const expandedPrefectures = ref<string[]>(['東京都']);
 const prefectureListLimits = ref<Record<string, number>>({ 東京都: 12 });
@@ -262,7 +267,7 @@ let loadSequence = 0;
 
 const availabilityByTrack = computed(() => new Map(tracks.map(track => [track.id, availabilityForTrack(track.id, selectedDate.value, pageLoadedAt, selectedDataset.value)])));
 const selectedDateAvailability = (track: TrackFacility) => availabilityByTrack.value.get(track.id) ?? availabilityForTrack(track.id, selectedDate.value, pageLoadedAt, selectedDataset.value);
-const visibleTracks = computed(() => trainingPlaces.filter(place => matchesPlaceFilters(place, placeKind.value, minLapMeters.value) && (isRunningCourse(place) || isAvailabilityCandidate(selectedDateAvailability(place).status, showUnavailable.value))));
+const visibleTracks = computed(() => trainingPlaces.filter(place => matchesPlaceFilters(place, placeKind.value) && isAvailabilityCandidate(isRunningCourse(place) ? courseResult(place).status : selectedDateAvailability(place).status, showUnavailable.value)));
 const sortedTracks = computed(() => visibleTracks.value
   .map(track => ({ track, availability: isRunningCourse(track) ? null : selectedDateAvailability(track), distance: distanceOrigin.value ? distanceKm(distanceOrigin.value, track.location) : null }))
   .sort((a, b) => a.distance == null || b.distance == null ? a.track.name.ja.localeCompare(b.track.name.ja, 'ja') : a.distance - b.distance));
@@ -334,7 +339,7 @@ const mapState = computed<MapState>(() => {
   const facilities = [...visibleTracks.value];
   if (selectedTrack.value && !facilities.some(track => track.id === selectedTrack.value?.id)) facilities.push(selectedTrack.value);
   return {
-    facilities: facilities.map(track => ({ id: track.id, name: localizedName(track), ...track.location, status: isRunningCourse(track) ? 'unknown' : selectedDateAvailability(track).status, ...(isRunningCourse(track) ? { kind: 'course' as const } : {}), selected: selectedTrack.value?.id === track.id })),
+    facilities: facilities.map(track => ({ id: track.id, name: localizedName(track), ...track.location, status: isRunningCourse(track) ? courseResult(track).status : selectedDateAvailability(track).status, ...(isRunningCourse(track) ? { kind: 'course' as const } : {}), selected: selectedTrack.value?.id === track.id })),
     reference: distanceOrigin.value,
     referenceLabel: referencePointSource.value === 'map' ? (isEnglish.value ? 'Selected point' : '選択地点') : (isEnglish.value ? 'Current location' : '現在地'),
     english: isEnglish.value, selecting: selectingPoint.value,
@@ -667,7 +672,7 @@ function availabilityCardHint(availability: TrackAvailability) {
   return isEnglish.value ? 'Opening needs confirmation' : '開放状況は要確認';
 }
 function facilityCardAriaLabel(track: TrainingPlace, availability: TrackAvailability | null) {
-  return `${localizedName(track)}、${availability ? availabilityLabel(availability) : (isEnglish.value ? 'Running loop; day restrictions unconfirmed' : '周回コース・当日の規制未確認')}、${isEnglish.value ? 'open details and directions' : '詳細と行き方を表示'}`;
+  return `${localizedName(track)}、${availability ? availabilityLabel(availability) : courseLabel(track)}、${isEnglish.value ? 'open details and directions' : '詳細と行き方を表示'}`;
 }
 function scopeLabel(scope: TrackAvailability['periods'][number]['scope']) {
   const labels = {
@@ -709,10 +714,10 @@ function trackOutbound(eventName: 'availability_source_click' | 'official_site_c
 function courseOutbound(name: 'official_site_click' | 'directions_click', course: RunningCourse) {
   trackSearchEvent(name, { course_id: course.id, place_kind: 'course', source: 'search_course' });
 }
-function changePlaceFilter(name: 'kind' | 'minLap', value: string) {
+function changePlaceFilter(name: 'kind', value: string) {
   distanceListLimit.value = 12;
   // Clear the selected card when changing search conditions.
-  const query = { ...route.query, [name]: value === 'all' || value === '0' ? undefined : value };
+  const query: LocationQueryRaw = { ...route.query, [name]: value === 'all' ? undefined : value };
   delete query.track;
   void router.replace({ path: route.path, query });
   trackSearchEvent('place_filter_change', { filter: name, value });
@@ -737,7 +742,8 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
 .place-filters label { display: grid; gap: 4px; flex: 1 1 160px; font-size: 13px; color: #596579; }
 .place-filters select { border: 1px solid #9da3b4; border-radius: 5px; padding: 8px; min-height: 44px; background: white; color: #222; font: inherit; }
 .course-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #f0e8f7; color: #623580; font-size: 12px; font-weight: 700; }
-.course-dot { background: #7952a0; transform: rotate(45deg); border-radius: 2px; }
+.course-badge--available {background:#e0f2f1;color:#00695c}.course-badge--unavailable {background:#ffebee;color:#8e1717}.course-badge--partially_available {background:#fff8e1;color:#7a4d00}.course-badge--unknown {background:#eceff1;color:#455a64}
+.course-dot { background: #78909c; transform: rotate(45deg); border-radius: 2px; }
 .course-rule-preview { color: #6a3e8a !important; }
 
 .track-search-page { max-width: 1185px; padding-block: 24px 40px; }

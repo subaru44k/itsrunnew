@@ -1,12 +1,13 @@
 <template>
   <v-container v-if="course" class="course-detail-page">
     <nav class="breadcrumbs"><CanonicalLink :to="searchPath">{{ english ? 'Find a training place' : '練習場所を探す' }}</CanonicalLink><span aria-hidden="true"> / </span><span>{{ course.name[language] }}</span></nav>
-    <header><p class="course-type">{{ english ? 'RUNNING LOOP' : '周回コース' }}</p><h1>{{ course.name[language] }}</h1><p>{{ course.location.address }}</p></header>
+    <header><p class="course-type">{{ english ? 'RUNNING COURSE' : 'ランニングコース' }}</p><h1>{{ course.name[language] }}</h1><p>{{ course.location.address }}</p></header>
     <main>
       <section class="course-panel" aria-labelledby="course-facts-heading">
         <h2 id="course-facts-heading">{{ english ? 'Course information' : 'コース情報' }}</h2>
+        <CourseStatus :course-id="course.id" :date="typeof route.query.date === 'string' ? route.query.date : undefined" :english="english" />
         <CourseFacts :course="course" :english="english" />
-        <p class="course-note">{{ english ? 'These are usual conditions. Check official notices for event or construction restrictions before visiting.' : '通常の利用条件です。工事・行事による当日の規制は公式のお知らせで確認してください。' }}</p>
+        <p class="course-note">{{ english ? 'Check official notices before visiting.' : 'お出かけ前に公式のお知らせもご確認ください。' }}</p>
         <div class="course-actions">
           <v-btn color="indigo" variant="flat" :href="course.urls.map" target="_blank" rel="noopener" @click="outbound('official_site_click', 'course_map')">{{ english ? 'Official course map' : '公式のコース図' }} ↗</v-btn>
           <v-btn color="teal-darken-2" variant="outlined" :href="directionsUrl(course)" target="_blank" rel="noopener" @click="outbound('directions_click', 'course_detail')">{{ english ? 'Directions to park' : '公園への経路' }} ↗</v-btn>
@@ -32,6 +33,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import CanonicalLink from '../components/CanonicalLink.vue';
 import CourseFacts from '../components/CourseFacts.vue';
+import CourseStatus from '../components/CourseStatus.vue';
 import NearbyCourses from '../components/NearbyCourses.vue';
 import { courseById, placePath } from '../model/running-courses';
 import { directionsUrl, distanceKm, tracks } from '../model/tracks';

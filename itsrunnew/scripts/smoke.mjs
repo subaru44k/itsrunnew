@@ -350,7 +350,7 @@ try {
     if (new URL(page.url()).pathname !== '/') throw new Error('/tracks did not canonicalize to the home route');
     await page.getByRole('heading', { name: '近くで走れる練習場所を探す', exact: true }).waitFor();
     await page.getByText('公式情報をもとに表示しています。当日変更もあるため、利用前にご確認ください。「要確認」は利用不可ではありません。', { exact: true }).waitFor();
-    if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== '陸上競技場・周回コース検索｜近くの練習場所を探す - いつラン') throw new Error('Track Search OGP title did not update');
+    if ((await page.locator('meta[property="og:title"]').getAttribute('content')) !== '陸上競技場・ランニングコース検索｜近くの練習場所を探す - いつラン') throw new Error('Track Search OGP title did not update');
     await page.locator('#track-map .track-cluster, #track-map .track-marker').first().waitFor();
     const mapFacilityCount = () => page.locator('#track-map').evaluate(element => [...element.querySelectorAll('.track-marker')].length + [...element.querySelectorAll('.track-cluster')].reduce((sum, cluster) => sum + Number(cluster.textContent), 0));
     if (await mapFacilityCount() !== todayCounts.candidates + courseDataset.length) throw new Error('Clustered map did not represent every candidate facility');

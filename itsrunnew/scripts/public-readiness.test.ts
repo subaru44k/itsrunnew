@@ -28,7 +28,7 @@ describe('public launch readiness', () => {
     expect(index).toContain('https://itsrun.info/img/itsrun-og.jpg');
     expect(index).toContain('summary_large_image');
     expect(index).not.toMatch(/UA-\d/);
-    expect(index).toContain('陸上競技場・周回コース検索｜近くの練習場所を探す - いつラン');
+    expect(index).toContain('陸上競技場・ランニングコース検索｜近くの練習場所を探す - いつラン');
     expect(router).toContain('織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン');
     expect(trackData).toContain('"id": "yoyogi-park-athletic-track"');
     expect(trackData).toContain('"ja": "織田フィールド（代々木公園陸上競技場）"');

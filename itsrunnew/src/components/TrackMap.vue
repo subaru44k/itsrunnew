@@ -57,5 +57,5 @@ defineExpose({
 .track-map .current-location-shell { z-index: 3; pointer-events: none; }
 .is-selecting .map-marker-wrapper, .is-selecting .track-marker-shell, .is-selecting .track-cluster-shell, .is-selecting .current-location-shell { pointer-events: none; }
 @media (max-width: 799px) { .track-map { height: 52vh; min-height: 360px; } }
-.track-marker--course { background: #7952a0 !important; border-radius: 3px !important; transform: rotate(45deg); }
+.track-marker--course { border-radius: 3px !important; transform: rotate(45deg); }
 </style>

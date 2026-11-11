@@ -60,6 +60,9 @@ describe('daily availability regression gates', () => {
       const credentials = yaml.indexOf('name: Configure GitHub OIDC credentials');
       expect(collect).toBeGreaterThan(-1);
       expect(fresh).toBeGreaterThan(collect);
+      const courses=yaml.indexOf('run: npm run collect:courses');
+      expect(courses).toBeGreaterThan(collect);
+      expect(fresh).toBeGreaterThan(courses);
       expect(build).toBeGreaterThan(fresh);
       expect(smoke).toBeGreaterThan(build);
       expect(credentials).toBeGreaterThan(smoke);
@@ -81,6 +84,8 @@ describe('production artifact release contract', () => {
     expect(validationWorkflow).toContain("VITE_ADSENSE_ENABLED: 'true'");
     expect(productionWorkflow).not.toMatch(/^  push:/m);
     expect(productionWorkflow).not.toContain('run: npm run build');
+    expect(productionWorkflow.indexOf('run: npm run collect:courses')).toBeGreaterThan(productionWorkflow.indexOf('run: node scripts/availability/restore-publication.mjs'));
+    expect(productionWorkflow.indexOf('run: npm run validate:availability:fresh')).toBeGreaterThan(productionWorkflow.indexOf('run: npm run collect:courses'));
     expect(productionWorkflow).not.toContain('run: npm test');
     expect(productionWorkflow).toContain('ITSRUN_DEPLOY_SCOPE: app');
     expect(productionWorkflow).toContain('ITSRUN_DEPLOY_SCOPE: data');

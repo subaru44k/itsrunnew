@@ -25,11 +25,8 @@ export function isRunningCourse(place: TrainingPlace): place is RunningCourse { 
 export function courseById(id: unknown) { return typeof id === 'string' ? runningCourses.find(course => course.id === id) ?? null : null; }
 export function placeById(id: unknown) { return typeof id === 'string' ? trainingPlaces.find(place => place.id === id) ?? null : null; }
 export function placePath(place: TrainingPlace, locale: string) { return `${locale === 'en' ? '/en' : ''}/${isRunningCourse(place) ? 'courses' : 'tracks'}/${place.id}`; }
-export function matchesPlaceFilters(place: TrainingPlace, kind: PlaceKind, minLapMeters: number) {
-  const course = isRunningCourse(place);
-  if (kind !== 'all' && (kind === 'course') !== course) return false;
-  if (!minLapMeters) return true;
-  return course ? place.lapMeters.some(length => length >= minLapMeters) : place.track.lengthMeters != null && place.track.lengthMeters >= minLapMeters;
+export function matchesPlaceFilters(place: TrainingPlace, kind: PlaceKind) {
+  return kind === 'all' || (kind === 'course') === isRunningCourse(place);
 }
 export function courseDistance(course: RunningCourse, locale: string) {
   return `${course.approximate ? (locale === 'en' ? 'approx. ' : '約') : ''}${course.lapMeters.map(length => length.toLocaleString(locale === 'en' ? 'en-US' : 'ja-JP')).join(' / ')} m`;

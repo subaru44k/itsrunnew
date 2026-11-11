@@ -1,0 +1,438 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-11-11",
+  "courses": [
+    {
+      "id": "wako-jurin-jogging",
+      "identity": "和光樹林公園",
+      "normal": [
+        {
+          "url": "https://www.seibu-green.co.jp/wako-jurin/facility.html",
+          "tokens": [
+            "ジョギング・ウォーキングコース",
+            "自由にご利用"
+          ],
+          "hash": "a57426938f00f5c42ae2836db7679109c738f7f5cb5188fa0820911ef8dea8c8"
+        },
+        {
+          "url": "https://www.seibu-green.co.jp/wako-jurin/about.html",
+          "tokens": [
+            "終日開放"
+          ],
+          "hash": "d1910341145bff0bb7dd513c410486fd9a76eb6a6a1ceaf17a74e0c300421a71"
+        }
+      ],
+      "feeds": [
+        "https://www.seibu-green.co.jp/wako-jurin/",
+        "https://www.seibu-green.co.jp/wako-jurin/news/"
+      ],
+      "noticePattern": "/wako-jurin/(?:news|event)/.+\\.html$",
+      "reviews": {
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026102112155813212.html": {
+          "hash": "48bf12fbbbe8944f246d2af29f94edeb472ec7752a9c100472b29f458f6b13e6",
+          "note": "エントランス・三角花壇付近の出店案内。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026100908424413160.html": {
+          "hash": "c4c1413f5df146acf50480f26fcb825d8b34ed45ddd61adb06f6de3f228267b6",
+          "note": "トイレの照明・改修工事。コース閉鎖の告知ではない。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026100908414313162.html": {
+          "hash": "86c57bfda8b53cb6112de5e29f93a33016e5208fd0a3411722a4e60aaa05eeea",
+          "note": "トイレの照明・改修工事。コース閉鎖の告知ではない。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026092214113013103.html": {
+          "hash": "dc53566f7d82cb50ad1d47897282e8872f68d715eef6c08823e62e5b8eaf1373",
+          "note": "イベント・募集案内：パートスタッフ大募集【BBQ広場】。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026092213313313086.html": {
+          "hash": "93a45b791d6565f59de6543be66d4e5f75dff28a27c7d3d0c2b569880cf732a6",
+          "note": "エントランス・三角花壇付近の出店案内。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/event/2026103116380713236.html": {
+          "hash": "97dc8759219e0a60938621fb0a96156bfcf600b9dbcac3647cacdcd7e48af8e0",
+          "note": "イベント・募集案内：未来につなぐ 森づくりキッズ。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/event/2026110813460713302.html": {
+          "hash": "3c536bd7480c46232cf55b8797cb6f46360f244a24b5c7b2d6b1314c5f001a1c",
+          "note": "イベント・募集案内：3公園・2緑道をめぐる ノルディックウォーキング。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/event/2026101917170513192.html": {
+          "hash": "f6fdfdcb58bb62e2ad34611698b411059432f8d92615f795e44a1e7a1ad037b2",
+          "note": "イベント・募集案内：県民の日企画 どんぐりを探せ ～スマホアプリでスタンプラリー～。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/event/2026092218015113090.html": {
+          "hash": "dda6d09a7663a8a30820e7d7d6a56dd6a4af5a44c5eac7e8470df3bd37a449ce",
+          "note": "イベント・募集案内：リーダーウォークお散歩会。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/event/2026092213370213112.html": {
+          "hash": "f315d83a7797685826f00185354c177c2dc649bf5ce5b31aff27cb3c743b0a96",
+          "note": "イベント・募集案内：ドッグラン【2026秋】。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026091916120013100.html": {
+          "hash": "43a12fd6a6dfcfc654806cb9c82c6a6b17f9ea40a8864b5a6ff2236318758169",
+          "note": "イベント・募集案内：【イベント】ワンちゃんのしつけ教室 中止について（9月20日）。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026090413231413046.html": {
+          "hash": "832ebc08f852dce63d5f828a7966c368e5b13e1a410451ba80c5a87a1e10be1d",
+          "note": "トイレの照明・改修工事。コース閉鎖の告知ではない。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026090413171713028.html": {
+          "hash": "2866c6390189ee134d5d6034c3fa485bdfd26181d9d3078288b996eec9f5273f",
+          "note": "イベント・募集案内：【イベント】開催の「手持ち花火のイベント」について（9月5日）。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026081912361612979.html": {
+          "hash": "163259de9e1b733b0e33b98c625e1b17ba825a7b36153f473b0c5d55382c0c43",
+          "note": "断水による水道・トイレの利用制限。コース閉鎖の告知ではない。"
+        },
+        "https://www.seibu-green.co.jp/wako-jurin/news/2026081411571812964.html": {
+          "hash": "4c0038c6b2783f1d30d824ddb28d07e4dc5d6dbe14f1de85c327fe98ad9caaa9",
+          "note": "イベント・募集案内：【イベント】「森のごろごろシネマ」のお知らせ（8月15日）。本文にランニングコースの専用利用・閉鎖の告知なし。"
+        }
+      }
+    },
+    {
+      "id": "komazawa-jogging",
+      "identity": "駒沢",
+      "normal": [
+        {
+          "url": "https://www.tef.or.jp/kopgp/park/",
+          "tokens": [
+            "ジョギングコース",
+            "2,140"
+          ]
+        },
+        {
+          "url": "https://www.tokyo-park.or.jp/park/komazawa-olympic/",
+          "tokens": [
+            "常時開園"
+          ]
+        }
+      ],
+      "feeds": [
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/",
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/",
+        "https://www.tef.or.jp/kopgp/park/"
+      ],
+      "noticePattern": "/(?:park/komazawa-olympic/(?:news|event)/[0-9]{4}/[^/]+\\.html|news/[^/]+\\.html)$",
+      "reviews": {
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2026/2025_5.html": {
+          "hash": "56e39e88d8a95a0dacaf9d5fdc01fb9e48050d8a83b64a7747fc54a8dd18f92b",
+          "note": "ドッグラン・中央広場のイベント／利用登録案内。コース閉鎖の告知なし。"
+        },
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2026/2026_1.html": {
+          "hash": "d3e5070097b5536e2d64b4eca9c63824e517a5493e30394e59f1083609e39d4f",
+          "note": "ドッグラン・中央広場のイベント／利用登録案内。コース閉鎖の告知なし。"
+        },
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2026/2026.html": {
+          "hash": "e7aca8ea2f269e1020f5695c4f4812bf6d762a39a9914a41941f407bd037244a",
+          "note": "ドッグラン・中央広場のイベント／利用登録案内。コース閉鎖の告知なし。"
+        },
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2026/park_info_55.html": {
+          "hash": "51449a2ba56a02ada03ab7c5101ada799f759cea4c2aa5a4945ef634c22fa83e",
+          "note": "11/16 9〜17時の停電。使用不可の対象は自販機・4号トイレ・7号車椅子トイレ。"
+        },
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2026/52457.html": {
+          "hash": "6fb02f022dd1c3bf380c3e2099161290c9925c0eb6183db183387af410e1a528",
+          "note": "11/25〜26のストリートスポーツ広場点検。ランニングコースの閉鎖ではない。"
+        },
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2025/parking-fee-revision.html": {
+          "hash": "3e86824a94bed595e80f661b4aedd3e82bca70c5dca6d20bfef695e65fefce21",
+          "note": "駐車場の工事・料金案内。ランニングコースの閉鎖ではない。"
+        },
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2025/park_info_36.html": {
+          "hash": "1ed0c8ca82eabb517a5e0019ef02700cafda6d0d1f0f178d2b067ec4499fc25f",
+          "note": "駐車場の工事・料金案内。ランニングコースの閉鎖ではない。"
+        },
+        "https://www.tokyo-park.or.jp/park/komazawa-olympic/news/2023/53728.html": {
+          "hash": "2c3622b515ea457ecdb0e45a20a1d3834e1385e2634b4d7022598762098b09f1",
+          "note": "ドッグラン・中央広場のイベント／利用登録案内。コース閉鎖の告知なし。"
+        },
+        "https://www.tef.or.jp/news/teket-2.html": {
+          "hash": "e69934554a173723598c6db882ad6abc06ff2dd04548fb2192e64164425a72fd",
+          "note": "外部の教室申込サービスに関する案内。屋外コースの利用制限ではない。"
+        },
+        "https://www.tef.or.jp/news/teket-1.html": {
+          "hash": "b7338e387601fed2b035b689b978d5ef3cf3ceaa98b99d307777921c1395497d",
+          "note": "外部の教室申込サービスに関する案内。屋外コースの利用制限ではない。"
+        },
+        "https://www.tef.or.jp/news/teket.html": {
+          "hash": "23a520db461bb3d8a7d5cd612ccf32704f39d3bc66b84799c9c2b1753aea880b",
+          "note": "外部の教室申込サービスに関する案内。屋外コースの利用制限ではない。"
+        },
+        "https://www.tef.or.jp/news/post-842.html": {
+          "hash": "a7d78c4c893e996a14e0935f5b6cd5d51489c541411eda4478f01239ddd23de3",
+          "note": "第二球技場シャワーの不具合。ランニングコース閉鎖ではない。"
+        },
+        "https://www.tef.or.jp/news/post-840.html": {
+          "hash": "1ee6d1800f97e164dfb3d8a4289765cc97762ed79f1e43ecccfde68bd34259ed",
+          "note": "ホームページ公開再開の案内。現地施設の閉鎖ではない。"
+        },
+        "https://www.tef.or.jp/news/noticetechnical-issues-our-web-translation-service.html": {
+          "hash": "c0d889bce762e0ed1878720416bb076d9236f796b8c7bdfceee8a99e8daaf164",
+          "note": "Web翻訳機能の障害。現地コースの閉鎖ではない。"
+        },
+        "https://www.tef.or.jp/news/post-739.html": {
+          "hash": "bde8d3427708553de142ca5837601445581de2b893ea56405609576793bf5d81",
+          "note": "有料施設の磁気プリペイドカード払戻し案内。"
+        },
+        "https://www.tef.or.jp/news/post-746.html": {
+          "hash": "dbc497d333ffffd1a8bf7c76bc369e3993e672ebb840b90b854d0c2901f51286",
+          "note": "第一球技場の人工芝等改修による休館。屋外ランニングコースではない。"
+        },
+        "https://www.tef.or.jp/news/post-740.html": {
+          "hash": "26e4240a3963b2a49e0115c2c8c566d12030e4d04adbf631d733faa604167979",
+          "note": "テニスコートの再開。ランニングコースではない。"
+        },
+        "https://www.tef.or.jp/news/post-728.html": {
+          "hash": "778d433859488fae162bf82c5aaa6ad248bcdd6defe391cea92d674703bfef5d",
+          "note": "体育館内ラウンジ開館時間の案内。"
+        }
+      }
+    },
+    {
+      "id": "tokorozawa-koku-jogging",
+      "identity": "所沢航空記念公園",
+      "normal": [
+        {
+          "url": "https://www.parks.or.jp/tokorozawa-kokuu/",
+          "tokens": [
+            "公園部分は常時開放"
+          ]
+        },
+        {
+          "url": "https://www.parks.or.jp/tokorozawa-kokuu/guide/009/009146.html",
+          "tokens": [
+            "ジョギングコース",
+            "1,950"
+          ],
+          "hash": "7c858df797213b30118365a7546f22ea8f5d11939e2bfa8aa518d9438e2a27d0"
+        }
+      ],
+      "feeds": [
+        "https://www.parks.or.jp/tokorozawa-kokuu/",
+        "https://www.parks.or.jp/tokorozawa-kokuu/news/"
+      ],
+      "importantGroup": "10008",
+      "noticePattern": "/tokorozawa-kokuu/(?:news|important|event|news_special)/.+\\.html$",
+      "reviews": {
+        "https://www.parks.or.jp/tokorozawa-kokuu/news_special/detail/008969.html": {
+          "hash": "3883fe647ee8d61f08304ac76f900849b94f2e5814dd8923e1641780e9ab5b27",
+          "note": "バーチャル公園のカード配布と管理事務所の受付案内。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/news_special/detail/005948.html": {
+          "hash": "dae5ae696c89375fe06826de53e3bb952ba878fd0ebdc765d09c20ec78f51459",
+          "note": "野外ステージのピアノ企画。コース閉鎖ではない。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/news_special/detail/005648.html": {
+          "hash": "cbd831fc0daf0d712393679216076d8692b00095c925c6d742c48e2a9bff61cf",
+          "note": "防災施設の案内マップ。コース閉鎖ではない。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/008/008873.html": {
+          "hash": "50b61f707de35e99b4bed2b9139364f3fbff2fee6248306111ea71d968f14556",
+          "note": "ヨガ教室の募集。公園内・管理事務所集合等の案内で、コース専用利用・閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/009/009287.html": {
+          "hash": "414c937bb4c6e1ddac77716b3ff095baa8359ac20585f274d038dd07eed6b434",
+          "note": "ヨガ教室の募集。公園内・管理事務所集合等の案内で、コース専用利用・閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/009/009314.html": {
+          "hash": "a9bd665e59ba840f7dc74a397f2cbeee9c695cc5c05bfefc15c2664e9042eaa0",
+          "note": "公園史の講演会。コース閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/008/008971.html": {
+          "hash": "7041ab3d8de4a30caf41dfb4ce1cab69b99106fc42b85933ef4f39b86965de46",
+          "note": "事前予約制の自然観察。コース閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/008/008946.html": {
+          "hash": "37c783d40d5f19b2bbd8d2af45947f83aa3777cd01562c5b9c03513beb54856d",
+          "note": "9/12〜10/3の初心者教室募集。コース占有・閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/009/009109.html": {
+          "hash": "2956b46c4be8f525d3b73b8d3bb3da15baf3dabd5e18ebf079405f1688e30cbb",
+          "note": "野外ステージの音楽企画。コース閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/009/009077.html": {
+          "hash": "c9b3bd3484a651b506e3790572e9e7151823e52bb97d66a93c68aeb45d85cd59",
+          "note": "9月の放送塔南側通路のイベント。コース閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/006/006186.html": {
+          "hash": "ac11432f2d57c2165fb031b62c4c07a52cd131c64e678790dfce04291de5e874",
+          "note": "野外ステージの音楽企画。コース閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/008/008959.html": {
+          "hash": "d54c698b76e88fcef271119d9d732957d0740061c5c7fb2398303bddea346fe5",
+          "note": "茶室の茶会。コース閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/event/007/007608.html": {
+          "hash": "4c6f7bbe892c900af14ab334e6a558e1362749486a2034a83d01c5dbcb507355",
+          "note": "事前予約制の自然観察。コース閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/important/009/009342.html": {
+          "hash": "a73560d6c5674affd67cb4880e0db4b4626ab05116399f2f8bb375d971837ebe",
+          "note": "人工芝サッカー場の観覧席工事。図面の禁止区域はサッカー場内で、東側ジョギングコースではない。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/important/007/007866.html": {
+          "hash": "578686470a4b20450550b7d9cdca506fb18de0020f849567b750a95342dffab6",
+          "note": "記念館駐車場の2025/9〜2027/3閉鎖。添付図でジョギングコースと離れた区域を確認。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/important/007/007867.html": {
+          "hash": "8d33ea0d81e0402cb78a0c6072ce7ef1f31f0b391b7b67556abf6766393adf52",
+          "note": "記念館改修に伴う大型・マイクロバス予約受付停止。コース閉鎖ではない。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/important/009/009055.html": {
+          "hash": "895668ea3e194f3a9725fe615578177812a0c0acff8f9130c4bd9674b52595bf",
+          "note": "テニス11番コートの照明1箇所の不良。ジョギングコースの照明制限ではない。"
+        },
+        "https://www.parks.or.jp/tokorozawa-kokuu/important/008/008868.html": {
+          "hash": "c1d56db2f89ec3c08644ccd7363a42a94f57e90316a43183427a4ff2975b214b",
+          "note": "南駐車場拡張工事の一部閉鎖。添付区域は駐車場で、ジョギングコースではない。"
+        }
+      }
+    },
+    {
+      "id": "koshigaya-park-jogging",
+      "identity": "越谷公園",
+      "normal": [
+        {
+          "url": "https://www.parks.or.jp/koshigaya/",
+          "tokens": [
+            "公園部分は常時開放"
+          ]
+        },
+        {
+          "url": "https://www.parks.or.jp/koshigaya/guide/001/001182.html",
+          "tokens": [
+            "ジョギングコース",
+            "1,830"
+          ],
+          "hash": "75338be17a11e41fdfbd6b4599c215680605c14edc5b301a69911e72d29ab648"
+        }
+      ],
+      "feeds": [
+        "https://www.parks.or.jp/koshigaya/",
+        "https://www.parks.or.jp/koshigaya/news/"
+      ],
+      "importantGroup": "10009",
+      "noticePattern": "/koshigaya/(?:news|important|event)/.+\\.html$",
+      "reviews": {
+        "https://www.parks.or.jp/koshigaya/event/008/008975.html": {
+          "hash": "efac4820a3e6cd8de395e0bb993cb25df71c5758746bbc4040064d11c065555f",
+          "note": "月1回のプレーパーク募集。コース占有・閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/koshigaya/event/009/009322.html": {
+          "hash": "9242c48b5879454152935f82d8d15e84497e813ed70bc1ae2838d8c2567b0caa",
+          "note": "10/12昆虫標本づくり。研修室と園内敷地での少人数催事で、コース占有・閉鎖の告知なし。"
+        },
+        "https://www.parks.or.jp/koshigaya/important/009/009075.html": {
+          "hash": "689b8b2deb1c97d1777f311433e7a75f3a224534a2c85d66539a4361dfa58d65",
+          "note": "ソフトボール場解体・仮設事務所工事。車両横断・敷鉄板はサイクリングコース。添付図の閉鎖箇所は直線スケートエリアであり、ジョギングコースではない。"
+        },
+        "https://www.parks.or.jp/koshigaya/important/009/009379.html": {
+          "hash": "5fa9a2b3c9272b55a2ce28c2e02d69556b332d0b63332b1397d7d35c24f4979e",
+          "note": "10/19草刈りの東駐車場閉鎖。コース閉鎖ではない。"
+        },
+        "https://www.parks.or.jp/koshigaya/important/008/008291.html": {
+          "hash": "b543fd6e7ab4046f864ef34cd3bef3cb07e1c1aae35e8c4bcd96f8b29063638f",
+          "note": "団体利用申請のGoogleフォーム移行。個人ランニングの閉鎖ではない。"
+        },
+        "https://www.parks.or.jp/koshigaya/important/008/008295.html": {
+          "hash": "213bb36527ff1af36ec0c06e592cc0973738f7d7cd4e71fbb7ca7a406e0a4a5c",
+          "note": "公園利用者専用の駐車場利用ルール。コース閉鎖ではない。"
+        },
+        "https://www.parks.or.jp/koshigaya/important/008/008331.html": {
+          "hash": "87c57c7828f8c956ddac7018e1af051ed354656c52a3109e708f851c6403fcf4",
+          "note": "愛称変更（たかもとヘルスパーク）。利用制限の告知ではない。"
+        }
+      }
+    },
+    {
+      "id": "misato-park-jogging",
+      "identity": "みさと公園",
+      "normal": [
+        {
+          "url": "https://www.seibu-la.co.jp/misato-yoshikawa/facility/misato.html",
+          "tokens": [
+            "ジョギング・ウォーキングコース",
+            "自由にご利用"
+          ],
+          "hash": "60ca2e3073045ede77affc40991aa211c5cd2908999f9661a74cc8408eda8ff6"
+        },
+        {
+          "url": "https://www.seibu-la.co.jp/misato-yoshikawa/about/misato.html",
+          "tokens": [
+            "終日開放"
+          ],
+          "hash": "94d18f873ea827a1d7072359f87cd00c73af9f5b3410ff5ee752a378ca1c2d56"
+        }
+      ],
+      "feeds": [
+        "https://www.seibu-la.co.jp/misato-yoshikawa/",
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/"
+      ],
+      "noticePattern": "/misato-yoshikawa/(?:news|event)/.+\\.html$",
+      "reviews": {
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/park/misato/202604011807485001.html": {
+          "hash": "751066d60ccfa439b434940b2b7b27b9f38ec09485d15e3d0be9b8ecdfa2b2bc",
+          "note": "照明故障のため日没〜日の出は園内立入不可。復旧時期未定。",
+          "restrictions": [
+            {
+              "from": "2026-03-31",
+              "to": null,
+              "status": "partially_available",
+              "reason": {
+                "ja": "照明故障のため、日没〜日の出は園内立入不可。復旧時期は未定です。",
+                "en": "No park entry between sunset and sunrise due to lighting failure. A restoration date has not been announced."
+              },
+              "sourceUrl": "https://www.seibu-la.co.jp/misato-yoshikawa/news/park/misato/202604011807485001.html",
+              "reopenConfirmed": false
+            }
+          ]
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/202610151600245347.html": {
+          "hash": "f40bcf714041480d73a9f5712c61a31651b8d0b0828fb227733e6940debced38",
+          "note": "同じ管理サイトに載る吉川公園の告知。対象はみさと公園ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/park/misato/202610131734135392.html": {
+          "hash": "8c07a7a1b72677b32950996379c7c2581208f58bdd1b49cf7a5519ab5214d0d6",
+          "note": "園内水道・トイレの断水（10/13分は10/14復旧追記あり）。コースの閉鎖ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/202609220800245372.html": {
+          "hash": "2ba007941aae5035f87d6e66693142d40c0f77cb0339358fbd1e0e244800a98c",
+          "note": "池沿い冠水はタイトルに9/27解消の追記あり。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/202609150830545331.html": {
+          "hash": "fa44edba2f022ead911fcc1739f8f3b0e964998c780d4230829bc98189d160f2",
+          "note": "同じ管理サイトに載る吉川公園の告知。対象はみさと公園ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/202609131628225341.html": {
+          "hash": "b24406b3c492fb102b2bd59c312dc2ec1f940fbb172f9560f340c8d8fff1a1f9",
+          "note": "同じ管理サイトに載る吉川公園の告知。対象はみさと公園ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/event/202609091619095286.html": {
+          "hash": "d04f97431fb60f2c9e8a84e811bbd17dc50ab4e540b9a96f2435c245ab12fcb9",
+          "note": "12/12〜13の犬イベントは自由広場で開催。コース占有・閉鎖の告知なし。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/park/yoshikawa/202608261716065316.html": {
+          "hash": "3323200641ed386824f93fcfac44092793a5f663ad88fb3f8bdbc4d7914c2d24",
+          "note": "同じ管理サイトに載る吉川公園の告知。対象はみさと公園ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/202608161815335281.html": {
+          "hash": "b51a846a19fe4e73ae508e1d644233a4c76771654c7f7153a4d23aa72e21b00b",
+          "note": "同じ管理サイトに載る吉川公園の告知。対象はみさと公園ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/202608131140475271.html": {
+          "hash": "db9c9dd9bd9315b14e03cd66a7b411333a61f3c098c846013f91fc4927ab1a94",
+          "note": "同じ管理サイトに載る吉川公園の告知。対象はみさと公園ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/202607181900365262.html": {
+          "hash": "aa8b392171f88b140858bf0704fc9914c94db70aeda7a0137e0966d78392fa39",
+          "note": "同じ管理サイトに載る吉川公園の告知。対象はみさと公園ではない。"
+        },
+        "https://www.seibu-la.co.jp/misato-yoshikawa/news/park/misato/202607101200535221.html": {
+          "hash": "81a1ca748ffa23e4552b616d2542a372a01b033ed7a1c7a2dd27019b20d2a65d",
+          "note": "園内水道・トイレの断水（10/13分は10/14復旧追記あり）。コースの閉鎖ではない。"
+        }
+      }
+    }
+  ]
+}

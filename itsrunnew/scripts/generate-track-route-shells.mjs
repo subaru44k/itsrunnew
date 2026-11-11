@@ -24,8 +24,8 @@ function staticHomeContent(locale) {
   const prefix = locale === 'en' ? '/en' : '';
   const heading = locale === 'en' ? 'Find a training place near you' : '近くで走れる練習場所を探す';
   const description = locale === 'en'
-    ? 'Compare athletic tracks and running loops by location and lap distance.'
-    : '陸上トラックと公園の周回コースを、場所や一周の距離から探せます。';
+    ? 'Compare athletic tracks and running courses by location.'
+    : '陸上トラックとランニングコースを、場所から探せます。';
   const odaLinkLabel = locale === 'en' ? 'Oda Field closure and facility information' : '織田フィールドの利用情報';
   return `<div id="app"><main data-static-home><h1>${heading}</h1><p>${description}</p><p><a data-oda-discovery href="${prefix}/tracks/${ODA_TRACK_ID}">${odaLinkLabel}</a></p><ul>${courses.map(course => `<li><a href="${prefix}/courses/${course.id}">${escapeHtml(course.name[locale])}</a></li>`).join('')}</ul></main></div>`;
 }
@@ -106,7 +106,7 @@ function staticNearbyCourses(place, locale) {
   const nearby = courses.filter(course => course.id !== place.id).map(course => ({ course, distance: distanceKm(place.location, course.location) })).filter(item => item.distance <= 15).sort((a, b) => a.distance - b.distance || a.course.id.localeCompare(b.course.id)).slice(0, 3);
   if (!nearby.length) return '';
   const prefix = locale === 'en' ? '/en' : '';
-  return `<section data-static-nearby-courses><h2>${locale === 'en' ? 'Nearby running loops' : '近くの周回コース'}</h2><p>${locale === 'en' ? 'Usual course conditions; day restrictions are unconfirmed.' : '通常のコース情報です。指定日の利用規制は未確認です。'}</p><ul>${nearby.map(({ course, distance }) => `<li><a href="${prefix}/courses/${course.id}">${escapeHtml(course.name[locale])}</a> ${courseLength(course, locale)} · ${distance.toFixed(1)} km${course.rules.map(rule => `<p>${escapeHtml(rule[locale])}</p>`).join('')}</li>`).join('')}</ul></section>`;
+  return `<section data-static-nearby-courses><h2>${locale === 'en' ? 'Nearby running courses' : '近くのランニングコース'}</h2><p>${locale === 'en' ? 'Usual course conditions; day restrictions are unconfirmed.' : '通常のコース情報です。指定日の利用規制は未確認です。'}</p><ul>${nearby.map(({ course, distance }) => `<li><a href="${prefix}/courses/${course.id}">${escapeHtml(course.name[locale])}</a> ${courseLength(course, locale)} · ${distance.toFixed(1)} km${course.rules.map(rule => `<p>${escapeHtml(rule[locale])}</p>`).join('')}</li>`).join('')}</ul></section>`;
 }
 function staticCourseContent(course, locale) {
   const prefix = locale === 'en' ? '/en' : '';
@@ -115,10 +115,10 @@ function staticCourseContent(course, locale) {
     [locale === 'en' ? 'Surface' : '路面', course.surface === 'rubber-chip' ? (locale === 'en' ? 'Rubber chip' : 'ゴムチップ') : course.surface === 'special-paving' ? (locale === 'en' ? 'Special paving (material unconfirmed)' : '特殊舗装（材質未確認）') : (locale === 'en' ? 'Surface unconfirmed' : '路面未確認')],
     ...(course.distanceMarkersMeters ? [[locale === 'en' ? 'Distance markers' : '距離表示', `${course.distanceMarkersMeters} m`]] : []),
     ...(course.crossings ? [[locale === 'en' ? 'Crossings' : '横断箇所', course.crossings[locale]]] : []),
-    ...(course.hours ? [[locale === 'en' ? 'Usual park hours' : '通常の開園時間', course.hours[locale]]] : []),
+    ...(course.hours ? [[locale === 'en' ? 'Usual park hours' : '通常開園時間', course.hours[locale]]] : []),
   ];
   const nearbyTracks = tracks.map(track => ({ track, distance: distanceKm(course.location, track.location) })).sort((a, b) => a.distance - b.distance || a.track.id.localeCompare(b.track.id)).slice(0, 3);
-  return `<div id="app"><main data-static-course-detail><nav><a href="${prefix}/">${locale === 'en' ? 'Find a training place' : '練習場所を探す'}</a></nav><p>${locale === 'en' ? 'Running loop' : '周回コース'}</p><h1>${escapeHtml(course.name[locale])}</h1><p>${escapeHtml(course.location.address)}</p><dl>${facts.map(([label, value]) => `<dt>${label}</dt><dd>${escapeHtml(value)}</dd>`).join('')}</dl><ul>${course.rules.map(rule => `<li>${escapeHtml(rule[locale])}</li>`).join('')}</ul><p>${locale === 'en' ? 'These are usual conditions. Check official notices for event or construction restrictions before visiting.' : '通常の利用条件です。工事・行事による当日の規制は公式のお知らせで確認してください。'}</p><p><a href="${escapeHtml(course.urls.map)}">${locale === 'en' ? 'Official course map' : '公式のコース図'}</a> · <a href="${escapeHtml(course.urls.official)}">${locale === 'en' ? 'Official information' : '公式のお知らせ・利用案内'}</a></p><h2>${locale === 'en' ? 'Nearby tracks' : '近くの陸上トラック'}</h2><ul>${nearbyTracks.map(({ track }) => `<li><a href="${prefix}/tracks/${track.id}">${escapeHtml(track.name[locale])}</a></li>`).join('')}</ul>${staticNearbyCourses(course, locale)}<h2>${locale === 'en' ? 'Sources and checked dates' : '出典・確認日'}</h2><ul>${course.sources.map(source => `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.label[locale])}</a> ${source.verifiedAt}</li>`).join('')}</ul></main></div>`;
+  return `<div id="app"><main data-static-course-detail><nav><a href="${prefix}/">${locale === 'en' ? 'Find a training place' : '練習場所を探す'}</a></nav><p>${locale === 'en' ? 'Running course' : 'ランニングコース'}</p><h1>${escapeHtml(course.name[locale])}</h1><p>${escapeHtml(course.location.address)}</p><dl>${facts.map(([label, value]) => `<dt>${label}</dt><dd>${escapeHtml(value)}</dd>`).join('')}</dl><ul>${course.rules.map(rule => `<li>${escapeHtml(rule[locale])}</li>`).join('')}</ul><p>${locale === 'en' ? 'These are usual conditions. Check official notices for event or construction restrictions before visiting.' : '通常の利用条件です。工事・行事による当日の規制は公式のお知らせで確認してください。'}</p><p><a href="${escapeHtml(course.urls.map)}">${locale === 'en' ? 'Official course map' : '公式のコース図'}</a> · <a href="${escapeHtml(course.urls.official)}">${locale === 'en' ? 'Official information' : '公式のお知らせ・利用案内'}</a></p><h2>${locale === 'en' ? 'Nearby tracks' : '近くの陸上トラック'}</h2><ul>${nearbyTracks.map(({ track }) => `<li><a href="${prefix}/tracks/${track.id}">${escapeHtml(track.name[locale])}</a></li>`).join('')}</ul>${staticNearbyCourses(course, locale)}<h2>${locale === 'en' ? 'Sources and checked dates' : '出典・確認日'}</h2><ul>${course.sources.map(source => `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.label[locale])}</a> ${source.verifiedAt}</li>`).join('')}</ul></main></div>`;
 }
 
 function pageShell({ path, locale, title, description, alternateJa, alternateEn, body }) {
@@ -210,7 +210,7 @@ for (const track of tracks) {
 for (const course of courses) for (const locale of ['ja', 'en']) {
   const prefix = locale === 'en' ? '/en' : '';
   const path = `${prefix}/courses/${course.id}`;
-  const title = locale === 'en' ? `${course.name.en} | Running loop - ItsRun` : `${course.name.ja}の距離・路面・利用条件 - いつラン`;
+  const title = locale === 'en' ? `${course.name.en} | Running course - ItsRun` : `${course.name.ja}の距離・路面・利用条件 - いつラン`;
   const description = locale === 'en' ? `Compare ${course.name.en}'s lap distance, surface and usual conditions. View the official map and nearby tracks.` : `${course.name.ja}の一周距離・路面・通常の利用条件を確認できます。公式コース図や近くの陸上トラックも探せます。`;
   let html = pageShell({ path, locale, title, description, alternateJa: `/courses/${course.id}`, alternateEn: `/en/courses/${course.id}`, body: staticCourseContent(course, locale) });
   const structuredData = JSON.stringify({ '@context': 'https://schema.org', '@type': 'SportsActivityLocation', name: course.name[locale], description, address: course.location.address, geo: { '@type': 'GeoCoordinates', latitude: course.location.latitude, longitude: course.location.longitude }, url: `${origin}${path}`, sameAs: course.urls.official }).replace(/</g, '\\u003c');

@@ -7,23 +7,31 @@ const tracks = JSON.parse(await readFile(new URL('../src/data/tracks.json', impo
 export async function checkRunningCourses(page, base, date) {
   const output = '/tmp/itsrun-running-courses';
   await mkdir(output, { recursive: true });
+  const endpoint='**/availability/running-courses.json';
+  let statusMode='mixed';
+  const snapshot=()=>{
+    const now=new Date(),stamp=now.toISOString(),expiresAt=new Date(+now+8*86400000).toISOString();
+    return {schemaVersion:1,timezone:'Asia/Tokyo',fixture:true,generatedAt:stamp,expiresAt:statusMode==='expired'?new Date(+now-1).toISOString():expiresAt,nextCheckAt:new Date(+now+7*86400000).toISOString(),configHash:'0'.repeat(64),generation:'0'.repeat(24),courses:courses.map(course=>({courseId:course.id,checkedAt:stamp,attemptedAt:stamp,expiresAt,normalUse:!course.id.includes('tokorozawa'),unknownReason:course.id.includes('tokorozawa')?'notice_review_required':null,evidence:[{url:course.urls.official,hash:'0'.repeat(64)}],pending:[],restrictions:course.id.includes('komazawa')||course.id.includes('misato')?[{from:date,to:null,status:course.id.includes('komazawa')?'unavailable':'partially_available',reason:{ja:course.id.includes('komazawa')?'コース工事で全面閉鎖':'日没〜日の出は立入不可',en:course.id.includes('komazawa')?'Entire course closed for construction':'No entry from sunset to sunrise'},sourceUrl:course.urls.official,reopenConfirmed:false}]:[]}))};
+  };
+  await page.route(endpoint,route=>statusMode==='failed'?route.fulfill({status:503,body:'Unavailable'}):route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(snapshot())}));
   const wako = courses.find(course => course.id === 'wako-jurin-jogging');
   const oizumi = tracks.find(track => track.id.includes('oizumi'));
   for (const language of ['ja', 'en']) {
     const prefix = language === 'en' ? '/en' : '';
     await page.goto(`${base}${prefix}/?kind=course&date=${date}&lat=35.77740&lng=139.59868`, { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(count => document.querySelectorAll('.facility-row').length === count, courses.length-1);
+    assert.equal(await page.locator('[data-place-id="komazawa-jogging"]').count(),0,'Explicitly closed courses are hidden by default');
+    await page.locator('.track-controls input[type="checkbox"]').check();
     await page.waitForFunction(count => document.querySelectorAll('.facility-row').length === count, courses.length);
-    assert.equal(await page.locator('.date-controls').count(), 0, 'Course-only results must not suggest confirmed date availability');
+    assert.equal(await page.locator('.date-controls').count(), 1);
+    assert.equal(await page.getByLabel(language === 'en' ? 'Lap distance' : '一周の距離', { exact:true }).count(),0,'Lap distance filtering was removed');
+    assert.equal(await page.locator('.course-badge--unavailable').count(),1);
+    assert.equal(await page.locator('.course-badge--partially_available').count(),1);
+    assert.equal(await page.locator('.course-badge--unknown').count(),1);
     assert.equal(await page.locator('.facility-row .availability-badge').count(), 0);
     assert.equal(await page.locator('.facility-row .course-badge').count(), courses.length);
     assert.equal(await page.locator('.facility-row').first().getAttribute('data-place-id'), wako.id);
     const kind = page.getByLabel(language === 'en' ? 'Place type' : '場所の種類', { exact: true });
-    const distance = page.getByLabel(language === 'en' ? 'Lap distance' : '一周の距離', { exact: true });
-    await distance.selectOption('2000');
-    await page.waitForFunction(() => document.querySelectorAll('.facility-row').length === 1);
-    assert.equal(await page.locator('.facility-row').getAttribute('data-place-id'), 'komazawa-jogging');
-    await distance.selectOption('1000');
-    await page.waitForFunction(count => document.querySelectorAll('.facility-row').length === count, courses.length);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     const overlaps = await page.locator('.facility-row').evaluateAll(rows => rows.flatMap(row => {
       const elements = ['.course-badge', '.facility-main', '.facility-distance', '.map-action'].map(selector => ({ selector, rect: row.querySelector(selector)?.getBoundingClientRect() })).filter(item => item.rect);
@@ -35,6 +43,7 @@ export async function checkRunningCourses(page, base, date) {
     assert.match(await row.innerText(), language === 'en' ? /No speed running/ : /スピード走/);
     await row.locator('button').click();
     await page.locator('.detail-card .course-facts').waitFor();
+    await page.locator('.detail-card .course-status--available').waitFor();
     assert.equal(await page.locator('.detail-card .today-availability').count(), 0);
     await page.locator(`#track-map button[data-track-id="${wako.id}"] .track-marker--course`).waitFor();
     const detailLink = page.locator('.detail-card a').filter({ hasText: language === 'en' ? 'Course page' : 'コース詳細' });
@@ -42,6 +51,7 @@ export async function checkRunningCourses(page, base, date) {
     await detailLink.click();
     await page.waitForURL(url => url.pathname === `${prefix}/courses/${wako.id}` && url.searchParams.get('date') === date && url.searchParams.get('lat') === '35.77740');
     await page.getByRole('heading', { name: wako.name[language], exact: true }).waitFor();
+    await page.locator('.course-status--available').waitFor();
     assert.match(await page.locator('.course-facts').innerText(), /800 \/ 1,000 m/);
     assert.equal(await page.locator('.facility-schedule, .availability-result, .field-reports').count(), 0);
     assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), `https://itsrun.info${prefix}/courses/${wako.id}`);
@@ -69,12 +79,18 @@ export async function checkRunningCourses(page, base, date) {
     await page.waitForURL(url => url.pathname === `${prefix}/courses/${wako.id}` && url.searchParams.get('date') === date);
     await page.locator('.breadcrumbs a').click();
     await page.waitForURL(url => url.pathname === `${prefix}/` && url.searchParams.get('kind') === 'course' && url.searchParams.get('date') === date);
-    // Clearing filters restores tracks and a distance threshold excludes their shorter laps.
     await kind.selectOption('track');
     await page.locator('.date-controls').waitFor();
-    await distance.selectOption('1000');
-    await page.locator('.no-results').waitFor();
-    await page.locator('.no-results button').click();
-    await page.waitForFunction(() => !new URL(location.href).searchParams.has('kind') && !new URL(location.href).searchParams.has('minLap'));
+    assert.equal(await page.locator('.facility-row .course-badge').count(),0);
   }
+  await page.goto(`${base}/courses/misato-park-jogging?date=${date}`);
+  await page.locator('.course-status--partially_available').waitFor();
+  assert.match(await page.locator('.course-status').innerText(),/日没〜日の出は立入不可/);
+  for(const mode of ['expired','failed']){
+    statusMode=mode;
+    await page.goto(`${base}/courses/${wako.id}?date=${date}`);
+    await page.locator('.course-status--unknown').waitFor();
+    assert.equal(await page.locator('.course-status--available').count(),0,`${mode} must not show availability`);
+  }
+  await page.unroute(endpoint);
 }

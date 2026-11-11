@@ -26,10 +26,10 @@
   "tracks": {
     "path": "",
     "component": "TrackSearch",
-    "jaTitle": "陸上競技場・周回コース検索｜近くの練習場所を探す - いつラン",
-    "enTitle": "Find athletic tracks and running loops near you - ItsRun",
-    "jaDescription": "陸上トラックと公園の周回コースを、現在地・任意地点・一周の距離から探せます。トラックの個人利用予定と、周回コースの距離・路面・利用条件を比較できます。",
-    "enDescription": "Find athletic tracks and park running loops by location and lap distance. Compare track schedules and the usual conditions, surfaces and distances of running loops."
+    "jaTitle": "陸上競技場・ランニングコース検索｜近くの練習場所を探す - いつラン",
+    "enTitle": "Find athletic tracks and running courses near you - ItsRun",
+    "jaDescription": "陸上トラックとランニングコースを、現在地・任意地点から探せます。トラックの個人利用予定と、ランニングコースの距離・路面・利用条件を比較できます。",
+    "enDescription": "Find athletic tracks and running courses by location. Compare track schedules and the usual conditions, surfaces and distances of running courses."
   },
   "about": {
     "path": "about",

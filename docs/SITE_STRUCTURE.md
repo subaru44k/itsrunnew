@@ -56,7 +56,10 @@ itsrunnew/
 │   ├── data/legacy-facility-guides.json  統合した旧3施設のlocale keyと地図URL
 │   ├── data/page-metadata.json 固定ページのpath・日英metadata（routerとHTML shellで共有）
 │   ├── data/facility-guidance.json  主要6施設の日英利用条件・公式確認導線・個別metadata
-│   ├── data/running-courses.json 公式確認済みの周回コース（Track Dataset・日別availabilityから分離）
+│   ├── data/running-courses.json 公式確認済みのランニングコース（Track Datasetから分離）
+│   ├── data/availability/running-courses.json コース可否の週次snapshot
+│   ├── model/course-availability.ts コース可否schema・期限/日付判定
+│   ├── services/course-availability.ts 静的コース可否取得
 │   ├── data/tracks.json       公式情報で検証済みの公開用Track Dataset
 │   ├── data/nozomi-results.json 田中希実選手の2020年以降の大会結果
 │   ├── data/ryuji-results.json  三浦龍司選手の2020年以降の大会結果
@@ -73,7 +76,8 @@ itsrunnew/
 │   │   ├── FacilitySchedule.vue 品質別の個人利用予定・判断カード・統合した日付詳細slot
 │   │   ├── FieldReports.vue   対象日レポートの閲覧・匿名当日投稿・計測
 │   │   ├── CourseFacts.vue   周回距離・路面・利用条件の共通表示
-│   │   ├── NearbyCourses.vue  15km以内の近隣周回コース（最大3施設）
+│   │   ├── CourseStatus.vue   コース利用可否・制限・確認日
+│   │   ├── NearbyCourses.vue  15km以内の近隣ランニングコース（最大3施設）
 │   │   ├── TrackMap.vue       地図の遅延初期化、失敗表示、再試行、resize
 │   │   ├── map/               Leafletの描画・クラスタリング、地図の型とmarker button
 │   │   ├── schedule/          週間表、ページ送り、状態アイコン
@@ -194,7 +198,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 | 日本語 | 英語 | View | 用途 |
 |---|---|---|---|
-| `/` | `/en/` | `TrackSearch.vue` | 陸上トラック・周回コース検索（ホーム） |
+| `/` | `/en/` | `TrackSearch.vue` | 陸上トラック・ランニングコース検索（ホーム） |
 | `/tracks` | `/en/tracks` | redirect | queryを維持してTrack Searchホームへ移動する互換URL |
 | `/tracks/:trackId` | `/en/tracks/:trackId` | `TrackDetail.vue` | 個人利用予定・確認方法、選択日詳細、施設仕様、公式導線と周辺候補 |
 | `/courses/:courseId` | `/en/courses/:courseId` | `CourseDetail.vue` | 周回距離・路面・通常の利用条件、公式コース図、周辺トラック |
@@ -214,7 +218,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 `/tracks` と `/en/tracks` は日付queryを維持して `/` と `/en/` へ移動します。互換リダイレクトは `/index.html` → `/`、`/komazawa_olympic`（日英・末尾スラッシュ対応）→ 同じ言語の `/tracks/komazawa-olympic-park-track`、削除済み `/manage` → `/` です。織田・夢の島・駒沢・等々力の旧日英URLは末尾スラッシュの有無を問わず、Production CloudFrontで日付などのqueryを保持したHTTP 301を返します。Vue Routerでも同じ転送先へquery・hashを維持します。それ以外の未知パスは言語に対応した404画面を表示し、robotsをnoindexにします。Productionは実HTTP 404、PreviewのSPA fallbackはHTTP 200です。
 
-ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「陸上競技場・周回コース検索｜近くの練習場所を探す - いつラン」、descriptionは「陸上トラックと公園の周回コースを、現在地・任意地点・一周の距離から探せます。トラックの個人利用予定と、周回コースの距離・路面・利用条件を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、個人利用スケジュールと確認方法を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全トラック・周回コースの日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英の全固定ページと全施設詳細のHTML shellを生成します。固定ページは共有metadataからcanonical・title・description・hreflang・OGPを設定し、初期HTMLとruntimeの指定をそろえます。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは既知の固定ページと施設詳細をそれぞれのHTML shellへrewriteし、ルート`/`だけを`/index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は収録データの年度ごとのアンカーを持ち、田中・三浦は `#2026` から `#2020`、追加3選手は各選手の初掲載年までを持ちます。
+ルート遷移時に `router.beforeEach` が言語、`document.title`、description、robots、canonical、日英hreflang、OGP/Twitter metadataを更新します。日本語トップページのtitleは「陸上競技場・ランニングコース検索｜近くの練習場所を探す - いつラン」、descriptionは「陸上トラックとランニングコースを、現在地・任意地点から探せます。トラックの個人利用予定と、ランニングコースの距離・路面・利用条件を比較できます。」です。canonicalは `https://itsrun.info` を正本とし、日付queryを含めません。施設詳細では名称、個人利用スケジュールと確認方法を含む個別metadataへ差し替えます。共通HTMLにはfavicon、apple-touch-icon、theme color、共有OGP画像を持ち、build前に `generate-public-pages.mjs` が固定20 URLと全トラック・ランニングコースの日英詳細URLからUTF-8の標準XML sitemapを生成します。各`url`は絶対`loc`と任意の`changefreq`だけを持ち、日英と`x-default`のhreflangは共通HTML・静的route shellの`<link rel="alternate">`で提供します。sitemapにXHTML拡張を含めないことで、Googleの標準XML処理とブラウザのXMLビューアの両方で扱いやすくしています。build後は `generate-track-route-shells.mjs` が検索エンジン・直接アクセス向けに、日英の全固定ページと全施設詳細のHTML shellを生成します。固定ページは共有metadataからcanonical・title・description・hreflang・OGPを設定し、初期HTMLとruntimeの指定をそろえます。施設詳細shellにはJSON-LDに加え、施設名・住所と日付非依存の近隣5施設への通常のHTML linkを含め、JavaScript実行前にも重要な内部リンクを解釈できるようにします。操作後の候補は選択日のavailabilityを反映するため、shellの距離順linkとは独立してruntimeでrankingします。Production CloudFrontは既知の固定ページと施設詳細をそれぞれのHTML shellへrewriteし、ルート`/`だけを`/index.html`へrewriteします。Preview workflowはbuild時に `VITE_DEPLOY_TARGET=preview` を渡し、初期HTMLとroute遷移後をnoindexにします。記録集は収録データの年度ごとのアンカーを持ち、田中・三浦は `#2026` から `#2020`、追加3選手は各選手の初掲載年までを持ちます。
 
 ## 6. ページと機能
 
@@ -224,17 +228,23 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 織田フィールドの正規ページは `/tracks/yoyogi-park-athletic-track` です。共通の `TrackDetail.vue` に、2026年7月1日から11月30日までの利用停止予定と公式案内、アクセス・地図・連絡先、工事前のランナーの使用感を追加します。日付・availability・周辺5施設のrankingは他施設と共通の機能を使い、独立した旧週間表・近隣4施設の計算・ページ固有広告枠は持ちません。12月1日の自動的な再開を前提にしない注意と、使用感が現況ではない旨を保持します。日英の旧URLは転送のみとし、sitemapとサイト内リンクは正規ページへ統一します。日英ホームの初期HTMLにも織田フィールドへの通常のリンクを含め、施設詳細の初期HTMLには固有の案内を含めます。
 
-### 公園などの周回コース
+### ランニングコース
 
 `src/data/running-courses.json` はTrack Datasetとは別の静的データです。初期掲載は和光樹林・駒沢・所沢航空記念・越谷（旧県民健康福祉村）・みさとの5施設。1公園に複数の周回路があっても1施設にまとめ、公式の距離、概数か否か、確認できた路面・距離表示・横断箇所・開園時間・利用制限と、属性ごとの出典URL/確認日を保持します。記載のない材質・混雑・夜間の安全性やスピード練習適性は推測しません。和光樹林のスピード走・集団走・スパイク禁止は一覧・選択カード・詳細・静的shellに表示します。候補の採否・根拠・未確認事項は [`../research/running-courses/initial-batch-20261111.md`](../research/running-courses/initial-batch-20261111.md) に記録します。
 
-`model/running-courses.ts` は既存トラックとの共通検索型、施設種別・一周距離filter、日英canonical pathと近隣コースを担当します。ホームは既定で両種別を同じ地図・一覧・直線距離順に表示し、`kind=track|course` と `minLap=1000|2000` のqueryで絞り込みを共有できます。複数コースがある公園はどれか1周が距離条件を満たす場合に残し、距離不明のトラックは距離条件指定時に除外します。周回コースのみの検索ではトラックの日付入力と不可switchを表示しません。通常利用条件と指定日の規制は分け、紫の四角marker・「周回コース」badgeで日別availabilityの4statusと区別します。内部の描画互換用marker statusがunknownでも、日別利用可否のrecordや確認時刻には転用しません。
+`model/running-courses.ts` は既存トラックとの共通検索型、施設種別filter、日英canonical pathと近隣コースを担当します。ホームは両種別を同じ地図・一覧・直線距離順に表示し、`kind=track|course` で絞り込みます。一周距離filterはありません（旧`minLap` queryは無視）。日付・利用不可表示switchはコースのみの検索でも使用します。コースは四角markerで区別し、色は利用可・一部利用可・要確認・利用不可に連動します。明示的な利用不可のみ既定で除外し、unknownは残します。
 
-`CourseDetail.vue` と `CourseFacts.vue` は短い事実一覧・利用制限、公式コース図、経路と近くのトラック3施設を表示します。位置は公園の代表地点で、正確な入口・スタート地点は公式図へ案内します。日別予定・匿名レポートAPIへは接続しません。既存トラック詳細の近隣候補内とコース詳細には、15km以内の別の周回コースを直線距離順に最大3施設表示します。トラック5候補のavailability rankingは維持し、通常開放の公園を確認済み利用可として優先しません。コースへの内部遷移は選択日を維持しますが、その日の利用規制が確認済みとは表示しません。
+`CourseDetail.vue` / `CourseFacts.vue` は短い事実一覧・利用制限、公式コース図、経路と近くのトラック3施設を表示します。位置は公園の代表地点です。`CourseStatus.vue` は選択日の利用可否、制限理由、公式情報の確認日と告知リンクを表示します。トラック詳細・コース詳細には15km以内の別コースを最大3施設表示し、コースのstatusも示します。既存トラック5候補のavailability ranking、133 track IDと現地レポートAPI allowlistは変更しません。
 
-日英 `/courses/:courseId` はrouter metadata・canonical/hreflang・JSON-LD・sitemap・静的HTML shellに対応します。shellも同じ静的事実・制限と近隣リンクを持ち、トラック詳細shellにも近隣コースへの通常linkを追加します。Productionのroute functionを `/courses/` のshell rewriteへ拡張しているため、初回公開にはcontentに加え既存Production stackのroute function更新が必要です（domain/DNS/certificate変更なし）。週次の施設再確認automationとavailability collectorは既存トラックだけを対象にし、周回コースは更新時に手動で公式資料を再確認します。自動規制監視は未実装です。
+コースの可否はトラックの日別/施設別partitionとは分け、`src/data/availability/running-courses.json`を`/availability/running-courses.json`として静的配信します。5施設を一つのsnapshotにし、config hash・generation・生成時刻・確認時刻・期限・次回確認予定・根拠hash・未確認告知を保持します。`src/model/course-availability.ts`がschema、全ID、公式URL、fixture拒否、最大8日の期限、選択日を検証します。`services/course-availability.ts`はno-cache取得/10秒timeout/60秒共有・再取得と時計更新を担当し、失敗時に古いpositiveを残しません。bundleへstatusをfallbackしません。
 
-計測は同意済みの既存facility/action eventへ `course_id` / `place_kind=course` を追加し、絞り込みは `place_filter_change` を使います。通常のトラックeventは既存のtrack_idを維持し、現在地や任意地点の座標は送信しません。`running-courses.test.ts` は出典・IDの分離・複数周回距離filter・近隣範囲を、共通smoke内の `running-courses-smoke.mjs` は日英PC/スマホの検索・marker・制限・詳細と近隣遷移・canonical/選択条件・横幅を、route shell/Production stack unitは初期HTMLとrewriteを検証します。
+`scripts/course-availability/` の`collect:courses`は通常利用の明示案内と公式news/重要告知を取得します。所沢・越谷は別配信の`/exis/c_jsdata/important.json`（共通10000+施設group）も確認します。HTML本文・添付画像/PDFのbyte hashを確認済み`sources.json`と照合し、新規/変更/取得失敗はunknownです。通常案内の専用ページもhashでguardします。施設名のある告知で、コース全体・終日・完全な西暦年月日期間が明示された限定的なHTML閉鎖だけ自動判定します。それ以外の新規告知・画像/PDF・再開情報は要review。駐車場、トイレ、球技場、別公園の閉鎖をランニングコースの閉鎖と混同しません。閉鎖告知が一覧から消えても元URLを再確認し、終了予定日だけで再開を推測しません。継続制限は終了日nullに対応します。
+
+既存Preview/Production data preparationでトラック収集・rollback復元の後に`collect:courses`を呼びます。公開済みsnapshotが正常・同じconfig・次回確認前ならbyte内容を再利用し、通常7日後、unknownがあれば1日後に再取得します。取得後の期限は8日。新しいcron/backend/AI APIは使わず、data jobはアプリをbuildしません。`--force`で再取得できます。`validate:availability:fresh`は既存partition検証の後に`validate:courses`も実行します。data rollbackでもコースは古い状態へ巻き戻さず、現在の公開snapshot再利用または再収集を行います。既存published-generation health monitorはトラックのgenerationを監視し、コースの期限は専用validatorとクライアントが判定します。運用詳細・初回review根拠は [`../research/running-courses/availability-20261111.md`](../research/running-courses/availability-20261111.md)。
+
+日英 `/courses/:courseId` はmetadata・canonical/hreflang・JSON-LD・sitemap・静的HTML shellに対応します。shellは通常の静的事実のみ持ち、変化する利用可否はruntimeで取得します。初回公開には既存Production CloudFront route functionの`/courses/` rewrite更新が必要です（domain/DNS/certificate変更なし）。このbranchの実装だけでは本番の週次確認は有効になりません。
+
+計測は同意済みeventへ`course_id` / `place_kind=course`を追加し、種別filterは`place_filter_change`を使います。座標は送信しません。`running-courses.test.ts`は出典・ID分離・種別filter・近隣範囲を、`course-availability/collector.test.ts`は取得・重要告知・添付差替え・期限・週次再利用・閉鎖/再開境界を検証します。共通smoke内の`running-courses-smoke.mjs`は日英PC/スマホの検索・可否と不可filter・距離filter削除・詳細/近隣遷移・canonical/選択条件・横幅/重なり・失敗時unknownを検証します。
 
 ### スケジュール
 
@@ -296,7 +306,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 Track Searchの中心価値は、指定日に近くで集中して走れる環境を見つけられることです。施設情報を公式サイトなしで完全に把握できることは目標にせず、日付別の個人利用可能性、距離、トラック長、路面、利用可能時間と公式確認導線を優先します。スパイク可否、料金、細かな条件は補助情報であり、網羅率の目標にしません。変化し得る条件を古い静的値で断定せず、確認不能ならunknownを保ちます。調査・更新時の具体的な優先順位は [`TRACK_DATA.md`](TRACK_DATA.md) を正本とします。
 
-施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `public/availability` が生成先の `src/data/availability/` を静的公開し、`src/model/availability-range.ts` がmanifestと選択日JSONを並行して安定URLから取得します。manifest取得はVue起動を待たせず、完了時は反応的に日付範囲と選択日を更新します。日別JSONは同時要求と画面間移動で共有し、同じ生成世代なら60秒間メモリで再利用します。開いたままのタブでも60秒以上後の利用状況取得時にmanifestを非同期で再確認し、新しい生成世代を反映します。取得失敗時はunknownに落とし、日次データ変更でアプリJSや全HTML shellを更新しません。`availability.ts` は対象日・期限込みで利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧へ反映します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや資格の3択dropdownは設けません。施設種別・一周距離の絞り込みは前述の周回コース節を参照してください。検索・予定取得用のrouting APIやbackend、リアルタイムOverpass/JAAF/施設検索はありません。
+施設仕様・料金・確認日の詳細、公式案内、API key不要のGoogle Maps Directions URLを提供します。詳細の予定・公式・経路actionはアイコン、明確な文字色、44px以上の押下領域を持ちます。さらに `public/availability` が生成先の `src/data/availability/` を静的公開し、`src/model/availability-range.ts` がmanifestと選択日JSONを並行して安定URLから取得します。manifest取得はVue起動を待たせず、完了時は反応的に日付範囲と選択日を更新します。日別JSONは同時要求と画面間移動で共有し、同じ生成世代なら60秒間メモリで再利用します。開いたままのタブでも60秒以上後の利用状況取得時にmanifestを非同期で再確認し、新しい生成世代を反映します。取得失敗時はunknownに落とし、日次データ変更でアプリJSや全HTML shellを更新しません。`availability.ts` は対象日・期限込みで利用可能・一部利用可能・要確認・利用不可のmarker、詳細、施設一覧へ反映します。「今日」「明日」「土曜」「日曜」、native date input、`?date=YYYY-MM-DD` URL stateを持ちます。通常は選択日に明示的な利用不可だけを除外してunknownを残し、単一の利用不可表示switchで全施設へ切り替えます。公開UIではcollectorやbuild方式を説明せず、公式情報を基にしたこと、当日変更、要確認は利用不可ではないことだけを短く示します。一覧では要確認理由を短縮し、選択cardを強調して詳細・公式確認・経路へつなぎます。静的な個人利用資格との複合filterや資格の3択dropdownは設けません。施設種別の絞り込みは前述のランニングコース節を参照してください。検索・予定取得用のrouting APIやbackend、リアルタイムOverpass/JAAF/施設検索はありません。
 
 availabilityは `scripts/availability/collect-range.ts` をbuild前に明示実行し、東京日付の当日から既定31日をmanifest＋日別JSONへ生成します。単日 `collect.ts` も維持します。range CLIと監視は共通の `source-fetch.ts` で通信障害・408・429・5xxを1回再試行し、安全な取得診断をログへ残します。Node/Undiciの接続タイムアウトだけはcurlで同じ公式GET/HEADを取得します。HTTPS・証明書検証・20 MB・20秒・redirect 5回の上限を守り、POST・HTTPエラー・証明書エラーに代替取得を使いません。curlでも取得不能ならunknownを維持します。range内では同一requestをcacheし、月間PDF、landing page、fixed/weekly HTML、WordPress月次notice、月単位のEvent Organiser JSON、PDF text extractionを再利用します。夢の島のHTML予定表1施設、legacy 33施設に、追加8施設（平塚はHTML表、AI 5施設は知多・荻野が `gpt-6-luna` `low`、等々力が `gpt-6-luna` `medium`、広島補助・世田谷が `gpt-5.6-luna` `none`。博多・維新は確認済み資料の有限判定）と、決定論的ICS 2施設を加えた44施設を安全な自動判定対象とします。世田谷AI sourceだけは当日noticeの日付を対象にするtoday-onlyです。公式資料の取得は施設ごとに順番に行い、AI読取だけを最大3件まで並列実行します。結果は施設の定義順に戻し、1施設の失敗はその施設の日付だけunknownにします。AI packetのPDF画像化には `pdfinfo` / `pdftoppm`（macOS: `brew install poppler`、Ubuntu: `sudo apt-get install poppler-utils`）が必要です。AI cacheは `.cache/availability-ai`（`ITSRUN_AI_CACHE_DIR`で変更）に保存し、資料・指示などの入力、model、reasoning effort、schema、full-month datesの変更で無効化します。既存AI cacheは施設ID・日付・内容を検証し、指定全日が有効な場合だけ追加推論なしで再利用します。不完全なcacheや初回回答では検証済みの日を保持して不足日だけ再読解し、1施設最大2回のrequestに制限します。明示的unknownは有効な回答です。不完全な結果は新たにcache保存せず、残る欠落・検証落ちは `extraction_failed` にします。today-onlyの対象外日は `outside_published_period` を維持し、欠落・不正の日付だけを安全なログへ記録します。runtimeにAstra呼び出しはありません。通常のlocal keyless実行でcache miss、取得失敗、解析失敗、source変更、対象期間外、予定未公開、期限切れは利用不可ではなくunknownへ降格します。trusted deployはcollection開始時にkeyを必須とし、通常のdev/buildは外部sourceへアクセスしません。schema、timezone、日付UI、更新手順は [`AVAILABILITY.md`](AVAILABILITY.md) が正本です。
 
@@ -468,6 +478,8 @@ HTML collectorとAI公式資料取得は、title/h1が全面メンテナンス�
 | `npm run test:monitor:email` | Python標準ライブラリによるGmail送信をmockで検証（実送信なし） |
 | `npm run test:reverification` | 静的施設情報の期限・引用・差分・source消失を外部APIなしで検証 |
 | `npm run collect:availability` | 東京の当日について公式HTML/calendar/fixed rule/PDFを取得し、静的availability JSONを生成 |
+| `npm run collect:courses` | 5コースの週次公式確認（`-- --force`で強制再取得、通常は公開snapshotを再利用） |
+| `npm run validate:courses` | コースsnapshotの全ID・schema・期限・fixture拒否を検証 |
 | `npm run collect:availability:range` | 東京の当日から31日についてsource cacheを共有し、manifest＋互換日別・世代別日別・施設別31日JSONを生成 |
 | `npm run infra:synth` | ビルド後にCloudFormationを生成 |
 | `npm run infra:deploy` | 検証用hosting stackのみ配備し、`cdk-outputs.json`へ出力。contentは別途content deployで配備 |

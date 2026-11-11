@@ -11,7 +11,7 @@ export function releaseScope(paths) {
   for (const path of paths) {
     if (isOperationsPath(path) || path.startsWith('itsrunnew/backend/field-reports/')) continue;
     if (path.startsWith('itsrunnew/scripts/availability/fixtures/') || path.endsWith('.md') || /(?:\.test\.(?:ts|mjs)|_test\.py)$/.test(path)) continue;
-    if (/^itsrunnew\/scripts\/availability\//.test(path) || /^itsrunnew\/src\/data\/availability(?:\/|\.json$)/.test(path)) result.deploy_data = true;
+    if (/^itsrunnew\/scripts\/(?:availability|course-availability)\//.test(path) || /^itsrunnew\/src\/data\/availability(?:\/|\.json$)/.test(path)) result.deploy_data = true;
     else if (path === 'itsrunnew/src/data/tracks.json') result.deploy_app = result.deploy_data = true;
     else if (/^itsrunnew\/(?:src|public)\//.test(path)) result.deploy_app = true;
     else if (/^itsrunnew\/scripts\/(?:.*smoke|browser-check|daily-check|daily-fixtures|test-viewports|validation-scope|visual-compare|map-compare)\.mjs$/.test(path)) continue;

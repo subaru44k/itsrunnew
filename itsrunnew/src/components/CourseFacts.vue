@@ -4,7 +4,7 @@
     <div><dt>{{ english ? 'Surface' : '路面' }}</dt><dd>{{ courseSurface(course, language) }}</dd></div>
     <div v-if="course.distanceMarkersMeters"><dt>{{ english ? 'Distance markers' : '距離表示' }}</dt><dd>{{ english ? `Every ${course.distanceMarkersMeters} m` : `${course.distanceMarkersMeters}mごと` }}</dd></div>
     <div v-if="course.crossings"><dt>{{ english ? 'Crossings' : '横断箇所' }}</dt><dd>{{ course.crossings[language] }}</dd></div>
-    <div v-if="course.hours"><dt>{{ english ? 'Usual park hours' : '開園時間' }}</dt><dd>{{ course.hours[language] }}</dd></div>
+    <div v-if="course.hours"><dt>{{ english ? 'Usual park hours' : '通常開園時間' }}</dt><dd>{{ course.hours[language] }}</dd></div>
   </dl>
   <ul v-if="course.rules.length" class="course-rules"><li v-for="rule in course.rules" :key="rule.ja">{{ rule[language] }}</li></ul>
 </template>

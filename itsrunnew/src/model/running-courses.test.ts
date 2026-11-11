@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { tracks } from './tracks';
 import { courseById, isRunningCourse, matchesPlaceFilters, nearestCourses, placePath, runningCourses, trainingPlaces } from './running-courses';
 
-describe('running loops alongside scheduled tracks', () => {
+describe('running courses alongside scheduled tracks', () => {
   it('keeps course IDs outside the scheduled track dataset and requires evidence for published facts', () => {
     expect(runningCourses.length).toBeGreaterThan(0);
     expect(new Set(trainingPlaces.map(place => place.id)).size).toBe(trainingPlaces.length);
@@ -30,15 +30,12 @@ describe('running loops alongside scheduled tracks', () => {
     }
   });
 
-  it('filters multi-loop parks using each actual loop length and excludes unknown lengths', () => {
+  it('filters by place type without imposing a lap distance', () => {
     const wako = courseById('wako-jurin-jogging')!;
-    expect(matchesPlaceFilters(wako, 'course', 1000)).toBe(true);
-    expect(matchesPlaceFilters(wako, 'course', 2000)).toBe(false);
-    expect(matchesPlaceFilters(wako, 'track', 0)).toBe(false);
-    const track = { ...tracks[0], track: { ...tracks[0].track, lengthMeters: null } };
-    expect(matchesPlaceFilters(track, 'all', 1000)).toBe(false);
-    expect(matchesPlaceFilters(track, 'track', 0)).toBe(true);
-    expect(isRunningCourse(track)).toBe(false);
+    expect(matchesPlaceFilters(wako, 'course')).toBe(true);
+    expect(matchesPlaceFilters(wako, 'track')).toBe(false);
+    expect(matchesPlaceFilters(wako, 'all')).toBe(true);
+    expect(matchesPlaceFilters(tracks[0], 'track')).toBe(true);
   });
 
   it('offers local loops without replacing confirmed track availability or advertising distant alternatives', () => {

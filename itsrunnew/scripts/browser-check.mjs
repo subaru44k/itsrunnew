@@ -12,7 +12,8 @@ const stop = signal => { for (const child of children) child.kill(signal); };
 for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { stop(signal); process.exitCode = 1; });
 const results = await Promise.allSettled((workers === '1' ? ['all'] : ['desktop', 'mobile']).map(viewport => new Promise((resolve, reject) => {
   console.log(`${suite}: starting ${viewport}`);
-  const child = spawn(process.execPath, [fileURLToPath(script), suite], {
+  const runtimeArgs = suite === 'release' ? ['--import', 'tsx'] : [];
+  const child = spawn(process.execPath, [...runtimeArgs, fileURLToPath(script), suite], {
     env: { ...process.env, ITSRUN_TEST_VIEWPORT: viewport }, stdio: 'inherit',
   });
   children.add(child);

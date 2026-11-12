@@ -110,7 +110,7 @@ itsrunnew/
 │   ├── release-scope.mjs      検証範囲と独立したapp/dataの公開要否
 │   ├── release-artifact.mjs   検証済みappのSHA/run ID/全file hashを固定・照合
 │   ├── production-release.mjs 成功master検証の選択・旧job拒否・artifact復元・schema/施設ID照合
-│   ├── release-smoke.mjs      公開後のroute/asset/日英PC・スマホ起動確認
+│   ├── release-smoke.mjs      公開後のroute/asset/日英PC・スマホ起動確認（コースも含む）
 │   ├── publication-summary.mjs 公開前/部分更新/公開済み・確認失敗の区別
 │   ├── facility-date-only.mjs pushの施設source確認日だけの差分を検出し無効化を遅延
 │   ├── verify-deployed-content.mjs 公開URLの本文をdistと照合
@@ -579,3 +579,5 @@ FacilitySchedule上部に今日の利用判断と詳細へのbuttonを表示し�
 平塚の2026-11-12更新は表前に12/14〜2027/2/19の改修告知を追加しています。`hiratsuka-table.ts`は確認済み告知全文だけを許容し、未知告知・告知と矛盾する12/14以降の表は停止します。全10日30枠・11/12の14〜19時・金曜20時・掲載外unknownと変更guardは`hiratsuka-20261112.test.ts`、原本と確認根拠は`hiratsuka-20261112-provenance.md`に保持します。
 
 維新補助の11/11改訂表は新旧全30行と12月・修繕条件を確認し、`reviewed-ishin.ts`で新しい告知URLと原本hashに有限対応します。11/16だけ薬剤散布で8:30〜13時不可、13〜22時開放の一部利用へ変更。旧資料の日程・空欄unknownは保持します。原本packet・画像・告知と全61日差分/変更guardは`ishin-20261112.test.ts`、根拠は`hiratsuka-20261112-provenance.md`に保存します。
+
+公開後の`test:release`は`browser-check.mjs`からtsx loader付きで起動し、共有のコースschema/可否判定を再利用します。復元した成果物のホームshellからコースIDを読み、選択日の明示不可を除くコース数を起動確認の期待件数へ加え、日英コースrouteの実HTTP・静的shell・runtime起動も確認します。旧成果物のrollbackでコースlinkがない場合はトラックだけを検証します。取得失敗/期限切れのコースはクライアント同様unknownとして検索対象に残します。

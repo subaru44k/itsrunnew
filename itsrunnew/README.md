@@ -167,3 +167,5 @@ GA4の送信リクエスト生成確認は `node scripts/analytics-smoke.mjs`（
 練馬の2026-11-02更新表は祝日前倒しで11/2〜11/9の8日24枠を掲載しています。原本・凡例を照合し、11/6朝の陸上トラック優先、11/5・6・9昼の緑レーン限定、11/6・9午後の半面開放を保持して有限判定します。冬季9〜17時で、掲載外・未知資料はunknownのままです。原本・確認根拠は `scripts/availability/fixtures/nerima-20261102-provenance.md`、全24枠・境界・変更guardの回帰は `nerima-20261102.test.ts` に保持します。
 
 上柚木の10/23更新PDFに重ねた公認更新工事の休場告知を、`reviewed-kamiyugi.ts`で原本hash一致時だけ判定します。2026/11/2〜2027/2/28（予定）の119日は利用不可で、表の「ー」を閉鎖と解釈したものではありません。2026年URLの年またぎ発見は当該URLと告知期間だけ許し、取得後のhashで検証します。休場前の表は既存判定を保持し、11/2以降の未知資料はsource_changed、再開後の利用可は推測しません。原本・確認根拠は `scripts/availability/fixtures/kamiyugi-20261102-provenance.md`、全119日と境界・差替えguardは `kamiyugi-20261102.test.ts` に保持します。
+
+公開後の`npm run test:release`はトラックに加え、配備した成果物に含まれるランニングコースの件数・日英route・起動も検証します。共有TypeScriptの可否判定には既存依存のtsx loaderを使います。

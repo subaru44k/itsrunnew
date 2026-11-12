@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright-core';
 import { selectViewports } from './test-viewports.mjs';
 const base = process.env.ITSRUN_BASE_URL ?? 'http://127.0.0.1:4173';
+const courses = JSON.parse(readFileSync(new URL('../src/data/running-courses.json', import.meta.url), 'utf8'));
 const manifest = JSON.parse(readFileSync(new URL('../src/data/availability/manifest.json', import.meta.url), 'utf8'));
 const data = JSON.parse(readFileSync(new URL(`../src/data/availability/${manifest.startDate}.json`, import.meta.url), 'utf8'));
 assert(data.facilities.length && data.facilities.every(record => record.status === 'unknown'), 'Unknown regression requires all-unknown data');
@@ -17,7 +18,7 @@ try {
     const loadedDate = page.waitForResponse(response => response.url().endsWith(`/${manifest.startDate}.json`) && response.ok());
     await page.goto(`${base}${prefix}/`, { waitUntil: 'domcontentloaded' });
     await loadedDate;
-    await page.waitForFunction(count => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === count, data.facilities.length);
+    await page.waitForFunction(count => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === count, data.facilities.length + courses.length);
     assert.equal(await page.locator('.availability--unavailable, .availability--available, .availability--partially-available').count(), 0);
     const loadedSchedule = page.waitForResponse(response => response.url().includes(`/tracks/${data.facilities[0].trackId}.json`) && response.ok());
     await page.goto(`${base}${prefix}/tracks/${data.facilities[0].trackId}`, { waitUntil: 'domcontentloaded' });

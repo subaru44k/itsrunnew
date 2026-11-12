@@ -26,10 +26,10 @@
   "tracks": {
     "path": "",
     "component": "TrackSearch",
-    "jaTitle": "個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン",
-    "enTitle": "Find tracks for individual use by date and location - ItsRun",
-    "jaDescription": "いつもの競技場が使えない日や、転居・合宿先での練習場所探しに。個人利用できそうな陸上競技場やトラックを、利用日と現在地・任意地点から検索し、距離・利用状況・設備を比較できます。",
-    "enDescription": "When your usual venue is closed or you are training somewhere new, compare tracks for individual use by date, location, availability and facilities."
+    "jaTitle": "陸上競技場・ランニングコース検索｜近くの練習場所を探す - いつラン",
+    "enTitle": "Find athletic tracks and running courses near you - ItsRun",
+    "jaDescription": "陸上トラックとランニングコースを、現在地・任意地点から探せます。トラックの個人利用予定と、ランニングコースの距離・路面・利用条件を比較できます。",
+    "enDescription": "Find athletic tracks and running courses by location. Compare track schedules and the usual conditions, surfaces and distances of running courses."
   },
   "about": {
     "path": "about",

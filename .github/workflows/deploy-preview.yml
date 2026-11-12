@@ -67,6 +67,8 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ITSRUN_REQUIRE_AI_KEY: 'true'
         run: npm run collect:availability:range
+      - name: Refresh weekly running course status
+        run: npm run collect:courses
       - name: Verify availability freshness and completeness
         run: npm run validate:availability:fresh
       - name: Validate track expansion batches

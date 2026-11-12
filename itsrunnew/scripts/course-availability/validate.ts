@@ -1,0 +1,11 @@
+import { readFile } from 'node:fs/promises';
+import {sourceHash} from './collector';
+import { validateCourseAvailability } from '../../src/model/course-availability';
+const read=async(path:string)=>JSON.parse(await readFile(new URL(path,import.meta.url),'utf8'));
+const courses=await read('../../src/data/running-courses.json');
+const value=validateCourseAvailability(await read('../../src/data/availability/running-courses.json'),courses.map((item:{id:string})=>item.id));
+const config=await read('./sources.json');
+if(value.configHash!==sourceHash(config))throw new Error('Course source configuration mismatch');
+const {generation,...content}=value;
+if(generation!==sourceHash(content).slice(0,24))throw new Error('Course snapshot generation mismatch');
+console.log(`Course status validated: ${value.courses.length} courses; expires ${value.expiresAt}`);

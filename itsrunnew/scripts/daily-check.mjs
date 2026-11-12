@@ -52,6 +52,7 @@ try {
   await symlink('../src/data/availability', join(app, 'public/availability'), 'dir');
   if (mode === 'live') {
     await run('collect:availability:range');
+    await run('collect:courses');
     await run('validate:availability:fresh');
     await run('validate:tracks');
     await build();

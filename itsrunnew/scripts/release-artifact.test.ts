@@ -42,6 +42,7 @@ describe('validated publication boundary', () => {
     expect(releaseScope(['docs/README.md', 'itsrunnew/src/model/availability.test.ts'])).toEqual({ deploy_app: false, deploy_data: false });
     expect(releaseScope(['itsrunnew/src/views/LapTime.vue'])).toEqual({ deploy_app: true, deploy_data: false });
     expect(releaseScope(['itsrunnew/scripts/availability/reviewed-chita.ts'])).toEqual({ deploy_app: false, deploy_data: true });
+    expect(releaseScope(['itsrunnew/scripts/course-availability/collector.ts', 'itsrunnew/src/data/availability/running-courses.json'])).toEqual({ deploy_app: false, deploy_data: true });
     expect(releaseScope(['itsrunnew/src/data/tracks.json'])).toEqual({ deploy_app: true, deploy_data: true });
     expect(releaseScope(['itsrunnew/scripts/availability/health.ts', 'itsrunnew/scripts/scheduler/dispatch.mjs'])).toEqual({ deploy_app: false, deploy_data: false });
     expect(releaseScope(['itsrunnew/backend/field-reports/core.mjs'])).toEqual({ deploy_app: false, deploy_data: false });

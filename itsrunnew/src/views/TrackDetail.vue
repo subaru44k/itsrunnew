@@ -17,8 +17,8 @@
         <h2 id="oda-closure-heading">{{ isEnglish ? 'Closed through November 30, 2026 (planned)' : '2026年11月30日まで利用停止予定' }}</h2>
         <p>{{ isEnglish ? 'The track is closed from July 1 through November 30 for work related to renewal of its Class 3 JAAF certification.' : '第三種公認陸上競技場の公認更新工事のため、7月1日から11月30日まで利用停止と公式に案内されています。' }}</p>
         <p>{{ isEnglish ? 'The end date is planned. Do not assume reopening on December 1; check the latest official notice before visiting.' : '終了日は予定です。12月1日の自動的な再開を前提にせず、訪問前に最新の公式案内をご確認ください。' }}</p>
-        <v-btn variant="outlined" color="deep-orange-darken-3" prepend-icon="mdi-open-in-new" :href="odaNoticeUrl" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click', { source: 'closure_notice' })">
-          {{ isEnglish ? 'View official closure notice' : '公式の利用停止案内を見る' }}
+        <v-btn variant="outlined" color="deep-orange-darken-3" :href="odaNoticeUrl" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click', { source: 'closure_notice' })">
+          {{ isEnglish ? 'View official closure notice' : '公式の利用停止案内を見る' }}<LinkIcon />
         </v-btn>
       </v-alert>
     </section>
@@ -30,7 +30,7 @@
             <section v-if="facilityGuidance" class="facility-guidance" aria-labelledby="facility-guidance-heading">
               <h3 id="facility-guidance-heading">{{ isEnglish ? 'Before you visit' : '利用前の確認事項' }}</h3>
               <p v-for="paragraph in facilityGuidance.paragraphs" :key="paragraph">{{ paragraph }}</p>
-              <ul><li v-for="link in facilityGuidance.links" :key="link.url"><a :href="link.url" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click', { source: 'facility_guidance' })">{{ link.label }} ↗</a></li></ul>
+              <ul><li v-for="link in facilityGuidance.links" :key="link.url"><a :href="link.url" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click', { source: 'facility_guidance' })">{{ link.label }}<LinkIcon /></a></li></ul>
               <small>{{ isEnglish ? 'Guidance checked' : '案内の確認日' }}: {{ guidanceVerifiedAt }}</small>
             </section>
           </template>
@@ -76,6 +76,7 @@
           <span class="alternative-distance">{{ formatDistance(item.distance) }}</span>
         </CanonicalLink>
         <p class="related-note">{{ isEnglish ? '“Needs confirmation” is not the same as unavailable. Check the official information before visiting.' : '「要確認」は利用不可ではありません。訪問前に公式情報をご確認ください。' }}</p>
+        <NearbyCourses :origin="track.location" :english="isEnglish" :date="selectedDate" />
       </details>
 
       <div class="detail-content">
@@ -104,7 +105,7 @@
         <section class="info-section pace-discovery" aria-labelledby="training-pace-heading">
           <h2 id="training-pace-heading">{{ isEnglish ? 'Plan your training pace' : '練習のペースを確認する' }}</h2>
           <p>{{ isEnglish ? 'Use a marathon goal or pace per km to check times for 300 m, 400 m, 1 km and longer runs.' : 'マラソンの目標タイムや1kmペースから、300m・400m・1kmなどの練習での所要時間を確認できます。' }}</p>
-          <router-link class="pace-discovery-link" :to="`${isEnglish ? '/en' : ''}/pace/marathon#pace-detail`">{{ isEnglish ? 'Check the marathon pace table' : 'マラソンペース表で確認する' }} <span aria-hidden="true">→</span></router-link>
+          <router-link class="pace-discovery-link" :to="`${isEnglish ? '/en' : ''}/pace/marathon#pace-detail`">{{ isEnglish ? 'Check the marathon pace table' : 'マラソンペース表で確認する' }}<LinkIcon kind="next" /></router-link>
         </section>
 
         <template v-if="isOda">
@@ -155,7 +156,7 @@
           <h2>{{ isEnglish ? 'Official site and directions' : '公式サイト・経路' }}</h2>
           <p>{{ isEnglish ? 'Check the facility rules and directions before visiting.' : '施設の利用条件や行き方を確認できます。' }}</p>
           <div class="primary-actions">
-            <v-btn color="indigo" variant="flat" class="white-text" prepend-icon="mdi-open-in-new" :href="track.urls.official" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click')">{{ isEnglish ? 'Official site' : '公式サイト' }}</v-btn>
+            <v-btn color="indigo" variant="flat" class="white-text" :href="track.urls.official" target="_blank" rel="noopener" @click="trackDetailEvent('official_site_click')">{{ isEnglish ? 'Official site' : '公式サイト' }}<LinkIcon /></v-btn>
             <v-btn color="teal-darken-2" variant="outlined" class="directions-action" prepend-icon="mdi-directions" :href="directionsUrl(track)" target="_blank" rel="noopener" @click="trackDetailEvent('directions_click')">{{ isEnglish ? 'Directions' : '経路を見る' }}</v-btn>
           </div>
         </section>
@@ -165,11 +166,13 @@
 </template>
 
 <script setup lang="ts">
+import LinkIcon from '../components/LinkIcon.vue';
 import { computed, nextTick, onScopeDispose, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import legacyFacilityGuides from '../data/legacy-facility-guides.json';
 import guidance from '../data/facility-guidance.json';
+import NearbyCourses from '../components/NearbyCourses.vue';
 import FieldReports from '../components/FieldReports.vue';
 import FacilitySchedule from '../components/FacilitySchedule.vue';
 import CanonicalLink from '../components/CanonicalLink.vue';

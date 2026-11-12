@@ -50,7 +50,7 @@
     "test:reports": "node scripts/browser-check.mjs reports",
     "test:daily": "node scripts/daily-check.mjs live",
     "test:daily:fixtures": "node scripts/daily-check.mjs fixtures",
-    "validate:availability:fresh": "node scripts/availability/validate-fresh.mjs",
+    "validate:availability:fresh": "node scripts/availability/validate-fresh.mjs && npm run validate:courses",
     "monitor:availability": "tsx scripts/availability/monitor.ts",
     "test:monitor:email": "python3 -B -m unittest discover -s scripts/availability -p \"monitor_email_test.py\"",
     "test:reverification": "python3 -B -m unittest discover -s scripts/reverification -p \"*_test.py\"",
@@ -58,7 +58,9 @@
     "test:archives": "node scripts/browser-check.mjs archives",
     "test:schedule": "node scripts/browser-check.mjs schedule",
     "test:features": "node scripts/daily-check.mjs features",
-    "test:features:preview": "node scripts/smoke-preview.mjs features"
+    "test:features:preview": "node scripts/smoke-preview.mjs features",
+    "collect:courses": "tsx scripts/course-availability/collect.ts",
+    "validate:courses": "tsx scripts/course-availability/validate.ts"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

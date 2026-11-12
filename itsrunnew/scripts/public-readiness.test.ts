@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import courses from '../src/data/running-courses.json';
 import tracks from '../src/data/tracks.json';
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
@@ -27,7 +28,7 @@ describe('public launch readiness', () => {
     expect(index).toContain('https://itsrun.info/img/itsrun-og.jpg');
     expect(index).toContain('summary_large_image');
     expect(index).not.toMatch(/UA-\d/);
-    expect(index).toContain('個人利用できる陸上競技場・トラック検索｜日付・現在地から探す - いつラン');
+    expect(index).toContain('陸上競技場・ランニングコース検索｜近くの練習場所を探す - いつラン');
     expect(router).toContain('織田フィールド（代々木公園陸上競技場）の利用情報｜利用停止と周辺トラック - いつラン');
     expect(trackData).toContain('"id": "yoyogi-park-athletic-track"');
     expect(trackData).toContain('"ja": "織田フィールド（代々木公園陸上競技場）"');
@@ -36,8 +37,9 @@ describe('public launch readiness', () => {
   it('exposes an absolute sitemap without alias or date-query duplication', () => {
     expect(robots).toContain('Sitemap: https://itsrun.info/sitemap.xml');
     const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-    expect(locations).toHaveLength(20 + tracks.length * 2);
+    expect(locations).toHaveLength(20 + (tracks.length + courses.length) * 2);
     expect(new Set(locations).size).toBe(locations.length);
+    for (const course of courses) for (const prefix of ['', '/en']) expect(locations).toContain(`https://itsrun.info${prefix}/courses/${course.id}`);
     expect(locations).toContain('https://itsrun.info/');
     expect(locations).toContain('https://itsrun.info/en/privacy');
     expect(locations).toContain('https://itsrun.info/ojiro-honda/index');

@@ -35,9 +35,20 @@ describe('ItsRunProductionStack', () => {
     expect(functions).toContain("request.uri = '/index.html'");
     expect(functions).toContain("'/en/oda-field'");
     expect(functions).toContain("request.uri.replace");
-    expect(functions).toContain("tracks\\\\/[a-z0-9-]+");
+    expect(functions).toContain("(tracks|courses)\\\\/[a-z0-9-]+");
     expect(functions).toContain("x-robots-tag");
   }, 20_000);
+
+  it('rewrites course detail URLs in both languages without changing query parameters', () => {
+    const template = Template.fromStack(new ItsRunProductionStack(new App(), 'CourseRoutes', { env: environment }));
+    const code = Object.values(template.findResources('AWS::CloudFront::Function')).find(resource => resource.Properties.FunctionCode.includes('function redirect('))!.Properties.FunctionCode;
+    const handler = runInNewContext(`${code}; handler`);
+    for (const prefix of ['', '/en']) for (const suffix of ['', '/']) {
+      const request = { uri: `${prefix}/courses/wako-jurin-jogging${suffix}`, querystring: { date: { value: '2026-11-11' } } };
+      expect(handler({ request }).uri).toBe(`${prefix}/courses/wako-jurin-jogging/index.html`);
+      expect(request.querystring.date.value).toBe('2026-11-11');
+    }
+  });
 
   it('attaches the custom domain only when a certificate is supplied with it', () => {
     const app = new App();

@@ -1,3 +1,4 @@
+import { courseAvailability, validateCourseAvailability } from '../src/model/course-availability.ts';
 import { chromium } from 'playwright-core';
 import { selectViewports } from './test-viewports.mjs';
 const base = process.env.ITSRUN_BASE_URL;
@@ -16,6 +17,21 @@ if (!/^[a-z0-9-]+$/.test(track ?? '')) throw new Error('No facility in published
 const bundle = await (await get(`/availability/generations/${manifest.generation}/tracks/${track}.json`)).json();
 if (bundle.generation !== manifest.generation || bundle.trackId !== track || bundle.records?.length !== 31) throw new Error('Published facility bundle is invalid');
 const html = await (await get('/')).text();
+// Read the cohort from the exact restored artifact, including older rollbacks
+// whose home shell has no running-course links.
+const courseIds = [...new Set([...html.matchAll(/href="\/courses\/([a-z0-9-]+)"/g)].map(match => match[1]))];
+let courseDocument = null;
+if (courseIds.length) {
+  try {
+    courseDocument = validateCourseAvailability(await (await get('/availability/running-courses.json')).json(), courseIds, new Date(), {
+      allowFixture: ['127.0.0.1', 'localhost', '[::1]'].includes(new URL(base).hostname),
+    });
+  } catch {
+    // Match the client: an invalid, failed or expired snapshot is unknown, so
+    // courses remain searchable rather than disappearing or becoming available.
+  }
+}
+const candidateCourseCount = courseIds.filter(id => courseAvailability(id, manifest.startDate, courseDocument).status !== 'unavailable').length;
 const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(match => match[1]).filter(path => path.startsWith('/assets/'));
 if (!scripts.length) throw new Error('No application entry asset');
 for (const path of scripts) await get(path);
@@ -34,12 +50,21 @@ try {
     await page.goto(new URL(`/?date=${manifest.startDate}`, base).href, { waitUntil: 'domcontentloaded' });
     await loadedDate;
     await page.locator('.track-hero').waitFor();
-    const expectedCount = day.facilities.filter(record => record.status !== 'unavailable' || Date.now() >= Date.parse(record.freshness.expiresAt)).length;
+    const expectedCount = day.facilities.filter(record => record.status !== 'unavailable' || Date.now() >= Date.parse(record.freshness.expiresAt)).length + candidateCourseCount;
     await page.waitForFunction(expected => Number(document.querySelector('.track-controls .result-count')?.textContent?.match(/\d+/)?.[0]) === expected, expectedCount);
     for (const prefix of ['', '/en']) {
       await page.goto(`${base}${prefix}/tracks/${track}`, { waitUntil: 'domcontentloaded' });
       await page.locator('.facility-schedule[aria-busy="false"]').waitFor();
       await page.locator('h1').waitFor();
+    }
+    for (const prefix of ['', '/en']) {
+      if (!courseIds.length) break;
+      const path = `${prefix}/courses/${courseIds[0]}`;
+      const response = await get(path);
+      if (!(await response.text()).includes('data-static-course-detail')) throw new Error(`${path}: missing course shell`);
+      await page.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
+      await page.locator('.course-detail-page h1').waitFor();
+      await page.locator('.course-status').waitFor();
     }
     if (errors.length) throw new Error(errors.join('\n'));
     await page.close();

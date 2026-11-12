@@ -107,6 +107,8 @@ jobs:
         env:
           ROLLBACK_GENERATION: ${{ needs.plan.outputs.generation }}
         run: node scripts/availability/restore-publication.mjs
+      - name: Refresh weekly running course status
+        run: npm run collect:courses
       - name: Validate freshness and every publication partition
         run: npm run validate:availability:fresh
       - name: Prepare only the owned data prefix

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, expect, it } from 'vitest';
+import courses from '../src/data/running-courses.json';
 import facilityGuidance from '../src/data/facility-guidance.json';
 import guides from '../src/data/legacy-facility-guides.json';
 import ja from '../src/locales/ja.json';
@@ -30,6 +31,7 @@ describe('fixed route shells', () => {
       await Promise.all([
         copyFile(join(repositoryRoot, 'src/data/legacy-facility-guides.json'), join(workspace, 'src/data/legacy-facility-guides.json')),
         copyFile(join(repositoryRoot, 'src/data/facility-guidance.json'), join(workspace, 'src/data/facility-guidance.json')),
+        copyFile(join(repositoryRoot, 'src/data/running-courses.json'), join(workspace, 'src/data/running-courses.json')),
         copyFile(join(repositoryRoot, 'src/data/tracks.json'), join(workspace, 'src/data/tracks.json')),
         copyFile(join(repositoryRoot, 'src/data/page-metadata.json'), join(workspace, 'src/data/page-metadata.json')),
         copyFile(join(repositoryRoot, 'src/locales/ja.json'), join(workspace, 'src/locales/ja.json')),
@@ -55,6 +57,23 @@ describe('fixed route shells', () => {
           expect(html).toContain(`<link rel="alternate" hreflang="x-default" href="https://itsrun.info${alternateJa}">`);
         }
       }
+      for (const course of courses) for (const locale of ['ja', 'en'] as const) {
+        const prefix = locale === 'en' ? '/en' : '';
+        const html = await readFile(join(workspace, `dist${prefix}/courses/${course.id}/index.html`), 'utf8');
+        expect(html).toContain('data-static-course-detail');
+        expect(html).toContain(`<h1>${escapeHtml(course.name[locale])}</h1>`);
+        expect(html).toContain(`<link rel="canonical" href="https://itsrun.info${prefix}/courses/${course.id}">`);
+        expect(html).toContain(escapeHtml(course.urls.map));
+        expect(html).toContain(locale === 'en' ? 'usual conditions' : '通常の利用条件');
+        for (const rule of course.rules) expect(html).toContain(escapeHtml(rule[locale]));
+        for (const source of course.sources) expect(html).toContain(escapeHtml(source.url));
+        expect(html).not.toContain('openingHoursSpecification');
+      }
+      const dataset = JSON.parse(await readFile(join(repositoryRoot, 'src/data/tracks.json'), 'utf8'));
+      const oizumiTrack = dataset.find((track: { id: string }) => track.id.includes('oizumi'));
+      expect(oizumiTrack).toBeTruthy();
+      const nearbyHtml = await readFile(join(workspace, `dist/tracks/${oizumiTrack.id}/index.html`), 'utf8');
+      expect(nearbyHtml).toContain('href="/courses/wako-jurin-jogging"');
       for (const [id, entry] of Object.entries(facilityGuidance)) {
         for (const locale of ['ja', 'en'] as const) {
           const prefix = locale === 'en' ? '/en' : '';

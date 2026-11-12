@@ -286,4 +286,14 @@
   <url><loc>https://itsrun.info/en/tracks/chiba-general-sports-center-second-track</loc></url>
   <url><loc>https://itsrun.info/tracks/kumagaya-sports-culture-park-auxiliary-track</loc><changefreq>daily</changefreq></url>
   <url><loc>https://itsrun.info/en/tracks/kumagaya-sports-culture-park-auxiliary-track</loc></url>
+  <url><loc>https://itsrun.info/courses/wako-jurin-jogging</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://itsrun.info/en/courses/wako-jurin-jogging</loc></url>
+  <url><loc>https://itsrun.info/courses/komazawa-jogging</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://itsrun.info/en/courses/komazawa-jogging</loc></url>
+  <url><loc>https://itsrun.info/courses/tokorozawa-koku-jogging</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://itsrun.info/en/courses/tokorozawa-koku-jogging</loc></url>
+  <url><loc>https://itsrun.info/courses/koshigaya-park-jogging</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://itsrun.info/en/courses/koshigaya-park-jogging</loc></url>
+  <url><loc>https://itsrun.info/courses/misato-park-jogging</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://itsrun.info/en/courses/misato-park-jogging</loc></url>
 </urlset>

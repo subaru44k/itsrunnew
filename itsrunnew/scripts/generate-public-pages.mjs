@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const tracks = JSON.parse(await readFile(resolve(root, 'src/data/tracks.json'), 'utf8'));
+const courses = JSON.parse(await readFile(resolve(root, 'src/data/running-courses.json'), 'utf8'));
 const origin = 'https://itsrun.info';
 const staticPairs = [
   ['', ''], ['pace/marathon', 'pace/marathon'],
@@ -20,6 +21,7 @@ function entry(jaPath, enPath) {
 
 const entries = staticPairs.map(([ja, en]) => entry(ja, en));
 for (const track of tracks) entries.push(entry(`tracks/${track.id}`, `tracks/${track.id}`));
+for (const course of courses) entries.push(entry(`courses/${course.id}`, `courses/${course.id}`));
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
 await writeFile(resolve(root, 'public/sitemap.xml'), xml, 'utf8');
-console.log(`Sitemap generated: ${staticPairs.length * 2 + tracks.length * 2} URLs`);
+console.log(`Sitemap generated: ${staticPairs.length * 2 + (tracks.length + courses.length) * 2} URLs`);

@@ -160,3 +160,14 @@ rollbackは7日保持の成功master artifact（app）と、同じJST日・6時�
 - 補助worktreeはtracked/untracked変更がないことと、残るものが今回生成したdist/CDK outputs/node_modulesだけであることを確認して削除。元の `/Users/yamadashinya/work/itsrunnew` へ集約し、この資料のdocs-only追記merge後にmasterとorigin/masterの一致を確認する。他の既存worktreeは保持した。
 
 未完の実装・権限設定・本番配備はない。将来の定時実行・traffic・請求は運用上の観測事項で、未実施の結果を成功とは記録しない。今後は [VALIDATION_POLICY.md](VALIDATION_POLICY.md) のscopeと、source/manifestの公開revisionを確認して作業する。
+
+
+## ランニングコースの週次確認を追加（2026-11-11、ローカルのみ）
+
+実装revision `aed091f`（`codex/training-courses`、追加5施設の土台は`c331d29`）。Production/Previewの既存データ準備へ`collect:courses`と専用snapshot検証を追加した。通常7日、unknownは翌日が次回確認で、公開snapshotのconfig/全ID/期限を検証して再利用する。新しいAWSサービス・scheduleやアプリ再buildは追加しない。既存のapp/data所有prefix、正確なmaster artifactの公開、31日分のpartition/freshness gateを保持する。data rollbackでも現在のコース情報を再確認し、過去の可否へ戻さない。
+
+- ローカルのProduction設定build、広告なしテスト設定build、全unit71ファイル430件が成功。既存PDF原本回帰はMacで5秒を超えるためCLIのtest timeoutは60秒、testの条件は変更していない。
+- 日英PC/スマホの全feature、mixed統合smoke、all-unknown、SMTP mock5件、再確認runner mock9件が成功。新コースの不可filter、全4status、期限切れ/取得失敗、告知一覧落ちと添付byte差替えの境界も検証。
+- 5施設の公式実取得を実行。snapshot `4f6d90de86437240658029bf`、確認日2026-11-11。当日は4利用可、みさとは照明故障による夜間立入制限で一部利用可。configHash/generation/期限をCLI検証し、ローカル画面を1440/390pxで確認した。詳細は[調査メモ](../research/running-courses/availability-20261111.md)。
+- 既存published-generation monitorはトラックのみ。コースの外部専用アラートは追加しておらず、専用validator/クライアントが期限切れをunknownにする。解釈できない新規告知はreviewが必要。
+- 本番/Previewへの公開・PR・pushは未実施。稼働済みScheduler設定も変更していない。本番経路でのコースファイル公開/byte照合・週次再利用の実運用確認は公開後の検証事項。ローカル成功を公開成功と扱わない。

@@ -57,7 +57,7 @@
       <span class="marker-legend"><i class="legend-dot today-partial" />{{ availabilityStatusName('partially_available') }}</span>
       <span class="marker-legend"><i class="legend-dot today-unknown" />{{ availabilityStatusName('unknown') }}</span>
       <span class="marker-legend"><i class="legend-dot today-unavailable" />{{ availabilityStatusName('unavailable') }}</span>
-      <span v-if="placeKind !== 'track'" class="marker-legend"><i class="legend-dot course-dot" />{{ isEnglish ? 'Running course (square marker)' : 'ランニングコース（四角のマーカー）' }}</span>
+      <span v-if="placeKind !== 'track'" class="marker-legend"><i class="legend-dot course-dot" aria-hidden="true" />{{ isEnglish ? 'Running course' : 'ランニングコース' }}</span>
     </section>
 
     <div :class="['track-layout', { 'has-detail': selectedTrack }]">
@@ -744,7 +744,7 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
 .place-filters select { border: 1px solid #9da3b4; border-radius: 5px; padding: 8px; min-height: 44px; background: white; color: #222; font: inherit; }
 .course-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #f0e8f7; color: #623580; font-size: 12px; font-weight: 700; }
 .course-badge--available {background:#e0f2f1;color:#00695c}.course-badge--unavailable {background:#ffebee;color:#8e1717}.course-badge--partially_available {background:#fff8e1;color:#7a4d00}.course-badge--unknown {background:#eceff1;color:#455a64}
-.course-dot { background: #78909c; transform: rotate(45deg); border-radius: 2px; }
+.legend-dot.course-dot { background: #78909c; transform: rotate(45deg); border-radius: 3px; }
 .course-rule-preview { color: #6a3e8a !important; }
 
 .track-search-page { max-width: 1185px; padding-block: 24px 40px; }
@@ -770,7 +770,7 @@ function trackSearchEvent(name: ProductEventName, parameters: ProductEventParame
 .native-date-field input:focus-visible { border-color: #3f51b5; outline: 3px solid rgba(63, 81, 181, .22); outline-offset: 1px; }
 .date-message { margin: 8px 0 0; color: #8a4b00; }
 .marker-legend { display: inline-flex; align-items: center; gap: 6px; color: #555; font-size: 13px; }
-.legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+.legend-dot { flex-shrink: 0; width: 12px; height: 12px; border-radius: 50%; }
 .legend-dot.today-available { background: #00897b; }.legend-dot.today-partial { background: #f9a825; }.legend-dot.today-unknown { background: #78909c; }.legend-dot.today-unavailable { background: #c62828; }
 .track-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
 .track-layout.has-detail { grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); }

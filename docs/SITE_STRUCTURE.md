@@ -235,7 +235,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 `src/data/running-courses.json` はTrack Datasetとは別の静的データです。初期掲載は和光樹林・駒沢・所沢航空記念・越谷（旧県民健康福祉村）・みさとの5施設。1公園に複数の周回路があっても1施設にまとめ、公式の距離、概数か否か、確認できた路面・距離表示・横断箇所・開園時間・利用制限と、属性ごとの出典URL/確認日を保持します。記載のない材質・混雑・夜間の安全性やスピード練習適性は推測しません。和光樹林のスピード走・集団走・スパイク禁止は一覧・選択カード・詳細・静的shellに表示します。候補の採否・根拠・未確認事項は [`../research/running-courses/initial-batch-20261111.md`](../research/running-courses/initial-batch-20261111.md) に記録します。
 
-`model/running-courses.ts` は既存トラックとの共通検索型、施設種別filter、日英canonical pathと近隣コースを担当します。ホームは両種別を同じ地図・一覧・直線距離順に表示し、`kind=track|course` で絞り込みます。一周距離filterはありません（旧`minLap` queryは無視）。日付・利用不可表示switchはコースのみの検索でも使用します。コースは四角markerで区別し、色は利用可・一部利用可・要確認・利用不可に連動します。明示的な利用不可のみ既定で除外し、unknownは残します。
+`model/running-courses.ts` は既存トラックとの共通検索型、施設種別filter、日英canonical pathと近隣コースを担当します。ホームは両種別を同じ地図・一覧・直線距離順に表示し、`kind=track|course` で絞り込みます。一周距離filterはありません（旧`minLap` queryは無視）。日付・利用不可表示switchはコースのみの検索でも使用します。コースは45度回転した角丸四角（ひし形）のmarkerで区別し、検索の凡例も同じ形で「ランニングコース」／「Running course」と表示します。凡例の形状指定は共通の丸形指定より優先し、狭い画面でもアイコンを縮めません。色は利用可・一部利用可・要確認・利用不可に連動します。明示的な利用不可のみ既定で除外し、unknownは残します。
 
 `CourseDetail.vue` / `CourseFacts.vue` は短い事実一覧・利用制限、公式コース図、経路と近くのトラック3施設を表示します。位置は公園の代表地点です。`CourseStatus.vue` は選択日の利用可否、制限理由、公式情報の確認日と告知リンクを表示します。トラック詳細・コース詳細には15km以内の別コースを最大3施設表示し、コースのstatusも示します。既存トラック5候補のavailability ranking、133 track IDと現地レポートAPI allowlistは変更しません。
 

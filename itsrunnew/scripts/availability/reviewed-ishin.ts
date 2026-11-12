@@ -34,18 +34,23 @@ const novemberReviewed = new Map([
 export function reviewedIshinReading(packet: AiPacket) {
   if (packet.key !== 'ishin' || packet.trackId !== 'ishin-centennial-park-auxiliary-stadium' || packet.landingPageUrl !== root) return null;
   const urls = new Set(packet.sources.map(s => s.url));
-  const revised = urls.has(novemberNotice);
+  const november11Notice = `${root}info_mirasta_kojin_20261111/`;
+  const november11Image = `${root}wp-content/uploads/info_hojyoriku_202611_20261111.png`;
+  const november11 = urls.has(november11Notice);
+  const activeNotice = november11 ? november11Notice : novemberNotice;
+  const activeNovember = november11 ? november11Image : revisedNovember;
+  const revised = november11 || urls.has(novemberNotice);
   const expected = revised ? novemberReviewed : reviewed;
   const currentNoticeHash = 'ff39cb297dd973d0d334d16aef28ebdafac7fd01b559eddf12f81df7aa3ab48a';
-  const matches = (s: AiPacket['sources'][number]) => expected.get(s.url) === s.hash || (revised && s.url === novemberNotice && s.hash === currentNoticeHash);
+  const matches = (s: AiPacket['sources'][number]) => (november11 && s.url === november11Image ? s.hash === 'ecacb225bef98759fd26401b21752909640a9df2a115768038557f140c351ad9' : expected.get(s.url) === s.hash) || (revised && s.url === activeNotice && s.hash === currentNoticeHash);
   if (urls.size !== packet.sources.length || packet.sources.some(s => !matches(s))) return null;
-  if ([revised ? novemberNotice : notice, repair, repairText, repairMap].some(url => !urls.has(url))) return null;
+  if ([revised ? activeNotice : notice, repair, repairText, repairMap].some(url => !urls.has(url))) return null;
   // Source discovery legitimately omits October after the horizon moves into
   // November. Require every reviewed month requested, including its own image.
-  for (const [month, url] of revised ? [['2026-11', revisedNovember], ['2026-12', december]] : [['2026-10', october], ['2026-11', november]]) {
+  for (const [month, url] of revised ? [['2026-11', activeNovember], ['2026-12', december]] : [['2026-10', october], ['2026-11', november]]) {
     if (packet.dates.some(date => date.startsWith(month)) && !urls.has(url)) return null;
   }
-  if (revised ? !urls.has(revisedNovember) && !urls.has(december) : !urls.has(october) && !urls.has(november)) return null;
+  if (revised ? !urls.has(activeNovember) && !urls.has(december) : !urls.has(october) && !urls.has(november)) return null;
   const rows = new Map<string, AiRow>();
   for (const date of packet.dates) {
     const month = date.slice(0, 7);
@@ -55,21 +60,23 @@ export function reviewedIshinReading(packet: AiPacket) {
     const opening = inMonth && (month === '2026-10'
       ? [1, 5, 8, 13, 15, 19, 22, 26, 29]
       : month === '2026-12' ? [3, 7, 10, 17, 21, 24, 28] : [2, 6, 12, 16, 19, 24, 26, 30]).includes(day);
+    const revisedSixteen = november11 && date === '2026-11-16';
     const repairing = month === '2026-11' && day >= 26 && day <= 28;
-    const source = packet.sources.find(s => s.url === (month === '2026-10' ? october : month === '2026-12' ? december : revised ? revisedNovember : november));
+    const source = packet.sources.find(s => s.url === (month === '2026-10' ? october : month === '2026-12' ? december : revised ? activeNovember : november));
     const conditions = inMonth ? [
       '急きょ芝生管理作業や専用利用が入る場合があります。個人利用希望者は利用前日に管理事務所へお問い合わせください。',
+      ...(revisedSixteen ? ['8:30〜13:00は薬剤散布作業のため使用不可。13:00〜22:00は芝生部分を除き使用可（11/11追記）。'] : []),
       ...(opening ? ['芝生部分は利用不可。陸上トラックの利用枠です。'] : []),
       ...(repairing ? repairConditions : []),
     ] : [];
     rows.set(date, {
       id: `ishin-${date}`, date,
-      status: closed ? 'unavailable' : opening ? repairing ? 'partially_available' : 'available' : 'unknown',
-      periods: opening ? [{ start: '08:30', end: '17:00', scope: '補助陸上競技場トラック（芝生部分を除く）', last_entry: null }] : [],
+      status: closed ? 'unavailable' : opening ? repairing || revisedSixteen ? 'partially_available' : 'available' : 'unknown',
+      periods: opening ? [{ start: revisedSixteen ? '13:00' : '08:30', end: revisedSixteen ? '22:00' : '17:00', scope: '補助陸上競技場トラック（芝生部分を除く）', last_entry: null }] : [],
       conditions,
       evidence: inMonth && source && (closed || opening) ? [{
         source: source.name, location: `${month}行事予定・${day}日`,
-        quote_or_symbol: closed ? '清掃・点検日のため使用できません' : '8:30〜17:00 芝生部分を除き使用できます',
+        quote_or_symbol: closed ? '清掃・点検日のため使用できません' : revisedSixteen ? '8:30〜13:00 薬剤散布作業のため使用できません／13:00〜22:00 芝生部分を除き使用できます' : '8:30〜17:00 芝生部分を除き使用できます',
       }, ...(repairing ? [{ source: packet.sources.find(s => s.url === repairText)!.name, location: '修繕工事期間と利用条件', quote_or_symbol: '令和8年11月26日〜11月28日／逆走コースは5・6・7・8レーンのみ' }] : [])] : [],
       // Dedicated event hours alone do not prove a whole-day closure. Empty
       // rows and dates outside these reviewed months also never become open.

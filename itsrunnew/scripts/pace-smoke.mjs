@@ -145,6 +145,37 @@ async function verifyTrainingDistances(page) {
   await assertNoDocumentOverflow(page, 'expanded training distances');
 }
 
+async function verifyEditingScroll(page) {
+  const path = new URL(page.url()).pathname;
+  const actions = [
+    { initial: 'goal=14400', selector: '.mode-switch button:nth-child(2)', query: ['pace', '330'] },
+    { initial: 'pace=330', selector: '.mode-switch button:nth-child(1)', query: ['goal', '14400'] },
+    { initial: 'goal=14400', selector: '[data-pace-hours]', query: ['goal', '10800'], input: '3' },
+    { initial: 'goal=10800', selector: '.storage-note button', query: ['goal', null] },
+  ];
+  for (const hash of ['#pace-training', '#pace-detail', '#goals-4']) {
+    for (const { initial, selector, query, input } of actions) {
+      await gotoPace(page, `${path}?${initial}${hash}`);
+      await page.waitForFunction(hash => {
+        const target = document.querySelector(hash);
+        return target && Math.abs(target.getBoundingClientRect().top - 64) < 2;
+      }, hash);
+      // Scroll back to the inputs without changing the last navigation anchor.
+      await page.evaluate(() => window.scrollTo(0, document.querySelector('#pace-detail').offsetTop - 80));
+      const locator = page.locator(selector);
+      await locator.scrollIntoViewIfNeeded();
+      const before = await page.evaluate(() => window.scrollY);
+      if (input) await locator.fill(input);
+      else await locator.click();
+      await page.waitForURL(url => url.searchParams.get(query[0]) === query[1]);
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const after = await page.evaluate(() => window.scrollY);
+      if (Math.abs(after - before) > 2) throw new Error(`Editing ${selector} jumped after ${hash}: ${before} -> ${after}`);
+      if (input && !await locator.evaluate(element => element === document.activeElement)) throw new Error('Editing lost input focus');
+    }
+  }
+}
+
 async function verifyPng(path) {
   const bytes = await readFile(path);
   const signature = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -294,6 +325,7 @@ async function runJapaneseFlow(browser, viewport) {
     await assertNoDocumentOverflow(page, `${viewport.name}/ja`);
     await saveScreenshot(page, `${viewport.name}-ja-comparison`);
     await verifyTrainingDistances(page);
+    await verifyEditingScroll(page);
   } finally {
     await page.close();
     await context.close();
@@ -306,6 +338,7 @@ async function runEnglishFlow(browser, viewport) {
   try {
     await gotoPace(page, '/en/pace/marathon');
     await verifyTrainingDistances(page);
+    await verifyEditingScroll(page);
     if (await page.locator('h1').textContent() !== 'Marathon pace table') throw new Error('English pace heading is missing');
     await page.getByRole('heading', { name: 'Split times', exact: true }).waitFor({ state: 'visible' });
     await page.getByRole('heading', { name: 'Training times', exact: true }).waitFor({ state: 'visible' });

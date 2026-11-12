@@ -114,15 +114,17 @@ function persist(value: PaceSettings) {
   catch { storageFailed.value = true; }
 }
 if (parsePaceQuery(route.query)) persist(initial);
-function commit(value: PaceSettings, hash = route.hash) {
+function commit(value: PaceSettings) {
   invalidLink.value = false;
   modeValues[value.mode] = value.seconds;
   persist(value);
   const current = parsePaceQuery(route.query);
-  if (current?.mode === value.mode && current.seconds === value.seconds && hash === route.hash) return;
+  if (current?.mode === value.mode && current.seconds === value.seconds && !route.hash) return;
   const query = { ...route.query }; delete query.goal; delete query.pace;
   query[value.mode] = String(value.seconds);
-  return router.replace({ query, hash });
+  // An anchor belongs to the previous navigation, not to an input edit.
+  // Keeping it would make the router scroll there on every query update.
+  return router.replace({ query, hash: '' });
 }
 watch(settings, value => {
   actionStatus.value = ''; manualLink.value = false;
@@ -137,7 +139,7 @@ watch([() => route.query.goal, () => route.query.pace], () => {
 function chooseGoal(seconds: number) {
   const value: PaceSettings = { mode: 'goal', seconds };
   edited.value = false; fill(value);
-  return commit(value, '');
+  return commit(value);
 }
 function changeMode(value: PaceSettings['mode']) {
   if (value === mode.value) return;
@@ -151,7 +153,7 @@ async function reset() {
   modeValues.goal = 14400; modeValues.pace = 330;
   fill(DEFAULT_PACE_SETTINGS); invalidLink.value = false;
   const query = { ...route.query }; delete query.goal; delete query.pace;
-  await router.replace({ query, hash: route.hash });
+  await router.replace({ query, hash: '' });
 }
 function distanceLabel(metres: number) {
   if (metres === 21097.5) return copy.value.half;

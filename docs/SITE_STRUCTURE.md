@@ -275,11 +275,11 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 計算と検証は `src/model/marathon.ts` / `marathon.test.ts` が担当します。フル42,195m・ハーフ21,097.5mを用い、通過時間は未丸めの値から直接計算して秒未満切り捨て、表示1kmペースは四捨五入します。比較表も `marathon.ts` の同じ関数を使い、詳細・PNGとの丸め方を統一します。旧 `LapTimeCalculator.ts` は互換用として残します。空欄・小数・範囲外入力では結果を非表示にし、保存値を上書きしません。
 
-有効な `?goal=14400` または `?pace=330`（秒）の共有URLを、localStorageの `itsrun.marathon.v1`、既定4時間の順で優先します。両方のquery・配列・不正な値は案内付きで保存値または既定へ戻します。編集時はURLをreplaceし、戻る履歴を入力ごとに増やしません。共有リンクは現在のorigin・言語pathと計算用queryだけを含めます。canonicalはqueryを除いたページURLです。設定のリセットで保存値と計算用queryを削除し、保存やclipboardが使えない場合も計算と手動リンクコピーを利用できます。Privacyに保存と共有の扱いを日英で記載します。
+有効な `?goal=14400` または `?pace=330`（秒）の共有URLを、localStorageの `itsrun.marathon.v1`、既定4時間の順で優先します。両方のquery・配列・不正な値は案内付きで保存値または既定へ戻します。編集時はURLをreplaceし、戻る履歴を入力ごとに増やしません。入力・モード切替・リセット時は直前のセクション移動用hashを外し、query更新によるTRAINING・入力欄・比較表への再スクロールを防ぎます。通常のアンカーリンクと直接アクセス時のセクション移動は維持します。共有リンクは現在のorigin・言語pathと計算用queryだけを含めます。canonicalはqueryを除いたページURLです。設定のリセットで保存値と計算用queryを削除し、保存やclipboardが使えない場合も計算と手動リンクコピーを利用できます。Privacyに保存と共有の扱いを日英で記載します。
 
 `components/laptime/pace-image.ts` は画面と同じ値からCanvasでPNGを生成し、外部通信・画像ライブラリなしでダウンロードします。練習時間から同じ言語のトラック検索へのリンクを提供します。ペース表の初期HTMLも日英の専用shellで配信し、canonical・metadataはruntimeと同じ値にします。
 
-`npm run test:pace` は起動済みのローカルPreview（既定4173）で冒頭比較の19目標・15分刻み・詳細との数値一致・行／キーボード選択・詳細focus・時間台リンク・固定列、入力・復元・共有優先・不正値・storage/clipboard拒否・画像保存・日英・PC/スマホ表示を検証し、画像とスクリーンショットを `/tmp/itsrun-pace-check`（`ITSRUN_PACE_OUTPUT`で変更可）へ保存します。ブラウザ実行ファイルは既存smokeと同じ `CHROME_PATH` を使います。
+`npm run test:pace` は起動済みのローカルPreview（既定4173）で冒頭比較の19目標・15分刻み・詳細との数値一致・行／キーボード選択・詳細focus・時間台リンク・固定列、アンカー移動後の入力/モード切替/リセットでのスクロール位置と入力focus維持、入力・復元・共有優先・不正値・storage/clipboard拒否・画像保存・日英・PC/スマホ表示を検証し、画像とスクリーンショットを `/tmp/itsrun-pace-check`（`ITSRUN_PACE_OUTPUT`で変更可）へ保存します。ブラウザ実行ファイルは既存smokeと同じ `CHROME_PATH` を使います。
 
 ### 記録集
 

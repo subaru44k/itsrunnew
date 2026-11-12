@@ -245,7 +245,7 @@ docs/archive/agent-model-routing-2026-09-23.md  旧モデル設定と委譲方�
 
 既存Preview/Production data preparationでトラック収集・rollback復元の後に`collect:courses`を呼びます。公開済みsnapshotが正常・同じconfig・次回確認前ならbyte内容を再利用し、通常7日後、unknownがあれば1日後に再取得します。取得後の期限は8日。新しいcron/backend/AI APIは使わず、data jobはアプリをbuildしません。`--force`で再取得できます。`validate:availability:fresh`は既存partition検証の後に`validate:courses`も実行します。data rollbackでもコースは古い状態へ巻き戻さず、現在の公開snapshot再利用または再収集を行います。既存published-generation health monitorはトラックのgenerationを監視し、コースの期限は専用validatorとクライアントが判定します。運用詳細・初回review根拠は [`../research/running-courses/availability-20261111.md`](../research/running-courses/availability-20261111.md)。
 
-日英 `/courses/:courseId` はmetadata・canonical/hreflang・JSON-LD・sitemap・静的HTML shellに対応します。shellは通常の静的事実のみ持ち、変化する利用可否はruntimeで取得します。初回公開には既存Production CloudFront route functionの`/courses/` rewrite更新が必要です（domain/DNS/certificate変更なし）。このbranchの実装だけでは本番の週次確認は有効になりません。
+日英 `/courses/:courseId` はmetadata・canonical/hreflang・JSON-LD・sitemap・静的HTML shellに対応します。shellは通常の静的事実のみ持ち、変化する利用可否はruntimeで取得します。2026-11-12に既存Production CloudFront route functionへ`/courses/` rewriteを反映し、保護masterの検証済みapp artifactとdataを公開しました。domain/DNS/certificateの変更はありません。コースの週次確認は既存Production data jobに組み込み済みです。公開revisionと検証結果は[DEPLOYMENT_MODERNIZATION.md](DEPLOYMENT_MODERNIZATION.md)に記録します。
 
 計測は同意済みeventへ`course_id` / `place_kind=course`を追加し、種別filterは`place_filter_change`を使います。座標は送信しません。`running-courses.test.ts`は出典・ID分離・種別filter・近隣範囲を、`course-availability/collector.test.ts`は取得・重要告知・添付差替え・期限・週次再利用・閉鎖/再開境界を検証します。共通smoke内の`running-courses-smoke.mjs`は日英PC/スマホの検索・可否と不可filter・距離filter削除・詳細/近隣遷移・canonical/選択条件・横幅/重なり・失敗時unknownを検証します。
 

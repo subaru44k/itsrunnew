@@ -171,3 +171,20 @@ rollbackは7日保持の成功master artifact（app）と、同じJST日・6時�
 - 5施設の公式実取得を実行。snapshot `4f6d90de86437240658029bf`、確認日2026-11-11。当日は4利用可、みさとは照明故障による夜間立入制限で一部利用可。configHash/generation/期限をCLI検証し、ローカル画面を1440/390pxで確認した。詳細は[調査メモ](../research/running-courses/availability-20261111.md)。
 - 既存published-generation monitorはトラックのみ。コースの外部専用アラートは追加しておらず、専用validator/クライアントが期限切れをunknownにする。解釈できない新規告知はreviewが必要。
 - 本番/Previewへの公開・PR・pushは未実施。稼働済みScheduler設定も変更していない。本番経路でのコースファイル公開/byte照合・週次再利用の実運用確認は公開後の検証事項。ローカル成功を公開成功と扱わない。
+
+
+## ランニングコースのProduction公開（2026-11-12）
+
+[PR #159](https://github.com/subaru44k/itsrunnew/pull/159)を`1419fb369a3767c11c3561b886971980bd68b4a6`でmasterへ統合。[master validation 43206224229](https://github.com/subaru44k/itsrunnew/actions/runs/43206224229)は73ファイル433unit・既存SMTP mock5件・再確認mock9件・全feature・mixed統合・all-unknownが成功しました。
+
+[Production 43206613749](https://github.com/subaru44k/itsrunnew/actions/runs/43206613749)はplan/data/appすべて成功。同じ成功masterの`production-release-1419fb369a3767c11c3561b886971980bd68b4a6` artifactをhash照合して復元し、appを再buildせず公開しています。dataの198 URLとappの594 URL（公開route含む）の本文照合、日英PC/スマホの公開後release smokeも成功しました。release smokeは成果物のコースIDと共有の可否判定を使い、旧artifact rollback・コース閉鎖・情報取得失敗も扱います。後二者はローカルの合成データで公開せず検証しました。
+
+CloudFormationの差分をRouteFunctionのcodeだけに限定して既存hosting stackを更新。LIVE codeのSHA256は`1de035dddd53a71332e2348618a06b964d7fe8cccf4bc176a6cbbeeb7135b35c`。配信alias・certificate ARN・origin・function associationの集合一致を確認し、DNS・証明書・配信元は変更していません。CloudFront default domainの新コースURLも`noindex, nofollow`を保持しています。
+
+公式の再取得によるコースsnapshotは`5637cdd75d674dc4a05d7f3d`、確認時刻は2026-11-12 20:11 JST、次回確認は11/19、期限は11/20です。当日は4施設が利用可、みさとは照明故障による夜間立入制限のため一部利用可。未review告知は0でした。新しいbackend/外部scheduleは追加していません。
+
+本番の新しい日英10 URLすべてでHTTP 200・静的shell・自己canonical・index可・sitemap収録を確認し、各ページを1440/390pxで起動して施設名・利用状況・SVG・横幅を検証しました。sitemapは296 URLです。スクリーンショットとログは作業端末の`/tmp/itsrun-course-release-20261112/`に保持しています。通常の次回週次収集の実測は将来の運用観測事項です。
+
+Search Consoleの`https://itsrun.info/`プロパティで、新しい日英10 URLすべての個別インデックス登録を申請し、「インデックス登録をリクエスト済み」（優先クロールキューへ追加）を確認しました。実際のクロール・インデックス採否はGoogle側の処理待ちです。申請一覧と画面は上記端末の作業記録に保存し、認証済み管理画面の画像は公開リポジトリへ含めません。
+
+`sitemap.xml`の再送信も受理されました。ただしSearch Consoleの最終読み込み日2026/11/12の表示は「サイトマップを読み込めませんでした」、検出0のままです。公開URLは通常/Googlebot User-AgentともHTTP 200、`application/xml`、整形式XML・重複なし296 URL（新コース10 URLを含む）で、robots.txtはAllowと正しいSitemap URLを返しています。Google側の取得失敗の原因はこの確認では特定できておらず、サイトマップの取得成功やインデックス完了とは記録しません。個別10 URLの登録申請はすべて受理済みです。

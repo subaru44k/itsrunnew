@@ -13,7 +13,11 @@ export function readHiratsukaTable(packet: AiPacket) {
   const tables = [...text.matchAll(/(?:^|\n)共用利用予定表\n([\s\S]*?)\n【凡例】/g)];
   if (!updated || tables.length !== 1) return null;
   const publishedAt = `${updated[1]}-${updated[2].padStart(2, '0')}-${updated[3].padStart(2, '0')}`;
-  const table = tables[0][1];
+  // Reviewed November 12 notice precedes the table. Accept only this exact
+  // notice; unknown notices still fail the anchored header below.
+  const renovationNotice = '★お知らせ★\n令和8年12月14日(月曜日)~令和9年2月19日(金曜日)の期間は競技場改修工事のため利用できません。\n※工事期間は予定のため日程が変更になることがあります。\n';
+  const hasRenovationNotice = tables[0][1].startsWith(renovationNotice);
+  const table = hasRenovationNotice ? tables[0][1].slice(renovationNotice.length) : tables[0][1];
   const header = /^(\d{1,2})月(?:\/(\d{1,2})月)?\n午前\n8時~12時\n昼\n12時~13時\n午後\n13時~19時\n\(金曜日は20時まで\)\n/.exec(table);
   if (!header) return null;
   // A changed legend or usage rule requires a new parser review, not an AI fallback.
@@ -44,6 +48,8 @@ export function readHiratsukaTable(packet: AiPacket) {
     const month = date.getUTCMonth() + 1;
     if (!months.includes(month)) months.push(month);
     const dateKey = date.toISOString().slice(0, 10);
+    // Do not let a later rolling table contradict the reviewed closure.
+    if (hasRenovationNotice && dateKey >= '2026-12-14') return null;
     const conditions = ['共用利用には受付での申請が必要。貸出器具は利用終了15分前を目安に返却してください。'];
     if (values.includes('予備日')) conditions.push('予備日の時間帯は利用可否未定です。当日施設へお問い合わせください。');
     const times = [['08:00', '12:00'], ['12:00', '13:00'], ['13:00', date.getUTCDay() === 5 ? '20:00' : '19:00']];

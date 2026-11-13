@@ -1,3 +1,4 @@
+import { reviewedNissanTable } from './reviewed-nissan';
 import { assertOfficialPageAvailable } from './source-availability';
 import { createHash } from 'node:crypto';
 import type { AvailabilityPeriod, TrackAvailability, UnknownReason } from '../../src/model/availability';
@@ -518,6 +519,21 @@ export function parseNissanTrack(
   }
   if (!pageText.includes('日産スタジアム') || !pageText.includes('日産フィールド小机')) {
     throw new Error('Expected Nissan venue anchors not found');
+  }
+
+  // Monthly tables replaced the entry links. Unknown table bytes must not
+  // silently fall through to the legacy link parser and look unpublished.
+  if (/トラック個人利用\s*スケジュール/.test(pageText) || /track_stadium|track_kozukue/.test(html)) {
+    const reviewed = reviewedNissanTable(html, context.date, trackId);
+    if (!reviewed) return nissanUnknown(trackId, context, 'source_changed', ['公式の月別予定表が変わったため、日程・利用条件の再確認が必要です。']);
+    if (!reviewed.known) return nissanUnknown(trackId, context, reviewed.unknownReason, reviewed.warnings);
+    return makeRecord({
+      trackId, date: context.date, now: context.now, status: 'partially_available',
+      periods: [publicPeriod(reviewed.from, reviewed.to, 'full_track', ['explicit_individual_use_event'], 'public')],
+      url: sourceUrls.nissan, publicationFormat: 'structured_html', collector: 'nissan-track-html',
+      fetchedAt: context.fetchedAt, sourceHash: context.sourceHash,
+      parserVersion: 'nissan-reviewed-20261113', confidence: 'high', warnings: reviewed.warnings,
+    });
   }
 
   const { year, month, day } = dateParts(context.date);

@@ -23,7 +23,14 @@ export function readHiratsukaTable(packet: AiPacket) {
   // A changed legend or usage rule requires a new parser review, not an AI fallback.
   if (!text.includes('不可\n大会・保守点検等によりご利用いただけません。') || !text.includes('可\nご利用できます。') || !text.includes('利用の可否については、当日お問い合わせください。') || !text.includes('12時から13時の開放時間帯は無料です。') || !text.includes('スパイクの使用、器具の貸出、シャワー・ロッカー・更衣室の利用はできません。')) return null;
   if (!text.includes('開放しています(陸上競技のみ)。') || !text.includes('共用利用には、以下の事務所で申請手続きが必要です。') || !text.includes('貸し出し器具は、午前・午後ともに利用終了時間の15分前を目安に返却してください。')) return null;
-  const entries = table.slice(header[0].length).split('\n');
+  let body = table.slice(header[0].length);
+  // The reviewed correction explicitly labels a cell as unavailable, then
+  // repeats that label in the note. Neither a stray marker nor a new note is safe.
+  const correctionNote = '\n※不可\nに変更となりました。';
+  const corrected = body.endsWith(correctionNote);
+  if (corrected) body = body.slice(0, -correctionNote.length);
+  const entries = body.split('\n');
+  if (entries.includes('※不可') !== corrected) return null;
   if (entries.length % 4 || entries.length < 4 || entries.length > 31 * 4) return null;
   // The page may be revised without moving the rolling table's first row.
   // Resolve that row from its printed month/day, requiring the publication date
@@ -40,7 +47,8 @@ export function readHiratsukaTable(packet: AiPacket) {
   const months: number[] = [];
   for (let index = 0; index < entries.length; index += 4) {
     const day = /^(\d{1,2})日\(([日月火水木金土])曜日\)$/.exec(entries[index]);
-    const values = entries.slice(index + 1, index + 4);
+    const originalValues = entries.slice(index + 1, index + 4);
+    const values = originalValues.map(value => value === '※不可' ? '不可' : value);
     if (!day) return null;
     const date = new Date(starts[0]);
     date.setUTCDate(date.getUTCDate() + index / 4);
@@ -51,6 +59,7 @@ export function readHiratsukaTable(packet: AiPacket) {
     // Do not let a later rolling table contradict the reviewed closure.
     if (hasRenovationNotice && dateKey >= '2026-12-14') return null;
     const conditions = ['共用利用には受付での申請が必要。貸出器具は利用終了15分前を目安に返却してください。'];
+    if (originalValues.includes('※不可')) conditions.push(`${originalValues.flatMap((value, slot) => value === '※不可' ? [['午前', '昼', '午後'][slot]] : []).join('・')}は利用不可に変更されました。`);
     if (values.includes('予備日')) conditions.push('予備日の時間帯は利用可否未定です。当日施設へお問い合わせください。');
     const times = [['08:00', '12:00'], ['12:00', '13:00'], ['13:00', date.getUTCDay() === 5 ? '20:00' : '19:00']];
     const periods: AiRow['periods'] = [];
@@ -69,7 +78,7 @@ export function readHiratsukaTable(packet: AiPacket) {
     if (periods.some(period => period.start >= '12:00' && period.end <= '13:00')) conditions.push('12〜13時は無料開放。スパイク・器具貸出・シャワー・ロッカー・更衣室は利用不可。');
     const fullDay = periods.length === 3 && periods.every((period, slot) => period.start === times[slot][0]);
     const status = fullDay ? 'available' : periods.length ? 'partially_available' : values.every(value => value === '不可') ? 'unavailable' : 'unknown';
-    parsed.set(dateKey, { id: `hiratsuka-${dateKey}`, date: dateKey, status, periods, conditions, evidence: [{ source: source.name, location: `共用利用予定表 ${dateKey}`, quote_or_symbol: values.join('／') }], unknown_reason: status === 'unknown' ? 'insufficient_information' : null });
+    parsed.set(dateKey, { id: `hiratsuka-${dateKey}`, date: dateKey, status, periods, conditions, evidence: [{ source: source.name, location: `共用利用予定表 ${dateKey}`, quote_or_symbol: originalValues.join('／') }], unknown_reason: status === 'unknown' ? 'insufficient_information' : null });
   }
   if (JSON.stringify(months) !== JSON.stringify(header.slice(1).filter(Boolean).map(Number))) return null;
   const rows = new Map<string, AiRow>();

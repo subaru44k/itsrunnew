@@ -10,7 +10,8 @@ export const nerimaOctober30PdfHash = 'sha256:7d4f98c05268af7e9e31bc4a40aa5a7e2d
 export const nerimaNovember2PdfHash = 'sha256:f2b859ddf6d30597b108165af22022be2f36e09ba5db8d70ac39f6e972aea080';
 export const nerimaNovember6PdfHash = 'sha256:8edb48aabacca9e2a9a32c6750901883ffd2eec4060d1be8a27d2c2d092ab21c';
 export const nerimaNovember10PdfHash = 'sha256:f86450b13d051c650918cdb8b615ec83ac3e9cc9d1fd65ebbe6d2db07272f486';
-export const isReviewedNerimaPdf = (hash: string) => hash === nerimaReviewedPdfHash || hash === nerimaOctober16PdfHash || hash === nerimaOctober20PdfHash || hash === nerimaOctober23PdfHash || hash === nerimaOctober27PdfHash || hash === nerimaOctober30PdfHash || hash === nerimaNovember2PdfHash || hash === nerimaNovember6PdfHash || hash === nerimaNovember10PdfHash;
+export const nerimaNovember13PdfHash = 'sha256:cf9300ef6e8092d5bc6b0cddd0a4052b46aebf40401f139e499d4f6943b7235a';
+export const isReviewedNerimaPdf = (hash: string) => hash === nerimaReviewedPdfHash || hash === nerimaOctober16PdfHash || hash === nerimaOctober20PdfHash || hash === nerimaOctober23PdfHash || hash === nerimaOctober27PdfHash || hash === nerimaOctober30PdfHash || hash === nerimaNovember2PdfHash || hash === nerimaNovember6PdfHash || hash === nerimaNovember10PdfHash || hash === nerimaNovember13PdfHash;
 export const nerimaGuideUrl = 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.files/kakuninnhouhou_kaihoujoukyou.pdf';
 export const nerimaReviewedGuideHash = 'sha256:464257780a924b091241d55a04d062addbb507d535316a043a14b0c2524a4ffb';
 
@@ -25,21 +26,22 @@ export function reviewedNerimaPdf(sourceHash: string, date: string): PdfParseRes
   const november2 = sourceHash === nerimaNovember2PdfHash;
   const november6 = sourceHash === nerimaNovember6PdfHash;
   const november10 = sourceHash === nerimaNovember10PdfHash;
-  const winterHours = november10 || november6 || october27 || october30 || november2;
-  const publishedAt = november10 ? '2026-11-10' : november6 ? '2026-11-06' : november2 ? '2026-11-02' : october30 ? '2026-10-30' : october27 ? '2026-10-27' : october23 ? '2026-10-23' : october20 ? '2026-10-20' : october16 ? '2026-10-16' : '2026-10-13';
-  const endDate = november10 ? '2026-11-16' : november6 ? '2026-11-12' : november2 ? '2026-11-09' : october30 ? '2026-11-05' : october27 ? '2026-11-02' : october23 ? '2026-10-29' : october20 ? '2026-10-26' : october16 ? '2026-10-22' : '2026-10-19';
+  const november13 = sourceHash === nerimaNovember13PdfHash;
+  const winterHours = november13 || november10 || november6 || october27 || october30 || november2;
+  const publishedAt = november13 ? '2026-11-13' : november10 ? '2026-11-10' : november6 ? '2026-11-06' : november2 ? '2026-11-02' : october30 ? '2026-10-30' : october27 ? '2026-10-27' : october23 ? '2026-10-23' : october20 ? '2026-10-20' : october16 ? '2026-10-16' : '2026-10-13';
+  const endDate = november13 ? '2026-11-19' : november10 ? '2026-11-16' : november6 ? '2026-11-12' : november2 ? '2026-11-09' : october30 ? '2026-11-05' : october27 ? '2026-11-02' : october23 ? '2026-10-29' : october20 ? '2026-10-26' : october16 ? '2026-10-22' : '2026-10-19';
   if (date < publishedAt || date > endDate) {
     return {
       status: 'unknown', periods: [], unknownReason: 'outside_published_period',
       publishedAt, warnings: ['直近1週間の公開範囲外'],
     };
   }
-  const halfMorning = november10 ? date === '2026-11-11' : november6 ? date === '2026-11-11' : november2 ? false : october27 || october23 ? date === '2026-10-28' : october20 || october16 ? date === '2026-10-21' : date === '2026-10-13';
-  const halfAfternoon = november10 ? date === '2026-11-13' : (november2 || november6) && ['2026-11-06', '2026-11-09'].includes(date);
+  const halfMorning = november13 ? date === '2026-11-17' : november10 ? date === '2026-11-11' : november6 ? date === '2026-11-11' : november2 ? false : october27 || october23 ? date === '2026-10-28' : october20 || october16 ? date === '2026-10-21' : date === '2026-10-13';
+  const halfAfternoon = november13 ? date === '2026-11-17' : november10 ? date === '2026-11-13' : (november2 || november6) && ['2026-11-06', '2026-11-09'].includes(date);
   const halfNoon = (october20 || october16) && date === '2026-10-21';
-  const greenNoon = november10 ? ['2026-11-10', '2026-11-11', '2026-11-12', '2026-11-14'].includes(date) : november6 ? ['2026-11-06', '2026-11-09', '2026-11-11', '2026-11-12'].includes(date) : november2 ? ['2026-11-05', '2026-11-06', '2026-11-09'].includes(date) : october30 ? date === '2026-11-05' : october27 ? ['2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october23 ? ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october20 ? ['2026-10-20', '2026-10-22', '2026-10-26'].includes(date) : october16 ? date === '2026-10-22' : date === '2026-10-13';
-  const fullTrack = november10 ? ['2026-11-10', '2026-11-14'].includes(date) : november2 || november6 ? date === '2026-11-06' : october27 || october23 ? date === '2026-10-27' : october20 && date === '2026-10-20';
-  const fullTrackAfternoon = fullTrack && (november10 || (!november2 && !november6));
+  const greenNoon = november13 ? ['2026-11-14', '2026-11-17', '2026-11-18'].includes(date) : november10 ? ['2026-11-10', '2026-11-11', '2026-11-12', '2026-11-14'].includes(date) : november6 ? ['2026-11-06', '2026-11-09', '2026-11-11', '2026-11-12'].includes(date) : november2 ? ['2026-11-05', '2026-11-06', '2026-11-09'].includes(date) : october30 ? date === '2026-11-05' : october27 ? ['2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october23 ? ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29'].includes(date) : october20 ? ['2026-10-20', '2026-10-22', '2026-10-26'].includes(date) : october16 ? date === '2026-10-22' : date === '2026-10-13';
+  const fullTrack = november13 ? ['2026-11-14', '2026-11-18'].includes(date) : november10 ? ['2026-11-10', '2026-11-14'].includes(date) : november2 || november6 ? date === '2026-11-06' : october27 || october23 ? date === '2026-10-27' : october20 && date === '2026-10-20';
+  const fullTrackAfternoon = november13 ? date === '2026-11-14' : fullTrack && (november10 || (!november2 && !november6));
   const trackConditions = ['陸上トラック優先利用時間。ボール類の使用不可。'];
   const hasAvailability = fullTrack || halfMorning || halfNoon || greenNoon || halfAfternoon;
   const halfConditions = ['陸上競技場の半面のみ一般開放。団体利用区画には入れません。'];

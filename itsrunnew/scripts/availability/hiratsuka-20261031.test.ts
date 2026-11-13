@@ -78,7 +78,7 @@ describe('Hiratsuka October 31 revision retains the October 30 table start', () 
     const apiFetch = vi.fn(async () => { throw new Error('Hiratsuka must not use AI'); });
     const result = (await collectAdditionalAvailability(['2026-10-31', '2026-11-02', '2026-11-08', '2026-11-09'], { now, fetchImpl, apiFetchImpl: apiFetch as typeof fetch, apiKey: '' })).filter(r => r.trackId === config.trackId);
     expect(result.map(r => r.status)).toEqual(['unavailable', 'available', 'partially_available', 'unknown']);
-    expect(result[1].evidence.parserVersion).toBe('hiratsuka-table-v3');
+    expect(result[1].evidence.parserVersion).toBe('hiratsuka-table-v4');
     expect(result[2].periods).toMatchObject([{ from: '15:00', to: '19:00' }]);
     expect(result[3].unknownReason).toBe('outside_published_period');
     expect(apiFetch).not.toHaveBeenCalled();

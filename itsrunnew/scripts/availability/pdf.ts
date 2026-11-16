@@ -267,7 +267,11 @@ export function parseTodaPdf(pdf: ExtractedPdf, date: string): PdfParseResult {
   const periods: AvailabilityPeriod[] = [];
   const trackLabels = rows.filter(item => compact(item.text) === '陸上競技場');
   for (const label of trackLabels) {
-    const sameLine = rows.filter(item => Math.abs(item.y - label.y) < 1.5 && (summer || item.x > 510));
+    // The December PDF places facility text 2.28pt above the time baseline.
+    // A 3pt bound stays below half of the 9.6pt event-line spacing.
+    const sameLine = rows.filter(item => Math.abs(item.y - label.y) < (summer ? 1.5 : 3) && (summer || item.x > 510));
+    if (!summer && sameLine.length !== 1)
+      throw new PdfCollectorError('source_changed', 'Winter Toda track event hours ambiguous or missing');
     const ranges = parseTimeRange(sameLine.map(item => item.text).join(' '));
     if (!summer && !ranges.length) throw new PdfCollectorError('source_changed', 'Winter Toda track event hours missing');
     for (const range of ranges) periods.push(period(range.from, range.to, 'unavailable', ['exclusive_track_event']));
@@ -674,7 +678,7 @@ export function parseBingoSportsParkPdf(pdf: ExtractedPdf, date: string): PdfPar
 
 export const pdfSourceConfigs: PdfSourceConfig[] = [
   { trackId: 'nerima-general-sports-park', name: '練馬総合運動場公園 陸上競技場', landingPageUrl: 'https://www.city.nerima.tokyo.jp/shisetsu/koen/undo/nerima.html', discovery: 'latest_pdf_discovery', parser: 'nerima-weekly-slots', parserVersion: '1.4.0' },
-  { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.1.0' },
+  { trackId: 'toda-sports-center-track', name: '戸田市スポーツセンター 陸上競技場', landingPageUrl: 'https://toda-zaidan.org/sportscenter/shisetsu_sc/yoyaku_sc/', discovery: 'monthly_pdf_discovery', parser: 'toda-monthly-events', parserVersion: '1.2.0' },
   { trackId: 'fuchu-citizen-athletic-track', name: '府中市民陸上競技場', landingPageUrl: 'https://www.city.fuchu.tokyo.jp/shisetu/supotu/kyogi/shimin.html', discovery: 'annual_pdf_discovery', parser: 'fuchu-vector-calendar-guard', parserVersion: '1.0.0' },
   { trackId: 'wadabori-park-first-track', name: '和田堀公園 第一競技場', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-first', parserVersion: '1.1.0' },
   { trackId: 'wadabori-park-seibiyama-track', name: '和田堀公園 第二競技場（済美山運動場）', landingPageUrl: 'https://www.tokyo-park.or.jp/park/wadabori/news/index.html', discovery: 'monthly_pdf_discovery', parser: 'wadabori-half-day-second', parserVersion: '1.1.0' },

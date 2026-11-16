@@ -42,7 +42,11 @@ export function reviewedIshinReading(packet: AiPacket) {
   const revised = november11 || urls.has(novemberNotice);
   const expected = revised ? novemberReviewed : reviewed;
   const currentNoticeHash = 'ff39cb297dd973d0d334d16aef28ebdafac7fd01b559eddf12f81df7aa3ab48a';
-  const matches = (s: AiPacket['sources'][number]) => (november11 && s.url === november11Image ? s.hash === 'ecacb225bef98759fd26401b21752909640a9df2a115768038557f140c351ad9' : expected.get(s.url) === s.hash) || (revised && s.url === activeNotice && s.hash === currentNoticeHash);
+  const matches = (s: AiPacket['sources'][number]) => (november11 && s.url === november11Image ? s.hash === 'ecacb225bef98759fd26401b21752909640a9df2a115768038557f140c351ad9' : expected.get(s.url) === s.hash) || (revised && s.url === activeNotice && s.hash === currentNoticeHash)
+    // November 16: only adjacent-article navigation changed; all four
+    // schedule/repair images and the actual notice conditions are unchanged.
+    || (november11 && s.url === activeNotice && s.hash === 'e3aa4c15fdd048bc11f8d12e21aa2871c94618442600c334af55d9f9bd4bc20d')
+    || (november11 && s.url === repair && s.hash === '171b03bfe712bc77795a7c76e5cdec06e97df150fbc22d442defeba0d88a97e1');
   if (urls.size !== packet.sources.length || packet.sources.some(s => !matches(s))) return null;
   if ([revised ? activeNotice : notice, repair, repairText, repairMap].some(url => !urls.has(url))) return null;
   // Source discovery legitimately omits October after the horizon moves into

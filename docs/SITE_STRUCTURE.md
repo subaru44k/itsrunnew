@@ -589,3 +589,5 @@ FacilitySchedule上部に今日の利用判断と詳細へのbuttonを表示し�
 戸田の2026年12月行事表では6日の施設名と時間のbaselineが2.28ptずれるため、冬季の行照合だけ3pt未満へ調整します。全幅罫線の日付境界・施設名・時間列を維持し、候補が一つでない場合はsource_changedで停止します。専用利用時間以外はunknown、夏季開放は外挿しません。原本全31日・他施設混入防止・欠落/曖昧/距離/年月guardと実collectorは`toda-20261116.test.ts`、原本と確認根拠は`fixtures/toda-20261116-provenance.md`に保持します。戸田parser versionは1.2.0です。
 
 維新の2026-11-16取得版は告知・修繕ページの前後記事ナビだけが変更されています。全61日・4原寸画像・本文条件を再照合し、11/11告知packetに限って確認済み本文hashを追加します。旧日程、11/15のunknown、11/16の13〜22時、修繕条件、未知資料停止は維持します。原文・packet・確認根拠は`fixtures/ishin-20261116-*`と`fixtures/toda-20261116-provenance.md`、全日同一/変更guardは`ishin-20261116.test.ts`です。
+
+国府台の2026-11-17取得版12月61395.pdfは全31行を原本照合し、12/12の午前予約終了だけ13時から14時へ変更します。同日の一般開放は17〜21時のみで、旧60729.pdfの13〜14時開放は旧hashに保持します。17時閉館7・14日と休場21・28〜31日は同じ。採用は確認済みhash・2026年12月・公式一般開放方針一致時だけで、未知資料停止と掲載外unknownを維持します。原本・全日確認根拠は`itsrunnew/scripts/availability/fixtures/kohnodai-20261117-provenance.md`、全31日・旧新区別・変更/年月/policy guardは`kohnodai-20261117.test.ts`です。

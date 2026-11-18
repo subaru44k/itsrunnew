@@ -327,7 +327,7 @@ export function parseYumenoshima(html: string, context: Omit<CollectorContext, '
       for (let offset = 0; offset < span; offset++) {
         const [from, to] = slots[periods.length];
         periods.push(value === '個人' ? publicPeriod(from, to)
-          : /^(団体貸切[☆★]?|休場日|×)$/.test(value) ? unavailablePeriod(from, to, [value.startsWith('団体貸切') ? 'exclusive_use' : 'explicit_official_unavailable'])
+          : /^(団体貸切[☆★]?|休場日?|×)$/.test(value) ? unavailablePeriod(from, to, [value.startsWith('団体貸切') ? 'exclusive_use' : 'explicit_official_unavailable'])
             : { from, to, status: 'unknown', scope: 'full_track', eligibility: 'public', conditions: ['unrecognized_status'] });
       }
     }

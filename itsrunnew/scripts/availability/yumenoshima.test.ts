@@ -17,6 +17,23 @@ describe('Yumenoshima official two-week schedule', () => {
     ] });
     expect(parse('2026-10-29').periods.map(p => p.status)).toEqual(['unavailable', 'unavailable', 'available']);
   });
+  it('recognizes the winter evening closure in the official December 1 row', () => {
+    const winterHtml = readFileSync(new URL('./fixtures/yumenoshima-20261118.html', import.meta.url), 'utf8');
+    const context = { date: '2026-12-01', now: new Date('2026-11-18T00:00:00Z') };
+    expect(parseYumenoshima(winterHtml, context)).toMatchObject({
+      status: 'partially_available',
+      periods: [
+        { from: '09:00', to: '13:00', status: 'unavailable', conditions: ['exclusive_use'] },
+        { from: '13:00', to: '17:00', status: 'available', conditions: [] },
+        { from: '17:00', to: '21:00', status: 'unavailable', conditions: ['explicit_official_unavailable'] },
+      ],
+    });
+    const unconfirmed = winterHtml.replace('>休場</td>', '>休場予定</td>');
+    expect(parseYumenoshima(unconfirmed, context).periods[2].status).toBe('unknown');
+    expect(parseYumenoshima(winterHtml, { ...context, date: '2026-12-02' })).toMatchObject({
+      status: 'unknown', unknownReason: 'outside_published_period',
+    });
+  });
   it('keeps special events and unpublished dates unknown', () => {
     expect(parse('2026-11-03')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
     expect(parse('2026-11-07')).toMatchObject({ status: 'unknown', unknownReason: 'outside_published_period' });

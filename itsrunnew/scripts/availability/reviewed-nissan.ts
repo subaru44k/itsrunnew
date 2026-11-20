@@ -3,18 +3,31 @@ import { createHash } from 'node:crypto';
 // The current official month tables have no printed year. This is a finite
 // review of November 2026, not a rule assigning the request year to bare dates.
 const reviewedHash = '225478a5a00d22f2aeba985add74d59d0adc556d3363c5c757d8cde8213e66f4';
+const decemberHash = 'd0595231534c7f6d8c307d37e6c73510d85bcbf23bf64ad16b56ca37d4e74111';
+const evening = ['17:00', '21:00'] as const;
+const winterMorning = ['09:00', '12:00'] as const;
+const winterAfternoon = ['13:00', '16:00'] as const;
+
 export function reviewedNissanTable(html: string, date: string, trackId: string) {
-  if (createHash('sha256').update(html).digest('hex') !== reviewedHash) return null;
+  const hash = createHash('sha256').update(html).digest('hex');
+  const december = hash === decemberHash;
+  if (!december && hash !== reviewedHash) return null;
   const stadium = trackId === 'nissan-stadium-track';
   if (!stadium && trackId !== 'nissan-field-kozukue') return null;
-  const listed = stadium ? ['2026-11-09', '2026-11-27'] : ['2026-11-23', '2026-11-28'];
-  const known = listed.includes(date);
-  const inMonth = /^2026-11-(?:0[1-9]|[12]\d|30)$/.test(date);
+  const novemberDates = stadium ? ['2026-11-09', '2026-11-27'] : ['2026-11-23', '2026-11-28'];
+  let periods: ReadonlyArray<readonly [string, string]> = [];
+  if (novemberDates.includes(date)) {
+    periods = [stadium ? evening : winterAfternoon];
+  } else if (december) {
+    if (stadium && ['2026-12-04', '2026-12-07', '2026-12-14', '2026-12-28'].includes(date)) periods = [evening];
+    if (!stadium && ['2026-12-12', '2026-12-26'].includes(date)) periods = [winterMorning, winterAfternoon];
+    if (!stadium && date === '2026-12-19') periods = [winterAfternoon];
+  }
+  const inMonth = /^2026-11-(?:0[1-9]|[12]\d|30)$/.test(date) || (december && /^2026-12-(?:0[1-9]|[12]\d|3[01])$/.test(date));
   return {
-    known,
+    periods,
     unknownReason: inMonth ? 'insufficient_information' as const : 'outside_published_period' as const,
-    from: stadium ? '17:00' : '13:00',
-    to: stadium ? '21:00' : '16:00',
+    parserVersion: december ? 'nissan-reviewed-20261121' : 'nissan-reviewed-20261113',
     warnings: [
       'エントリーシステムメンテナンス中は事前申し込み不要・当日受付。直接受付窓口へお越しください。',
       '受付は各部開始5分前から、終了1時間前まで。先着200名・時間入れ替え制です。',

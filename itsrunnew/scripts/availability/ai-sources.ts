@@ -95,7 +95,7 @@ export async function buildAiPacket(
         r.url,
         r.data,
       );
-      if (config.key === 'ogino' && r.data.subarray(0, 5).toString() === '%PDF-') {
+      if ((config.key === 'ogino' || config.key === 'hakata') && r.data.subarray(0, 5).toString() === '%PDF-') {
         const originalPdfHash = digest(r.data);
         for (const input of inputs) input.originalPdfHash = originalPdfHash;
       }

@@ -21,6 +21,66 @@ const eventEnd: Record<number, string> = {
   31: '17:00',
 };
 const noOpening = new Set([8, 9, 10, 11]);
+const winterScheduleUrl = 'https://www.midorimachi.jp/higashihirao/images/park/261120131059121.pdf';
+const winterScheduleHash = 'e565c9a2a573aa5cb100e89d990061044217c07100f6818d725ff40c7142a3c7';
+const winterGuideHash = '7edfd87f6470e1e0055a6ffb3027a9247de10f2c11594ba58d8e8059683d78ed';
+const rulesUrl = 'https://www.midorimachi.jp/higashihirao/images/parknews/260512133125820.pdf';
+const rulesHash = 'd378a27f5c0e3a3f5a37a43a54ed632519edee78cedf0dffd577bbb3978f9f44';
+const conflictingNovember = new Set([7, 8, 13, 14, 15, 21, 22]);
+const decemberClosures = new Map([
+  [7, '駅伝大会のため一般開放なし。'],
+  [8, '停電・断水のため一般開放なし。'],
+  [12, '強化合宿のため一般開放なし。'],
+  [19, '駅伝大会のため一般開放なし。'],
+  [20, '大会の予定終了が通常開放の終了時刻のため、一般利用できる時間帯はありません。'],
+  ...[29, 30, 31].map(day => [day, '年末年始の休業日。'] as const),
+]);
+const decemberEvents: Record<number, string> = { 5: '13:00', 13: '15:00', 25: '13:00', 26: '12:00' };
+
+function reviewedWinterCalendar(packet: AiPacket) {
+  const documents = packet.sources.filter(source => source.url !== packet.landingPageUrl);
+  const guide = documents.find(source => source.url === 'https://www.midorimachi.jp/higashihirao/guides/');
+  if (documents.length !== 5 || guide?.kind !== 'text' || guide.hash !== winterGuideHash || digest(guide.content) !== winterGuideHash)
+    return null;
+  const verifiedPage = (url: string, hash: string, page: number) => documents.find(source =>
+    source.url === url && source.kind === 'image' && source.originalPdfHash === hash && source.name.endsWith(`-page-${page}.png`));
+  const november = verifiedPage(winterScheduleUrl, winterScheduleHash, 1);
+  const december = verifiedPage(winterScheduleUrl, winterScheduleHash, 2);
+  if (!november || !december || ![1, 2].every(page => verifiedPage(rulesUrl, rulesHash, page))) return null;
+  const rows = new Map<string, AiRow>();
+  for (const date of packet.dates) {
+    const day = Number(date.slice(8));
+    const isNovember = /^2026-11-(?:0[1-9]|[12]\d|30)$/.test(date);
+    const isDecember = /^2026-12-(?:0[1-9]|[12]\d|3[01])$/.test(date);
+    const uncertain = (isNovember && conflictingNovember.has(day)) || (isDecember && day === 27);
+    const closed = isNovember && [1, 29].includes(day) ? '大会が通常開放時間を占有するため一般利用できません。'
+      : isDecember ? decemberClosures.get(day) : undefined;
+    const event = isNovember ? ({ 3: '13:00', 6: '15:00', 28: '14:00' } as Record<number, string>)[day] : decemberEvents[day];
+    const known = (isNovember || isDecember) && !uncertain;
+    const start = event ?? '09:00';
+    rows.set(date, {
+      id: `hakata-${date}`,
+      date,
+      status: !known ? 'unknown' : closed ? 'unavailable' : event ? 'partially_available' : 'available',
+      periods: !known || closed ? [] : [{ start, end: '17:00', scope: '補助競技場トラック', last_entry: null }],
+      conditions: !known ? [] : [
+        '一般利用は有料。当日受付・支払い。事前予約不可。',
+        'フィールド中央の天然芝部分は一般利用不可。',
+        ...(closed ? [closed] : event
+          ? ['一般開放は大会終了後。開始時刻は大会の終了予定時刻に基づき、実際の終了状況で変わるため公式情報を確認してください。']
+          : []),
+      ],
+      evidence: !known ? [] : [{
+        source: (isNovember ? november : december).name,
+        location: `令和8年${isNovember ? 11 : 12}月・補助競技場欄・${day}日`,
+        quote_or_symbol: closed ?? (event ? `大会予定終了 ${event}／大会の終了後から` : '補助競技場の大会欄は空欄・冬季一般開放9:00〜17:00'),
+      }],
+      unknown_reason: known ? null : uncertain ? 'insufficient_information' : 'outside_published_period',
+    });
+  }
+  return { rows, key: `reviewed-hakata-20261120-${winterScheduleHash}`, cacheHit: true, usage: null };
+}
+
 export function reviewedHakataReading(packet: AiPacket) {
   if (
     packet.key !== 'hakata' ||
@@ -28,6 +88,8 @@ export function reviewedHakataReading(packet: AiPacket) {
     packet.landingPageUrl !== 'https://www.midorimachi.jp/higashihirao/'
   )
     return null;
+  const winter = reviewedWinterCalendar(packet);
+  if (winter) return winter;
   const hash = digest(
     JSON.stringify(
       packet.sources

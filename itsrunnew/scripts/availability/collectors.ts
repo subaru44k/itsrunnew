@@ -526,13 +526,13 @@ export function parseNissanTrack(
   if (/トラック個人利用\s*スケジュール/.test(pageText) || /track_stadium|track_kozukue/.test(html)) {
     const reviewed = reviewedNissanTable(html, context.date, trackId);
     if (!reviewed) return nissanUnknown(trackId, context, 'source_changed', ['公式の月別予定表が変わったため、日程・利用条件の再確認が必要です。']);
-    if (!reviewed.known) return nissanUnknown(trackId, context, reviewed.unknownReason, reviewed.warnings);
+    if (!reviewed.periods.length) return nissanUnknown(trackId, context, reviewed.unknownReason, reviewed.warnings);
     return makeRecord({
       trackId, date: context.date, now: context.now, status: 'partially_available',
-      periods: [publicPeriod(reviewed.from, reviewed.to, 'full_track', ['explicit_individual_use_event'], 'public')],
+      periods: reviewed.periods.map(([from, to]) => publicPeriod(from, to, 'full_track', ['explicit_individual_use_event'], 'public')),
       url: sourceUrls.nissan, publicationFormat: 'structured_html', collector: 'nissan-track-html',
       fetchedAt: context.fetchedAt, sourceHash: context.sourceHash,
-      parserVersion: 'nissan-reviewed-20261113', confidence: 'high', warnings: reviewed.warnings,
+      parserVersion: reviewed.parserVersion, confidence: 'high', warnings: reviewed.warnings,
     });
   }
 

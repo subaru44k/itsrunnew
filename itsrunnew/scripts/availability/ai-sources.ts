@@ -83,6 +83,12 @@ export async function buildAiPacket(
   now: Date,
   fetchImpl: typeof fetch = fetch,
 ): Promise<AiPacket> {
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
   const sources: AiSource[] = [];
   const seen = new Set<string>();
   let assetCount = 0;
@@ -270,14 +276,33 @@ export async function buildAiPacket(
     if (!found.length) throw new Error('Hakata monthly schedule not found');
     for (const i of found.slice(0, 3)) await asset(i.url);
   } else if (config.key === 'setagaya') {
-    const daily = anchors.find(
-      (a) =>
-        /総合運動場.*本日.*個人開放/.test(a.label) &&
-        /\/news\//.test(a.url) &&
-        !/10334/.test(a.url),
-    );
-    if (!daily) throw new Error('Setagaya daily notice not found');
-    await load(daily.url);
+    const [year, month, day] = today.split('-').map(Number);
+    const sameDay = (link: { label: string; url: string }) => {
+      const label = link.label.normalize('NFKC').replace(/\s/g, '');
+      const date = /^総合運動場.*本日.*個人開放.*?(\d{1,2})月(\d{1,2})日/.exec(label);
+      return /^\/news\/\d+\/$/.test(new URL(link.url).pathname) &&
+        !!date && Number(date[1]) === month && Number(date[2]) === day;
+    };
+    const distinctTodayLinks = (items: typeof anchors) =>
+      [...new Set(items.filter(sameDay).map(link => link.url))];
+    let candidates = distinctTodayLinks(anchors);
+    if (!candidates.length) {
+      const listing = anchors.find(link => {
+        const url = new URL(link.url);
+        return url.pathname === '/news/' && url.searchParams.get('category') === 'facility' &&
+          url.searchParams.get('childCat') === 'facility-sougou';
+      });
+      if (listing) {
+        const news = await load(listing.url, false);
+        candidates = distinctTodayLinks(links(news.html, news.url));
+      }
+    }
+    if (candidates.length !== 1) throw new Error('Setagaya daily notice not found or ambiguous');
+    const notice = await load(candidates[0]);
+    const publishedDate = notice.html.match(/<time\b[^>]*>([\s\S]*?)<\/time>/i)?.[1];
+    const visibleDate = publishedDate && /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/.exec(htmlText(publishedDate).normalize('NFKC'));
+    if (!visibleDate || Number(visibleDate[1]) !== year || Number(visibleDate[2]) !== month || Number(visibleDate[3]) !== day)
+      throw new Error('Setagaya daily notice date mismatch');
     await load(
       'https://www.se-sports.or.jp/facilityinfo/sougou-athletics-stadium/',
     );
@@ -292,12 +317,6 @@ export async function buildAiPacket(
     for (const i of found.slice(0, 2)) await asset(i.url);
   }
   if (sources.length > 16) throw new Error('Too many source pages');
-  const today = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now);
   if (config.key === 'setagaya') {
     const text = `当日資料の取得日: ${today} JST。資料の日付が一致する場合だけ当日利用を判定。`;
     sources.push({

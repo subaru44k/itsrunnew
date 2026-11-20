@@ -90,13 +90,16 @@ export async function buildAiPacket(
     const r = await officialFetch(url, [...config.hosts], fetchImpl);
     if (include && !seen.has(r.url)) {
       seen.add(r.url);
-      sources.push(
-        ...(await sourceInputs(
-          `${config.key}-${sources.length + 1}`,
-          r.url,
-          r.data,
-        )),
+      const inputs = await sourceInputs(
+        `${config.key}-${sources.length + 1}`,
+        r.url,
+        r.data,
       );
+      if (config.key === 'ogino' && r.data.subarray(0, 5).toString() === '%PDF-') {
+        const originalPdfHash = digest(r.data);
+        for (const input of inputs) input.originalPdfHash = originalPdfHash;
+      }
+      sources.push(...inputs);
     }
     return { url: r.url, html: r.data.toString('utf8') };
   };

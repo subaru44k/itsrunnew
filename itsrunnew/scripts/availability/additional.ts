@@ -6,6 +6,7 @@ import { officialFetch, htmlText, decodeEntities } from './ai-source-utils';
 import { parsePersonalIcs } from './personal-ics';
 import { reviewedHakataReading } from './reviewed-hakata';
 import { reviewedIshinReading } from './reviewed-ishin';
+import { reviewedOginoYearEnd } from './reviewed-ogino';
 import { reviewedChitaReading } from './reviewed-chita';
 import { readHiratsukaTable } from './hiratsuka-table';
 
@@ -91,6 +92,7 @@ export async function collectAdditionalAvailability(
     if (activeReadings.size >= MAX_CONCURRENT_AI_READINGS)
       await Promise.race(activeReadings);
     const task = (async (): Promise<TrackAvailability[]> => {
+      const oginoYearEnd = reviewedOginoYearEnd(packet, now);
       try {
         const reviewed = readHiratsukaTable(packet) ?? reviewedHakataReading(packet) ?? reviewedIshinReading(packet) ?? reviewedChitaReading(packet);
         const chitaClosure = config.key === 'chita' && !packet.sources.some(s => /\.pdf(?:\?|$)/i.test(s.url));
@@ -99,9 +101,14 @@ export async function collectAdditionalAvailability(
             new Error('Official schedule requires human review'),
             'source_changed',
           );
+        const readingPacket = oginoYearEnd.size
+          ? { ...packet, dates: packet.dates.filter(date => !oginoYearEnd.has(date)) }
+          : packet;
+        if (oginoYearEnd.size)
+          console.log(`Availability ogino: verified year-end schedule for ${[...oginoYearEnd.keys()].join(', ')}`);
         const result =
           reviewed ??
-          (await readWithLuna(packet, {
+          (await readWithLuna(readingPacket, {
             apiKey: options.apiKey,
             fetchImpl: options.apiFetchImpl,
             cacheDirectory: options.cacheDirectory,
@@ -109,10 +116,15 @@ export async function collectAdditionalAvailability(
         const publishedAt = 'publishedAt' in result && typeof result.publishedAt === 'string' ? result.publishedAt : null;
         const sourceHash = `sha256:${digest(JSON.stringify(packet.sources.map((s) => ({ url: s.url, hash: s.hash }))))}`;
         console.log(
-          `AI availability ${config.key}: ${result.key.startsWith('structured-') ? 'structured official schedule' : result.key.startsWith('reviewed-') ? 'reviewed official schedule' : result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${packet.dates.length}`,
+          `AI availability ${config.key}: ${result.key.startsWith('structured-') ? 'structured official schedule' : result.key.startsWith('reviewed-') ? 'reviewed official schedule' : result.cacheHit ? 'cache hit' : 'one inference'}; valid dates=${result.rows.size}/${readingPacket.dates.length}`,
         );
         const facilityRecords: TrackAvailability[] = [];
         for (const date of dates) {
+          const officialYearEnd = oginoYearEnd.get(date);
+          if (officialYearEnd) {
+            facilityRecords.push(officialYearEnd);
+            continue;
+          }
           const row = result.rows.get(date);
           if (!row || row.status === 'unknown') {
             facilityRecords.push(
@@ -177,7 +189,7 @@ export async function collectAdditionalAvailability(
         }
         return facilityRecords;
       } catch (error) {
-        return unavailable(error);
+        return unavailable(error).map(record => oginoYearEnd.get(record.date) ?? record);
       }
     })();
     activeReadings.add(task);

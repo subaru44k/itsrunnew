@@ -38,6 +38,7 @@ export interface AiSource {
   content: string;
   mime?: string;
   hash: string;
+  originalPdfHash?: string;
 }
 export interface AiPacket {
   key: string;

@@ -21,12 +21,25 @@ const eventEnd: Record<number, string> = {
   31: '17:00',
 };
 const noOpening = new Set([8, 9, 10, 11]);
-const winterScheduleUrl = 'https://www.midorimachi.jp/higashihirao/images/park/261120131059121.pdf';
-const winterScheduleHash = 'e565c9a2a573aa5cb100e89d990061044217c07100f6818d725ff40c7142a3c7';
+const winterSchedules = [
+  {
+    url: 'https://www.midorimachi.jp/higashihirao/images/park/261120131059121.pdf',
+    hash: 'e565c9a2a573aa5cb100e89d990061044217c07100f6818d725ff40c7142a3c7',
+    novemberUnknown: new Set([7, 8, 13, 14, 15, 21, 22]),
+    novemberClosures: new Set([1, 29]),
+    novemberEvents: { 3: '13:00', 6: '15:00', 28: '14:00' } as Record<number, string>,
+  },
+  {
+    url: 'https://www.midorimachi.jp/higashihirao/images/park/261122085032540.pdf',
+    hash: '7360ac239f7b865d6bebedc6fccb963173df87b464aa1e7f43040ee0d8ef6dfa',
+    novemberUnknown: new Set<number>(),
+    novemberClosures: new Set([1, 13, 21, 29]),
+    novemberEvents: { 3: '13:00', 6: '15:00', 8: '15:00', 14: '14:00', 15: '15:00', 28: '14:00' } as Record<number, string>,
+  },
+];
 const winterGuideHash = '7edfd87f6470e1e0055a6ffb3027a9247de10f2c11594ba58d8e8059683d78ed';
 const rulesUrl = 'https://www.midorimachi.jp/higashihirao/images/parknews/260512133125820.pdf';
 const rulesHash = 'd378a27f5c0e3a3f5a37a43a54ed632519edee78cedf0dffd577bbb3978f9f44';
-const conflictingNovember = new Set([7, 8, 13, 14, 15, 21, 22]);
 const decemberClosures = new Map([
   [7, '駅伝大会のため一般開放なし。'],
   [8, '停電・断水のため一般開放なし。'],
@@ -44,18 +57,21 @@ function reviewedWinterCalendar(packet: AiPacket) {
     return null;
   const verifiedPage = (url: string, hash: string, page: number) => documents.find(source =>
     source.url === url && source.kind === 'image' && source.originalPdfHash === hash && source.name.endsWith(`-page-${page}.png`));
-  const november = verifiedPage(winterScheduleUrl, winterScheduleHash, 1);
-  const december = verifiedPage(winterScheduleUrl, winterScheduleHash, 2);
+  const schedule = winterSchedules.find(({ url, hash }) =>
+    verifiedPage(url, hash, 1) && verifiedPage(url, hash, 2));
+  if (!schedule) return null;
+  const november = verifiedPage(schedule.url, schedule.hash, 1);
+  const december = verifiedPage(schedule.url, schedule.hash, 2);
   if (!november || !december || ![1, 2].every(page => verifiedPage(rulesUrl, rulesHash, page))) return null;
   const rows = new Map<string, AiRow>();
   for (const date of packet.dates) {
     const day = Number(date.slice(8));
     const isNovember = /^2026-11-(?:0[1-9]|[12]\d|30)$/.test(date);
     const isDecember = /^2026-12-(?:0[1-9]|[12]\d|3[01])$/.test(date);
-    const uncertain = (isNovember && conflictingNovember.has(day)) || (isDecember && day === 27);
-    const closed = isNovember && [1, 29].includes(day) ? '大会が通常開放時間を占有するため一般利用できません。'
+    const uncertain = (isNovember && schedule.novemberUnknown.has(day)) || (isDecember && day === 27);
+    const closed = isNovember && schedule.novemberClosures.has(day) ? '大会のため一般開放なし。'
       : isDecember ? decemberClosures.get(day) : undefined;
-    const event = isNovember ? ({ 3: '13:00', 6: '15:00', 28: '14:00' } as Record<number, string>)[day] : decemberEvents[day];
+    const event = isNovember ? schedule.novemberEvents[day] : decemberEvents[day];
     const known = (isNovember || isDecember) && !uncertain;
     const start = event ?? '09:00';
     rows.set(date, {
@@ -78,7 +94,7 @@ function reviewedWinterCalendar(packet: AiPacket) {
       unknown_reason: known ? null : uncertain ? 'insufficient_information' : 'outside_published_period',
     });
   }
-  return { rows, key: `reviewed-hakata-20261120-${winterScheduleHash}`, cacheHit: true, usage: null };
+  return { rows, key: `reviewed-hakata-winter-${schedule.hash}`, cacheHit: true, usage: null };
 }
 
 export function reviewedHakataReading(packet: AiPacket) {

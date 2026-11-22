@@ -17,22 +17,24 @@ vi.mock('./ai-source-utils', async (importOriginal) => {
 
 const config = aiFacilities.find(facility => facility.key === 'hakata')!;
 const guide = `${config.landing}guides/`;
-const schedule = `${config.landing}images/park/261120131059121.pdf`;
+const originalSchedule = `${config.landing}images/park/261120131059121.pdf`;
+const revisedSchedule = `${config.landing}images/park/261122085032540.pdf`;
 const rules = `${config.landing}images/parknews/260512133125820.pdf`;
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url));
-const sources = new Map([
-  [config.landing, gunzipSync(fixture('hakata-20261120.html.gz'))],
-  [guide, gunzipSync(fixture('hakata-guide-20261120.html.gz'))],
-  [schedule, fixture('hakata-20261120.pdf')],
-  [rules, fixture('hakata-rules-20261102.pdf')],
-]);
 const dates = [
   ...[11, 12].flatMap(month => Array.from({length: month === 11 ? 30 : 31}, (_, index) => `2026-${month}-${String(index + 1).padStart(2, '0')}`)),
   '2027-01-01',
 ];
 const now = new Date('2026-11-21T00:00:00Z');
 
-async function collect(selectedDates: string[], changeUrl?: string) {
+async function collect(selectedDates: string[], schedule: string, changeUrl?: string) {
+  const version = schedule === revisedSchedule ? '20261122' : '20261120';
+  const sources = new Map([
+    [config.landing, gunzipSync(fixture(`hakata-${version}.html.gz`))],
+    [guide, gunzipSync(fixture(`hakata-guide-${version}.html.gz`))],
+    [schedule, fixture(`hakata-${version}.pdf`)],
+    [rules, fixture('hakata-rules-20261102.pdf')],
+  ]);
   const fetchImpl: typeof fetch = async input => {
     const url = String(input);
     const source = sources.get(url);
@@ -47,11 +49,13 @@ async function collect(selectedDates: string[], changeUrl?: string) {
     .filter(record => record.trackId === config.trackId);
 }
 
-it('reads both exact winter pages, preserving conflicting November dates and the reserve date as unknown', async () => {
-  const november = ['X','9','13','9','9','15','?','?','9','9','9','9','?','?','?','9','9','9','9','9','?','?','9','9','9','9','9','14','X','9'];
+it.each([
+  {schedule: originalSchedule, november: ['X','9','13','9','9','15','?','?','9','9','9','9','?','?','?','9','9','9','9','9','?','?','9','9','9','9','9','14','X','9']},
+  {schedule: revisedSchedule, november: ['X','9','13','9','9','15','9','15','9','9','9','9','X','14','15','9','9','9','9','9','X','9','9','9','9','9','9','14','X','9']},
+])('reads both exact winter pages of $schedule', async ({schedule, november}) => {
   const december = ['9','9','9','9','13','9','X','X','9','9','9','X','15','9','9','9','9','9','X','X','9','9','9','9','13','12','?','9','X','X','X'];
   const expected = [...november, ...december, '-'];
-  const records = await collect(dates);
+  const records = await collect(dates, schedule);
   expect(records.map(record => record.date)).toEqual(dates);
   for (const [index, record] of records.entries()) {
     const mark = expected[index];
@@ -69,7 +73,7 @@ it('reads both exact winter pages, preserving conflicting November dates and the
   }
 });
 
-it.each([schedule, guide, rules])('rejects a changed official input at %s', async url => {
-  const [record] = await collect(['2026-12-05'], url);
+it.each([revisedSchedule, guide, rules])('rejects a changed official input at %s', async url => {
+  const [record] = await collect(['2026-12-05'], revisedSchedule, url);
   expect(record).toMatchObject({status: 'unknown', unknownReason: 'source_changed', periods: []});
 });

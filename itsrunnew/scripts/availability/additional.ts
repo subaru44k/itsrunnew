@@ -8,6 +8,7 @@ import { reviewedHakataReading } from './reviewed-hakata';
 import { reviewedIshinReading } from './reviewed-ishin';
 import { reviewedOginoYearEnd } from './reviewed-ogino';
 import { reviewedChitaReading } from './reviewed-chita';
+import { reviewedSetagayaReading } from './reviewed-setagaya';
 import { readHiratsukaTable } from './hiratsuka-table';
 
 export const personalCalendarFacilities = [
@@ -94,7 +95,7 @@ export async function collectAdditionalAvailability(
     const task = (async (): Promise<TrackAvailability[]> => {
       const oginoYearEnd = reviewedOginoYearEnd(packet, now);
       try {
-        const reviewed = readHiratsukaTable(packet) ?? reviewedHakataReading(packet) ?? reviewedIshinReading(packet) ?? reviewedChitaReading(packet);
+        const reviewed = readHiratsukaTable(packet) ?? reviewedHakataReading(packet) ?? reviewedIshinReading(packet) ?? reviewedChitaReading(packet) ?? reviewedSetagayaReading(packet);
         const chitaClosure = config.key === 'chita' && !packet.sources.some(s => /\.pdf(?:\?|$)/i.test(s.url));
         if ((['hiratsuka', 'hakata', 'ishin'].includes(config.key) || chitaClosure) && !reviewed)
           return unavailable(

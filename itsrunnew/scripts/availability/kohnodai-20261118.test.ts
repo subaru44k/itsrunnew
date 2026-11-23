@@ -3,7 +3,7 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it, vi } from 'vitest';
 import { createPdfCollector, extractPdf, pdfSourceConfigs } from './pdf';
 import { digest } from './ai-runtime';
-import { kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember17Hash, kohnodaiNovemberNovember19Hash, reviewedKohnodaiPdf } from './reviewed-kohnodai';
+import { kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember17Hash, kohnodaiNovemberNovember19Hash, kohnodaiNovemberNovember23Hash, reviewedKohnodaiPdf } from './reviewed-kohnodai';
 const config = pdfSourceConfigs.find(c => c.trackId === 'ichikawa-kohnodai-athletic-stadium')!;
 const url = 'https://www.city.ichikawa.lg.jp/uploaded/attachment/61442.pdf';
 const rawHtml = gunzipSync(await readFile(new URL('./fixtures/kohnodai-20261118.html.gz', import.meta.url)));
@@ -86,11 +86,47 @@ describe('Kohnodai November original retrieved November 18', () => {
     }
     expect(extract).not.toHaveBeenCalled();
   });
+  it('discovers 61708 and shortens only the November 22 and 29 bookings', async () => {
+    const updatedUrl = 'https://www.city.ichikawa.lg.jp/uploaded/attachment/61708.pdf';
+    const updatedHtml = gunzipSync(await readFile(new URL('./fixtures/kohnodai-20261123.html.gz', import.meta.url)));
+    const updatedPdf = await readFile(new URL('./fixtures/kohnodai-20261123.pdf', import.meta.url));
+    expect(`sha256:${digest(updatedPdf)}`).toBe(kohnodaiNovemberNovember23Hash);
+    const officialSource = (body: Uint8Array<ArrayBuffer>) => (async (input: RequestInfo | URL) => {
+      if (String(input) === config.landingPageUrl) return new Response(updatedHtml);
+      if (String(input) === updatedUrl) return new Response(body, { headers: { 'content-type': 'application/pdf' } });
+      throw new Error(`Unexpected official source: ${input}`);
+    }) as typeof fetch;
+    const extract = vi.fn(extractPdf);
+    const collector = createPdfCollector(officialSource(updatedPdf), extract);
+    for (let day = 1; day <= 30; day++) {
+      const date = `2026-11-${String(day).padStart(2, '0')}`;
+      const previous = reviewedKohnodaiPdf(kohnodaiNovemberNovember19Hash, date)!;
+      const earlierEnd = day === 22 ? '13:00' : day === 29 ? '16:00' : null;
+      if (earlierEnd) {
+        expect(previous.periods).toMatchObject([
+          { from: '09:00', to: '17:00', status: 'unavailable' },
+          { from: '17:00', to: '21:00', status: 'available' },
+        ]);
+      }
+      const periods = earlierEnd
+        ? [{ ...previous.periods[0], to: earlierEnd }, { ...previous.periods[1], from: earlierEnd }]
+        : previous.periods;
+      expect(await collector.collect(config, date, new Date('2026-11-23T01:30:00Z')), date).toMatchObject({
+        ...previous,
+        periods,
+        sourceHash: kohnodaiNovemberNovember23Hash,
+        pdfUrl: updatedUrl,
+      });
+    }
+    const changed = createPdfCollector(officialSource(Buffer.concat([updatedPdf, Buffer.from('\n% changed\n')])), extract);
+    await expect(changed.collect(config, '2026-11-29', new Date('2026-11-23T01:30:00Z'))).rejects.toMatchObject({ reason: 'source_changed' });
+    expect(extract).not.toHaveBeenCalled();
+  });
   it('rejects unreviewed bytes, a missing official policy/year, and other months', async () => {
     const changed = createPdfCollector((async input => String(input) === config.landingPageUrl ? new Response(rawHtml)
       : new Response(Buffer.concat([pdf, Buffer.from('\n% changed\n')]), { headers: { 'content-type': 'application/pdf' } })) as typeof fetch);
     await expect(changed.collect(config, '2026-11-15', new Date())).rejects.toMatchObject({ reason: 'source_changed' });
-    for (const hash of [kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember19Hash]) {
+    for (const hash of [kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember19Hash, kohnodaiNovemberNovember23Hash]) {
       for (const date of ['2026-10-31', '2026-12-01', '2027-11-15', '2026-11-31'])
         expect(reviewedKohnodaiPdf(hash, date)).toMatchObject({ status: 'unknown', unknownReason: 'outside_published_period', periods: [] });
     }

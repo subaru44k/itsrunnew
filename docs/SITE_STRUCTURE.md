@@ -611,3 +611,5 @@ FacilitySchedule上部に今日の利用判断と詳細へのbuttonを表示し�
 世田谷の11月22日は公式当日告知が列挙外の室場の個人利用を明示的に否定しています。`reviewed-setagaya.ts` は確認済みの当日告知URL・本文hash・日付が一致する場合だけ陸上競技場を利用不可にし、別日・別の告知では既存読解経路を使います。原本と根拠は `setagaya-20261122-provenance.md`、当日と変更guardは `setagaya-20261122.test.ts` に保持します。
 
 国府台の2026-11-23取得版11月61708.pdfは全30行を新旧原本で照合し、22日は13〜21時、29日は16〜21時を一般開放とします。他の日程、24日の17時閉館、30日の休場は同じです。確認済みhashと公式方針・年月が一致した場合だけ採用します。原本と根拠は `itsrunnew/scripts/availability/fixtures/kohnodai-20261123-provenance.md`、全30日と旧版・未知hash・年月の回帰は `kohnodai-20261118.test.ts` に保持します。
+
+維新補助の2026-11-23取得版は次の記事の `New!!` 表示だけが消えています。公式掲載方針、11・12月の全61行、工事案内・条件・地図を再確認し、新しい告知hashに有限対応します。原本と根拠は `itsrunnew/scripts/availability/fixtures/ishin-20261123-provenance.md`、全61日と未確認hashの回帰は `ishin-20261116.test.ts` に保持します。

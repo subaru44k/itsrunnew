@@ -256,3 +256,5 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 上柚木の10/23更新PDFに重ねた公認更新工事の休場告知を、`reviewed-kamiyugi.ts`で原本hash一致時だけ判定します。2026/11/2〜2027/2/28（予定）の119日は利用不可で、表の「ー」を閉鎖と解釈したものではありません。2026年URLの年またぎ発見は当該URLと告知期間だけ許し、取得後のhashで検証します。休場前の表は既存判定を保持し、11/2以降の未知資料はsource_changed、再開後の利用可は推測しません。原本・確認根拠は `itsrunnew/scripts/availability/fixtures/kamiyugi-20261102-provenance.md`、全119日と境界・差替えguardは `kamiyugi-20261102.test.ts` に保持します。
 
 国府台の[11/23取得版](../itsrunnew/scripts/availability/fixtures/kohnodai-20261123-provenance.md)は11月61708.pdfの全30日を照合し、22日の専用利用終了を13時、29日の終了を16時とします。終了後は21時まで一般開放。24日の17時閉館、30日の休場、旧版の日程は維持します。
+
+維新補助の[11/23取得版](../itsrunnew/scripts/availability/fixtures/ishin-20261123-provenance.md)では、隣接記事の `New!!` 表示が消えた告知を確認しました。両月の予定画像と修繕資料は確認済み版と一致し、明示的な開放・休場と空欄の扱いを維持します。

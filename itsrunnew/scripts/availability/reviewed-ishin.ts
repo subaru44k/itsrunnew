@@ -46,6 +46,8 @@ export function reviewedIshinReading(packet: AiPacket) {
     // November 16: only adjacent-article navigation changed; all four
     // schedule/repair images and the actual notice conditions are unchanged.
     || (november11 && s.url === activeNotice && s.hash === 'e3aa4c15fdd048bc11f8d12e21aa2871c94618442600c334af55d9f9bd4bc20d')
+    // November 23: the next article's New badge was removed.
+    || (november11 && s.url === activeNotice && s.hash === '6329134b96f81c3ce30ba08e1d91fd6f60de2903bf4d263f272659dd520ff929')
     || (november11 && s.url === repair && s.hash === '171b03bfe712bc77795a7c76e5cdec06e97df150fbc22d442defeba0d88a97e1');
   if (urls.size !== packet.sources.length || packet.sources.some(s => !matches(s))) return null;
   if ([revised ? activeNotice : notice, repair, repairText, repairMap].some(url => !urls.has(url))) return null;

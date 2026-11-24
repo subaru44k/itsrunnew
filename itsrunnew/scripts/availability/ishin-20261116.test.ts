@@ -47,3 +47,24 @@ it('accepts the November 23 notice after the next article loses its New badge', 
   }
   expect(reviewedIshinReading({ ...packet, sources: unchangedSources })).toBeNull();
 });
+
+it('preserves all reviewed dates when the November 24 adjacent link changes to the cleaning notice', async () => {
+  const [priorNotice, ...unchangedSources] = november16.sources;
+  const html = gunzipSync(readFileSync(new URL('./fixtures/ishin-20261124-notice.html.gz', import.meta.url)));
+  const [notice] = await sourceInputs(priorNotice.name, priorNotice.url, html);
+  expect(notice.content).toBe(priorNotice.content.replace(
+    '募集\n次の記事\n「維新公園ガーデニング教室」参加者募集\nNew!!',
+    'イベント情報\n次の記事\n清掃・点検日について',
+  ));
+  const packet = { ...november16, sources: [notice, ...unchangedSources] };
+  const baseline = reviewedIshinReading(november16)!.rows;
+  expect(baseline.size).toBe(61);
+  expect(reviewedIshinReading(packet)?.rows).toEqual(baseline);
+  expect(baseline.get('2026-12-14')).toMatchObject({ status: 'unavailable' });
+  for (const source of packet.sources) {
+    expect(reviewedIshinReading({
+      ...packet,
+      sources: packet.sources.map(item => item === source ? { ...item, hash: 'changed' } : item),
+    })).toBeNull();
+  }
+});

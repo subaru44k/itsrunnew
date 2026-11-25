@@ -9,6 +9,7 @@ const config = aiFacilities.find(facility => facility.key === 'setagaya')!;
 describe.each([
   { article: '23438', date: '2026-11-22', nextDate: '2026-11-23' },
   { article: '23447', date: '2026-11-24', nextDate: '2026-11-25' },
+  { article: '23492', date: '2026-11-25', nextDate: '2026-11-26' },
 ])('reviewed Setagaya notice for $date', ({ article, date, nextDate }) => {
   const noticeUrl = `https://www.se-sports.or.jp/news/${article}/`;
   const now = new Date(`${date}T01:30:00Z`);

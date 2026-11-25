@@ -19,16 +19,17 @@ const config = aiFacilities.find(facility => facility.key === 'hakata')!;
 const guide = `${config.landing}guides/`;
 const originalSchedule = `${config.landing}images/park/261120131059121.pdf`;
 const revisedSchedule = `${config.landing}images/park/261122085032540.pdf`;
+const latestSchedule = `${config.landing}images/park/261124164542522.pdf`;
 const rules = `${config.landing}images/parknews/260512133125820.pdf`;
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url));
 const dates = [
   ...[11, 12].flatMap(month => Array.from({length: month === 11 ? 30 : 31}, (_, index) => `2026-${month}-${String(index + 1).padStart(2, '0')}`)),
   '2027-01-01',
 ];
-const now = new Date('2026-11-21T00:00:00Z');
+const now = new Date('2026-11-25T00:00:00Z');
 
 async function collect(selectedDates: string[], schedule: string, changeUrl?: string) {
-  const version = schedule === revisedSchedule ? '20261122' : '20261120';
+  const version = schedule === latestSchedule ? '20261124' : schedule === revisedSchedule ? '20261122' : '20261120';
   const sources = new Map([
     [config.landing, gunzipSync(fixture(`hakata-${version}.html.gz`))],
     [guide, gunzipSync(fixture(`hakata-guide-${version}.html.gz`))],
@@ -52,8 +53,13 @@ async function collect(selectedDates: string[], schedule: string, changeUrl?: st
 it.each([
   {schedule: originalSchedule, november: ['X','9','13','9','9','15','?','?','9','9','9','9','?','?','?','9','9','9','9','9','?','?','9','9','9','9','9','14','X','9']},
   {schedule: revisedSchedule, november: ['X','9','13','9','9','15','9','15','9','9','9','9','X','14','15','9','9','9','9','9','X','9','9','9','9','9','9','14','X','9']},
+  {schedule: latestSchedule, november: ['X','9','13','9','9','15','?','?','9','9','9','9','?','?','?','9','9','9','9','9','?','9','9','9','9','9','9','14','X','9']},
 ])('reads both exact winter pages of $schedule', async ({schedule, november}) => {
   const december = ['9','9','9','9','13','9','X','X','9','9','9','X','15','9','9','9','9','9','X','X','9','9','9','9','13','12','?','9','X','X','X'];
+  if (schedule === latestSchedule) {
+    december[7] = '14';
+    december[19] = '9';
+  }
   const expected = [...november, ...december, '-'];
   const records = await collect(dates, schedule);
   expect(records.map(record => record.date)).toEqual(dates);
@@ -66,14 +72,17 @@ it.each([
       expect(record.source.url).toBe(schedule);
       expect(record.periods.map(period => [period.from, period.to])).toEqual([[`${mark.padStart(2, '0')}:00`, '17:00']]);
       expect(record.periods[0].conditions.join()).toContain('当日受付・支払い');
-      if (status === 'partially_available') expect(record.periods[0].conditions.join()).toContain('大会終了後');
+      if (status === 'partially_available') {
+        const outage = schedule === latestSchedule && record.date === '2026-12-08';
+        expect(record.periods[0].conditions.join()).toContain(outage ? '停電・断水' : '大会終了後');
+      }
     } else {
       expect(record.periods).toEqual([]);
     }
   }
 });
 
-it.each([revisedSchedule, guide, rules])('rejects a changed official input at %s', async url => {
-  const [record] = await collect(['2026-12-05'], revisedSchedule, url);
+it.each([latestSchedule, guide, rules])('rejects a changed official input at %s', async url => {
+  const [record] = await collect(['2026-12-05'], latestSchedule, url);
   expect(record).toMatchObject({status: 'unknown', unknownReason: 'source_changed', periods: []});
 });

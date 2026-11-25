@@ -1,6 +1,6 @@
 import { digest, type AiPacket, type AiRow } from './ai-runtime';
 
-// Human-reviewed October and November 2026 tables and general-use guide.
+// Human-reviewed October through December 2026 tables and general-use guide.
 // The homepage discovers the current PDF; only the schedule and usage sources
 // are review inputs. Unrelated homepage news must not invalidate this reading.
 // Source changes disable this finite correction; never extrapolate to a new month.
@@ -36,6 +36,15 @@ const winterSchedules = [
     novemberClosures: new Set([1, 13, 21, 29]),
     novemberEvents: { 3: '13:00', 6: '15:00', 8: '15:00', 14: '14:00', 15: '15:00', 28: '14:00' } as Record<number, string>,
   },
+  {
+    url: 'https://www.midorimachi.jp/higashihirao/images/park/261124164542522.pdf',
+    hash: '7a8d800b631c1d4d140119a5cac92e2ef41f0d2177ed21f0df0ec3f4e03cfc49',
+    // The current packet reuses an older November page that conflicts with the prior packet.
+    novemberUnknown: new Set([7, 8, 13, 14, 15, 21]),
+    novemberClosures: new Set([1, 29]),
+    novemberEvents: { 3: '13:00', 6: '15:00', 28: '14:00' } as Record<number, string>,
+    revisedDecember: true,
+  },
 ];
 const winterGuideHash = '7edfd87f6470e1e0055a6ffb3027a9247de10f2c11594ba58d8e8059683d78ed';
 const rulesUrl = 'https://www.midorimachi.jp/higashihirao/images/parknews/260512133125820.pdf';
@@ -69,27 +78,29 @@ function reviewedWinterCalendar(packet: AiPacket) {
     const isNovember = /^2026-11-(?:0[1-9]|[12]\d|30)$/.test(date);
     const isDecember = /^2026-12-(?:0[1-9]|[12]\d|3[01])$/.test(date);
     const uncertain = (isNovember && schedule.novemberUnknown.has(day)) || (isDecember && day === 27);
+    const outageOpening = isDecember && schedule.revisedDecember && day === 8;
+    const ordinaryOpening = isDecember && schedule.revisedDecember && day === 20;
     const closed = isNovember && schedule.novemberClosures.has(day) ? '大会のため一般開放なし。'
-      : isDecember ? decemberClosures.get(day) : undefined;
+      : isDecember && !outageOpening && !ordinaryOpening ? decemberClosures.get(day) : undefined;
     const event = isNovember ? schedule.novemberEvents[day] : decemberEvents[day];
     const known = (isNovember || isDecember) && !uncertain;
-    const start = event ?? '09:00';
+    const start = outageOpening ? '14:00' : event ?? '09:00';
     rows.set(date, {
       id: `hakata-${date}`,
       date,
-      status: !known ? 'unknown' : closed ? 'unavailable' : event ? 'partially_available' : 'available',
+      status: !known ? 'unknown' : closed ? 'unavailable' : event || outageOpening ? 'partially_available' : 'available',
       periods: !known || closed ? [] : [{ start, end: '17:00', scope: '補助競技場トラック', last_entry: null }],
       conditions: !known ? [] : [
         '一般利用は有料。当日受付・支払い。事前予約不可。',
         'フィールド中央の天然芝部分は一般利用不可。',
-        ...(closed ? [closed] : event
+        ...(closed ? [closed] : outageOpening ? ['停電・断水のため一般開放は14:00から。'] : event
           ? ['一般開放は大会終了後。開始時刻は大会の終了予定時刻に基づき、実際の終了状況で変わるため公式情報を確認してください。']
           : []),
       ],
       evidence: !known ? [] : [{
         source: (isNovember ? november : december).name,
         location: `令和8年${isNovember ? 11 : 12}月・補助競技場欄・${day}日`,
-        quote_or_symbol: closed ?? (event ? `大会予定終了 ${event}／大会の終了後から` : '補助競技場の大会欄は空欄・冬季一般開放9:00〜17:00'),
+        quote_or_symbol: closed ?? (outageOpening ? '停電・断水のため一般開放14時から' : event ? `大会予定終了 ${event}／大会の終了後から` : '補助競技場の大会欄は空欄・冬季一般開放9:00〜17:00'),
       }],
       unknown_reason: known ? null : uncertain ? 'insufficient_information' : 'outside_published_period',
     });

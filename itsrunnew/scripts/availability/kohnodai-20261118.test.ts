@@ -3,7 +3,7 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it, vi } from 'vitest';
 import { createPdfCollector, extractPdf, pdfSourceConfigs } from './pdf';
 import { digest } from './ai-runtime';
-import { kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember17Hash, kohnodaiNovemberNovember19Hash, kohnodaiNovemberNovember23Hash, reviewedKohnodaiPdf } from './reviewed-kohnodai';
+import { kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember17Hash, kohnodaiNovemberNovember19Hash, kohnodaiNovemberNovember23Hash, kohnodaiNovemberNovember25Hash, reviewedKohnodaiPdf } from './reviewed-kohnodai';
 const config = pdfSourceConfigs.find(c => c.trackId === 'ichikawa-kohnodai-athletic-stadium')!;
 const url = 'https://www.city.ichikawa.lg.jp/uploaded/attachment/61442.pdf';
 const rawHtml = gunzipSync(await readFile(new URL('./fixtures/kohnodai-20261118.html.gz', import.meta.url)));
@@ -122,11 +122,46 @@ describe('Kohnodai November original retrieved November 18', () => {
     await expect(changed.collect(config, '2026-11-29', new Date('2026-11-23T01:30:00Z'))).rejects.toMatchObject({ reason: 'source_changed' });
     expect(extract).not.toHaveBeenCalled();
   });
+  it('preserves 29 rows and removes the November 25 reserve booking for 61800 only', async () => {
+    const updatedUrl = 'https://www.city.ichikawa.lg.jp/uploaded/attachment/61800.pdf';
+    const updatedHtml = gunzipSync(await readFile(new URL('./fixtures/kohnodai-20261125.html.gz', import.meta.url)));
+    const updatedPdf = await readFile(new URL('./fixtures/kohnodai-20261125.pdf', import.meta.url));
+    const source = (pdf: Uint8Array<ArrayBuffer>) => (async (input: RequestInfo | URL) => {
+      if (String(input) === config.landingPageUrl) return new Response(updatedHtml);
+      if (String(input) === updatedUrl) return new Response(pdf, { headers: { 'content-type': 'application/pdf' } });
+      throw new Error(`Unexpected official source: ${input}`);
+    }) as typeof fetch;
+    const extract = vi.fn(extractPdf);
+    const collector = createPdfCollector(source(updatedPdf), extract);
+    const now = new Date('2026-11-25T01:48:00Z');
+    for (let day = 1; day <= 30; day++) {
+      const date = `2026-11-${String(day).padStart(2, '0')}`;
+      const old = reviewedKohnodaiPdf(kohnodaiNovemberNovember23Hash, date)!;
+      const result = await collector.collect(config, date, now);
+      expect(result, date).toMatchObject({ pdfUrl: updatedUrl, sourceHash: kohnodaiNovemberNovember25Hash });
+      if (day === 25) {
+        expect(old.periods).toMatchObject([
+          { from: '09:00', to: '15:00', status: 'unavailable' },
+          { from: '15:00', to: '21:00', status: 'available' },
+        ]);
+        expect(result).toMatchObject({
+          status: 'available',
+          periods: [{ from: '09:00', to: '21:00', status: 'available' }],
+        });
+        expect(result.periods).toHaveLength(1);
+      } else {
+        expect(result, date).toMatchObject(old);
+      }
+    }
+    const edited = createPdfCollector(source(Buffer.concat([updatedPdf, Buffer.from('\n% edited\n')])), extract);
+    await expect(edited.collect(config, '2026-11-25', now)).rejects.toMatchObject({ reason: 'source_changed' });
+    expect(extract).not.toHaveBeenCalled();
+  });
   it('rejects unreviewed bytes, a missing official policy/year, and other months', async () => {
     const changed = createPdfCollector((async input => String(input) === config.landingPageUrl ? new Response(rawHtml)
       : new Response(Buffer.concat([pdf, Buffer.from('\n% changed\n')]), { headers: { 'content-type': 'application/pdf' } })) as typeof fetch);
     await expect(changed.collect(config, '2026-11-15', new Date())).rejects.toMatchObject({ reason: 'source_changed' });
-    for (const hash of [kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember19Hash, kohnodaiNovemberNovember23Hash]) {
+    for (const hash of [kohnodaiNovemberNovember18Hash, kohnodaiNovemberNovember19Hash, kohnodaiNovemberNovember23Hash, kohnodaiNovemberNovember25Hash]) {
       for (const date of ['2026-10-31', '2026-12-01', '2027-11-15', '2026-11-31'])
         expect(reviewedKohnodaiPdf(hash, date)).toMatchObject({ status: 'unknown', unknownReason: 'outside_published_period', periods: [] });
     }

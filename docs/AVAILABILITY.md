@@ -257,6 +257,8 @@ range CLIのHTTP取得は監視と共通のbounded wrapperを使用し、通信�
 
 国府台の[11/23取得版](../itsrunnew/scripts/availability/fixtures/kohnodai-20261123-provenance.md)は11月61708.pdfの全30日を照合し、22日の専用利用終了を13時、29日の終了を16時とします。終了後は21時まで一般開放。24日の17時閉館、30日の休場、旧版の日程は維持します。
 
+国府台の2026-11-25取得版 [61800.pdf](https://www.city.ichikawa.lg.jp/uploaded/attachment/61800.pdf) は11月25日9〜15時の予備予約を削除し、同日を9〜21時一般開放とします。他の29日と12月は前版の判定を保持します。原本・根拠は [確認記録](../itsrunnew/scripts/availability/fixtures/kohnodai-20261125-provenance.md) を参照してください。
+
 維新補助の[11/23取得版](../itsrunnew/scripts/availability/fixtures/ishin-20261123-provenance.md)では、隣接記事の `New!!` 表示が消えた告知を確認しました。両月の予定画像と修繕資料は確認済み版と一致し、明示的な開放・休場と空欄の扱いを維持します。
 
 2026-11-24取得の維新補助告知は隣接記事リンクだけの差替えを原文で確認しました。既存の11月・12月の予定と条件を維持し、確認済みの資料一式が一致する場合だけ採用します。

@@ -335,7 +335,9 @@ export function parseYumenoshima(html: string, context: Omit<CollectorContext, '
     return { date: tokyoDateKey(date), periods };
   });
   const todayKey = tokyoDateKey(context.now);
-  if (todayKey > parsedRows[parsedRows.length - 1].date || todayKey < parsedRows[0].date) return unknownRecord({ ...base, unknownReason: 'source_stale' });
+  // The official table can switch to tomorrow's schedule before today's date rolls over.
+  const tomorrowKey = tokyoDateKey(new Date(today.date.getTime() + 86_400_000));
+  if (todayKey > parsedRows[parsedRows.length - 1].date || tomorrowKey < parsedRows[0].date) return unknownRecord({ ...base, unknownReason: 'source_stale' });
   const row = parsedRows.find(row => row.date === context.date);
   if (!row) return unknownRecord({ ...base, unknownReason: 'outside_published_period' });
   const status = row.periods.every(period => period.status === 'available') ? 'available'

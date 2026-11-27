@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { collectAvailability, parseYumenoshima } from './collectors';
 import { sourceUrls } from './config';
@@ -38,6 +39,40 @@ describe('Yumenoshima official two-week schedule', () => {
     expect(parse('2026-11-03')).toMatchObject({ status: 'unknown', unknownReason: 'insufficient_information' });
     expect(parse('2026-11-07')).toMatchObject({ status: 'unknown', unknownReason: 'outside_published_period' });
     expect(parseYumenoshima(html, { date: '2026-11-07', now: new Date('2026-11-07T03:00:00Z') })).toMatchObject({ status: 'unknown', unknownReason: 'source_stale' });
+  });
+  it('reads the official replacement that starts tomorrow and keeps unpublished dates unknown', () => {
+    const nextTable = gunzipSync(readFileSync(new URL('./fixtures/yumenoshima-20261127.html.gz', import.meta.url))).toString();
+    const now = new Date('2026-11-27T11:29:45.920Z');
+    const parse = (date: string, collectedAt = now) => parseYumenoshima(nextTable, { date, now: collectedAt });
+    const expected = [
+      ['2026-11-28', 'unavailable', 'UUU'],
+      ['2026-11-29', 'unavailable', 'UUU'],
+      ['2026-11-30', 'available', 'AAA'],
+      ['2026-12-01', 'partially_available', 'UAU'],
+      ['2026-12-02', 'available', 'AAA'],
+      ['2026-12-03', 'partially_available', 'AAU'],
+      ['2026-12-04', 'available', 'AAA'],
+      ['2026-12-05', 'unavailable', 'UUU'],
+      ['2026-12-06', 'unavailable', 'UUU'],
+      ['2026-12-07', 'available', 'AAA'],
+      ['2026-12-08', 'unavailable', 'UUU'],
+      ['2026-12-09', 'available', 'AAA'],
+      ['2026-12-10', 'unavailable', 'UUU'],
+      ['2026-12-11', 'available', 'AAA'],
+    ];
+    for (const [date, status, slots] of expected) {
+      const record = parse(date);
+      expect(record.status).toBe(status);
+      expect(record.periods.map(p => [p.from, p.to])).toEqual([['09:00', '13:00'], ['13:00', '17:00'], ['17:00', '21:00']]);
+      expect(record.periods.map(p => p.status === 'available' ? 'A' : p.status === 'unavailable' ? 'U' : '?').join('')).toBe(slots);
+      expect(record.warnings.join()).toContain('終了時間の1時間前');
+    }
+    for (const date of ['2026-11-27', '2026-12-12']) {
+      expect(parse(date)).toMatchObject({ status: 'unknown', unknownReason: 'outside_published_period', periods: [] });
+    }
+    for (const time of ['2026-11-26T11:00:00Z', '2026-12-12T00:00:00Z']) {
+      expect(parse('2026-11-28', new Date(time))).toMatchObject({ status: 'unknown', unknownReason: 'source_stale', periods: [] });
+    }
   });
   it('validates table structure, duplicate dates and weekdays', () => {
     for (const broken of [html.replace('colspan="3"', 'colspan="4"'), html.replace('10/25(日)', '10/24(土)'), html.replace('10/25(日)', '10/25(月)'), html.replace('9:00-13:00', '8:00-13:00'), html.replace('colspan="3"', 'rowspan="2"'), html + html]) {

@@ -23,6 +23,13 @@ const reviewedNotices = [
     condition: '当日の公式案内では、陸上競技場の個人利用はできません。',
     location: '11月25日 個人利用可能時間帯',
   },
+  {
+    date: '2026-11-28',
+    url: 'https://www.se-sports.or.jp/news/23559/',
+    hash: '635338b4e0d3df29d8a4ee6ded9b76d13b124243db44edc274fea3eae85be1de',
+    condition: '当日の公式案内では、陸上競技場の個人利用はできません。',
+    location: '11月28日 個人利用可能時間帯',
+  },
 ];
 
 export function reviewedSetagayaReading(packet: AiPacket) {
